@@ -117,8 +117,7 @@ Attach File CSV nes-systests/configs/inputFormatters/csv_pipe_delimiter.yaml mix
 SINK mixed_results UINT32 mixed_tests$mix_id INT32 mixed_tests$contains 
 
 SELECT mix_id,
-       TEMPORAL_ECONTAINS_GEOMETRY(lon, lat, timestamp, static_geom) AS contains,
-       
+       TEMPORAL_ECONTAINS_GEOMETRY(lon, lat, timestamp, static_geom) AS contains
 FROM mixed_tests
 INTO mixed_results
 ----

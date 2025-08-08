@@ -47,7 +47,7 @@ class Meos {
 
 
     private:
-        void* stbox_ptr; 
+        void* stbox_ptr;
     };
 
     class TemporalInstant {
@@ -61,12 +61,17 @@ class Meos {
         Temporal* instant;
     };
 
+    class StaticGeometry;
+    class TemporalGeometry;
     class StaticGeometry {
     public:
         explicit StaticGeometry(const std::string& wkt_string);
         ~StaticGeometry();
 
-        GSERIALIZED* getGeometry() const { return geometry; }
+        GSERIALIZED* getGeometry() const;
+
+        int containsTemporal(const TemporalGeometry& temporal_geom) const;
+        // int coversTemporal(const TemporalGeometry& temporal_geom) const;
 
     private:
         GSERIALIZED* geometry;
@@ -77,11 +82,28 @@ class Meos {
         explicit TemporalGeometry(const std::string& wkt_string);
         ~TemporalGeometry();
 
+        Temporal* getGeometry() const;
+
         int intersects(const TemporalGeometry& geom) const;
         int intersectsStatic(const StaticGeometry& static_geom) const;
         
         int aintersects(const TemporalGeometry& geom) const;
         int aintersectsStatic(const StaticGeometry& static_geom) const;
+
+        int contains(const TemporalGeometry& geom) const;
+        int containsStatic(const StaticGeometry& static_geom) const;
+
+        // int covers(const TemporalGeometry& geom) const;
+        // int coversStatic(const StaticGeometry& static_geom) const;
+
+        // int disjoint(const TemporalGeometry& geom) const;
+        // int disjointStatic(const StaticGeometry& static_geom) const;
+        
+        // int dwithin(const TemporalGeometry& geom, double dist) const;
+        // int dwithinStatic(const StaticGeometry& static_geom, double dist) const;
+
+        // int touches(const TemporalGeometry& geom) const;
+        // int touchesStatic(const StaticGeometry& static_geom) const;
 
     private:
         Temporal* geometry;

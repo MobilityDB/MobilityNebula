@@ -113,9 +113,34 @@ namespace MEOS {
             std::cout << "TemporalInstant intersects" << std::endl;
         }
 
+        // std::cout << "=== HARDCODED MEOS TEST ===" << std::endl;
+        // try {
+        //     // Create two test temporal geometries for direct comparison
+        //     std::string test1 = "SRID=4326;POINT(-73.9767 40.7494)@2021-01-01 00:10:00";
+        //     std::string test2 = "SRID=4326;POINT(-73.9857 40.7484)@2021-01-01 00:00:00";
+            
+        //     Temporal* temp1 = tgeometry_in(test1.c_str());
+        //     Temporal* temp2 = tgeometry_in(test2.c_str());
+            
+        //     if (temp1 && temp2) {
+        //         bool hardcoded_result = eintersects_tgeo_tgeo(temp1, temp2);
+        //         std::cout << "Hardcoded MEOS eintersects_tgeo_tgeo result: " << hardcoded_result << std::endl;
+        //         std::cout << "Test1: " << test1 << std::endl;
+        //         std::cout << "Test2: " << test2 << std::endl;
+                
+        //         free(temp1);
+        //         free(temp2);
+        //     } else {
+        //         std::cout << "Failed to create hardcoded temporal geometries" << std::endl;
+        //     }
+        // } catch (...) {
+        //     std::cout << "Exception in hardcoded test" << std::endl;
+        // }
+        // std::cout << "=== END HARDCODED TEST ===" << std::endl;
+
         return result;
     }
-    
+
 
     Meos::TemporalGeometry::TemporalGeometry(const std::string& wkt_string){
 
@@ -136,6 +161,10 @@ namespace MEOS {
 
     }
 
+    Temporal* Meos::TemporalGeometry::getGeometry() const {
+        return geometry;
+    }
+
     Meos::TemporalGeometry::~TemporalGeometry() { 
         if (geometry) {
             free(geometry); 
@@ -146,7 +175,13 @@ namespace MEOS {
         std::cout << "TemporalGeometry::intersects called" << std::endl;        
         int result = eintersects_tgeo_tgeo((const Temporal *)this->geometry, (const Temporal *)geom.geometry);
         return result;
-    }   
+    }
+
+    int Meos::TemporalGeometry::contains(const TemporalGeometry& geom) const{
+        std::cout << "TemporalGeometry::contains called" << std::endl;        
+        int result = econtains_tgeo_tgeo((const Temporal *)this->geometry, (const Temporal *)geom.geometry);
+        return result;
+    }
 
     // StaticGeometry implementation
     Meos::StaticGeometry::StaticGeometry(const std::string& wkt_string) {
@@ -162,6 +197,10 @@ namespace MEOS {
         } else {
             std::cout << "Successfully created static geometry" << std::endl;
         }
+    }
+
+    GSERIALIZED* Meos::StaticGeometry::getGeometry() const {
+        return geometry;
     }
 
     Meos::StaticGeometry::~StaticGeometry() {
@@ -194,7 +233,34 @@ namespace MEOS {
         return result;
     }
 
-    // Constructor for creating trajectory from multiple temporal instants
+    // called if static geometry is the first parameter
+    int Meos::StaticGeometry::containsTemporal(const TemporalGeometry& temporal_geom) const {
+        std::cout << "StaticGeometry::containsTemporal called" << std::endl;
+        int result = econtains_geo_tgeo((const GSERIALIZED*)this->geometry, (const Temporal *)temporal_geom.getGeometry());
+        if (result==1) {
+            std::cout << "StaticGeometry contains TemporalGeometry" << std::endl;
+        }
+        else {
+            std::cout << "StaticGeometry does NOT contain TemporalGeometry" << std::endl;
+        }
+        return result;
+    }
+
+    // called if temporal geometry is the first parameter
+    int Meos::TemporalGeometry::containsStatic(const StaticGeometry& static_geom) const {
+        std::cout << "TemporalGeometry::containsStatic called" << std::endl;
+        int result = econtains_tgeo_geo((const Temporal *)this->geometry, (const GSERIALIZED*)static_geom.getGeometry());
+        if (result==1) {
+            std::cout << "TemporalGeometry contains StaticGeometry" << std::endl;
+        }
+        else {
+            std::cout << "TemporalGeometry does NOT contain StaticGeometry" << std::endl;
+        }
+        return result;
+    }
+
+
+    // Constructor for creating a trajectory from multiple temporal instants
     Meos::TemporalSequence::TemporalSequence(const std::vector<TemporalInstant*>& instants) {
         // Ensure MEOS is initialized
         ensureMeosInitialized();

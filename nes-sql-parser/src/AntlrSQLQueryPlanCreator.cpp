@@ -48,6 +48,8 @@
 #include <Functions/LogicalFunction.hpp>
 #include <Functions/LogicalFunctionProvider.hpp>
 #include <Functions/Meos/TemporalIntersectsFunction.hpp>
+#include <Functions/Meos/TemporalIntersectsGeometryLogicalFunction.hpp>
+#include <Functions/Meos/TemporalEContainsGeometryLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/ArrayAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/AvgAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/CountAggregationLogicalFunction.hpp>
@@ -1102,6 +1104,56 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 }
             }
             break;
+        case AntlrSQLLexer::TEMPORAL_ECONTAINS_GEOMETRY: 
+        {
+            // move any literal WKT that’s still on constantBuilder into functionBuilder
+            while(!helpers.top().constantBuilder.empty()){
+                auto v = std::move(helpers.top().constantBuilder.back());
+                helpers.top().constantBuilder.pop_back();
+                helpers.top().functionBuilder.emplace_back(
+                    ConstantValueLogicalFunction(
+                        DataTypeProvider::provideDataType(DataType::Type::VARSIZED), std::move(v)));
+            }
+
+            const auto n = helpers.top().functionBuilder.size();
+            if(n==6){
+                auto ts2 = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                auto lat2= helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                auto lon2= helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                auto ts1 = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                auto lat1= helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                auto lon1= helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                helpers.top().functionBuilder.emplace_back(
+                    TemporalEContainsGeometryLogicalFunction(lon1,lat1,ts1,lon2,lat2,ts2));
+            } else if(n==4){
+                /* decide order by data-type of first arg */
+                auto last = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                auto third= helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                auto second= helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                auto first = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+
+                if(first.getDataType().isType(DataType::Type::VARSIZED)) // static,tgeo
+                    helpers.top().functionBuilder.emplace_back(
+                        TemporalEContainsGeometryLogicalFunction(first,second,third,last));
+                else                                                      // tgeo,static
+                    helpers.top().functionBuilder.emplace_back(
+                        TemporalEContainsGeometryLogicalFunction(first,second,third,last));
+            } else {
+                throw InvalidQuerySyntax("TEMPORAL_ECONTAINS_GEOMETRY expects 4 or 6 arguments");
+            }
+        }
+        break;
+        
         default:
             /// Check if the function is a constructor for a datatype
             if (const auto dataType = DataTypeProvider::tryProvideDataType(funcName); dataType.has_value())
@@ -1129,6 +1181,7 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 helpers.top().functionBuilder.pop_back();
                 helpers.top().functionBuilder.emplace_back(TemporalIntersectsFunction(lon, lat, ts));
             }
+
             else if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, std::move(helpers.top().functionBuilder)))
             {
                 helpers.top().functionBuilder.push_back(*logicalFunction);

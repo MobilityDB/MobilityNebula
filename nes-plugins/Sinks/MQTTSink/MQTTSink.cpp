@@ -113,13 +113,34 @@ void MQTTSink::execute(const Memory::TupleBuffer& inputBuffer, PipelineExecution
         return;
     }
 
+    // Check connection state before attempting to publish
+    if (!client->is_connected())
+    {
+        throw CannotOpenSink("MQTT client is not connected to server {}", serverUri);
+    }
+
     const std::string fBuf = formatter->getFormattedBuffer(inputBuffer);
     const mqtt::message_ptr message = mqtt::make_message(topic, fBuf);
     message->set_qos(qos);
 
     try
     {
-        client->publish(message)->wait();
+        auto token = client->publish(message);
+        // Only wait for acknowledgment if QoS > 0
+        // QoS 0 is fire-and-forget and doesn't require acknowledgment
+        if (qos > 0)
+        {
+            token->wait();
+        }
+    }
+    catch (const mqtt::exception& e)
+    {
+        // Handle specific MQTT exceptions with error code
+        throw CannotOpenSink("MQTT publish failed with error [{}]: {}", e.get_reason_code(), e.what());
+    }
+    catch (const std::exception& e)
+    {
+        throw CannotOpenSink("Failed to publish to MQTT: {}", e.what());
     }
     catch (...)
     {

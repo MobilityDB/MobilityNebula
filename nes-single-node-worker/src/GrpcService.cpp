@@ -60,6 +60,7 @@ grpc::Status GRPCServer::RegisterQuery(grpc::ServerContext* context, const Regis
             response->set_queryid(result->getRawValue());
             return grpc::Status::OK;
         }
+        NES_ERROR("RegisterQuery delegate failed: {}", result.error());
         return handleError(result.error(), context);
     }
     CPPTRACE_CATCH(const std::exception& e)

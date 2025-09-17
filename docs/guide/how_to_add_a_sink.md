@@ -73,7 +73,7 @@ Generally, it follows the source approach but has a special configuration parame
 
 - `cleanSession`: defaults to `true`, but is forced to `false` when QoS 2 is selected so the broker retains session state.
 - `persistenceDir`: directory for file-backed message persistence. Strongly recommended for QoS 2 so the four-way handshake survives a restart.
-- `maxInflight`: caps the number of outstanding publishes. A conservative default is applied automatically for QoS 2.
+- `maxInflight`: caps the number of outstanding publishes. Setting it to a positive value uses that limit; otherwise a conservative default is applied automatically for QoS 2.
 - TLS settings (`useTls`, `tlsCaCertPath`, `tlsClientCertPath`, `tlsClientKeyPath`, `tlsAllowInsecure`) enable secure brokers when needed.
 - Username/password fields remain optional; if supplied they are passed to the MQTT connect options.
 
@@ -123,7 +123,7 @@ void MQTTSink::start(Runtime::Execution::PipelineExecutionContext&)
                                    .automatic_reconnect(true)
                                    .clean_session(effectiveCleanSession);
 
-        if (maxInflight)
+        if (maxInflight && *maxInflight > 0)
         {
             optionsBuilder.max_inflight(*maxInflight);
         }

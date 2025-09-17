@@ -15,6 +15,7 @@
 #pragma once
 
 #include <cstdint>
+#include <atomic>
 #include <memory>
 #include <optional>
 #include <ostream>
@@ -209,26 +210,26 @@ struct ConfigParametersMQTT
 
     static inline const Configurations::DescriptorConfig::ConfigParameter<std::string> PERSISTENCE_DIR{
         "persistenceDir",
-        std::nullopt,
+        "",
         [](const std::unordered_map<std::string, std::string>& config)
         { return Configurations::DescriptorConfig::tryGet(PERSISTENCE_DIR, config); }};
 
     static inline const Configurations::DescriptorConfig::ConfigParameter<int32_t> MAX_INFLIGHT{
         "maxInflight",
-        std::nullopt,
+        0,
         [](const std::unordered_map<std::string, std::string>& config) -> std::optional<int32_t>
         {
-            if (auto it = config.find(MAX_INFLIGHT); it != config.end())
+            if (auto it = config.find("maxInflight"); it != config.end())
             {
-                const auto value = std::stoi(it->second);
+                int value = std::stoi(it->second);
                 if (value <= 0)
                 {
-                    NES_ERROR("MQTTSink: maxInflight must be positive, but was {}", value);
+                    NES_ERROR("MQTTSink: maxInflight must be greater than zero when provided, but was {}", value);
                     return std::nullopt;
                 }
                 return value;
             }
-            return std::nullopt;
+            return 0;
         }};
 
     static inline const Configurations::DescriptorConfig::ConfigParameter<bool> USE_TLS{
@@ -239,19 +240,19 @@ struct ConfigParametersMQTT
 
     static inline const Configurations::DescriptorConfig::ConfigParameter<std::string> TLS_CA_CERT{
         "tlsCaCertPath",
-        std::nullopt,
+        "",
         [](const std::unordered_map<std::string, std::string>& config)
         { return Configurations::DescriptorConfig::tryGet(TLS_CA_CERT, config); }};
 
     static inline const Configurations::DescriptorConfig::ConfigParameter<std::string> TLS_CLIENT_CERT{
         "tlsClientCertPath",
-        std::nullopt,
+        "",
         [](const std::unordered_map<std::string, std::string>& config)
         { return Configurations::DescriptorConfig::tryGet(TLS_CLIENT_CERT, config); }};
 
     static inline const Configurations::DescriptorConfig::ConfigParameter<std::string> TLS_CLIENT_KEY{
         "tlsClientKeyPath",
-        std::nullopt,
+        "",
         [](const std::unordered_map<std::string, std::string>& config)
         { return Configurations::DescriptorConfig::tryGet(TLS_CLIENT_KEY, config); }};
 

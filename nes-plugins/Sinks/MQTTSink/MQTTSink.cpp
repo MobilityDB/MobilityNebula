@@ -134,18 +134,17 @@ void MQTTSink::start(PipelineExecutionContext&)
             .automatic_reconnect(true)
             .clean_session(effectiveCleanSession);
 
-        auto effectiveMaxInflight = maxInflight;
-        if (!effectiveMaxInflight.has_value() && qos == 2)
+        const int32_t configuredMaxInflight = maxInflight.value_or(0);
+        if (configuredMaxInflight > 0)
         {
-            effectiveMaxInflight = DEFAULT_MAX_INFLIGHT_QOS2;
-            NES_INFO(
-                "MQTTSink: QoS2 enabled but 'maxInflight' not set; using default {} inflight messages for backpressure.",
-                DEFAULT_MAX_INFLIGHT_QOS2);
+            optionsBuilder.max_inflight(configuredMaxInflight);
         }
-
-        if (effectiveMaxInflight.has_value())
+        else if (qos == 2)
         {
-            optionsBuilder.max_inflight(*effectiveMaxInflight);
+            optionsBuilder.max_inflight(DEFAULT_MAX_INFLIGHT_QOS2);
+            NES_INFO(
+                "MQTTSink: QoS2 enabled without 'maxInflight'; applying default {} inflight messages.",
+                DEFAULT_MAX_INFLIGHT_QOS2);
         }
 
         // Add authentication if username is provided
@@ -177,9 +176,9 @@ void MQTTSink::start(PipelineExecutionContext&)
 
         const auto connectOptions = optionsBuilder.finalize();
 
-        client->connect(connectOptions)->wait();
         clientCallback = std::make_shared<Callback>(serverUri);
         client->set_callback(*clientCallback);
+        client->connect(connectOptions)->wait();
     }
     catch (const mqtt::exception& e)
     {

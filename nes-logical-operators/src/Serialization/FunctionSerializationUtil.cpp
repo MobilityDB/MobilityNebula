@@ -70,7 +70,8 @@ deserializeWindowAggregationFunction(const SerializableAggregationFunction& seri
             args.fields.push_back(fieldAccess.value());
             for (const auto& extra : serializedFunction.extra_fields())
             {
-                if (auto extraAccess = deserializeFunction(extra).tryGet<FieldAccessLogicalFunction>())
+                const auto extraFunction = deserializeFunction(extra);
+                if (auto extraAccess = extraFunction.tryGet<FieldAccessLogicalFunction>())
                 {
                     args.fields.push_back(extraAccess.value());
                 }

@@ -93,27 +93,38 @@ NES::SerializableAggregationFunction TemporalSequenceAggregationLogicalFunction:
     NES::SerializableAggregationFunction serializedAggregationFunction;
     serializedAggregationFunction.set_type(NAME);
 
-    auto onFieldFuc = SerializableFunction();
-    onFieldFuc.CopyFrom(onField.serialize());
+    SerializableFunction lonProto;
+    lonProto.CopyFrom(lonField.serialize());
+    serializedAggregationFunction.mutable_on_field()->CopyFrom(lonProto);
 
-    auto asFieldFuc = SerializableFunction();
-    asFieldFuc.CopyFrom(asField.serialize());
+    SerializableFunction asProto;
+    asProto.CopyFrom(asField.serialize());
+    serializedAggregationFunction.mutable_as_field()->CopyFrom(asProto);
 
-    serializedAggregationFunction.mutable_as_field()->CopyFrom(asFieldFuc);
-    serializedAggregationFunction.mutable_on_field()->CopyFrom(onFieldFuc);
+    SerializableFunction latProto;
+    latProto.CopyFrom(latField.serialize());
+    serializedAggregationFunction.add_extra_fields()->CopyFrom(latProto);
+
+    SerializableFunction tsProto;
+    tsProto.CopyFrom(timestampField.serialize());
+    serializedAggregationFunction.add_extra_fields()->CopyFrom(tsProto);
+
     return serializedAggregationFunction;
 }
 
 AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterTemporalSequenceAggregationLogicalFunction(
     AggregationLogicalFunctionRegistryArguments arguments)
 {
-    if (arguments.fields.size() == 3) {
-        return TemporalSequenceAggregationLogicalFunction::create(arguments.fields[0], arguments.fields[1], arguments.fields[2]);
-    } else {
-        NES_FATAL_ERROR("TemporalSequenceAggregationLogicalFunction requires exactly 3 fields (lon, lat, timestamp), but got {}", arguments.fields.size());
-        // This line is unreachable but needed to satisfy the compiler
-        return nullptr;
+    if (arguments.fields.size() == 4)
+    {
+        auto function = TemporalSequenceAggregationLogicalFunction::create(arguments.fields[0], arguments.fields[1], arguments.fields[2]);
+        function->setAsField(arguments.fields[3]);
+        return function;
     }
+    NES_FATAL_ERROR(
+        "TemporalSequenceAggregationLogicalFunction requires lon, lat, timestamp, and alias fields but got {}",
+        arguments.fields.size());
+    return {};
 }
 
 } // namespace NES

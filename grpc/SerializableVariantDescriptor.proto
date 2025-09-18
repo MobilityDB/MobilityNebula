@@ -58,6 +58,7 @@ message SerializableAggregationFunction {
     string type = 1;
     SerializableFunction on_field = 2;
     SerializableFunction as_field = 3;
+    repeated SerializableFunction extra_fields = 4;
 }
 
 message AggregationFunctionList {

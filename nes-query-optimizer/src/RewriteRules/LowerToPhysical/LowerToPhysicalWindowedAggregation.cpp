@@ -129,12 +129,7 @@ std::vector<std::shared_ptr<AggregationPhysicalFunction>> getAggregationPhysical
             std::move(aggregationInputFunction),
             resultFieldIdentifier,
             memoryProvider);
-        if (auto aggregationPhysicalFunction
-            = AggregationPhysicalFunctionRegistry::instance().create(std::string(name), std::move(aggregationArguments)))
-        {
-            aggregationPhysicalFunctions.push_back(aggregationPhysicalFunction.value());
-        }
-        else if (name == "TEMPORAL_SEQUENCE")
+        if (name == "TemporalSequence")
         {
             // Cast to get access to the specific TemporalSequence fields
             auto* temporalSeqDescriptor = dynamic_cast<const TemporalSequenceAggregationLogicalFunction*>(descriptor.get());
@@ -171,6 +166,11 @@ std::vector<std::shared_ptr<AggregationPhysicalFunction>> getAggregationPhysical
                 std::move(timestampPhysicalFunction),
                 resultFieldIdentifier,
                 memoryProvider));
+        }
+        else if (auto aggregationPhysicalFunction
+            = AggregationPhysicalFunctionRegistry::instance().create(std::string(name), std::move(aggregationArguments)))
+        {
+            aggregationPhysicalFunctions.push_back(aggregationPhysicalFunction.value());
         }
         else if (name == "Var")
         {

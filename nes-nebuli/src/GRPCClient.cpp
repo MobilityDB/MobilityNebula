@@ -48,11 +48,24 @@ QueryId GRPCClient::registerQuery(const NES::LogicalPlan& plan) const
     }
     else
     {
+        std::string metadataInfo;
+        const auto& trailingMetadata = context.GetServerTrailingMetadata();
+        if (!trailingMetadata.empty())
+        {
+            metadataInfo = "\nMetadata:";
+            for (const auto& entry : trailingMetadata)
+            {
+                const auto key = std::string(entry.first.data(), entry.first.size());
+                const auto value = std::string(entry.second.data(), entry.second.size());
+                metadataInfo += fmt::format("\n  {}: {}", key, value);
+            }
+        }
         throw NES::QueryRegistrationFailed(
-            "Status: {}\nMessage: {}\nDetail: {}",
+            "Status: {}\nMessage: {}\nDetail: {}{}",
             magic_enum::enum_name(status.error_code()),
             status.error_message(),
-            status.error_details());
+            status.error_details(),
+            metadataInfo);
     }
     return QueryId{reply.queryid()};
 }

@@ -67,7 +67,20 @@ deserializeWindowAggregationFunction(const SerializableAggregationFunction& seri
         if (auto asFieldAccess = asField.tryGet<FieldAccessLogicalFunction>())
         {
             AggregationLogicalFunctionRegistryArguments args;
-            args.fields = {fieldAccess.value(), asFieldAccess.value()};
+            args.fields.push_back(fieldAccess.value());
+            for (const auto& extra : serializedFunction.extra_fields())
+            {
+                const auto extraFunction = deserializeFunction(extra);
+                if (auto extraAccess = extraFunction.tryGet<FieldAccessLogicalFunction>())
+                {
+                    args.fields.push_back(extraAccess.value());
+                }
+                else
+                {
+                    throw UnknownLogicalOperator();
+                }
+            }
+            args.fields.push_back(asFieldAccess.value());
 
             if (auto function = AggregationLogicalFunctionRegistry::instance().create(type, args))
             {

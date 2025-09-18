@@ -50,6 +50,10 @@ public:
     DataType inputStamp, partialAggregateStamp, finalAggregateStamp;
     FieldAccessLogicalFunction onField, asField;
 
+    void setAsField(FieldAccessLogicalFunction newAsField) { asField = std::move(newAsField); }
+
+    const FieldAccessLogicalFunction& getAsField() const { return asField; }
+
 protected:
     explicit WindowAggregationLogicalFunction(
         DataType inputStamp,

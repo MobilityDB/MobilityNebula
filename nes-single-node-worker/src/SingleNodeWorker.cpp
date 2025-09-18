@@ -80,6 +80,20 @@ std::expected<QueryId, Exception> SingleNodeWorker::registerQuery(LogicalPlan pl
         tryLogCurrentException();
         return std::unexpected(e);
     }
+    catch (const std::exception& e)
+    {
+        NES_ERROR("registerQuery caught std::exception: {}", e.what());
+        std::cerr << "registerQuery caught std::exception: " << e.what() << std::endl;
+        tryLogCurrentException();
+        return std::unexpected(wrapExternalException());
+    }
+    catch (...)
+    {
+        NES_ERROR("registerQuery caught unknown exception");
+        std::cerr << "registerQuery caught unknown exception" << std::endl;
+        tryLogCurrentException();
+        return std::unexpected(wrapExternalException());
+    }
 }
 
 void SingleNodeWorker::startQuery(QueryId queryId)

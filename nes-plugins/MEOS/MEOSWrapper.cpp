@@ -339,6 +339,24 @@ namespace MEOS {
         }
     }
 
+    STBox* Meos::SpatioTemporalBox::getBox() const {
+        return static_cast<STBox*>(stbox_ptr);
+    }
+
+
+    Meos::TemporalHolder::TemporalHolder(Temporal* temporalPtr)
+        : temporal(temporalPtr) {}
+
+    Meos::TemporalHolder::~TemporalHolder() {
+        if (temporal) {
+            free(temporal);
+            temporal = nullptr;
+        }
+    }
+
+    Temporal* Meos::TemporalHolder::get() const {
+        return temporal;
+    }
+
 
 }// namespace MEOS
-

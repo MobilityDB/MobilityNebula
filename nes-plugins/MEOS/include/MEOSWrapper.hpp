@@ -46,6 +46,8 @@ class Meos {
         explicit SpatioTemporalBox(const std::string& wkt_string);
         ~SpatioTemporalBox();
 
+        STBox* getBox() const;
+
 
     private:
         void* stbox_ptr;
@@ -130,6 +132,18 @@ class Meos {
 
     private:
         Temporal* sequence;
+    };
+
+
+    class TemporalHolder {
+    public:
+        explicit TemporalHolder(Temporal* temporalPtr);
+        ~TemporalHolder();
+
+        Temporal* get() const;
+
+    private:
+        Temporal* temporal;
     };
 
 

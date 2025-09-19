@@ -16,6 +16,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
 #include <optional>
 #include <ranges>
@@ -61,6 +62,8 @@
 #include <Operators/Windows/Aggregations/Meos/TemporalSequenceAggregationLogicalFunction.hpp>
 #include <Functions/Meos/TemporalIntersectsGeometryLogicalFunction.hpp>
 #include <Functions/Meos/TemporalAIntersectsGeometryLogicalFunction.hpp>
+#include <Functions/Meos/TemporalEDWithinGeometryLogicalFunction.hpp>
+#include <Functions/Meos/TemporalAtStBoxLogicalFunction.hpp>
 #include <Operators/Windows/JoinLogicalOperator.hpp>
 #include <Plans/LogicalPlan.hpp>
 #include <Plans/LogicalPlanBuilder.hpp>
@@ -1150,6 +1153,131 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                         TemporalEContainsGeometryLogicalFunction(first,second,third,last));
             } else {
                 throw InvalidQuerySyntax("TEMPORAL_ECONTAINS_GEOMETRY expects 4 or 6 arguments");
+            }
+        }
+        break;
+        case AntlrSQLLexer::EDWITHIN_TGEO_GEO:
+        {
+            auto convertPendingConstants = [&]() {
+                while (!helpers.top().constantBuilder.empty())
+                {
+                    auto constantValue = std::move(helpers.top().constantBuilder.back());
+                    helpers.top().constantBuilder.pop_back();
+
+                    DataType dataType;
+                    const auto upperValue = Util::toUpperCase(constantValue);
+                    if (upperValue == "TRUE" || upperValue == "FALSE")
+                    {
+                        dataType = DataTypeProvider::provideDataType(DataType::Type::BOOLEAN);
+                    }
+                    else
+                    {
+                        char* endPtr = nullptr;
+                        std::strtod(constantValue.c_str(), &endPtr);
+                        if (endPtr != nullptr && *endPtr == '\0')
+                        {
+                            dataType = DataTypeProvider::provideDataType(DataType::Type::FLOAT64);
+                        }
+                        else
+                        {
+                            dataType = DataTypeProvider::provideDataType(DataType::Type::VARSIZED);
+                        }
+                    }
+
+                    helpers.top().functionBuilder.emplace_back(ConstantValueLogicalFunction(dataType, std::move(constantValue)));
+                }
+            };
+
+            convertPendingConstants();
+
+            const auto argCount = helpers.top().functionBuilder.size();
+            if (argCount != 5)
+            {
+                throw InvalidQuerySyntax("EDWITHIN_TGEO_GEO requires exactly five arguments (lon, lat, timestamp, geometry, distance), but got {}", argCount);
+            }
+
+            const auto distanceFunction = helpers.top().functionBuilder.back();
+            helpers.top().functionBuilder.pop_back();
+            const auto geometryFunction = helpers.top().functionBuilder.back();
+            helpers.top().functionBuilder.pop_back();
+            const auto timestampFunction = helpers.top().functionBuilder.back();
+            helpers.top().functionBuilder.pop_back();
+            const auto latFunction = helpers.top().functionBuilder.back();
+            helpers.top().functionBuilder.pop_back();
+            const auto lonFunction = helpers.top().functionBuilder.back();
+            helpers.top().functionBuilder.pop_back();
+
+            helpers.top().functionBuilder.emplace_back(
+                TemporalEDWithinGeometryLogicalFunction(lonFunction, latFunction, timestampFunction, geometryFunction, distanceFunction));
+        }
+        break;
+        case AntlrSQLLexer::TGEO_AT_STBOX:
+        {
+            auto convertPendingConstants = [&]() {
+                while (!helpers.top().constantBuilder.empty())
+                {
+                    auto constantValue = std::move(helpers.top().constantBuilder.back());
+                    helpers.top().constantBuilder.pop_back();
+
+                    DataType dataType;
+                    const auto upperValue = Util::toUpperCase(constantValue);
+                    if (upperValue == "TRUE" || upperValue == "FALSE")
+                    {
+                        dataType = DataTypeProvider::provideDataType(DataType::Type::BOOLEAN);
+                    }
+                    else
+                    {
+                        char* endPtr = nullptr;
+                        std::strtod(constantValue.c_str(), &endPtr);
+                        if (endPtr != nullptr && *endPtr == '\0')
+                        {
+                            dataType = DataTypeProvider::provideDataType(DataType::Type::FLOAT64);
+                        }
+                        else
+                        {
+                            dataType = DataTypeProvider::provideDataType(DataType::Type::VARSIZED);
+                        }
+                    }
+
+                    helpers.top().functionBuilder.emplace_back(ConstantValueLogicalFunction(dataType, std::move(constantValue)));
+                }
+            };
+
+            convertPendingConstants();
+
+            const auto argCount = helpers.top().functionBuilder.size();
+            if (argCount != 4 && argCount != 5)
+            {
+                throw InvalidQuerySyntax("TGEO_AT_STBOX requires four arguments (lon, lat, timestamp, stbox) with an optional fifth border_inc flag, but got {}", argCount);
+            }
+
+            std::optional<LogicalFunction> borderFlagFunction;
+            if (argCount == 5)
+            {
+                borderFlagFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+            }
+
+            const auto stboxFunction = helpers.top().functionBuilder.back();
+            helpers.top().functionBuilder.pop_back();
+            const auto timestampFunction = helpers.top().functionBuilder.back();
+            helpers.top().functionBuilder.pop_back();
+            const auto latFunction = helpers.top().functionBuilder.back();
+            helpers.top().functionBuilder.pop_back();
+            const auto lonFunction = helpers.top().functionBuilder.back();
+            helpers.top().functionBuilder.pop_back();
+
+            if (borderFlagFunction.has_value())
+            {
+                helpers.top().functionBuilder.emplace_back(
+                    TemporalAtStBoxLogicalFunction(lonFunction, latFunction, timestampFunction, stboxFunction, borderFlagFunction.value()));
+            }
+            else
+            {
+                const auto defaultBorder = ConstantValueLogicalFunction(
+                    DataTypeProvider::provideDataType(DataType::Type::BOOLEAN), "TRUE");
+                helpers.top().functionBuilder.emplace_back(
+                    TemporalAtStBoxLogicalFunction(lonFunction, latFunction, timestampFunction, stboxFunction, defaultBorder));
             }
         }
         break;

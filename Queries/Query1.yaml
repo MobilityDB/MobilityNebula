@@ -1,13 +1,18 @@
 query: |
   SELECT start,
          end
-  FROM sncb_stream
-  WHERE edwithin_tgeo_geo(gps_lon,
-                          gps_lat,
-                          time_utc,
-                          'SRID=4326;POINT(4.3658 50.6456)',
-                          FLOAT64(2.0)) = INT32(1)
-  WINDOW TUMBLING(time_utc, SIZE 10 SEC)
+  FROM (
+      SELECT start,
+             end,
+             COUNT(time_utc) AS cnt
+      FROM sncb_stream
+      WHERE edwithin_tgeo_geo(gps_lon,
+                              gps_lat,
+                              time_utc,
+                              'SRID=4326;POINT(4.3658 50.6456)',
+                              FLOAT64(2.0)) = INT32(1)
+      WINDOW TUMBLING(time_utc, SIZE 10 SEC)
+  )
   INTO print_sink;
 
 sink:

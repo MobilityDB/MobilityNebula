@@ -9,7 +9,7 @@ namespace NES {
 
 class TemporalAtStBoxLogicalFunction : public LogicalFunctionConcept {
 public:
-    static constexpr std::string_view NAME = "TGEO_AT_STBOX";
+    static constexpr std::string_view NAME = "TemporalAtStBox";
 
     TemporalAtStBoxLogicalFunction(LogicalFunction lon,
                                    LogicalFunction lat,

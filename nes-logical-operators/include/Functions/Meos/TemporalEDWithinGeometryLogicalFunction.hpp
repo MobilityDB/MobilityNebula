@@ -9,7 +9,7 @@ namespace NES {
 
 class TemporalEDWithinGeometryLogicalFunction : public LogicalFunctionConcept {
 public:
-    static constexpr std::string_view NAME = "EDWITHIN_TGEO_GEO";
+    static constexpr std::string_view NAME = "TemporalEDWithinGeometry";
 
     TemporalEDWithinGeometryLogicalFunction(LogicalFunction lon,
                                             LogicalFunction lat,

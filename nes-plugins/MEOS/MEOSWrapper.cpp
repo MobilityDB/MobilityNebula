@@ -116,31 +116,6 @@ namespace MEOS {
             std::cout << "TemporalInstant intersects" << std::endl;
         }
 
-        // std::cout << "=== HARDCODED MEOS TEST ===" << std::endl;
-        // try {
-        //     // Create two test temporal geometries for direct comparison
-        //     std::string test1 = "SRID=4326;POINT(-73.9767 40.7494)@2021-01-01 00:10:00";
-        //     std::string test2 = "SRID=4326;POINT(-73.9857 40.7484)@2021-01-01 00:00:00";
-            
-        //     Temporal* temp1 = tgeometry_in(test1.c_str());
-        //     Temporal* temp2 = tgeometry_in(test2.c_str());
-            
-        //     if (temp1 && temp2) {
-        //         bool hardcoded_result = eintersects_tgeo_tgeo(temp1, temp2);
-        //         std::cout << "Hardcoded MEOS eintersects_tgeo_tgeo result: " << hardcoded_result << std::endl;
-        //         std::cout << "Test1: " << test1 << std::endl;
-        //         std::cout << "Test2: " << test2 << std::endl;
-                
-        //         free(temp1);
-        //         free(temp2);
-        //     } else {
-        //         std::cout << "Failed to create hardcoded temporal geometries" << std::endl;
-        //     }
-        // } catch (...) {
-        //     std::cout << "Exception in hardcoded test" << std::endl;
-        // }
-        // std::cout << "=== END HARDCODED TEST ===" << std::endl;
-
         return result;
     }
 

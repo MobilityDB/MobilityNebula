@@ -20,7 +20,6 @@
 #include <stdexcept>
 #include <utility>
 #include <string_view>
-#include <vector>
 #include <cstdlib>
 #include <ctime>
 #include <mutex>
@@ -172,7 +171,7 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
     // Track if this is the first point using a counter
     auto pointCounter = nautilus::val<int64_t>(0);
 
-    // Read from paged vector
+    // Read from paged vector in original order
     const auto endIt = pagedVectorRef.end(allFieldNames);
     for (auto candidateIt = pagedVectorRef.begin(allFieldNames); candidateIt != endIt; ++candidateIt)
     {
@@ -183,7 +182,6 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
         const auto latValue = itemRecord.read(std::string(LatFieldName));
         const auto timestampValue = itemRecord.read(std::string(TimestampFieldName));
 
-        // Use cast to extract values from VarVal
         auto lon = lonValue.cast<nautilus::val<double>>();
         auto lat = latValue.cast<nautilus::val<double>>();
         auto timestamp = timestampValue.cast<nautilus::val<int64_t>>();
@@ -329,6 +327,19 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
         variableSized.getContent(),
         binaryFormatStr,
         formatStrLen);
+
+    nautilus::invoke(
+        +[](const int8_t* data, size_t len, size_t size) -> void
+        {
+            printf(
+                "DEBUG: MEOS WKB size=%zu label=%.*s\n",
+                size,
+                static_cast<int>(len),
+                reinterpret_cast<const char*>(data));
+        },
+        variableSized.getContent(),
+        nautilus::val<size_t>(formatStrLen),
+        binarySize);
 
     Nautilus::Record resultRecord;
     resultRecord.write(resultFieldIdentifier, variableSized);

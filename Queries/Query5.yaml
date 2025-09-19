@@ -1,0 +1,68 @@
+query: |
+  SELECT device_id,
+         start,
+         end,
+         TEMPORAL_SEQUENCE(gps_lon, gps_lat, time_utc) AS trajectory,
+         AVG(gps_speed) AS avg_speed,
+         MIN(gps_speed) AS min_speed
+  FROM sncb_stream
+  WHERE edwithin_tgeo_geo(gps_lon,
+                          gps_lat,
+                          time_utc,
+                          'SRID=4326;POLYGON((4.32 50.60, 4.32 50.72, 4.48 50.72, 4.48 50.60, 4.32 50.60))',
+                          FLOAT64(1.0)) = INT32(1)
+  GROUP BY device_id
+  WINDOW SLIDING(time_utc, SIZE 45 SEC, ADVANCE BY 5 SEC)
+  HAVING (avg_speed < FLOAT64(5.0))
+      OR (min_speed < FLOAT64(2.0))
+  INTO file_sink;
+sink:
+  name: file_sink
+  type: FILE
+  config:
+    filePath: "/workspace/output_query5.csv"
+    inputFormat: CSV
+
+logical:
+  - name: sncb_stream
+    schema:
+      - name: time_utc
+        type: UINT64
+      - name: device_id
+        type: UINT64
+      - name: Vbat
+        type: FLOAT64
+      - name: PCFA_mbar
+        type: FLOAT64
+      - name: PCFF_mbar
+        type: FLOAT64
+      - name: PCF1_mbar
+        type: FLOAT64
+      - name: PCF2_mbar
+        type: FLOAT64
+      - name: T1_mbar
+        type: FLOAT64
+      - name: T2_mbar
+        type: FLOAT64
+      - name: Code1
+        type: FLOAT64
+      - name: Code2
+        type: FLOAT64
+      - name: gps_speed
+        type: FLOAT64
+      - name: gps_lat
+        type: FLOAT64
+      - name: gps_lon
+        type: FLOAT64
+
+physical:
+  - logical: sncb_stream
+    sourceConfig:
+      type: TCP
+      socketHost: "host.docker.internal"
+      socketPort: 32323
+      socketType: "SOCK_STREAM"
+      socketDomain: "AF_INET"
+    parserConfig:
+      type: CSV
+      delimiter: ","

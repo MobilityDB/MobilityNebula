@@ -1,0 +1,70 @@
+query: |
+  SELECT start,
+         end,
+         varBP,
+         varFF
+  FROM (
+      SELECT start,
+             end,
+             VAR(PCFA_mbar) AS varBP,
+             VAR(PCFF_mbar) AS varFF
+      FROM sncb_stream
+      WHERE temporal_eintersects_geometry(gps_lon,
+                                          gps_lat,
+                                          time_utc,
+                                          'SRID=4326;POLYGON((4.0 50.0, 4.0 50.8, 4.6 50.8, 4.6 50.0, 4.0 50.0))') = INT32(0)
+      WINDOW SLIDING(time_utc, SIZE 10 SEC, ADVANCE BY 100 MS)
+  )
+  WHERE (varBP > FLOAT64(0.6))
+    AND (varFF <= FLOAT64(0.5))
+  INTO print_sink;
+
+sink:
+  name: print_sink
+  type: PRINT
+  config:
+    inputFormat: CSV
+
+logical:
+  - name: sncb_stream
+    schema:
+      - name: time_utc
+        type: UINT64
+      - name: device_id
+        type: UINT64
+      - name: Vbat
+        type: FLOAT64
+      - name: PCFA_mbar
+        type: FLOAT64
+      - name: PCFF_mbar
+        type: FLOAT64
+      - name: PCF1_mbar
+        type: FLOAT64
+      - name: PCF2_mbar
+        type: FLOAT64
+      - name: T1_mbar
+        type: FLOAT64
+      - name: T2_mbar
+        type: FLOAT64
+      - name: Code1
+        type: FLOAT64
+      - name: Code2
+        type: FLOAT64
+      - name: gps_speed
+        type: FLOAT64
+      - name: gps_lat
+        type: FLOAT64
+      - name: gps_lon
+        type: FLOAT64
+
+physical:
+  - logical: sncb_stream
+    sourceConfig:
+      type: TCP
+      socketHost: "host.docker.internal"
+      socketPort: 32323
+      socketType: "SOCK_STREAM"
+      socketDomain: "AF_INET"
+    parserConfig:
+      type: CSV
+      delimiter: ","

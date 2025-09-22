@@ -78,8 +78,8 @@ TemporalEContainsGeometryPhysicalFunction::execTemporalTemporal(const std::vecto
             try {
                 MEOS::Meos::ensureMeosInitialized();
                 auto tsToStr = MEOS::Meos::convertSecondsToTimestamp;
-                std::string left  = fmt::format("SRID=4326;POINT({} {})@{}", lo1, la1, tsToStr(t1));
-                std::string right = fmt::format("SRID=4326;POINT({} {})@{}", lo2, la2, tsToStr(t2));
+                std::string left  = fmt::format("SRID=4326;Point({} {})@{}", lo1, la1, tsToStr(t1));
+                std::string right = fmt::format("SRID=4326;Point({} {})@{}", lo2, la2, tsToStr(t2));
                 MEOS::Meos::TemporalGeometry l(left), r(right);
                 return l.contains(r);
             } catch (const std::exception& e) {
@@ -110,7 +110,7 @@ TemporalEContainsGeometryPhysicalFunction::execTemporalStatic(const std::vector<
             try {
                 MEOS::Meos::ensureMeosInitialized();
                 std::string tsStr = MEOS::Meos::convertSecondsToTimestamp(t);
-                std::string left  = fmt::format("SRID=4326;POINT({} {})@{}", lo, la, tsStr);
+                std::string left  = fmt::format("SRID=4326;Point({} {})@{}", lo, la, tsStr);
                 std::string right(g, sz);
                 while (!right.empty() && (right.front() == '\'' || right.front() == '"')) {
                     right = right.substr(1);
@@ -130,7 +130,15 @@ TemporalEContainsGeometryPhysicalFunction::execTemporalStatic(const std::vector<
                 std::cout << "Using temporal-static contains function (econtains_tgeo_geo)" << std::endl;
 
                 MEOS::Meos::TemporalGeometry  l(left);
+                if (!l.getGeometry()) {
+                    std::cout << "TemporalEContains: MEOS temporal geometry is null" << std::endl;
+                    return 0;
+                }
                 MEOS::Meos::StaticGeometry    r(right);
+                if (!r.getGeometry()) {
+                    std::cout << "TemporalEContains: MEOS static geometry is null" << std::endl;
+                    return 0;
+                }
                 int contains_result = l.containsStatic(r);
                 std::cout << "econtains_tgeo_geo result: " << contains_result << std::endl;
                 return contains_result;
@@ -161,7 +169,7 @@ TemporalEContainsGeometryPhysicalFunction::execStaticTemporal(const std::vector<
             try {
                 MEOS::Meos::ensureMeosInitialized();
                 std::string tsStr = MEOS::Meos::convertSecondsToTimestamp(t);
-                std::string right  = fmt::format("SRID=4326;POINT({} {})@{}", lo, la, tsStr);
+                std::string right  = fmt::format("SRID=4326;Point({} {})@{}", lo, la, tsStr);
                 std::string left(g, sz);
                 while (!left.empty() && (left.front() == '\'' || left.front() == '"')) {
                     left = left.substr(1);
@@ -181,7 +189,15 @@ TemporalEContainsGeometryPhysicalFunction::execStaticTemporal(const std::vector<
                 std::cout << "Using static-temporal contains function (econtains_geo_tgeo)" << std::endl;
 
                 MEOS::Meos::StaticGeometry l(left);
+                if (!l.getGeometry()) {
+                    std::cout << "TemporalEContains: MEOS static geometry is null" << std::endl;
+                    return 0;
+                }
                 MEOS::Meos::TemporalGeometry r(right);
+                if (!r.getGeometry()) {
+                    std::cout << "TemporalEContains: MEOS temporal geometry is null" << std::endl;
+                    return 0;
+                }
                 int contains_result = l.containsTemporal(r);
                 std::cout << "econtains_geo_tgeo result: " << contains_result << std::endl;
                 return contains_result;

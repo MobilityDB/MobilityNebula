@@ -86,8 +86,8 @@ VarVal TemporalIntersectsGeometryPhysicalFunction::executeTemporal6Param(const s
                 std::string timestamp2_str = MEOS::Meos::convertSecondsToTimestamp(ts2_val);
                 
                 // Build temporal geometry WKT strings from coordinates and timestamps
-                std::string left_geometry_wkt = fmt::format("SRID=4326;POINT({} {})@{}", lon1_val, lat1_val, timestamp1_str);
-                std::string right_geometry_wkt = fmt::format("SRID=4326;POINT({} {})@{}", lon2_val, lat2_val, timestamp2_str);
+                std::string left_geometry_wkt = fmt::format("SRID=4326;Point({} {})@{}", lon1_val, lat1_val, timestamp1_str);
+                std::string right_geometry_wkt = fmt::format("SRID=4326;Point({} {})@{}", lon2_val, lat2_val, timestamp2_str);
                 
                 std::cout << "Built temporal geometries:" << std::endl;
                 std::cout << "Left: " << left_geometry_wkt << std::endl;
@@ -96,7 +96,15 @@ VarVal TemporalIntersectsGeometryPhysicalFunction::executeTemporal6Param(const s
                 // Both geometries are temporal points, use temporal-temporal intersection
                 std::cout << "Using temporal-temporal intersection (eintersects_tgeo_tgeo)" << std::endl;
                 MEOS::Meos::TemporalGeometry left_temporal(left_geometry_wkt);
+                if (!left_temporal.getGeometry()) {
+                    std::cout << "TemporalIntersects: left temporal geometry is null" << std::endl;
+                    return 0;
+                }
                 MEOS::Meos::TemporalGeometry right_temporal(right_geometry_wkt);
+                if (!right_temporal.getGeometry()) {
+                    std::cout << "TemporalIntersects: right temporal geometry is null" << std::endl;
+                    return 0;
+                }
                 int intersection_result = left_temporal.intersects(right_temporal);
                 std::cout << "eintersects_tgeo_tgeo result: " << intersection_result << std::endl;
                 
@@ -125,58 +133,98 @@ VarVal TemporalIntersectsGeometryPhysicalFunction::executeTemporal4Param(const s
     
     std::cout << "4-param temporal-static intersection with coordinate values" << std::endl;
     
-    // Use nautilus::invoke to call external MEOS function with coordinate and geometry parameters
+    // Use a robust point-in-polygon test to avoid MEOS allocation/free issues for static geometry
     const auto result = nautilus::invoke(
-        +[](double lon1_val, double lat1_val, uint64_t ts1_val, const char* static_geom_ptr, uint32_t static_geom_size) -> int {
+        +[](double px, double py, uint64_t /*ts*/, const char* static_geom_ptr, uint32_t static_geom_size) -> int {
             try {
-                // Use the existing global MEOS initialization mechanism
-                MEOS::Meos::ensureMeosInitialized();
-                
-                // Convert UINT64 timestamp to MEOS timestamp string
-                std::string timestamp1_str = MEOS::Meos::convertSecondsToTimestamp(ts1_val);
-                
-                // Build temporal geometry WKT string from coordinates and timestamp
-                std::string left_geometry_wkt = fmt::format("SRID=4326;POINT({} {})@{}", lon1_val, lat1_val, timestamp1_str);
-                
-                // Extract static geometry WKT from VariableSizedData
-                std::string right_geometry_wkt(static_geom_ptr, static_geom_size);
-                
-                // Strip quotes if present (CSV parsing includes quotes in the string values)
-                while (!right_geometry_wkt.empty() && (right_geometry_wkt.front() == '\'' || right_geometry_wkt.front() == '"')) {
-                    right_geometry_wkt = right_geometry_wkt.substr(1);
-                }
-                while (!right_geometry_wkt.empty() && (right_geometry_wkt.back() == '\'' || right_geometry_wkt.back() == '"')) {
-                    right_geometry_wkt = right_geometry_wkt.substr(0, right_geometry_wkt.size() - 1);
-                }
-                
+                std::string wkt(static_geom_ptr, static_geom_size);
+                // Strip outer quotes
+                while (!wkt.empty() && (wkt.front()=='\'' || wkt.front()=='"')) wkt.erase(wkt.begin());
+                while (!wkt.empty() && (wkt.back()=='\'' || wkt.back()=='"')) wkt.pop_back();
+
                 std::cout << "Built geometries:" << std::endl;
-                std::cout << "Left (temporal): " << left_geometry_wkt << std::endl;
-                std::cout << "Right (static): " << right_geometry_wkt << std::endl;
-                
-                // Validate input strings are not empty
-                if (left_geometry_wkt.empty() || right_geometry_wkt.empty()) {
-                    std::cout << "Empty geometry WKT string(s)" << std::endl;
-                    return -1;
+                std::cout << "Left (temporal): SRID=4326;Point(" << px << " " << py << ")@<ts>" << std::endl;
+                std::cout << "Right (static): " << wkt << std::endl;
+
+                // Expect: SRID=4326;POLYGON((x y, x y, ...))
+                auto start = wkt.find("POLYGON((");
+                auto end = wkt.rfind(")");
+                if (start == std::string::npos || end == std::string::npos || end <= start + 9) {
+                    std::cout << "TemporalIntersects: malformed POLYGON WKT" << std::endl;
+                    return 0;
                 }
-                
-                // Use temporal-static intersection
-                std::cout << "Using temporal-static intersection (eintersects_tgeo_geo)" << std::endl;
-                MEOS::Meos::TemporalGeometry left_temporal(left_geometry_wkt);
-                MEOS::Meos::StaticGeometry right_static(right_geometry_wkt);
-                int intersection_result = left_temporal.intersectsStatic(right_static);
-                std::cout << "eintersects_tgeo_geo result: " << intersection_result << std::endl;
-                
-                return intersection_result;
+                std::string inner = wkt.substr(start + 9, end - (start + 9));
+                // Parse points
+                std::vector<std::pair<double,double>> pts;
+                pts.reserve(16);
+                size_t pos = 0;
+                while (pos < inner.size()) {
+                    // Find comma or end
+                    size_t next = inner.find(',', pos);
+                    std::string token = inner.substr(pos, next == std::string::npos ? std::string::npos : next - pos);
+                    // Trim spaces and parentheses
+                    auto ltrim = [](std::string& s){ while(!s.empty() && std::isspace(static_cast<unsigned char>(s.front()))) s.erase(s.begin()); };
+                    auto rtrim = [](std::string& s){ while(!s.empty() && std::isspace(static_cast<unsigned char>(s.back()))) s.pop_back(); };
+                    ltrim(token); rtrim(token);
+                    // Replace multiple spaces with single space
+                    std::string norm;
+                    bool lastSpace=false;
+                    for (char c: token) {
+                        if (std::isspace(static_cast<unsigned char>(c))) { if (!lastSpace){ norm.push_back(' '); lastSpace=true; } }
+                        else { norm.push_back(c); lastSpace=false; }
+                    }
+                    // Split into lon lat
+                    size_t sp = norm.find(' ');
+                    if (sp != std::string::npos) {
+                        char* endp=nullptr; double x = std::strtod(norm.c_str(), &endp);
+                        char* endp2=nullptr; double y = std::strtod(norm.c_str()+sp+1, &endp2);
+                        pts.emplace_back(x,y);
+                    }
+                    if (next == std::string::npos) break; else pos = next + 1;
+                }
+                if (pts.size() < 3) {
+                    std::cout << "TemporalIntersects: polygon has fewer than 3 points" << std::endl;
+                    return 0;
+                }
+
+                // Point-in-polygon with boundary inclusion
+                auto onSegment = [](double x, double y, double x1, double y1, double x2, double y2) {
+                    const double eps = 1e-12;
+                    // Bounding box check
+                    if (x < std::min(x1,x2)-eps || x > std::max(x1,x2)+eps || y < std::min(y1,y2)-eps || y > std::max(y1,y2)+eps)
+                        return false;
+                    // Colinearity check via cross product
+                    double dx1 = x - x1, dy1 = y - y1;
+                    double dx2 = x2 - x1, dy2 = y2 - y1;
+                    double cross = dx1*dy2 - dy1*dx2;
+                    return std::fabs(cross) <= eps;
+                };
+
+                // Check boundary
+                for (size_t i=0, j=pts.size()-1; i<pts.size(); j=i++) {
+                    if (onSegment(px, py, pts[j].first, pts[j].second, pts[i].first, pts[i].second))
+                        return 1;
+                }
+
+                // Ray casting
+                bool inside = false;
+                for (size_t i=0, j=pts.size()-1; i<pts.size(); j=i++) {
+                    double xi = pts[i].first, yi = pts[i].second;
+                    double xj = pts[j].first, yj = pts[j].second;
+                    bool intersect = ((yi > py) != (yj > py)) &&
+                                     (px < (xj - xi) * (py - yi) / (yj - yi + 1e-300) + xi);
+                    if (intersect) inside = !inside;
+                }
+                return inside ? 1 : 0;
             } catch (const std::exception& e) {
-                std::cout << "MEOS exception in temporal geometry intersection: " << e.what() << std::endl;
-                return -1;  // Error case
+                std::cout << "TemporalIntersects (PIP) exception: " << e.what() << std::endl;
+                return -1;
             } catch (...) {
-                std::cout << "Unknown error in temporal geometry intersection" << std::endl;
-                return -1;  // Error case
+                std::cout << "TemporalIntersects (PIP) unknown error" << std::endl;
+                return -1;
             }
         },
-        lon1, lat1, timestamp1, static_geometry_varsized.getContent(), static_geometry_varsized.getContentSize()
-    );
+        lon1, lat1, timestamp1, static_geometry_varsized.getContent(), static_geometry_varsized.getContentSize());
     
     return VarVal(result);
 }

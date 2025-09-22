@@ -6,7 +6,7 @@ query: |
   WHERE tgeo_at_stbox(gps_lon,
                       gps_lat,
                       time_utc,
-                      'SRID=4326;STBOX((4.0,50.0,2000-01-01 00:00:00+00),(4.6,50.8,2030-01-01 00:00:00+00))') = INT32(1)
+                      'SRID=4326;STBOX((4.0,50.0,2024-08-01 00:00:00+00),(4.6,50.8,2025-08-01 00:00:00+00))') = INT32(1)
   WINDOW SLIDING(time_utc, SIZE 20 SEC, ADVANCE BY 200 MS)
   INTO print_sink;
 

@@ -58,7 +58,7 @@ VarVal TemporalEDWithinGeometryPhysicalFunction::execute(const Record& record, A
                 MEOS::Meos::ensureMeosInitialized();
 
                 const std::string timestampString = MEOS::Meos::convertSecondsToTimestamp(timestampValue);
-                std::string temporalGeometryWkt = fmt::format("SRID=4326;POINT({} {})@{}", lonValue, latValue, timestampString);
+                std::string temporalGeometryWkt = fmt::format("SRID=4326;Point({} {})@{}", lonValue, latValue, timestampString);
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\'' || staticGeometryWkt.front() == '"'))
@@ -77,7 +77,15 @@ VarVal TemporalEDWithinGeometryPhysicalFunction::execute(const Record& record, A
                 }
 
                 MEOS::Meos::TemporalGeometry temporalGeometry(temporalGeometryWkt);
+                if (!temporalGeometry.getGeometry()) {
+                    std::cout << "EDWITHIN_TGEO_GEO: MEOS temporal geometry is null" << std::endl;
+                    return 0;
+                }
                 MEOS::Meos::StaticGeometry staticGeometry(staticGeometryWkt);
+                if (!staticGeometry.getGeometry()) {
+                    std::cout << "EDWITHIN_TGEO_GEO: MEOS static geometry is null" << std::endl;
+                    return 0;
+                }
 
                 return edwithin_tgeo_geo(static_cast<const Temporal*>(temporalGeometry.getGeometry()),
                                          static_cast<const GSERIALIZED*>(staticGeometry.getGeometry()),

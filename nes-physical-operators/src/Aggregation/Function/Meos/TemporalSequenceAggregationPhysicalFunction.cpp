@@ -43,6 +43,9 @@
 
 // MEOS wrapper header
 #include <MEOSWrapper.hpp>
+extern "C" {
+#include <meos.h>
+}
 
 namespace NES
 {

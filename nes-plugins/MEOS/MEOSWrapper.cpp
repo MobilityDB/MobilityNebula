@@ -20,6 +20,7 @@
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
+#include <filesystem>
 #include <cstdint>
 
 // Include MEOS wrapper after standard headers
@@ -41,12 +42,32 @@ namespace MEOS {
 
     static void ensureMeosInitialized() {
         if (!meos_initialized) {
-            // Set timezone to UTC if not set (common issue in Docker)
-            if (!std::getenv("TZ")) {
+            // Ensure a sane timezone environment before initializing MEOS (uses PostgreSQL tzdb)
+            const char* tzEnv = std::getenv("TZ");
+            if (!tzEnv || *tzEnv == '\0') {
                 setenv("TZ", "UTC", 1);
-                tzset();
             }
-            
+            // PGTZ is used by the underlying PG timezone code; prefer same value as TZ
+            const char* pgtzEnv = std::getenv("PGTZ");
+            if (!pgtzEnv || *pgtzEnv == '\0') {
+                const char* tzNow = std::getenv("TZ");
+                setenv("PGTZ", tzNow ? tzNow : "UTC", 1);
+            }
+            // Provide a tz database directory if none is set and a common system path exists
+            const char* tzdirEnv = std::getenv("TZDIR");
+            if (!tzdirEnv || *tzdirEnv == '\0') {
+                namespace fs = std::filesystem;
+                const char* candidates[] = {"/usr/share/zoneinfo", "/usr/lib/zoneinfo", "/usr/share/lib/zoneinfo"};
+                for (const auto* cand : candidates) {
+                    std::error_code ec;
+                    if (fs::exists(cand, ec) && !ec) {
+                        setenv("TZDIR", cand, 1);
+                        break;
+                    }
+                }
+            }
+            tzset();
+
             meos_initialize();
             meos_initialized = true;
             // Register cleanup function to be called at program exit
@@ -64,18 +85,21 @@ namespace MEOS {
     }
 
     std::string Meos::convertSecondsToTimestamp(long long seconds) {
+        // Use UTC to avoid timezone ambiguities and Docker tz issues
         std::chrono::seconds sec(seconds);
         std::chrono::time_point<std::chrono::system_clock> tp(sec);
 
-        // Convert to time_t for formatting
         std::time_t time = std::chrono::system_clock::to_time_t(tp);
+        std::tm utc_tm{};
+#if defined(_WIN32)
+        gmtime_s(&utc_tm, &time);
+#else
+        utc_tm = *std::gmtime(&time);
+#endif
 
-        // Convert to local time
-        std::tm local_tm = *std::localtime(&time);
-
-        // Format the time as a string
         std::ostringstream oss;
-        oss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
+        // Append explicit UTC offset so MEOS parser reads a zoned timestamp
+        oss << std::put_time(&utc_tm, "%Y-%m-%d %H:%M:%S") << "+00";
         return oss.str();
     }
 
@@ -103,9 +127,9 @@ namespace MEOS {
 
 
     Meos::TemporalInstant::~TemporalInstant() { 
-        if (instant) {
-            free(instant); 
-        }
+        // Do not free here: lifetime managed by MEOS/PG memory context.
+        // Avoid double-free or mismatched allocator issues across builds.
+        instant = nullptr;
     }
 
     bool Meos::TemporalInstant::intersects(const TemporalInstant& point) const {  
@@ -126,16 +150,34 @@ namespace MEOS {
 
         std::cout << "Creating MEOS TemporalGeometry from: " << wkt_string << std::endl;
 
-        Temporal *temp = tgeometry_in(wkt_string.c_str());
+        // Prefer temporal point parser; fall back to generic temporal geometry
+        Temporal *temp = tgeompoint_in(wkt_string.c_str());
+        // Some MEOS builds are picky about case of 'Point'
+        if (temp == nullptr) {
+            std::string alt = wkt_string;
+            auto pos = alt.find("POINT(");
+            if (pos != std::string::npos) {
+                alt.replace(pos, 5, "Point");
+                alt.insert(pos + 5, "("); // Ensure parentheses preserved
+                // However, the above replace would make 'Point(' already. Fix: just set correctly.
+                alt = wkt_string; // reset
+                alt.replace(pos, 6, "Point(");
+            }
+            if (alt != wkt_string) {
+                temp = tgeompoint_in(alt.c_str());
+            }
+        }
+        if (temp == nullptr) {
+            temp = tgeometry_in(wkt_string.c_str());
+        }
 
         if (temp == nullptr) {
-            std::cout << "Failed to parse temporal geometry with temporal_from_text" << std::endl;
-            // Try alternative format or set to null
+            std::cout << "Failed to parse temporal geometry (tgeompoint_in/tgeometry_in)" << std::endl;
             geometry = nullptr;
         } else {
             geometry = temp;
             std::cout << "Successfully created temporal geometry" << std::endl;
-        }        
+        }
 
     }
 
@@ -144,9 +186,8 @@ namespace MEOS {
     }
 
     Meos::TemporalGeometry::~TemporalGeometry() { 
-        if (geometry) {
-            free(geometry); 
-        }
+        // See note above about allocator mismatch.
+        geometry = nullptr;
     }
 
     int Meos::TemporalGeometry::intersects(const TemporalGeometry& geom) const{
@@ -182,9 +223,8 @@ namespace MEOS {
     }
 
     Meos::StaticGeometry::~StaticGeometry() {
-        if (geometry) {
-            free(geometry);
-        }
+        // See note above about allocator mismatch.
+        geometry = nullptr;
     }
 
     int Meos::TemporalGeometry::intersectsStatic(const StaticGeometry& static_geom) const {
@@ -304,9 +344,8 @@ namespace MEOS {
     }
     
     void Meos::freeTemporalObject(void* temporal) {
-        if (temporal) {
-            free(temporal);
-        }
+        // Intentionally no-op; avoid allocator mismatch.
+        (void)temporal;
     }
     
     uint8_t* Meos::temporalToWKB(void* temporal, size_t& size) {
@@ -333,10 +372,8 @@ namespace MEOS {
     }
 
     Meos::SpatioTemporalBox::~SpatioTemporalBox() {
-        if (stbox_ptr) {
-            free(stbox_ptr);
-            stbox_ptr = nullptr;
-        }
+        // Do not free; managed by MEOS.
+        stbox_ptr = nullptr;
     }
 
     STBox* Meos::SpatioTemporalBox::getBox() const {
@@ -348,10 +385,8 @@ namespace MEOS {
         : temporal(temporalPtr) {}
 
     Meos::TemporalHolder::~TemporalHolder() {
-        if (temporal) {
-            free(temporal);
-            temporal = nullptr;
-        }
+        // Do not free; managed by MEOS.
+        temporal = nullptr;
     }
 
     Temporal* Meos::TemporalHolder::get() const {

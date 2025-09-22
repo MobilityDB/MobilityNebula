@@ -14,6 +14,7 @@
 #include <Functions/FunctionProvider.hpp>
 
 #include <cstdint>
+#include <algorithm>
 #include <string>
 #include <utility>
 #include <vector>

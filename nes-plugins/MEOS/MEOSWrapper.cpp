@@ -406,6 +406,59 @@ namespace MEOS {
         {
             std::lock_guard<std::mutex> lk(meos_parse_mutex);
             stbox_ptr = stbox_in(wkt_string.c_str());
+            if (!stbox_ptr) {
+                // Attempt to convert legacy STBOX((x,y,t),(x2,y2,t2)) into STBOX XT(((x,y),(x2,y2)),[t,t2])
+                std::string sridPrefix;
+                std::string core = wkt_string;
+                if (auto semi = core.find(';'); semi != std::string::npos) {
+                    sridPrefix = core.substr(0, semi + 1); // keep trailing ';'
+                    core = core.substr(semi + 1);
+                }
+                auto start = core.find("STBOX((");
+                auto end = core.rfind(")");
+                if (start != std::string::npos && end != std::string::npos && end > start + 8) {
+                    std::string inner = core.substr(start + 7, end - (start + 7)); // after 'STBOX('
+                    // Expect inner like: (x,y,t),(x2,y2,t2)
+                    // Remove possible outer parentheses
+                    if (!inner.empty() && inner.front() == '(' && inner.back() == ')') {
+                        inner = inner.substr(1, inner.size() - 2);
+                    }
+                    auto mid = inner.find("),(");
+                    if (mid != std::string::npos) {
+                        auto first = inner.substr(0, mid);
+                        auto second = inner.substr(mid + 3);
+                        auto trim = [](std::string& s){
+                            while (!s.empty() && (s.front()==' '||s.front()=='\t')) s.erase(s.begin());
+                            while (!s.empty() && (s.back()==' '||s.back()=='\t')) s.pop_back();
+                            if (!s.empty() && s.front()=='(') s.erase(s.begin());
+                            if (!s.empty() && s.back()==')') s.pop_back();
+                        };
+                        trim(first); trim(second);
+                        auto split3 = [](const std::string& s){
+                            std::vector<std::string> out; out.reserve(3);
+                            size_t p=0; size_t c1 = s.find(',');
+                            if (c1==std::string::npos) return out;
+                            size_t c2 = s.find(',', c1+1);
+                            if (c2==std::string::npos) return out;
+                            out.push_back(s.substr(0,c1));
+                            out.push_back(s.substr(c1+1, c2-(c1+1)));
+                            out.push_back(s.substr(c2+1));
+                            return out;
+                        };
+                        auto a = split3(first);
+                        auto b = split3(second);
+                        if (a.size()==3 && b.size()==3) {
+                            auto trimSpaces = [](std::string& s){
+                                while (!s.empty() && (s.front()==' '||s.front()=='\t')) s.erase(s.begin());
+                                while (!s.empty() && (s.back()==' '||s.back()=='\t')) s.pop_back();
+                            };
+                            for (auto* v : {&a[0],&a[1],&a[2],&b[0],&b[1],&b[2]}) trimSpaces(*v);
+                            std::string xt = sridPrefix + "STBOX XT(((" + a[0] + "," + a[1] + "),(" + b[0] + "," + b[1] + ")), [" + a[2] + ", " + b[2] + "])";
+                            stbox_ptr = stbox_in(xt.c_str());
+                        }
+                    }
+                }
+            }
         }
     }
 

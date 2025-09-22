@@ -62,52 +62,25 @@ VarVal TemporalEDWithinGeometryPhysicalFunction::execute(const Record& record, A
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\'' || staticGeometryWkt.front() == '"'))
-                {
                     staticGeometryWkt.erase(staticGeometryWkt.begin());
-                }
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\'' || staticGeometryWkt.back() == '"'))
-                {
                     staticGeometryWkt.pop_back();
-                }
 
                 if (temporalGeometryWkt.empty() || staticGeometryWkt.empty())
-                {
-                    std::cout << "EDWITHIN_TGEO_GEO received empty geometry strings" << std::endl;
-                    return -1;
-                }
+                    return 0;
 
                 MEOS::Meos::TemporalGeometry temporalGeometry(temporalGeometryWkt);
-                if (!temporalGeometry.getGeometry()) {
-                    std::cout << "EDWITHIN_TGEO_GEO: MEOS temporal geometry is null" << std::endl;
-                    return 0;
-                }
+                if (!temporalGeometry.getGeometry()) return 0;
                 MEOS::Meos::StaticGeometry staticGeometry(staticGeometryWkt);
-                if (!staticGeometry.getGeometry()) {
-                    std::cout << "EDWITHIN_TGEO_GEO: MEOS static geometry is null" << std::endl;
-                    return 0;
-                }
+                if (!staticGeometry.getGeometry()) return 0;
 
-                return edwithin_tgeo_geo(static_cast<const Temporal*>(temporalGeometry.getGeometry()),
-                                         static_cast<const GSERIALIZED*>(staticGeometry.getGeometry()),
-                                         distanceValue);
+                return MEOS::Meos::safe_edwithin_tgeo_geo(static_cast<const Temporal*>(temporalGeometry.getGeometry()),
+                                                         static_cast<const GSERIALIZED*>(staticGeometry.getGeometry()),
+                                                         distanceValue);
             }
-            catch (const std::exception& exception)
-            {
-                std::cout << "MEOS exception in edwithin_tgeo_geo: " << exception.what() << std::endl;
-                return -1;
-            }
-            catch (...)
-            {
-                std::cout << "Unknown error in edwithin_tgeo_geo" << std::endl;
-                return -1;
-            }
+            catch (...) { return -1; }
         },
-        lon,
-        lat,
-        timestamp,
-        geometry.getContent(),
-        geometry.getContentSize(),
-        distance);
+        lon, lat, timestamp, geometry.getContent(), geometry.getContentSize(), distance);
 
     return VarVal(result);
 }

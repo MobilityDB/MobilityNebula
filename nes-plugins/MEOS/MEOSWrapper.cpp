@@ -20,6 +20,7 @@
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
+#include <mutex>
 #include <filesystem>
 #include <cstdint>
 
@@ -32,6 +33,9 @@ namespace MEOS {
 
     // Global MEOS initialization
     static bool meos_initialized = false;
+    static std::mutex meos_init_mutex;
+    static std::mutex meos_parse_mutex;
+    static std::mutex meos_exec_mutex;
 
     static void cleanupMeos() {
         if (meos_initialized) {
@@ -41,6 +45,7 @@ namespace MEOS {
     }
 
     static void ensureMeosInitialized() {
+        std::lock_guard<std::mutex> lk(meos_init_mutex);
         if (!meos_initialized) {
             // Ensure a sane timezone environment before initializing MEOS (uses PostgreSQL tzdb)
             const char* tzEnv = std::getenv("TZ");
@@ -113,7 +118,11 @@ namespace MEOS {
 
         std::cout << "Creating MEOS TemporalInstant from: " << str_pointbuffer << std::endl;
 
-        Temporal *temp = tgeompoint_in(str_pointbuffer.c_str());
+        Temporal *temp = nullptr;
+        {
+            std::lock_guard<std::mutex> lk(meos_parse_mutex);
+            temp = tgeompoint_in(str_pointbuffer.c_str());
+        }
 
         if (temp == nullptr) {
             std::cout << "Failed to parse temporal point with temporal_from_text" << std::endl;
@@ -150,24 +159,29 @@ namespace MEOS {
 
         std::cout << "Creating MEOS TemporalGeometry from: " << wkt_string << std::endl;
 
-        // Prefer temporal point parser; fall back to generic temporal geometry
-        Temporal *temp = tgeompoint_in(wkt_string.c_str());
-        // Some MEOS builds are picky about case of 'Point'
+        // Try temporal point parser first
+        Temporal *temp = nullptr;
+        {
+            std::lock_guard<std::mutex> lk(meos_parse_mutex);
+            temp = tgeompoint_in(wkt_string.c_str());
+        }
+
+        // If failed, try toggling POINT/Point case
         if (temp == nullptr) {
             std::string alt = wkt_string;
-            auto pos = alt.find("POINT(");
-            if (pos != std::string::npos) {
-                alt.replace(pos, 5, "Point");
-                alt.insert(pos + 5, "("); // Ensure parentheses preserved
-                // However, the above replace would make 'Point(' already. Fix: just set correctly.
-                alt = wkt_string; // reset
-                alt.replace(pos, 6, "Point(");
-            }
-            if (alt != wkt_string) {
+            if (auto pos = alt.find("Point("); pos != std::string::npos) {
+                alt.replace(pos, 6, "POINT(");
+                std::lock_guard<std::mutex> lk2(meos_parse_mutex);
+                temp = tgeompoint_in(alt.c_str());
+            } else if (auto pos2 = alt.find("POINT("); pos2 != std::string::npos) {
+                alt.replace(pos2, 6, "Point(");
                 temp = tgeompoint_in(alt.c_str());
             }
         }
+
+        // Fall back to generic temporal geometry parser
         if (temp == nullptr) {
+            std::lock_guard<std::mutex> lk3(meos_parse_mutex);
             temp = tgeometry_in(wkt_string.c_str());
         }
 
@@ -209,7 +223,10 @@ namespace MEOS {
         std::cout << "Creating MEOS StaticGeometry from: " << wkt_string << std::endl;
 
         // Use geom_in to parse static WKT geometry (no temporal component)
-        geometry = geom_in(wkt_string.c_str(), -1);
+        {
+            std::lock_guard<std::mutex> lk(meos_parse_mutex);
+            geometry = geom_in(wkt_string.c_str(), -1);
+        }
 
         if (geometry == nullptr) {
             std::cout << "Failed to parse static geometry" << std::endl;
@@ -363,12 +380,33 @@ namespace MEOS {
         MEOS::ensureMeosInitialized();
     }
 
+    int Meos::safe_edwithin_tgeo_geo(const Temporal* temp, const GSERIALIZED* gs, double dist)
+    {
+        std::lock_guard<std::mutex> lk(meos_exec_mutex);
+        return edwithin_tgeo_geo(temp, gs, dist);
+    }
+
+    int Meos::safe_eintersects_tgeo_geo(const Temporal* temp, const GSERIALIZED* gs)
+    {
+        std::lock_guard<std::mutex> lk(meos_exec_mutex);
+        return eintersects_tgeo_geo(temp, gs);
+    }
+
+    Temporal* Meos::safe_tgeo_at_stbox(const Temporal* temp, const STBox* box, bool border_inc)
+    {
+        std::lock_guard<std::mutex> lk(meos_exec_mutex);
+        return tgeo_at_stbox(temp, box, border_inc);
+    }
+
     // SpatioTemporalBox implementation
     Meos::SpatioTemporalBox::SpatioTemporalBox(const std::string& wkt_string) {
         // Ensure MEOS is initialized
         ensureMeosInitialized();
         // Use MEOS stbox_in function to parse the WKT string
-        stbox_ptr = stbox_in(wkt_string.c_str());
+        {
+            std::lock_guard<std::mutex> lk(meos_parse_mutex);
+            stbox_ptr = stbox_in(wkt_string.c_str());
+        }
     }
 
     Meos::SpatioTemporalBox::~SpatioTemporalBox() {

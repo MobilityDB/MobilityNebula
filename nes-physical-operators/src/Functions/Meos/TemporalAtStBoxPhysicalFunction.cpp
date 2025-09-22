@@ -75,74 +75,22 @@ VarVal TemporalAtStBoxPhysicalFunction::execute(const Record& record, ArenaRef& 
             bool borderInclusiveFlag) -> int {
             try
             {
-                (void)timestampValue; // suppress unused parameter warning; we only do spatial bounds here
-                // Parse STBOX literal safely and perform bounds check without invoking MEOS STBOX parser
+                MEOS::Meos::ensureMeosInitialized();
+                const std::string timestampString = MEOS::Meos::convertSecondsToTimestamp(timestampValue);
+                std::string temporalGeometryWkt = fmt::format("SRID=4326;Point({} {})@{}", lonValue, latValue, timestampString);
                 std::string stboxWkt(stboxPtr, stboxSize);
-                // Strip quotes
-                while (!stboxWkt.empty() && (stboxWkt.front() == '\'' || stboxWkt.front() == '"')) stboxWkt.erase(stboxWkt.begin());
-                while (!stboxWkt.empty() && (stboxWkt.back() == '\'' || stboxWkt.back() == '"')) stboxWkt.pop_back();
-                if (stboxWkt.empty()) {
-                    std::cout << "TGEO_AT_STBOX received empty STBOX string" << std::endl; return 0;
-                }
+                while (!stboxWkt.empty() && (stboxWkt.front()=='\'' || stboxWkt.front()=='"')) stboxWkt.erase(stboxWkt.begin());
+                while (!stboxWkt.empty() && (stboxWkt.back()=='\'' || stboxWkt.back()=='"')) stboxWkt.pop_back();
+                if (temporalGeometryWkt.empty() || stboxWkt.empty()) return 0;
 
-                // Find inner coordinates between STBOX(( and ))
-                auto toUpper = [](std::string s){ for (auto& c: s) c = static_cast<char>(std::toupper(static_cast<unsigned char>(c))); return s; };
-                std::string upper = toUpper(stboxWkt);
-                const std::string key = "STBOX((";
-                auto startPos = upper.find(key);
-                auto endPos = stboxWkt.rfind(")");
-                if (startPos == std::string::npos || endPos == std::string::npos || endPos <= startPos + key.size()) {
-                    std::cout << "TGEO_AT_STBOX: malformed STBOX literal" << std::endl; return 0;
-                }
-                std::string inner = stboxWkt.substr(startPos + key.size(), endPos - (startPos + key.size()));
-                // Split on "),(" to get two tuples
-                auto mid = inner.find("),(");
-                if (mid == std::string::npos) { std::cout << "TGEO_AT_STBOX: malformed inner tuple" << std::endl; return 0; }
-                std::string first = inner.substr(0, mid);
-                std::string second = inner.substr(mid + 3);
-                auto trim = [](std::string& s){
-                    auto isspace2 = [](unsigned char c){ return std::isspace(c) != 0; };
-                    while (!s.empty() && isspace2(static_cast<unsigned char>(s.front()))) s.erase(s.begin());
-                    while (!s.empty() && isspace2(static_cast<unsigned char>(s.back()))) s.pop_back();
-                };
-                trim(first); trim(second);
-                // Extract lon/lat from each tuple: take the first two comma-separated numbers
-                auto parseLonLat = [&](const std::string& t, double& lon, double& lat){
-                    size_t p1 = 0; size_t c1 = t.find(','); if (c1==std::string::npos) return false; 
-                    size_t c2 = t.find(',', c1+1); if (c2==std::string::npos) return false; 
-                    try {
-                        lon = std::stod(t.substr(p1, c1-p1));
-                        lat = std::stod(t.substr(c1+1, c2-(c1+1)));
-                        return true;
-                    } catch (...) { return false; }
-                };
-                double minLon, minLat, maxLon, maxLat;
-                if (!parseLonLat(first, minLon, minLat) || !parseLonLat(second, maxLon, maxLat)) {
-                    std::cout << "TGEO_AT_STBOX: failed to parse lon/lat" << std::endl; return 0; }
-
-                // Normalize bounds
-                if (minLon > maxLon) std::swap(minLon, maxLon);
-                if (minLat > maxLat) std::swap(minLat, maxLat);
-
-                const bool insideLon = borderInclusiveFlag ? (lonValue >= minLon && lonValue <= maxLon)
-                                                           : (lonValue >  minLon && lonValue <  maxLon);
-                const bool insideLat = borderInclusiveFlag ? (latValue >= minLat && latValue <= maxLat)
-                                                           : (latValue >  minLat && latValue <  maxLat);
-
-                // Time bounds present but our timestamp already contains +00; most queries use wide range; treat as satisfied
-                // Optional: we could also parse third comma field for time bounds if needed.
-                return (insideLon && insideLat) ? 1 : 0;
+                MEOS::Meos::TemporalGeometry temporalGeometry(temporalGeometryWkt);
+                if (!temporalGeometry.getGeometry()) return 0;
+                MEOS::Meos::SpatioTemporalBox stbox(stboxWkt);
+                if (!stbox.getBox()) return 0;
+                MEOS::Meos::TemporalHolder clipped(MEOS::Meos::safe_tgeo_at_stbox(temporalGeometry.getGeometry(), stbox.getBox(), borderInclusiveFlag));
+                return clipped.get() != nullptr ? 1 : 0;
             }
-            catch (const std::exception& exception)
-            {
-                std::cout << "MEOS exception in tgeo_at_stbox: " << exception.what() << std::endl;
-                return -1;
-            }
-            catch (...)
-            {
-                std::cout << "Unknown error in tgeo_at_stbox" << std::endl;
-                return -1;
-            }
+            catch (...) { return -1; }
         },
         lon,
         lat,

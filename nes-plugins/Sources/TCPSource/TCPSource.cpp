@@ -498,6 +498,14 @@ bool TCPSource::fillBuffer(NES::Memory::TupleBuffer& tupleBuffer, size_t& numRec
     }
 
     const auto flushIntervalTimerStart = std::chrono::system_clock::now();
+    // Stamp ingress creation timestamp (monotonic) for e2e latency
+    {
+        const auto nowNs = std::chrono::time_point_cast<std::chrono::milliseconds>(
+                               std::chrono::steady_clock::now())
+                               .time_since_epoch()
+                               .count();
+        tupleBuffer.setCreationTimestampInMS(NES::Timestamp(static_cast<NES::Timestamp::Underlying>(nowNs)));
+    }
     bool flushIntervalPassed = false;
     bool readWasValid = true;
 

@@ -96,6 +96,7 @@ public:
     [[nodiscard]] uint64_t getNumberOfWorkerThreads() const override { return 0; }; /// dummy implementation for  pure virtual function
     [[nodiscard]] std::shared_ptr<Memory::AbstractBufferProvider> getBufferManager() const override { return bufferManager; }
     [[nodiscard]] PipelineId getPipelineId() const override { return pipelineId; }
+    void setIngressCreationTimestamp(NES::Timestamp ts) override { ingressTs = ts; }
 
     std::unordered_map<OperatorHandlerId, std::shared_ptr<OperatorHandler>>& getOperatorHandlers() override { return operatorHandlers; };
     void setOperatorHandlers(std::unordered_map<OperatorHandlerId, std::shared_ptr<OperatorHandler>>& operatorHandlers) override
@@ -110,6 +111,7 @@ private:
     std::function<void()> repeatTaskCallback;
     std::shared_ptr<Memory::AbstractBufferProvider> bufferManager;
     std::unordered_map<OperatorHandlerId, std::shared_ptr<OperatorHandler>> operatorHandlers;
+    NES::Timestamp ingressTs{NES::Timestamp::INITIAL_VALUE};
     /// Different threads have different TestPipelineExecutionContexts. All threads share the same pointer to the result buffers.
     /// Each thread writes its own results in a dedicated slot. This keeps results in a single place and does not require awkward logic
     /// to get the result buffers out of the TestPipelineExecutionContexts.

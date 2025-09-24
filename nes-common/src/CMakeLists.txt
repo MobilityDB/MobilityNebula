@@ -12,6 +12,7 @@
 
 add_subdirectory(Sequencing)
 add_subdirectory(Util)
+add_subdirectory(Metrics)
 
 add_source_files(nes-common
         ErrorHandling.cpp)

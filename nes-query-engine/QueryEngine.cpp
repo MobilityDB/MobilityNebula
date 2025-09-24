@@ -37,6 +37,8 @@
 #include <Runtime/Execution/QueryStatus.hpp>
 #include <Runtime/QueryTerminationType.hpp>
 #include <Runtime/TupleBuffer.hpp>
+#include <Metrics/MetricsRegistry.hpp>
+#include <fmt/format.h>
 #include <Util/AtomicState.hpp>
 #include <Util/ThreadNaming.hpp>
 #include <fmt/format.h>
@@ -137,6 +139,7 @@ struct DefaultPEC final : PipelineExecutionContext
     size_t numberOfThreads;
     WorkerThreadId threadId;
     PipelineId pipelineId;
+    NES::Timestamp ingressTs{NES::Timestamp::INITIAL_VALUE};
 
     DefaultPEC(
         size_t numberOfThreads,
@@ -149,11 +152,23 @@ struct DefaultPEC final : PipelineExecutionContext
     }
 
     [[nodiscard]] WorkerThreadId getId() const override { return threadId; }
-    Memory::TupleBuffer allocateTupleBuffer() override { return bm->getBufferBlocking(); }
+    Memory::TupleBuffer allocateTupleBuffer() override
+    {
+        auto tb = bm->getBufferBlocking();
+        tb.setCreationTimestampInMS(ingressTs);
+        return tb;
+    }
     [[nodiscard]] uint64_t getNumberOfWorkerThreads() const override { return numberOfThreads; }
-    bool emitBuffer(const Memory::TupleBuffer& buffer, ContinuationPolicy policy) override { return handler(buffer, policy); }
+    bool emitBuffer(const Memory::TupleBuffer& buffer, ContinuationPolicy policy) override
+    {
+        // Per-pipeline egress count
+        const auto tuples = buffer.getNumberOfTuples();
+        NES::Metrics::MetricsRegistry::instance().incCounter(fmt::format("pipe_{}_out_total", pipelineId.getRawValue()), tuples);
+        return handler(buffer, policy);
+    }
     std::shared_ptr<Memory::AbstractBufferProvider> getBufferManager() const override { return bm; }
     PipelineId getPipelineId() const override { return pipelineId; }
+    void setIngressCreationTimestamp(NES::Timestamp ts) override { ingressTs = ts; }
     std::unordered_map<OperatorHandlerId, std::shared_ptr<OperatorHandler>>& getOperatorHandlers() override
     {
         PRECONDITION(operatorHandlers, "OperatorHandlers were not set");

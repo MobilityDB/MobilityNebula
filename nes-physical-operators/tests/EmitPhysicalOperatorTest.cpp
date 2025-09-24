@@ -66,6 +66,7 @@ class EmitPhysicalOperatorTest : public Testing::BaseUnitTest
         }
 
         Memory::TupleBuffer allocateTupleBuffer() override { return bufferManager->getBufferBlocking(); }
+        void setIngressCreationTimestamp(NES::Timestamp) override { /* not needed for this test */ }
         [[nodiscard]] WorkerThreadId getId() const override { return INITIAL<WorkerThreadId>; }
         [[nodiscard]] uint64_t getNumberOfWorkerThreads() const override { return 1; }
         [[nodiscard]] std::shared_ptr<Memory::AbstractBufferProvider> getBufferManager() const override { return bufferManager; }

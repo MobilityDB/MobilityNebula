@@ -8,12 +8,13 @@ query: |
                       time_utc,
                       'SRID=4326;STBOX XT(((4.0,50.0),(4.6,50.8)),[2024-08-01 00:00:00+00, 2025-08-01 00:00:00+00])') = INT32(1)
   WINDOW SLIDING(time_utc, SIZE 20 SEC, ADVANCE BY 200 MS)
-  INTO print_sink;
+  INTO file_sink;
 
 sink:
-  name: print_sink
-  type: PRINT
+  name: file_sink
+  type: FILE
   config:
+    filePath: "/workspace/Output/output_query4.csv"
     inputFormat: CSV
 
 logical:

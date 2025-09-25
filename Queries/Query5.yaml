@@ -20,7 +20,7 @@ sink:
   name: file_sink
   type: FILE
   config:
-    filePath: "/workspace/output_query5.csv"
+    filePath: "/workspace/Output/output_query5.csv"
     inputFormat: CSV
 
 logical:

@@ -4,12 +4,13 @@ query: |
          TEMPORAL_SEQUENCE(gps_lon, gps_lat, time_utc) AS trajectory
   FROM sncb_stream
   WINDOW SLIDING(time_utc, SIZE 10 SEC, ADVANCE BY 100 MS)
-  INTO print_sink;
+  INTO file_sink;
 
 sink:
-  name: print_sink
-  type: PRINT
+  name: file_sink
+  type: FILE
   config:
+    filePath: "/workspace/Output/output_query3.csv"
     inputFormat: CSV
 
 logical:

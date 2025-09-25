@@ -13,18 +13,17 @@ query: |
                                           gps_lat,
                                           time_utc,
                                           'SRID=4326;POLYGON((4.0 50.0, 4.0 50.8, 4.6 50.8, 4.6 50.0, 4.0 50.0))') = INT32(0)
-      WINDOW SLIDING(time_utc, SIZE 10 SEC, ADVANCE BY 200 MS) 
+      WINDOW SLIDING(time_utc, SIZE 10 SEC, ADVANCE BY 100 MS)
   )
-  WHERE (varBP > FLOAT64(0.1))
-    AND (varFF <= FLOAT64(10))
-  INTO file_sink;
+  WHERE (varBP > FLOAT64(0.6))
+    AND (varFF <= FLOAT64(0.5))
+  INTO checksum_sink;
 
 sink:
-  name: file_sink
-  type: FILE
+  name: checksum_sink
+  type: CHECKSUM
   config:
-    filePath: "/workspace/Output/output_query2.csv"
-    inputFormat: CSV
+    filePath: "/workspace/checksum_query2.csv"
 
 logical:
   - name: sncb_stream
@@ -69,3 +68,4 @@ physical:
     parserConfig:
       type: CSV
       delimiter: ","
+

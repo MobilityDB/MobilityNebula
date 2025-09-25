@@ -1,30 +1,20 @@
 query: |
   SELECT start,
          end,
-         varBP,
-         varFF
-  FROM (
-      SELECT start,
-             end,
-             VAR(PCFA_mbar) AS varBP,
-             VAR(PCFF_mbar) AS varFF
-      FROM sncb_stream
-      WHERE temporal_eintersects_geometry(gps_lon,
-                                          gps_lat,
-                                          time_utc,
-                                          'SRID=4326;POLYGON((4.0 50.0, 4.0 50.8, 4.6 50.8, 4.6 50.0, 4.0 50.0))') = INT32(0)
-      WINDOW SLIDING(time_utc, SIZE 10 SEC, ADVANCE BY 200 MS) 
-  )
-  WHERE (varBP > FLOAT64(0.1))
-    AND (varFF <= FLOAT64(10))
-  INTO file_sink;
+         TEMPORAL_SEQUENCE(gps_lon, gps_lat, time_utc) AS trajectory
+  FROM sncb_stream
+  WHERE tgeo_at_stbox(gps_lon,
+                      gps_lat,
+                      time_utc,
+                      'SRID=4326;STBOX XT(((4.0,50.0),(4.6,50.8)),[2024-08-01 00:00:00+00, 2025-08-01 00:00:00+00])') = INT32(1)
+  WINDOW SLIDING(time_utc, SIZE 20 SEC, ADVANCE BY 200 MS)
+  INTO checksum_sink;
 
 sink:
-  name: file_sink
-  type: FILE
+  name: checksum_sink
+  type: CHECKSUM
   config:
-    filePath: "/workspace/Output/output_query2.csv"
-    inputFormat: CSV
+    filePath: "/workspace/checksum_query4.csv"
 
 logical:
   - name: sncb_stream
@@ -69,3 +59,4 @@ physical:
     parserConfig:
       type: CSV
       delimiter: ","
+

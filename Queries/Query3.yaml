@@ -3,7 +3,7 @@ query: |
          end,
          TEMPORAL_SEQUENCE(gps_lon, gps_lat, time_utc) AS trajectory
   FROM sncb_stream
-  WINDOW SLIDING(time_utc, SIZE 5 SEC, ADVANCE BY 1 SEC)
+  WINDOW SLIDING(time_utc, SIZE 3 SEC, ADVANCE BY 1 SEC)
   INTO file_sink;
 
 sink:

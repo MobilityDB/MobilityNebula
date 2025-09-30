@@ -150,8 +150,28 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
         return resultRecord;
     }
 
-    // Count points only. We no longer build a MEOS string here to avoid
-    // strict ordering requirements and allocator mismatches inside MEOS.
+    // Build the trajectory string in MEOS format for temporal instant set
+    // For single point: Point(-73.9857 40.7484)@2000-01-01 08:00:00
+    // For multiple points: {Point(-73.9857 40.7484)@2000-01-01 08:00:00, Point(-73.9787 40.7505)@2000-01-01 08:05:00}
+    auto trajectoryStr = nautilus::invoke(
+        +[](const Nautilus::Interface::PagedVector* pagedVector) -> char*
+        {
+            // Allocate a buffer for the trajectory string
+            // Each point is approximately 100 chars: Point(-123.456789 12.345678)@2000-01-01 08:00:00
+            // Add extra space to prevent buffer issues
+            size_t bufferSize = pagedVector->getTotalNumberOfEntries() * 150 + 50;
+            char* buffer = (char*)malloc(bufferSize);
+
+            // Initialize buffer to zeros to ensure proper null termination
+            memset(buffer, 0, bufferSize);
+
+            // Start with opening brace for temporal instant set
+            strcpy(buffer, "{");
+            return buffer;
+        },
+        pagedVectorPtr);
+
+    // Track if this is the first point using a counter
     auto pointCounter = nautilus::val<int64_t>(0);
 
     // Read from paged vector in original order
@@ -169,21 +189,125 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
         auto lat = latValue.cast<nautilus::val<double>>();
         auto timestamp = timestampValue.cast<nautilus::val<int64_t>>();
 
-        (void)lon;
-        (void)lat;
-        (void)timestamp;
+        // Append point to trajectory string in MEOS format
+        trajectoryStr = nautilus::invoke(
+            +[](char* buffer, double lonVal, double latVal, int64_t tsVal, int64_t counter) -> char*
+            {
+                if (counter > 0) {
+                    strcat(buffer, ", ");
+                }
+
+                // Convert timestamp to MEOS format
+                // Determine if timestamp is in seconds or milliseconds
+                long long adjustedTime;
+                if (tsVal > 1000000000000LL) {
+                    // Milliseconds (13+ digits)
+                    adjustedTime = tsVal / 1000;
+                } else {
+                    // Seconds (10 digits or less) - Unix timestamp
+                    adjustedTime = tsVal;
+                }
+
+                // Use MEOS wrapper to convert timestamp
+                std::string timestampString = MEOS::Meos::convertSecondsToTimestamp(adjustedTime);
+                const char* timestampStr = timestampString.c_str();
+
+                char pointStr[120];
+                // Use Point format that MEOS expects: Point(lon lat)@timestamp
+                sprintf(pointStr, "Point(%.6f %.6f)@%s", lonVal, latVal, timestampStr);
+                strcat(buffer, pointStr);
+                return buffer;
+            },
+            trajectoryStr,
+            lon,
+            lat,
+            timestamp,
+            pointCounter);
+
         pointCounter = pointCounter + nautilus::val<int64_t>(1);
     }
-    // Create BINARY(N) string with number of points. This avoids invoking
-    // MEOS here and matches how results are interpreted by downstream tools.
-    auto binaryFormatStr = nautilus::invoke(
-        +[](int64_t totalPoints) -> char*
+
+    // Close the trajectory string - always use braces for temporal instant sets
+    trajectoryStr = nautilus::invoke(
+        +[](char* buffer, int64_t totalPoints) -> char*
         {
-            char* buffer = (char*)malloc(32);
-            sprintf(buffer, "BINARY(%lld)", static_cast<long long>(totalPoints));
+            // Always close with brace - temporal instant sets require {} even for single points
+            strcat(buffer, "}");
+            if (totalPoints == 1) {
+                printf("DEBUG: Single point trajectory string: %s\n", buffer);
+            } else {
+                printf("DEBUG: Multiple points trajectory string: %s\n", buffer);
+            }
             return buffer;
         },
+        trajectoryStr,
         pointCounter);
+
+    nautilus::invoke(
+        +[](const char* buffer) -> void
+        {
+            printf("DEBUG: trajectory string before MEOS: %s\n", buffer);
+        },
+        trajectoryStr);
+
+    // Convert string to MEOS binary format and get size
+    auto binarySize = nautilus::invoke(
+        +[](const char* trajStr) -> size_t
+        {
+            // Validate string is not empty
+            if (!trajStr || strlen(trajStr) == 0) {
+                return 0;
+            }
+
+            // Parse the temporal instant string into a MEOS temporal object
+            // Lock mutex for thread-safe MEOS operations
+            std::lock_guard<std::mutex> lock(meos_mutex);
+
+            // Parse using the wrapper function
+            std::string trajString(trajStr);
+            void* temp = MEOS::Meos::parseTemporalPoint(trajString);
+            if (!temp) {
+                return 0;
+            }
+
+            // Get the size needed for binary WKB format
+            size_t size = 0;
+            uint8_t* data = MEOS::Meos::temporalToWKB(temp, size);
+
+            if (!data) {
+                MEOS::Meos::freeTemporalObject(temp);
+                return 0;
+            }
+
+            free(data);
+            MEOS::Meos::freeTemporalObject(temp);
+
+            return size;
+        },
+        trajectoryStr);
+
+    if (binarySize == nautilus::val<size_t>(0)) {
+        // Return empty record or handle error appropriately
+        auto emptyVariableSized = pipelineMemoryProvider.arena.allocateVariableSizedData(0);
+        Nautilus::Record resultRecord;
+        resultRecord.write(resultFieldIdentifier, emptyVariableSized);
+        return resultRecord;
+    }
+
+    // Create BINARY(N) string format for test compatibility
+    auto binaryFormatStr = nautilus::invoke(
+        +[](size_t size, const char* trajStr) -> char*
+        {
+            // Allocate buffer for "BINARY(N)" string
+            char* buffer = (char*)malloc(32);  // More than enough for "BINARY(" + number + ")"
+            sprintf(buffer, "BINARY(%zu)", size);
+
+            // Free the trajectory string as we don't need it anymore
+            free((void*)trajStr);
+            return buffer;
+        },
+        binarySize,
+        trajectoryStr);
 
     // Get the length of the BINARY(N) string
     auto formatStrLen = nautilus::invoke(
@@ -206,6 +330,19 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
         variableSized.getContent(),
         binaryFormatStr,
         formatStrLen);
+
+    nautilus::invoke(
+        +[](const int8_t* data, size_t len, size_t size) -> void
+        {
+            printf(
+                "DEBUG: MEOS WKB size=%zu label=%.*s\n",
+                size,
+                static_cast<int>(len),
+                reinterpret_cast<const char*>(data));
+        },
+        variableSized.getContent(),
+        nautilus::val<size_t>(formatStrLen),
+        binarySize);
 
     Nautilus::Record resultRecord;
     resultRecord.write(resultFieldIdentifier, variableSized);

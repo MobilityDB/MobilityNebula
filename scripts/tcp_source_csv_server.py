@@ -112,6 +112,7 @@ def _parse_timestamp_to_epoch_ms(ts_raw: str) -> float | None:
     s = ts_raw.strip()
     if not s:
         return None
+    # Fast path: numeric seconds (int/float)
     try:
         return float(int(s)) * 1000.0
     except ValueError:
@@ -119,17 +120,29 @@ def _parse_timestamp_to_epoch_ms(ts_raw: str) -> float | None:
             return float(s) * 1000.0
         except ValueError:
             pass
+
+    # ISO 8601 parsing with robust timezone normalization
     t = s
+    # Handle trailing Z/z as UTC
     if t.endswith('Z') or t.endswith('z'):
         t = t[:-1] + '+00:00'
+    # Allow space between date and time
     if 'T' not in t and ' ' in t:
         parts = t.split(' ')
         if len(parts) >= 2:
             t = parts[0] + 'T' + ' '.join(parts[1:])
-    # Normalize timezone +HH or +HHMM -> +HH:MM
-    if len(t) >= 3 and (t[-3] in ['+', '-'] and t[-2:].isdigit()):
-        t = t[:-2] + ':' + t[-2:]
+    # Normalize timezone offsets:
+    # Accept +HH, +HHMM, +HH:MM and normalize to +HH:MM
     try:
+        import re
+        # +HHMM → +HH:MM
+        m = re.search(r"([+-]\d{2})(\d{2})$", t)
+        if m:
+            t = t[: -len(m.group(0))] + f"{m.group(1)}:{m.group(2)}"
+        else:
+            # +HH → +HH:00
+            if re.search(r"[+-]\d{2}$", t):
+                t = t + ":00"
         dt = datetime.fromisoformat(t)
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
@@ -406,6 +419,7 @@ def stream_to_client(
     batch: list[bytes] = []
     batch_bytes = 0
     last_send_ts = time.perf_counter()
+    tuples_sent = 0
     try:
         for line in iter_csv_lines(
             csv_path,
@@ -430,11 +444,13 @@ def stream_to_client(
             batch_bytes += len(line)
             should_flush = len(batch) >= batch_size or (max_batch_bytes > 0 and batch_bytes >= max_batch_bytes)
             if should_flush:
+                flushed = len(batch)
                 client_sock.sendall(b"".join(batch))
                 batch.clear()
                 batch_bytes = 0
+                tuples_sent += flushed
                 if per_row_delay > 0.0:
-                    rows_sent = batch_size
+                    rows_sent = flushed
                     target_elapsed = per_row_delay * rows_sent
                     now = time.perf_counter()
                     wake_at = last_send_ts + target_elapsed
@@ -445,10 +461,18 @@ def stream_to_client(
                     else:
                         last_send_ts = now
         if batch:
+            # Flush remaining rows
             client_sock.sendall(b"".join(batch))
+            tuples_sent += len(batch)
     except (BrokenPipeError, ConnectionResetError):
         pass
     finally:
+        # Report how many tuples have been sent to this client
+        if verbose:
+            try:
+                print(f"Total tuples sent: {tuples_sent}")
+            except Exception:
+                pass
         try:
             client_sock.shutdown(socket.SHUT_RDWR)
         except OSError:

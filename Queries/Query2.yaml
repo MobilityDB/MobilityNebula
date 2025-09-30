@@ -2,12 +2,14 @@ query: |
   SELECT start,
          end,
          varBP,
-         varFF
+         varFF,
+         cnt
   FROM (
       SELECT start,
              end,
              VAR(PCFA_mbar) AS varBP,
-             VAR(PCFF_mbar) AS varFF
+             VAR(PCFF_mbar) AS varFF,
+             COUNT(time_utc) AS cnt
       FROM sncb_stream
       WHERE temporal_eintersects_geometry(gps_lon,
                                           gps_lat,

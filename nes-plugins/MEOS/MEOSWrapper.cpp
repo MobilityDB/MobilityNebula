@@ -310,27 +310,8 @@ namespace MEOS {
 
 
     Meos::TemporalSequence::~TemporalSequence() { 
-        if (sequence) {
-            // Check if this is a vector of instants or a single temporal object
-            // This is a bit hacky but works for our current implementation
-            try {
-                // Try to interpret as vector first
-                auto* instants_vec = reinterpret_cast<std::vector<Temporal*>*>(sequence);
-                // Simple heuristic: if the "vector" has a reasonable size, treat as vector
-                if (instants_vec && reinterpret_cast<uintptr_t>(instants_vec) > 0x1000) {
-                    // Likely a vector pointer
-                    for (auto* instant : *instants_vec) {
-                        if (instant) free(instant);
-                    }
-                    delete instants_vec;
-                } else {
-                    free(sequence);
-                }
-            } catch (...) {
-                free(sequence);
-            }
-            sequence = nullptr;
-        }
+        // Do not free; lifetime is managed by MEOS/PG memory context.
+        sequence = nullptr;
     }
 
     double Meos::TemporalSequence::length(const TemporalInstant& /* instant */) const {

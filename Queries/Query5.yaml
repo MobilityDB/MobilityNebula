@@ -12,9 +12,9 @@ query: |
                           'SRID=4326;POLYGON((4.32 50.60, 4.32 50.72, 4.48 50.72, 4.48 50.60, 4.32 50.60))',
                           FLOAT64(1.0)) = INT32(1)
   GROUP BY device_id
-  WINDOW SLIDING(time_utc, SIZE 45 SEC, ADVANCE BY 5 SEC)
-  HAVING (avg_speed < FLOAT64(5.0))
-      OR (min_speed < FLOAT64(2.0))
+  WINDOW SLIDING(time_utc, SIZE 20 SEC, ADVANCE BY 2 SEC)
+  HAVING (avg_speed < FLOAT64(100.0))
+      OR (min_speed < FLOAT64(20.0))
   INTO file_sink;
 sink:
   name: file_sink

@@ -70,6 +70,20 @@ void FileSink::start(PipelineExecutionContext&)
 {
     NES_DEBUG("Setting up file sink: {}", *this);
     auto stream = outputFileStream.wlock();
+
+    const std::filesystem::path outputPath(outputFilePath);
+    const auto parentPath = outputPath.parent_path();
+    if (!parentPath.empty())
+    {
+        std::error_code ec;
+        std::filesystem::create_directories(parentPath, ec);
+        if (ec)
+        {
+            throw CannotOpenSink(
+                "Could not create directory for output file; filePathOutput={}, error={}", outputFilePath, ec.message());
+        }
+    }
+
     /// Remove an existing file unless the isAppend mode is isAppend.
     if (!isAppend)
     {

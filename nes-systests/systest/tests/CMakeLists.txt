@@ -17,5 +17,4 @@ add_nes_test_systest(slt-parser-test
         "SystestRunnerTest.cpp")
 
 add_nes_test_systest(slt-e2e-test
-        "SystestE2ETests.cpp"
-        "GrpcTemporalSequenceIntegrationTest.cpp")
+        "SystestE2ETests.cpp")

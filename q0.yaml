@@ -1,0 +1,59 @@
+query: |
+  SELECT start, end, PCFA_var, PCFF_var FROM (
+      SELECT start, end, VAR(PCFA_mbar) AS PCFA_var, VAR(PCFF_mbar) as PCFF_var 
+      FROM sncb_stream
+      WINDOW SLIDING(time_utc, SIZE 10 SEC, ADVANCE BY 5 SEC)
+  ) WHERE (PCFA_var > FLOAT64(0.4))
+  INTO file_sink;
+
+sink:
+  name: file_sink
+  type: FILE
+  config:
+    filePath: "/app/Output/output_query0.csv"
+    inputFormat: CSV
+
+logical:
+  - name: sncb_stream
+    schema:
+      - name: time_utc
+        type: UINT64
+      - name: device_id
+        type: UINT64
+      - name: Vbat
+        type: FLOAT64
+      - name: PCFA_mbar
+        type: FLOAT64
+      - name: PCFF_mbar
+        type: FLOAT64
+      - name: PCF1_mbar
+        type: FLOAT64
+      - name: PCF2_mbar
+        type: FLOAT64
+      - name: T1_mbar
+        type: FLOAT64
+      - name: T2_mbar
+        type: FLOAT64
+      - name: Code1
+        type: FLOAT64
+      - name: Code2
+        type: FLOAT64
+      - name: gps_speed
+        type: FLOAT64
+      - name: gps_lat
+        type: FLOAT64
+      - name: gps_lon
+        type: FLOAT64
+
+physical:
+  - logical: sncb_stream
+    sourceConfig:
+      type: TCP
+      socketHost: "host.docker.internal"
+      socketPort: 32323
+      socketType: "SOCK_STREAM"
+      socketDomain: "AF_INET"
+    parserConfig:
+      type: CSV
+      delimiter: ","
+

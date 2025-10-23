@@ -108,6 +108,31 @@ namespace MEOS {
         return oss.str();
     }
 
+    std::string Meos::convertEpochToTimestamp(unsigned long long epochLike) {
+        // Normalize to seconds using magnitude heuristics
+        // >=1e19 -> ns, >=1e16 -> us, >=1e13 -> ms, else seconds
+        unsigned long long secondsUll = epochLike;
+        if (epochLike >= 1000000000000000000ULL) {        // nanoseconds
+            secondsUll = epochLike / 1000000000ULL;
+        } else if (epochLike >= 1000000000000000ULL) {    // microseconds
+            secondsUll = epochLike / 1000000ULL;
+        } else if (epochLike >= 1000000000000ULL) {       // milliseconds
+            secondsUll = epochLike / 1000ULL;
+        } else {
+            // seconds already
+            secondsUll = epochLike;
+        }
+
+        // Clamp to a reasonable range to avoid tz library failures
+        // Here we clamp to [0, 4102444800] ~ 2100-01-01 for safety
+        const unsigned long long kMaxReasonable = 4102444800ULL; // 2100-01-01T00:00:00Z
+        if (secondsUll > kMaxReasonable) {
+            secondsUll = kMaxReasonable;
+        }
+
+        return convertSecondsToTimestamp(static_cast<long long>(secondsUll));
+    }
+
     // TemporalInstant constructor
     Meos::TemporalInstant::TemporalInstant(double lon, double lat, long long ts, int srid) {
         // Ensure MEOS is initialized

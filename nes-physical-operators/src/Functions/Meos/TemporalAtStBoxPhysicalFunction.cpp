@@ -76,7 +76,7 @@ VarVal TemporalAtStBoxPhysicalFunction::execute(const Record& record, ArenaRef& 
             try
             {
                 MEOS::Meos::ensureMeosInitialized();
-                const std::string timestampString = MEOS::Meos::convertSecondsToTimestamp(timestampValue);
+                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
                 std::string temporalGeometryWkt = fmt::format("SRID=4326;Point({} {})@{}", lonValue, latValue, timestampString);
                 std::string stboxWkt(stboxPtr, stboxSize);
                 while (!stboxWkt.empty() && (stboxWkt.front()=='\'' || stboxWkt.front()=='"')) stboxWkt.erase(stboxWkt.begin());

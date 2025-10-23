@@ -181,7 +181,13 @@ class Meos {
     };
 
 
+    // Format a UTC timestamp string from seconds since epoch
     static std::string convertSecondsToTimestamp(long long seconds);
+
+    // Heuristically interpret an epoch-like value that may be in seconds,
+    // milliseconds, microseconds, or nanoseconds, and format as UTC.
+    // Common thresholds: 10 digits (seconds), 13 (ms), 16 (us), 19 (ns).
+    static std::string convertEpochToTimestamp(unsigned long long epochLike);
 
     // Thread-safe wrappers around selected MEOS functions to avoid internal races
     static int safe_edwithin_tgeo_geo(const Temporal* temp, const GSERIALIZED* gs, double dist);

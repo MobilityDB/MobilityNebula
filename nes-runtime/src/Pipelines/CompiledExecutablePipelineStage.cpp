@@ -28,6 +28,9 @@
 #include <PhysicalOperator.hpp>
 #include <Pipeline.hpp>
 #include <options.hpp>
+#include <Metrics/MetricsRegistry.hpp>
+#include <fmt/format.h>
+#include <chrono>
 
 namespace NES
 {
@@ -48,6 +51,35 @@ void CompiledExecutablePipelineStage::execute(
 {
     /// we call the compiled pipeline function with an input buffer and the execution context
     pipelineExecutionContext.setOperatorHandlers(operatorHandlers);
+    // Propagate ingress timestamp to newly allocated buffers in this pipeline.
+    // If missing on input, fall back to a monotonic stamp to avoid losing latency samples.
+    const auto inTs = inputTupleBuffer.getCreationTimestampInMS().getRawValue();
+    const auto pid = pipelineExecutionContext.getPipelineId().getRawValue();
+    const auto tuplesHere = inputTupleBuffer.getNumberOfTuples();
+    if (inTs == NES::Timestamp::INVALID_VALUE || inTs == NES::Timestamp::INITIAL_VALUE) {
+        // gate diagnostics on non-empty buffers
+        if (tuplesHere > 0) {
+            NES::Metrics::MetricsRegistry::instance().incCounter(fmt::format("pipe_{}_ts_missing_in", pid), 1);
+        }
+        const auto nowMsSigned = std::chrono::time_point_cast<std::chrono::milliseconds>(
+                                     std::chrono::steady_clock::now())
+                                     .time_since_epoch()
+                                     .count();
+        if (nowMsSigned >= 0) {
+            pipelineExecutionContext.setIngressCreationTimestamp(NES::Timestamp(static_cast<NES::Timestamp::Underlying>(nowMsSigned)));
+        } else {
+            pipelineExecutionContext.setIngressCreationTimestamp(NES::Timestamp(NES::Timestamp::INITIAL_VALUE));
+        }
+    } else {
+        if (tuplesHere > 0) {
+            NES::Metrics::MetricsRegistry::instance().incCounter(fmt::format("pipe_{}_ts_present_in", pid), 1);
+        }
+        pipelineExecutionContext.setIngressCreationTimestamp(inputTupleBuffer.getCreationTimestampInMS());
+    }
+    // Per-pipeline ingress count (operator-level in)
+    {
+        NES::Metrics::MetricsRegistry::instance().incCounter(fmt::format("pipe_{}_in_total", pid), tuplesHere);
+    }
     Arena arena(pipelineExecutionContext.getBufferManager());
     compiledPipelineFunction(std::addressof(pipelineExecutionContext), std::addressof(inputTupleBuffer), std::addressof(arena));
 }

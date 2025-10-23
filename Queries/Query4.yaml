@@ -1,0 +1,62 @@
+query: |
+  SELECT start,
+         end,
+         TEMPORAL_SEQUENCE(gps_lon, gps_lat, time_utc) AS trajectory
+  FROM sncb_stream
+  WHERE tgeo_at_stbox(gps_lon,
+                      gps_lat,
+                      time_utc,
+                      'SRID=4326;STBOX XT(((4.0,50.0),(4.6,50.8)),[2024-08-01 00:00:00+00, 2025-08-01 00:00:00+00])') = INT32(1)
+  WINDOW SLIDING(time_utc, SIZE 20 SEC, ADVANCE BY 2 SEC)
+  INTO file_sink;
+
+sink:
+  name: file_sink
+  type: FILE
+  config:
+    filePath: "/workspace/Output/output_query4.csv"
+    inputFormat: CSV
+
+logical:
+  - name: sncb_stream
+    schema:
+      - name: time_utc
+        type: UINT64
+      - name: device_id
+        type: UINT64
+      - name: Vbat
+        type: FLOAT64
+      - name: PCFA_mbar
+        type: FLOAT64
+      - name: PCFF_mbar
+        type: FLOAT64
+      - name: PCF1_mbar
+        type: FLOAT64
+      - name: PCF2_mbar
+        type: FLOAT64
+      - name: T1_mbar
+        type: FLOAT64
+      - name: T2_mbar
+        type: FLOAT64
+      - name: Code1
+        type: FLOAT64
+      - name: Code2
+        type: FLOAT64
+      - name: gps_speed
+        type: FLOAT64
+      - name: gps_lat
+        type: FLOAT64
+      - name: gps_lon
+        type: FLOAT64
+
+physical:
+  - logical: sncb_stream
+    sourceConfig:
+      type: TCP
+      socketHost: "host.docker.internal"
+      socketPort: 32323
+      socketType: "SOCK_STREAM"
+      socketDomain: "AF_INET"
+    parserConfig:
+      type: CSV
+      delimiter: ","

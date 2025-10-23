@@ -45,6 +45,7 @@
 #include <InputFormatterRegistry.hpp>
 #include <PipelineExecutionContext.hpp>
 #include <SequenceShredder.hpp>
+#include <Metrics/MetricsRegistry.hpp>
 
 namespace NES::InputFormatters
 {
@@ -144,6 +145,8 @@ public:
             auto tbf = getTupleBufferFormatted();
             tbf.setLastChunk(false);
             pipelineExecutionContext.emitBuffer(tbf, NES::PipelineExecutionContext::ContinuationPolicy::POSSIBLE);
+            // Count ingress tuples per source (EPS_in)
+            NES::Metrics::MetricsRegistry::instance().incCounter("source_in_total", tbf.getNumberOfTuples());
 
 
             /// We need to increment the chunk number as we are not done with the current sequence number.
@@ -491,8 +494,13 @@ void CSVInputFormatter::parseTupleBufferRaw(
         {
             return;
         }
-        /// 0. Allocate formatted buffer to write formatted tuples into.
+        /// 0. Allocate formatted buffer to write formatted tuples into and propagate ingress timestamp
         progressTracker.setNewTupleBufferFormatted(pipelineExecutionContext.allocateTupleBuffer());
+        {
+            auto formatted = progressTracker.getTupleBufferFormatted();
+            formatted.setCreationTimestampInMS(rawTB.getCreationTimestampInMS());
+            progressTracker.setNewTupleBufferFormatted(std::move(formatted));
+        }
 
         INVARIANT(indexOfBuffer < buffersToFormat.size(), "Index of buffer must be smaller than the size of the buffers.");
 
@@ -526,6 +534,7 @@ void CSVInputFormatter::parseTupleBufferRaw(
         finalFormattedBuffer.setLastChunk(true);
 
         pipelineExecutionContext.emitBuffer(finalFormattedBuffer, NES::PipelineExecutionContext::ContinuationPolicy::POSSIBLE);
+        NES::Metrics::MetricsRegistry::instance().incCounter("source_in_total", finalFormattedBuffer.getNumberOfTuples());
     }
     else
     {
@@ -550,6 +559,7 @@ void CSVInputFormatter::parseTupleBufferRaw(
         finalFormattedBuffer.setNumberOfTuples(finalFormattedBuffer.getNumberOfTuples() + 1);
         finalFormattedBuffer.setLastChunk(true);
         pipelineExecutionContext.emitBuffer(finalFormattedBuffer, NES::PipelineExecutionContext::ContinuationPolicy::POSSIBLE);
+        NES::Metrics::MetricsRegistry::instance().incCounter("source_in_total", finalFormattedBuffer.getNumberOfTuples());
     }
 }
 
@@ -619,8 +629,14 @@ void CSVInputFormatter::flushFinalTuple(
         tupleDelimiter,
         schema.getSizeOfSchemaInBytes(),
         schema.getNumberOfFields());
-    /// Allocate formatted buffer to write formatted tuples into.
+    /// Allocate formatted buffer to write formatted tuples into and propagate ingress timestamp from first staged buffer
     progressTracker.setNewTupleBufferFormatted(pipelineExecutionContext.allocateTupleBuffer());
+    if (!flushedBuffers.empty())
+    {
+        auto formatted = progressTracker.getTupleBufferFormatted();
+        formatted.setCreationTimestampInMS(flushedBuffers.front().buffer.getCreationTimestampInMS());
+        progressTracker.setNewTupleBufferFormatted(std::move(formatted));
+    }
     const auto formattedTupleIs
         = processPartialTuple(0, flushedBuffers.size() - 1, flushedBuffers, progressTracker, pipelineExecutionContext);
     /// Emit formatted buffer with single flushed tuple
@@ -630,6 +646,7 @@ void CSVInputFormatter::flushFinalTuple(
         finalFormattedBuffer.setNumberOfTuples(finalFormattedBuffer.getNumberOfTuples() + 1);
         finalFormattedBuffer.setLastChunk(true);
         pipelineExecutionContext.emitBuffer(finalFormattedBuffer, NES::PipelineExecutionContext::ContinuationPolicy::POSSIBLE);
+        NES::Metrics::MetricsRegistry::instance().incCounter("source_in_total", finalFormattedBuffer.getNumberOfTuples());
     }
 }
 size_t CSVInputFormatter::getSizeOfTupleDelimiter()

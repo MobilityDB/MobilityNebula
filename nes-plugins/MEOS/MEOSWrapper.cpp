@@ -20,6 +20,8 @@
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
+#include <mutex>
+#include <filesystem>
 #include <cstdint>
 
 // Include MEOS wrapper after standard headers
@@ -31,6 +33,9 @@ namespace MEOS {
 
     // Global MEOS initialization
     static bool meos_initialized = false;
+    static std::mutex meos_init_mutex;
+    static std::mutex meos_parse_mutex;
+    static std::mutex meos_exec_mutex;
 
     static void cleanupMeos() {
         if (meos_initialized) {
@@ -40,13 +45,34 @@ namespace MEOS {
     }
 
     static void ensureMeosInitialized() {
+        std::lock_guard<std::mutex> lk(meos_init_mutex);
         if (!meos_initialized) {
-            // Set timezone to UTC if not set (common issue in Docker)
-            if (!std::getenv("TZ")) {
+            // Ensure a sane timezone environment before initializing MEOS (uses PostgreSQL tzdb)
+            const char* tzEnv = std::getenv("TZ");
+            if (!tzEnv || *tzEnv == '\0') {
                 setenv("TZ", "UTC", 1);
-                tzset();
             }
-            
+            // PGTZ is used by the underlying PG timezone code; prefer same value as TZ
+            const char* pgtzEnv = std::getenv("PGTZ");
+            if (!pgtzEnv || *pgtzEnv == '\0') {
+                const char* tzNow = std::getenv("TZ");
+                setenv("PGTZ", tzNow ? tzNow : "UTC", 1);
+            }
+            // Provide a tz database directory if none is set and a common system path exists
+            const char* tzdirEnv = std::getenv("TZDIR");
+            if (!tzdirEnv || *tzdirEnv == '\0') {
+                namespace fs = std::filesystem;
+                const char* candidates[] = {"/usr/share/zoneinfo", "/usr/lib/zoneinfo", "/usr/share/lib/zoneinfo"};
+                for (const auto* cand : candidates) {
+                    std::error_code ec;
+                    if (fs::exists(cand, ec) && !ec) {
+                        setenv("TZDIR", cand, 1);
+                        break;
+                    }
+                }
+            }
+            tzset();
+
             meos_initialize();
             meos_initialized = true;
             // Register cleanup function to be called at program exit
@@ -64,18 +90,21 @@ namespace MEOS {
     }
 
     std::string Meos::convertSecondsToTimestamp(long long seconds) {
+        // Use UTC to avoid timezone ambiguities and Docker tz issues
         std::chrono::seconds sec(seconds);
         std::chrono::time_point<std::chrono::system_clock> tp(sec);
 
-        // Convert to time_t for formatting
         std::time_t time = std::chrono::system_clock::to_time_t(tp);
+        std::tm utc_tm{};
+#if defined(_WIN32)
+        gmtime_s(&utc_tm, &time);
+#else
+        utc_tm = *std::gmtime(&time);
+#endif
 
-        // Convert to local time
-        std::tm local_tm = *std::localtime(&time);
-
-        // Format the time as a string
         std::ostringstream oss;
-        oss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
+        // Append explicit UTC offset so MEOS parser reads a zoned timestamp
+        oss << std::put_time(&utc_tm, "%Y-%m-%d %H:%M:%S") << "+00";
         return oss.str();
     }
 
@@ -89,7 +118,11 @@ namespace MEOS {
 
         std::cout << "Creating MEOS TemporalInstant from: " << str_pointbuffer << std::endl;
 
-        Temporal *temp = tgeompoint_in(str_pointbuffer.c_str());
+        Temporal *temp = nullptr;
+        {
+            std::lock_guard<std::mutex> lk(meos_parse_mutex);
+            temp = tgeompoint_in(str_pointbuffer.c_str());
+        }
 
         if (temp == nullptr) {
             std::cout << "Failed to parse temporal point with temporal_from_text" << std::endl;
@@ -103,9 +136,9 @@ namespace MEOS {
 
 
     Meos::TemporalInstant::~TemporalInstant() { 
-        if (instant) {
-            free(instant); 
-        }
+        // Do not free here: lifetime managed by MEOS/PG memory context.
+        // Avoid double-free or mismatched allocator issues across builds.
+        instant = nullptr;
     }
 
     bool Meos::TemporalInstant::intersects(const TemporalInstant& point) const {  
@@ -115,31 +148,6 @@ namespace MEOS {
         if (result) {
             std::cout << "TemporalInstant intersects" << std::endl;
         }
-
-        // std::cout << "=== HARDCODED MEOS TEST ===" << std::endl;
-        // try {
-        //     // Create two test temporal geometries for direct comparison
-        //     std::string test1 = "SRID=4326;POINT(-73.9767 40.7494)@2021-01-01 00:10:00";
-        //     std::string test2 = "SRID=4326;POINT(-73.9857 40.7484)@2021-01-01 00:00:00";
-            
-        //     Temporal* temp1 = tgeometry_in(test1.c_str());
-        //     Temporal* temp2 = tgeometry_in(test2.c_str());
-            
-        //     if (temp1 && temp2) {
-        //         bool hardcoded_result = eintersects_tgeo_tgeo(temp1, temp2);
-        //         std::cout << "Hardcoded MEOS eintersects_tgeo_tgeo result: " << hardcoded_result << std::endl;
-        //         std::cout << "Test1: " << test1 << std::endl;
-        //         std::cout << "Test2: " << test2 << std::endl;
-                
-        //         free(temp1);
-        //         free(temp2);
-        //     } else {
-        //         std::cout << "Failed to create hardcoded temporal geometries" << std::endl;
-        //     }
-        // } catch (...) {
-        //     std::cout << "Exception in hardcoded test" << std::endl;
-        // }
-        // std::cout << "=== END HARDCODED TEST ===" << std::endl;
 
         return result;
     }
@@ -151,16 +159,39 @@ namespace MEOS {
 
         std::cout << "Creating MEOS TemporalGeometry from: " << wkt_string << std::endl;
 
-        Temporal *temp = tgeometry_in(wkt_string.c_str());
+        // Try temporal point parser first
+        Temporal *temp = nullptr;
+        {
+            std::lock_guard<std::mutex> lk(meos_parse_mutex);
+            temp = tgeompoint_in(wkt_string.c_str());
+        }
+
+        // If failed, try toggling POINT/Point case
+        if (temp == nullptr) {
+            std::string alt = wkt_string;
+            if (auto pos = alt.find("Point("); pos != std::string::npos) {
+                alt.replace(pos, 6, "POINT(");
+                std::lock_guard<std::mutex> lk2(meos_parse_mutex);
+                temp = tgeompoint_in(alt.c_str());
+            } else if (auto pos2 = alt.find("POINT("); pos2 != std::string::npos) {
+                alt.replace(pos2, 6, "Point(");
+                temp = tgeompoint_in(alt.c_str());
+            }
+        }
+
+        // Fall back to generic temporal geometry parser
+        if (temp == nullptr) {
+            std::lock_guard<std::mutex> lk3(meos_parse_mutex);
+            temp = tgeometry_in(wkt_string.c_str());
+        }
 
         if (temp == nullptr) {
-            std::cout << "Failed to parse temporal geometry with temporal_from_text" << std::endl;
-            // Try alternative format or set to null
+            std::cout << "Failed to parse temporal geometry (tgeompoint_in/tgeometry_in)" << std::endl;
             geometry = nullptr;
         } else {
             geometry = temp;
             std::cout << "Successfully created temporal geometry" << std::endl;
-        }        
+        }
 
     }
 
@@ -169,9 +200,8 @@ namespace MEOS {
     }
 
     Meos::TemporalGeometry::~TemporalGeometry() { 
-        if (geometry) {
-            free(geometry); 
-        }
+        // See note above about allocator mismatch.
+        geometry = nullptr;
     }
 
     int Meos::TemporalGeometry::intersects(const TemporalGeometry& geom) const{
@@ -193,7 +223,10 @@ namespace MEOS {
         std::cout << "Creating MEOS StaticGeometry from: " << wkt_string << std::endl;
 
         // Use geom_in to parse static WKT geometry (no temporal component)
-        geometry = geom_in(wkt_string.c_str(), -1);
+        {
+            std::lock_guard<std::mutex> lk(meos_parse_mutex);
+            geometry = geom_in(wkt_string.c_str(), -1);
+        }
 
         if (geometry == nullptr) {
             std::cout << "Failed to parse static geometry" << std::endl;
@@ -207,9 +240,8 @@ namespace MEOS {
     }
 
     Meos::StaticGeometry::~StaticGeometry() {
-        if (geometry) {
-            free(geometry);
-        }
+        // See note above about allocator mismatch.
+        geometry = nullptr;
     }
 
     int Meos::TemporalGeometry::intersectsStatic(const StaticGeometry& static_geom) const {
@@ -278,27 +310,8 @@ namespace MEOS {
 
 
     Meos::TemporalSequence::~TemporalSequence() { 
-        if (sequence) {
-            // Check if this is a vector of instants or a single temporal object
-            // This is a bit hacky but works for our current implementation
-            try {
-                // Try to interpret as vector first
-                auto* instants_vec = reinterpret_cast<std::vector<Temporal*>*>(sequence);
-                // Simple heuristic: if the "vector" has a reasonable size, treat as vector
-                if (instants_vec && reinterpret_cast<uintptr_t>(instants_vec) > 0x1000) {
-                    // Likely a vector pointer
-                    for (auto* instant : *instants_vec) {
-                        if (instant) free(instant);
-                    }
-                    delete instants_vec;
-                } else {
-                    free(sequence);
-                }
-            } catch (...) {
-                free(sequence);
-            }
-            sequence = nullptr;
-        }
+        // Do not free; lifetime is managed by MEOS/PG memory context.
+        sequence = nullptr;
     }
 
     double Meos::TemporalSequence::length(const TemporalInstant& /* instant */) const {
@@ -329,9 +342,8 @@ namespace MEOS {
     }
     
     void Meos::freeTemporalObject(void* temporal) {
-        if (temporal) {
-            free(temporal);
-        }
+        // Intentionally no-op; avoid allocator mismatch.
+        (void)temporal;
     }
     
     uint8_t* Meos::temporalToWKB(void* temporal, size_t& size) {
@@ -349,21 +361,109 @@ namespace MEOS {
         MEOS::ensureMeosInitialized();
     }
 
+    int Meos::safe_edwithin_tgeo_geo(const Temporal* temp, const GSERIALIZED* gs, double dist)
+    {
+        std::lock_guard<std::mutex> lk(meos_exec_mutex);
+        return edwithin_tgeo_geo(temp, gs, dist);
+    }
+
+    int Meos::safe_eintersects_tgeo_geo(const Temporal* temp, const GSERIALIZED* gs)
+    {
+        std::lock_guard<std::mutex> lk(meos_exec_mutex);
+        return eintersects_tgeo_geo(temp, gs);
+    }
+
+    Temporal* Meos::safe_tgeo_at_stbox(const Temporal* temp, const STBox* box, bool border_inc)
+    {
+        std::lock_guard<std::mutex> lk(meos_exec_mutex);
+        return tgeo_at_stbox(temp, box, border_inc);
+    }
+
     // SpatioTemporalBox implementation
     Meos::SpatioTemporalBox::SpatioTemporalBox(const std::string& wkt_string) {
         // Ensure MEOS is initialized
         ensureMeosInitialized();
         // Use MEOS stbox_in function to parse the WKT string
-        stbox_ptr = stbox_in(wkt_string.c_str());
+        {
+            std::lock_guard<std::mutex> lk(meos_parse_mutex);
+            stbox_ptr = stbox_in(wkt_string.c_str());
+            if (!stbox_ptr) {
+                // Attempt to convert legacy STBOX((x,y,t),(x2,y2,t2)) into STBOX XT(((x,y),(x2,y2)),[t,t2])
+                std::string sridPrefix;
+                std::string core = wkt_string;
+                if (auto semi = core.find(';'); semi != std::string::npos) {
+                    sridPrefix = core.substr(0, semi + 1); // keep trailing ';'
+                    core = core.substr(semi + 1);
+                }
+                auto start = core.find("STBOX((");
+                auto end = core.rfind(")");
+                if (start != std::string::npos && end != std::string::npos && end > start + 8) {
+                    std::string inner = core.substr(start + 7, end - (start + 7)); // after 'STBOX('
+                    // Expect inner like: (x,y,t),(x2,y2,t2)
+                    // Remove possible outer parentheses
+                    if (!inner.empty() && inner.front() == '(' && inner.back() == ')') {
+                        inner = inner.substr(1, inner.size() - 2);
+                    }
+                    auto mid = inner.find("),(");
+                    if (mid != std::string::npos) {
+                        auto first = inner.substr(0, mid);
+                        auto second = inner.substr(mid + 3);
+                        auto trim = [](std::string& s){
+                            while (!s.empty() && (s.front()==' '||s.front()=='\t')) s.erase(s.begin());
+                            while (!s.empty() && (s.back()==' '||s.back()=='\t')) s.pop_back();
+                            if (!s.empty() && s.front()=='(') s.erase(s.begin());
+                            if (!s.empty() && s.back()==')') s.pop_back();
+                        };
+                        trim(first); trim(second);
+                        auto split3 = [](const std::string& s){
+                            std::vector<std::string> out; out.reserve(3);
+                            size_t p=0; size_t c1 = s.find(',');
+                            if (c1==std::string::npos) return out;
+                            size_t c2 = s.find(',', c1+1);
+                            if (c2==std::string::npos) return out;
+                            out.push_back(s.substr(0,c1));
+                            out.push_back(s.substr(c1+1, c2-(c1+1)));
+                            out.push_back(s.substr(c2+1));
+                            return out;
+                        };
+                        auto a = split3(first);
+                        auto b = split3(second);
+                        if (a.size()==3 && b.size()==3) {
+                            auto trimSpaces = [](std::string& s){
+                                while (!s.empty() && (s.front()==' '||s.front()=='\t')) s.erase(s.begin());
+                                while (!s.empty() && (s.back()==' '||s.back()=='\t')) s.pop_back();
+                            };
+                            for (auto* v : {&a[0],&a[1],&a[2],&b[0],&b[1],&b[2]}) trimSpaces(*v);
+                            std::string xt = sridPrefix + "STBOX XT(((" + a[0] + "," + a[1] + "),(" + b[0] + "," + b[1] + ")), [" + a[2] + ", " + b[2] + "])";
+                            stbox_ptr = stbox_in(xt.c_str());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     Meos::SpatioTemporalBox::~SpatioTemporalBox() {
-        if (stbox_ptr) {
-            free(stbox_ptr);
-            stbox_ptr = nullptr;
-        }
+        // Do not free; managed by MEOS.
+        stbox_ptr = nullptr;
+    }
+
+    STBox* Meos::SpatioTemporalBox::getBox() const {
+        return static_cast<STBox*>(stbox_ptr);
+    }
+
+
+    Meos::TemporalHolder::TemporalHolder(Temporal* temporalPtr)
+        : temporal(temporalPtr) {}
+
+    Meos::TemporalHolder::~TemporalHolder() {
+        // Do not free; managed by MEOS.
+        temporal = nullptr;
+    }
+
+    Temporal* Meos::TemporalHolder::get() const {
+        return temporal;
     }
 
 
 }// namespace MEOS
-

@@ -86,8 +86,8 @@ VarVal TemporalIntersectsGeometryPhysicalFunction::executeTemporal6Param(const s
                 std::string timestamp2_str = MEOS::Meos::convertSecondsToTimestamp(ts2_val);
                 
                 // Build temporal geometry WKT strings from coordinates and timestamps
-                std::string left_geometry_wkt = fmt::format("SRID=4326;POINT({} {})@{}", lon1_val, lat1_val, timestamp1_str);
-                std::string right_geometry_wkt = fmt::format("SRID=4326;POINT({} {})@{}", lon2_val, lat2_val, timestamp2_str);
+                std::string left_geometry_wkt = fmt::format("SRID=4326;Point({} {})@{}", lon1_val, lat1_val, timestamp1_str);
+                std::string right_geometry_wkt = fmt::format("SRID=4326;Point({} {})@{}", lon2_val, lat2_val, timestamp2_str);
                 
                 std::cout << "Built temporal geometries:" << std::endl;
                 std::cout << "Left: " << left_geometry_wkt << std::endl;
@@ -96,7 +96,15 @@ VarVal TemporalIntersectsGeometryPhysicalFunction::executeTemporal6Param(const s
                 // Both geometries are temporal points, use temporal-temporal intersection
                 std::cout << "Using temporal-temporal intersection (eintersects_tgeo_tgeo)" << std::endl;
                 MEOS::Meos::TemporalGeometry left_temporal(left_geometry_wkt);
+                if (!left_temporal.getGeometry()) {
+                    std::cout << "TemporalIntersects: left temporal geometry is null" << std::endl;
+                    return 0;
+                }
                 MEOS::Meos::TemporalGeometry right_temporal(right_geometry_wkt);
+                if (!right_temporal.getGeometry()) {
+                    std::cout << "TemporalIntersects: right temporal geometry is null" << std::endl;
+                    return 0;
+                }
                 int intersection_result = left_temporal.intersects(right_temporal);
                 std::cout << "eintersects_tgeo_tgeo result: " << intersection_result << std::endl;
                 
@@ -125,58 +133,30 @@ VarVal TemporalIntersectsGeometryPhysicalFunction::executeTemporal4Param(const s
     
     std::cout << "4-param temporal-static intersection with coordinate values" << std::endl;
     
-    // Use nautilus::invoke to call external MEOS function with coordinate and geometry parameters
+    // Call MEOS: eintersects_tgeo_geo(temporal, static)
     const auto result = nautilus::invoke(
         +[](double lon1_val, double lat1_val, uint64_t ts1_val, const char* static_geom_ptr, uint32_t static_geom_size) -> int {
             try {
-                // Use the existing global MEOS initialization mechanism
                 MEOS::Meos::ensureMeosInitialized();
-                
-                // Convert UINT64 timestamp to MEOS timestamp string
-                std::string timestamp1_str = MEOS::Meos::convertSecondsToTimestamp(ts1_val);
-                
-                // Build temporal geometry WKT string from coordinates and timestamp
-                std::string left_geometry_wkt = fmt::format("SRID=4326;POINT({} {})@{}", lon1_val, lat1_val, timestamp1_str);
-                
-                // Extract static geometry WKT from VariableSizedData
-                std::string right_geometry_wkt(static_geom_ptr, static_geom_size);
-                
-                // Strip quotes if present (CSV parsing includes quotes in the string values)
-                while (!right_geometry_wkt.empty() && (right_geometry_wkt.front() == '\'' || right_geometry_wkt.front() == '"')) {
-                    right_geometry_wkt = right_geometry_wkt.substr(1);
-                }
-                while (!right_geometry_wkt.empty() && (right_geometry_wkt.back() == '\'' || right_geometry_wkt.back() == '"')) {
-                    right_geometry_wkt = right_geometry_wkt.substr(0, right_geometry_wkt.size() - 1);
-                }
-                
-                std::cout << "Built geometries:" << std::endl;
-                std::cout << "Left (temporal): " << left_geometry_wkt << std::endl;
-                std::cout << "Right (static): " << right_geometry_wkt << std::endl;
-                
-                // Validate input strings are not empty
-                if (left_geometry_wkt.empty() || right_geometry_wkt.empty()) {
-                    std::cout << "Empty geometry WKT string(s)" << std::endl;
-                    return -1;
-                }
-                
-                // Use temporal-static intersection
-                std::cout << "Using temporal-static intersection (eintersects_tgeo_geo)" << std::endl;
-                MEOS::Meos::TemporalGeometry left_temporal(left_geometry_wkt);
-                MEOS::Meos::StaticGeometry right_static(right_geometry_wkt);
-                int intersection_result = left_temporal.intersectsStatic(right_static);
-                std::cout << "eintersects_tgeo_geo result: " << intersection_result << std::endl;
-                
-                return intersection_result;
-            } catch (const std::exception& e) {
-                std::cout << "MEOS exception in temporal geometry intersection: " << e.what() << std::endl;
-                return -1;  // Error case
-            } catch (...) {
-                std::cout << "Unknown error in temporal geometry intersection" << std::endl;
-                return -1;  // Error case
-            }
+
+                // Build temporal point
+                std::string ts_str = MEOS::Meos::convertSecondsToTimestamp(ts1_val);
+                std::string left_wkt = fmt::format("SRID=4326;Point({} {})@{}", lon1_val, lat1_val, ts_str);
+
+                // Parse static WKT
+                std::string right_wkt(static_geom_ptr, static_geom_size);
+                while (!right_wkt.empty() && (right_wkt.front()=='\'' || right_wkt.front()=='"')) right_wkt.erase(right_wkt.begin());
+                while (!right_wkt.empty() && (right_wkt.back()=='\'' || right_wkt.back()=='"')) right_wkt.pop_back();
+                if (left_wkt.empty() || right_wkt.empty()) return 0;
+
+                MEOS::Meos::TemporalGeometry left(left_wkt);
+                if (!left.getGeometry()) return 0;
+                MEOS::Meos::StaticGeometry right(right_wkt);
+                if (!right.getGeometry()) return 0;
+                return MEOS::Meos::safe_eintersects_tgeo_geo(static_cast<const Temporal*>(left.getGeometry()), static_cast<const GSERIALIZED*>(right.getGeometry()));
+            } catch (...) { return -1; }
         },
-        lon1, lat1, timestamp1, static_geometry_varsized.getContent(), static_geometry_varsized.getContentSize()
-    );
+        lon1, lat1, timestamp1, static_geometry_varsized.getContent(), static_geometry_varsized.getContentSize());
     
     return VarVal(result);
 }

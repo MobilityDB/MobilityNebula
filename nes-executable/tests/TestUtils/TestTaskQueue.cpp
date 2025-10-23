@@ -57,7 +57,9 @@ NES::Memory::TupleBuffer TestPipelineExecutionContext::allocateTupleBuffer()
 {
     if (auto buffer = bufferManager->getBufferNoBlocking())
     {
-        return buffer.value();
+        auto tb = buffer.value();
+        tb.setCreationTimestampInMS(ingressTs);
+        return tb;
     }
     throw NES::BufferAllocationFailure("Required more buffers in TestTaskQueue than provided.");
 }

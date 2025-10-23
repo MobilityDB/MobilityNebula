@@ -46,6 +46,17 @@ class Meos {
         explicit SpatioTemporalBox(const std::string& wkt_string);
         ~SpatioTemporalBox();
 
+        // Non-copyable, movable to avoid double-free of MEOS-managed memory
+        SpatioTemporalBox(const SpatioTemporalBox&) = delete;
+        SpatioTemporalBox& operator=(const SpatioTemporalBox&) = delete;
+        SpatioTemporalBox(SpatioTemporalBox&& other) noexcept : stbox_ptr(other.stbox_ptr) { other.stbox_ptr = nullptr; }
+        SpatioTemporalBox& operator=(SpatioTemporalBox&& other) noexcept {
+            if (this != &other) { stbox_ptr = other.stbox_ptr; other.stbox_ptr = nullptr; }
+            return *this;
+        }
+
+        STBox* getBox() const;
+
 
     private:
         void* stbox_ptr;
@@ -55,6 +66,11 @@ class Meos {
     public:
         explicit TemporalInstant(double lon, double lat, long long ts, int srid=4326);
         ~TemporalInstant();
+
+        TemporalInstant(const TemporalInstant&) = delete;
+        TemporalInstant& operator=(const TemporalInstant&) = delete;
+        TemporalInstant(TemporalInstant&& other) noexcept : instant(other.instant) { other.instant = nullptr; }
+        TemporalInstant& operator=(TemporalInstant&& other) noexcept { if (this!=&other){ instant = other.instant; other.instant=nullptr;} return *this; }
 
         bool intersects(const TemporalInstant& point) const;
 
@@ -69,6 +85,11 @@ class Meos {
         explicit StaticGeometry(const std::string& wkt_string);
         ~StaticGeometry();
 
+        StaticGeometry(const StaticGeometry&) = delete;
+        StaticGeometry& operator=(const StaticGeometry&) = delete;
+        StaticGeometry(StaticGeometry&& other) noexcept : geometry(other.geometry) { other.geometry = nullptr; }
+        StaticGeometry& operator=(StaticGeometry&& other) noexcept { if (this!=&other){ geometry = other.geometry; other.geometry=nullptr;} return *this; }
+
         GSERIALIZED* getGeometry() const;
 
         int containsTemporal(const TemporalGeometry& temporal_geom) const;
@@ -82,6 +103,11 @@ class Meos {
     public:
         explicit TemporalGeometry(const std::string& wkt_string);
         ~TemporalGeometry();
+
+        TemporalGeometry(const TemporalGeometry&) = delete;
+        TemporalGeometry& operator=(const TemporalGeometry&) = delete;
+        TemporalGeometry(TemporalGeometry&& other) noexcept : geometry(other.geometry) { other.geometry = nullptr; }
+        TemporalGeometry& operator=(TemporalGeometry&& other) noexcept { if (this!=&other){ geometry = other.geometry; other.geometry=nullptr;} return *this; }
 
         Temporal* getGeometry() const;
 
@@ -123,6 +149,11 @@ class Meos {
         
         ~TemporalSequence();
 
+        TemporalSequence(const TemporalSequence&) = delete;
+        TemporalSequence& operator=(const TemporalSequence&) = delete;
+        TemporalSequence(TemporalSequence&& other) noexcept : sequence(other.sequence) { other.sequence = nullptr; }
+        TemporalSequence& operator=(TemporalSequence&& other) noexcept { if (this!=&other){ sequence = other.sequence; other.sequence=nullptr;} return *this; }
+
         
         // bool intersects(const TemporalInstant& point) const;
         // double distance(const TemporalInstant& point) const;
@@ -133,7 +164,29 @@ class Meos {
     };
 
 
+    class TemporalHolder {
+    public:
+        explicit TemporalHolder(Temporal* temporalPtr);
+        ~TemporalHolder();
+
+        TemporalHolder(const TemporalHolder&) = delete;
+        TemporalHolder& operator=(const TemporalHolder&) = delete;
+        TemporalHolder(TemporalHolder&& other) noexcept : temporal(other.temporal) { other.temporal = nullptr; }
+        TemporalHolder& operator=(TemporalHolder&& other) noexcept { if (this!=&other){ temporal = other.temporal; other.temporal=nullptr;} return *this; }
+
+        Temporal* get() const;
+
+    private:
+        Temporal* temporal;
+    };
+
+
     static std::string convertSecondsToTimestamp(long long seconds);
+
+    // Thread-safe wrappers around selected MEOS functions to avoid internal races
+    static int safe_edwithin_tgeo_geo(const Temporal* temp, const GSERIALIZED* gs, double dist);
+    static int safe_eintersects_tgeo_geo(const Temporal* temp, const GSERIALIZED* gs);
+    static Temporal* safe_tgeo_at_stbox(const Temporal* temp, const STBox* box, bool border_inc);
     
     /**
      * @brief Parse a temporal point string into a MEOS Temporal object

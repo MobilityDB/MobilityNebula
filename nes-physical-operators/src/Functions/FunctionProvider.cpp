@@ -14,6 +14,7 @@
 #include <Functions/FunctionProvider.hpp>
 
 #include <cstdint>
+#include <algorithm>
 #include <string>
 #include <utility>
 #include <vector>
@@ -112,7 +113,18 @@ PhysicalFunction FunctionProvider::lowerConstantFunction(const ConstantValueLogi
             return ConstantDoubleValueFunction(doubleValue);
         };
         case DataType::Type::BOOLEAN: {
-            const auto boolValue = static_cast<int>(static_cast<bool>(std::stoi(stringValue))) == 1;
+            // Accept common boolean encodings: "true"/"false" (any case) and numeric 0/1.
+            std::string lowered = stringValue;
+            std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+            bool boolValue;
+            if (lowered == "true") {
+                boolValue = true;
+            } else if (lowered == "false") {
+                boolValue = false;
+            } else {
+                // Fallback to numeric parse where non-zero means true
+                boolValue = std::stoi(stringValue) != 0;
+            }
             return ConstantBooleanValueFunction(boolValue);
         };
         case DataType::Type::CHAR:

@@ -46,6 +46,8 @@ public:
     /// Returns success, if the buffer was emitted successfully.
     virtual bool emitBuffer(const Memory::TupleBuffer&, ContinuationPolicy) = 0;
     virtual Memory::TupleBuffer allocateTupleBuffer() = 0;
+    // Propagate ingress creation timestamp to newly allocated buffers
+    virtual void setIngressCreationTimestamp(NES::Timestamp ts) = 0;
     [[nodiscard]] virtual WorkerThreadId getId() const = 0;
     [[nodiscard]] virtual uint64_t getNumberOfWorkerThreads() const = 0;
     [[nodiscard]] virtual std::shared_ptr<Memory::AbstractBufferProvider> getBufferManager() const = 0;

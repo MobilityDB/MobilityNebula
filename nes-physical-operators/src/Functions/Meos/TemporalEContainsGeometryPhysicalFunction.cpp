@@ -77,7 +77,12 @@ TemporalEContainsGeometryPhysicalFunction::execTemporalTemporal(const std::vecto
         +[](double lo1,double la1,uint64_t t1, double lo2, double la2, uint64_t t2) -> int {
             try {
                 MEOS::Meos::ensureMeosInitialized();
-                auto tsToStr = MEOS::Meos::convertSecondsToTimestamp;
+                auto inRange = [](double lo, double la){ return lo >= -180.0 && lo <= 180.0 && la >= -90.0 && la <= 90.0; };
+                if (!inRange(lo1, la1) || !inRange(lo2, la2)) {
+                    std::cout << "TemporalEContains: coordinates out of range" << std::endl;
+                    return 0;
+                }
+                auto tsToStr = MEOS::Meos::convertEpochToTimestamp;
                 std::string left  = fmt::format("SRID=4326;Point({} {})@{}", lo1, la1, tsToStr(t1));
                 std::string right = fmt::format("SRID=4326;Point({} {})@{}", lo2, la2, tsToStr(t2));
                 MEOS::Meos::TemporalGeometry l(left), r(right);
@@ -109,7 +114,11 @@ TemporalEContainsGeometryPhysicalFunction::execTemporalStatic(const std::vector<
         +[](double lo,double la,uint64_t t, const char* g, uint32_t sz) -> int {
             try {
                 MEOS::Meos::ensureMeosInitialized();
-                std::string tsStr = MEOS::Meos::convertSecondsToTimestamp(t);
+                if (!(lo >= -180.0 && lo <= 180.0 && la >= -90.0 && la <= 90.0)) {
+                    std::cout << "TemporalEContains: coordinates out of range" << std::endl;
+                    return 0;
+                }
+                std::string tsStr = MEOS::Meos::convertEpochToTimestamp(t);
                 std::string left  = fmt::format("SRID=4326;Point({} {})@{}", lo, la, tsStr);
                 std::string right(g, sz);
                 while (!right.empty() && (right.front() == '\'' || right.front() == '"')) {
@@ -168,7 +177,11 @@ TemporalEContainsGeometryPhysicalFunction::execStaticTemporal(const std::vector<
         +[](const char* g,uint32_t sz, double lo,double la,uint64_t t) -> int {
             try {
                 MEOS::Meos::ensureMeosInitialized();
-                std::string tsStr = MEOS::Meos::convertSecondsToTimestamp(t);
+                if (!(lo >= -180.0 && lo <= 180.0 && la >= -90.0 && la <= 90.0)) {
+                    std::cout << "TemporalEContains: coordinates out of range" << std::endl;
+                    return 0;
+                }
+                std::string tsStr = MEOS::Meos::convertEpochToTimestamp(t);
                 std::string right  = fmt::format("SRID=4326;Point({} {})@{}", lo, la, tsStr);
                 std::string left(g, sz);
                 while (!left.empty() && (left.front() == '\'' || left.front() == '"')) {
@@ -218,9 +231,16 @@ TemporalEContainsGeometryPhysicalFunction::execStaticTemporal(const std::vector<
 PhysicalFunctionRegistryReturnType
 PhysicalFunctionGeneratedRegistrar::RegisterTemporalEContainsGeometryPhysicalFunction(
         PhysicalFunctionRegistryArguments physicalFunctionRegistryArguments){
-    if(physicalFunctionRegistryArguments.childFunctions.size()==6)
-        return TemporalEContainsGeometryPhysicalFunction(physicalFunctionRegistryArguments.childFunctions[0],physicalFunctionRegistryArguments.childFunctions[1],physicalFunctionRegistryArguments.childFunctions[2],
-                                                        physicalFunctionRegistryArguments.childFunctions[3],physicalFunctionRegistryArguments.childFunctions[4],physicalFunctionRegistryArguments.childFunctions[5]);
+    if (physicalFunctionRegistryArguments.childFunctions.size() == 6) {
+        return TemporalEContainsGeometryPhysicalFunction(
+            physicalFunctionRegistryArguments.childFunctions[0],
+            physicalFunctionRegistryArguments.childFunctions[1],
+            physicalFunctionRegistryArguments.childFunctions[2],
+            physicalFunctionRegistryArguments.childFunctions[3],
+            physicalFunctionRegistryArguments.childFunctions[4],
+            physicalFunctionRegistryArguments.childFunctions[5]
+        );
+    }
     PRECONDITION(physicalFunctionRegistryArguments.childFunctions.size()==4,
                  "TemporalEContainsGeometry expects 4 or 6 child functions, got {}", physicalFunctionRegistryArguments.childFunctions.size());
 

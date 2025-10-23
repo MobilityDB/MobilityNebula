@@ -56,8 +56,12 @@ VarVal TemporalEDWithinGeometryPhysicalFunction::execute(const Record& record, A
             try
             {
                 MEOS::Meos::ensureMeosInitialized();
+                if (!(lonValue >= -180.0 && lonValue <= 180.0 && latValue >= -90.0 && latValue <= 90.0)) {
+                    std::cout << "TemporalEDWithin: coordinates out of range" << std::endl;
+                    return 0;
+                }
 
-                const std::string timestampString = MEOS::Meos::convertSecondsToTimestamp(timestampValue);
+                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
                 std::string temporalGeometryWkt = fmt::format("SRID=4326;Point({} {})@{}", lonValue, latValue, timestampString);
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 

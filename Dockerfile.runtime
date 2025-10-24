@@ -1,6 +1,18 @@
+# syntax=docker/dockerfile:1.4
+
 FROM nebulastream/nes-development:local
-COPY . /app/
+
 WORKDIR /app
-ENV LD_LIBRARY_PATH=/app/build:/app/build/lib:/vcpkg/installed/x64-linux-none-local/lib:$LD_LIBRARY_PATH
-RUN find /app/build -type f -executable -exec chmod +x {} \;
+
+# Copy the repository sources.
+COPY . /app
+
+# Optionally copy prebuilt artifacts from an external build context. Pass
+# `--build-context build_artifacts=/path/to/build` to `docker build` so the
+# contents end up in /app/build inside the image.
+COPY --from=build_artifacts / /app/build
+
+# Set runtime library search path to include the shipped build outputs.
+ENV LD_LIBRARY_PATH=/app/build:/app/build/lib:/vcpkg/installed/x64-linux-none-local/lib
+
 CMD ["/app/build/nes-single-node-worker/nes-single-node-worker"]

@@ -37,6 +37,8 @@
 #include <PipelineExecutionContext.hpp>
 #include <SinkRegistry.hpp>
 #include <SinkValidationRegistry.hpp>
+#include <Metrics/MetricsRegistry.hpp>
+#include <chrono>
 
 namespace NES::Sinks
 {
@@ -70,6 +72,20 @@ void FileSink::start(PipelineExecutionContext&)
 {
     NES_DEBUG("Setting up file sink: {}", *this);
     auto stream = outputFileStream.wlock();
+
+    const std::filesystem::path outputPath(outputFilePath);
+    const auto parentPath = outputPath.parent_path();
+    if (!parentPath.empty())
+    {
+        std::error_code ec;
+        std::filesystem::create_directories(parentPath, ec);
+        if (ec)
+        {
+            throw CannotOpenSink(
+                "Could not create directory for output file; filePathOutput={}, error={}", outputFilePath, ec.message());
+        }
+    }
+
     /// Remove an existing file unless the isAppend mode is isAppend.
     if (!isAppend)
     {
@@ -107,6 +123,33 @@ void FileSink::execute(const Memory::TupleBuffer& inputTupleBuffer, PipelineExec
 {
     PRECONDITION(inputTupleBuffer, "Invalid input buffer in FileSink.");
     PRECONDITION(isOpen, "Sink was not opened");
+
+    // Minimal metrics (M1-M2): egress count and e2e latency
+    const auto tuples = inputTupleBuffer.getNumberOfTuples();
+    NES::Metrics::MetricsRegistry::instance().incCounter("sink_out_total", tuples);
+    // Ignore empty buffers for latency to avoid skew from control/flush buffers
+    if (tuples == 0) {
+        return;
+    }
+    const auto nowMsSigned = std::chrono::time_point_cast<std::chrono::milliseconds>(
+                                 std::chrono::steady_clock::now())
+                                 .time_since_epoch()
+                                 .count();
+    const auto tsInMs = inputTupleBuffer.getCreationTimestampInMS().getRawValue();
+    if (tsInMs == NES::Timestamp::INVALID_VALUE || tsInMs == NES::Timestamp::INITIAL_VALUE)
+    {
+        NES::Metrics::MetricsRegistry::instance().incCounter("latency_missing_count", 1);
+    }
+    else if (nowMsSigned >= 0)
+    {
+        const auto nowMs = static_cast<uint64_t>(nowMsSigned);
+        const auto lat = (nowMs >= tsInMs) ? static_cast<uint64_t>(nowMs - tsInMs) : 0ULL; // saturate at 0
+        if (nowMs < tsInMs)
+        {
+            NES::Metrics::MetricsRegistry::instance().incCounter("latency_future_count", 1);
+        }
+        NES::Metrics::MetricsRegistry::instance().observeLatencyMs(lat);
+    }
 
     {
         auto fBuffer = formatter->getFormattedBuffer(inputTupleBuffer);

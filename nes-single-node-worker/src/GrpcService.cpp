@@ -33,19 +33,42 @@
 namespace NES
 {
 
+namespace {
+// gRPC metadata values must be ASCII and cannot contain control characters.
+static std::string sanitizeForGrpcMetadata(std::string v)
+{
+    std::string out;
+    out.reserve(v.size());
+    for (unsigned char c : v)
+    {
+        if (c >= 0x20 && c <= 0x7E) {
+            out.push_back(static_cast<char>(c));
+        } else {
+            // replace control / non-ascii with '.'
+            out.push_back('.');
+        }
+    }
+    // Hard cap to avoid excessive metadata size
+    if (out.size() > 4096) out.resize(4096);
+    return out;
+}
+}
+
 grpc::Status handleError(const std::exception& exception, grpc::ServerContext* context)
 {
     context->AddTrailingMetadata("code", std::to_string(ErrorCode::UnknownException));
-    context->AddTrailingMetadata("what", exception.what());
-    context->AddTrailingMetadata("trace", Util::replaceAll(cpptrace::from_current_exception().to_string(false), "\n", ""));
+    context->AddTrailingMetadata("what", sanitizeForGrpcMetadata(exception.what()));
+    auto trace = Util::replaceAll(cpptrace::from_current_exception().to_string(false), "\n", " ");
+    context->AddTrailingMetadata("trace", sanitizeForGrpcMetadata(trace));
     return {grpc::INTERNAL, exception.what()};
 }
 
 grpc::Status handleError(const Exception& exception, grpc::ServerContext* context)
 {
     context->AddTrailingMetadata("code", std::to_string(exception.code()));
-    context->AddTrailingMetadata("what", exception.what());
-    context->AddTrailingMetadata("trace", Util::replaceAll(cpptrace::from_current_exception().to_string(false), "\n", ""));
+    context->AddTrailingMetadata("what", sanitizeForGrpcMetadata(exception.what()));
+    auto trace = Util::replaceAll(cpptrace::from_current_exception().to_string(false), "\n", " ");
+    context->AddTrailingMetadata("trace", sanitizeForGrpcMetadata(trace));
     return {grpc::INTERNAL, exception.what()};
 }
 
@@ -60,6 +83,7 @@ grpc::Status GRPCServer::RegisterQuery(grpc::ServerContext* context, const Regis
             response->set_queryid(result->getRawValue());
             return grpc::Status::OK;
         }
+        NES_ERROR("RegisterQuery delegate failed: {}", result.error());
         return handleError(result.error(), context);
     }
     CPPTRACE_CATCH(const std::exception& e)

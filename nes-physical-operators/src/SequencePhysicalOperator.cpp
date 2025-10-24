@@ -16,6 +16,7 @@
 
 #include <cstdint>
 #include <utility>
+#include <ErrorHandling.hpp>
 #include <Nautilus/Interface/RecordBuffer.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <Runtime/QueryTerminationType.hpp>
@@ -28,11 +29,25 @@
 namespace NES::Runtime::Execution::Operators
 {
 
+namespace
+{
+[[nodiscard]] SequenceOperatorHandler* toSequenceHandler(OperatorHandler* handler)
+{
+    PRECONDITION(handler != nullptr, "SequencePhysicalOperator: operator handler must not be null");
+    auto* sequenceHandler = dynamic_cast<SequenceOperatorHandler*>(handler);
+    PRECONDITION(sequenceHandler != nullptr, "SequencePhysicalOperator: operator handler is not a SequenceOperatorHandler");
+    return sequenceHandler;
+}
+}
+
 void SequencePhysicalOperator::open(ExecutionContext& executionCtx, Nautilus::RecordBuffer& recordBuffer) const
 {
     auto buffer = nautilus::invoke(
         +[](OperatorHandler* handler, uint8_t* bufferMemory) -> Memory::TupleBuffer*
-        { return dynamic_cast<SequenceOperatorHandler*>(handler)->getNextBuffer(bufferMemory).value_or(nullptr); },
+        {
+            auto* sequenceHandler = toSequenceHandler(handler);
+            return sequenceHandler->getNextBuffer(bufferMemory).value_or(nullptr);
+        },
         executionCtx.getGlobalOperatorHandler(operatorHandlerIndex),
         recordBuffer.getBuffer());
 
@@ -45,7 +60,10 @@ void SequencePhysicalOperator::open(ExecutionContext& executionCtx, Nautilus::Re
 
         buffer = nautilus::invoke(
             +[](OperatorHandler* handler, Memory::TupleBuffer* tupleBuffer) -> Memory::TupleBuffer*
-            { return dynamic_cast<SequenceOperatorHandler*>(handler)->markBufferAsDone(tupleBuffer).value_or(nullptr); },
+            {
+                auto* sequenceHandler = toSequenceHandler(handler);
+                return sequenceHandler->markBufferAsDone(tupleBuffer).value_or(nullptr);
+            },
             executionCtx.getGlobalOperatorHandler(operatorHandlerIndex),
             buffer);
     }
@@ -53,7 +71,8 @@ void SequencePhysicalOperator::open(ExecutionContext& executionCtx, Nautilus::Re
 void SequencePhysicalOperator::setup(ExecutionContext& executionCtx) const
 {
     nautilus::invoke(
-        +[](OperatorHandler* handler, PipelineExecutionContext* ctx) { handler->start(*ctx, 0); },
+        +[](OperatorHandler* handler, PipelineExecutionContext* ctx)
+        { toSequenceHandler(handler)->start(*ctx, 0); },
         executionCtx.getGlobalOperatorHandler(operatorHandlerIndex),
         executionCtx.pipelineContext);
     scan.setup(executionCtx);
@@ -62,7 +81,8 @@ void SequencePhysicalOperator::terminate(ExecutionContext& executionCtx) const
 {
     scan.terminate(executionCtx);
     nautilus::invoke(
-        +[](OperatorHandler* handler, PipelineExecutionContext* ctx) { handler->stop(QueryTerminationType::Graceful, *ctx); },
+        +[](OperatorHandler* handler, PipelineExecutionContext* ctx)
+        { toSequenceHandler(handler)->stop(QueryTerminationType::Graceful, *ctx); },
         executionCtx.getGlobalOperatorHandler(operatorHandlerIndex),
         executionCtx.pipelineContext);
 }

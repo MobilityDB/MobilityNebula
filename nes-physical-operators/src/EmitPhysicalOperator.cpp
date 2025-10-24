@@ -143,7 +143,8 @@ void EmitPhysicalOperator::emitRecordBuffer(
     recordBuffer.setWatermarkTs(ctx.watermarkTs);
     recordBuffer.setOriginId(ctx.originId);
     recordBuffer.setSequenceNumber(ctx.sequenceNumber);
-    recordBuffer.setCreationTs(ctx.currentTs);
+    // Preserve ingress creation timestamp set at buffer allocation time.
+    // Do not overwrite with event-time; creationTs carries ts_ingest for e2e latency.
 
     /// Chunk Logic. Order matters.
     /// A worker thread will clean up the sequence state for the current sequence number if its told it is the last

@@ -31,6 +31,8 @@
 #include <cstdio>
 #include <fcntl.h>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <unistd.h> /// For read
 #include <Configurations/Descriptor.hpp>
 #include <DataServer/TCPDataServer.hpp>
@@ -58,6 +60,11 @@ TCPSource::TCPSource(const SourceDescriptor& sourceDescriptor)
     , socketPort(std::to_string(sourceDescriptor.getFromConfig(ConfigParametersTCP::PORT)))
     , socketType(sourceDescriptor.getFromConfig(ConfigParametersTCP::TYPE))
     , socketDomain(sourceDescriptor.getFromConfig(ConfigParametersTCP::DOMAIN))
+    , mode(sourceDescriptor.getFromConfig(ConfigParametersTCP::MODE))
+    , bindAddress(sourceDescriptor.getFromConfig(ConfigParametersTCP::BIND_ADDRESS))
+    , listenBacklog(sourceDescriptor.getFromConfig(ConfigParametersTCP::LISTEN_BACKLOG))
+    , tcpKeepalive(sourceDescriptor.getFromConfig(ConfigParametersTCP::TCP_KEEPALIVE))
+    , tcpNoDelay(sourceDescriptor.getFromConfig(ConfigParametersTCP::NO_DELAY))
     , tupleDelimiter(sourceDescriptor.getFromConfig(ConfigParametersTCP::SEPARATOR))
     , socketBufferSize(sourceDescriptor.getFromConfig(ConfigParametersTCP::SOCKET_BUFFER_SIZE))
     , bytesUsedForSocketBufferSizeTransfer(sourceDescriptor.getFromConfig(ConfigParametersTCP::SOCKET_BUFFER_TRANSFER_SIZE))
@@ -71,47 +78,70 @@ TCPSource::TCPSource(const SourceDescriptor& sourceDescriptor)
 
 std::ostream& TCPSource::toString(std::ostream& str) const
 {
+    const auto originalFlags = str.flags();
+    str << std::boolalpha;
+
     str << "\nTCPSource(";
-    str << "\n  generated tuples: " << this->generatedTuples;
-    str << "\n  generated buffers: " << this->generatedBuffers;
-    str << "\n  connection: " << this->connection;
-    str << "\n  timeout: " << connectionTimeout << " seconds";
+    str << "\n  mode: " << mode;
     str << "\n  socketHost: " << socketHost;
     str << "\n  socketPort: " << socketPort;
+    if (mode == "server")
+    {
+        str << "\n  bindAddress: " << bindAddress;
+        str << "\n  listenBacklog: " << listenBacklog;
+        str << "\n  acceptedConnections: " << acceptedConnections;
+    }
+    str << "\n  peerEndpoint: " << (peerEndpoint.empty() ? std::string("<disconnected>") : peerEndpoint);
+    str << "\n  tcpKeepalive: " << tcpKeepalive;
+    str << "\n  tcpNoDelay: " << tcpNoDelay;
+    str << "\n  timeout: " << connectionTimeout << " seconds";
     str << "\n  socketType: " << socketType;
     str << "\n  socketDomain: " << socketDomain;
     str << "\n  tupleDelimiter: " << tupleDelimiter;
     str << "\n  socketBufferSize: " << socketBufferSize;
-    str << "\n  bytesUsedForSocketBufferSizeTransfer" << bytesUsedForSocketBufferSizeTransfer;
-    str << "\n  flushIntervalInMs" << flushIntervalInMs;
+    str << "\n  bytesUsedForSocketBufferSizeTransfer: " << bytesUsedForSocketBufferSizeTransfer;
+    str << "\n  flushIntervalInMs: " << flushIntervalInMs;
+    str << "\n  generated tuples: " << generatedTuples;
+    str << "\n  generated buffers: " << generatedBuffers;
+    str << "\n  connection state: " << connection;
     str << ")\n";
+
+    str.flags(originalFlags);
     return str;
 }
 
-bool TCPSource::tryToConnect(const addrinfo* result, const int flags)
+bool TCPSource::tryToConnect(const addrinfo* result, int& originalFlags)
 {
     const std::chrono::seconds socketConnectDefaultTimeout{connectionTimeout};
 
     /// we try each addrinfo until we successfully create a socket
-    while (result != nullptr)
+    const addrinfo* selectedAddress = result;
+    while (selectedAddress != nullptr)
     {
-        sockfd = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+        sockfd = socket(selectedAddress->ai_family, selectedAddress->ai_socktype, selectedAddress->ai_protocol);
 
         if (sockfd != -1)
         {
             break;
         }
-        result = result->ai_next;
+        selectedAddress = selectedAddress->ai_next;
     }
 
     /// check if we found a vaild address
-    if (result == nullptr)
+    if (selectedAddress == nullptr)
     {
         NES_ERROR("No valid address found to create socket.");
         return false;
     }
 
-    fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
+    originalFlags = fcntl(sockfd, F_GETFL, 0);
+    if (originalFlags == -1)
+    {
+        /// Default to blocking mode if we fail to read current flags
+        originalFlags = 0;
+    }
+
+    fcntl(sockfd, F_SETFL, originalFlags | O_NONBLOCK);
 
     /// set timeout for both blocking receive and send calls
     /// if timeout is set to zero, then the operation will never timeout
@@ -120,7 +150,7 @@ bool TCPSource::tryToConnect(const addrinfo* result, const int flags)
     timeval timeout{.tv_sec = socketConnectDefaultTimeout.count(), .tv_usec = IMPLICIT_TIMEOUT_USEC};
     setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
     setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
-    connection = connect(sockfd, result->ai_addr, result->ai_addrlen);
+    connection = connect(sockfd, selectedAddress->ai_addr, selectedAddress->ai_addrlen);
 
     /// if the TCPSource did not establish a connection, try with timeout
     if (connection < 0)
@@ -164,9 +194,103 @@ bool TCPSource::tryToConnect(const addrinfo* result, const int flags)
     return true;
 }
 
-void TCPSource::open()
+void TCPSource::configureSocketOptions(const int fd) const
 {
-    NES_TRACE("TCPSource::open: Trying to create socket and connect.");
+    timeval timeout{
+        .tv_sec = static_cast<time_t>(connectionTimeout),
+        .tv_usec = IMPLICIT_TIMEOUT_USEC,
+    };
+
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0)
+    {
+        NES_WARNING("TCPSource::configureSocketOptions: Failed to set SO_RCVTIMEO. errno: {}", errno);
+    }
+    if (setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) < 0)
+    {
+        NES_WARNING("TCPSource::configureSocketOptions: Failed to set SO_SNDTIMEO. errno: {}", errno);
+    }
+
+    if (tcpKeepalive)
+    {
+        const int keepAliveValue = 1;
+        if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &keepAliveValue, sizeof(keepAliveValue)) < 0)
+        {
+            NES_WARNING("TCPSource::configureSocketOptions: Failed to enable SO_KEEPALIVE. errno: {}", errno);
+        }
+    }
+
+#ifdef TCP_NODELAY
+    if (tcpNoDelay)
+    {
+        const int noDelayValue = 1;
+        if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &noDelayValue, sizeof(noDelayValue)) < 0)
+        {
+        NES_WARNING("TCPSource::configureSocketOptions: Failed to enable TCP_NODELAY. errno: {}", errno);
+        }
+    }
+#endif
+}
+
+std::string TCPSource::formatEndpoint(const sockaddr_storage& address, const socklen_t length) const
+{
+    char host[NI_MAXHOST] = {0};
+    char service[NI_MAXSERV] = {0};
+
+    const int result = getnameinfo(
+        reinterpret_cast<const sockaddr*>(&address),
+        length,
+        host,
+        sizeof(host),
+        service,
+        sizeof(service),
+        NI_NUMERICHOST | NI_NUMERICSERV);
+
+    if (result == 0)
+    {
+        std::string hostString(host);
+        std::string serviceString(service);
+        const bool hostIsIpv6 = hostString.find(':') != std::string::npos;
+        if (hostIsIpv6)
+        {
+            return "[" + hostString + "]:" + serviceString;
+        }
+        return hostString + ":" + serviceString;
+    }
+
+    NES_WARNING("TCPSource::formatEndpoint: getnameinfo failed with error code {}", result);
+    return "<unknown>";
+}
+
+void TCPSource::updatePeerEndpointFromSocket()
+{
+    peerEndpoint.clear();
+
+    if (sockfd < 0)
+    {
+        return;
+    }
+
+    sockaddr_storage peerAddress{};
+    socklen_t peerAddressLength = sizeof(peerAddress);
+    if (getpeername(sockfd, reinterpret_cast<sockaddr*>(&peerAddress), &peerAddressLength) == 0)
+    {
+        peerEndpoint = formatEndpoint(peerAddress, peerAddressLength);
+        return;
+    }
+
+    NES_WARNING("TCPSource::updatePeerEndpointFromSocket: getpeername failed. errno: {}", errno);
+    peerEndpoint = socketHost + ":" + socketPort;
+}
+
+void TCPSource::openClientConnection()
+{
+    peerEndpoint.clear();
+
+    if (sockfd >= 0)
+    {
+        ::close(sockfd);
+        sockfd = -1;
+    }
 
     addrinfo hints{};
     addrinfo* result = nullptr;
@@ -175,7 +299,7 @@ void TCPSource::open()
     hints.ai_socktype = socketType;
     hints.ai_flags = 0; /// use default behavior
     hints.ai_protocol
-        = 0; /// specifying 0 in this field indicates that socket addresses with any protocol can be returned by getaddrinfo() ;
+        = 0; /// specifying 0 in this field indicates that socket addresses with any protocol can be returned by getaddrinfo()
 
     const auto errorCode = getaddrinfo(socketHost.c_str(), socketPort.c_str(), &hints, &result);
     if (errorCode != 0)
@@ -183,25 +307,162 @@ void TCPSource::open()
         throw CannotOpenSource("Failed getaddrinfo with error: {}", gai_strerror(errorCode));
     }
 
-    /// make sure that result is cleaned up automatically (RAII)
     const std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> resultGuard(result, freeaddrinfo);
 
-    const int flags = fcntl(sockfd, F_GETFL, 0);
-
+    int originalFlags = 0;
     try
     {
-        tryToConnect(result, flags);
+        tryToConnect(result, originalFlags);
     }
     catch (const std::exception& e)
     {
-        ::close(sockfd); /// close socket to clean up state
+        if (sockfd >= 0)
+        {
+            ::close(sockfd);
+            sockfd = -1;
+        }
+        peerEndpoint.clear();
         throw CannotOpenSource("Could not establish connection! Error: {}", e.what());
     }
 
-    /// Set connection to non-blocking again to enable a timeout in the 'read()' call
-    fcntl(sockfd, F_SETFL, flags);
+    if (fcntl(sockfd, F_SETFL, originalFlags) == -1)
+    {
+        NES_WARNING("TCPSource::openClientConnection: Failed to restore socket flags. errno: {}", errno);
+    }
 
-    NES_TRACE("TCPSource::open: Connected to server.");
+    configureSocketOptions(sockfd);
+    connection = 0;
+    updatePeerEndpointFromSocket();
+
+    NES_INFO("TCPSource::openClientConnection: Connected to {}.", peerEndpoint);
+}
+
+void TCPSource::setupServerListener()
+{
+    addrinfo hints{};
+    addrinfo* result = nullptr;
+
+    hints.ai_family = socketDomain;
+    hints.ai_socktype = socketType;
+    hints.ai_flags = AI_PASSIVE;
+    hints.ai_protocol = 0;
+
+    const char* bindAddressPointer = bindAddress.empty() ? nullptr : bindAddress.c_str();
+    const auto errorCode = getaddrinfo(bindAddressPointer, socketPort.c_str(), &hints, &result);
+    if (errorCode != 0)
+    {
+        throw CannotOpenSource("Failed getaddrinfo for bind address with error: {}", gai_strerror(errorCode));
+    }
+
+    const std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> resultGuard(result, freeaddrinfo);
+
+    listenfd = -1;
+    for (addrinfo* entry = result; entry != nullptr; entry = entry->ai_next)
+    {
+        listenfd = socket(entry->ai_family, entry->ai_socktype, entry->ai_protocol);
+        if (listenfd == -1)
+        {
+            continue;
+        }
+
+        const int reuseAddress = 1;
+        if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &reuseAddress, sizeof(reuseAddress)) < 0)
+        {
+            NES_WARNING("TCPSource::setupServerListener: Failed to set SO_REUSEADDR. errno: {}", errno);
+        }
+
+        if (bind(listenfd, entry->ai_addr, entry->ai_addrlen) == 0)
+        {
+            if (listen(listenfd, static_cast<int>(listenBacklog)) == 0)
+            {
+                break;
+            }
+            NES_WARNING("TCPSource::setupServerListener: listen() failed. errno: {}", errno);
+        }
+        else
+        {
+            NES_WARNING("TCPSource::setupServerListener: bind() failed. errno: {}", errno);
+        }
+
+        ::close(listenfd);
+        listenfd = -1;
+    }
+
+    if (listenfd == -1)
+    {
+        throw CannotOpenSource("Failed to create listening socket on {}:{}", bindAddress.empty() ? "0.0.0.0" : bindAddress, socketPort);
+    }
+
+    NES_INFO(
+        "TCPSource::setupServerListener: Listening on {}:{} with backlog {}.",
+        bindAddress.empty() ? "0.0.0.0" : bindAddress,
+        socketPort,
+        listenBacklog);
+
+    /// Ensure the previous connection descriptor is cleared; accept happens on demand.
+    if (sockfd >= 0)
+    {
+        ::close(sockfd);
+        sockfd = -1;
+    }
+    acceptedConnections = 0;
+    peerEndpoint.clear();
+}
+
+void TCPSource::awaitClientConnection()
+{
+    if (listenfd < 0)
+    {
+        throw CannotOpenSource("TCPSource::awaitClientConnection called without active listening socket.");
+    }
+
+    while (true)
+    {
+        sockaddr_storage clientAddress{};
+        socklen_t clientAddressLength = sizeof(clientAddress);
+        const int acceptedFd = accept(listenfd, reinterpret_cast<sockaddr*>(&clientAddress), &clientAddressLength);
+
+        if (acceptedFd >= 0)
+        {
+            sockfd = acceptedFd;
+            configureSocketOptions(sockfd);
+            connection = 0;
+            peerEndpoint = formatEndpoint(clientAddress, clientAddressLength);
+            ++acceptedConnections;
+            NES_INFO("TCPSource::awaitClientConnection: Accepted client {} (total: {}).", peerEndpoint, acceptedConnections);
+            break;
+        }
+
+        if (errno == EINTR)
+        {
+            continue;
+        }
+
+        strerror_r(errno, errBuffer.data(), errBuffer.size());
+        ::close(listenfd);
+        listenfd = -1;
+        peerEndpoint.clear();
+        throw CannotOpenSource(
+            "Failed to accept connection on {}:{}. {}",
+            bindAddress.empty() ? "0.0.0.0" : bindAddress,
+            socketPort,
+            errBuffer.data());
+    }
+}
+
+void TCPSource::open()
+{
+    NES_TRACE("TCPSource::open: Initializing TCP connection in {} mode.", mode);
+
+    if (mode == "server")
+    {
+        setupServerListener();
+        awaitClientConnection();
+    }
+    else
+    {
+        openClientConnection();
+    }
 }
 
 size_t TCPSource::fillTupleBuffer(NES::Memory::TupleBuffer& tupleBuffer, Memory::AbstractBufferProvider&, const std::stop_token&)
@@ -224,7 +485,27 @@ size_t TCPSource::fillTupleBuffer(NES::Memory::TupleBuffer& tupleBuffer, Memory:
 
 bool TCPSource::fillBuffer(NES::Memory::TupleBuffer& tupleBuffer, size_t& numReceivedBytes)
 {
+    if (sockfd < 0)
+    {
+        if (mode == "server")
+        {
+            awaitClientConnection();
+        }
+        else
+        {
+            openClientConnection();
+        }
+    }
+
     const auto flushIntervalTimerStart = std::chrono::system_clock::now();
+    // Stamp ingress creation timestamp (monotonic) for e2e latency
+    {
+        const auto nowNs = std::chrono::time_point_cast<std::chrono::milliseconds>(
+                               std::chrono::steady_clock::now())
+                               .time_since_epoch()
+                               .count();
+        tupleBuffer.setCreationTimestampInMS(NES::Timestamp(static_cast<NES::Timestamp::Underlying>(nowNs)));
+    }
     bool flushIntervalPassed = false;
     bool readWasValid = true;
 
@@ -246,8 +527,24 @@ bool TCPSource::fillBuffer(NES::Memory::TupleBuffer& tupleBuffer, size_t& numRec
             NES_TRACE("No data received from {}:{}.", socketHost, socketPort);
             if (numReceivedBytes == 0)
             {
-                NES_INFO("TCP Source detected EoS");
+                NES_INFO("TCPSource::fillBuffer: detected EoS");
                 readWasValid = false;
+                if (mode == "server")
+                {
+                    NES_INFO(
+                        "TCPSource::fillBuffer: peer {} disconnected, awaiting next client.",
+                        peerEndpoint.empty() ? std::string("<unknown>") : peerEndpoint);
+                    if (sockfd >= 0)
+                    {
+                        ::close(sockfd);
+                        sockfd = -1;
+                    }
+                    peerEndpoint.clear();
+                    NES_DEBUG("TCPSource::fillBuffer: waiting for new client connection after EOF in server mode.");
+                    awaitClientConnection();
+                    readWasValid = true;
+                    continue;
+                }
                 break;
             }
         }
@@ -275,11 +572,20 @@ NES::Configurations::DescriptorConfig::Config TCPSource::validateAndFormat(std::
 void TCPSource::close()
 {
     NES_DEBUG("TCPSource::close: trying to close connection.");
-    if (connection >= 0)
+    if (sockfd >= 0)
     {
         ::close(sockfd);
-        NES_TRACE("TCPSource::close: connection closed.");
+        sockfd = -1;
+        connection = -1;
+        NES_TRACE("TCPSource::close: connection socket closed.");
     }
+    if (listenfd >= 0)
+    {
+        ::close(listenfd);
+        listenfd = -1;
+        NES_TRACE("TCPSource::close: listening socket closed.");
+    }
+    peerEndpoint.clear();
 }
 
 SourceValidationRegistryReturnType
@@ -355,3 +661,4 @@ GeneratorDataGeneratedRegistrar::RegisterTCPGeneratorData(GeneratorDataRegistryA
     return systestAdaptorArguments.physicalSourceConfig;
 }
 }
+#include <Util/Logger/Logger.hpp>

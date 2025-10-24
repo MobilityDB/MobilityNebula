@@ -59,9 +59,15 @@ void addBufferMetaData(OriginId originId, SequenceNumber sequenceNumber, Memory:
 {
     /// set the origin id for this source
     buffer.setOriginId(originId);
-    /// set the creation timestamp
-    buffer.setCreationTimestampInMS(Timestamp(
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()));
+    /// set the creation timestamp if absent (use steady_clock for monotonic e2e latency)
+    if (buffer.getCreationTimestampInMS().getRawValue() == Timestamp::INITIAL_VALUE)
+    {
+        const auto nowMs = std::chrono::time_point_cast<std::chrono::milliseconds>(
+                               std::chrono::steady_clock::now())
+                               .time_since_epoch()
+                               .count();
+        buffer.setCreationTimestampInMS(Timestamp(static_cast<Timestamp::Underlying>(nowMs)));
+    }
     /// Set the sequence number of this buffer.
     /// A data source generates a monotonic increasing sequence number
     buffer.setSequenceNumber(sequenceNumber);

@@ -15,6 +15,7 @@
 #pragma once
 
 #include <cstdint>
+#include <atomic>
 #include <memory>
 #include <optional>
 #include <ostream>
@@ -58,16 +59,43 @@ protected:
     std::ostream& toString(std::ostream& str) const override;
 
 private:
+    class Callback;
+
     std::string serverUri;
     std::string clientId;
     std::string topic;
     std::optional<std::string> username;
     std::optional<std::string> password;
     int32_t qos;
+    bool cleanSession;
+    std::optional<std::string> persistenceDir;
+    std::optional<int32_t> maxInflight;
+    bool useTls;
+    std::optional<std::string> tlsCaCertPath;
+    std::optional<std::string> tlsClientCertPath;
+    std::optional<std::string> tlsClientKeyPath;
+    bool tlsAllowInsecure;
 
     std::unique_ptr<mqtt::async_client> client;
+    std::shared_ptr<Callback> clientCallback;
 
     std::unique_ptr<Format> formatter;
+
+    static constexpr int32_t DEFAULT_MAX_INFLIGHT_QOS2 = 20;
+};
+
+class MQTTSink::Callback : public mqtt::callback
+{
+public:
+    explicit Callback(std::string serverUri);
+
+    void connected(const std::string& cause) override;
+    void connection_lost(const std::string& cause) override;
+    void delivery_complete(mqtt::delivery_token_ptr token) override;
+
+private:
+    std::string targetServerUri;
+    std::atomic<uint64_t> deliveredCount{0};
 };
 
 namespace detail::uuid
@@ -174,6 +202,66 @@ struct ConfigParametersMQTT
             return 1; // Default QOS value
         }};
 
+    static inline const Configurations::DescriptorConfig::ConfigParameter<bool> CLEAN_SESSION{
+        "cleanSession",
+        true,
+        [](const std::unordered_map<std::string, std::string>& config)
+        { return Configurations::DescriptorConfig::tryGet(CLEAN_SESSION, config); }};
+
+    static inline const Configurations::DescriptorConfig::ConfigParameter<std::string> PERSISTENCE_DIR{
+        "persistenceDir",
+        "",
+        [](const std::unordered_map<std::string, std::string>& config)
+        { return Configurations::DescriptorConfig::tryGet(PERSISTENCE_DIR, config); }};
+
+    static inline const Configurations::DescriptorConfig::ConfigParameter<int32_t> MAX_INFLIGHT{
+        "maxInflight",
+        0,
+        [](const std::unordered_map<std::string, std::string>& config) -> std::optional<int32_t>
+        {
+            if (auto it = config.find("maxInflight"); it != config.end())
+            {
+                int value = std::stoi(it->second);
+                if (value <= 0)
+                {
+                    NES_ERROR("MQTTSink: maxInflight must be greater than zero when provided, but was {}", value);
+                    return std::nullopt;
+                }
+                return value;
+            }
+            return 0;
+        }};
+
+    static inline const Configurations::DescriptorConfig::ConfigParameter<bool> USE_TLS{
+        "useTls",
+        false,
+        [](const std::unordered_map<std::string, std::string>& config)
+        { return Configurations::DescriptorConfig::tryGet(USE_TLS, config); }};
+
+    static inline const Configurations::DescriptorConfig::ConfigParameter<std::string> TLS_CA_CERT{
+        "tlsCaCertPath",
+        "",
+        [](const std::unordered_map<std::string, std::string>& config)
+        { return Configurations::DescriptorConfig::tryGet(TLS_CA_CERT, config); }};
+
+    static inline const Configurations::DescriptorConfig::ConfigParameter<std::string> TLS_CLIENT_CERT{
+        "tlsClientCertPath",
+        "",
+        [](const std::unordered_map<std::string, std::string>& config)
+        { return Configurations::DescriptorConfig::tryGet(TLS_CLIENT_CERT, config); }};
+
+    static inline const Configurations::DescriptorConfig::ConfigParameter<std::string> TLS_CLIENT_KEY{
+        "tlsClientKeyPath",
+        "",
+        [](const std::unordered_map<std::string, std::string>& config)
+        { return Configurations::DescriptorConfig::tryGet(TLS_CLIENT_KEY, config); }};
+
+    static inline const Configurations::DescriptorConfig::ConfigParameter<bool> TLS_ALLOW_INSECURE{
+        "tlsAllowInsecure",
+        false,
+        [](const std::unordered_map<std::string, std::string>& config)
+        { return Configurations::DescriptorConfig::tryGet(TLS_ALLOW_INSECURE, config); }};
+
     static inline const Configurations::DescriptorConfig::ConfigParameter<Configurations::EnumWrapper, Configurations::InputFormat>
         INPUT_FORMAT{
             "inputFormat",
@@ -182,7 +270,22 @@ struct ConfigParametersMQTT
             { return Configurations::DescriptorConfig::tryGet(INPUT_FORMAT, config); }};
 
     static inline std::unordered_map<std::string, Configurations::DescriptorConfig::ConfigParameterContainer> parameterMap
-        = Configurations::DescriptorConfig::createConfigParameterContainerMap(SERVER_URI, CLIENT_ID, QOS, TOPIC, USERNAME, PASSWORD, INPUT_FORMAT);
+        = Configurations::DescriptorConfig::createConfigParameterContainerMap(
+            SERVER_URI,
+            CLIENT_ID,
+            QOS,
+            TOPIC,
+            USERNAME,
+            PASSWORD,
+            CLEAN_SESSION,
+            PERSISTENCE_DIR,
+            MAX_INFLIGHT,
+            USE_TLS,
+            TLS_CA_CERT,
+            TLS_CLIENT_CERT,
+            TLS_CLIENT_KEY,
+            TLS_ALLOW_INSECURE,
+            INPUT_FORMAT);
 };
 
 }

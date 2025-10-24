@@ -20,7 +20,6 @@
 #include <stdexcept>
 #include <utility>
 #include <string_view>
-#include <vector>
 #include <cstdlib>
 #include <ctime>
 #include <mutex>
@@ -44,6 +43,9 @@
 
 // MEOS wrapper header
 #include <MEOSWrapper.hpp>
+extern "C" {
+#include <meos.h>
+}
 
 namespace NES
 {
@@ -75,21 +77,20 @@ TemporalSequenceAggregationPhysicalFunction::TemporalSequenceAggregationPhysical
 void TemporalSequenceAggregationPhysicalFunction::lift(
     const nautilus::val<AggregationState*>& aggregationState, ExecutionContext& executionContext, const Nautilus::Record& record)
 {
-    
     const auto pagedVectorPtr = static_cast<nautilus::val<Nautilus::Interface::PagedVector*>>(aggregationState);
-    
+
     // For TEMPORAL_SEQUENCE, we need to store lon, lat, and timestamp values
     auto lonValue = lonFunction.execute(record, executionContext.pipelineMemoryProvider.arena);
     auto latValue = latFunction.execute(record, executionContext.pipelineMemoryProvider.arena);
     auto timestampValue = timestampFunction.execute(record, executionContext.pipelineMemoryProvider.arena);
-    
+
     // Create a record with all three fields for temporal sequence
     Record aggregateStateRecord({
         {std::string(LonFieldName), lonValue},
         {std::string(LatFieldName), latValue},
         {std::string(TimestampFieldName), timestampValue}
     });
-    
+
     const Nautilus::Interface::PagedVectorRef pagedVectorRef(pagedVectorPtr, memProviderPagedVector);
     pagedVectorRef.writeRecord(aggregateStateRecord, executionContext.pipelineMemoryProvider.bufferProvider);
 }
@@ -116,7 +117,7 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
 {
     // Ensure MEOS is initialized
     MEOS::Meos::ensureMeosInitialized();
-    
+
     // Getting the paged vector from the aggregation state
     const auto pagedVectorPtr = static_cast<nautilus::val<Nautilus::Interface::PagedVector*>>(aggregationState);
     const Nautilus::Interface::PagedVectorRef pagedVectorRef(pagedVectorPtr, memProviderPagedVector);
@@ -134,7 +135,7 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
         const char* emptyBinaryStr = "BINARY(0)";
         auto strLen = nautilus::val<size_t>(strlen(emptyBinaryStr));
         auto variableSized = pipelineMemoryProvider.arena.allocateVariableSizedData(strLen);
-        
+
         nautilus::invoke(
             +[](int8_t* dest, size_t len) -> void
             {
@@ -143,7 +144,7 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
             },
             variableSized.getContent(),
             strLen);
-        
+
         Nautilus::Record resultRecord;
         resultRecord.write(resultFieldIdentifier, variableSized);
         return resultRecord;
@@ -160,10 +161,10 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
             // Add extra space to prevent buffer issues
             size_t bufferSize = pagedVector->getTotalNumberOfEntries() * 150 + 50;
             char* buffer = (char*)malloc(bufferSize);
-            
+
             // Initialize buffer to zeros to ensure proper null termination
             memset(buffer, 0, bufferSize);
-            
+
             // Start with opening brace for temporal instant set
             strcpy(buffer, "{");
             return buffer;
@@ -172,23 +173,22 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
 
     // Track if this is the first point using a counter
     auto pointCounter = nautilus::val<int64_t>(0);
-    
-    // Read from paged vector
+
+    // Read from paged vector in original order
     const auto endIt = pagedVectorRef.end(allFieldNames);
     for (auto candidateIt = pagedVectorRef.begin(allFieldNames); candidateIt != endIt; ++candidateIt)
     {
         const auto itemRecord = *candidateIt;
-        
+
         // Read all three fields for temporal sequence
         const auto lonValue = itemRecord.read(std::string(LonFieldName));
         const auto latValue = itemRecord.read(std::string(LatFieldName));
         const auto timestampValue = itemRecord.read(std::string(TimestampFieldName));
-        
-        // Use cast to extract values from VarVal
+
         auto lon = lonValue.cast<nautilus::val<double>>();
         auto lat = latValue.cast<nautilus::val<double>>();
         auto timestamp = timestampValue.cast<nautilus::val<int64_t>>();
-        
+
         // Append point to trajectory string in MEOS format
         trajectoryStr = nautilus::invoke(
             +[](char* buffer, double lonVal, double latVal, int64_t tsVal, int64_t counter) -> char*
@@ -196,7 +196,7 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
                 if (counter > 0) {
                     strcat(buffer, ", ");
                 }
-                
+
                 // Convert timestamp to MEOS format
                 // Determine if timestamp is in seconds or milliseconds
                 long long adjustedTime;
@@ -207,11 +207,11 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
                     // Seconds (10 digits or less) - Unix timestamp
                     adjustedTime = tsVal;
                 }
-                
+
                 // Use MEOS wrapper to convert timestamp
                 std::string timestampString = MEOS::Meos::convertSecondsToTimestamp(adjustedTime);
                 const char* timestampStr = timestampString.c_str();
-                
+
                 char pointStr[120];
                 // Use Point format that MEOS expects: Point(lon lat)@timestamp
                 sprintf(pointStr, "Point(%.6f %.6f)@%s", lonVal, latVal, timestampStr);
@@ -223,10 +223,10 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
             lat,
             timestamp,
             pointCounter);
-            
+
         pointCounter = pointCounter + nautilus::val<int64_t>(1);
     }
-    
+
     // Close the trajectory string - always use braces for temporal instant sets
     trajectoryStr = nautilus::invoke(
         +[](char* buffer, int64_t totalPoints) -> char*
@@ -242,7 +242,14 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
         },
         trajectoryStr,
         pointCounter);
-    
+
+    nautilus::invoke(
+        +[](const char* buffer) -> void
+        {
+            printf("DEBUG: trajectory string before MEOS: %s\n", buffer);
+        },
+        trajectoryStr);
+
     // Convert string to MEOS binary format and get size
     auto binarySize = nautilus::invoke(
         +[](const char* trajStr) -> size_t
@@ -251,34 +258,34 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
             if (!trajStr || strlen(trajStr) == 0) {
                 return 0;
             }
-            
+
             // Parse the temporal instant string into a MEOS temporal object
             // Lock mutex for thread-safe MEOS operations
             std::lock_guard<std::mutex> lock(meos_mutex);
-            
+
             // Parse using the wrapper function
             std::string trajString(trajStr);
             void* temp = MEOS::Meos::parseTemporalPoint(trajString);
             if (!temp) {
                 return 0;
             }
-            
+
             // Get the size needed for binary WKB format
             size_t size = 0;
             uint8_t* data = MEOS::Meos::temporalToWKB(temp, size);
-            
+
             if (!data) {
                 MEOS::Meos::freeTemporalObject(temp);
                 return 0;
             }
-            
+
             free(data);
             MEOS::Meos::freeTemporalObject(temp);
-            
+
             return size;
         },
         trajectoryStr);
-    
+
     if (binarySize == nautilus::val<size_t>(0)) {
         // Return empty record or handle error appropriately
         auto emptyVariableSized = pipelineMemoryProvider.arena.allocateVariableSizedData(0);
@@ -286,7 +293,7 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
         resultRecord.write(resultFieldIdentifier, emptyVariableSized);
         return resultRecord;
     }
-    
+
     // Create BINARY(N) string format for test compatibility
     auto binaryFormatStr = nautilus::invoke(
         +[](size_t size, const char* trajStr) -> char*
@@ -294,14 +301,14 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
             // Allocate buffer for "BINARY(N)" string
             char* buffer = (char*)malloc(32);  // More than enough for "BINARY(" + number + ")"
             sprintf(buffer, "BINARY(%zu)", size);
-            
+
             // Free the trajectory string as we don't need it anymore
             free((void*)trajStr);
             return buffer;
         },
         binarySize,
         trajectoryStr);
-    
+
     // Get the length of the BINARY(N) string
     auto formatStrLen = nautilus::invoke(
         +[](const char* str) -> size_t
@@ -309,10 +316,10 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
             return strlen(str);
         },
         binaryFormatStr);
-    
+
     // Allocate variable sized data for the BINARY(N) string
     auto variableSized = pipelineMemoryProvider.arena.allocateVariableSizedData(formatStrLen);
-    
+
     // Copy the BINARY(N) string to the allocated memory
     nautilus::invoke(
         +[](int8_t* dest, const char* formatStr, size_t len) -> void
@@ -323,6 +330,19 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
         variableSized.getContent(),
         binaryFormatStr,
         formatStrLen);
+
+    nautilus::invoke(
+        +[](const int8_t* data, size_t len, size_t size) -> void
+        {
+            printf(
+                "DEBUG: MEOS WKB size=%zu label=%.*s\n",
+                size,
+                static_cast<int>(len),
+                reinterpret_cast<const char*>(data));
+        },
+        variableSized.getContent(),
+        nautilus::val<size_t>(formatStrLen),
+        binarySize);
 
     Nautilus::Record resultRecord;
     resultRecord.write(resultFieldIdentifier, variableSized);

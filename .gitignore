@@ -52,3 +52,4 @@ scripts/__pycache__
 .nix/ctest
 .nix/ninja
 .nix/gdb
+/external/nebulastream/

@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <optional>
@@ -27,6 +28,7 @@
 #include <string_view>
 #include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include <DataTypes/DataType.hpp>
@@ -45,7 +47,6 @@
 #include <SystestParser.hpp>
 #include <SystestState.hpp>
 
-
 namespace
 {
 template <typename T, typename Tag>
@@ -53,10 +54,14 @@ class ResultCheckStrongType
 {
 public:
     explicit constexpr ResultCheckStrongType(const T value) : value(std::move(value)) { }
+
     using Underlying = T;
     using TypeTag = Tag;
+
     friend std::ostream& operator<<(std::ostream& os, const ResultCheckStrongType& strongType) { return os << strongType.getRawValue(); }
+
     [[nodiscard]] const T& getRawValue() const { return value; }
+
     [[nodiscard]] T& getRawValue() { return value; }
 
 private:
@@ -71,10 +76,13 @@ class ResultTuple
 {
 public:
     explicit ResultTuple(std::string tuple) : tuple(std::move(tuple)) { }
+
     using TupleType = Tag;
 
     [[nodiscard]] size_t size() const { return tuple.size(); }
+
     friend std::ostream& operator<<(std::ostream& os, const ResultTuple& resultTuple) { return os << resultTuple.tuple; }
+
     [[nodiscard]] const std::string& getRawValue() const { return tuple; }
 
     [[nodiscard]] std::vector<FieldType> getFields() const
@@ -125,10 +133,12 @@ public:
 
         sortOnFields(this->results, expectedResultsFieldSortIdxs);
     }
+
     ~ResultTuples() = default;
     using TupleType = Tag;
 
     [[nodiscard]] TupleType getTuple(const TupleIdxType tupleIdx) const { return TupleType(results.at(tupleIdx.getRawValue())); }
+
     [[nodiscard]] size_t size() const { return results.size(); }
 
 private:
@@ -140,12 +150,15 @@ class ErrorStream
 {
 public:
     explicit ErrorStream(std::stringstream errorStream) : errorStream(std::move(errorStream)) { }
+
     using ErrorStreamType = Tag;
 
     bool hasMismatch() const { return not errorStream.view().empty(); }
+
     ErrorStringType getErrorString() const { return ErrorStringType(errorStream.str()); }
 
     friend std::ostream& operator<<(std::ostream& os, const ErrorStream& ses) { return os << ses.errorStream.str(); }
+
     template <typename T>
     ErrorStream& operator<<(T&& value)
     {
@@ -251,28 +264,26 @@ NES::Schema parseFieldNames(const std::string_view fieldNamesRawLine)
     return schema;
 }
 
-
 struct QueryResult
 {
     NES::Schema schema;
     std::vector<std::string> result;
 };
-std::optional<QueryResult> loadQueryResult(const NES::Systest::SystestQuery& query)
+
+std::optional<QueryResult> loadQueryResult(const std::filesystem::path& resultFilePath)
 {
-    NES_DEBUG("Loading query result for query: {} from queryResultFile: {}", query.queryDefinition, query.resultFile());
-    std::ifstream resultFile(query.resultFile());
+    NES_DEBUG("Loading query result from: {}", resultFilePath);
+    std::ifstream resultFile(resultFilePath);
     if (!resultFile)
     {
-        NES_FATAL_ERROR("Failed to open result file: {}", query.resultFile());
+        NES_ERROR("Failed to open result file: {}", resultFilePath);
         return std::nullopt;
     }
 
     QueryResult result;
     std::string firstLine;
-    if (!std::getline(resultFile, firstLine))
-    {
-        return result;
-    }
+    auto isNotEmpty = std::getline(resultFile, firstLine) ? true : false;
+    INVARIANT(isNotEmpty, "Result file is empty: {}", resultFilePath);
 
     result.schema = parseFieldNames(firstLine);
 
@@ -281,6 +292,12 @@ std::optional<QueryResult> loadQueryResult(const NES::Systest::SystestQuery& que
         result.result.push_back(firstLine);
     }
     return result;
+}
+
+[[maybe_unused]] std::optional<QueryResult> loadQueryResult(const NES::Systest::SystestQuery& query)
+{
+    NES_DEBUG("Loading query result for query: {} from queryResultFile: {}", query.queryDefinition, query.resultFile());
+    return loadQueryResult(query.resultFile());
 }
 
 struct ExpectedToActualFieldMap
@@ -307,6 +324,7 @@ public:
         , totalResultLinesSize(expectedResultLinesSize + actualResultLinesSize)
     {
     }
+
     ~LineIndexIterator() = default;
 
     [[nodiscard]] bool hasNext() const
@@ -315,14 +333,18 @@ public:
     }
 
     [[nodiscard]] ExpectedResultIndex getExpected() const { return expectedResultTupleIdx; }
+
     [[nodiscard]] ActualResultIndex getActual() const { return actualResultTupleIdx; }
+
     void advanceExpected() { this->expectedResultTupleIdx = ExpectedResultIndex(this->expectedResultTupleIdx.getRawValue() + 1); }
+
     void advanceActual() { this->actualResultTupleIdx = ActualResultIndex(this->actualResultTupleIdx.getRawValue() + 1); }
 
     [[nodiscard]] bool hasOnlyExpectedLinesLeft() const
     {
         return expectedResultTupleIdx < expectedResultLinesSize and actualResultTupleIdx >= actualResultLinesSize;
     }
+
     [[nodiscard]] bool hasOnlyActualLinesLeft() const
     {
         return actualResultTupleIdx < actualResultLinesSize and expectedResultTupleIdx >= expectedResultLinesSize;
@@ -512,7 +534,6 @@ bool compareTuples(
     std::unreachable();
 }
 
-
 ResultErrorStream compareResults(
     const ExpectedResultTuples& formattedExpectedResultLines,
     const ActualResultTuples& formattedActualResultLines,
@@ -565,10 +586,12 @@ struct QueryCheckResult
         SCHEMAS_MATCH_RESULTS_MATCH,
         QUERY_NOT_FOUND,
     };
+
     explicit QueryCheckResult(std::string queryErrorStream)
         : type(Type::QUERY_NOT_FOUND), queryError(std::move(queryErrorStream)), schemaErrorStream(""), resultErrorStream("")
     {
     }
+
     explicit QueryCheckResult(const SchemaErrorStream& schemaErrorStream, const ResultErrorStream& resultErrorStream)
         : schemaErrorStream(schemaErrorStream.getErrorString()), resultErrorStream(resultErrorStream.getErrorString())
     {
@@ -612,9 +635,11 @@ struct QuerySchemasAndResults
     }
 
     const ExpectedResultTuples& getExpectedResultTuples() const { return expectedResults; }
+
     const ActualResultTuples& getActualResultTuples() const { return actualResults; }
 
     [[nodiscard]] const ExpectedToActualFieldMap& getExpectedToActualResultMap() const { return expectedToActualResultMap; }
+
     [[nodiscard]] const SchemaErrorStream& getSchemaErrorStream() const { return expectedToActualResultMap.schemaErrorStream; }
 
 private:
@@ -625,13 +650,13 @@ private:
     ActualResultTuples actualResults;
 };
 
-QueryCheckResult checkQuery(const NES::Systest::RunningQuery& runningQuery, const NES::Systest::QueryResultMap& queryResultMap)
+QueryCheckResult checkQuery(const NES::Systest::RunningQuery& runningQuery)
 {
     /// Get result for running query
-    const auto queryResult = loadQueryResult(runningQuery.query);
+    const auto queryResult = loadQueryResult(runningQuery.systestQuery);
     if (not queryResult.has_value())
     {
-        return QueryCheckResult{fmt::format("Failed to load query result for query: ", runningQuery.query.queryDefinition)};
+        return QueryCheckResult{fmt::format("Failed to load query result for query: {}", runningQuery.systestQuery.queryDefinition)};
     }
 
     const QuerySchemasAndResults querySchemasAndResults = [&]()
@@ -639,21 +664,13 @@ QueryCheckResult checkQuery(const NES::Systest::RunningQuery& runningQuery, cons
         auto [actualSchemaResult, actualQueryResult] = queryResult.value();
 
         /// Check if the expected result is empty and if this is the case, the query result should be empty as well
-        auto expectedQueryResult = [](const NES::Systest::RunningQuery& query, const NES::Systest::QueryResultMap& resultMap)
-        {
-            const auto currentQuery = resultMap.find(query.query.resultFile());
-            INVARIANT(
-                currentQuery != resultMap.end(),
-                "Could not find query {}:{} in result map.",
-                query.query.sqlLogicTestFile,
-                query.query.queryIdInFile);
-            return currentQuery->second;
-        }(runningQuery, queryResultMap);
+        auto expectedQueryResult = runningQuery.systestQuery.expectedResultsOrExpectedError;
+        INVARIANT(std::holds_alternative<std::vector<std::string>>(expectedQueryResult), "Systest was expected to have an expected result");
 
         return QuerySchemasAndResults(
-            ExpectedResultSchema(runningQuery.query.expectedSinkSchema),
+            ExpectedResultSchema(runningQuery.systestQuery.planInfoOrException.value().sinkOutputSchema),
             ActualResultSchema(actualSchemaResult),
-            std::move(expectedQueryResult),
+            std::get<std::vector<std::string>>(expectedQueryResult),
             std::move(actualQueryResult));
     }();
 
@@ -670,14 +687,8 @@ QueryCheckResult checkQuery(const NES::Systest::RunningQuery& runningQuery, cons
 namespace NES::Systest
 {
 
-std::optional<std::string> checkResult(const RunningQuery& runningQuery, const QueryResultMap& queryResultMap)
+std::optional<std::string> checkResult(const RunningQuery& runningQuery)
 {
-    PRECONDITION(
-        runningQuery.query.queryIdInFile.getRawValue() <= queryResultMap.size(),
-        "No results for query with id {}. Only {} results available.",
-        runningQuery.query.queryIdInFile,
-        queryResultMap.size());
-
     static constexpr std::string_view SchemaMismatchMessage = "\n\n"
                                                               "Schema Mismatch\n"
                                                               "---------------";
@@ -685,27 +696,95 @@ std::optional<std::string> checkResult(const RunningQuery& runningQuery, const Q
                                                               "Result Mismatch\nExpected Results(Sorted) | Actual Results(Sorted)\n"
                                                               "-------------------------------------------------";
 
-    switch (const auto checkQueryResult = checkQuery(runningQuery, queryResultMap); checkQueryResult.type)
+    const auto annotateDifferentialError = [&](std::string message) -> std::string
+    {
+        if (runningQuery.systestQuery.differentialQueryPlan.has_value())
+        {
+            if (not message.empty())
+            {
+                message.append("\n");
+            }
+            message.append("\nThis error happend during differential query execution.");
+        }
+        return message;
+    };
+
+    QueryCheckResult checkQueryResult{""};
+
+    if (runningQuery.systestQuery.differentialQueryPlan.has_value())
+    {
+        const auto result1 = loadQueryResult(runningQuery.systestQuery.resultFile());
+        const auto result2 = loadQueryResult(runningQuery.systestQuery.resultFileForDifferentialQuery());
+
+        if (not result1)
+        {
+            return annotateDifferentialError(fmt::format(
+                "Failed to load first result file for differential query comparison: {}", runningQuery.systestQuery.resultFile()));
+        }
+
+        if (not result2)
+        {
+            return annotateDifferentialError(fmt::format(
+                "Failed to load second result file for differential query comparison: {}",
+                runningQuery.systestQuery.resultFileForDifferentialQuery()));
+        }
+
+        if (result1->schema.getNumberOfFields() == 0)
+        {
+            return annotateDifferentialError(
+                fmt::format("First result file is empty or has no schema: {}", runningQuery.systestQuery.resultFile()));
+        }
+
+        if (result2->schema.getNumberOfFields() == 0)
+        {
+            return annotateDifferentialError(fmt::format(
+                "Second result file is empty or has no schema: {}", runningQuery.systestQuery.resultFileForDifferentialQuery()));
+        }
+
+        const QuerySchemasAndResults querySchemasAndResults = [&]()
+        {
+            auto [schema1, result1Data] = result1.value();
+            auto [schema2, result2Data] = result2.value();
+
+            return QuerySchemasAndResults(
+                ExpectedResultSchema(schema1), ActualResultSchema(schema2), std::move(result1Data), std::move(result2Data));
+        }();
+
+        /// Compare the schemas and results using the normal result check logic
+        const auto resultComparisonErrorStream = compareResults(
+            querySchemasAndResults.getExpectedResultTuples(),
+            querySchemasAndResults.getActualResultTuples(),
+            querySchemasAndResults.getExpectedToActualResultMap());
+
+        checkQueryResult = QueryCheckResult{querySchemasAndResults.getSchemaErrorStream(), resultComparisonErrorStream};
+    }
+    else
+    {
+        checkQueryResult = checkQuery(runningQuery);
+    }
+
+    switch (checkQueryResult.type)
     {
         case QueryCheckResult::Type::QUERY_NOT_FOUND: {
-            return checkQueryResult.queryError;
+            return annotateDifferentialError(checkQueryResult.queryError);
         }
         case QueryCheckResult::Type::SCHEMAS_MATCH_RESULTS_MATCH: {
             return std::nullopt;
         }
         case QueryCheckResult::Type::SCHEMAS_MATCH_RESULTS_MISMATCH: {
-            return fmt::format("{}{}", ResultMismatchMessage, checkQueryResult.resultErrorStream);
+            return annotateDifferentialError(fmt::format("{}{}", ResultMismatchMessage, checkQueryResult.resultErrorStream));
         }
         case QueryCheckResult::Type::SCHEMAS_MISMATCH_RESULTS_MATCH: {
-            return fmt::format("{}{}\n\nAll Results match", SchemaMismatchMessage, checkQueryResult.schemaErrorStream);
+            return annotateDifferentialError(
+                fmt::format("{}{}\n\nAll Results match", SchemaMismatchMessage, checkQueryResult.schemaErrorStream));
         }
         case QueryCheckResult::Type::SCHEMAS_MISMATCH_RESULTS_MISMATCH: {
-            return fmt::format(
+            return annotateDifferentialError(fmt::format(
                 "{}{}{}{}",
                 SchemaMismatchMessage,
                 checkQueryResult.schemaErrorStream,
                 ResultMismatchMessage,
-                checkQueryResult.resultErrorStream);
+                checkQueryResult.resultErrorStream));
         }
     }
     std::unreachable();

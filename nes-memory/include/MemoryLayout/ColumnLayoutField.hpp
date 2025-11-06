@@ -14,12 +14,14 @@
 
 #pragma once
 
+#include <span>
+#include <utility>
 #include <MemoryLayout/ColumnLayout.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <ErrorHandling.hpp>
 
-namespace NES::Memory::MemoryLayouts
+namespace NES
 {
 
 /**
@@ -35,9 +37,9 @@ class ColumnLayoutField
 {
 public:
     static inline ColumnLayoutField<T, boundaryChecks>
-    create(uint64_t fieldIndex, std::shared_ptr<ColumnLayout> layout, Memory::TupleBuffer& buffer);
+    create(uint64_t fieldIndex, std::shared_ptr<ColumnLayout> layout, TupleBuffer& buffer);
     static inline ColumnLayoutField<T, boundaryChecks>
-    create(const std::string& fieldName, std::shared_ptr<ColumnLayout> layout, Memory::TupleBuffer& buffer);
+    create(const std::string& fieldName, std::shared_ptr<ColumnLayout> layout, TupleBuffer& buffer);
 
     /**
      * Accesses the value of this field for a specific record.
@@ -47,15 +49,16 @@ public:
     inline T& operator[](size_t recordIndex);
 
 private:
-    ColumnLayoutField(T* basePointer, std::shared_ptr<ColumnLayout> layout) : basePointer(basePointer), layout(std::move(layout)) { };
+    ColumnLayoutField(const std::span<T> baseSpan, std::shared_ptr<ColumnLayout> layout)
+        : baseSpan(baseSpan), layout(std::move(layout)) { };
 
-    T* basePointer;
+    std::span<T> baseSpan;
     std::shared_ptr<ColumnLayout> layout;
 };
 
 template <class T, bool boundaryChecks>
 inline ColumnLayoutField<T, boundaryChecks>
-ColumnLayoutField<T, boundaryChecks>::create(uint64_t fieldIndex, std::shared_ptr<ColumnLayout> layout, Memory::TupleBuffer& buffer)
+ColumnLayoutField<T, boundaryChecks>::create(uint64_t fieldIndex, std::shared_ptr<ColumnLayout> layout, TupleBuffer& buffer)
 {
     INVARIANT(
         boundaryChecks && fieldIndex < layout->getSchema().getNumberOfFields(),
@@ -63,16 +66,16 @@ ColumnLayoutField<T, boundaryChecks>::create(uint64_t fieldIndex, std::shared_pt
         layout->getSchema().getNumberOfFields(),
         fieldIndex);
 
-    auto* bufferBasePointer = &(buffer.getBuffer<uint8_t>()[0]);
-    auto fieldOffset = layout->getFieldOffset(0, fieldIndex);
-
-    T* basePointer = reinterpret_cast<T*>(bufferBasePointer + fieldOffset);
-    return ColumnLayoutField<T, boundaryChecks>(basePointer, layout);
+    const auto offSet = layout->getFieldOffset(0, fieldIndex);
+    const auto fieldSize = layout->getFieldSize(fieldIndex);
+    auto baseSpan = buffer.getAvailableMemoryArea().subspan(offSet);
+    auto baseSpanField = std::span{reinterpret_cast<T*>(baseSpan.data()), fieldSize * buffer.getNumberOfTuples()};
+    return ColumnLayoutField(baseSpanField, layout);
 }
 
 template <class T, bool boundaryChecks>
-ColumnLayoutField<T, boundaryChecks> ColumnLayoutField<T, boundaryChecks>::create(
-    const std::string& fieldName, std::shared_ptr<ColumnLayout> layout, Memory::TupleBuffer& buffer)
+ColumnLayoutField<T, boundaryChecks>
+ColumnLayoutField<T, boundaryChecks>::create(const std::string& fieldName, std::shared_ptr<ColumnLayout> layout, TupleBuffer& buffer)
 {
     auto fieldIndex = layout->getFieldIndexFromName(fieldName);
     INVARIANT(fieldIndex.has_value(), "Could not find fieldIndex for {}", fieldName);
@@ -84,7 +87,7 @@ inline T& ColumnLayoutField<T, boundaryChecks>::operator[](size_t recordIndex)
 {
     INVARIANT(
         boundaryChecks && recordIndex < layout->getCapacity(), "recordIndex out of bounds {} >= {}", layout->getCapacity(), recordIndex);
-    return *(basePointer + recordIndex);
+    return baseSpan[recordIndex];
 }
 
 }

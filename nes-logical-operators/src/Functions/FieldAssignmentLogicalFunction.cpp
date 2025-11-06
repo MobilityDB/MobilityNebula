@@ -12,6 +12,8 @@
     limitations under the License.
 */
 
+#include <Functions/FieldAssignmentLogicalFunction.hpp>
+
 #include <string>
 #include <string_view>
 #include <utility>
@@ -19,7 +21,6 @@
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
-#include <Functions/FieldAssignmentLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
 #include <Util/Logger/Logger.hpp>
@@ -79,7 +80,6 @@ LogicalFunction FieldAssignmentLogicalFunction::getAssignment() const
 {
     return logicalFunction;
 }
-
 
 DataType FieldAssignmentLogicalFunction::getDataType() const
 {
@@ -146,7 +146,7 @@ LogicalFunction FieldAssignmentLogicalFunction::withInferredDataType(const Schem
 
     if (copy.fieldAccess.getDataType().isType(DataType::Type::UNDEFINED))
     {
-        copy.fieldAccess = copy.fieldAccess.withDataType(copy.getAssignment().getDataType()).get<FieldAccessLogicalFunction>();
+        copy.fieldAccess = copy.fieldAccess.withDataType(copy.logicalFunction.getDataType()).get<FieldAccessLogicalFunction>();
     }
     else
     {
@@ -159,7 +159,7 @@ LogicalFunction FieldAssignmentLogicalFunction::withInferredDataType(const Schem
             copy.fieldAccess = copy.fieldAccess.withDataType(copy.getAssignment().getDataType()).get<FieldAccessLogicalFunction>();
         }
     }
-    copy.dataType = copy.getAssignment().getDataType();
+    copy.dataType = copy.fieldAccess.getDataType();
     return copy;
 }
 
@@ -176,11 +176,14 @@ SerializableFunction FieldAssignmentLogicalFunction::serialize() const
 LogicalFunctionRegistryReturnType
 LogicalFunctionGeneratedRegistrar::RegisterFieldAssignmentLogicalFunction(LogicalFunctionRegistryArguments arguments)
 {
-    PRECONDITION(
-        arguments.children.size() == 2,
-        "FieldAssignmentLogicalFunction requires exactly two children, but got {}",
-        arguments.children.size());
-    PRECONDITION(arguments.children[0].tryGet<FieldAccessLogicalFunction>(), "First child must be a FieldAccessLogicalFunction");
+    if (arguments.children.size() != 2)
+    {
+        throw CannotDeserialize("FieldAssignmentLogicalFunction requires exactly two children, but got {}", arguments.children.size());
+    }
+    if (!arguments.children[0].tryGet<FieldAccessLogicalFunction>())
+    {
+        throw CannotDeserialize("First child must be a FieldAccessLogicalFunction");
+    }
     return FieldAssignmentLogicalFunction(arguments.children[0].get<FieldAccessLogicalFunction>(), arguments.children[1]);
 }
 

@@ -10,12 +10,12 @@ Source gps_data FLOAT64 longitude FLOAT64 latitude UINT64 timestamp INLINE
 76.9650,40.7620,4000
 77.9600,40.7650,7000
 
-SINK basic_result UINT64 gps_data$start UINT64 gps_data$end VARSIZED gps_data$trajectory
+SINK basic_result UINT64 GPS_DATA$START UINT64 GPS_DATA$END VARSIZED TRAJECTORY
 
-SELECT start, end, TEMPORAL_SEQUENCE(longitude, latitude, timestamp) AS trajectory
+SELECT gps_data$start, gps_data$end, TEMPORAL_SEQUENCE(gps_data$longitude, gps_data$latitude, gps_data$timestamp) AS TRAJECTORY
 FROM gps_data
-WINDOW TUMBLING(timestamp, size 5000 ms)
+WINDOW TUMBLING(gps_data$timestamp, size 5000 ms)
 INTO basic_result
 ----
-0,5000,BINARY(125)
-5000,10000,BINARY(38)
+0,5000,BINARY(32)
+5000,10000,BINARY(8)

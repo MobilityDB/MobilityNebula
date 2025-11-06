@@ -27,7 +27,6 @@
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
 #include <SerializableVariantDescriptor.pb.h>
-#include <MEOSWrapper.hpp>
 
 namespace NES
 {

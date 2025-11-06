@@ -30,7 +30,7 @@ public:
     ~TemporalSequenceAggregationLogicalFunction() override = default;
     [[nodiscard]] NES::SerializableAggregationFunction serialize() const override;
     [[nodiscard]] std::string_view getName() const noexcept override;
-    [[nodiscard]] bool requiresSequentialAggregation() const override { return true; }
+    [[nodiscard]] bool requiresSequentialAggregation() const { return true; }
 
     [[nodiscard]] const FieldAccessLogicalFunction& getLonField() const { return lonField; }
     [[nodiscard]] const FieldAccessLogicalFunction& getLatField() const { return latField; }

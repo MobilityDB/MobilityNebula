@@ -13,8 +13,10 @@
 */
 #include <Nautilus/Interface/HashMap/ChainedHashMap/ChainedEntryMemoryProvider.hpp>
 
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <span>
 #include <utility>
 #include <vector>
 #include <DataTypes/Schema.hpp>
@@ -29,12 +31,10 @@
 #include <static.hpp>
 #include <val.hpp>
 
-
-namespace NES::Nautilus::Interface::MemoryProvider
+namespace NES::Nautilus::Interface::BufferRef
 {
 
-std::pair<std::vector<MemoryProvider::FieldOffsets>, std::vector<MemoryProvider::FieldOffsets>>
-ChainedEntryMemoryProvider::createFieldOffsets(
+std::pair<std::vector<BufferRef::FieldOffsets>, std::vector<BufferRef::FieldOffsets>> ChainedEntryMemoryProvider::createFieldOffsets(
     const Schema& schema,
     const std::vector<Record::RecordFieldIdentifier>& fieldNameKeys,
     const std::vector<Record::RecordFieldIdentifier>& fieldNameValues)
@@ -42,8 +42,8 @@ ChainedEntryMemoryProvider::createFieldOffsets(
     /// For now, we assume that we the fields lie consecutively in the memory like in a row layout.
     /// First, the key fields and then the value fields.
     /// The key and values start after the ChainedHashMapEntry and its hash, see @ref ChainedHashMapEntry
-    std::vector<MemoryProvider::FieldOffsets> fieldsKey;
-    std::vector<MemoryProvider::FieldOffsets> fieldsValue;
+    std::vector<BufferRef::FieldOffsets> fieldsKey;
+    std::vector<BufferRef::FieldOffsets> fieldsValue;
     uint64_t offset = sizeof(ChainedHashMapEntry);
     for (const auto& fieldName : fieldNameKeys)
     {
@@ -51,7 +51,7 @@ ChainedEntryMemoryProvider::createFieldOffsets(
         INVARIANT(field.has_value(), "Field {} not found in schema", fieldName);
         const auto& fieldValue = field.value();
         fieldsKey.emplace_back(
-            MemoryProvider::FieldOffsets{.fieldIdentifier = fieldValue.name, .type = fieldValue.dataType, .fieldOffset = offset});
+            BufferRef::FieldOffsets{.fieldIdentifier = fieldValue.name, .type = fieldValue.dataType, .fieldOffset = offset});
         offset += fieldValue.dataType.getSizeInBytes();
     }
 
@@ -61,7 +61,7 @@ ChainedEntryMemoryProvider::createFieldOffsets(
         INVARIANT(field.has_value(), "Field {} not found in schema", fieldName);
         const auto& fieldValue = field.value();
         fieldsValue.emplace_back(
-            MemoryProvider::FieldOffsets{.fieldIdentifier = fieldValue.name, .type = fieldValue.dataType, .fieldOffset = offset});
+            BufferRef::FieldOffsets{.fieldIdentifier = fieldValue.name, .type = fieldValue.dataType, .fieldOffset = offset});
         offset += fieldValue.dataType.getSizeInBytes();
     }
     return {fieldsKey, fieldsValue};
@@ -81,9 +81,10 @@ VarVal ChainedEntryMemoryProvider::readVarVal(
             {
                 const auto varSizedDataPtr
                     = nautilus::invoke(+[](const int8_t** memoryAddressInEntry) { return *memoryAddressInEntry; }, memoryAddress);
-                VariableSizedData varSizedData(varSizedDataPtr, VariableSizedData::Owned(false));
+                VariableSizedData varSizedData(varSizedDataPtr);
                 return varSizedData;
             }
+
             const auto varVal = VarVal::readVarValFromMemory(memoryAddress, type.type);
             return varVal;
         }
@@ -107,20 +108,21 @@ namespace
 {
 void storeVarSized(
     const nautilus::val<ChainedHashMap*>& hashMapRef,
-    const nautilus::val<Memory::AbstractBufferProvider*>& bufferProviderRef,
+    const nautilus::val<AbstractBufferProvider*>& bufferProviderRef,
     const nautilus::val<int8_t*>& memoryAddress,
     const VariableSizedData& variableSizedData)
 {
     nautilus::invoke(
         +[](ChainedHashMap* hashMap,
-            Memory::AbstractBufferProvider* bufferProvider,
+            AbstractBufferProvider* bufferProvider,
             const int8_t** memoryAddressInEntry,
             const int8_t* varSizedData,
             const uint64_t varSizedDataSize)
         {
-            auto* const spaceForVarSizedData = hashMap->allocateSpaceForVarSized(bufferProvider, varSizedDataSize);
-            std::memcpy(spaceForVarSizedData, varSizedData, varSizedDataSize);
-            *memoryAddressInEntry = spaceForVarSizedData;
+            auto spaceForVarSizedData = hashMap->allocateSpaceForVarSized(bufferProvider, varSizedDataSize);
+            const std::span<const int8_t> varSizedSpan{varSizedData, varSizedData + varSizedDataSize};
+            std::ranges::copy(std::as_bytes(varSizedSpan), spaceForVarSizedData.begin());
+            *memoryAddressInEntry = reinterpret_cast<const signed char*>(spaceForVarSizedData.data());
         },
         hashMapRef,
         bufferProviderRef,
@@ -133,7 +135,7 @@ void storeVarSized(
 void ChainedEntryMemoryProvider::writeRecord(
     const nautilus::val<ChainedHashMapEntry*>& entryRef,
     const nautilus::val<ChainedHashMap*>& hashMapRef,
-    const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider,
+    const nautilus::val<AbstractBufferProvider*>& bufferProvider,
     const Record& record) const
 {
     for (const auto& [fieldIdentifier, type, fieldOffset] : nautilus::static_iterable(fields))
@@ -157,7 +159,7 @@ void ChainedEntryMemoryProvider::writeRecord(
 void ChainedEntryMemoryProvider::writeEntryRef(
     const nautilus::val<ChainedHashMapEntry*>& entryRef,
     const nautilus::val<ChainedHashMap*>& hashMapRef,
-    const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider,
+    const nautilus::val<AbstractBufferProvider*>& bufferProvider,
     const nautilus::val<ChainedHashMapEntry*>& otherEntryRef) const
 {
     for (const auto& [fieldIdentifier, type, fieldOffset] : nautilus::static_iterable(fields))

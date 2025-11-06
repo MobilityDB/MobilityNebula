@@ -24,6 +24,7 @@
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <Time/Timestamp.hpp>
 #include <Watermark/TimeFunction.hpp>
+#include <CompilationContext.hpp>
 #include <HashMapOptions.hpp>
 #include <WindowBuildPhysicalOperator.hpp>
 
@@ -35,6 +36,7 @@ Interface::HashMap* getAggHashMapProxy(
     Timestamp timestamp,
     WorkerThreadId workerThreadId,
     const AggregationBuildPhysicalOperator* buildOperator);
+
 class AggregationBuildPhysicalOperator final : public WindowBuildPhysicalOperator
 {
 public:
@@ -49,7 +51,7 @@ public:
         std::unique_ptr<TimeFunction> timeFunction,
         std::vector<std::shared_ptr<AggregationPhysicalFunction>> aggregationFunctions,
         HashMapOptions hashMapOptions);
-    void setup(ExecutionContext& executionCtx) const override;
+    void setup(ExecutionContext& executionCtx, CompilationContext& compilationContext) const override;
     void execute(ExecutionContext& ctx, Record& record) const override;
 
 private:

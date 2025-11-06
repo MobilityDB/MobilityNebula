@@ -27,13 +27,14 @@
 #include <Runtime/NodeEngineBuilder.hpp>
 #include <Runtime/QueryTerminationType.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <fmt/format.h>
+#include <Util/Pointers.hpp>
+#include <cpptrace/from_current.hpp>
+#include <CompositeStatisticListener.hpp>
 #include <ErrorHandling.hpp>
+#include <GoogleEventTracePrinter.hpp>
 #include <QueryCompiler.hpp>
 #include <QueryOptimizer.hpp>
-#include <SingleNodeWorker.hpp>
 #include <SingleNodeWorkerConfiguration.hpp>
-#include <StatisticPrinter.hpp>
 
 namespace NES
 {
@@ -42,21 +43,29 @@ SingleNodeWorker::~SingleNodeWorker() = default;
 SingleNodeWorker::SingleNodeWorker(SingleNodeWorker&& other) noexcept = default;
 SingleNodeWorker& SingleNodeWorker::operator=(SingleNodeWorker&& other) noexcept = default;
 
-SingleNodeWorker::SingleNodeWorker(const Configuration::SingleNodeWorkerConfiguration& configuration)
-    : listener(std::make_shared<PrintingStatisticListener>(
-          fmt::format("EngineStats_{:%Y-%m-%d_%H-%M-%S}_{:d}.stats", std::chrono::system_clock::now(), ::getpid())))
-    , nodeEngine(NodeEngineBuilder(configuration.workerConfiguration, listener, listener).build())
-    , bufferSize(configuration.workerConfiguration.bufferSizeInBytes.getValue())
-    , optimizer(std::make_unique<QueryOptimizer>(configuration.workerConfiguration.queryOptimizer))
-    , compiler(std::make_unique<QueryCompilation::QueryCompiler>())
+SingleNodeWorker::SingleNodeWorker(const SingleNodeWorkerConfiguration& configuration)
+    : listener(std::make_shared<CompositeStatisticListener>()), configuration(configuration)
 {
+    if (configuration.enableGoogleEventTrace.getValue())
+    {
+        auto googleTracePrinter = std::make_shared<GoogleEventTracePrinter>(
+            fmt::format("GoogleEventTrace_{:%Y-%m-%d_%H-%M-%S}_{:d}.json", std::chrono::system_clock::now(), ::getpid()));
+        googleTracePrinter->start();
+        listener->addListener(googleTracePrinter);
+    }
+
+    nodeEngine = NodeEngineBuilder(configuration.workerConfiguration, copyPtr(listener)).build();
+
+    optimizer = std::make_unique<QueryOptimizer>(configuration.workerConfiguration.defaultQueryExecution);
+    compiler = std::make_unique<QueryCompilation::QueryCompiler>();
+
     if (configuration.workerConfiguration.bufferSizeInBytes.getValue()
-        < configuration.workerConfiguration.queryOptimizer.operatorBufferSize.getValue())
+        < configuration.workerConfiguration.defaultQueryExecution.operatorBufferSize.getValue())
     {
         throw InvalidConfigParameter(
             "Currently, we require the bufferSizeInBytes {} to be at least the operatorBufferSize {}",
             configuration.workerConfiguration.bufferSizeInBytes.getValue(),
-            configuration.workerConfiguration.queryOptimizer.operatorBufferSize.getValue());
+            configuration.workerConfiguration.defaultQueryExecution.operatorBufferSize.getValue());
     }
 }
 
@@ -64,56 +73,87 @@ SingleNodeWorker::SingleNodeWorker(const Configuration::SingleNodeWorkerConfigur
 /// We might want to move this to the engine.
 static std::atomic queryIdCounter = INITIAL<QueryId>.getRawValue();
 
-std::expected<QueryId, Exception> SingleNodeWorker::registerQuery(LogicalPlan plan) const
+std::expected<QueryId, Exception> SingleNodeWorker::registerQuery(LogicalPlan plan) noexcept
 {
-    try
+    CPPTRACE_TRY
     {
         plan.setQueryId(QueryId(queryIdCounter++));
         auto queryPlan = optimizer->optimize(plan);
         listener->onEvent(SubmitQuerySystemEvent{queryPlan.getQueryId(), explain(plan, ExplainVerbosity::Debug)});
         auto request = std::make_unique<QueryCompilation::QueryCompilationRequest>(queryPlan);
+        request->dumpCompilationResult = configuration.workerConfiguration.dumpQueryCompilationIntermediateRepresentations.getValue();
         auto result = compiler->compileQuery(std::move(request));
+        INVARIANT(result, "expected successfull query compilation or exception, but got nothing");
         return nodeEngine->registerCompiledQueryPlan(std::move(result));
     }
-    catch (Exception& e)
+    CPPTRACE_CATCH(...)
     {
-        tryLogCurrentException();
-        return std::unexpected(e);
-    }
-    catch (const std::exception& e)
-    {
-        NES_ERROR("registerQuery caught std::exception: {}", e.what());
-        std::cerr << "registerQuery caught std::exception: " << e.what() << std::endl;
-        tryLogCurrentException();
         return std::unexpected(wrapExternalException());
     }
-    catch (...)
+    std::unreachable();
+}
+
+std::expected<void, Exception> SingleNodeWorker::startQuery(QueryId queryId) noexcept
+{
+    CPPTRACE_TRY
     {
-        NES_ERROR("registerQuery caught unknown exception");
-        std::cerr << "registerQuery caught unknown exception" << std::endl;
-        tryLogCurrentException();
+        PRECONDITION(queryId != INVALID_QUERY_ID, "QueryId must be not invalid!");
+        nodeEngine->startQuery(queryId);
+        return {};
+    }
+    CPPTRACE_CATCH(...)
+    {
         return std::unexpected(wrapExternalException());
     }
+    std::unreachable();
 }
 
-void SingleNodeWorker::startQuery(QueryId queryId)
+std::expected<void, Exception> SingleNodeWorker::stopQuery(QueryId queryId, QueryTerminationType type) noexcept
 {
-    nodeEngine->startQuery(queryId);
+    CPPTRACE_TRY
+    {
+        PRECONDITION(queryId != INVALID_QUERY_ID, "QueryId must be not invalid!");
+        nodeEngine->stopQuery(queryId, type);
+        return {};
+    }
+    CPPTRACE_CATCH(...)
+    {
+        return std::unexpected{wrapExternalException()};
+    }
+    std::unreachable();
 }
 
-void SingleNodeWorker::stopQuery(QueryId queryId, QueryTerminationType type)
+std::expected<void, Exception> SingleNodeWorker::unregisterQuery(QueryId queryId) noexcept
 {
-    nodeEngine->stopQuery(queryId, type);
+    CPPTRACE_TRY
+    {
+        PRECONDITION(queryId != INVALID_QUERY_ID, "QueryId must be not invalid!");
+        nodeEngine->unregisterQuery(queryId);
+        return {};
+    }
+    CPPTRACE_CATCH(...)
+    {
+        return std::unexpected(wrapExternalException());
+    }
+    std::unreachable();
 }
 
-void SingleNodeWorker::unregisterQuery(QueryId queryId)
+std::expected<LocalQueryStatus, Exception> SingleNodeWorker::getQueryStatus(QueryId queryId) const noexcept
 {
-    nodeEngine->unregisterQuery(queryId);
-}
-
-std::optional<QuerySummary> SingleNodeWorker::getQuerySummary(QueryId queryId) const
-{
-    return nodeEngine->getQueryLog()->getQuerySummary(queryId);
+    CPPTRACE_TRY
+    {
+        auto status = nodeEngine->getQueryLog()->getQueryStatus(queryId);
+        if (not status.has_value())
+        {
+            return std::unexpected{QueryNotFound("{}", queryId)};
+        }
+        return status.value();
+    }
+    CPPTRACE_CATCH(...)
+    {
+        return std::unexpected(wrapExternalException());
+    }
+    std::unreachable();
 }
 
 std::optional<QueryLog::Log> SingleNodeWorker::getQueryLog(QueryId queryId) const

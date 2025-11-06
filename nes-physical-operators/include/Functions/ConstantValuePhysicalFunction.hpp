@@ -30,12 +30,14 @@ class ConstantValuePhysicalFunction final : public PhysicalFunctionConcept
 {
 public:
     explicit ConstantValuePhysicalFunction(T value) : value(value) { }
+
     VarVal execute(const Record&, ArenaRef&) const override { return VarVal(value); }
 
 private:
     const T value;
 };
 
+using ConstantCharValueFunction = ConstantValuePhysicalFunction<char>;
 using ConstantInt8ValueFunction = ConstantValuePhysicalFunction<int8_t>;
 using ConstantInt16ValueFunction = ConstantValuePhysicalFunction<int16_t>;
 using ConstantInt32ValueFunction = ConstantValuePhysicalFunction<int32_t>;

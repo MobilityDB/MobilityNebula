@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <concepts>
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -22,18 +23,21 @@
 #include <unordered_map>
 #include <utility>
 #include <variant>
-#include <Configurations/ConfigurationsNames.hpp>
+
+
 #include <Configurations/Enums/EnumWrapper.hpp>
 #include <Util/Logger/Formatter.hpp>
 #include <Util/Logger/Logger.hpp>
+#include <Util/Strings.hpp>
 #include <fmt/base.h>
+#include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <magic_enum/magic_enum.hpp>
 #include <ErrorHandling.hpp>
 #include <ProtobufHelper.hpp> /// NOLINT Descriptor equality operator does not compile without
 #include <SerializableVariantDescriptor.pb.h>
 
-namespace NES::Configurations
+namespace NES
 {
 
 namespace DescriptorConfigurationConstraints
@@ -71,8 +75,8 @@ public:
         FunctionList,
         AggregationFunctionList,
         WindowInfos,
-        SerializableModel
-    >;
+        ProjectionList,
+        UInt64List>;
     using Config = std::unordered_map<std::string, ConfigType>;
 
     /// Tag struct that tags a config key with a type.
@@ -103,6 +107,7 @@ public:
         {
             return this->validateFunc(config);
         }
+
         friend std::ostream& operator<<(std::ostream& os, const ConfigParameter& obj) { return os << "name: " << obj.name; }
 
         static constexpr bool isEnumWrapper() { return not(std::is_same_v<U, void>); }
@@ -140,10 +145,12 @@ public:
         struct ConfigParameterModel : ConfigParameterConcept
         {
             ConfigParameterModel(const T& configParameter) : configParameter(configParameter) { }
+
             std::optional<ConfigType> validate(const std::unordered_map<std::string, std::string>& config) const override
             {
                 return configParameter.validate(config);
             }
+
             std::optional<ConfigType> getDefaultValue() const override { return configParameter.defaultValue; }
 
         private:
@@ -166,8 +173,7 @@ public:
         /// First check if all user-specified keys are valid.
         for (const auto& [key, _] : config)
         {
-            if (key != SOURCE_TYPE_CONFIG and key != NUMBER_OF_BUFFERS_IN_LOCAL_POOL
-                and not SpecificConfiguration::parameterMap.contains(key))
+            if (not SpecificConfiguration::parameterMap.contains(key))
             {
                 throw InvalidConfigParameter(fmt::format("Unknown configuration parameter: {}.", key));
             }
@@ -175,20 +181,20 @@ public:
         /// Next, try to validate all config parameters.
         for (const auto& [key, configParameter] : SpecificConfiguration::parameterMap)
         {
-            for (const auto& [keyString, configParameterString] : config)
+            /// If the user did not specify a parameter that is optional, use the default value (if available).
+            if (not config.contains(key))
             {
-                NES_DEBUG("key: {}, value: {}", keyString, configParameterString);
+                if (const auto defaultValue = configParameter.getDefaultValue())
+                {
+                    validatedConfig.emplace(key, defaultValue.value());
+                    continue;
+                }
+                throw InvalidConfigParameter(
+                    fmt::format("Non-default parameter {} not specified in config of {}", key, implementationName));
             }
-            const auto validatedParameter = configParameter.validate(config);
-            if (validatedParameter.has_value())
+            if (const auto validatedParameter = configParameter.validate(config); validatedParameter.has_value())
             {
                 validatedConfig.emplace(key, validatedParameter.value());
-                continue;
-            }
-            /// If the user did not specify a parameter that is optional, use the default value.
-            if (not config.contains(key) and configParameter.getDefaultValue().has_value())
-            {
-                validatedConfig.emplace(key, configParameter.getDefaultValue().value());
                 continue;
             }
             throw InvalidConfigParameter(fmt::format("Failed validation of config parameter: {}, in: {}", key, implementationName));
@@ -200,52 +206,11 @@ private:
     template <typename T, typename EnumType>
     static std::optional<T> stringParameterAs(std::string stringParameter)
     {
-        if constexpr (std::is_same_v<T, int32_t>)
+        if constexpr (requires(std::string string) {
+                          NES::Util::from_chars<T>(string);
+                      }) /// TODO #1035: check if two Util namespaces are needed
         {
-            return std::stoi(stringParameter);
-        }
-        else if constexpr (std::is_same_v<T, uint32_t>)
-        {
-            return std::stoul(stringParameter);
-        }
-        else if constexpr (std::is_same_v<T, bool>)
-        {
-            using namespace std::literals::string_view_literals;
-            auto caseInsensitiveEqual = [](const unsigned char leftChar, const unsigned char rightChar)
-            { return std::tolower(leftChar) == std::tolower(rightChar); };
-
-            if (std::ranges::equal(stringParameter, "true"sv, caseInsensitiveEqual))
-            {
-                return true;
-            }
-            if (std::ranges::equal(stringParameter, "false"sv, caseInsensitiveEqual))
-            {
-                return false;
-            }
-            return std::nullopt;
-        }
-        else if constexpr (std::is_same_v<T, char>)
-        {
-            if (stringParameter.length() != 1)
-            {
-                throw InvalidConfigParameter(fmt::format(
-                    "Char Descriptor config paramater must be of length one, but got: {}, which is of size: {}.",
-                    stringParameter,
-                    stringParameter.length()));
-            }
-            return stringParameter[0];
-        }
-        else if constexpr (std::is_same_v<T, float>)
-        {
-            return std::stof(stringParameter);
-        }
-        else if constexpr (std::is_same_v<T, double>)
-        {
-            return std::stod(stringParameter);
-        }
-        else if constexpr (std::is_same_v<T, std::string>)
-        {
-            return stringParameter;
+            return NES::Util::from_chars<T>(stringParameter);
         }
         else if constexpr (std::is_same_v<T, EnumWrapper>)
         {
@@ -296,8 +261,33 @@ public:
     template <typename... Args>
     static std::unordered_map<std::string, ConfigParameterContainer> createConfigParameterContainerMap(Args&&... parameters)
     {
-        return std::unordered_map<std::string, ConfigParameterContainer>(
-            {std::make_pair(parameters.name, std::forward<Args>(parameters))...});
+        std::unordered_map<std::string, ConfigParameterContainer> configParameterMap{};
+        auto inserter = [&configParameterMap](auto param)
+        {
+            if constexpr (requires {
+                              typename decltype(param)::Type;
+                              typename decltype(param)::EnumType;
+                              std::is_same_v<
+                                  ConfigParameter<typename decltype(param)::Type, typename decltype(param)::EnumType>,
+                                  decltype(param)>;
+                          })
+            {
+                configParameterMap.emplace(param.name, std::forward<decltype(param)>(param));
+            }
+            else if constexpr (std::is_same_v<decltype(param), std::unordered_map<std::string, ConfigParameterContainer>>)
+            {
+                for (const auto& [key, value] : param)
+                {
+                    configParameterMap.emplace(key, value);
+                }
+            }
+            else
+            {
+                static_assert(false, "Invalid config parameter type");
+            }
+        };
+        (inserter(parameters), ...);
+        return configParameterMap;
     }
 };
 
@@ -346,6 +336,18 @@ struct Descriptor
         return std::nullopt;
     }
 
+    template <typename ConfigParameterType>
+    std::optional<ConfigParameterType> tryGetFromConfig(const std::string& configParameter) const
+    {
+        if (config.contains(configParameter) && std::holds_alternative<ConfigParameterType>(config.at(configParameter)))
+        {
+            const auto& value = config.at(configParameter);
+            return std::get<ConfigParameterType>(value);
+        }
+        NES_DEBUG("Descriptor did not contain key: {}, with type: {}", configParameter, typeid(ConfigParameterType).name());
+        return std::nullopt;
+    }
+
     [[nodiscard]] DescriptorConfig::Config getConfig() const { return config; }
 
 protected:
@@ -361,10 +363,29 @@ DescriptorConfig::ConfigType protoToDescriptorConfigType(const SerializableVaria
 
 }
 
-FMT_OSTREAM(NES::Configurations::Descriptor);
-
+FMT_OSTREAM(NES::Descriptor);
 
 template <typename T>
-struct fmt::formatter<NES::Configurations::DescriptorConfig::ConfigParameter<T>> : ostream_formatter
+struct fmt::formatter<NES::DescriptorConfig::ConfigParameter<T>> : ostream_formatter
 {
+};
+
+template <typename T>
+requires std::derived_from<T, google::protobuf::MessageLite>
+struct fmt::formatter<T> : fmt::formatter<std::string_view>
+{
+    auto format(const google::protobuf::MessageLite& message, format_context& ctx) const
+    {
+        return formatter<std::string_view>::format(message.SerializeAsString(), ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<NES::DescriptorConfig::ConfigType> : fmt::formatter<std::string_view>
+{
+    auto format(const NES::DescriptorConfig::ConfigType& configValue, format_context& ctx) const
+    {
+        return std::visit(
+            [&ctx, this](auto&& arg) { return formatter<std::string_view>::format(fmt::format("{}", arg), ctx); }, configValue);
+    }
 };

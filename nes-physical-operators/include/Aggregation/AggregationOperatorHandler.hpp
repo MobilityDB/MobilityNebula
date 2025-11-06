@@ -13,17 +13,21 @@
 */
 
 #pragma once
+#include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <functional>
 #include <map>
 #include <memory>
+#include <utility>
 #include <vector>
 #include <Identifiers/Identifiers.hpp>
 #include <Nautilus/Interface/HashMap/HashMap.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <SliceStore/Slice.hpp>
 #include <SliceStore/WindowSlicesStoreInterface.hpp>
-#include <nautilus/Engine.hpp>
+#include <Util/RollingAverage.hpp>
+#include <HashMapSlice.hpp>
 #include <WindowBasedOperatorHandler.hpp>
 
 namespace NES
@@ -34,7 +38,20 @@ namespace NES
 /// is large enough to store all slices of the window to be triggered.
 struct EmittedAggregationWindow
 {
+    EmittedAggregationWindow(
+        const WindowInfo windowInfo,
+        std::unique_ptr<Nautilus::Interface::HashMap> finalHashMap,
+        const std::vector<Nautilus::Interface::HashMap*>& allHashMaps)
+        : windowInfo(windowInfo), finalHashMap(std::move(finalHashMap)), numberOfHashMaps(allHashMaps.size())
+    {
+        finalHashMapPtr = this->finalHashMap.get();
+        /// Copying the hashmap pointers after this object, hence this + 1
+        hashMaps = std::bit_cast<Nautilus::Interface::HashMap**>(this + 1);
+        std::ranges::copy(allHashMaps, std::bit_cast<Nautilus::Interface::HashMap**>(hashMaps));
+    }
+
     WindowInfo windowInfo;
+    Nautilus::Interface::HashMap* finalHashMapPtr;
     std::unique_ptr<Nautilus::Interface::HashMap>
         finalHashMap; /// Pointer to the final hash map that the probe should use to combine all hash maps
     uint64_t numberOfHashMaps;
@@ -48,18 +65,22 @@ public:
         const std::vector<OriginId>& inputOrigins,
         OriginId outputOriginId,
         std::unique_ptr<WindowSlicesStoreInterface> sliceAndWindowStore,
-        bool sequentialProcessing);
+        uint64_t maxNumberOfBuckets);
 
-    [[nodiscard]] std::function<std::vector<std::shared_ptr<Slice>>(SliceStart, SliceEnd)> getCreateNewSlicesFunction() const override;
+    [[nodiscard]] std::function<std::vector<std::shared_ptr<Slice>>(SliceStart, SliceEnd)>
+    getCreateNewSlicesFunction(const CreateNewSlicesArguments& newSlicesArguments) const override;
 
+    /// Is required to not perform the setup again and resolving a race condition to the cleanup state function
+    std::atomic<bool> setupAlreadyCalled;
     /// shared_ptr as multiple slices need access to it
-    using NautilusCleanupExec = nautilus::engine::CallableFunction<void, Nautilus::Interface::HashMap*>;
-    std::shared_ptr<NautilusCleanupExec> cleanupStateNautilusFunction;
+    std::shared_ptr<CreateNewHashMapSliceArgs::NautilusCleanupExec> cleanupStateNautilusFunction;
 
 protected:
     void triggerSlices(
         const std::map<WindowInfoAndSequenceNumber, std::vector<std::shared_ptr<Slice>>>& slicesAndWindowInfo,
         PipelineExecutionContext* pipelineCtx) override;
+    folly::Synchronized<RollingAverage<uint64_t>> rollingAverageNumberOfKeys;
+    uint64_t maxNumberOfBuckets;
 };
 
 }

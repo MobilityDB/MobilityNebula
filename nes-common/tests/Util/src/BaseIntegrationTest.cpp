@@ -12,13 +12,14 @@
     limitations under the License.
 */
 
+#include <BaseIntegrationTest.hpp>
+
 #include <filesystem>
 #include <ios>
 #include <random>
 #include <sstream>
 #include <string>
 #include <Util/Logger/Logger.hpp>
-#include <BaseIntegrationTest.hpp>
 #include <BaseUnitTest.hpp>
 #include <ErrorHandling.hpp>
 #if defined(__linux__)
@@ -74,7 +75,7 @@ void BaseIntegrationTest::SetUp()
     auto expected = false;
     if (setUpCalled.compare_exchange_strong(expected, true))
     {
-        NES::Testing::BaseUnitTest::SetUp();
+        Testing::BaseUnitTest::SetUp();
         if (!std::filesystem::exists(testResourcePath))
         {
             std::filesystem::create_directories(testResourcePath);
@@ -108,7 +109,7 @@ void BaseIntegrationTest::TearDown()
     if (tearDownCalled.compare_exchange_strong(expected, true))
     {
         std::filesystem::remove_all(testResourcePath);
-        NES::Testing::BaseUnitTest::TearDown();
+        Testing::BaseUnitTest::TearDown();
         completeTest();
     }
     else

@@ -15,6 +15,7 @@
 #include <Join/NestedLoopJoin/NLJOperatorHandler.hpp>
 
 #include <algorithm>
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <utility>
@@ -23,7 +24,6 @@
 #include <Join/NestedLoopJoin/NLJSlice.hpp>
 #include <Join/StreamJoinOperatorHandler.hpp>
 #include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/MemoryProvider/TupleBufferMemoryProvider.hpp>
 #include <Nautilus/Interface/PagedVector/PagedVector.hpp>
 #include <Sequencing/SequenceData.hpp>
 #include <SliceStore/Slice.hpp>
@@ -43,7 +43,8 @@ NLJOperatorHandler::NLJOperatorHandler(
 {
 }
 
-std::function<std::vector<std::shared_ptr<Slice>>(SliceStart, SliceEnd)> NLJOperatorHandler::getCreateNewSlicesFunction() const
+std::function<std::vector<std::shared_ptr<Slice>>(SliceStart, SliceEnd)>
+NLJOperatorHandler::getCreateNewSlicesFunction(const CreateNewSlicesArguments&) const
 {
     PRECONDITION(
         numberOfWorkerThreads > 0, "Number of worker threads not set for window based operator. Was setWorkerThreads() being called?");
@@ -57,7 +58,7 @@ std::function<std::vector<std::shared_ptr<Slice>>(SliceStart, SliceEnd)> NLJOper
         });
 }
 
-void NLJOperatorHandler::emitSliceIdsToProbe(
+void NLJOperatorHandler::emitSlicesToProbe(
     Slice& sliceLeft,
     Slice& sliceRight,
     const WindowInfo& windowInfo,
@@ -81,11 +82,10 @@ void NLJOperatorHandler::emitSliceIdsToProbe(
     tupleBuffer.setLastChunk(sequenceData.lastChunk);
     tupleBuffer.setWatermark(windowInfo.windowStart);
     tupleBuffer.setNumberOfTuples(totalNumberOfTuples);
-
-    auto* bufferMemory = tupleBuffer.getBuffer<EmittedNLJWindowTrigger>();
-    bufferMemory->leftSliceEnd = sliceLeft.getSliceEnd();
-    bufferMemory->rightSliceEnd = sliceRight.getSliceEnd();
-    bufferMemory->windowInfo = windowInfo;
+    tupleBuffer.setCreationTimestampInMS(Timestamp(
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()));
+    new (tupleBuffer.getAvailableMemoryArea().data())
+        EmittedNLJWindowTrigger{windowInfo, sliceLeft.getSliceEnd(), sliceRight.getSliceEnd()};
 
     /// Dispatching the buffer to the probe operator via the task queue.
     pipelineCtx->emitBuffer(tupleBuffer);
@@ -93,8 +93,8 @@ void NLJOperatorHandler::emitSliceIdsToProbe(
     NES_DEBUG(
         "Emitted leftSliceId {} rightSliceId {} with watermarkTs {} sequenceNumber {} originId {} for no. left tuples "
         "{} and no. right tuples {} for window info: {}-{}",
-        bufferMemory->leftSliceEnd,
-        bufferMemory->rightSliceEnd,
+        sliceLeft.getSliceEnd(),
+        sliceRight.getSliceEnd(),
         tupleBuffer.getWatermark(),
         tupleBuffer.getSequenceDataAsString(),
         tupleBuffer.getOriginId(),

@@ -14,35 +14,37 @@
 
 #include <RewriteRules/LowerToPhysical/LowerToPhysicalNLJoin.hpp>
 
-#include <cstdint>
 #include <memory>
-#include <ostream>
 #include <ranges>
 #include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
-#include <Configurations/Worker/QueryOptimizerConfiguration.hpp>
+
 #include <DataTypes/Schema.hpp>
 #include <DataTypes/TimeUnit.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/FieldAccessPhysicalFunction.hpp>
 #include <Functions/FunctionProvider.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Identifiers/Identifiers.hpp>
 #include <Iterators/BFSIterator.hpp>
 #include <Join/NestedLoopJoin/NLJBuildPhysicalOperator.hpp>
 #include <Join/NestedLoopJoin/NLJOperatorHandler.hpp>
 #include <Join/NestedLoopJoin/NLJProbePhysicalOperator.hpp>
 #include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/MemoryProvider/TupleBufferMemoryProvider.hpp>
+#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
 #include <Operators/LogicalOperator.hpp>
 #include <Operators/Windows/JoinLogicalOperator.hpp>
 #include <RewriteRules/AbstractRewriteRule.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <SliceStore/DefaultTimeBasedSliceStore.hpp>
+#include <Traits/OutputOriginIdsTrait.hpp>
+#include <Traits/TraitSet.hpp>
 #include <Util/Common.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <Watermark/TimeFunction.hpp>
+#include <Watermark/TimestampField.hpp>
 #include <WindowTypes/Measures/TimeCharacteristic.hpp>
 #include <WindowTypes/Types/TimeBasedWindowType.hpp>
 #include <ErrorHandling.hpp>
@@ -52,95 +54,9 @@
 namespace NES
 {
 
-/// A TimestampField is a wrapper around a FieldName and a Unit of time.
-/// This enforces fields carrying time values to be evaluated with respect to a specific timeunit.
-class TimestampField
-{
-    enum TimeFunctionType
-    {
-        EVENT_TIME,
-        INGESTION_TIME,
-    };
-
-public:
-    friend std::ostream& operator<<(std::ostream& os, const TimestampField& obj);
-
-    /// The multiplier is the value which converts from the underlying time value to milliseconds.
-    /// E.g. the multiplier for a timestampfield of seconds is 1000
-    [[nodiscard]] Windowing::TimeUnit getUnit() const { return unit; }
-
-    [[nodiscard]] const std::string& getName() const { return fieldName; }
-
-    [[nodiscard]] const TimeFunctionType& getTimeFunctionType() const { return timeFunctionType; }
-
-    /// Builds the TimeFunction
-    [[nodiscard]] std::unique_ptr<TimeFunction> toTimeFunction() const
-    {
-        switch (timeFunctionType)
-        {
-            case EVENT_TIME:
-                return std::make_unique<EventTimeFunction>(FieldAccessPhysicalFunction(fieldName), unit);
-            case INGESTION_TIME:
-                return std::make_unique<IngestionTimeFunction>();
-        }
-    }
-    static TimestampField ingestionTime() { return {"IngestionTime", Windowing::TimeUnit(1), INGESTION_TIME}; }
-    static TimestampField eventTime(std::string fieldName, const Windowing::TimeUnit& tm) { return {std::move(fieldName), tm, EVENT_TIME}; }
-
-private:
-    std::string fieldName;
-    Windowing::TimeUnit unit;
-    TimeFunctionType timeFunctionType;
-    TimestampField(std::string fieldName, const Windowing::TimeUnit& unit, TimeFunctionType timeFunctionType)
-        : fieldName(std::move(fieldName)), unit(unit), timeFunctionType(timeFunctionType)
-    {
-    }
-};
-
-
-static std::tuple<TimestampField, TimestampField>
-getTimestampLeftAndRight(const JoinLogicalOperator& joinOperator, const std::shared_ptr<Windowing::TimeBasedWindowType>& windowType)
-{
-    if (windowType->getTimeCharacteristic().getType() == Windowing::TimeCharacteristic::Type::IngestionTime)
-    {
-        NES_DEBUG("Skip eventime identification as we use ingestion time");
-        return {TimestampField::ingestionTime(), TimestampField::ingestionTime()};
-    }
-
-    /// FIXME Once #3407 is done, we can change this to get the left and right fieldname
-    auto timeStampFieldName = windowType->getTimeCharacteristic().field.name;
-    auto timeStampFieldNameWithoutSourceName = timeStampFieldName.substr(timeStampFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR));
-
-    /// Lambda function for extracting the timestamp from a schema
-    auto findTimeStampFieldName = [&](const Schema& schema)
-    {
-        for (const auto& field : schema.getFields())
-        {
-            if (field.name.find(timeStampFieldNameWithoutSourceName) != std::string::npos)
-            {
-                return field.name;
-            }
-        }
-        return std::string();
-    };
-
-    /// Extracting the left and right timestamp
-    auto timeStampFieldNameLeft = findTimeStampFieldName(joinOperator.getInputSchemas()[0]);
-    auto timeStampFieldNameRight = findTimeStampFieldName(joinOperator.getInputSchemas()[1]);
-
-    INVARIANT(
-        !(timeStampFieldNameLeft.empty() || timeStampFieldNameRight.empty()),
-        "Could not find timestampfieldname {} in both streams!",
-        timeStampFieldNameWithoutSourceName);
-
-    return {
-        TimestampField::eventTime(timeStampFieldNameLeft, windowType->getTimeCharacteristic().getTimeUnit()),
-        TimestampField::eventTime(timeStampFieldNameRight, windowType->getTimeCharacteristic().getTimeUnit())};
-}
-
 static auto getJoinFieldNames(const Schema& inputSchema, const LogicalFunction& joinFunction)
 {
-    return NES::BFSRange(joinFunction)
+    return BFSRange(joinFunction)
         | std::views::filter([](const auto& child) { return child.template tryGet<FieldAccessLogicalFunction>().has_value(); })
         | std::views::transform([](const auto& child) { return child.template tryGet<FieldAccessLogicalFunction>()->getFieldName(); })
         | std::views::filter([&](const auto& fieldName) { return inputSchema.contains(fieldName); })
@@ -149,48 +65,57 @@ static auto getJoinFieldNames(const Schema& inputSchema, const LogicalFunction& 
 
 RewriteRuleResultSubgraph LowerToPhysicalNLJoin::apply(LogicalOperator logicalOperator)
 {
-    PRECONDITION(logicalOperator.tryGet<JoinLogicalOperator>(), "Expected a JoinLogicalOperator");
-    PRECONDITION(logicalOperator.getInputOriginIds().size() == 2, "Expected two origin id vector");
-    PRECONDITION(logicalOperator.getOutputOriginIds().size() == 1, "Expected one output origin id");
+    PRECONDITION(logicalOperator.tryGetAs<JoinLogicalOperator>(), "Expected a JoinLogicalOperator");
+    PRECONDITION(std::ranges::size(logicalOperator.getChildren()) == 2, "Expected two children");
+    auto outputOriginIdsOpt = getTrait<OutputOriginIdsTrait>(logicalOperator.getTraitSet());
+    PRECONDITION(outputOriginIdsOpt.has_value(), "Expected the outputOriginIds trait to be set");
+    auto& outputOriginIds = outputOriginIdsOpt.value();
+    PRECONDITION(std::ranges::size(outputOriginIdsOpt.value()) == 1, "Expected one output origin id");
     PRECONDITION(logicalOperator.getInputSchemas().size() == 2, "Expected two input schemas");
 
-    auto join = logicalOperator.get<JoinLogicalOperator>();
+    auto join = logicalOperator.getAs<JoinLogicalOperator>();
     auto handlerId = getNextOperatorHandlerId();
 
-    auto rightInputSchema = join.getInputSchemas()[0];
-    auto leftInputSchema = join.getInputSchemas()[1];
+    auto leftInputSchema = join->getLeftSchema();
+    auto rightInputSchema = join->getRightSchema();
     auto outputSchema = join.getOutputSchema();
-    auto outputOriginId = join.getOutputOriginIds()[0];
-    auto logicalJoinFunction = join.getJoinFunction();
-    auto windowType = NES::Util::as<Windowing::TimeBasedWindowType>(join.getWindowType());
+    auto outputOriginId = outputOriginIds[0];
+    auto logicalJoinFunction = join->getJoinFunction();
+    auto windowType = NES::Util::as<Windowing::TimeBasedWindowType>(join->getWindowType());
     const auto pageSize = conf.pageSize.getValue();
 
 
-    auto nested = logicalOperator.getInputOriginIds();
-    auto flatView = nested | std::views::join;
-    const std::vector inputOriginIds(flatView.begin(), flatView.end());
+    const auto inputOriginIds
+        = join.getChildren()
+        | std::views::transform(
+              [](const auto& child)
+              {
+                  auto childOutputOriginIds = getTrait<OutputOriginIdsTrait>(child.getTraitSet());
+                  PRECONDITION(childOutputOriginIds.has_value(), "Expected the outputOriginIds trait of the child to be set");
+                  return childOutputOriginIds.value();
+              })
+        | std::views::join | std::ranges::to<std::vector<OriginId>>();
 
     auto joinFunction = QueryCompilation::FunctionProvider::lowerFunction(logicalJoinFunction);
-    auto leftMemoryProvider = TupleBufferMemoryProvider::create(pageSize, leftInputSchema);
-    leftMemoryProvider->getMemoryLayout()->setKeyFieldNames(getJoinFieldNames(leftInputSchema, logicalJoinFunction));
-    auto rightMemoryProvider = TupleBufferMemoryProvider::create(pageSize, rightInputSchema);
-    rightMemoryProvider->getMemoryLayout()->setKeyFieldNames(getJoinFieldNames(rightInputSchema, logicalJoinFunction));
+    auto leftBufferRef = TupleBufferRef::create(pageSize, leftInputSchema);
+    leftBufferRef->getMemoryLayout()->setKeyFieldNames(getJoinFieldNames(leftInputSchema, logicalJoinFunction));
+    auto rightBufferRef = TupleBufferRef::create(pageSize, rightInputSchema);
+    rightBufferRef->getMemoryLayout()->setKeyFieldNames(getJoinFieldNames(rightInputSchema, logicalJoinFunction));
 
-    auto [timeStampFieldRight, timeStampFieldLeft] = getTimestampLeftAndRight(join, windowType);
+    auto [timeStampFieldLeft, timeStampFieldRight] = TimestampField::getTimestampLeftAndRight(*join, windowType);
 
     auto leftBuildOperator
-        = NLJBuildPhysicalOperator(handlerId, JoinBuildSideType::Left, timeStampFieldLeft.toTimeFunction(), leftMemoryProvider);
+        = NLJBuildPhysicalOperator(handlerId, JoinBuildSideType::Left, timeStampFieldLeft.toTimeFunction(), leftBufferRef);
 
     auto rightBuildOperator
-        = NLJBuildPhysicalOperator(handlerId, JoinBuildSideType::Right, timeStampFieldRight.toTimeFunction(), rightMemoryProvider);
+        = NLJBuildPhysicalOperator(handlerId, JoinBuildSideType::Right, timeStampFieldRight.toTimeFunction(), rightBufferRef);
 
     auto joinSchema = JoinSchema(leftInputSchema, rightInputSchema, outputSchema);
     auto probeOperator
-        = NLJProbePhysicalOperator(handlerId, joinFunction, join.getWindowMetaData(), joinSchema, leftMemoryProvider, rightMemoryProvider);
+        = NLJProbePhysicalOperator(handlerId, joinFunction, join->getWindowMetaData(), joinSchema, leftBufferRef, rightBufferRef);
 
-    const uint64_t numberOfOriginIds = inputOriginIds.size();
-    auto sliceAndWindowStore = std::make_unique<DefaultTimeBasedSliceStore>(
-        windowType->getSize().getTime(), windowType->getSlide().getTime(), numberOfOriginIds);
+    auto sliceAndWindowStore
+        = std::make_unique<DefaultTimeBasedSliceStore>(windowType->getSize().getTime(), windowType->getSlide().getTime());
     auto handler = std::make_shared<NLJOperatorHandler>(inputOriginIds, outputOriginId, std::move(sliceAndWindowStore));
 
     auto leftBuildWrapper = std::make_shared<PhysicalOperatorWrapper>(
@@ -208,11 +133,11 @@ RewriteRuleResultSubgraph LowerToPhysicalNLJoin::apply(LogicalOperator logicalOp
         PhysicalOperatorWrapper::PipelineLocation::SCAN,
         std::vector{leftBuildWrapper, rightBuildWrapper});
 
-    return {.root = {probeWrapper}, .leafs = {rightBuildWrapper, leftBuildWrapper}};
+    return {.root = {probeWrapper}, .leafs = {leftBuildWrapper, rightBuildWrapper}};
 };
 
 std::unique_ptr<AbstractRewriteRule>
-RewriteRuleGeneratedRegistrar::RegisterJoinRewriteRule(RewriteRuleRegistryArguments argument) /// NOLINT
+RewriteRuleGeneratedRegistrar::RegisterNLJoinRewriteRule(RewriteRuleRegistryArguments argument) /// NOLINT
 {
     return std::make_unique<LowerToPhysicalNLJoin>(argument.conf);
 }

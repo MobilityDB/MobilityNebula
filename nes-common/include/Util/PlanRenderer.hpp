@@ -28,6 +28,7 @@
 #include <unordered_set>
 #include <vector>
 #include <Util/Logger/Logger.hpp>
+#include <cpptrace/from_current.hpp>
 #include <fmt/format.h>
 #include <gtest/gtest_prod.h>
 #include <ErrorHandling.hpp>
@@ -80,14 +81,15 @@ class PlanRenderer
 {
 public:
     virtual ~PlanRenderer() = default;
-    explicit PlanRenderer(std::ostream& out, NES::ExplainVerbosity verbosity)
+    explicit PlanRenderer(std::ostream& out, ExplainVerbosity verbosity)
         : out(out), verbosity(verbosity), processedDag({}), layerCalcQueue({}) { };
 
     void dump(const Plan& plan)
     {
-        const std::vector<Operator> rootOperators = plan.rootOperators;
+        const std::vector<Operator> rootOperators = plan.getRootOperators();
         dump(rootOperators);
     }
+
     /// Prints a tree like graph of the queryplan to the stream this class was instatiated with.
     ///
     /// Caveats:
@@ -96,15 +98,16 @@ public:
     void dump(const std::vector<Operator>& rootOperators)
     {
         /// Don't crash NES just because we failed to print the queryplan.
-        try
+        CPPTRACE_TRY
         {
             const size_t maxWidth = calculateLayers(rootOperators);
             const std::stringstream asciiOutput = drawTree(maxWidth);
             dumpAndUseUnicodeBoxDrawing(asciiOutput.str());
         }
-        catch (const std::exception& exc)
+        CPPTRACE_CATCH(...)
         {
-            NES_ERROR("Failed to print queryplan with exception: {}\n", exc.what());
+            NES_ERROR("Failed to print queryplan with following exception:");
+            tryLogCurrentException();
         }
     }
 
@@ -112,7 +115,7 @@ private:
     FRIEND_TEST(PlanRenderer, printQuerySourceFilterMapSink);
     FRIEND_TEST(PlanRenderer, printQueryMapFilterTwoSinks);
     std::ostream& out;
-    NES::ExplainVerbosity verbosity;
+    ExplainVerbosity verbosity;
 
     struct PrintNode
     {
@@ -136,12 +139,14 @@ private:
     };
 
     std::vector<Layer> processedDag;
+
     struct QueueItem
     {
         Operator node;
         /// Saves the (already processed) node that queued this node. And if we find more parents, the vector has room for them too.
         std::vector<std::weak_ptr<PrintNode>> parents;
     };
+
     std::deque<QueueItem> layerCalcQueue;
 
     /// Converts the `Node`s to `PrintNode`s in the `processedDag` structure which knows about they layer the node should appear on and how
@@ -210,6 +215,7 @@ private:
         size_t current;
         size_t next;
     };
+
     /// Decides how to queue the children of the current node depending on whether we already queued it or already put in `processedDag`.
     ///
     /// There are four cases:
@@ -352,6 +358,7 @@ private:
             }
         }
     }
+
     [[nodiscard]] std::stringstream drawTree(size_t maxWidth) const
     {
         std::stringstream asciiOutput;

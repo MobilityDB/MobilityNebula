@@ -19,7 +19,7 @@
 #include <Util/Logger/Logger.hpp>
 #include <ErrorHandling.hpp>
 
-namespace NES::Configurations
+namespace NES
 {
 
 /// This class implements sequential options of a type that has to be a subtype of the BaseOption.
@@ -41,6 +41,7 @@ public:
 
     [[nodiscard]] std::vector<T> getValues() const;
     [[nodiscard]] bool empty() const;
+
     template <class X>
     void add(X value)
     {
@@ -87,6 +88,7 @@ void SequenceOption<T>::parseFromYAMLNode(YAML::Node node)
         throw InvalidConfigParameter("YAML node should be a sequence but it was a " + node.as<std::string>());
     }
 }
+
 template <DerivedBaseOption T>
 void SequenceOption<T>::parseFromString(std::string identifier, std::unordered_map<std::string, std::string>& inputParams)
 {

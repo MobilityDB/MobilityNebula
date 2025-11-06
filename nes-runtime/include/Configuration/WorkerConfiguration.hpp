@@ -19,16 +19,14 @@
 #include <vector>
 #include <Configurations/BaseConfiguration.hpp>
 #include <Configurations/BaseOption.hpp>
-#include <Configurations/ConfigurationOption.hpp>
 #include <Configurations/Enums/EnumOption.hpp>
 #include <Configurations/ScalarOption.hpp>
-#include <Configurations/Validation/NonZeroValidation.hpp>
 #include <Configurations/Validation/NumberValidation.hpp>
-#include <Configurations/Worker/QueryOptimizerConfiguration.hpp>
-#include <Configurations/WrapOption.hpp>
+#include <Util/DumpMode.hpp>
 #include <QueryEngineConfiguration.hpp>
+#include <QueryExecutionConfiguration.hpp>
 
-namespace NES::Configurations
+namespace NES
 {
 class WorkerConfiguration final : public BaseConfiguration
 {
@@ -36,53 +34,46 @@ public:
     WorkerConfiguration() = default;
     WorkerConfiguration(const std::string& name, const std::string& description) : BaseConfiguration(name, description) { };
 
-
-    StringOption localWorkerHost = {"localWorkerHost", "127.0.0.1", "Worker IP or hostname."};
-
-    /// Port for the RPC server of the Worker. This is used to receive control messages from the coordinator or other workers .
-    UIntOption rpcPort = {"rpcPort", "0", "RPC server port of the NES Worker.", {std::make_shared<NumberValidation>()}};
-
-    EnumOption<LogLevel> logLevel
-        = {"logLevel", LogLevel::LOG_INFO, "The log level (LOG_NONE, LOG_WARNING, LOG_DEBUG, LOG_INFO, LOG_TRACE)"};
-
-    QueryEngineConfiguration queryEngineConfiguration = {"queryEngine", "Query Engine Configuration"};
+    QueryEngineConfiguration queryEngine = {"query_engine", "Configuration for the query engine"};
+    QueryExecutionConfiguration defaultQueryExecution = {"default_query_execution", "Default configuration for query executions"};
 
     /// The number of buffers in the global buffer manager. Controls how much memory is consumed by the system.
     UIntOption numberOfBuffersInGlobalBufferManager
-        = {"numberOfBuffersInGlobalBufferManager", "1024", "Number buffers in global buffer pool.", {std::make_shared<NumberValidation>()}};
-
-    UIntOption numberOfBuffersPerWorker
-        = {"numberOfBuffersPerWorker", "128", "Number buffers in task local buffer pool.", {std::make_shared<NumberValidation>()}};
-
-
-    /// Indicates how many buffers a single data source can allocate. This property controls the backpressure mechanism as a data source that can't allocate new records can't ingest more data.
-    UIntOption numberOfBuffersInSourceLocalPools
-        = {"numberOfBuffersInSourceLocalPools",
-           "64",
-           "Number buffers in source local buffer pool. May be overwritten by a source-specific configuration (see SourceDescriptor).",
+        = {"number_of_buffers_in_global_buffer_manager",
+           "32768",
+           "Number buffers in global buffer pool.",
            {std::make_shared<NumberValidation>()}};
 
     /// Configures the buffer size of individual TupleBuffers in bytes. This property has to be the same over a whole deployment.
-    UIntOption bufferSizeInBytes = {"bufferSizeInBytes", "4096", "BufferSizeInBytes.", {std::make_shared<NumberValidation>()}};
+    UIntOption bufferSizeInBytes
+        = {"buffer_size_in_bytes",
+           "4096",
+           "Configures the buffer size of individual TupleBuffers in bytes.",
+           {std::make_shared<NumberValidation>()}};
 
-    QueryOptimizerConfiguration queryOptimizer = {"queryOptimizer", "Configuration for the query optimizer"};
-    StringOption configPath = {CONFIG_PATH, "", "Path to configuration file."};
+    /// Indicates how many buffers a single data source can allocate. This property controls the backpressure mechanism as a data source that can't allocate new records can't ingest more data.
+    UIntOption defaultMaxInflightBuffers
+        = {"default_max_inflight_buffers",
+           "64",
+           "Number of buffers a source can have inflight before blocking. May be overwritten by a source-specific configuration (see "
+           "SourceDescriptor).",
+           {std::make_shared<NumberValidation>()}};
+
+    EnumOption<DumpMode> dumpQueryCompilationIntermediateRepresentations
+        = {"dump_compilation_result",
+           DumpMode::NONE,
+           fmt::format("If and where to dump query compilation results: {}", enumPipeList<DumpMode>())};
 
 private:
-    std::vector<NES::Configurations::BaseOption*> getOptions() override
+    std::vector<BaseOption*> getOptions() override
     {
         return {
-            &localWorkerHost,
-            &rpcPort,
-            &configPath,
-            &queryEngineConfiguration,
+            &queryEngine,
+            &defaultQueryExecution,
             &numberOfBuffersInGlobalBufferManager,
-            &numberOfBuffersPerWorker,
-            &numberOfBuffersInSourceLocalPools,
+            &defaultMaxInflightBuffers,
             &bufferSizeInBytes,
-            &logLevel,
-            &queryOptimizer,
-        };
+            &dumpQueryCompilationIntermediateRepresentations};
     }
 };
 }

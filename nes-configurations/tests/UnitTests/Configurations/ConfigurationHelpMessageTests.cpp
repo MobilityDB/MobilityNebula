@@ -31,14 +31,12 @@
 namespace NES
 {
 
-using namespace Configurations;
-
 class ConfigHelpMessageTest : public Testing::BaseIntegrationTest
 {
 public:
     static void SetUpTestSuite()
     {
-        NES::Logger::setupLogging("ConfigHelpMessageTest.log", NES::LogLevel::LOG_DEBUG);
+        Logger::setupLogging("ConfigHelpMessageTest.log", LogLevel::LOG_DEBUG);
         NES_INFO("Setup Configuration Help Message test class.");
     }
 };
@@ -58,6 +56,7 @@ TEST_F(ConfigHelpMessageTest, ShouldGenerateHelpMessageForDifferentTypes)
 
     public:
         InnerConfiguration(std::string name, std::string description) : BaseConfiguration(std::move(name), std::move(description)) { }
+
         InnerConfiguration() = default;
         ScalarOption<size_t> b{"B", "54", "This is Inner Option B"};
     };
@@ -75,7 +74,7 @@ TEST_F(ConfigHelpMessageTest, ShouldGenerateHelpMessageForDifferentTypes)
     };
 
     std::stringstream ss;
-    Configurations::generateHelp<TestConfig>(ss);
+    generateHelp<TestConfig>(ss);
 
     EXPECT_EQ(
         ss.str(),

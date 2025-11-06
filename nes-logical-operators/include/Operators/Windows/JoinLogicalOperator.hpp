@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
@@ -27,8 +26,9 @@
 #include <Functions/LogicalFunction.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
-#include <Traits/OriginIdAssignerTrait.hpp>
+#include <Operators/OriginIdAssigner.hpp>
 #include <Traits/Trait.hpp>
+#include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
 #include <WindowTypes/Types/WindowType.hpp>
 #include <Windowing/WindowMetaData.hpp>
@@ -38,7 +38,7 @@ namespace NES
 {
 class SerializableOperator;
 
-class JoinLogicalOperator final : public LogicalOperatorConcept
+class JoinLogicalOperator final : public OriginIdAssigner
 {
 public:
     enum class JoinType : uint8_t
@@ -58,63 +58,54 @@ public:
     [[nodiscard]] const WindowMetaData& getWindowMetaData() const;
 
 
-    [[nodiscard]] bool operator==(const LogicalOperatorConcept& rhs) const override;
-    [[nodiscard]] SerializableOperator serialize() const override;
+    [[nodiscard]] bool operator==(const JoinLogicalOperator& rhs) const;
+    void serialize(SerializableOperator&) const;
 
-    [[nodiscard]] TraitSet getTraitSet() const override;
+    [[nodiscard]] JoinLogicalOperator withTraitSet(TraitSet traitSet) const;
+    [[nodiscard]] TraitSet getTraitSet() const;
 
-    [[nodiscard]] LogicalOperator withChildren(std::vector<LogicalOperator> children) const override;
-    [[nodiscard]] std::vector<LogicalOperator> getChildren() const override;
+    [[nodiscard]] JoinLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
+    [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
 
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const override;
-    [[nodiscard]] Schema getOutputSchema() const override;
+    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
+    [[nodiscard]] Schema getOutputSchema() const;
 
-    [[nodiscard]] std::vector<std::vector<OriginId>> getInputOriginIds() const override;
-    [[nodiscard]] std::vector<OriginId> getOutputOriginIds() const override;
-    [[nodiscard]] LogicalOperator withInputOriginIds(std::vector<std::vector<OriginId>> ids) const override;
-    [[nodiscard]] LogicalOperator withOutputOriginIds(std::vector<OriginId> ids) const override;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId) const;
+    [[nodiscard]] std::string_view getName() const noexcept;
 
-    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
-
-    [[nodiscard]] LogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const override;
-
+    [[nodiscard]] JoinLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
 
     struct ConfigParameters
     {
-        static inline const NES::Configurations::DescriptorConfig::ConfigParameter<NES::Configurations::EnumWrapper, JoinType> JOIN_TYPE{
+        static inline const DescriptorConfig::ConfigParameter<EnumWrapper, JoinType> JOIN_TYPE{
             "joinType",
             std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return NES::Configurations::DescriptorConfig::tryGet(JOIN_TYPE, config); }};
+            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(JOIN_TYPE, config); }};
 
-        static inline const NES::Configurations::DescriptorConfig::ConfigParameter<NES::Configurations::EnumWrapper, FunctionList>
-            JOIN_FUNCTION{
-                "joinFunctionName",
-                std::nullopt,
-                [](const std::unordered_map<std::string, std::string>& config)
-                { return NES::Configurations::DescriptorConfig::tryGet(JOIN_TYPE, config); }};
+        static inline const DescriptorConfig::ConfigParameter<EnumWrapper, FunctionList> JOIN_FUNCTION{
+            "joinFunctionName",
+            std::nullopt,
+            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(JOIN_TYPE, config); }};
 
-        static inline const NES::Configurations::DescriptorConfig::ConfigParameter<std::string> WINDOW_START_FIELD_NAME{
+        static inline const DescriptorConfig::ConfigParameter<std::string> WINDOW_START_FIELD_NAME{
             "windowStartFieldName",
             std::nullopt,
             [](const std::unordered_map<std::string, std::string>& config)
-            { return NES::Configurations::DescriptorConfig::tryGet(WINDOW_START_FIELD_NAME, config); }};
+            { return DescriptorConfig::tryGet(WINDOW_START_FIELD_NAME, config); }};
 
-        static inline const NES::Configurations::DescriptorConfig::ConfigParameter<std::string> WINDOW_END_FIELD_NAME{
+        static inline const DescriptorConfig::ConfigParameter<std::string> WINDOW_END_FIELD_NAME{
             "windowEndFieldName",
             std::nullopt,
             [](const std::unordered_map<std::string, std::string>& config)
-            { return NES::Configurations::DescriptorConfig::tryGet(WINDOW_END_FIELD_NAME, config); }};
+            { return DescriptorConfig::tryGet(WINDOW_END_FIELD_NAME, config); }};
 
-        static inline const NES::Configurations::DescriptorConfig::ConfigParameter<WindowInfos> WINDOW_INFOS{
+        static inline const DescriptorConfig::ConfigParameter<WindowInfos> WINDOW_INFOS{
             "windowInfo",
             std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return NES::Configurations::DescriptorConfig::tryGet(WINDOW_INFOS, config); }};
+            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(WINDOW_INFOS, config); }};
 
-        static inline std::unordered_map<std::string, NES::Configurations::DescriptorConfig::ConfigParameterContainer> parameterMap
-            = NES::Configurations::DescriptorConfig::createConfigParameterContainerMap(
+        static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
+            = DescriptorConfig::createConfigParameterContainerMap(
                 JOIN_TYPE, JOIN_FUNCTION, WINDOW_INFOS, WINDOW_START_FIELD_NAME, WINDOW_END_FIELD_NAME);
     };
 
@@ -124,11 +115,11 @@ private:
     std::shared_ptr<Windowing::WindowType> windowType;
     WindowMetaData windowMetaData;
     JoinType joinType;
-    OriginIdAssignerTrait originIdTrait;
 
     std::vector<LogicalOperator> children;
-    std::vector<std::vector<OriginId>> inputOriginIds;
-    std::vector<OriginId> outputOriginIds;
+    TraitSet traitSet;
     Schema leftInputSchema, rightInputSchema, outputSchema;
 };
+
+static_assert(LogicalOperatorConcept<JoinLogicalOperator>);
 }

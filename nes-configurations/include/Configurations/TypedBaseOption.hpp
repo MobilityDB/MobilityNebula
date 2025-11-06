@@ -21,7 +21,7 @@
 #include <magic_enum/magic_enum.hpp>
 #include <ErrorHandling.hpp>
 
-namespace NES::Configurations
+namespace NES
 {
 
 
@@ -133,6 +133,7 @@ const T& TypedBaseOption<T>::getDefaultValue() const
 {
     return defaultValue;
 }
+
 template <class T>
 void TypedBaseOption<T>::clear()
 {

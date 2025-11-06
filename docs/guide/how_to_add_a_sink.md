@@ -51,10 +51,6 @@ MQTTSink::MQTTSink(const SinkDescriptor& sinkDescriptor)
     , clientId(sinkDescriptor.getFromConfig(ConfigParametersMQTT::CLIENT_ID))
     , topic(sinkDescriptor.getFromConfig(ConfigParametersMQTT::TOPIC))
     , qos(sinkDescriptor.getFromConfig(ConfigParametersMQTT::QOS))
-    , cleanSession(sinkDescriptor.getFromConfig(ConfigParametersMQTT::CLEAN_SESSION))
-    , persistenceDir(sinkDescriptor.tryGetFromConfig(ConfigParametersMQTT::PERSISTENCE_DIR))
-    , maxInflight(sinkDescriptor.tryGetFromConfig(ConfigParametersMQTT::MAX_INFLIGHT))
-    , useTls(sinkDescriptor.getFromConfig(ConfigParametersMQTT::USE_TLS))
 {
     switch (const auto inputFormat = sinkDescriptor.getFromConfig(ConfigParametersMQTT::INPUT_FORMAT))
     {
@@ -69,15 +65,7 @@ MQTTSink::MQTTSink(const SinkDescriptor& sinkDescriptor)
     }
 }
 ```
-Generally, it follows the source approach but has a special configuration parameter that we can parse to create the correct output formatter. In addition, the MQTT sink exposes a few optional knobs:
-
-- `cleanSession`: defaults to `true`, but is forced to `false` when QoS 2 is selected so the broker retains session state.
-- `persistenceDir`: directory for file-backed message persistence. Strongly recommended for QoS 2 so the four-way handshake survives a restart.
-- `maxInflight`: caps the number of outstanding publishes. Setting it to a positive value uses that limit; otherwise a conservative default is applied automatically for QoS 2.
-- TLS settings (`useTls`, `tlsCaCertPath`, `tlsClientCertPath`, `tlsClientKeyPath`, `tlsAllowInsecure`) enable secure brokers when needed.
-- Username/password fields remain optional; if supplied they are passed to the MQTT connect options.
-
-Together these allow the sink to support “exactly-once” publishing semantics when QoS 2 is used.
+Generally, it follows the source approach but has a special configuration parameter that we can parse to create the correct output formatter.
 
 ## 4. Implementation
 Sinks are implemented as their own pipelines that are invoked with a reference to a `TupleBuffer` and are expected to write this buffer into the target system/device.
@@ -87,7 +75,7 @@ Their interface is as follows:
 void start(PipelineExecutionContext& pipelineExecutionContext) override;
 
 /// Equivalent to `fillTupleBuffer` in sources
-void execute(const Memory::TupleBuffer& inputTupleBuffer, PipelineExecutionContext& pipelineExecutionContext) override;
+void execute(const TupleBuffer& inputTupleBuffer, PipelineExecutionContext& pipelineExecutionContext) override;
 
 /// Equivalent to `close` in sources
 void stop(PipelineExecutionContext& pipelineExecutionContext) override;
@@ -104,41 +92,20 @@ We can define it like this:
 ```c++
 void MQTTSink::start(Runtime::Execution::PipelineExecutionContext&)
 {
-    /// (1) initialize client with optional filesystem persistence
-    if (persistenceDir && !persistenceDir->empty())
-    {
-        std::filesystem::create_directories(*persistenceDir);
-        client = std::make_unique<mqtt::async_client>(serverUri, clientId, *persistenceDir);
-    }
-    else
-    {
-        client = std::make_unique<mqtt::async_client>(serverUri, clientId);
-    }
+    /// (1) initialize client library
+    client = std::make_unique<mqtt::async_client>(serverUri, clientId);
 
     try
     {
-        /// (2) setup client connection and QoS-sensitive limits
-        const bool effectiveCleanSession = qos == 2 ? false : cleanSession;
-        auto optionsBuilder = mqtt::connect_options_builder()
-                                   .automatic_reconnect(true)
-                                   .clean_session(effectiveCleanSession);
-
-        if (maxInflight && *maxInflight > 0)
-        {
-            optionsBuilder.max_inflight(*maxInflight);
-        }
-        else if (qos == 2)
-        {
-            optionsBuilder.max_inflight(20);
-        }
-
-        const auto connectOptions = optionsBuilder.finalize();
+    
+        /// (2) setup client connection
+        const auto connectOptions = mqtt::connect_options_builder().automatic_reconnect(true).clean_session(true).finalize();
         client->connect(connectOptions)->wait();
     }
     catch (const mqtt::exception& exception)
     {
         /// (3) convert mqtt exception to internal exception
-        throw CannotOpenSink(exception.what());
+        throw CannotOpenSink(e.what());
     }
 }
 ```
@@ -150,7 +117,7 @@ Operators can use them to emit result buffers into successor pipelines, which is
 Our MQTT sink's `execute` method could be implemented like this:
 ```c++
 
-void MQTTSink::execute(const Memory::TupleBuffer& inputBuffer, Runtime::Execution::PipelineExecutionContext&)
+void MQTTSink::execute(const TupleBuffer& inputBuffer, Runtime::Execution::PipelineExecutionContext&)
 {
     /// (1) Early exit when empty
     if (inputBuffer.getNumberOfTuples() == 0)
@@ -164,12 +131,8 @@ void MQTTSink::execute(const Memory::TupleBuffer& inputBuffer, Runtime::Executio
 
     try
     {
-        /// (3) Publish and wait for acknowledgement only when required by QoS
-        auto deliveryToken = client->publish(message);
-        if (qos > 0)
-        {
-            deliveryToken->wait();
-        }
+        /// (3) Do blocking publish
+        client->publish(message)->wait();
     }
     catch (...)
     {

@@ -11,6 +11,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+
+#include <Functions/FieldAccessLogicalFunction.hpp>
+
 #include <string>
 #include <string_view>
 #include <utility>
@@ -19,7 +22,6 @@
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
 #include <DataTypes/Schema.hpp>
-#include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
 #include <Util/PlanRenderer.hpp>
@@ -83,7 +85,7 @@ LogicalFunction FieldAccessLogicalFunction::withInferredDataType(const Schema& s
     const auto existingField = schema.getFieldByName(fieldName);
     if (!existingField)
     {
-        throw CannotInferSchema("Expected {} to be part of the schema: {}", fieldName, schema);
+        throw CannotInferSchema("field {} is not part of the schema {}", fieldName, schema);
     }
 
     auto copy = *this;
@@ -124,7 +126,7 @@ SerializableFunction FieldAccessLogicalFunction::serialize() const
     SerializableFunction serializedFunction;
     serializedFunction.set_function_type(NAME);
 
-    const NES::Configurations::DescriptorConfig::ConfigType configVariant = getFieldName();
+    const DescriptorConfig::ConfigType configVariant = getFieldName();
     const SerializableVariantDescriptor variantDescriptor = descriptorConfigTypeToProto(configVariant);
     (*serializedFunction.mutable_config())["FieldName"] = variantDescriptor;
 
@@ -136,9 +138,17 @@ SerializableFunction FieldAccessLogicalFunction::serialize() const
 LogicalFunctionRegistryReturnType
 LogicalFunctionGeneratedRegistrar::RegisterFieldAccessLogicalFunction(LogicalFunctionRegistryArguments arguments)
 {
-    PRECONDITION(arguments.config.contains("FieldName"), "FieldAccessLogicalFunction requires a FieldName in its config");
+    if (not arguments.config.contains("FieldName"))
+    {
+        throw CannotDeserialize(
+
+            "FieldAccessLogicalFunction requires a FieldName in its config");
+    }
     auto fieldName = get<std::string>(arguments.config["FieldName"]);
-    PRECONDITION(!fieldName.empty(), "FieldName cannot be empty");
+    if (fieldName.empty())
+    {
+        throw CannotDeserialize("FieldName cannot be empty");
+    }
     return FieldAccessLogicalFunction(arguments.dataType, fieldName);
 }
 

@@ -18,8 +18,8 @@
 #include <utility>
 #include <vector>
 #include <Identifiers/Identifiers.hpp>
-#include <Runtime/AbstractBufferProvider.hpp>
 #include <Sources/SourceHandle.hpp>
+#include <Sources/SourceProvider.hpp>
 #include <Util/Logger/Formatter.hpp>
 #include <CompiledQueryPlan.hpp>
 
@@ -30,11 +30,8 @@ namespace NES
 /// In this form the Query could be executed, by starting all pipelines, sinks and passing the successor pipelines into the queries sources.
 struct ExecutableQueryPlan
 {
-    using SourceWithSuccessor = std::pair<std::unique_ptr<Sources::SourceHandle>, std::vector<std::weak_ptr<ExecutablePipeline>>>;
-    static std::unique_ptr<ExecutableQueryPlan> instantiate(
-        CompiledQueryPlan& compiledQueryPlan,
-        const std::shared_ptr<Memory::AbstractPoolProvider>& poolProvider,
-        int numberOfBuffersInSourceLocalPools);
+    using SourceWithSuccessor = std::pair<std::unique_ptr<SourceHandle>, std::vector<std::weak_ptr<ExecutablePipeline>>>;
+    static std::unique_ptr<ExecutableQueryPlan> instantiate(CompiledQueryPlan& compiledQueryPlan, const SourceProvider& sourceProvider);
 
     ExecutableQueryPlan(
         QueryId queryId, std::vector<std::shared_ptr<ExecutablePipeline>> pipelines, std::vector<SourceWithSuccessor> instantiatedSources);

@@ -22,6 +22,7 @@
 #include <system_error>
 #include <vector>
 #include <Util/Ranges.hpp>
+#include <ErrorHandling.hpp>
 
 namespace NES::Util
 {
@@ -68,6 +69,42 @@ template <>
 std::optional<std::string_view> from_chars(std::string_view input);
 template <>
 std::optional<bool> from_chars(std::string_view input);
+template <>
+std::optional<char> from_chars(std::string_view input);
+
+
+template <typename T>
+T from_chars_with_exception(std::string_view input) = delete;
+
+template <typename T>
+T from_chars_with_exception(std::string_view input)
+requires(requires(T value) { std::from_chars<T>(input.data(), input.data() + input.size(), value); })
+{
+    T value;
+    auto [_, ec] = std::from_chars<T>(input.data(), input.data() + input.size(), value);
+    if (ec == std::errc())
+    {
+        return value;
+    }
+    if (ec == std::errc::invalid_argument)
+    {
+        throw CannotFormatMalformedStringValue("Value '{}', is not a valid value of type: {}.", input, typeid(T).name());
+    }
+    if (ec == std::errc::result_out_of_range)
+    {
+        throw CannotFormatMalformedStringValue("Value '{}', is too large for type: {}.", input, typeid(T).name());
+    }
+    throw CannotFormatMalformedStringValue("Unknown from_chars error.");
+}
+
+template <>
+float from_chars_with_exception(std::string_view input);
+template <>
+double from_chars_with_exception(std::string_view input);
+template <>
+bool from_chars_with_exception(std::string_view input);
+template <>
+char from_chars_with_exception(std::string_view input);
 
 /// Formats floating points similiar to flink:
 /// We preserve at least 1 digit and at most 6 digits after the decimal point
@@ -92,10 +129,6 @@ std::string formatFloat(std::floating_point auto value);
 [[nodiscard]] std::string toUpperCase(std::string_view input);
 [[nodiscard]] std::string toLowerCase(std::string_view input);
 
-/// Modify string objects in place without requiring further allocations
-void toUpperCaseInplace(std::string& modified);
-void toLowerCaseInplace(std::string& modified);
-
 /// escape characters such as '\n', e.g., for logging
 std::string escapeSpecialCharacters(std::string_view input);
 
@@ -109,5 +142,8 @@ std::vector<T> splitWithStringDelimiter(std::string_view inputString, std::strin
         | std::views::filter([](auto optional) { return optional.has_value(); })
         | std::views::transform([](auto optional) { return *optional; }) | std::ranges::to<std::vector>();
 }
+
+/// Splits the given input string_view on all characters of the delimiters string_view.
+std::vector<std::string_view> splitOnMultipleDelimiters(std::string_view input, const std::vector<char>& delimiters);
 
 }

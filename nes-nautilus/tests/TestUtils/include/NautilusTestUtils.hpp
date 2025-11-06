@@ -25,8 +25,8 @@
 #include <vector>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/Schema.hpp>
+#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
 #include <Nautilus/Interface/Hash/HashFunction.hpp>
-#include <Nautilus/Interface/MemoryProvider/TupleBufferMemoryProvider.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Util/ExecutionMode.hpp>
@@ -34,6 +34,7 @@
 #include <ErrorHandling.hpp>
 #include <options.hpp>
 #include <static.hpp>
+
 namespace NES::Nautilus::TestUtils
 {
 
@@ -42,6 +43,7 @@ namespace NES::Nautilus::TestUtils
 struct RecordWithFields
 {
     RecordWithFields(const Record& record, std::vector<Record::RecordFieldIdentifier>& fields) : record(record), fields(fields) { }
+
     bool operator<(const RecordWithFields& other) const
     {
         for (const auto& fieldIdentifier : nautilus::static_iterable(fields))
@@ -65,7 +67,7 @@ struct RecordWithFields
 /// We use this information for being able to access a (pre-)compiled/traced function and not having to recompile it all the time
 struct NameAndNautilusBackend
 {
-    NameAndNautilusBackend(std::string_view functionName, const Configurations::ExecutionMode backend)
+    NameAndNautilusBackend(std::string_view functionName, const ExecutionMode backend)
         : functionName(std::move(functionName)), backend(backend)
     {
     }
@@ -89,7 +91,7 @@ struct NameAndNautilusBackend
     }
 
     std::string functionName;
-    Configurations::ExecutionMode backend;
+    ExecutionMode backend;
 };
 
 /// Struct that stores a min and max value.
@@ -99,7 +101,6 @@ struct MinMaxValue
     uint64_t min;
     uint64_t max;
 };
-
 
 /// Base function wrapper class
 class FunctionWrapperBase
@@ -118,6 +119,7 @@ public:
         : FunctionWrapperBase(), func(std::move(function))
     {
     }
+
     ~FunctionWrapper() override = default;
     nautilus::engine::CallableFunction<R, FunctionArguments...> func;
 };
@@ -139,24 +141,24 @@ public:
     static Schema createSchemaFromBasicTypes(const std::vector<DataType::Type>& basicTypes, uint64_t typeIdxOffset);
 
     /// Creates monotonic increasing values for each field. This means that each field in each tuple has a new and increased value
-    std::vector<Memory::TupleBuffer> createMonotonicallyIncreasingValues(
+    std::vector<TupleBuffer> createMonotonicallyIncreasingValues(
         const Schema& schema,
         uint64_t numberOfTuples,
-        Memory::BufferManager& bufferManager,
+        BufferManager& bufferManager,
         uint64_t seed,
         uint64_t minSizeVarSizedData,
         uint64_t maxSizeVarSizedData);
-    std::vector<Memory::TupleBuffer> createMonotonicallyIncreasingValues(
-        const Schema& schema, uint64_t numberOfTuples, Memory::BufferManager& bufferManager, uint64_t minSizeVarSizedData);
-    std::vector<Memory::TupleBuffer>
-    createMonotonicallyIncreasingValues(const Schema& schema, uint64_t numberOfTuples, Memory::BufferManager& bufferManager);
+    std::vector<TupleBuffer> createMonotonicallyIncreasingValues(
+        const Schema& schema, uint64_t numberOfTuples, BufferManager& bufferManager, uint64_t minSizeVarSizedData);
+    std::vector<TupleBuffer>
+    createMonotonicallyIncreasingValues(const Schema& schema, uint64_t numberOfTuples, BufferManager& bufferManager);
 
     void compileFillBufferFunction(
         std::string_view functionName,
-        Configurations::ExecutionMode backend,
+        ExecutionMode backend,
         nautilus::engine::Options& options,
         const Schema& schema,
-        const std::shared_ptr<Interface::MemoryProvider::TupleBufferMemoryProvider>& memoryProviderInputBuffer);
+        const std::shared_ptr<Interface::BufferRef::TupleBufferRef>& memoryProviderInputBuffer);
 
     /// Compares two records and if they are not equal returning a string. If the records are equal, return nullopt
     static std::string
@@ -174,10 +176,10 @@ public:
 
     /// Compares two buffers and returns a string with the differences. If the buffers are equal, return an empty string
     static std::string compareRecordBuffers(
-        const std::vector<Memory::TupleBuffer>& actualRecords,
-        const std::vector<Memory::TupleBuffer>& expectedRecords,
-        const Nautilus::Interface::MemoryProvider::TupleBufferMemoryProvider& memoryProviderActualBuffer,
-        const Nautilus::Interface::MemoryProvider::TupleBufferMemoryProvider& memoryProviderInputBuffer);
+        const std::vector<TupleBuffer>& actualRecords,
+        const std::vector<TupleBuffer>& expectedRecords,
+        const Nautilus::Interface::BufferRef::TupleBufferRef& memoryProviderActualBuffer,
+        const Nautilus::Interface::BufferRef::TupleBufferRef& memoryProviderInputBuffer);
 
 
 protected:
@@ -185,6 +187,9 @@ protected:
     /// Allowing us to not have to recompile/trace the same function in multiple different (parameterized) tests
     /// This map can and will be filled in this class but also in the tests themselves.
     std::map<NameAndNautilusBackend, std::unique_ptr<FunctionWrapperBase>> compiledFunctions;
+
+    /// We disable multithreading in MLIR by default to not interfere with NebulaStream's thread model
+    bool mlirEnableMultithreading = false;
 };
 
 }

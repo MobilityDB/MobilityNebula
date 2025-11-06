@@ -18,7 +18,7 @@
 #include <memory>
 #include <Join/StreamJoinBuildPhysicalOperator.hpp>
 #include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/MemoryProvider/TupleBufferMemoryProvider.hpp>
+#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <Watermark/TimeFunction.hpp>
@@ -29,16 +29,14 @@ namespace NES
 /// This class is the first phase of the join. For both streams (left and right), the tuples are stored in the
 /// corresponding slice one after the other. Afterward, the second phase (NLJProbe) will start joining the tuples
 /// via two nested loops.
-class NLJBuildPhysicalOperator final : public StreamJoinBuildPhysicalOperator
+class NLJBuildPhysicalOperator : public StreamJoinBuildPhysicalOperator
 {
 public:
     NLJBuildPhysicalOperator(
         OperatorHandlerId operatorHandlerId,
         JoinBuildSideType joinBuildSide,
         std::unique_ptr<TimeFunction> timeFunction,
-        std::shared_ptr<Interface::MemoryProvider::TupleBufferMemoryProvider> memoryProvider);
-
-    NLJBuildPhysicalOperator(const NLJBuildPhysicalOperator& other) = default;
+        std::shared_ptr<Interface::BufferRef::TupleBufferRef> bufferRef);
 
     void execute(ExecutionContext& executionCtx, Record& record) const override;
 };

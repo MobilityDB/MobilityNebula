@@ -132,9 +132,10 @@ uint32_t DataType::getSizeInBytes() const
         case Type::INT32:
         case Type::UINT32:
         case Type::FLOAT32:
-        case Type::VARSIZED:
-            /// Returning '4' for VARSIZED, because we represent variable sized data with a 'uint32' index to a nested buffer, containing the varsized data
             return 4;
+        case Type::VARSIZED:
+            /// Returning '8' for VARSIZED, because we store 'uint64_t' data that represent how to access the data, c.f., @class VariableSizedAccess
+            return 8;
         case Type::VARSIZED_POINTER_REP:
             return sizeof(int8_t*);
         case Type::INT64:
@@ -146,6 +147,7 @@ uint32_t DataType::getSizeInBytes() const
     }
     std::unreachable();
 }
+
 /// NOLINTEND(readability-magic-numbers)
 
 std::string DataType::formattedBytesToString(const void* data) const
@@ -196,6 +198,7 @@ std::string DataType::formattedBytesToString(const void* data) const
     }
     std::unreachable();
 }
+
 bool DataType::isType(const Type type) const
 {
     return this->type == type;
@@ -231,18 +234,15 @@ DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterINT16DataType(Dat
     return DataType{.type = DataType::Type::INT16};
 }
 
-
 DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterINT32DataType(DataTypeRegistryArguments)
 {
     return DataType{.type = DataType::Type::INT32};
 }
 
-
 DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterINT64DataType(DataTypeRegistryArguments)
 {
     return DataType{.type = DataType::Type::INT64};
 }
-
 
 DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterUINT8DataType(DataTypeRegistryArguments)
 {
@@ -259,12 +259,10 @@ DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterUINT32DataType(Da
     return DataType{.type = DataType::Type::UINT32};
 }
 
-
 DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterUINT64DataType(DataTypeRegistryArguments)
 {
     return DataType{.type = DataType::Type::UINT64};
 }
-
 
 DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterUNDEFINEDDataType(DataTypeRegistryArguments)
 {
@@ -275,6 +273,7 @@ DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterVARSIZEDDataType(
 {
     return DataType{.type = DataType::Type::VARSIZED};
 }
+
 DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterVARSIZED_POINTER_REPDataType(DataTypeRegistryArguments)
 {
     return DataType{.type = DataType::Type::VARSIZED_POINTER_REP};
@@ -285,14 +284,17 @@ bool DataType::isInteger() const
     return this->type == Type::UINT8 or this->type == Type::UINT16 or this->type == Type::UINT32 or this->type == Type::UINT64
         or this->type == Type::INT8 or this->type == Type::INT16 or this->type == Type::INT32 or this->type == Type::INT64;
 }
+
 bool DataType::isSignedInteger() const
 {
     return this->type == Type::INT8 or this->type == Type::INT16 or this->type == Type::INT32 or this->type == Type::INT64;
 }
+
 bool DataType::isFloat() const
 {
     return this->type == Type::FLOAT32 or this->type == Type::FLOAT64;
 }
+
 bool DataType::isNumeric() const
 {
     return isInteger() or isFloat();
@@ -300,9 +302,13 @@ bool DataType::isNumeric() const
 
 std::optional<DataType> DataType::join(const DataType& otherDataType) const
 {
-    if (this->type == Type::UNDEFINED or this->type == Type::VARSIZED)
+    if (this->type == Type::UNDEFINED)
     {
         return {DataTypeProvider::provideDataType(Type::UNDEFINED)};
+    }
+    if (this->type == Type::VARSIZED)
+    {
+        return (otherDataType.isType(Type::VARSIZED)) ? std::optional{DataTypeProvider::provideDataType(Type::VARSIZED)} : std::nullopt;
     }
 
     if (this->isNumeric())

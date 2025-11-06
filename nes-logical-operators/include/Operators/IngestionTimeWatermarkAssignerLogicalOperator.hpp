@@ -17,51 +17,50 @@
 #include <string>
 #include <string_view>
 #include <vector>
+
 #include <DataTypes/Schema.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
 #include <Traits/Trait.hpp>
+#include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
 #include <SerializableOperator.pb.h>
 
 namespace NES
 {
 
-class IngestionTimeWatermarkAssignerLogicalOperator final : public LogicalOperatorConcept
+class IngestionTimeWatermarkAssignerLogicalOperator final
 {
 public:
     IngestionTimeWatermarkAssignerLogicalOperator();
 
-    [[nodiscard]] bool operator==(const LogicalOperatorConcept& rhs) const override;
-    [[nodiscard]] SerializableOperator serialize() const override;
+    [[nodiscard]] bool operator==(const IngestionTimeWatermarkAssignerLogicalOperator& rhs) const;
+    void serialize(SerializableOperator&) const;
 
-    [[nodiscard]] TraitSet getTraitSet() const override;
+    [[nodiscard]] IngestionTimeWatermarkAssignerLogicalOperator withTraitSet(TraitSet traitSet) const;
+    [[nodiscard]] TraitSet getTraitSet() const;
 
-    [[nodiscard]] LogicalOperator withChildren(std::vector<LogicalOperator> children) const override;
-    [[nodiscard]] std::vector<LogicalOperator> getChildren() const override;
+    [[nodiscard]] IngestionTimeWatermarkAssignerLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
+    [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
 
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const override;
-    [[nodiscard]] Schema getOutputSchema() const override;
+    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
+    [[nodiscard]] Schema getOutputSchema() const;
 
-    [[nodiscard]] std::vector<std::vector<OriginId>> getInputOriginIds() const override;
-    [[nodiscard]] std::vector<OriginId> getOutputOriginIds() const override;
-    [[nodiscard]] LogicalOperator withInputOriginIds(std::vector<std::vector<OriginId>> ids) const override;
-    [[nodiscard]] LogicalOperator withOutputOriginIds(std::vector<OriginId> ids) const override;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId) const;
+    [[nodiscard]] std::string_view getName() const noexcept;
 
-    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
-
-    [[nodiscard]] LogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const override;
+    [[nodiscard]] IngestionTimeWatermarkAssignerLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
 
 
 protected:
     static constexpr std::string_view NAME = "IngestionTimeWatermarkAssigner";
 
     std::vector<LogicalOperator> children;
+    TraitSet traitSet;
     Schema inputSchema;
     Schema outputSchema;
-    std::vector<OriginId> inputOriginIds;
-    std::vector<OriginId> outputOriginIds;
 };
+
+static_assert(LogicalOperatorConcept<IngestionTimeWatermarkAssignerLogicalOperator>);
 
 }

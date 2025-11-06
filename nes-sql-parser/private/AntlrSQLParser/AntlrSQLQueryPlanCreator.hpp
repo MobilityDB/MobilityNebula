@@ -15,11 +15,14 @@
 
 #include <stack>
 #include <string>
+#include <utility>
+#include <variant>
 #include <vector>
 #include <AntlrSQLBaseListener.h>
 #include <AntlrSQLParser.h>
 #include <AntlrSQLParser/AntlrSQLHelper.hpp>
 #include <Plans/LogicalPlan.hpp>
+#include <CommonParserFunctions.hpp>
 
 namespace NES::Parsers
 {
@@ -27,7 +30,7 @@ namespace NES::Parsers
 class AntlrSQLQueryPlanCreator final : public AntlrSQLBaseListener
 {
     std::stack<AntlrSQLHelper> helpers;
-    std::vector<std::string> sinkNames;
+    std::vector<std::variant<std::string, std::pair<std::string, ConfigMap>>> sinks;
     std::stack<LogicalPlan> queryPlans;
 
 public:
@@ -48,10 +51,6 @@ public:
     void exitFunctionCall(AntlrSQLParser::FunctionCallContext* context) override;
     void enterHavingClause(AntlrSQLParser::HavingClauseContext* context) override;
     void exitHavingClause(AntlrSQLParser::HavingClauseContext* context) override;
-    void enterInference(AntlrSQLParser::InferenceContext* context) override;
-    void exitInference(AntlrSQLParser::InferenceContext* context) override;
-    void enterInferModelInputFields(AntlrSQLParser::InferModelInputFieldsContext* context) override;
-    void exitInferModelInputFields(AntlrSQLParser::InferModelInputFieldsContext* context) override;
     void enterJoinRelation(AntlrSQLParser::JoinRelationContext* context) override;
     void exitJoinRelation(AntlrSQLParser::JoinRelationContext* context) override;
     void enterWindowClause(AntlrSQLParser::WindowClauseContext* context) override;
@@ -61,6 +60,8 @@ public:
     void enterJoinCriteria(AntlrSQLParser::JoinCriteriaContext* context) override;
     void enterJoinType(AntlrSQLParser::JoinTypeContext* context) override;
     void exitJoinType(AntlrSQLParser::JoinTypeContext* context) override;
+    void enterSetOperation(AntlrSQLParser::SetOperationContext* context) override;
+    void exitSetOperation(AntlrSQLParser::SetOperationContext* context) override;
 
     /// enter or exit functions (no pairs)
     void enterSinkClause(AntlrSQLParser::SinkClauseContext* context) override;
@@ -79,7 +80,7 @@ public:
     void exitLogicalNot(AntlrSQLParser::LogicalNotContext* context) override;
     void exitConstantDefault(AntlrSQLParser::ConstantDefaultContext* context) override;
     void exitThresholdMinSizeParameter(AntlrSQLParser::ThresholdMinSizeParameterContext* context) override;
-    void exitSetOperation(AntlrSQLParser::SetOperationContext* context) override;
+    void enterInlineSource(AntlrSQLParser::InlineSourceContext* context) override;
 };
 
 }

@@ -22,13 +22,14 @@
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <unordered_map>
+#include <vector>
 #include <Util/Ranges.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 
 namespace NES::Util
 {
+
 template <>
 std::optional<float> from_chars<float>(const std::string_view input)
 {
@@ -37,7 +38,7 @@ std::optional<float> from_chars<float>(const std::string_view input)
     {
         return std::stof(str);
     }
-    catch (...)
+    catch (...) /// NOLINT(no-raw-catch-all)
     {
         return {};
     }
@@ -58,6 +59,52 @@ std::optional<bool> from_chars<bool>(const std::string_view input)
     return {};
 }
 
+template <>
+std::optional<char> from_chars<char>(const std::string_view input)
+{
+    return (input.size() == 1) ? std::optional(input.front()) : std::nullopt;
+}
+
+template <>
+bool from_chars_with_exception<bool>(std::string_view input)
+{
+    if (const auto boolValue = from_chars<bool>(input); boolValue.has_value())
+    {
+        return boolValue.value();
+    }
+    throw CannotFormatMalformedStringValue("'{}' is not a supported boolean value.", input);
+}
+
+template <>
+float from_chars_with_exception<float>(std::string_view input)
+{
+    if (const auto floatValue = from_chars<float>(input); floatValue.has_value())
+    {
+        return floatValue.value();
+    }
+    throw CannotFormatMalformedStringValue("'{}' is not a supported float value.", input);
+}
+
+template <>
+double from_chars_with_exception<double>(std::string_view input)
+{
+    if (const auto doubleValue = from_chars<double>(input); doubleValue.has_value())
+    {
+        return doubleValue.value();
+    }
+    throw CannotFormatMalformedStringValue("'{}' is not a supported double value.", input);
+}
+
+template <>
+char from_chars_with_exception<char>(std::string_view input)
+{
+    if (const auto charValue = from_chars<char>(input); charValue.has_value())
+    {
+        return charValue.value();
+    }
+    throw CannotFormatMalformedStringValue("'{}' is not a supported char value.", input);
+}
+
 std::string formatFloat(std::floating_point auto value)
 {
     std::string formatted = fmt::format("{:.6f}", value);
@@ -75,9 +122,6 @@ std::string formatFloat(std::floating_point auto value)
 
     return formatted.substr(0, lastNonZero + 1);
 }
-/// explicit instantiations
-template std::string formatFloat(float);
-template std::string formatFloat(double);
 
 template <>
 std::optional<double> from_chars<double>(const std::string_view input)
@@ -87,11 +131,15 @@ std::optional<double> from_chars<double>(const std::string_view input)
     {
         return std::stod(str);
     }
-    catch (...)
+    catch (...) /// NOLINT(no-raw-catch-all)
     {
         return {};
     }
 }
+
+/// explicit instantiations
+template std::string formatFloat(float);
+template std::string formatFloat(double);
 
 template <>
 std::optional<std::string> from_chars<std::string>(const std::string_view input)
@@ -139,73 +187,52 @@ std::string replaceFirst(std::string_view origin, const std::string_view search,
     return std::string(origin);
 }
 
-
-namespace
-{
-USED_IN_DEBUG constexpr bool isAsciiString(std::string_view input)
-{
-    return std::ranges::all_of(input, [](const auto& character) { return isascii(character) != 0; });
-}
-}
-
-void toUpperCaseInplace(std::string& modified)
-{
-    PRECONDITION(isAsciiString(modified), "Support for non-ascii character not implemented");
-    for (char& character : modified)
-    {
-        character = static_cast<char>(::toupper(character));
-    }
-}
-
-void toLowerCaseInplace(std::string& modified)
-{
-    PRECONDITION(isAsciiString(modified), "Support for non-ascii character not implemented");
-    for (char& character : modified)
-    {
-        character = static_cast<char>(::tolower(character));
-    }
-}
 std::string escapeSpecialCharacters(const std::string_view input)
 {
-    const std::unordered_map<char, std::string> specialCharacters = {
-        {'\a', "\\a"},
-        {'\b', "\\b"},
-        {'\f', "\\f"},
-        {'\n', "\\n"},
-        {'\r', "\\r"},
-        {'\t', "\\t"},
-        {'\v', "\\v"},
-    };
-    std::string escapedString;
-    escapedString.reserve(input.size());
-    for (const auto value : input)
+    std::string result;
+    result.reserve(input.length());
+    for (const char character : input)
     {
-        if (auto it = specialCharacters.find(value); it != specialCharacters.end())
+        switch (character)
         {
-            escapedString += it->second;
-        }
-        else
-        {
-            escapedString += value;
+            case '\a':
+                result += "\\a";
+                break;
+            case '\b':
+                result += "\\b";
+                break;
+            case '\f':
+                result += "\\f";
+                break;
+            case '\n':
+                result += "\\n";
+                break;
+            case '\r':
+                result += "\\r";
+                break;
+            case '\t':
+                result += "\\t";
+                break;
+            case '\v':
+                result += "\\v";
+                break;
+            default:
+                result += character;
+                break;
         }
     }
-
-    return escapedString;
+    return result;
 }
-
 
 std::string toUpperCase(std::string_view input)
 {
-    PRECONDITION(isAsciiString(input), "Support for non-ascii character not implemented");
     return input | std::views::transform(::toupper) | std::ranges::to<std::string>();
 }
 
 std::string toLowerCase(std::string_view input)
 {
-    PRECONDITION(isAsciiString(input), "Support for non-ascii character not implemented");
     return input | std::views::transform(::tolower) | std::ranges::to<std::string>();
 }
-
 
 std::string_view trimWhiteSpaces(const std::string_view input)
 {
@@ -236,6 +263,27 @@ void removeDoubleSpaces(std::string& input)
 {
     const auto newEnd = std::ranges::unique(input, [](const char lhs, const char rhs) { return (lhs == rhs) && (lhs == ' '); }).begin();
     input.erase(newEnd, input.end());
+}
+
+std::vector<std::string_view> splitOnMultipleDelimiters(std::string_view input, const std::vector<char>& delimiters)
+{
+    std::vector<std::string_view> result;
+    result.emplace_back(input);
+
+    for (const char delimiter : delimiters)
+    {
+        result = result
+            | std::views::transform(
+                     [delimiter](std::string_view inputSV)
+                     {
+                         return inputSV | std::views::split(delimiter)
+                             | std::views::transform([](auto&& split) { return std::string_view(split); })
+                             | std::views::filter([](const std::string_view splitSV) { return not splitSV.empty(); });
+                     })
+            | std::views::join | std::ranges::to<std::vector<std::string_view>>();
+    }
+
+    return result;
 }
 
 }

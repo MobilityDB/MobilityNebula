@@ -1,0 +1,18 @@
+# name: function/spatiotemporal/MEOS_TGeo_At_STBox.test
+# description: Test TGEO_AT_STBOX with temporal coordinates and STBOX literals
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry]
+
+Source stbox_tests UINT32 id FLOAT64 lon FLOAT64 lat UINT64 timestamp VARSIZED stbox_wkt
+Attach File CSV nes-systests/configs/inputFormatters/csv_pipe_delimiter.yaml stbox_tests INLINE
+1|4.3000|50.3000|1609459200|'SRID=4326;STBOX((4.0,50.0,2000-01-01 00:00:00+00),(4.6,50.8,2030-01-01 00:00:00+00))'
+2|4.8000|50.9000|1609459200|'SRID=4326;STBOX((4.0,50.0,2000-01-01 00:00:00+00),(4.6,50.8,2030-01-01 00:00:00+00))'
+
+SINK stbox_results UINT32 stbox_tests$id INT32 stbox_tests$inside
+
+SELECT id,
+       TGEO_AT_STBOX(lon, lat, timestamp, stbox_wkt) AS inside
+FROM stbox_tests
+INTO stbox_results
+----
+1,1
+2,0

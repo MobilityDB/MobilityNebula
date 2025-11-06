@@ -7,7 +7,7 @@ Source locations UINT32 id FLOAT64 longitude FLOAT64 latitude UINT64 timestamp I
 
 SINK result UINT32 locations$id BOOLEAN locations$intersects
 
-SELECT id, TEMPORAL_INTERSECTS(longitude, latitude, timestamp) AS intersects
+SELECT id, TEMPORAL_INTERSECTS(locations$longitude, locations$latitude, locations$timestamp) AS intersects
 FROM locations
 INTO result
 ----

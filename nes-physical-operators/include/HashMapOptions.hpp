@@ -26,7 +26,6 @@
 #include <Nautilus/Interface/HashMap/HashMap.hpp>
 #include <ErrorHandling.hpp>
 
-
 namespace NES
 {
 
@@ -36,8 +35,8 @@ struct HashMapOptions
     HashMapOptions(
         std::unique_ptr<Nautilus::Interface::HashFunction> hashFunction,
         std::vector<PhysicalFunction> keyFunctions,
-        std::vector<Nautilus::Interface::MemoryProvider::FieldOffsets> fieldKeys,
-        std::vector<Nautilus::Interface::MemoryProvider::FieldOffsets> fieldValues,
+        std::vector<Nautilus::Interface::BufferRef::FieldOffsets> fieldKeys,
+        std::vector<Nautilus::Interface::BufferRef::FieldOffsets> fieldValues,
         const uint64_t entriesPerPage,
         const uint64_t entrySize,
         const uint64_t keySize,
@@ -95,6 +94,7 @@ struct HashMapOptions
         , numberOfBuckets(other.numberOfBuckets)
     {
     }
+
     HashMapOptions& operator=(HashMapOptions&& other) noexcept
     {
         hashFunction = other.hashFunction->clone();
@@ -109,6 +109,7 @@ struct HashMapOptions
         numberOfBuckets = std::move(other.numberOfBuckets);
         return *this;
     };
+
     HashMapOptions& operator=(const HashMapOptions& other)
     {
         hashFunction = other.hashFunction->clone();
@@ -123,6 +124,7 @@ struct HashMapOptions
         numberOfBuckets = other.numberOfBuckets;
         return *this;
     }
+
     ~HashMapOptions() = default;
 
     /// Method that gets called, once a hash map based slice gets destroyed.
@@ -145,8 +147,8 @@ struct HashMapOptions
     /// It is fine that these are not nautilus types, because they are only used in the tracing and not in the actual execution
     std::unique_ptr<Nautilus::Interface::HashFunction> hashFunction;
     std::vector<PhysicalFunction> keyFunctions;
-    std::vector<Nautilus::Interface::MemoryProvider::FieldOffsets> fieldKeys;
-    std::vector<Nautilus::Interface::MemoryProvider::FieldOffsets> fieldValues;
+    std::vector<Nautilus::Interface::BufferRef::FieldOffsets> fieldKeys;
+    std::vector<Nautilus::Interface::BufferRef::FieldOffsets> fieldValues;
     uint64_t entriesPerPage;
     uint64_t entrySize;
     uint64_t keySize;

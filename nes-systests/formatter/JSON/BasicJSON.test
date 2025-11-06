@@ -1,0 +1,34 @@
+# name: JSON.test
+# description: tests general input formatter behavior
+# groups: [Formatter, JSON]
+
+CREATE LOGICAL SOURCE jsonStream(KEY UINT64, value UINT64, name VARSIZED);
+CREATE PHYSICAL SOURCE FOR jsonStream TYPE File SET("JSON" AS PARSER.`TYPE`);
+ATTACH INLINE
+{"KEY":1, "VALUE":1, "NAME":"john"}
+{"KEY":1, "VALUE":2, "NAME":"max"}
+
+CREATE SINK keySink(jsonStream.key UINT64) TYPE File;
+CREATE SINK valueSink(jsonStream.value UINT64) TYPE File;
+CREATE SINK nameSink(jsonStream.name VARSIZED) TYPE File;
+CREATE SINK allFieldsSink(jsonStream.key UINT64, jsonStream.value UINT64, jsonStream.name VARSIZED) TYPE File;
+
+SELECT KEY FROM jsonStream INTO keySink;
+----
+1
+1
+
+SELECT value FROM jsonStream INTO valueSink;
+----
+1
+2
+
+SELECT name FROM jsonStream INTO nameSink;
+----
+john
+max
+
+SELECT * FROM jsonStream INTO allFieldsSink;
+----
+1,1,john
+1,2,max

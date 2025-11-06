@@ -13,6 +13,7 @@
 */
 
 #pragma once
+#include <chrono>
 #include <cstdint>
 #include <memory>
 #include <unordered_map>
@@ -32,25 +33,28 @@ public:
     enum class ContinuationPolicy : uint8_t
     {
         POSSIBLE, /// It is possible for the emitted tuple buffer to be processed immediately. This is not a guarantee that that will happen
-        NEVER, /// The tuple buffer should never be processed immediately
-        REPEAT /// Put the same task back into the task queue
+        NEVER /// The tuple buffer should never be processed immediately
     };
 
     virtual ~PipelineExecutionContext() = default;
 
     /// Returns success, if the buffer was emitted successfully.
-    bool emitBuffer(const Memory::TupleBuffer& buffer) { return emitBuffer(buffer, ContinuationPolicy::POSSIBLE); };
+    bool emitBuffer(const TupleBuffer& buffer) { return emitBuffer(buffer, ContinuationPolicy::POSSIBLE); };
 
     /// Please be aware of how you are setting the continuation policy, as this will/can lead to deadlocks and no progress in our system.
     /// We advise to use ContinuationPolicy::POSSIBLE, as this will ensure no deadlock arising.
     /// Returns success, if the buffer was emitted successfully.
-    virtual bool emitBuffer(const Memory::TupleBuffer&, ContinuationPolicy) = 0;
-    virtual Memory::TupleBuffer allocateTupleBuffer() = 0;
-    // Propagate ingress creation timestamp to newly allocated buffers
-    virtual void setIngressCreationTimestamp(NES::Timestamp ts) = 0;
+
+    virtual bool emitBuffer(const TupleBuffer&, ContinuationPolicy) = 0;
+
+    /// This method can only be called once per pipeline execution! The Pipeline should immediately finish its execution as the exact same task could be executed
+    /// immediately.
+    virtual void repeatTask(const TupleBuffer&, std::chrono::milliseconds) = 0;
+
+    virtual TupleBuffer allocateTupleBuffer() = 0;
     [[nodiscard]] virtual WorkerThreadId getId() const = 0;
     [[nodiscard]] virtual uint64_t getNumberOfWorkerThreads() const = 0;
-    [[nodiscard]] virtual std::shared_ptr<Memory::AbstractBufferProvider> getBufferManager() const = 0;
+    [[nodiscard]] virtual std::shared_ptr<AbstractBufferProvider> getBufferManager() const = 0;
     [[nodiscard]] virtual PipelineId getPipelineId() const = 0;
 
     /// TODO #30 Remove OperatorHandler from the pipeline execution context

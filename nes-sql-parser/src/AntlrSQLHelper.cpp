@@ -14,12 +14,11 @@
 
 #include <AntlrSQLParser/AntlrSQLHelper.hpp>
 
+#include <optional>
 #include <utility>
 #include <vector>
-#include <Functions/FieldAccessLogicalFunction.hpp>
-#include <Functions/FieldAssignmentLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
-#include <WindowTypes/Types/WindowType.hpp>
+#include <CommonParserFunctions.hpp>
 
 namespace NES::Parsers
 {
@@ -29,17 +28,15 @@ const std::string AntlrSQLHelper::getSource() const
 {
     return this->source;
 }
+
 std::vector<LogicalFunction>& AntlrSQLHelper::getWhereClauses()
 {
     return whereClauses;
 }
+
 std::vector<LogicalFunction>& AntlrSQLHelper::getHavingClauses()
 {
     return havingClauses;
-}
-std::vector<LogicalFunction>& AntlrSQLHelper::getProjectionFields()
-{
-    return projectionFields;
 }
 
 /// methods to update the clauses maps/lists
@@ -47,37 +44,35 @@ void AntlrSQLHelper::setSource(std::string sourceName)
 {
     this->source = sourceName;
 }
+
+void AntlrSQLHelper::setInlineSource(const std::string& type, const ConfigMap& parameters)
+{
+    this->inlineSourceConfig = std::make_pair(type, parameters);
+}
+
+std::pair<std::string, ConfigMap> AntlrSQLHelper::getInlineSourceConfig()
+{
+    return this->inlineSourceConfig;
+}
+
 void AntlrSQLHelper::addWhereClause(LogicalFunction expressionNode)
 {
     this->whereClauses.emplace_back(std::move(expressionNode));
 }
+
 void AntlrSQLHelper::addHavingClause(LogicalFunction expressionNode)
 {
     this->havingClauses.emplace_back(std::move(expressionNode));
 }
-void AntlrSQLHelper::addProjectionField(const FieldAccessLogicalFunction& expressionNode)
+
+void AntlrSQLHelper::addProjection(std::optional<FieldIdentifier> identifier, LogicalFunction logicalFunction)
 {
-    this->projectionFields.emplace_back(expressionNode);
+    this->projectionBuilder.emplace_back(std::move(identifier), std::move(logicalFunction));
 }
 
-std::shared_ptr<Windowing::WindowType> AntlrSQLHelper::getWindowType()
+std::vector<AntlrSQLHelper::Projection>& AntlrSQLHelper::getProjections()
 {
-    return {};
-}
-
-void AntlrSQLHelper::addMapExpression(const FieldAssignmentLogicalFunction& expressionNode)
-{
-    auto pos = this->mapBuilder.begin();
-    this->mapBuilder.insert(pos, expressionNode);
-}
-std::vector<FieldAssignmentLogicalFunction>& AntlrSQLHelper::getMapExpressions()
-{
-    return mapBuilder;
-}
-
-void AntlrSQLHelper::setMapExpressions(std::vector<FieldAssignmentLogicalFunction> expressions)
-{
-    this->mapBuilder = std::move(expressions);
+    return projectionBuilder;
 }
 
 }

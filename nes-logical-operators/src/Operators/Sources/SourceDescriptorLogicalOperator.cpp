@@ -12,20 +12,23 @@
     limitations under the License.
 */
 
-#include <memory>
+#include <Operators/Sources/SourceDescriptorLogicalOperator.hpp>
+
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
+
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+
 #include <DataTypes/Schema.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
-#include <Operators/Sources/SourceDescriptorLogicalOperator.hpp>
 #include <Sources/SourceDescriptor.hpp>
 #include <Traits/Trait.hpp>
+#include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <fmt/format.h>
-#include <fmt/ranges.h>
 #include <ErrorHandling.hpp>
 #include <SerializableOperator.pb.h>
 
@@ -41,43 +44,44 @@ std::string_view SourceDescriptorLogicalOperator::getName() const noexcept
     return NAME;
 }
 
-LogicalOperator SourceDescriptorLogicalOperator::withInferredSchema(std::vector<Schema>) const
+SourceDescriptorLogicalOperator SourceDescriptorLogicalOperator::withInferredSchema(const std::vector<Schema>&) const
 {
     PRECONDITION(false, "Schema is already given by SourceDescriptor. No call ot InferSchema needed");
     return *this;
 }
 
-bool SourceDescriptorLogicalOperator::operator==(const LogicalOperatorConcept& rhs) const
+bool SourceDescriptorLogicalOperator::operator==(const SourceDescriptorLogicalOperator& rhs) const
 {
-    if (const auto* const rhsOperator = dynamic_cast<const SourceDescriptorLogicalOperator*>(&rhs))
-    {
-        const bool descriptorsEqual = sourceDescriptor == rhsOperator->sourceDescriptor;
-
-        return descriptorsEqual && getOutputSchema() == rhsOperator->getOutputSchema()
-            && getInputSchemas() == rhsOperator->getInputSchemas() && getInputOriginIds() == rhsOperator->getInputOriginIds()
-            && getOutputOriginIds() == rhsOperator->getOutputOriginIds();
-    }
-    return false;
+    const bool descriptorsEqual = sourceDescriptor == rhs.sourceDescriptor;
+    return descriptorsEqual && getOutputSchema() == rhs.getOutputSchema() && getInputSchemas() == rhs.getInputSchemas()
+        && getTraitSet() == rhs.getTraitSet();
 }
 
-std::string SourceDescriptorLogicalOperator::explain(ExplainVerbosity verbosity) const
+std::string SourceDescriptorLogicalOperator::explain(ExplainVerbosity verbosity, OperatorId id) const
 {
     if (verbosity == ExplainVerbosity::Debug)
     {
-        return fmt::format("SOURCE(opId: {}, originid: {}, {})", id, fmt::join(outputOriginIds, ", "), sourceDescriptor.explain(verbosity));
+        return fmt::format("SOURCE(opId: {}, {}, traitSet: {})", id, sourceDescriptor.explain(verbosity), traitSet.explain(verbosity));
     }
     return fmt::format("SOURCE({})", sourceDescriptor.explain(verbosity));
 }
 
-TraitSet SourceDescriptorLogicalOperator::getTraitSet() const
-{
-    return {originIdTrait};
-}
-
-LogicalOperator SourceDescriptorLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
+SourceDescriptorLogicalOperator SourceDescriptorLogicalOperator::withTraitSet(TraitSet traitSet) const
 {
     auto copy = *this;
-    copy.children = children;
+    copy.traitSet = std::move(traitSet);
+    return copy;
+}
+
+TraitSet SourceDescriptorLogicalOperator::getTraitSet() const
+{
+    return traitSet;
+}
+
+SourceDescriptorLogicalOperator SourceDescriptorLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
+{
+    auto copy = *this;
+    copy.children = std::move(children);
     return copy;
 }
 
@@ -91,32 +95,6 @@ Schema SourceDescriptorLogicalOperator::getOutputSchema() const
     return {*sourceDescriptor.getLogicalSource().getSchema()};
 }
 
-std::vector<std::vector<OriginId>> SourceDescriptorLogicalOperator::getInputOriginIds() const
-{
-    return {inputOriginIds};
-}
-
-std::vector<OriginId> SourceDescriptorLogicalOperator::getOutputOriginIds() const
-{
-    return outputOriginIds;
-}
-
-LogicalOperator SourceDescriptorLogicalOperator::withInputOriginIds(std::vector<std::vector<OriginId>> ids) const
-{
-    PRECONDITION(ids.size() == 1, "Source should have one input");
-    PRECONDITION(ids[0].size() == 1, "Source should have one originId, but has {}", ids[0].size());
-    auto copy = *this;
-    copy.inputOriginIds = ids[0];
-    return copy;
-}
-
-LogicalOperator SourceDescriptorLogicalOperator::withOutputOriginIds(std::vector<OriginId> ids) const
-{
-    auto copy = *this;
-    copy.outputOriginIds = ids;
-    return copy;
-}
-
 std::vector<LogicalOperator> SourceDescriptorLogicalOperator::getChildren() const
 {
     return children;
@@ -127,18 +105,12 @@ SourceDescriptor SourceDescriptorLogicalOperator::getSourceDescriptor() const
     return sourceDescriptor;
 }
 
-[[nodiscard]] SerializableOperator SourceDescriptorLogicalOperator::serialize() const
+void SourceDescriptorLogicalOperator::serialize(SerializableOperator& serializableOperator) const
 {
     SerializableSourceDescriptorLogicalOperator proto;
-    INVARIANT(outputOriginIds.size() == 1, "Expected one output originId, got '{}' instead", outputOriginIds.size());
-    proto.set_sourceoriginid(outputOriginIds[0].getRawValue());
     proto.mutable_sourcedescriptor()->CopyFrom(sourceDescriptor.serialize());
 
-    SerializableOperator serializableOperator;
-    serializableOperator.set_operator_id(id.getRawValue());
-
     serializableOperator.mutable_source()->CopyFrom(proto);
-    return serializableOperator;
 }
 
 }

@@ -19,10 +19,11 @@
 #include <Configurations/Descriptor.hpp>
 #include <Util/Registry.hpp>
 
-namespace NES::Sources
+namespace NES
 {
 
-using SourceValidationRegistryReturnType = NES::Configurations::DescriptorConfig::Config;
+using SourceValidationRegistryReturnType = DescriptorConfig::Config;
+
 struct SourceValidationRegistryArguments
 {
     std::unordered_map<std::string, std::string> config;

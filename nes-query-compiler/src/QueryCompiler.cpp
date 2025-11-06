@@ -12,12 +12,16 @@
     limitations under the License.
 */
 
+
+#include <QueryCompiler.hpp>
+
 #include <memory>
+#include <Configuration/WorkerConfiguration.hpp>
 #include <Phases/LowerToCompiledQueryPlanPhase.hpp>
 #include <Phases/PipeliningPhase.hpp>
+#include <Util/DumpMode.hpp>
 #include <CompiledQueryPlan.hpp>
 #include <ErrorHandling.hpp>
-#include <QueryCompiler.hpp>
 
 namespace NES::QueryCompilation
 {
@@ -27,15 +31,8 @@ QueryCompiler::QueryCompiler() = default;
 /// This phase should be as dumb as possible and not further decisions should be made here.
 std::unique_ptr<CompiledQueryPlan> QueryCompiler::compileQuery(std::unique_ptr<QueryCompilationRequest> request)
 {
-    try
-    {
-        auto pipelinedQueryPlan = PipeliningPhase::apply(request->queryPlan);
-        return LowerToCompiledQueryPlanPhase::apply(pipelinedQueryPlan);
-    }
-    catch (...)
-    {
-        tryLogCurrentException();
-        return {};
-    }
+    auto lowerToCompiledQueryPlanPhase = LowerToCompiledQueryPlanPhase(request->dumpCompilationResult);
+    auto pipelinedQueryPlan = PipeliningPhase::apply(request->queryPlan);
+    return lowerToCompiledQueryPlanPhase.apply(pipelinedQueryPlan);
 }
 }

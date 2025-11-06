@@ -54,9 +54,46 @@ DISABLE_WARNING(-Wunused-parameter)
   }
 }
 
-singleStatement: statement ';'* EOF;
+singleStatement: statement ';'? EOF;
 
-statement: query;
+terminatedStatement: statement ';';
+multipleStatements: (statement (';' statement)* ';'?)? EOF;
+statement: query | createStatement | dropStatement | showStatement;
+
+createStatement: CREATE createDefinition;
+createDefinition: createLogicalSourceDefinition | createPhysicalSourceDefinition | createSinkDefinition;
+createLogicalSourceDefinition: LOGICAL SOURCE sourceName=identifier schemaDefinition fromQuery?;
+
+createPhysicalSourceDefinition: PHYSICAL SOURCE FOR logicalSource=identifier
+                                TYPE type=identifier
+                                (SET '(' options=namedConfigExpressionSeq ')')?;
+
+createSinkDefinition: SINK sinkName=identifier schemaDefinition TYPE type=identifier (SET '(' options=namedConfigExpressionSeq ')')?;
+
+
+schemaDefinition: '(' columnDefinition (',' columnDefinition)* ')';
+columnDefinition: identifierChain typeDefinition;
+
+typeDefinition: DATA_TYPE;
+
+fromQuery: AS query;
+
+dropStatement: DROP dropSubject;
+dropSubject: dropQuery | dropSource | dropSink;
+dropQuery: QUERY id=unsignedIntegerLiteral;
+dropSource: dropLogicalSourceSubject | dropPhysicalSourceSubject;
+dropLogicalSourceSubject: LOGICAL SOURCE name=strictIdentifier;
+dropPhysicalSourceSubject: PHYSICAL SOURCE id=unsignedIntegerLiteral;
+dropSink: SINK name=strictIdentifier;
+
+showStatement: SHOW showSubject (WHERE showFilter)? (FORMAT showFormat)?;
+showFormat: TEXT | JSON;
+showSubject: QUERIES #showQueriesSubject
+    | LOGICAL SOURCES #showLogicalSourcesSubject
+    | PHYSICAL SOURCES (FOR logicalSourceName=strictIdentifier)? #showPhysicalSourcesSubject
+    | SINKS #showSinksSubject;
+
+showFilter: attr=strictIdentifier EQ value=constant;
 
 query : queryTerm queryOrganization;
 
@@ -105,12 +142,15 @@ relationPrimary
     | '(' query ')'  tableAlias               #aliasedQuery
     | '(' relation ')' tableAlias             #aliasedRelation
     | inlineTable                             #inlineTableDefault2
-    | functionTable                           #tableValuedFunction
+    | inlineSource                            #inlineDefinedSource
     ;
 
-functionTable
-    : funcName=errorCapturingIdentifier '(' (expression (',' expression)*)? ')' tableAlias
+inlineSource
+    : type=identifier '(' parameters=namedConfigExpressionSeq ')'
     ;
+
+schema: SCHEMA schemaDefinition
+ ;
 
 fromStatement: fromClause fromStatementBody+;
 
@@ -134,6 +174,8 @@ multipartIdentifier
     : parts+=errorCapturingIdentifier ('.' parts+=errorCapturingIdentifier)*
     ;
 
+namedConfigExpression: (constant | schema) AS name=identifierChain;
+
 namedExpression
     : expression AS name=identifier
     | expression
@@ -153,6 +195,8 @@ BACKQUOTED_IDENTIFIER
     : '`' ( ~'`' | '``' )* '`'
     ;
 
+identifierChain: strictIdentifier ('.' strictIdentifier)*;
+
 identifierList
     : '(' identifierSeq ')'
     ;
@@ -170,6 +214,7 @@ errorCapturingIdentifierExtra
     |                        #realIdent
     ;
 
+namedConfigExpressionSeq: (namedConfigExpression (',' namedConfigExpression)*)?;
 namedExpressionSeq
     : namedExpression (',' namedExpression)*
     ;
@@ -178,6 +223,7 @@ expression
     : valueExpression
     | booleanExpression
     | identifier
+    | schema
     ;
 
 booleanExpression
@@ -247,13 +293,17 @@ timeUnit: MS
         | DAY
         ;
 
-timestampParameter: IDENTIFIER;
+timestampParameter: name=identifier;
 
 functionName:  IDENTIFIER | AVG | MAX | MIN | SUM | COUNT | MEDIAN | ARRAY_AGG | VAR | TEMPORAL_SEQUENCE | TEMPORAL_EINTERSECTS_GEOMETRY | TEMPORAL_AINTERSECTS_GEOMETRY | TEMPORAL_ECONTAINS_GEOMETRY | EDWITHIN_TGEO_GEO | TGEO_AT_STBOX;
 
 sinkClause: INTO sink (',' sink)*;
 
-sink: identifier;
+sink: identifier | inlineSink;
+
+inlineSink
+    : type=identifier '(' parameters=namedConfigExpressionSeq ')'
+    ;
 
 nullNotnull
     : NOT? NULLTOKEN
@@ -281,7 +331,7 @@ predicate
 
 
 valueExpression
-    : functionName '(' (argument+=expression (',' argument+=expression)*)? ')'                 #functionCall
+    : (functionName | typeDefinition) '(' (argument+=expression (',' argument+=expression)*)? ')'                 #functionCall
     | op=(MINUS | PLUS | TILDE) valueExpression                                        #arithmeticUnary
     | left=valueExpression op=(ASTERISK | SLASH | PERCENT | DIV) right=valueExpression #arithmeticBinary
     | left=valueExpression op=(PLUS | MINUS | CONCAT_PIPE) right=valueExpression       #arithmeticBinary
@@ -289,7 +339,6 @@ valueExpression
     | left=valueExpression op=HAT right=valueExpression                                #arithmeticBinary
     | left=valueExpression op=PIPE right=valueExpression                               #arithmeticBinary
     | left=valueExpression comparisonOperator right=valueExpression                          #comparison
-    | INFER_MODEL '(' IDENTIFIER ',' inferModelInputFields ')'       #inference
     | primaryExpression                                                                      #valueExpressionDefault
     ;
 
@@ -317,8 +366,6 @@ primaryExpression
     | identifier                                                                               #columnReference
     ;
 
-inferModelInputFields: primaryExpression;
-
 qualifiedName
     : identifier ('.' identifier)*
     ;
@@ -328,12 +375,16 @@ number
     | MINUS? FLOAT_LITERAL              #floatLiteral
     ;
 
+unsignedIntegerLiteral: INTEGER_VALUE;
+
+signedIntegerLiteral: MINUS INTEGER_VALUE;
+
 constant
     : NULLTOKEN                                                                                #nullLiteral
     | identifier STRING                                                                        #typeConstructor
     | number                                                                                   #numericLiteral
     | booleanValue                                                                             #booleanLiteral
-    | STRING+                                                                                  #stringLiteral
+    | STRING                                                                                  #stringLiteral
     ;
 
 booleanValue
@@ -370,7 +421,6 @@ GROUPING: 'GROUPING';
 HAVING: 'HAVING' | 'having';
 IF: 'IF';
 IN: 'IN' | 'in';
-INFER_MODEL: 'INFER_MODEL' | 'infer_model';
 INNER: 'INNER' | 'inner';
 INSERT: 'INSERT' | 'insert';
 INTO: 'INTO' | 'into';
@@ -381,7 +431,7 @@ LEFT: 'LEFT';
 LIKE: 'LIKE';
 LIMIT: 'LIMIT' | 'limit';
 LIST: 'LIST';
-ARRAY_AGG: 'ARRAY_AGG' | 'array_agg';
+MERGE: 'MERGE' | 'merge';
 NATURAL: 'NATURAL';
 NOT: 'NOT' | 'not' | '!';
 NULLTOKEN:'NULL';
@@ -395,6 +445,7 @@ RECOVER: 'RECOVER';
 RIGHT: 'RIGHT';
 RLIKE: 'RLIKE' | 'REGEXP';
 ROLLUP: 'ROLLUP';
+SCHEMA: 'SCHEMA';
 SELECT: 'SELECT' | 'select';
 SETS: 'SETS';
 SOME: 'SOME';
@@ -412,6 +463,7 @@ WHEN: 'WHEN';
 WHERE: 'WHERE' | 'where';
 WINDOW: 'WINDOW' | 'window';
 WITH: 'WITH';
+SET: 'SET';
 TUMBLING: 'TUMBLING' | 'tumbling';
 SLIDING: 'SLIDING' | 'sliding';
 THRESHOLD : 'THRESHOLD'|'threshold';
@@ -429,6 +481,7 @@ SUM: 'SUM' | 'sum';
 COUNT: 'COUNT' | 'count';
 MEDIAN: 'MEDIAN' | 'median';
 VAR: 'VAR' | 'var';
+ARRAY_AGG: 'ARRAY_AGG' | 'array_agg';
 TEMPORAL_SEQUENCE: 'TEMPORAL_SEQUENCE' | 'temporal_sequence';
 TEMPORAL_EINTERSECTS_GEOMETRY: 'TEMPORAL_EINTERSECTS_GEOMETRY' | 'temporal_eintersects_geometry';
 TEMPORAL_AINTERSECTS_GEOMETRY: 'TEMPORAL_AINTERSECTS_GEOMETRY' | 'temporal_aintersects_geometry';
@@ -441,6 +494,8 @@ LOCALHOST: 'LOCALHOST' | 'localhost';
 CSV_FORMAT : 'CSV_FORMAT';
 AT_MOST_ONCE : 'AT_MOST_ONCE';
 AT_LEAST_ONCE : 'AT_LEAST_ONCE';
+JSON: 'JSON';
+TEXT: 'TEXT';
 ///--NebulaSQL-KEYWORD-LIST-END
 ///****************************
 /// End of the keywords list
@@ -483,9 +538,6 @@ FLOAT_LITERAL
     | DECIMAL_DIGITS EXPONENT? {isValidDecimal()}?
     ;
 
-IDENTIFIER
-    : (LETTER | DIGIT | '_')+
-    ;
 
 fragment DECIMAL_DIGITS
     : DIGIT+ '.' DIGIT*
@@ -508,12 +560,37 @@ WS
     : [ \r\n\t]+ -> channel(HIDDEN)
     ;
 
-/// Catch-all for anything we can't recognize.
-/// We use this to be able to ignore and recover all the text
-/// when splitting statements with DelimiterLexer
-UNRECOGNIZED
-    : .
-    ;
+
+SINKS: 'SINKS';
+SOURCES: 'SOURCES' | 'sources';
+QUERIES: 'QUERIES' | 'queries';
+
+
+DATA_TYPE: INTEGER_SIGNED_TYPE | INTEGER_UNSIGNED_TYPE | FLOATING_POINT_TYPE | CHAR_TYPE | VARSIZED_TYPE | BOOLEAN_TYPE;
+
+INTEGER_UNSIGNED_TYPE: UNSIGNED_TYPE_QUALIFIER INTEGER_BASES_TYPES | 'UINT8' | 'UINT16' | 'UINT32' | 'UINT64';
+INTEGER_SIGNED_TYPE: INTEGER_BASES_TYPES | 'INT64' | 'INT32' | 'INT16' | 'INT8';
+INTEGER_BASES_TYPES: TINY_INT_TYPE | SMALL_INT_TYPE | NORMAL_INT_TYPE | BIG_INT_TYPE;
+TINY_INT_TYPE: 'TINYINT';
+SMALL_INT_TYPE: 'SMALLINT';
+NORMAL_INT_TYPE: 'INT' | 'INTEGER';
+BIG_INT_TYPE: 'BIGINT';
+FLOATING_POINT_TYPE: 'FLOAT32' | 'FLOAT64';
+CHAR_TYPE: 'CHAR';
+VARSIZED_TYPE: 'VARSIZED';
+BOOLEAN_TYPE: 'BOOLEAN';
+
+UNSIGNED_TYPE_QUALIFIER: 'UNSIGNED ';
+
+
+
+SHOW : 'SHOW';
+FORMAT : 'FORMAT';
+CREATE : 'CREATE';
+SOURCE : 'SOURCE';
+LOGICAL: 'LOGICAL';
+PHYSICAL: 'PHYSICAL';
+SINK : 'SINK';
 
 //Make sure that you add lexer rules for keywords before the identifier rule,
 //otherwise it will take priority and your grammars will not work
@@ -524,4 +601,15 @@ SIMPLE_COMMENT
 
 BRACKETED_COMMENT
     : '/*' {!isHint()}? (BRACKETED_COMMENT|.)*? '*/' -> channel(HIDDEN)
+    ;
+
+IDENTIFIER
+    : LETTER (LETTER | DIGIT | '_')*
+    ;
+
+/// Catch-all for anything we can't recognize.
+/// We use this to be able to ignore and recover all the text
+/// when splitting statements with DelimiterLexer
+UNRECOGNIZED
+    : .
     ;

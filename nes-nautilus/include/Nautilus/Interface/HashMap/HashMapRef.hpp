@@ -30,6 +30,7 @@ class HashMapRef
 {
 public:
     explicit HashMapRef(const nautilus::val<HashMap*>& hashMapRef) : hashMapRef(hashMapRef) { }
+
     virtual ~HashMapRef() = default;
 
     /// This function performs a lookup to the hash map with a record.
@@ -40,7 +41,7 @@ public:
         const Nautilus::Record& recordKey,
         const HashFunction& hashFunction,
         const std::function<void(nautilus::val<AbstractHashMapEntry*>&)>& onInsert,
-        const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider)
+        const nautilus::val<AbstractBufferProvider*>& bufferProvider)
         = 0;
 
     /// This function inserts an already existing entry from another hash map to this hash map.
@@ -50,8 +51,12 @@ public:
         const nautilus::val<AbstractHashMapEntry*>& otherEntry,
         const std::function<void(nautilus::val<AbstractHashMapEntry*>&)>& onUpdate,
         const std::function<void(nautilus::val<AbstractHashMapEntry*>&)>& onInsert,
-        const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider)
+        const nautilus::val<AbstractBufferProvider*>& bufferProvider)
         = 0;
+
+    /// This function performs a lookup to the hash map with the otherEntry.
+    /// It returns either the entry or a nullptr, depending on if the other entry key is in the hash map or not
+    virtual nautilus::val<AbstractHashMapEntry*> findEntry(const nautilus::val<AbstractHashMapEntry*>& otherEntry) = 0;
 
 protected:
     nautilus::val<HashMap*> hashMapRef;

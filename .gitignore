@@ -2,6 +2,8 @@
 .idea
 .settings
 .vscode
+.jj
+.cursor
 .csv
 .log
 .DS_Store
@@ -38,7 +40,15 @@ nes-asp/data/*.csv
 
 # Ignore log files
 *.log
+*.undo
 
 scripts/__pycache__
 
-*.stats
+# Ignore nix symlinks
+.nix/clang
+.nix/clang++
+.nix/cc
+.nix/c++
+.nix/ctest
+.nix/ninja
+.nix/gdb

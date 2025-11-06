@@ -15,6 +15,7 @@
 #include <limits>
 #include <optional>
 #include <string>
+#include <vector>
 #include <Util/Strings.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -62,6 +63,7 @@ TEST(FormatFloatTests, HandlesInfinity)
     EXPECT_EQ(formatFloat(floatInfinity), "inf");
     EXPECT_EQ(formatFloat(doubleInfinity), "inf");
 }
+
 TEST(FormatFloatTests, HandlesNaN)
 {
     constexpr float floatQuietNan = std::numeric_limits<float>::quiet_NaN();
@@ -73,6 +75,7 @@ TEST(FormatFloatTests, HandlesNaN)
     EXPECT_EQ(formatFloat(doubleQuietNan), "nan");
     EXPECT_EQ(formatFloat(doubleSignalingNan), "nan");
 }
+
 TEST(FormatFloatTests, HandlesMax)
 {
     constexpr float floatMax = std::numeric_limits<float>::max();
@@ -316,6 +319,7 @@ TEST(FromCharsTest, ScientificNotationInput)
     ASSERT_TRUE(result.has_value());
     EXPECT_FLOAT_EQ(result.value(), 12300.0F);
 }
+
 TEST(StringCaseConversionTest, ToUpperCaseBasic)
 {
     EXPECT_EQ(toUpperCase("hello"), "HELLO");
@@ -350,60 +354,11 @@ TEST(StringCaseConversionTest, ToLowerCaseSpecialCharacters)
     EXPECT_EQ(toLowerCase("HELLO!@#"), "hello!@#");
 }
 
-TEST(StringCaseConversionTest, NoSupportForNonAsciiCharacters)
+TEST(StringCaseConversionTest, testWithNonAsciiCharacters)
 {
-    SKIP_IF_TSAN();
-
-    GTEST_FLAG_SET(death_test_style, "threadsafe");
-    EXPECT_DEATH_DEBUG([]() { [[maybe_unused]] auto testString = toLowerCase("ÉÇÀÔ"); }(), "");
-    EXPECT_DEATH_DEBUG([]() { [[maybe_unused]] auto testString = toLowerCase("éçàô"); }(), "");
-}
-
-TEST(StringCaseInplaceTest, ToUpperCaseInplaceBasic)
-{
-    std::string str = "hello";
-    toUpperCaseInplace(str);
-    EXPECT_EQ(str, "HELLO");
-}
-
-TEST(StringCaseInplaceTest, ToUpperCaseInplaceEmpty)
-{
-    std::string str;
-    toUpperCaseInplace(str);
-    EXPECT_EQ(str, "");
-}
-
-
-TEST(StringCaseInplaceTest, ToLowerCaseInplaceBasic)
-{
-    std::string str = "HELLO";
-    toLowerCaseInplace(str);
-    EXPECT_EQ(str, "hello");
-}
-
-TEST(StringCaseInplaceTest, ToLowerCaseInplaceEmpty)
-{
-    std::string str;
-    toLowerCaseInplace(str);
-    EXPECT_EQ(str, "");
-}
-
-TEST(StringCaseInplaceTest, ToLowerCaseInplaceMixed)
-{
-    std::string str = "HeLLo WorlD!";
-    toLowerCaseInplace(str);
-    EXPECT_EQ(str, "hello world!");
-}
-
-TEST(StringCaseInplaceTest, NoSupportForNonAsciiCharacters)
-{
-    SKIP_IF_TSAN();
-
-    GTEST_FLAG_SET(death_test_style, "threadsafe");
-    std::string lowerStr = "héllô!123";
-    EXPECT_DEATH_DEBUG(toUpperCaseInplace(lowerStr), "");
-    std::string str = "HÉLLÔ!123";
-    EXPECT_DEATH_DEBUG(toLowerCaseInplace(str), "");
+    /// non-ascii characters are not affected by toLower, toUpper
+    EXPECT_EQ(toLowerCase("ÉÇÀÔ"), "ÉÇÀÔ");
+    EXPECT_EQ(toUpperCase("éçàô"), "éçàô");
 }
 
 TEST(ReplaceAllTest, ReplaceAllOccurrencesBasic)
@@ -523,6 +478,54 @@ TEST(EscapeSpecialCharactersTest, UnicodeAndSpecialMixed)
 {
     EXPECT_EQ("Unicode: 😀\\nNext line", escapeSpecialCharacters("Unicode: 😀\nNext line"));
     EXPECT_EQ("\\tÆØÅ\\r\\næøå", escapeSpecialCharacters("\tÆØÅ\r\næøå"));
+}
+
+TEST(SplitStringViewTest, SingleSplit)
+{
+    constexpr std::string_view input("Hello|World!|I'm,a,simple;test|string");
+    const std::vector<char> delimiter{'|'};
+
+    const std::vector<std::string_view> result = splitOnMultipleDelimiters(input, delimiter);
+
+    EXPECT_EQ(result.size(), 4);
+    EXPECT_EQ(result[0], "Hello");
+    EXPECT_EQ(result[1], "World!");
+    EXPECT_EQ(result[2], "I'm,a,simple;test");
+    EXPECT_EQ(result[3], "string");
+}
+
+TEST(SplitStringViewTest, MultipleSplits)
+{
+    constexpr std::string_view input("Hello|World!|I'm,a,simple;test|string");
+    const std::vector<char> delimiter{';', ',', '|'};
+
+    const std::vector<std::string_view> result = splitOnMultipleDelimiters(input, delimiter);
+
+    EXPECT_EQ(result.size(), 7);
+    EXPECT_EQ(result[0], "Hello");
+    EXPECT_EQ(result[1], "World!");
+    EXPECT_EQ(result[2], "I'm");
+    EXPECT_EQ(result[3], "a");
+    EXPECT_EQ(result[4], "simple");
+    EXPECT_EQ(result[5], "test");
+    EXPECT_EQ(result[6], "string");
+}
+
+TEST(SplitStringViewTest, MultipleSplitsIncludingLineBreak)
+{
+    constexpr std::string_view input("Hello\nWorld!|I'm,a,simple;test\nstring");
+    const std::vector<char> delimiter{';', ',', '|', '\n'};
+
+    const std::vector<std::string_view> result = splitOnMultipleDelimiters(input, delimiter);
+
+    EXPECT_EQ(result.size(), 7);
+    EXPECT_EQ(result[0], "Hello");
+    EXPECT_EQ(result[1], "World!");
+    EXPECT_EQ(result[2], "I'm");
+    EXPECT_EQ(result[3], "a");
+    EXPECT_EQ(result[4], "simple");
+    EXPECT_EQ(result[5], "test");
+    EXPECT_EQ(result[6], "string");
 }
 
 }

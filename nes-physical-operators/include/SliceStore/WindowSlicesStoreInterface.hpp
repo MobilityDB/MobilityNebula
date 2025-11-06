@@ -22,11 +22,26 @@
 #include <vector>
 #include <Identifiers/Identifiers.hpp>
 #include <Join/StreamJoinUtil.hpp>
+#include <Nautilus/Util.hpp>
 #include <SliceStore/Slice.hpp>
 #include <Time/Timestamp.hpp>
 
 namespace NES
 {
+
+/// Stores the information (i.e., start and end timestamp) of a window
+struct WindowInfo
+{
+    WindowInfo(const uint64_t windowStart, const uint64_t windowEnd) : windowStart(windowStart), windowEnd(windowEnd)
+    {
+        PRECONDITION(windowEnd >= windowStart, "Window end {} must be greater or equal to window start {}", windowEnd, windowStart);
+    }
+
+    bool operator<(const WindowInfo& other) const { return windowEnd < other.windowEnd; }
+
+    Timestamp windowStart;
+    Timestamp windowEnd;
+};
 
 /// This struct stores a slice and the window info
 struct SlicesAndWindowInfo
@@ -75,6 +90,11 @@ public:
 
     /// Deletes all slices, directly in this call
     virtual void deleteState() = 0;
+
+    /// Increments the number of pipelines that contain a build(!) operator using this slice store, in order to track the expected number of terminations.
+    /// This should be called each time an operator whose handler uses this store is set up.
+    /// Note: This should not be inferred when the store is created during the lowering stage, as the same build operator may appear in multiple pipelines.
+    virtual void incrementNumberOfInputPipelines() = 0;
 
     /// Returns the window size
     [[nodiscard]] virtual uint64_t getWindowSize() const = 0;

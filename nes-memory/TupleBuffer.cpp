@@ -12,6 +12,8 @@
     limitations under the License.
 */
 
+#include <Runtime/TupleBuffer.hpp>
+
 #include <cstdint>
 #include <memory>
 #include <ostream>
@@ -19,26 +21,14 @@
 #include <utility>
 #include <Identifiers/Identifiers.hpp>
 #include <Identifiers/NESStrongTypeFormat.hpp> ///NOLINT: required for fmt
-#include <Runtime/TupleBuffer.hpp>
+#include <MemoryLayout/VariableSizedAccess.hpp>
 #include <Time/Timestamp.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <TupleBufferImpl.hpp>
 
-namespace NES::Memory
+namespace NES
 {
-
-TupleBuffer TupleBuffer::reinterpretAsTupleBuffer(void* bufferPointer)
-{
-    PRECONDITION(bufferPointer != nullptr, "Buffer pointer must not be nullptr");
-    const auto controlBlockSize = alignBufferSize(sizeof(detail::BufferControlBlock), 64);
-    auto* const buffer = reinterpret_cast<uint8_t*>(bufferPointer);
-    auto* const block = reinterpret_cast<detail::BufferControlBlock*>(buffer - controlBlockSize);
-    auto* const memorySegment = block->getOwner();
-    auto tb = TupleBuffer(memorySegment->controlBlock.get(), memorySegment->ptr, memorySegment->size);
-    tb.retain();
-    return tb;
-}
 
 TupleBuffer::TupleBuffer(const TupleBuffer& other) noexcept : controlBlock(other.controlBlock), ptr(other.ptr), size(other.size)
 {
@@ -47,6 +37,7 @@ TupleBuffer::TupleBuffer(const TupleBuffer& other) noexcept : controlBlock(other
         controlBlock->retain();
     }
 }
+
 TupleBuffer& TupleBuffer::operator=(const TupleBuffer& other) noexcept
 {
     if PLACEHOLDER_UNLIKELY (this == std::addressof(other))
@@ -70,6 +61,7 @@ TupleBuffer& TupleBuffer::operator=(const TupleBuffer& other) noexcept
     }
     return *this;
 }
+
 TupleBuffer& TupleBuffer::operator=(TupleBuffer&& other) noexcept
 {
     /// Especially for rvalues, the following branch should most likely never be taken if the caller writes
@@ -86,10 +78,12 @@ TupleBuffer& TupleBuffer::operator=(TupleBuffer&& other) noexcept
 
     return *this;
 }
+
 TupleBuffer::~TupleBuffer() noexcept
 {
     release();
 }
+
 TupleBuffer& TupleBuffer::retain() noexcept
 {
     if (controlBlock)
@@ -98,6 +92,7 @@ TupleBuffer& TupleBuffer::retain() noexcept
     }
     return *this;
 }
+
 void TupleBuffer::release() noexcept
 {
     if (controlBlock)
@@ -109,34 +104,36 @@ void TupleBuffer::release() noexcept
     size = 0;
 }
 
-int8_t* TupleBuffer::getBuffer() noexcept
-{
-    return getBuffer<int8_t>();
-}
 uint32_t TupleBuffer::getReferenceCounter() const noexcept
 {
     return controlBlock ? controlBlock->getReferenceCount() : 0;
 }
+
 uint64_t TupleBuffer::getBufferSize() const noexcept
 {
     return size;
 }
+
 void TupleBuffer::setNumberOfTuples(const uint64_t numberOfTuples) const noexcept
 {
     controlBlock->setNumberOfTuples(numberOfTuples);
 }
+
 Timestamp TupleBuffer::getWatermark() const noexcept
 {
     return controlBlock->getWatermark();
 }
+
 void TupleBuffer::setWatermark(const Timestamp value) noexcept
 {
     controlBlock->setWatermark(value);
 }
+
 Timestamp TupleBuffer::getCreationTimestampInMS() const noexcept
 {
     return controlBlock->getCreationTimestamp();
 }
+
 void TupleBuffer::setSequenceNumber(const SequenceNumber sequenceNumber) noexcept
 {
     controlBlock->setSequenceNumber(sequenceNumber);
@@ -151,41 +148,46 @@ SequenceNumber TupleBuffer::getSequenceNumber() const noexcept
 {
     return controlBlock->getSequenceNumber();
 }
+
 void TupleBuffer::setChunkNumber(const ChunkNumber chunkNumber) noexcept
 {
     controlBlock->setChunkNumber(chunkNumber);
 }
+
 void TupleBuffer::setLastChunk(const bool isLastChunk) noexcept
 {
     controlBlock->setLastChunk(isLastChunk);
 }
+
 bool TupleBuffer::isLastChunk() const noexcept
 {
     return controlBlock->isLastChunk();
 }
+
 void TupleBuffer::setCreationTimestampInMS(const Timestamp value) noexcept
 {
     controlBlock->setCreationTimestamp(value);
 }
+
 void TupleBuffer::setOriginId(const OriginId id) noexcept
 {
     controlBlock->setOriginId(id);
 }
 
-uint32_t TupleBuffer::storeChildBuffer(TupleBuffer& buffer) const noexcept
+VariableSizedAccess::Index TupleBuffer::storeChildBuffer(TupleBuffer& buffer) noexcept
 {
     TupleBuffer empty;
     auto* control = buffer.controlBlock;
     INVARIANT(controlBlock != control, "Cannot attach buffer to self");
-    auto index = controlBlock->storeChildBuffer(control);
+    const auto index = controlBlock->storeChildBuffer(control);
     std::swap(empty, buffer);
     return index;
 }
 
-TupleBuffer TupleBuffer::loadChildBuffer(NestedTupleBufferKey bufferIndex) const noexcept
+TupleBuffer TupleBuffer::loadChildBuffer(VariableSizedAccess::Index bufferIndex) const noexcept
 {
     TupleBuffer childBuffer;
-    auto ret = controlBlock->loadChildBuffer(bufferIndex, childBuffer.controlBlock, childBuffer.ptr, childBuffer.size);
+    const auto ret = controlBlock->loadChildBuffer(bufferIndex, childBuffer.controlBlock, childBuffer.ptr, childBuffer.size);
     INVARIANT(ret, "Cannot load tuple buffer with index={}", bufferIndex);
     return childBuffer;
 }
@@ -198,14 +200,6 @@ bool recycleTupleBuffer(void* bufferPointer)
     return block->release();
 }
 
-bool TupleBuffer::hasSpaceLeft(const uint64_t used, const uint64_t needed) const
-{
-    if (used + needed <= this->size)
-    {
-        return true;
-    }
-    return false;
-}
 void swap(TupleBuffer& lhs, TupleBuffer& rhs) noexcept
 {
     /// Enable ADL to spell out to onlookers how swap should be used.
@@ -215,6 +209,7 @@ void swap(TupleBuffer& lhs, TupleBuffer& rhs) noexcept
     swap(lhs.size, rhs.size);
     swap(lhs.controlBlock, rhs.controlBlock);
 }
+
 std::ostream& operator<<(std::ostream& os, const TupleBuffer& buff) noexcept
 {
     return os << reinterpret_cast<std::uintptr_t>(buff.ptr);
@@ -224,14 +219,17 @@ uint64_t TupleBuffer::getNumberOfTuples() const noexcept
 {
     return controlBlock->getNumberOfTuples();
 }
+
 OriginId TupleBuffer::getOriginId() const noexcept
 {
     return controlBlock->getOriginId();
 }
-uint32_t TupleBuffer::getNumberOfChildrenBuffer() const noexcept
+
+uint32_t TupleBuffer::getNumberOfChildBuffers() const noexcept
 {
-    return controlBlock->getNumberOfChildrenBuffer();
+    return controlBlock->getNumberOfChildBuffers();
 }
+
 ChunkNumber TupleBuffer::getChunkNumber() const noexcept
 {
     return controlBlock->getChunkNumber();

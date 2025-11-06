@@ -41,12 +41,12 @@
 #include <NautilusTestUtils.hpp>
 #include <val.hpp>
 #include <val_ptr.hpp>
+
 namespace NES::Nautilus::Interface
 {
 class ChainedHashMapCustomValueTest
     : public Testing::BaseUnitTest,
-      public testing::WithParamInterface<
-          std::tuple<int, std::vector<DataType::Type>, std::vector<DataType::Type>, Nautilus::Configurations::ExecutionMode>>,
+      public testing::WithParamInterface<std::tuple<int, std::vector<DataType::Type>, std::vector<DataType::Type>, ExecutionMode>>,
       public TestUtils::ChainedHashMapCustomValueTestUtils
 {
 public:
@@ -54,7 +54,7 @@ public:
     static constexpr TestUtils::MinMaxValue MIN_MAX_NUMBER_OF_ITEMS = {.min = 100, .max = 2000};
     static constexpr TestUtils::MinMaxValue MIN_MAX_NUMBER_OF_BUCKETS = {.min = 1, .max = 2048};
     static constexpr TestUtils::MinMaxValue MIN_MAX_PAGE_SIZE = {.min = 512, .max = 10240};
-    Configurations::ExecutionMode backend;
+    ExecutionMode backend;
 
     static void SetUpTestSuite()
     {
@@ -121,9 +121,9 @@ TEST_P(ChainedHashMapCustomValueTest, pagedVector)
         const auto keyPositionInBuffer = std::rand() % bufferKey.getNumberOfTuples();
 
         /// Writing the key and values to the exact map to compare the values later.
-        const RecordBuffer recordBufferKey(nautilus::val<const Memory::TupleBuffer*>(std::addressof(bufferKey)));
+        const RecordBuffer recordBufferKey(nautilus::val<const TupleBuffer*>(std::addressof(bufferKey)));
         nautilus::val<uint64_t> keyPositionInBufferVal = keyPositionInBuffer;
-        auto recordKey = memoryProviderInputBuffer->readRecord(projectionKeys, recordBufferKey, keyPositionInBufferVal);
+        auto recordKey = inputBufferRef->readRecord(projectionKeys, recordBufferKey, keyPositionInBufferVal);
 
         /// Writing all values to the paged vector and the exact map
         for (auto& bufferValue : inputBuffers)
@@ -134,10 +134,10 @@ TEST_P(ChainedHashMapCustomValueTest, pagedVector)
 
 
             /// Writing the values to the exact map
-            const RecordBuffer recordBufferValue(nautilus::val<const Memory::TupleBuffer*>(std::addressof(bufferValue)));
+            const RecordBuffer recordBufferValue(nautilus::val<const TupleBuffer*>(std::addressof(bufferValue)));
             for (nautilus::val<uint64_t> i = 0; i < recordBufferValue.getNumRecords(); i = i + 1)
             {
-                auto recordValue = memoryProviderInputBuffer->readRecord(projectionAllFields, recordBufferValue, i);
+                auto recordValue = inputBufferRef->readRecord(projectionAllFields, recordBufferValue, i);
                 exactMap.insert({{recordKey, projectionKeys}, recordValue});
             }
         }
@@ -160,16 +160,16 @@ TEST_P(ChainedHashMapCustomValueTest, pagedVector)
     for (auto [buffer, keyPositionInBuffer] : std::views::zip(inputBuffers, allKeyPositions))
     {
         /// Getting the record key from the input buffer, so that we can compare the values with the exact map.
-        const RecordBuffer recordBufferKey(nautilus::val<const Memory::TupleBuffer*>(std::addressof(buffer)));
+        const RecordBuffer recordBufferKey(nautilus::val<const TupleBuffer*>(std::addressof(buffer)));
         nautilus::val<uint64_t> keyPositionInBufferVal = keyPositionInBuffer;
-        auto recordKey = memoryProviderInputBuffer->readRecord(projectionKeys, recordBufferKey, keyPositionInBufferVal);
+        auto recordKey = inputBufferRef->readRecord(projectionKeys, recordBufferKey, keyPositionInBufferVal);
 
         /// Getting the iterator for the exact map to compare the values.
         auto [recordValueExactStart, recordValueExactEnd] = exactMap.equal_range({recordKey, projectionKeys});
         const auto numberOfRecordsExact = std::distance(recordValueExactStart, recordValueExactEnd);
 
         /// Acquiring a buffer to write the values to that has the needed size
-        const auto neededBytes = memoryProviderInputBuffer->getMemoryLayout()->getSchema().getSizeOfSchemaInBytes() * numberOfRecordsExact;
+        const auto neededBytes = inputBufferRef->getMemoryLayout()->getSchema().getSizeOfSchemaInBytes() * numberOfRecordsExact;
         auto outputBufferOpt = bufferManager->getUnpooledBuffer(neededBytes);
         if (not outputBufferOpt)
         {
@@ -182,7 +182,7 @@ TEST_P(ChainedHashMapCustomValueTest, pagedVector)
         writeAllRecordsIntoOutputBuffer(
             std::addressof(buffer), keyPositionInBuffer, std::addressof(outputBuffer), bufferManager.get(), std::addressof(hashMap));
         const auto writtenBytes
-            = outputBuffer.getNumberOfTuples() * memoryProviderInputBuffer->getMemoryLayout()->getSchema().getSizeOfSchemaInBytes();
+            = outputBuffer.getNumberOfTuples() * inputBufferRef->getMemoryLayout()->getSchema().getSizeOfSchemaInBytes();
         ASSERT_LE(writtenBytes, outputBuffer.getBufferSize());
         ASSERT_EQ(outputBuffer.getNumberOfTuples(), std::distance(recordValueExactStart, recordValueExactEnd));
 
@@ -191,8 +191,8 @@ TEST_P(ChainedHashMapCustomValueTest, pagedVector)
         for (auto exactIt = recordValueExactStart; exactIt != recordValueExactEnd; ++exactIt)
         {
             /// Printing an error message, if the values are not equal.
-            const RecordBuffer recordBufferOutput(nautilus::val<const Memory::TupleBuffer*>(std::addressof(outputBuffer)));
-            auto recordValueActual = memoryProviderInputBuffer->readRecord(projectionAllFields, recordBufferOutput, currentPosition);
+            const RecordBuffer recordBufferOutput(nautilus::val<const TupleBuffer*>(std::addressof(outputBuffer)));
+            auto recordValueActual = inputBufferRef->readRecord(projectionAllFields, recordBufferOutput, currentPosition);
             std::stringstream ss;
             ss << compareRecords(recordValueActual, exactIt->second, projectionAllFields);
             if (not ss.str().empty())
@@ -236,7 +236,7 @@ INSTANTIATE_TEST_CASE_P(
               DataType::Type::UINT16,
               DataType::Type::UINT8,
               DataType::Type::FLOAT64}}),
-        ::testing::Values(Nautilus::Configurations::ExecutionMode::COMPILER, Nautilus::Configurations::ExecutionMode::INTERPRETER)),
+        ::testing::Values(ExecutionMode::COMPILER, ExecutionMode::INTERPRETER)),
     [](const testing::TestParamInfo<ChainedHashMapCustomValueTest::ParamType>& info)
     {
         const auto iteration = std::get<0>(info.param);

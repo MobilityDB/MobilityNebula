@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+add_subdirectory(HashJoin)
 add_subdirectory(NestedLoopJoin)
 
 add_source_files(nes-physical-operators

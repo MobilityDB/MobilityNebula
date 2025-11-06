@@ -31,7 +31,7 @@ public:
     ~ArrayAggregationLogicalFunction() override = default;
     [[nodiscard]] NES::SerializableAggregationFunction serialize() const override;
     [[nodiscard]] std::string_view getName() const noexcept override;
-    [[nodiscard]] bool requiresSequentialAggregation() const override { return true; }
+    [[nodiscard]] bool requiresSequentialAggregation() const { return true; }
 
 private:
     static constexpr std::string_view NAME = "ARRAY_AGG";

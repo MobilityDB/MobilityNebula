@@ -6,53 +6,44 @@ query: |
   WINDOW SLIDING(time_utc, SIZE 3 SEC, ADVANCE BY 1 SEC)
   INTO file_sink;
 
-sink:
-  name: file_sink
-  type: FILE
-  config:
-    filePath: "/workspace/Output/output_query3.csv"
-    inputFormat: CSV
+sinks:
+  - name: FILE_SINK
+    type: File
+    schema:
+      - { name: SNCB_STREAM$START,     type: UINT64 }
+      - { name: SNCB_STREAM$END,       type: UINT64 }
+      - { name: SNCB_STREAM$TRAJECTORY, type: VARSIZED }
+    config:
+      file_path: "/workspace/Output/output_query3.csv"
+      input_format: CSV
 
 logical:
-  - name: sncb_stream
+  - name: SNCB_STREAM
     schema:
-      - name: time_utc
-        type: UINT64
-      - name: device_id
-        type: UINT64
-      - name: Vbat
-        type: FLOAT64
-      - name: PCFA_mbar
-        type: FLOAT64
-      - name: PCFF_mbar
-        type: FLOAT64
-      - name: PCF1_mbar
-        type: FLOAT64
-      - name: PCF2_mbar
-        type: FLOAT64
-      - name: T1_mbar
-        type: FLOAT64
-      - name: T2_mbar
-        type: FLOAT64
-      - name: Code1
-        type: FLOAT64
-      - name: Code2
-        type: FLOAT64
-      - name: gps_speed
-        type: FLOAT64
-      - name: gps_lat
-        type: FLOAT64
-      - name: gps_lon
-        type: FLOAT64
+      - { name: TIME_UTC,   type: UINT64 }
+      - { name: DEVICE_ID,  type: UINT64 }
+      - { name: VBAT,       type: FLOAT64 }
+      - { name: PCFA_MBAR,  type: FLOAT64 }
+      - { name: PCFF_MBAR,  type: FLOAT64 }
+      - { name: PCF1_MBAR,  type: FLOAT64 }
+      - { name: PCF2_MBAR,  type: FLOAT64 }
+      - { name: T1_MBAR,    type: FLOAT64 }
+      - { name: T2_MBAR,    type: FLOAT64 }
+      - { name: CODE1,      type: FLOAT64 }
+      - { name: CODE2,      type: FLOAT64 }
+      - { name: GPS_SPEED,  type: FLOAT64 }
+      - { name: GPS_LAT,    type: FLOAT64 }
+      - { name: GPS_LON,    type: FLOAT64 }
 
 physical:
-  - logical: sncb_stream
-    sourceConfig:
-      type: TCP
-      socketHost: "host.docker.internal"
-      socketPort: 32323
-      socketType: "SOCK_STREAM"
-      socketDomain: "AF_INET"
-    parserConfig:
+  - logical: SNCB_STREAM
+    type: TCP
+    parser_config:
       type: CSV
-      delimiter: ","
+      field_delimiter: ","
+      tuple_delimiter: "\n"
+    source_config:
+      socket_host: "host.docker.internal"
+      socket_port: "32324"
+      socket_type: "SOCK_STREAM"
+      socket_domain: "AF_INET"

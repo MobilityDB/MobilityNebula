@@ -16,17 +16,18 @@
 
 #include <memory>
 #include <string>
-#include <Configurations/Worker/QueryOptimizerConfiguration.hpp>
 #include <RewriteRules/AbstractRewriteRule.hpp>
 #include <Util/Registry.hpp>
+#include <QueryExecutionConfiguration.hpp>
 
 namespace NES
 {
 
 using RewriteRuleRegistryReturnType = std::unique_ptr<AbstractRewriteRule>;
+
 struct RewriteRuleRegistryArguments
 {
-    NES::Configurations::QueryOptimizerConfiguration conf;
+    QueryExecutionConfiguration conf;
 };
 
 class RewriteRuleRegistry

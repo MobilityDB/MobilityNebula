@@ -23,7 +23,7 @@
 #include <system_error>
 #include <unordered_map>
 #include <utility>
-#include <Configurations/ConfigurationsNames.hpp>
+
 #include <Configurations/Descriptor.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Sinks/Sink.hpp>
@@ -37,25 +37,23 @@
 #include <PipelineExecutionContext.hpp>
 #include <SinkRegistry.hpp>
 #include <SinkValidationRegistry.hpp>
-#include <Metrics/MetricsRegistry.hpp>
-#include <chrono>
 
-namespace NES::Sinks
+namespace NES
 {
 
 FileSink::FileSink(const SinkDescriptor& sinkDescriptor)
     : Sink()
-    , outputFilePath(sinkDescriptor.getFromConfig(ConfigParametersFile::FILEPATH))
+    , outputFilePath(sinkDescriptor.getFromConfig(SinkDescriptor::FILE_PATH))
     , isAppend(sinkDescriptor.getFromConfig(ConfigParametersFile::APPEND))
     , isOpen(false)
 {
     switch (const auto inputFormat = sinkDescriptor.getFromConfig(ConfigParametersFile::INPUT_FORMAT))
     {
-        case Configurations::InputFormat::CSV:
-            formatter = std::make_unique<CSVFormat>(sinkDescriptor.schema);
+        case InputFormat::CSV:
+            formatter = std::make_unique<CSVFormat>(*sinkDescriptor.getSchema());
             break;
-        case Configurations::InputFormat::JSON:
-            formatter = std::make_unique<JSONFormat>(sinkDescriptor.schema);
+        case InputFormat::JSON:
+            formatter = std::make_unique<JSONFormat>(*sinkDescriptor.getSchema());
             break;
         default:
             throw UnknownSinkFormat(fmt::format("Sink format: {} not supported.", magic_enum::enum_name(inputFormat)));
@@ -72,20 +70,6 @@ void FileSink::start(PipelineExecutionContext&)
 {
     NES_DEBUG("Setting up file sink: {}", *this);
     auto stream = outputFileStream.wlock();
-
-    const std::filesystem::path outputPath(outputFilePath);
-    const auto parentPath = outputPath.parent_path();
-    if (!parentPath.empty())
-    {
-        std::error_code ec;
-        std::filesystem::create_directories(parentPath, ec);
-        if (ec)
-        {
-            throw CannotOpenSink(
-                "Could not create directory for output file; filePathOutput={}, error={}", outputFilePath, ec.message());
-        }
-    }
-
     /// Remove an existing file unless the isAppend mode is isAppend.
     if (!isAppend)
     {
@@ -119,37 +103,11 @@ void FileSink::start(PipelineExecutionContext&)
         stream->write(schemaStr.c_str(), static_cast<int64_t>(schemaStr.length()));
     }
 }
-void FileSink::execute(const Memory::TupleBuffer& inputTupleBuffer, PipelineExecutionContext&)
+
+void FileSink::execute(const TupleBuffer& inputTupleBuffer, PipelineExecutionContext&)
 {
     PRECONDITION(inputTupleBuffer, "Invalid input buffer in FileSink.");
     PRECONDITION(isOpen, "Sink was not opened");
-
-    // Minimal metrics (M1-M2): egress count and e2e latency
-    const auto tuples = inputTupleBuffer.getNumberOfTuples();
-    NES::Metrics::MetricsRegistry::instance().incCounter("sink_out_total", tuples);
-    // Ignore empty buffers for latency to avoid skew from control/flush buffers
-    if (tuples == 0) {
-        return;
-    }
-    const auto nowMsSigned = std::chrono::time_point_cast<std::chrono::milliseconds>(
-                                 std::chrono::steady_clock::now())
-                                 .time_since_epoch()
-                                 .count();
-    const auto tsInMs = inputTupleBuffer.getCreationTimestampInMS().getRawValue();
-    if (tsInMs == NES::Timestamp::INVALID_VALUE || tsInMs == NES::Timestamp::INITIAL_VALUE)
-    {
-        NES::Metrics::MetricsRegistry::instance().incCounter("latency_missing_count", 1);
-    }
-    else if (nowMsSigned >= 0)
-    {
-        const auto nowMs = static_cast<uint64_t>(nowMsSigned);
-        const auto lat = (nowMs >= tsInMs) ? static_cast<uint64_t>(nowMs - tsInMs) : 0ULL; // saturate at 0
-        if (nowMs < tsInMs)
-        {
-            NES::Metrics::MetricsRegistry::instance().incCounter("latency_future_count", 1);
-        }
-        NES::Metrics::MetricsRegistry::instance().observeLatencyMs(lat);
-    }
 
     {
         auto fBuffer = formatter->getFormattedBuffer(inputTupleBuffer);
@@ -161,6 +119,7 @@ void FileSink::execute(const Memory::TupleBuffer& inputTupleBuffer, PipelineExec
         }
     }
 }
+
 void FileSink::stop(PipelineExecutionContext&)
 {
     NES_DEBUG("Closing file sink, filePathOutput={}", outputFilePath);
@@ -169,17 +128,17 @@ void FileSink::stop(PipelineExecutionContext&)
     stream->close();
 }
 
-Configurations::DescriptorConfig::Config FileSink::validateAndFormat(std::unordered_map<std::string, std::string> config)
+DescriptorConfig::Config FileSink::validateAndFormat(std::unordered_map<std::string, std::string> config)
 {
-    return NES::Configurations::DescriptorConfig::validateAndFormat<ConfigParametersFile>(std::move(config), NAME);
+    return DescriptorConfig::validateAndFormat<ConfigParametersFile>(std::move(config), NAME);
 }
 
-SinkValidationRegistryReturnType SinkValidationGeneratedRegistrar::RegisterFileSinkValidation(SinkValidationRegistryArguments sinkConfig)
+SinkValidationRegistryReturnType RegisterFileSinkValidation(SinkValidationRegistryArguments sinkConfig)
 {
     return FileSink::validateAndFormat(std::move(sinkConfig.config));
 }
 
-SinkRegistryReturnType SinkGeneratedRegistrar::RegisterFileSink(SinkRegistryArguments sinkRegistryArguments)
+SinkRegistryReturnType RegisterFileSink(SinkRegistryArguments sinkRegistryArguments)
 {
     return std::make_unique<FileSink>(sinkRegistryArguments.sinkDescriptor);
 }

@@ -20,7 +20,7 @@
 #include <optional>
 #include <utility>
 #include <Identifiers/Identifiers.hpp>
-#include <Nautilus/Interface/MemoryProvider/TupleBufferMemoryProvider.hpp>
+#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
 #include <Nautilus/Interface/NESStrongTypeRef.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <Nautilus/Interface/RecordBuffer.hpp>
@@ -91,7 +91,8 @@ void removeSequenceState(ExecutionContext& context, OperatorHandlerId operatorHa
 class EmitState : public OperatorState
 {
 public:
-    explicit EmitState(const RecordBuffer& resultBuffer) : resultBuffer(resultBuffer), bufferMemoryArea(resultBuffer.getBuffer()) { }
+    explicit EmitState(const RecordBuffer& resultBuffer) : resultBuffer(resultBuffer), bufferMemoryArea(resultBuffer.getMemArea()) { }
+
     nautilus::val<uint64_t> outputIndex = 0;
     RecordBuffer resultBuffer;
     nautilus::val<int8_t*> bufferMemoryArea;
@@ -115,14 +116,14 @@ void EmitPhysicalOperator::execute(ExecutionContext& ctx, Record& record) const
         emitRecordBuffer(ctx, emitState->resultBuffer, emitState->outputIndex, false);
         const auto resultBufferRef = ctx.allocateBuffer();
         emitState->resultBuffer = RecordBuffer(resultBufferRef);
-        emitState->bufferMemoryArea = emitState->resultBuffer.getBuffer();
+        emitState->bufferMemoryArea = emitState->resultBuffer.getMemArea();
         emitState->outputIndex = 0_u64;
     }
 
     /// We need to first check if the buffer has to be emitted and then write to it. Otherwise, it can happen that we will
     /// emit a tuple twice. Once in the execute() and then again in close(). This happens only for buffers that are filled
     /// to the brim, i.e., have no more space left.
-    memoryProvider->writeRecord(emitState->outputIndex, emitState->resultBuffer, record, ctx.pipelineMemoryProvider.bufferProvider);
+    bufferRef->writeRecord(emitState->outputIndex, emitState->resultBuffer, record, ctx.pipelineMemoryProvider.bufferProvider);
     emitState->outputIndex = emitState->outputIndex + 1;
 }
 
@@ -143,8 +144,7 @@ void EmitPhysicalOperator::emitRecordBuffer(
     recordBuffer.setWatermarkTs(ctx.watermarkTs);
     recordBuffer.setOriginId(ctx.originId);
     recordBuffer.setSequenceNumber(ctx.sequenceNumber);
-    // Preserve ingress creation timestamp set at buffer allocation time.
-    // Do not overwrite with event-time; creationTs carries ts_ingest for e2e latency.
+    recordBuffer.setCreationTs(ctx.currentTs);
 
     /// Chunk Logic. Order matters.
     /// A worker thread will clean up the sequence state for the current sequence number if its told it is the last
@@ -165,14 +165,14 @@ void EmitPhysicalOperator::emitRecordBuffer(
 }
 
 EmitPhysicalOperator::EmitPhysicalOperator(
-    OperatorHandlerId operatorHandlerId, std::shared_ptr<Interface::MemoryProvider::TupleBufferMemoryProvider> memoryProvider)
-    : memoryProvider(std::move(memoryProvider)), operatorHandlerId(operatorHandlerId)
+    OperatorHandlerId operatorHandlerId, std::shared_ptr<Interface::BufferRef::TupleBufferRef> memoryProvider)
+    : bufferRef(std::move(memoryProvider)), operatorHandlerId(operatorHandlerId)
 {
 }
 
 [[nodiscard]] uint64_t EmitPhysicalOperator::getMaxRecordsPerBuffer() const
 {
-    return memoryProvider->getMemoryLayout()->getCapacity();
+    return bufferRef->getMemoryLayout()->getCapacity();
 }
 
 std::optional<PhysicalOperator> EmitPhysicalOperator::getChild() const

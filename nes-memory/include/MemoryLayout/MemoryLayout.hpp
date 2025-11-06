@@ -14,30 +14,24 @@
 
 #pragma once
 
-#include <memory>
+#include <cstddef>
 #include <optional>
+#include <span>
+#include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/Schema.hpp>
+#include <MemoryLayout/VariableSizedAccess.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
 #include <Runtime/BufferManager.hpp>
+#include <Runtime/TupleBuffer.hpp>
 
-namespace NES::Memory::MemoryLayouts
+namespace NES
 {
 
 class MemoryLayoutTupleBuffer;
-
-/// @brief Reads the variable sized data from the child buffer at the provided index
-/// @return Variable sized data as a string
-std::string readVarSizedData(const Memory::TupleBuffer& buffer, uint64_t childBufferIdx);
-
-/// @brief Writes the variable sized data to the buffer
-/// @param buffer
-/// @param value
-/// @param bufferProvider
-/// @return Index of the child buffer
-std::optional<uint32_t>
-writeVarSizedData(const Memory::TupleBuffer& buffer, const std::string_view value, Memory::AbstractBufferProvider& bufferProvider);
 
 /// @brief A MemoryLayout defines a strategy in which a specific schema / a individual tuple is mapped to a tuple buffer.
 /// To this end, it requires the definition of an schema and a specific buffer size.
@@ -53,6 +47,25 @@ public:
 
     virtual ~MemoryLayout() = default;
 
+    enum PrependMode : uint8_t
+    {
+        PREPEND_NONE,
+        PREPEND_LENGTH_AS_UINT32
+    };
+
+    /// @brief Writes the variable sized data to the buffer
+    template <PrependMode PrependMode>
+    static VariableSizedAccess
+    writeVarSized(TupleBuffer& tupleBuffer, AbstractBufferProvider& bufferProvider, std::span<const std::byte> varSizedValue);
+
+    /// @brief Reads the variable sized data and returns the pointer to the var sized data
+    /// @return Pointer to variable sized data
+    static std::span<std::byte> loadAssociatedVarSizedValue(const TupleBuffer& tupleBuffer, VariableSizedAccess variableSizedAccess);
+
+    /// @brief Reads the variable sized data. Similar as loadAssociatedVarSizedValue, but returns a string
+    /// @return Variable sized data as a string
+    static std::string readVarSizedDataAsString(const TupleBuffer& tupleBuffer, VariableSizedAccess variableSizedAccess);
+
     /// Gets the field index for a specific field name. If the field name not exists, we return an empty optional.
     /// @return either field index for fieldName or empty optional
     [[nodiscard]] std::optional<uint64_t> getFieldIndexFromName(const std::string& fieldName) const;
@@ -65,7 +78,6 @@ public:
     /// Depending on the concrete memory layout this value may change, e.g., some layouts may add some padding or alignment.
     /// @return number of tuples a tuple buffer can occupy.
     [[nodiscard]] uint64_t getCapacity() const;
-
     [[nodiscard]] uint64_t getTupleSize() const;
     [[nodiscard]] uint64_t getBufferSize() const;
     void setBufferSize(uint64_t bufferSize);
@@ -87,6 +99,4 @@ protected:
     std::unordered_map<std::string, uint64_t> nameFieldIndexMap;
     std::vector<std::string> keyFieldNames;
 };
-
-
 }

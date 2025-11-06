@@ -12,6 +12,8 @@
     limitations under the License.
 */
 
+#include <Operators/Windows/Aggregations/CountAggregationLogicalFunction.hpp>
+
 #include <memory>
 #include <string>
 #include <string_view>
@@ -21,7 +23,6 @@
 #include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/CountAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <AggregationLogicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
@@ -37,6 +38,7 @@ CountAggregationLogicalFunction::CountAggregationLogicalFunction(const FieldAcce
           field)
 {
 }
+
 CountAggregationLogicalFunction::CountAggregationLogicalFunction(FieldAccessLogicalFunction field, FieldAccessLogicalFunction asField)
     : WindowAggregationLogicalFunction(
           DataTypeProvider::provideDataType(inputAggregateStampType),
@@ -45,17 +47,6 @@ CountAggregationLogicalFunction::CountAggregationLogicalFunction(FieldAccessLogi
           std::move(field),
           std::move(asField))
 {
-}
-
-std::shared_ptr<WindowAggregationLogicalFunction>
-CountAggregationLogicalFunction::create(const FieldAccessLogicalFunction& onField, const FieldAccessLogicalFunction& asField)
-{
-    return std::make_shared<CountAggregationLogicalFunction>(onField, asField);
-}
-
-std::shared_ptr<WindowAggregationLogicalFunction> CountAggregationLogicalFunction::create(const FieldAccessLogicalFunction& onField)
-{
-    return std::make_shared<CountAggregationLogicalFunction>(onField);
 }
 
 std::string_view CountAggregationLogicalFunction::getName() const noexcept
@@ -91,9 +82,9 @@ void CountAggregationLogicalFunction::inferStamp(const Schema& schema)
     }
 }
 
-NES::SerializableAggregationFunction CountAggregationLogicalFunction::serialize() const
+SerializableAggregationFunction CountAggregationLogicalFunction::serialize() const
 {
-    NES::SerializableAggregationFunction serializedAggregationFunction;
+    SerializableAggregationFunction serializedAggregationFunction;
     serializedAggregationFunction.set_type(NAME);
 
     auto onFieldFuc = SerializableFunction();
@@ -110,8 +101,10 @@ NES::SerializableAggregationFunction CountAggregationLogicalFunction::serialize(
 AggregationLogicalFunctionRegistryReturnType
 AggregationLogicalFunctionGeneratedRegistrar::RegisterCountAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
 {
-    PRECONDITION(
-        arguments.fields.size() == 2, "CountAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
-    return CountAggregationLogicalFunction::create(arguments.fields[0], arguments.fields[1]);
+    if (arguments.fields.size() != 2)
+    {
+        throw CannotDeserialize("CountAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
+    }
+    return std::make_shared<CountAggregationLogicalFunction>(arguments.fields[0], arguments.fields[1]);
 }
 }

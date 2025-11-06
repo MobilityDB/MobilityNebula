@@ -12,6 +12,8 @@
     limitations under the License.
 */
 
+#include <Operators/Windows/Aggregations/MinAggregationLogicalFunction.hpp>
+
 #include <memory>
 #include <string>
 #include <string_view>
@@ -19,7 +21,6 @@
 #include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/MinAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <AggregationLogicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
@@ -31,20 +32,10 @@ MinAggregationLogicalFunction::MinAggregationLogicalFunction(const FieldAccessLo
     : WindowAggregationLogicalFunction(field.getDataType(), field.getDataType(), field.getDataType(), field)
 {
 }
+
 MinAggregationLogicalFunction::MinAggregationLogicalFunction(const FieldAccessLogicalFunction& field, FieldAccessLogicalFunction asField)
     : WindowAggregationLogicalFunction(field.getDataType(), field.getDataType(), field.getDataType(), field, std::move(asField))
 {
-}
-
-std::shared_ptr<WindowAggregationLogicalFunction>
-MinAggregationLogicalFunction::create(const FieldAccessLogicalFunction& onField, FieldAccessLogicalFunction asField)
-{
-    return std::make_shared<MinAggregationLogicalFunction>(onField, std::move(asField));
-}
-
-std::shared_ptr<WindowAggregationLogicalFunction> MinAggregationLogicalFunction::create(const FieldAccessLogicalFunction& onField)
-{
-    return std::make_shared<MinAggregationLogicalFunction>(onField);
 }
 
 std::string_view MinAggregationLogicalFunction::getName() const noexcept
@@ -56,7 +47,10 @@ void MinAggregationLogicalFunction::inferStamp(const Schema& schema)
 {
     /// We first infer the dataType of the input field and set the output dataType as the same.
     onField = onField.withInferredDataType(schema).get<FieldAccessLogicalFunction>();
-    INVARIANT(onField.getDataType().isNumeric(), "aggregations on non numeric fields is not supported, but got {}", onField.getDataType());
+    if (not onField.getDataType().isNumeric())
+    {
+        throw CannotDeserialize("aggregations on non numeric fields is not supported, but got {}", onField.getDataType());
+    }
 
     ///Set fully qualified name for the as Field
     const auto onFieldName = onField.getFieldName();
@@ -78,9 +72,9 @@ void MinAggregationLogicalFunction::inferStamp(const Schema& schema)
     this->asField = asField.withDataType(getFinalAggregateStamp()).get<FieldAccessLogicalFunction>();
 }
 
-NES::SerializableAggregationFunction MinAggregationLogicalFunction::serialize() const
+SerializableAggregationFunction MinAggregationLogicalFunction::serialize() const
 {
-    NES::SerializableAggregationFunction serializedAggregationFunction;
+    SerializableAggregationFunction serializedAggregationFunction;
     serializedAggregationFunction.set_type(NAME);
 
     auto onFieldFuc = SerializableFunction();
@@ -97,8 +91,10 @@ NES::SerializableAggregationFunction MinAggregationLogicalFunction::serialize() 
 AggregationLogicalFunctionRegistryReturnType
 AggregationLogicalFunctionGeneratedRegistrar::RegisterMinAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
 {
-    PRECONDITION(
-        arguments.fields.size() == 2, "MinAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
-    return MinAggregationLogicalFunction::create(arguments.fields[0], arguments.fields[1]);
+    if (arguments.fields.size() != 2)
+    {
+        throw CannotDeserialize("MinAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
+    }
+    return std::make_shared<MinAggregationLogicalFunction>(arguments.fields[0], arguments.fields[1]);
 }
 }

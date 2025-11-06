@@ -11,6 +11,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+#include <Pipeline.hpp>
+
 
 #include <atomic>
 #include <cstdint>
@@ -31,7 +33,6 @@
 #include <magic_enum/magic_enum.hpp>
 #include <ErrorHandling.hpp>
 #include <PhysicalOperator.hpp>
-#include <Pipeline.hpp>
 #include <SinkPhysicalOperator.hpp>
 #include <SourcePhysicalOperator.hpp>
 
@@ -109,24 +110,22 @@ bool Pipeline::isSinkPipeline() const
     return getRootOperator().tryGet<SinkPhysicalOperator>().has_value();
 }
 
-void Pipeline::prependOperator(PhysicalOperator newOp)
+void Pipeline::prependOperator(const PhysicalOperator& newOp)
 {
     PRECONDITION(not(isSourcePipeline() or isSinkPipeline()), "Cannot add new operator to source or sink pipeline");
-    newOp.setChild(getRootOperator());
-    setRootOperator(newOp);
+    setRootOperator(newOp.withChild(getRootOperator()));
 }
 
-static PhysicalOperator appendOperatorHelper(PhysicalOperator op, const PhysicalOperator& newOp)
+namespace
 {
-    if (not op.getChild())
+PhysicalOperator appendOperatorHelper(const PhysicalOperator& op, const PhysicalOperator& newOp)
+{
+    if (const auto child = op.getChild())
     {
-        op.setChild(newOp);
-        return op;
+        return op.withChild(appendOperatorHelper(*child, newOp));
     }
-    PhysicalOperator child = op.getChild().value();
-    child = appendOperatorHelper(child, newOp);
-    op.setChild(child);
-    return op;
+    return op.withChild(newOp);
+}
 }
 
 void Pipeline::appendOperator(const PhysicalOperator& newOp)
@@ -200,7 +199,7 @@ std::ostream& operator<<(std::ostream& os, const Pipeline& p)
     return os;
 }
 
-std::optional<Nautilus::Configurations::ExecutionMode> Pipeline::getExecutionMode() const
+std::optional<ExecutionMode> Pipeline::getExecutionMode() const
 {
     return executionMode;
 }
@@ -225,7 +224,7 @@ std::unordered_map<OperatorHandlerId, std::shared_ptr<OperatorHandler>>& Pipelin
     return operatorHandlers;
 }
 
-void Pipeline::setExecutionMode(Nautilus::Configurations::ExecutionMode mode)
+void Pipeline::setExecutionMode(ExecutionMode mode)
 {
     executionMode = mode;
 }

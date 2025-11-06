@@ -42,7 +42,6 @@ nautilus::val<T> readValueFromMemRef(const nautilus::val<int8_t*>& memRef)
     return static_cast<nautilus::val<T>>(*static_cast<nautilus::val<T*>>(memRef));
 }
 
-
 inline const std::unordered_map<DataType::Type, std::function<VarVal(const VarVal&, const nautilus::val<int8_t*>&)>> storeValueFunctionMap
     = {
         {DataType::Type::BOOLEAN,
@@ -78,6 +77,13 @@ inline const std::unordered_map<DataType::Type, std::function<VarVal(const VarVa
          {
              const VarVal int64Value = value.cast<nautilus::val<int64_t>>();
              int64Value.writeToMemory(memoryReference);
+             return value;
+         }},
+        {DataType::Type::CHAR,
+         [](const VarVal& value, const nautilus::val<int8_t*>& memoryReference)
+         {
+             const VarVal uint8Value = value.cast<nautilus::val<char>>();
+             uint8Value.writeToMemory(memoryReference);
              return value;
          }},
         {DataType::Type::UINT8,

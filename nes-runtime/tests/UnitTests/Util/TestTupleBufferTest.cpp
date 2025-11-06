@@ -33,7 +33,7 @@
 #include <BaseUnitTest.hpp>
 #include <ErrorHandling.hpp>
 
-namespace NES::Memory::MemoryLayouts
+namespace NES
 {
 
 #define VAR_SIZED_DATA_TYPES uint16_t, std::string, double, std::string
@@ -45,20 +45,21 @@ using FixedSizedDataTuple = std::tuple<FIXED_SIZED_DATA_TYPES>;
 class TestTupleBufferTest : public Testing::BaseUnitTest, public testing::WithParamInterface<Schema::MemoryLayoutType>
 {
 public:
-    std::shared_ptr<Memory::BufferManager> bufferManager;
+    std::shared_ptr<BufferManager> bufferManager;
     Schema schema, varSizedDataSchema;
     std::unique_ptr<TestTupleBuffer> testBuffer, testBufferVarSize;
 
     static void SetUpTestCase()
     {
-        NES::Logger::setupLogging("TestTupleBufferTest.log", NES::LogLevel::LOG_DEBUG);
+        Logger::setupLogging("TestTupleBufferTest.log", LogLevel::LOG_DEBUG);
         NES_INFO("Setup TestTupleBufferTest test class.");
     }
+
     void SetUp() override
     {
         Testing::BaseUnitTest::SetUp();
         const auto memoryLayout = GetParam();
-        bufferManager = Memory::BufferManager::create(4096, 10);
+        bufferManager = BufferManager::create(4096, 10);
         schema = Schema{memoryLayout}
                      .addField("test$t1", DataType::Type::UINT16)
                      .addField("test$t2", DataType::Type::BOOLEAN)
@@ -81,7 +82,7 @@ public:
 
 TEST_P(TestTupleBufferTest, throwErrorIfEmpty)
 {
-    const std::shared_ptr<Memory::BufferManager> bufferManager = Memory::BufferManager::create(4096, 2);
+    const std::shared_ptr<BufferManager> bufferManager = BufferManager::create(4096, 2);
     auto tupleBuffer1 = bufferManager->getBufferBlocking();
     auto tupleBuffer2 = bufferManager->getBufferBlocking();
     try
@@ -102,7 +103,7 @@ TEST_P(TestTupleBufferTest, throwErrorIfEmpty)
 
 TEST_P(TestTupleBufferTest, throwErrorIfEmptyAfterSequenceOfPulls)
 {
-    const std::shared_ptr<Memory::BufferManager> bufferManager = Memory::BufferManager::create(4096, 3);
+    const std::shared_ptr<BufferManager> bufferManager = BufferManager::create(4096, 3);
     auto tupleBuffer1 = bufferManager->getBufferBlocking();
     auto tupleBuffer2 = bufferManager->getBufferBlocking();
     auto tupleBuffer3 = bufferManager->getBufferBlocking();

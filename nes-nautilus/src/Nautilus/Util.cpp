@@ -12,11 +12,12 @@
     limitations under the License.
 */
 
+#include <Nautilus/Util.hpp>
+
 #include <cstdint>
 #include <limits>
 #include <DataTypes/DataType.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/Util.hpp>
 #include <Util/Logger/LogLevel.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <magic_enum/magic_enum.hpp>
@@ -30,9 +31,6 @@ void logProxy(const char* message, const LogLevel logLevel)
     switch (logLevel)
     {
         case LogLevel::LOG_NONE:
-            break;
-        case LogLevel::LOG_FATAL_ERROR:
-            NES_FATAL_ERROR("{}", message);
             break;
         case LogLevel::LOG_ERROR:
             NES_ERROR("{}", message);

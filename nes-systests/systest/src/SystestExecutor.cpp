@@ -30,10 +30,14 @@
 #include <stdexcept>
 #include <string>
 #include <system_error>
+#include <utility>
 #include <vector>
 #include <unistd.h>
 
 #include <Configurations/Util.hpp>
+#include <QueryManager/EmbeddedWorkerQueryManager.hpp>
+#include <QueryManager/GRPCQueryManager.hpp>
+#include <QueryManager/QueryManager.hpp>
 #include <Util/Logger/LogLevel.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <Util/Logger/impl/NesLogger.hpp>
@@ -41,10 +45,13 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <fmt/ranges.h>
+#include <grpcpp/create_channel.h>
+#include <grpcpp/security/credentials.h>
 #include <nlohmann/json.hpp> ///NOLINT(misc-include-cleaner)
 #include <ErrorHandling.hpp>
 #include <QuerySubmitter.hpp>
 #include <SingleNodeWorkerConfiguration.hpp>
+#include <SystestBinder.hpp>
 #include <SystestConfiguration.hpp>
 #include <SystestRunner.hpp>
 #include <SystestState.hpp>
@@ -55,7 +62,7 @@ using namespace std::literals;
 
 namespace NES
 {
-Configuration::SystestConfiguration readConfiguration(int argc, const char** argv)
+SystestConfiguration readConfiguration(int argc, const char** argv)
 {
     using argparse::ArgumentParser;
     ArgumentParser program("systest");
@@ -71,6 +78,9 @@ Configuration::SystestConfiguration readConfiguration(int argc, const char** arg
 
     /// list queries
     program.add_argument("-l", "--list").flag().help("list all discovered tests and test groups");
+
+    /// log path
+    program.add_argument("--log-path").help("set the logging path");
 
     /// debug mode
     program.add_argument("-d", "--debug").flag().help("dump the query plan and enable debug logging");
@@ -129,7 +139,7 @@ Configuration::SystestConfiguration readConfiguration(int argc, const char** arg
         std::exit(1); ///NOLINT(concurrency-mt-unsafe)
     }
 
-    auto config = Configuration::SystestConfiguration();
+    auto config = SystestConfiguration();
 
     if (program.is_used("-b"))
     {
@@ -137,7 +147,7 @@ Configuration::SystestConfiguration readConfiguration(int argc, const char** arg
         if ((program.is_used("-n") || program.is_used("--numberConcurrentQueries"))
             && (program.get<int>("--numberConcurrentQueries") > 1 || program.get<int>("-n") > 1))
         {
-            NES_FATAL_ERROR("Cannot run systest in Benchmarking mode with concurrency enabled!");
+            NES_ERROR("Cannot run systest in Benchmarking mode with concurrency enabled!");
             std::cout << "Cannot run systest in benchmarking mode with concurrency enabled!\n";
             exit(-1); ///NOLINT(concurrency-mt-unsafe)
         }
@@ -153,6 +163,11 @@ Configuration::SystestConfiguration readConfiguration(int argc, const char** arg
     if (program.is_used("--data"))
     {
         config.testDataDir = program.get<std::string>("--data");
+    }
+
+    if (program.is_used("--log-path"))
+    {
+        config.logFilePath = program.get<std::string>("--log-path");
     }
 
     if (program.is_used("--testLocation"))
@@ -203,8 +218,54 @@ Configuration::SystestConfiguration readConfiguration(int argc, const char** arg
         }
         else
         {
-            std::cerr << testFilePath << " is not a file or directory.\n";
-            std::exit(1); ///NOLINT(concurrency-mt-unsafe)
+            /// The given path is neither a path to a directory nor a path to a file.
+            /// We now check if this name belongs to a test file in nes-systests by searching through the nes-systests directory manually.
+            const auto findAllInTree
+                = [](const std::filesystem::path& wanted, const std::filesystem::path& root) -> std::vector<std::filesystem::path>
+            {
+                std::vector<std::filesystem::path> hits;
+                for (const auto& entry :
+                     std::filesystem::recursive_directory_iterator(root, std::filesystem::directory_options::skip_permission_denied))
+                {
+                    if (entry.is_regular_file() && entry.path().filename() == wanted)
+                    {
+                        hits.emplace_back(entry.path());
+                    }
+                }
+                return hits;
+            };
+
+            const auto resolveTestArg
+                = [&](const std::filesystem::path& arg, const std::filesystem::path& discoverRoot) -> std::vector<std::filesystem::path>
+            {
+                if (exists(arg))
+                {
+                    return {canonical(arg)};
+                }
+                return findAllInTree(arg.filename(), discoverRoot);
+            };
+
+            const std::filesystem::path discoverRoot = config.testsDiscoverDir.getValue();
+            const auto matches = resolveTestArg(testFilePath, discoverRoot);
+
+            switch (matches.size())
+            {
+                case 0:
+                    std::cerr << '\'' << testFilePath << "' could not be located under '" << discoverRoot << "'.\n";
+                    std::exit(EXIT_FAILURE);
+
+                case 1:
+                    config.directlySpecifiedTestFiles = matches.front();
+                    break;
+
+                default:
+                    std::cerr << "Ambiguous test name '" << testFilePath << "':\n";
+                    for (const auto& p : matches)
+                    {
+                        std::cerr << "  • " << p << '\n';
+                    }
+                    std::exit(EXIT_FAILURE); /// NOLINT(concurrency-mt-unsafe)
+            }
         }
     }
 
@@ -279,8 +340,7 @@ Configuration::SystestConfiguration readConfiguration(int argc, const char** arg
             argv.push_back(const_cast<char*>(arg.c_str()));
         }
 
-        config.singleNodeWorkerConfig
-            = NES::Configurations::loadConfiguration<Configuration::SingleNodeWorkerConfiguration>(argc, argv.data());
+        config.singleNodeWorkerConfig = loadConfiguration<SingleNodeWorkerConfiguration>(argc, argv.data());
     }
 
     /// Setup Working Directory
@@ -307,14 +367,13 @@ Configuration::SystestConfiguration readConfiguration(int argc, const char** arg
     return config;
 }
 
-void runEndlessMode(
-    std::vector<Systest::SystestQuery> queries, Configuration::SystestConfiguration& config, const Systest::QueryResultMap& queryResultMap)
+void runEndlessMode(std::vector<Systest::SystestQuery> queries, SystestConfiguration& config)
 {
     std::cout << std::format("Running endlessly over a total of {} queries.", queries.size()) << '\n';
 
     const auto numberConcurrentQueries = config.numberConcurrentQueries.getValue();
 
-    auto singleNodeWorkerConfiguration = config.singleNodeWorkerConfig.value_or(Configuration::SingleNodeWorkerConfiguration{});
+    auto singleNodeWorkerConfiguration = config.singleNodeWorkerConfig.value_or(SingleNodeWorkerConfiguration{});
     if (not config.workerConfig.getValue().empty())
     {
         singleNodeWorkerConfiguration.workerConfiguration.overwriteConfigWithYAMLFileInput(config.workerConfig);
@@ -330,23 +389,28 @@ void runEndlessMode(
     const auto grpcURI = config.grpcAddressUri.getValue();
     const auto runRemote = not grpcURI.empty();
 
-    auto submitter = [&]() -> std::unique_ptr<Systest::QuerySubmitter>
+    auto queryManager = [&]() -> std::unique_ptr<QueryManager>
     {
         if (runRemote)
         {
-            return std::make_unique<Systest::RemoteWorkerQuerySubmitter>(grpcURI);
+            return std::make_unique<GRPCQueryManager>(grpc::CreateChannel(grpcURI, grpc::InsecureChannelCredentials()));
         }
-        return std::make_unique<Systest::LocalWorkerQuerySubmitter>(singleNodeWorkerConfiguration);
+        return std::make_unique<EmbeddedWorkerQueryManager>(singleNodeWorkerConfiguration);
     }();
+    Systest::QuerySubmitter querySubmitter(std::move(queryManager));
 
     while (true)
     {
         std::ranges::shuffle(queries, rng);
-        const auto failedQueries = runQueries(queries, numberConcurrentQueries, *submitter, queryResultMap);
+        const auto failedQueries = runQueries(queries, numberConcurrentQueries, querySubmitter, Systest::discardPerformanceMessage);
         if (!failedQueries.empty())
         {
             std::stringstream outputMessage;
-            outputMessage << fmt::format("The following queries failed:\n[Name, Command]\n- {}", fmt::join(failedQueries, "\n- "));
+            outputMessage << fmt::format(
+                "The following queries ({} of {}) failed:\n[Name, Command]\n- {}",
+                failedQueries.size(),
+                queries.size(),
+                fmt::join(failedQueries, "\n- "));
             NES_ERROR("{}", outputMessage.str());
             std::cout << '\n' << outputMessage.str() << '\n';
             std::exit(1); ///NOLINT(concurrency-mt-unsafe)
@@ -383,42 +447,48 @@ void createSymlink(const std::filesystem::path& absoluteLogPath, const std::file
     }
 }
 
-void setupLogging()
+void setupLogging(const SystestConfiguration& config)
 {
+    std::filesystem::path absoluteLogPath;
     const std::filesystem::path logDir = std::filesystem::path(PATH_TO_BINARY_DIR) / "nes-systests";
 
-    std::error_code errorCode;
-    std::filesystem::create_directories(logDir, errorCode);
-    if (errorCode)
+    if (config.logFilePath.getValue().empty())
     {
-        std::cerr << "Error creating log directory during logger setup: " << errorCode.message() << "\n";
-        return;
-    }
+        std::error_code errorCode;
+        create_directories(logDir, errorCode);
+        if (errorCode)
+        {
+            std::cerr << "Error creating log directory during logger setup: " << errorCode.message() << "\n";
+            return;
+        }
 
-    const auto now = std::chrono::system_clock::now();
-    const auto pid = ::getpid();
-    const auto logFileName = fmt::format("SystemTest_{:%Y-%m-%d_%H-%M-%S}_{:d}.log", now, pid);
+        const auto now = std::chrono::system_clock::now();
+        const auto pid = ::getpid();
+        std::string logFileName = fmt::format("SystemTest_{:%Y-%m-%d_%H-%M-%S}_{:d}.log", now, pid);
 
-    const auto absoluteLogPath = logDir / logFileName;
-    NES::Logger::setupLogging(absoluteLogPath.string(), NES::LogLevel::LOG_DEBUG, false);
-    if (const char* hostLoggingPath = std::getenv("HOST_LOGGING_PATH"))
-    {
-        /// Set the correct logging path when using docker
-        fmt::println(std::cout, "Find the log at: file://{}/nes-systests/{}", std::filesystem::path(hostLoggingPath).string(), logFileName);
+        absoluteLogPath = logDir / logFileName;
     }
     else
     {
-        /// Set the correct logging path without docker
-        fmt::println(std::cout, "Find the log at: file://{}/nes-systests/{}", PATH_TO_BINARY_DIR, logFileName);
+        absoluteLogPath = config.logFilePath.getValue();
+        const std::filesystem::path parentDir = absoluteLogPath.parent_path();
+        if (not exists(parentDir) or not is_directory(parentDir))
+        {
+            fmt::println(std::cerr, "Error creating log file during logger setup: directory does not exist: file://{}", parentDir.string());
+            std::exit(1); /// NOLINT(concurrency-mt-unsafe)
+        }
     }
+
+    fmt::println(std::cout, "Find the log at: file://{}", absoluteLogPath.string());
+    Logger::setupLogging(absoluteLogPath.string(), LogLevel::LOG_DEBUG, false);
 
     const auto symlinkPath = logDir / "latest.log";
     createSymlink(absoluteLogPath, symlinkPath);
 }
 
-SystestExecutorResult executeSystests(Configuration::SystestConfiguration config)
+SystestExecutorResult executeSystests(SystestConfiguration config)
 {
-    setupLogging();
+    setupLogging(config);
 
     CPPTRACE_TRY
     {
@@ -426,22 +496,28 @@ SystestExecutorResult executeSystests(Configuration::SystestConfiguration config
         std::filesystem::remove_all(config.workingDir.getValue());
         std::filesystem::create_directory(config.workingDir.getValue());
 
-        Systest::SystestStarterGlobals systestStarterGlobals{
-            config.workingDir.getValue(), config.testDataDir.getValue(), config.configDir.getValue(), Systest::loadTestFileMap(config)};
-        auto queries = loadQueries(systestStarterGlobals);
-        if (queries.empty())
+        auto discoveredTestFiles = Systest::loadTestFileMap(config);
+        Systest::SystestBinder binder{config.workingDir.getValue(), config.testDataDir.getValue(), config.configDir.getValue()};
+        auto [queries, loadedFiles] = binder.loadOptimizeQueries(discoveredTestFiles);
+        if (loadedFiles != discoveredTestFiles.size())
         {
-            std::stringstream outputMessage;
-            outputMessage << "No queries were run.";
             return {
                 .returnType = SystestExecutorResult::ReturnType::FAILED,
-                .outputMessage = outputMessage.str(),
+                .outputMessage = "Could not load all test files. Terminating.",
+                .errorCode = ErrorCode::TestException};
+        }
+
+        if (queries.empty())
+        {
+            return {
+                .returnType = SystestExecutorResult::ReturnType::FAILED,
+                .outputMessage = "No queries were run.",
                 .errorCode = ErrorCode::TestException};
         }
 
         if (config.endlessMode)
         {
-            runEndlessMode(queries, config, systestStarterGlobals.getQueryResultMap());
+            runEndlessMode(queries, config);
             return {
                 .returnType = SystestExecutorResult::ReturnType::FAILED,
                 .outputMessage = "Endless mode should not stop.",
@@ -457,11 +533,11 @@ SystestExecutorResult executeSystests(Configuration::SystestConfiguration config
         std::vector<Systest::RunningQuery> failedQueries;
         if (const auto grpcURI = config.grpcAddressUri.getValue(); not grpcURI.empty())
         {
-            failedQueries = runQueriesAtRemoteWorker(queries, numberConcurrentQueries, grpcURI, systestStarterGlobals.getQueryResultMap());
+            failedQueries = runQueriesAtRemoteWorker(queries, numberConcurrentQueries, grpcURI);
         }
         else
         {
-            auto singleNodeWorkerConfiguration = config.singleNodeWorkerConfig.value_or(Configuration::SingleNodeWorkerConfiguration{});
+            auto singleNodeWorkerConfiguration = config.singleNodeWorkerConfig.value_or(SingleNodeWorkerConfiguration{});
             if (not config.workerConfig.getValue().empty())
             {
                 singleNodeWorkerConfiguration.workerConfiguration.overwriteConfigWithYAMLFileInput(config.workerConfig);
@@ -473,8 +549,7 @@ SystestExecutorResult executeSystests(Configuration::SystestConfiguration config
             if (config.benchmark)
             {
                 nlohmann::json benchmarkResults;
-                failedQueries = Systest::runQueriesAndBenchmark(
-                    queries, singleNodeWorkerConfiguration, benchmarkResults, systestStarterGlobals.getQueryResultMap());
+                failedQueries = Systest::runQueriesAndBenchmark(queries, singleNodeWorkerConfiguration, benchmarkResults);
                 std::cout << benchmarkResults.dump(4);
                 const auto outputPath = std::filesystem::path(config.workingDir.getValue()) / "BenchmarkResults.json";
                 std::ofstream outputFile(outputPath);
@@ -483,8 +558,7 @@ SystestExecutorResult executeSystests(Configuration::SystestConfiguration config
             }
             else
             {
-                failedQueries = runQueriesAtLocalWorker(
-                    queries, numberConcurrentQueries, singleNodeWorkerConfiguration, systestStarterGlobals.getQueryResultMap());
+                failedQueries = runQueriesAtLocalWorker(queries, numberConcurrentQueries, singleNodeWorkerConfiguration);
             }
         }
         if (not failedQueries.empty())

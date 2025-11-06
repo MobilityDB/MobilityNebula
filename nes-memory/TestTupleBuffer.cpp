@@ -12,11 +12,15 @@
     limitations under the License.
 */
 
+#include <include/Util/TestTupleBuffer.hpp>
+
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <memory>
 #include <ostream>
+#include <span>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -24,6 +28,7 @@
 #include <variant>
 #include <vector>
 
+#include <span>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/Schema.hpp>
 #include <MemoryLayout/ColumnLayout.hpp>
@@ -33,23 +38,24 @@
 #include <Util/Logger/Logger.hpp>
 #include <Util/Strings.hpp>
 #include <include/Runtime/TupleBuffer.hpp>
-#include <include/Util/TestTupleBuffer.hpp>
 #include <magic_enum/magic_enum.hpp>
 #include <ErrorHandling.hpp>
 
-namespace NES::Memory::MemoryLayouts
+namespace NES
 {
 
-DynamicField::DynamicField(const uint8_t* address, DataType physicalType) : address(address), physicalType(std::move(physicalType))
+DynamicField::DynamicField(std::span<const uint8_t> memory, DataType physicalType) : memory(memory), physicalType(std::move(physicalType))
 {
 }
 
 DynamicField DynamicTuple::operator[](const std::size_t fieldIndex) const
 {
-    auto* bufferBasePointer = buffer.getBuffer<uint8_t>();
+    const auto* bufferBasePointer = buffer.getAvailableMemoryArea<const uint8_t>().data();
     const auto offset = memoryLayout->getFieldOffset(tupleIndex, fieldIndex);
-    auto* basePointer = bufferBasePointer + offset;
-    return DynamicField{basePointer, memoryLayout->getPhysicalType(fieldIndex)};
+    const auto* basePointer = bufferBasePointer + offset;
+    return DynamicField{
+        std::span<const uint8_t>(basePointer, memoryLayout->getPhysicalType(fieldIndex).getSizeInBytes()),
+        memoryLayout->getPhysicalType(fieldIndex)};
 }
 
 DynamicField DynamicTuple::operator[](std::string fieldName) const
@@ -62,46 +68,36 @@ DynamicField DynamicTuple::operator[](std::string fieldName) const
     return this->operator[](memoryLayout->getFieldIndexFromName(fieldName).value());
 }
 
-DynamicTuple::DynamicTuple(const uint64_t tupleIndex, std::shared_ptr<MemoryLayout> memoryLayout, Memory::TupleBuffer buffer)
+DynamicTuple::DynamicTuple(const uint64_t tupleIndex, std::shared_ptr<MemoryLayout> memoryLayout, TupleBuffer buffer)
     : tupleIndex(tupleIndex), memoryLayout(std::move(memoryLayout)), buffer(std::move(buffer))
 {
 }
 
 void DynamicTuple::writeVarSized(
-    std::variant<const uint64_t, const std::string> field, std::string value, Memory::AbstractBufferProvider& bufferProvider)
+    std::variant<const uint64_t, const std::string> field, std::string_view value, AbstractBufferProvider& bufferProvider)
 {
-    const auto valueLength = value.length();
-    auto childBuffer = bufferProvider.getUnpooledBuffer(valueLength + sizeof(uint32_t));
-    if (childBuffer.has_value())
-    {
-        auto& childBufferVal = childBuffer.value();
-        *childBufferVal.getBuffer<uint32_t>() = valueLength;
-        std::memcpy(childBufferVal.getBuffer<char>() + sizeof(uint32_t), value.c_str(), valueLength);
-        auto index = buffer.storeChildBuffer(childBufferVal);
-        std::visit(
-            [this, index](const auto& key)
+    auto combinedIdxOffset
+        = MemoryLayout::writeVarSized<MemoryLayout::PREPEND_LENGTH_AS_UINT32>(buffer, bufferProvider, std::as_bytes(std::span{value}));
+    std::visit(
+        [this, combinedIdxOffset](const auto& key)
+        {
+            if constexpr (
+                std::is_convertible_v<std::decay_t<decltype(key)>, std::size_t>
+                || std::is_convertible_v<std::decay_t<decltype(key)>, std::string>)
             {
-                if constexpr (
-                    std::is_convertible_v<std::decay_t<decltype(key)>, std::size_t>
-                    || std::is_convertible_v<std::decay_t<decltype(key)>, std::string>)
-                {
-                    (*this)[key].write(index);
-                }
-                else
-                {
-                    PRECONDITION(
-                        false, "We expect either a uint64_t or a std::string to access a DynamicField, but got: {}", typeid(key).name());
-                }
-            },
-            field);
-    }
-    else
-    {
-        NES_ERROR("Could not store string {}", value);
-    }
+                *reinterpret_cast<uint64_t*>(const_cast<uint8_t*>((*this)[key].getMemory().data()))
+                    = combinedIdxOffset.getCombinedIdxOffset();
+            }
+            else
+            {
+                PRECONDITION(
+                    false, "We expect either a uint64_t or a std::string to access a DynamicField, but got: {}", typeid(key).name());
+            }
+        },
+        field);
 }
 
-std::string DynamicTuple::readVarSized(std::variant<const uint64_t, const std::string> field)
+std::string DynamicTuple::readVarSized(std::variant<const uint64_t, const std::string> field) const
 {
     return std::visit(
         [this](const auto& key)
@@ -110,8 +106,8 @@ std::string DynamicTuple::readVarSized(std::variant<const uint64_t, const std::s
                 std::is_convertible_v<std::decay_t<decltype(key)>, std::size_t>
                 || std::is_convertible_v<std::decay_t<decltype(key)>, std::string>)
             {
-                auto index = (*this)[key].template read<Memory::TupleBuffer::NestedTupleBufferKey>();
-                return readVarSizedData(this->buffer, index);
+                const VariableSizedAccess index{(*this)[key].template read<uint64_t>()};
+                return MemoryLayout::readVarSizedDataAsString(this->buffer, index);
             }
             else
             {
@@ -132,8 +128,7 @@ std::string DynamicTuple::toString(const Schema& schema) const
         DynamicField currentField = this->operator[](i);
         if (dataType.isType(DataType::Type::VARSIZED))
         {
-            const auto index = currentField.read<Memory::TupleBuffer::NestedTupleBufferKey>();
-            const auto string = readVarSizedData(buffer, index);
+            const auto string = readVarSized(i);
             ss << string << fieldEnding;
         }
         else if (dataType.isFloat())
@@ -178,9 +173,10 @@ bool DynamicTuple::operator==(const DynamicTuple& other) const
 
             if (field.dataType.isType(DataType::Type::VARSIZED))
             {
-                const auto thisString = readVarSizedData(buffer, thisDynamicField.template read<TupleBuffer::NestedTupleBufferKey>());
-                const auto otherString
-                    = readVarSizedData(other.buffer, otherDynamicField.template read<TupleBuffer::NestedTupleBufferKey>());
+                const VariableSizedAccess thisVarSizedAccess{thisDynamicField.template read<VariableSizedAccess::CombinedIndex>()};
+                const VariableSizedAccess otherVarSizedAccess{otherDynamicField.template read<VariableSizedAccess::CombinedIndex>()};
+                const auto thisString = MemoryLayout::readVarSizedDataAsString(buffer, thisVarSizedAccess);
+                const auto otherString = MemoryLayout::readVarSizedDataAsString(other.buffer, otherVarSizedAccess);
                 return thisString == otherString;
             }
             return thisDynamicField == otherDynamicField;
@@ -189,14 +185,14 @@ bool DynamicTuple::operator==(const DynamicTuple& other) const
 
 std::string DynamicField::toString() const
 {
-    return this->physicalType.formattedBytesToString(this->address);
+    return this->physicalType.formattedBytesToString(this->memory.data());
 }
 
 bool DynamicField::operator==(const DynamicField& rhs) const
 {
     PRECONDITION(physicalType == rhs.physicalType, "Physical types have to be the same but are {} and {}", physicalType, rhs.physicalType);
 
-    return std::memcmp(address, rhs.address, physicalType.getSizeInBytes()) == 0;
+    return std::ranges::equal(memory, rhs.memory);
 };
 
 bool DynamicField::operator!=(const DynamicField& rhs) const
@@ -209,9 +205,9 @@ const DataType& DynamicField::getPhysicalType() const
     return physicalType;
 }
 
-const uint8_t* DynamicField::getAddressPointer() const
+std::span<const uint8_t> DynamicField::getMemory() const
 {
-    return address;
+    return memory;
 }
 
 uint64_t TestTupleBuffer::getCapacity() const
@@ -238,7 +234,7 @@ DynamicTuple TestTupleBuffer::operator[](std::size_t tupleIndex) const
     return {tupleIndex, memoryLayout, buffer};
 }
 
-TestTupleBuffer::TestTupleBuffer(const std::shared_ptr<MemoryLayout>& memoryLayout, const Memory::TupleBuffer& buffer)
+TestTupleBuffer::TestTupleBuffer(const std::shared_ptr<MemoryLayout>& memoryLayout, const TupleBuffer& buffer)
     : memoryLayout(memoryLayout), buffer(buffer)
 {
     PRECONDITION(
@@ -248,10 +244,11 @@ TestTupleBuffer::TestTupleBuffer(const std::shared_ptr<MemoryLayout>& memoryLayo
         buffer.getBufferSize());
 }
 
-Memory::TupleBuffer TestTupleBuffer::getBuffer()
+TupleBuffer TestTupleBuffer::getBuffer()
 {
     return buffer;
 }
+
 std::ostream& operator<<(std::ostream& os, const TestTupleBuffer& buffer)
 {
     const auto str = buffer.toString(buffer.memoryLayout->getSchema());
@@ -263,6 +260,7 @@ TestTupleBuffer::TupleIterator TestTupleBuffer::begin() const
 {
     return TupleIterator(*this);
 }
+
 TestTupleBuffer::TupleIterator TestTupleBuffer::end() const
 {
     return TupleIterator(*this, getNumberOfTuples());
@@ -370,7 +368,7 @@ const MemoryLayout& TestTupleBuffer::getMemoryLayout() const
     return *memoryLayout;
 }
 
-TestTupleBuffer TestTupleBuffer::createTestTupleBuffer(const Memory::TupleBuffer& buffer, const Schema& schema)
+TestTupleBuffer TestTupleBuffer::createTestTupleBuffer(const TupleBuffer& buffer, const Schema& schema)
 {
     if (schema.memoryLayoutType == Schema::MemoryLayoutType::ROW_LAYOUT)
     {

@@ -27,14 +27,12 @@ namespace NES
 {
 
 using LogicalOperatorRegistryReturnType = LogicalOperator;
+
 struct LogicalOperatorRegistryArguments
 {
-    std::optional<OperatorId> id;
-    std::vector<std::vector<OriginId>> inputOriginIds;
-    std::vector<OriginId> outputOriginIds;
     std::vector<Schema> inputSchemas;
     Schema outputSchema;
-    NES::Configurations::DescriptorConfig::Config config;
+    DescriptorConfig::Config config;
 };
 
 class LogicalOperatorRegistry

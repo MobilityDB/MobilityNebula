@@ -14,8 +14,10 @@
 
 #include <Sources/SourceDescriptor.hpp>
 
+#include <ostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <Configurations/Descriptor.hpp>
@@ -44,7 +46,7 @@ ParserConfig ParserConfig::create(std::unordered_map<std::string, std::string> c
     {
         throw InvalidConfigParameter("Parser configuration must contain: type");
     }
-    if (const auto tupleDelimiter = configMap.find("tupleDelimiter"); tupleDelimiter != configMap.end())
+    if (const auto tupleDelimiter = configMap.find("tuple_delimiter"); tupleDelimiter != configMap.end())
     {
         /// TODO #651: Add full support for tuple delimiters that are larger than one byte.
         PRECONDITION(tupleDelimiter->second.size() == 1, "We currently do not support tuple delimiters larger than one byte.");
@@ -52,36 +54,38 @@ ParserConfig ParserConfig::create(std::unordered_map<std::string, std::string> c
     }
     else
     {
-        NES_DEBUG("Parser configuration did not contain: tupleDelimiter, using default: \\n");
+        NES_DEBUG("Parser configuration did not contain: tuple_delimiter, using default: \\n");
         created.tupleDelimiter = '\n';
     }
-    if (const auto fieldDelimiter = configMap.find("fieldDelimiter"); fieldDelimiter != configMap.end())
+    if (const auto fieldDelimiter = configMap.find("field_delimiter"); fieldDelimiter != configMap.end())
     {
         created.fieldDelimiter = fieldDelimiter->second;
     }
     else
     {
-        NES_DEBUG("Parser configuration did not contain: fieldDelimiter, using default: ,");
+        NES_DEBUG("Parser configuration did not contain: field_delimiter, using default: ,");
         created.fieldDelimiter = ",";
     }
     return created;
 }
 
+std::ostream& operator<<(std::ostream& os, const ParserConfig& obj)
+{
+    return os << fmt::format(
+               "ParserConfig(type: {}, tupleDelimiter: {}, fieldDelimiter: {})", obj.parserType, obj.tupleDelimiter, obj.fieldDelimiter);
+}
+
 SourceDescriptor::SourceDescriptor(
-    LogicalSource logicalSource,
     const PhysicalSourceId physicalSourceId,
-    const WorkerId workerId,
-    std::string sourceType,
-    const int numberOfBuffersInLocalPool,
-    Configurations::DescriptorConfig::Config&& config,
+    LogicalSource logicalSource,
+    std::string_view sourceType,
+    DescriptorConfig::Config config,
     ParserConfig parserConfig)
     : Descriptor(std::move(config))
     , physicalSourceId(physicalSourceId)
     , logicalSource(std::move(logicalSource))
-    , workerId(workerId)
     , sourceType(std::move(sourceType))
     , parserConfig(std::move(parserConfig))
-    , numberOfBuffersInLocalPool(numberOfBuffersInLocalPool)
 {
 }
 
@@ -100,19 +104,9 @@ ParserConfig SourceDescriptor::getParserConfig() const
     return parserConfig;
 }
 
-WorkerId SourceDescriptor::getWorkerId() const
-{
-    return workerId;
-}
-
 PhysicalSourceId SourceDescriptor::getPhysicalSourceId() const
 {
     return physicalSourceId;
-}
-
-int32_t SourceDescriptor::getBuffersInLocalPool() const
-{
-    return numberOfBuffersInLocalPool;
 }
 
 std::weak_ordering operator<=>(const SourceDescriptor& lhs, const SourceDescriptor& rhs)
@@ -125,7 +119,7 @@ std::string SourceDescriptor::explain(ExplainVerbosity verbosity) const
     std::stringstream stringstream;
     if (verbosity == ExplainVerbosity::Debug)
     {
-        stringstream << this;
+        stringstream << *this;
     }
     else if (verbosity == ExplainVerbosity::Short)
     {
@@ -133,10 +127,13 @@ std::string SourceDescriptor::explain(ExplainVerbosity verbosity) const
     }
     return stringstream.str();
 }
+
 std::ostream& operator<<(std::ostream& out, const SourceDescriptor& descriptor)
 {
     return out << fmt::format(
-               "SourceDescriptor(sourceType: {}, logicalSource:{}, parserConfig: {{type: {}, tupleDelimiter: {}, stringDelimiter: {} }})",
+               "SourceDescriptor(sourceId: {}, sourceType: {}, logicalSource:{}, parserConfig: {{type: {}, tupleDelimiter: {}, "
+               "stringDelimiter: {} }})",
+               descriptor.getPhysicalSourceId(),
                descriptor.getSourceType(),
                descriptor.getLogicalSource(),
                descriptor.getParserConfig().parserType,
@@ -150,10 +147,11 @@ SerializableSourceDescriptor SourceDescriptor::serialize() const
     SchemaSerializationUtil::serializeSchema(*logicalSource.getSchema(), serializableSourceDescriptor.mutable_sourceschema());
     serializableSourceDescriptor.set_logicalsourcename(logicalSource.getLogicalSourceName());
     serializableSourceDescriptor.set_sourcetype(sourceType);
-    serializableSourceDescriptor.set_numberofbuffersinlocalpool(numberOfBuffersInLocalPool);
+
+    serializableSourceDescriptor.set_physicalsourceid(physicalSourceId.getRawValue());
 
     /// Serialize parser config.
-    auto* const serializedParserConfig = NES::SerializableParserConfig().New();
+    auto* const serializedParserConfig = SerializableParserConfig().New();
     serializedParserConfig->set_type(parserConfig.parserType);
     serializedParserConfig->set_tupledelimiter(parserConfig.tupleDelimiter);
     serializedParserConfig->set_fielddelimiter(parserConfig.fieldDelimiter);

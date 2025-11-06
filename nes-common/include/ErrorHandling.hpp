@@ -20,10 +20,13 @@
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <Util/Logger/Formatter.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <Util/Logger/impl/NesLogger.hpp> /// NOLINT(misc-include-cleaner) used in macro for NES::Logger::{getInstance(), shutdown()}
+#include <cpptrace/basic.hpp>
 #include <cpptrace/cpptrace.hpp>
+#include <cpptrace/exceptions.hpp>
 #include <fmt/core.h>
 #include <fmt/format.h>
 
@@ -37,11 +40,13 @@ namespace ErrorCodeDetail
 {
 enum ErrorCode
 {
+
 #define EXCEPTION(name, code, msg) name = (code),
 #include <ExceptionDefinitions.inc>
 #undef EXCEPTION
 };
 }
+
 using ErrorCode = ErrorCodeDetail::ErrorCode;
 
 /// This class is our central class for exceptions. It is used to throw exceptions with a message, a code, a location and a stacktrace.
@@ -51,9 +56,8 @@ class Exception final : public cpptrace::lazy_exception
 public:
     Exception(std::string message, uint64_t code);
 
-    /// copy-constructor is unsaved noexcept because of std::string copy
-    Exception(const Exception&) noexcept = default;
-    Exception& operator=(const Exception&) noexcept = default;
+    Exception(std::string message, ErrorCode errorCode, cpptrace::raw_trace&& trace)
+        : cpptrace::lazy_exception(std::move(trace)), message(std::move(message)), errorCode(errorCode) { };
 
     std::string& what() noexcept;
     [[nodiscard]] const char* what() const noexcept override;
@@ -66,7 +70,6 @@ private:
     std::string message;
     ErrorCode errorCode;
 };
-
 
 /// This macro is used to define exceptions in <ExceptionDefinitions.hpp>
 /// @param name The name of the exception
@@ -101,11 +104,12 @@ private:
     /// Note:
     /// - it is not possible to use positional args since formatString is combined with the fmt string containing {}
     /// - \u001B[0m is the ANSI escape code for "color reset"
-    /// - we call NES::Logger::getInstance()->shutdown() to ensure that async logger completely flushes. c.f. https://github.com/gabime/spdlog/wiki/7.-Flush-policy
+    /// - we call Logger::getInstance()->shutdown() to ensure that async logger completely flushes. c.f. https://github.com/gabime/spdlog/wiki/7.-Flush-policy
 
     /// This documents (and checks) requirements for calling a function. If violated, the function was called incorrectly.
     /// @param condition must be true to correctly call function guarded by precondition
     /// @param formatString can contain `{}` to reference varargs. Must not contain positional reference like `{0}`.
+    /// TODO #1035: remove namespace NES::Logger
     #define PRECONDITION(condition, formatString, ...) \
         do \
         { \
@@ -113,7 +117,7 @@ private:
             { \
                 auto trace = cpptrace::generate_trace().to_string(true); \
                 NES_ERROR("Precondition violated: ({}): " formatString "\u001B[0m\n\n{}", #condition __VA_OPT__(, ) __VA_ARGS__, trace); \
-                if (auto logger = NES::Logger::getInstance()) \
+                if (auto logger = ::NES::Logger::getInstance()) \
                 { \
                     logger->shutdown(); \
                 } \
@@ -124,6 +128,7 @@ private:
     /// This documents what is assumed to be true at this particular point in a program. If violated, there is a misunderstanding and maybe a bug.
     /// @param condition is assumed to be true
     /// @param formatString can contain `{}` to reference varargs. Must not contain positional referencen like `{0}`.
+    /// TODO #1035: remove namespace NES::Logger
     #define INVARIANT(condition, formatString, ...) \
         do \
         { \
@@ -131,7 +136,7 @@ private:
             { \
                 auto trace = cpptrace::generate_trace().to_string(true); \
                 NES_ERROR("Invariant violated: ({}): " formatString "\u001B[0m\n\n{}", #condition __VA_OPT__(, ) __VA_ARGS__, trace); \
-                if (auto logger = NES::Logger::getInstance()) \
+                if (auto logger = ::NES::Logger::getInstance()) \
                 { \
                     logger->shutdown(); \
                 } \
@@ -145,8 +150,10 @@ private:
 /// @warning This function should be used only in a catch block.
 void tryLogCurrentException();
 
-/// The wrapped exception gets the error code 9999.
+/// Wrapped as UnknownException
 Exception wrapExternalException();
+/// Wrapped as UnknownException
+Exception wrapExternalException(std::string contextMsg);
 
 /// @brief This function is used to get the current exception code.
 /// @warning This function should be used only in a catch block.

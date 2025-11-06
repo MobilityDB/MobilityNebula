@@ -12,13 +12,14 @@
     limitations under the License.
 */
 
+#include <Operators/Windows/Aggregations/SumAggregationLogicalFunction.hpp>
+
 #include <memory>
 #include <string>
 #include <string_view>
 #include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/SumAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <AggregationLogicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
@@ -30,6 +31,7 @@ SumAggregationLogicalFunction::SumAggregationLogicalFunction(const FieldAccessLo
     : WindowAggregationLogicalFunction(field.getDataType(), field.getDataType(), field.getDataType(), field)
 {
 }
+
 SumAggregationLogicalFunction::SumAggregationLogicalFunction(
     const FieldAccessLogicalFunction& field, const FieldAccessLogicalFunction& asField)
     : WindowAggregationLogicalFunction(field.getDataType(), field.getDataType(), field.getDataType(), field, asField)
@@ -41,22 +43,14 @@ std::string_view SumAggregationLogicalFunction::getName() const noexcept
     return NAME;
 }
 
-std::shared_ptr<WindowAggregationLogicalFunction>
-SumAggregationLogicalFunction::create(const FieldAccessLogicalFunction& onField, const FieldAccessLogicalFunction& asField)
-{
-    return std::make_shared<SumAggregationLogicalFunction>(onField, asField);
-}
-
-std::shared_ptr<WindowAggregationLogicalFunction> SumAggregationLogicalFunction::create(const LogicalFunction& onField)
-{
-    return std::make_shared<SumAggregationLogicalFunction>(onField.get<FieldAccessLogicalFunction>());
-}
-
 void SumAggregationLogicalFunction::inferStamp(const Schema& schema)
 {
     /// We first infer the dataType of the input field and set the output dataType as the same.
     onField = onField.withInferredDataType(schema).get<FieldAccessLogicalFunction>();
-    INVARIANT(onField.getDataType().isNumeric(), "aggregations on non numeric fields is not supported, but got {}", onField.getDataType());
+    if (not onField.getDataType().isNumeric())
+    {
+        throw CannotDeserialize("aggregations on non numeric fields is not supported, but got {}", onField.getDataType());
+    }
 
     ///Set fully qualified name for the as Field
     const auto onFieldName = onField.getFieldName();
@@ -78,9 +72,9 @@ void SumAggregationLogicalFunction::inferStamp(const Schema& schema)
     asField = asField.withDataType(finalAggregateStamp).get<FieldAccessLogicalFunction>();
 }
 
-NES::SerializableAggregationFunction SumAggregationLogicalFunction::serialize() const
+SerializableAggregationFunction SumAggregationLogicalFunction::serialize() const
 {
-    NES::SerializableAggregationFunction serializedAggregationFunction;
+    SerializableAggregationFunction serializedAggregationFunction;
     serializedAggregationFunction.set_type(NAME);
 
     auto onFieldFuc = SerializableFunction();
@@ -97,8 +91,10 @@ NES::SerializableAggregationFunction SumAggregationLogicalFunction::serialize() 
 AggregationLogicalFunctionRegistryReturnType
 AggregationLogicalFunctionGeneratedRegistrar::RegisterSumAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
 {
-    PRECONDITION(
-        arguments.fields.size() == 2, "SumAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
-    return SumAggregationLogicalFunction::create(arguments.fields[0], arguments.fields[1]);
+    if (arguments.fields.size() != 2)
+    {
+        throw CannotDeserialize("SumAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
+    }
+    return std::make_shared<SumAggregationLogicalFunction>(arguments.fields[0], arguments.fields[1]);
 }
 }

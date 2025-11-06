@@ -15,7 +15,6 @@
 #pragma once
 
 #include <cstdint>
-#include <memory>
 #include <utility>
 #include <vector>
 #include <DataTypes/DataType.hpp>
@@ -26,7 +25,7 @@
 #include <Runtime/AbstractBufferProvider.hpp>
 #include <val_concepts.hpp>
 
-namespace NES::Nautilus::Interface::MemoryProvider
+namespace NES::Nautilus::Interface::BufferRef
 {
 
 /// ChainedEntryMemoryProvider uses it to store the offsets for the keys and values of the ChainedHashMapEntry
@@ -45,7 +44,7 @@ public:
 
     /// We need to create the fields for the keys and values here, as we know here how the fields and the values are stored in the ChainedHashMapEntry.
     /// We can use here "normal" C++ values, as only the C++ runtime MUST call this method
-    static std::pair<std::vector<MemoryProvider::FieldOffsets>, std::vector<MemoryProvider::FieldOffsets>> createFieldOffsets(
+    static std::pair<std::vector<BufferRef::FieldOffsets>, std::vector<BufferRef::FieldOffsets>> createFieldOffsets(
         const Schema& schema,
         const std::vector<Record::RecordFieldIdentifier>& fieldNameKeys,
         const std::vector<Record::RecordFieldIdentifier>& fieldNameValues);
@@ -57,12 +56,12 @@ public:
     void writeRecord(
         const nautilus::val<ChainedHashMapEntry*>& entryRef,
         const nautilus::val<ChainedHashMap*>& hashMapRef,
-        const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider,
+        const nautilus::val<AbstractBufferProvider*>& bufferProvider,
         const Record& record) const;
     void writeEntryRef(
         const nautilus::val<ChainedHashMapEntry*>& entryRef,
         const nautilus::val<ChainedHashMap*>& hashMapRef,
-        const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider,
+        const nautilus::val<AbstractBufferProvider*>& bufferProvider,
         const nautilus::val<ChainedHashMapEntry*>& otherEntryRef) const;
 
     [[nodiscard]] std::vector<Record::RecordFieldIdentifier> getAllFieldIdentifiers() const;

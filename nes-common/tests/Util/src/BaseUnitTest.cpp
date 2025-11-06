@@ -11,6 +11,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+
+#include <BaseUnitTest.hpp>
+
 #include <chrono>
 #include <exception>
 #include <future>
@@ -19,8 +22,8 @@
 #include <utility>
 #include <Util/Logger/Logger.hpp>
 #include <Util/Logger/impl/NesLogger.hpp>
+#include <cpptrace/from_current.hpp>
 #include <gtest/gtest.h>
-#include <BaseUnitTest.hpp>
 
 namespace NES
 {
@@ -80,17 +83,19 @@ void TestWaitingHelper::startWaitingThread(std::string testName)
             switch (future.wait_for(std::chrono::minutes(WAIT_TIME_SETUP)))
             {
                 case std::future_status::ready: {
-                    try
+                    CPPTRACE_TRY
                     {
                         auto res = future.get();
                         if (!res)
                         {
-                            NES_FATAL_ERROR("Got error in test [{}]", testName);
+                            NES_ERROR("Got error in test [{}]", testName);
+                            FAIL();
                         }
                     }
-                    catch (const std::exception& exception)
+                    CPPTRACE_CATCH(const std::exception& exception)
                     {
-                        NES_FATAL_ERROR("Got exception in test [{}]: {}", testName, exception.what());
+                        const auto& trace = cpptrace::from_current_exception();
+                        NES_ERROR("Got exception in test [{}]: {}\n{}", testName, exception.what(), trace.to_string());
                         FAIL();
                     }
                     break;

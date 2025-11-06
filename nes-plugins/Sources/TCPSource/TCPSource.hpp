@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include <algorithm>
 #include <array>
 #include <chrono>
 #include <cstddef>
@@ -25,7 +24,6 @@
 #include <stop_token>
 #include <string>
 #include <string_view>
-#include <cctype>
 #include <unordered_map>
 #include <netdb.h>
 #include <Configurations/Descriptor.hpp>
@@ -38,99 +36,23 @@
 #include <sys/socket.h> /// For socket functions
 #include <sys/types.h>
 
-namespace NES::Sources
+namespace NES
 {
-
-class TCPSource : public Source
-{
-    constexpr static ssize_t INVALID_RECEIVED_BUFFER_SIZE = -1;
-    /// A return value of '0' means an EoF in the context of a read(socket..) (https://man.archlinux.org/man/core/man-pages/read.2.en)
-    constexpr static ssize_t EOF_RECEIVED_BUFFER_SIZE = 0;
-    /// We implicitly add one microsecond to avoid operation from never timing out
-    /// (https://linux.die.net/man/7/socket)
-    constexpr static suseconds_t IMPLICIT_TIMEOUT_USEC = 1;
-    constexpr static size_t ERROR_MESSAGE_BUFFER_SIZE = 256;
-
-public:
-    static const std::string& name()
-    {
-        static const std::string Instance = "TCP";
-        return Instance;
-    }
-
-    explicit TCPSource(const SourceDescriptor& sourceDescriptor);
-    ~TCPSource() override = default;
-
-    TCPSource(const TCPSource&) = delete;
-    TCPSource& operator=(const TCPSource&) = delete;
-    TCPSource(TCPSource&&) = delete;
-    TCPSource& operator=(TCPSource&&) = delete;
-
-    size_t fillTupleBuffer(
-        NES::Memory::TupleBuffer& tupleBuffer, Memory::AbstractBufferProvider& bufferProvider, const std::stop_token& stopToken) override;
-
-    /// Open TCP connection.
-    void open() override;
-    /// Close TCP connection.
-    void close() override;
-
-    static NES::Configurations::DescriptorConfig::Config validateAndFormat(std::unordered_map<std::string, std::string> config);
-
-    [[nodiscard]] std::ostream& toString(std::ostream& str) const override;
-
-private:
-    bool tryToConnect(const addrinfo* result, int& originalFlags);
-    bool fillBuffer(NES::Memory::TupleBuffer& tupleBuffer, size_t& numReceivedBytes);
-    void openClientConnection();
-    void setupServerListener();
-    void awaitClientConnection();
-    void configureSocketOptions(int fd) const;
-    std::string formatEndpoint(const sockaddr_storage& address, socklen_t length) const;
-    void updatePeerEndpointFromSocket();
-
-    int connection = -1;
-    int sockfd = -1;
-    int listenfd = -1;
-
-    /// buffer for thread-safe strerror_r
-    std::array<char, ERROR_MESSAGE_BUFFER_SIZE> errBuffer;
-
-    std::string socketHost;
-    std::string socketPort;
-    int socketType;
-    int socketDomain;
-    std::string mode;
-    std::string bindAddress;
-    uint32_t listenBacklog;
-    bool tcpKeepalive;
-    bool tcpNoDelay;
-    std::string peerEndpoint;
-    char tupleDelimiter;
-    size_t socketBufferSize;
-    size_t bytesUsedForSocketBufferSizeTransfer;
-    float flushIntervalInMs;
-    uint64_t generatedTuples{0};
-    uint64_t generatedBuffers{0};
-    uint64_t acceptedConnections{0};
-    u_int32_t connectionTimeout;
-};
-
 
 /// Defines the names, (optional) default values, (optional) validation & config functions, for all TCP config parameters.
 struct ConfigParametersTCP
 {
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<std::string> HOST{
-        "socketHost",
+    static inline const DescriptorConfig::ConfigParameter<std::string> HOST{
+        "socket_host",
         std::nullopt,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return NES::Configurations::DescriptorConfig::tryGet(HOST, config); }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<uint32_t> PORT{
-        "socketPort",
+        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(HOST, config); }};
+    static inline const DescriptorConfig::ConfigParameter<uint32_t> PORT{
+        "socket_port",
         std::nullopt,
         [](const std::unordered_map<std::string, std::string>& config)
         {
             /// Mandatory (no default value)
-            const auto portNumber = NES::Configurations::DescriptorConfig::tryGet(PORT, config);
+            const auto portNumber = DescriptorConfig::tryGet(PORT, config);
             if (portNumber.has_value())
             {
                 constexpr uint32_t PORT_NUMBER_MAX = 65535;
@@ -142,8 +64,8 @@ struct ConfigParametersTCP
             }
             return portNumber;
         }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<int32_t> DOMAIN{
-        "socketDomain",
+    static inline const DescriptorConfig::ConfigParameter<int32_t> DOMAIN{
+        "socket_domain",
         AF_INET,
         [](const std::unordered_map<std::string, std::string>& config) -> std::optional<int>
         {
@@ -160,8 +82,8 @@ struct ConfigParametersTCP
             NES_ERROR("TCPSource: Domain value is: {}, but the domain value must be AF_INET or AF_INET6", socketDomainString);
             return std::nullopt;
         }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<int32_t> TYPE{
-        "socketType",
+    static inline const DescriptorConfig::ConfigParameter<int32_t> TYPE{
+        "socket_type",
         SOCK_STREAM,
         [](const std::unordered_map<std::string, std::string>& config) -> std::optional<int>
         {
@@ -196,107 +118,99 @@ struct ConfigParametersTCP
                 socketTypeString)
             return std::nullopt;
         }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<std::string> MODE{
-        "mode",
-        "client",
-        [](const std::unordered_map<std::string, std::string>& config) -> std::optional<std::string>
-        {
-            const auto modeValue = NES::Configurations::DescriptorConfig::tryGet(MODE, config);
-            if (not modeValue.has_value())
-            {
-                return std::nullopt;
-            }
-
-            auto normalizedMode = modeValue.value();
-            std::transform(
-                normalizedMode.begin(),
-                normalizedMode.end(),
-                normalizedMode.begin(),
-                [](const unsigned char character) { return static_cast<char>(std::tolower(character)); });
-
-            if (normalizedMode == "client" || normalizedMode == "server")
-            {
-                return normalizedMode;
-            }
-
-            NES_ERROR("TCPSource: Mode value '{}' is invalid. Supported values are 'client' and 'server'.", modeValue.value());
-            return std::nullopt;
-        }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<char> SEPARATOR{
-        "tupleDelimiter",
+    static inline const DescriptorConfig::ConfigParameter<char> SEPARATOR{
+        "tuple_delimiter",
         '\n',
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return NES::Configurations::DescriptorConfig::tryGet(SEPARATOR, config); }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<float> FLUSH_INTERVAL_MS{
-        "flushIntervalMS",
+        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(SEPARATOR, config); }};
+    static inline const DescriptorConfig::ConfigParameter<float> FLUSH_INTERVAL_MS{
+        "flush_interval_ms",
         0,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return NES::Configurations::DescriptorConfig::tryGet(FLUSH_INTERVAL_MS, config); }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<uint32_t> SOCKET_BUFFER_SIZE{
-        "socketBufferSize",
+        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(FLUSH_INTERVAL_MS, config); }};
+    static inline const DescriptorConfig::ConfigParameter<uint32_t> SOCKET_BUFFER_SIZE{
+        "socket_buffer_size",
         1024,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return NES::Configurations::DescriptorConfig::tryGet(SOCKET_BUFFER_SIZE, config); }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<uint32_t> SOCKET_BUFFER_TRANSFER_SIZE{
-        "bytesUsedForSocketBufferSizeTransfer",
+        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(SOCKET_BUFFER_SIZE, config); }};
+    static inline const DescriptorConfig::ConfigParameter<uint32_t> SOCKET_BUFFER_TRANSFER_SIZE{
+        "bytes_sed_for_socket_buffer_size_transfer",
         0,
         [](const std::unordered_map<std::string, std::string>& config)
-        { return NES::Configurations::DescriptorConfig::tryGet(SOCKET_BUFFER_TRANSFER_SIZE, config); }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<std::string> BIND_ADDRESS{
-        "bindAddress",
-        "0.0.0.0",
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return NES::Configurations::DescriptorConfig::tryGet(BIND_ADDRESS, config); }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<uint32_t> LISTEN_BACKLOG{
-        "listenBacklog",
-        1,
-        [](const std::unordered_map<std::string, std::string>& config) -> std::optional<uint32_t>
-        {
-            const auto backlog = NES::Configurations::DescriptorConfig::tryGet(LISTEN_BACKLOG, config);
-            if (not backlog.has_value())
-            {
-                return std::nullopt;
-            }
-
-            if (backlog.value() == 0)
-            {
-                NES_ERROR("TCPSource: listenBacklog must be greater than 0, but it was {}.", backlog.value());
-                return std::nullopt;
-            }
-            return backlog;
-        }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<bool> TCP_KEEPALIVE{
-        "tcpKeepalive",
-        false,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return NES::Configurations::DescriptorConfig::tryGet(TCP_KEEPALIVE, config); }};
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<bool> NO_DELAY{
-        "nodelay",
-        false,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return NES::Configurations::DescriptorConfig::tryGet(NO_DELAY, config); }};
-    static inline const Configurations::DescriptorConfig::ConfigParameter<uint32_t> CONNECT_TIMEOUT{
-        "connectTimeoutSeconds",
+        { return DescriptorConfig::tryGet(SOCKET_BUFFER_TRANSFER_SIZE, config); }};
+    static inline const DescriptorConfig::ConfigParameter<uint32_t> CONNECT_TIMEOUT{
+        "connect_timeout_seconds",
         10,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return Configurations::DescriptorConfig::tryGet(CONNECT_TIMEOUT, config); }};
+        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(CONNECT_TIMEOUT, config); }};
 
-    static inline std::unordered_map<std::string, NES::Configurations::DescriptorConfig::ConfigParameterContainer> parameterMap
-        = NES::Configurations::DescriptorConfig::createConfigParameterContainerMap(
+    static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
+        = DescriptorConfig::createConfigParameterContainerMap(
+            SourceDescriptor::parameterMap,
             HOST,
             PORT,
             DOMAIN,
             TYPE,
-            MODE,
             SEPARATOR,
             FLUSH_INTERVAL_MS,
             SOCKET_BUFFER_SIZE,
             SOCKET_BUFFER_TRANSFER_SIZE,
-            BIND_ADDRESS,
-            LISTEN_BACKLOG,
-            TCP_KEEPALIVE,
-            NO_DELAY,
             CONNECT_TIMEOUT);
+};
+
+class TCPSource : public Source
+{
+    constexpr static ssize_t INVALID_RECEIVED_BUFFER_SIZE = -1;
+    /// A return value of '0' means an EoF in the context of a read(socket..) (https://man.archlinux.org/man/core/man-pages/read.2.en)
+    constexpr static ssize_t EOF_RECEIVED_BUFFER_SIZE = 0;
+    /// We implicitly add one microsecond to avoid operation from never timing out
+    /// (https://linux.die.net/man/7/socket)
+    constexpr static suseconds_t IMPLICIT_TIMEOUT_USEC = 1;
+    constexpr static size_t ERROR_MESSAGE_BUFFER_SIZE = 256;
+
+public:
+    static const std::string& name()
+    {
+        static const std::string Instance = "TCP";
+        return Instance;
+    }
+
+    explicit TCPSource(const SourceDescriptor& sourceDescriptor);
+    ~TCPSource() override = default;
+
+    TCPSource(const TCPSource&) = delete;
+    TCPSource& operator=(const TCPSource&) = delete;
+    TCPSource(TCPSource&&) = delete;
+    TCPSource& operator=(TCPSource&&) = delete;
+
+    size_t fillTupleBuffer(TupleBuffer& tupleBuffer, const std::stop_token& stopToken) override;
+
+    /// Open TCP connection.
+    void open() override;
+    /// Close TCP connection.
+    void close() override;
+
+    static DescriptorConfig::Config validateAndFormat(std::unordered_map<std::string, std::string> config);
+
+    [[nodiscard]] std::ostream& toString(std::ostream& str) const override;
+
+private:
+    bool tryToConnect(const addrinfo* result, int flags);
+    bool fillBuffer(TupleBuffer& tupleBuffer, size_t& numReceivedBytes);
+
+    int connection = -1;
+    int sockfd = -1;
+
+    /// buffer for thread-safe strerror_r
+    std::array<char, ERROR_MESSAGE_BUFFER_SIZE> errBuffer;
+
+    std::string socketHost;
+    std::string socketPort;
+    int socketType;
+    int socketDomain;
+    char tupleDelimiter;
+    size_t socketBufferSize;
+    size_t bytesUsedForSocketBufferSizeTransfer;
+    float flushIntervalInMs;
+    uint64_t generatedTuples{0};
+    uint64_t generatedBuffers{0};
+    u_int32_t connectionTimeout;
 };
 
 }

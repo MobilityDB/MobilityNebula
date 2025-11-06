@@ -44,15 +44,8 @@ public:
 
     [[nodiscard]] virtual std::string_view getName() const noexcept = 0;
 
-    ///@return If this is set, the aggregations lift function will be called with buffers in sequence number order.
-    [[nodiscard]] virtual bool requiresSequentialAggregation() const;
-
     DataType inputStamp, partialAggregateStamp, finalAggregateStamp;
     FieldAccessLogicalFunction onField, asField;
-
-    void setAsField(FieldAccessLogicalFunction newAsField) { asField = std::move(newAsField); }
-
-    const FieldAccessLogicalFunction& getAsField() const { return asField; }
 
 protected:
     explicit WindowAggregationLogicalFunction(

@@ -16,10 +16,13 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <vector>
 #include <Identifiers/Identifiers.hpp>
+#include <MemoryLayout/VariableSizedAccess.hpp>
 #include <Time/Timestamp.hpp>
 #include <TaggedPointer.hpp>
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
@@ -35,7 +38,7 @@ namespace NES
 class UnpooledChunksManager;
 }
 
-namespace NES::Memory
+namespace NES
 {
 class BufferManager;
 class LocalBufferPool;
@@ -45,11 +48,10 @@ class BufferRecycler;
 
 static constexpr auto GET_BUFFER_TIMEOUT = std::chrono::milliseconds(1000);
 
-
 /**
  * @brief Computes aligned buffer size based on original buffer size and alignment
  */
-constexpr uint32_t alignBufferSize(const uint32_t bufferSize, const uint32_t withAlignment)
+constexpr size_t alignBufferSize(const size_t bufferSize, const uint32_t withAlignment)
 {
     if (bufferSize % withAlignment)
     {
@@ -109,9 +111,10 @@ public:
     void setOriginId(OriginId originId);
     void setCreationTimestamp(Timestamp timestamp);
     [[nodiscard]] Timestamp getCreationTimestamp() const noexcept;
-    [[nodiscard]] uint32_t storeChildBuffer(BufferControlBlock* control);
-    [[nodiscard]] bool loadChildBuffer(uint16_t index, BufferControlBlock*& control, uint8_t*& ptr, uint32_t& size) const;
-    [[nodiscard]] uint32_t getNumberOfChildrenBuffer() const noexcept { return children.size(); }
+    [[nodiscard]] VariableSizedAccess::Index storeChildBuffer(BufferControlBlock* control);
+    [[nodiscard]] bool loadChildBuffer(VariableSizedAccess::Index index, BufferControlBlock*& control, uint8_t*& ptr, uint32_t& size) const;
+
+    [[nodiscard]] uint32_t getNumberOfChildBuffers() const noexcept { return children.size(); }
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
     void dumpOwningThreadInfo();
 #endif
@@ -133,40 +136,39 @@ public:
     std::function<void(MemorySegment*, BufferRecycler*)> recycleCallback;
 
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
-    class Retain
+private:
+    class ThreadOwnershipInfo
     {
         friend class BufferControlBlock;
 
+    private:
         std::string threadName;
         cpptrace::raw_trace callstack;
 
     public:
-        Retain(std::string thread_name, cpptrace::raw_trace callstack) : threadName(std::move(thread_name)), callstack(std::move(callstack))
+        ThreadOwnershipInfo();
+
+        ThreadOwnershipInfo(std::string&& threadName, cpptrace::raw_trace&& callstack);
+
+        ThreadOwnershipInfo(const ThreadOwnershipInfo&) = default;
+
+        ThreadOwnershipInfo& operator=(const ThreadOwnershipInfo&) = default;
+
+        friend std::ostream& operator<<(std::ostream& os, const ThreadOwnershipInfo& info)
         {
+            os << info.threadName << " buffer is used in " << info.callstack.resolve();
+            return os;
         }
     };
 
-    class Release
-    {
-        friend class BufferControlBlock;
-
-        std::string threadName;
-        cpptrace::raw_trace callstack;
-
-    public:
-        Release(std::string thread_name, cpptrace::raw_trace callstack)
-            : threadName(std::move(thread_name)), callstack(std::move(callstack))
-        {
-        }
-    };
-
-    using ThreadOwnershipInfo = std::variant<Retain, Release>;
     std::mutex owningThreadsMutex;
     std::unordered_map<std::thread::id, std::deque<ThreadOwnershipInfo>> owningThreads;
 #endif
 };
+
 static_assert(sizeof(BufferControlBlock) % 64 == 0);
 static_assert(alignof(BufferControlBlock) % 64 == 0);
+
 /**
  * @brief The MemorySegment is a wrapper around a pointer to allocated memory of size bytes and a control block
  * (@see class BufferControlBlock). The MemorySegment is intended to be used **only** in the BufferManager.
@@ -179,12 +181,12 @@ static_assert(alignof(BufferControlBlock) % 64 == 0);
  */
 class MemorySegment
 {
-    friend class NES::Memory::TupleBuffer;
-    friend class NES::Memory::LocalBufferPool;
-    friend class NES::Memory::FixedSizeBufferPool;
-    friend class NES::Memory::BufferManager;
+    friend class NES::TupleBuffer; /// needed, because not in NES::detail namespace
+    friend class NES::LocalBufferPool;
+    friend class NES::FixedSizeBufferPool;
+    friend class NES::BufferManager;
     friend class NES::UnpooledChunksManager;
-    friend class NES::Memory::detail::BufferControlBlock;
+    friend class BufferControlBlock;
 
     enum class MemorySegmentType : uint8_t
     {

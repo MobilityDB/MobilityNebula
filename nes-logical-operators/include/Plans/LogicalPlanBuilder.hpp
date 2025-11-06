@@ -16,10 +16,13 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
+#include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Operators/LogicalOperator.hpp>
+#include <Operators/ProjectionLogicalOperator.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <Operators/Windows/JoinLogicalOperator.hpp>
 #include <Plans/LogicalPlan.hpp>
@@ -36,26 +39,25 @@ public:
     /// During query processing the underlying source descriptor is retrieved from the source catalog.
     static LogicalPlan createLogicalPlan(std::string logicalSourceName);
 
+    static LogicalPlan createLogicalPlan(
+        std::string inlineSourceType,
+        const Schema& schema,
+        std::unordered_map<std::string, std::string> sourceConfig,
+        std::unordered_map<std::string, std::string> parserConfig);
+
     /// @brief this call projects out the attributes in the parameter list
     /// @param functions list of attributes
+    /// @param asterisk project everything in addition to the projections
     /// @param queryPlan the queryPlan to add the projection node
     /// @return the updated queryPlan
-    static LogicalPlan addProjection(std::vector<LogicalFunction> functions, const LogicalPlan& queryPlan);
+    static LogicalPlan
+    addProjection(std::vector<ProjectionLogicalOperator::Projection> projections, bool asterisk, const LogicalPlan& queryPlan);
 
     /// @brief: this call adds the selection operator to the queryPlan; the operator selects records according to the predicate.
     /// @param selectionFunction a function node containing the predicate
     /// @param LogicalPlan the queryPlan the selection node is added to
     /// @return the updated queryPlan
     static LogicalPlan addSelection(LogicalFunction selectionFunction, const LogicalPlan& queryPlan);
-
-    /// @brief: Map records according to a map function.
-    /// @param mapFunction as function node
-    /// @param queryPlan the queryPlan the map is added to
-    /// @return the updated LogicalPlan
-    static LogicalPlan addMap(const LogicalFunction& mapFunction, const LogicalPlan& queryPlan);
-
-    static LogicalPlan addInferModel(const std::string& model, const std::vector<LogicalFunction>& inputFields, LogicalPlan queryPlan);
-
 
     static LogicalPlan addWindowAggregation(
         LogicalPlan queryPlan,
@@ -83,6 +85,8 @@ public:
         JoinLogicalOperator::JoinType joinType);
 
     static LogicalPlan addSink(std::string sinkName, const LogicalPlan& queryPlan);
+    static LogicalPlan addInlineSink(
+        std::string type, const Schema& schema, std::unordered_map<std::string, std::string> sinkConfig, const LogicalPlan& queryPlan);
 
     /// Checks in case a window is contained in the query.
     /// If a watermark operator exists in the queryPlan and if not adds a watermark strategy to the queryPlan.
@@ -94,7 +98,7 @@ private:
     /// @param: leftLogicalPlan the left query plan of the binary operation
     /// @param: rightLogicalPlan the right query plan of the binary operation
     /// @return the updated queryPlan
-    static LogicalPlan
-    addBinaryOperatorAndUpdateSource(const LogicalOperator& operatorNode, LogicalPlan leftLogicalPlan, LogicalPlan rightLogicalPlan);
+    static LogicalPlan addBinaryOperatorAndUpdateSource(
+        const LogicalOperator& operatorNode, const LogicalPlan& leftLogicalPlan, const LogicalPlan& rightLogicalPlan);
 };
 }

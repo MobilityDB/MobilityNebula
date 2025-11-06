@@ -33,9 +33,10 @@ class SchemaTest : public Testing::BaseUnitTest
 public:
     static void SetUpTestCase()
     {
-        NES::Logger::setupLogging("SchemaTest.log", NES::LogLevel::LOG_DEBUG);
+        Logger::setupLogging("SchemaTest.log", LogLevel::LOG_DEBUG);
         NES_INFO("SchemaTest test class SetUpTestCase.");
     }
+
     static void TearDownTestCase() { NES_INFO("SchemaTest test class TearDownTestCase."); }
 
     auto getRandomFields(const auto numberOfFields)
@@ -164,6 +165,49 @@ TEST_F(SchemaTest, getFieldByNameWithSimilarFieldNames)
                                             << " are not equal"; ///NOLINT(bugprone-unchecked-optional-access)
 }
 
+TEST_F(SchemaTest, getFieldByNameWithSameSuffix)
+{
+    const auto field1 = Schema::Field{"stream$PREFIXabc", DataTypeProvider::provideDataType(DataType::Type::UINT64)};
+    const auto field2 = Schema::Field{"stream$abc", DataTypeProvider::provideDataType(DataType::Type::UINT64)};
+
+    const auto schemaUnderTest = Schema{}
+                                     .addField("stream$PREFIXabc", DataTypeProvider::provideDataType(DataType::Type::UINT64))
+                                     .addField("stream$abc", DataTypeProvider::provideDataType(DataType::Type::UINT64));
+
+    const auto fieldByName1 = schemaUnderTest.getFieldByName("PREFIXabc");
+    const auto fieldByName2 = schemaUnderTest.getFieldByName("abc");
+    const auto fieldByName3NotExistent = schemaUnderTest.getFieldByName("bc");
+
+    EXPECT_TRUE(fieldByName1.has_value()) << "FieldByName1 should find a Field";
+    EXPECT_EQ(field1, fieldByName1.value()) << "Field 1 " << field1 << " and field by name 1 " << fieldByName1.value() << " are not equal";
+    EXPECT_TRUE(fieldByName2.has_value()) << "FieldByName2 should find a Field";
+    EXPECT_EQ(field2, fieldByName2.value()) << "Field 2 " << field2 << " and field by name 2 " << fieldByName2.value() << " are not equal";
+    EXPECT_FALSE(fieldByName3NotExistent.has_value())
+        << "Searched for nonexistent field with name \"bc\" but found " << fieldByName3NotExistent.value();
+}
+
+TEST_F(SchemaTest, getFieldByNameWithSameName)
+{
+    const auto field = Schema::Field{"stream1$name", DataTypeProvider::provideDataType(DataType::Type::UINT64)};
+
+    const auto schemaUnderTest = Schema{}
+                                     .addField("stream1$name", DataTypeProvider::provideDataType(DataType::Type::UINT64))
+                                     .addField("stream2$name", DataTypeProvider::provideDataType(DataType::Type::UINT64));
+
+    const auto fieldByAmbiguousName = schemaUnderTest.getFieldByName("name");
+    EXPECT_TRUE(fieldByAmbiguousName.has_value());
+    EXPECT_EQ(field, fieldByAmbiguousName.value());
+}
+
+TEST_F(SchemaTest, getUnqualifiedNameFromField)
+{
+    const auto field1 = Schema::Field{"stream$field1", DataTypeProvider::provideDataType(DataType::Type::BOOLEAN)};
+    const auto field2 = Schema::Field{"field2", DataTypeProvider::provideDataType(DataType::Type::BOOLEAN)};
+
+    EXPECT_EQ("field1", field1.getUnqualifiedName());
+    EXPECT_EQ("field2", field2.getUnqualifiedName());
+}
+
 TEST_F(SchemaTest, replaceFieldTest)
 {
     {
@@ -238,7 +282,7 @@ TEST_F(SchemaTest, getSchemaSizeInBytesTest)
     }
 
     {
-        using enum NES::DataType::Type;
+        using enum DataType::Type;
         /// Calculating the schema size for multiple fields
         auto testSchema = Schema{Schema::MemoryLayoutType::ROW_LAYOUT}
                               .addField("field1", UINT8)
@@ -252,7 +296,7 @@ TEST_F(SchemaTest, getSchemaSizeInBytesTest)
 
 TEST_F(SchemaTest, containsTest)
 {
-    using enum NES::DataType::Type;
+    using enum DataType::Type;
     {
         /// Checking contains for one fieldName
         auto testSchema = Schema{Schema::MemoryLayoutType::ROW_LAYOUT}.addField("field1", UINT8);
@@ -297,7 +341,7 @@ TEST_F(SchemaTest, getFieldByNameTestInSchemaWithSourceName)
 
 TEST_F(SchemaTest, getSourceNameQualifierTest)
 {
-    using enum NES::DataType::Type;
+    using enum DataType::Type;
     /// TODO once #4355 is done, we can use updateSourceName(source1) here
     const auto sourceName = std::string("source1");
     auto testSchema = Schema{Schema::MemoryLayoutType::ROW_LAYOUT}
@@ -328,6 +372,33 @@ TEST_F(SchemaTest, copyTest)
         EXPECT_TRUE(testSchema.getFieldAt(fieldCnt) == curField);
         const auto field = testSchema.getFieldByName(curField.name);
         EXPECT_TRUE(field.has_value() and field.value() == curField);
+    }
+}
+
+TEST_F(SchemaTest, withoutSourceQualifierTest)
+{
+    {
+        const auto schema = Schema(Schema::MemoryLayoutType::COLUMNAR_LAYOUT)
+                                .addField("source1$id", DataType::Type::INT64)
+                                .addField("source1$source2$test", DataType::Type::INT32);
+        const auto expected = Schema(Schema::MemoryLayoutType::COLUMNAR_LAYOUT)
+                                  .addField("id", DataType::Type::INT64)
+                                  .addField("test", DataType::Type::INT32);
+        EXPECT_NE(schema, expected);
+        EXPECT_EQ(withoutSourceQualifier(schema), expected);
+    }
+    {
+        const auto schema1 = Schema{}.addField("source1$id", DataType::Type::INT64).addField("test", DataType::Type::INT32);
+        const auto schema2 = Schema{}.addField("source2$id", DataType::Type::INT64).addField("source2$test", DataType::Type::INT32);
+        EXPECT_NE(schema1, schema2);
+        EXPECT_EQ(withoutSourceQualifier(schema1), withoutSourceQualifier(schema2));
+    }
+    {
+        const auto schema = Schema{}
+                                .addField("source1$id", DataType::Type::INT64)
+                                .addField("source2$id", DataType::Type::INT64)
+                                .addField("source1$source2$test", DataType::Type::INT32);
+        EXPECT_ANY_THROW(auto _ = withoutSourceQualifier(schema));
     }
 }
 

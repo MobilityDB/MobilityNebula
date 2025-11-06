@@ -21,22 +21,21 @@
 #include <type_traits>
 #include <utility>
 #include <variant>
-#include <Configurations/Descriptor.hpp>
 #include <Configurations/Enums/EnumWrapper.hpp>
 #include <fmt/format.h>
 #include <google/protobuf/json/json.h>
 #include <ErrorHandling.hpp>
-#include <ProtobufHelper.hpp> /// NOLINT
+#include <ProtobufHelper.hpp>
 #include <SerializableVariantDescriptor.pb.h>
 
-namespace NES::Configurations
+namespace NES
 {
 
 Descriptor::Descriptor(DescriptorConfig::Config&& config) : config(std::move(config))
 {
 }
 
-SerializableVariantDescriptor descriptorConfigTypeToProto(const NES::Configurations::DescriptorConfig::ConfigType& var)
+SerializableVariantDescriptor descriptorConfigTypeToProto(const DescriptorConfig::ConfigType& var)
 {
     SerializableVariantDescriptor protoVar;
     std::visit(
@@ -80,25 +79,29 @@ SerializableVariantDescriptor descriptorConfigTypeToProto(const NES::Configurati
             {
                 protoVar.set_string_value(arg);
             }
-            else if constexpr (std::is_same_v<U, Configurations::EnumWrapper>)
+            else if constexpr (std::is_same_v<U, EnumWrapper>)
             {
                 protoVar.mutable_enum_value()->set_value(arg.getValue());
             }
-            else if constexpr (std::is_same_v<U, NES::FunctionList>)
+            else if constexpr (std::is_same_v<U, FunctionList>)
             {
                 protoVar.mutable_function_list()->CopyFrom(arg);
             }
-            else if constexpr (std::is_same_v<U, NES::AggregationFunctionList>)
+            else if constexpr (std::is_same_v<U, ProjectionList>)
+            {
+                protoVar.mutable_projections()->CopyFrom(arg);
+            }
+            else if constexpr (std::is_same_v<U, AggregationFunctionList>)
             {
                 protoVar.mutable_aggregation_function_list()->CopyFrom(arg);
             }
-            else if constexpr (std::is_same_v<U, NES::WindowInfos>)
+            else if constexpr (std::is_same_v<U, WindowInfos>)
             {
                 protoVar.mutable_window_infos()->CopyFrom(arg);
             }
-            else if constexpr (std::is_same_v<U, SerializableModel>)
+            else if constexpr (std::is_same_v<U, UInt64List>)
             {
-                protoVar.mutable_model()->CopyFrom(arg);
+                protoVar.mutable_ulongs()->CopyFrom(arg);
             }
             else
             {
@@ -109,7 +112,7 @@ SerializableVariantDescriptor descriptorConfigTypeToProto(const NES::Configurati
     return protoVar;
 }
 
-Configurations::DescriptorConfig::ConfigType protoToDescriptorConfigType(const SerializableVariantDescriptor& protoVar)
+DescriptorConfig::ConfigType protoToDescriptorConfigType(const SerializableVariantDescriptor& protoVar)
 {
     switch (protoVar.value_case())
     {
@@ -132,23 +135,19 @@ Configurations::DescriptorConfig::ConfigType protoToDescriptorConfigType(const S
         case SerializableVariantDescriptor::kStringValue:
             return protoVar.string_value();
         case SerializableVariantDescriptor::kEnumValue:
-            return Configurations::EnumWrapper(protoVar.enum_value().value());
+            return EnumWrapper(protoVar.enum_value().value());
         case SerializableVariantDescriptor::kFunctionList:
             return protoVar.function_list();
         case SerializableVariantDescriptor::kAggregationFunctionList:
             return protoVar.aggregation_function_list();
+        case SerializableVariantDescriptor::kProjections:
+            return protoVar.projections();
         case SerializableVariantDescriptor::kWindowInfos:
             return protoVar.window_infos();
-        case SerializableVariantDescriptor::kModel:
-            return protoVar.model();
-        default:
-            std::string protoVarAsJson;
-            /// Log proto variable as json, in exception, if possible.
-            if (const auto conversionResult = google::protobuf::json::MessageToJsonString(protoVar, &protoVarAsJson); conversionResult.ok())
-            {
-                throw CannotSerialize(fmt::format("Unknown variant type: {}", protoVarAsJson));
-            }
-            throw CannotSerialize("Unknown variant type.");
+        case SerializableVariantDescriptor::kUlongs:
+            return protoVar.ulongs();
+        case NES::SerializableVariantDescriptor::VALUE_NOT_SET:
+            throw CannotSerialize("Protobuf oneOf has no value");
     }
 }
 
@@ -170,6 +169,7 @@ struct ConfigPrinter
         }
     }
 };
+
 std::ostream& operator<<(std::ostream& out, const DescriptorConfig::Config& config)
 {
     if (config.empty())

@@ -1,0 +1,4 @@
+[submodule "external/nebulastream"]
+	path = external/nebulastream
+	url = https://github.com/marianaGarcez/nebulastream.git
+	branch = cpu_fix_main_meos

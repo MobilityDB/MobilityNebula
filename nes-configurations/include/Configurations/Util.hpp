@@ -20,10 +20,10 @@
 #include <ostream>
 #include <string>
 #include <unordered_map>
-#include <Configurations/ConfigurationsNames.hpp>
+
 #include <Configurations/PrintingVisitor.hpp>
 
-namespace NES::Configurations
+namespace NES
 {
 template <typename T>
 void generateHelp(std::ostream& ostream)
@@ -54,7 +54,7 @@ std::optional<T> loadConfiguration(const int argc, const char** argv)
     T config;
 
     /// Read options from the YAML file.
-    const auto configPathCLIParam = "--" + CONFIG_PATH;
+    const auto configPathCLIParam = "--configPath";
     if (const auto configPath = commandLineParams.find(configPathCLIParam); configPath != commandLineParams.end())
     {
         config.overwriteConfigWithYAMLFileInput(configPath->second);

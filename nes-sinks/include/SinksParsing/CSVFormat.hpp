@@ -27,7 +27,7 @@
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 
-namespace NES::Sinks
+namespace NES
 {
 
 class CSVFormat : public Format
@@ -43,17 +43,17 @@ public:
         std::vector<DataType> physicalTypes;
     };
 
-    CSVFormat(const Schema& schema);
+    explicit CSVFormat(const Schema& schema);
     explicit CSVFormat(const Schema& schema, bool escapeStrings);
 
     /// Return formatted content of TupleBuffer, contains timestamp if specified in config.
-    [[nodiscard]] std::string getFormattedBuffer(const Memory::TupleBuffer& inputBuffer) const override;
+    [[nodiscard]] std::string getFormattedBuffer(const TupleBuffer& inputBuffer) const override;
 
     /// Reads a TupleBuffer and uses the supplied 'schema' to format it to CSV. Returns result as a string.
-    [[nodiscard]] std::string
-    tupleBufferToFormattedCSVString(Memory::TupleBuffer tbuffer, const FormattingContext& formattingContext) const;
+    [[nodiscard]] std::string tupleBufferToFormattedCSVString(TupleBuffer tbuffer, const FormattingContext& formattingContext) const;
 
     std::ostream& toString(std::ostream& os) const override { return os << *this; }
+
     friend std::ostream& operator<<(std::ostream& out, const CSVFormat& format);
 
 private:
@@ -62,3 +62,5 @@ private:
 };
 
 }
+
+FMT_OSTREAM(NES::CSVFormat);

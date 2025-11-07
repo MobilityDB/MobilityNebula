@@ -12,19 +12,24 @@
     limitations under the License.
 */
 
+#include <Operators/Sources/SourceNameLogicalOperator.hpp>
+
+#include <algorithm>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
+
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+
 #include <DataTypes/Schema.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
-#include <Operators/Sources/SourceNameLogicalOperator.hpp>
 #include <Traits/Trait.hpp>
+#include <Traits/TraitSet.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <fmt/format.h>
-#include <fmt/ranges.h>
 #include <ErrorHandling.hpp>
 #include <SerializableOperator.pb.h>
 
@@ -40,35 +45,25 @@ SourceNameLogicalOperator::SourceNameLogicalOperator(std::string logicalSourceNa
 {
 }
 
-bool SourceNameLogicalOperator::operator==(const LogicalOperatorConcept& rhs) const
+bool SourceNameLogicalOperator::operator==(const SourceNameLogicalOperator& rhs) const
 {
-    if (const auto* rhsOperator = dynamic_cast<const SourceNameLogicalOperator*>(&rhs))
-    {
-        return this->getSchema() == rhsOperator->getSchema() && this->getName() == rhsOperator->getName()
-            && getOutputSchema() == rhsOperator->getOutputSchema() && getInputSchemas() == rhsOperator->getInputSchemas()
-            && getInputOriginIds() == rhsOperator->getInputOriginIds() && getOutputOriginIds() == rhsOperator->getOutputOriginIds();
-    }
-    return false;
+    return this->getSchema() == rhs.getSchema() && this->getName() == rhs.getName() && getOutputSchema() == rhs.getOutputSchema()
+        && getInputSchemas() == rhs.getInputSchemas() && getTraitSet() == rhs.getTraitSet();
 }
 
-LogicalOperator SourceNameLogicalOperator::withInferredSchema(std::vector<Schema>) const
+SourceNameLogicalOperator SourceNameLogicalOperator::withInferredSchema(const std::vector<Schema>&) const
 {
     PRECONDITION(false, "Schema inference should happen on SourceDescriptorLogicalOperator");
     return *this;
 }
 
-std::string SourceNameLogicalOperator::explain(ExplainVerbosity verbosity) const
+std::string SourceNameLogicalOperator::explain(ExplainVerbosity verbosity, OperatorId id) const
 {
     if (verbosity == ExplainVerbosity::Debug)
     {
-        return fmt::format("SOURCE(opId: {}, name: {})", id, logicalSourceName);
+        return fmt::format("SOURCE(opId: {}, name: {}, traitSet: {})", id, logicalSourceName, traitSet.explain(verbosity));
     }
-    std::string originIds;
-    if (!inputOriginIds.empty())
-    {
-        originIds = fmt::format(", {}", fmt::join(inputOriginIds.begin(), inputOriginIds.end(), ", "));
-    }
-    return fmt::format("SOURCE({}{})", logicalSourceName, originIds);
+    return fmt::format("SOURCE({})", logicalSourceName);
 }
 
 void SourceNameLogicalOperator::inferInputOrigins()
@@ -86,22 +81,30 @@ Schema SourceNameLogicalOperator::getSchema() const
 {
     return schema;
 }
-LogicalOperator SourceNameLogicalOperator::withSchema(const Schema& schema) const
+
+SourceNameLogicalOperator SourceNameLogicalOperator::withSchema(const Schema& schema) const
 {
     auto copy = *this;
     copy.schema = schema;
     return copy;
 }
 
-TraitSet SourceNameLogicalOperator::getTraitSet() const
-{
-    return {};
-}
-
-LogicalOperator SourceNameLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
+SourceNameLogicalOperator SourceNameLogicalOperator::withTraitSet(TraitSet traitSet) const
 {
     auto copy = *this;
-    copy.children = children;
+    copy.traitSet = std::move(traitSet);
+    return copy;
+}
+
+TraitSet SourceNameLogicalOperator::getTraitSet() const
+{
+    return traitSet;
+}
+
+SourceNameLogicalOperator SourceNameLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
+{
+    auto copy = *this;
+    copy.children = std::move(children);
     return copy;
 }
 
@@ -115,28 +118,6 @@ Schema SourceNameLogicalOperator::getOutputSchema() const
     return outputSchema;
 }
 
-std::vector<std::vector<OriginId>> SourceNameLogicalOperator::getInputOriginIds() const
-{
-    return inputOriginIds;
-}
-
-std::vector<OriginId> SourceNameLogicalOperator::getOutputOriginIds() const
-{
-    return outputOriginIds;
-}
-
-LogicalOperator SourceNameLogicalOperator::withInputOriginIds(std::vector<std::vector<OriginId>>) const
-{
-    PRECONDITION(false, "OriginId inference should happen on SourceDescriptorLogicalOperator");
-    return *this;
-}
-
-LogicalOperator SourceNameLogicalOperator::withOutputOriginIds(std::vector<OriginId>) const
-{
-    PRECONDITION(false, "OriginId inference should happen on SourceDescriptorLogicalOperator");
-    return *this;
-}
-
 std::vector<LogicalOperator> SourceNameLogicalOperator::getChildren() const
 {
     return children;
@@ -147,10 +128,9 @@ std::string SourceNameLogicalOperator::getLogicalSourceName() const
     return logicalSourceName;
 }
 
-SerializableOperator SourceNameLogicalOperator::serialize() const
+void SourceNameLogicalOperator::serialize(SerializableOperator&) const
 {
     PRECONDITION(false, "no serialize for SourceNameLogicalOperator defined. Serialization happens with SourceDescriptorLogicalOperator");
-    return {};
 }
 
 }

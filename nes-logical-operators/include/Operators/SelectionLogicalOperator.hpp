@@ -25,6 +25,7 @@
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
 #include <Traits/Trait.hpp>
+#include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
 #include <SerializableOperator.pb.h>
 
@@ -32,45 +33,40 @@ namespace NES
 {
 
 /// Selection operator, which contains an function as a predicate.
-class SelectionLogicalOperator : public LogicalOperatorConcept
+class SelectionLogicalOperator
 {
 public:
     explicit SelectionLogicalOperator(LogicalFunction predicate);
 
     [[nodiscard]] LogicalFunction getPredicate() const;
 
-    [[nodiscard]] bool operator==(const LogicalOperatorConcept& rhs) const override;
-    [[nodiscard]] SerializableOperator serialize() const override;
+    [[nodiscard]] bool operator==(const SelectionLogicalOperator& rhs) const;
+    void serialize(SerializableOperator&) const;
 
-    [[nodiscard]] TraitSet getTraitSet() const override;
+    [[nodiscard]] SelectionLogicalOperator withTraitSet(TraitSet traitSet) const;
+    [[nodiscard]] TraitSet getTraitSet() const;
 
-    [[nodiscard]] LogicalOperator withChildren(std::vector<LogicalOperator> children) const override;
-    [[nodiscard]] std::vector<LogicalOperator> getChildren() const override;
+    [[nodiscard]] SelectionLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
+    [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
 
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const override;
-    [[nodiscard]] Schema getOutputSchema() const override;
+    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
+    [[nodiscard]] Schema getOutputSchema() const;
 
-    [[nodiscard]] std::vector<std::vector<OriginId>> getInputOriginIds() const override;
-    [[nodiscard]] std::vector<OriginId> getOutputOriginIds() const override;
-    [[nodiscard]] LogicalOperator withInputOriginIds(std::vector<std::vector<OriginId>> ids) const override;
-    [[nodiscard]] LogicalOperator withOutputOriginIds(std::vector<OriginId> ids) const override;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId) const;
+    [[nodiscard]] std::string_view getName() const noexcept;
 
-    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
-
-    [[nodiscard]] LogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const override;
-
+    [[nodiscard]] SelectionLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
 
     struct ConfigParameters
     {
-        static inline const Configurations::DescriptorConfig::ConfigParameter<std::string> SELECTION_FUNCTION_NAME{
+        static inline const DescriptorConfig::ConfigParameter<std::string> SELECTION_FUNCTION_NAME{
             "selectionFunctionName",
             std::nullopt,
             [](const std::unordered_map<std::string, std::string>& config)
-            { return Configurations::DescriptorConfig::tryGet(SELECTION_FUNCTION_NAME, config); }};
+            { return DescriptorConfig::tryGet(SELECTION_FUNCTION_NAME, config); }};
 
-        static inline std::unordered_map<std::string, Configurations::DescriptorConfig::ConfigParameterContainer> parameterMap
-            = Configurations::DescriptorConfig::createConfigParameterContainerMap(SELECTION_FUNCTION_NAME);
+        static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
+            = DescriptorConfig::createConfigParameterContainerMap(SELECTION_FUNCTION_NAME);
     };
 
 private:
@@ -78,8 +74,9 @@ private:
     LogicalFunction predicate;
 
     std::vector<LogicalOperator> children;
+    TraitSet traitSet;
     Schema inputSchema, outputSchema;
-    std::vector<OriginId> inputOriginIds;
-    std::vector<OriginId> outputOriginIds;
 };
+
+static_assert(LogicalOperatorConcept<SelectionLogicalOperator>);
 }

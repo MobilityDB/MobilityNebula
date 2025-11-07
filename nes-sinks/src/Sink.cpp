@@ -15,7 +15,8 @@
 #include <Sinks/Sink.hpp>
 
 #include <ostream>
-namespace NES::Sinks
+
+namespace NES
 {
 
 std::ostream& operator<<(std::ostream& out, const Sink& sink)

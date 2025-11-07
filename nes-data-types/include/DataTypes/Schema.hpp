@@ -16,6 +16,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <ostream>
 #include <string>
@@ -23,8 +24,10 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 #include <DataTypes/DataType.hpp>
 #include <Util/Logger/Formatter.hpp>
+#include <folly/hash/Hash.h>
 #include <ErrorHandling.hpp>
 
 namespace NES
@@ -39,6 +42,7 @@ public:
         ROW_LAYOUT = 0,
         COLUMNAR_LAYOUT = 1
     };
+
     struct Field
     {
         Field() = default;
@@ -46,6 +50,7 @@ public:
 
         friend std::ostream& operator<<(std::ostream& os, const Field& field);
         bool operator==(const Field&) const = default;
+        [[nodiscard]] std::string getUnqualifiedName() const;
 
         std::string name;
         DataType dataType{};
@@ -60,6 +65,7 @@ public:
             PRECONDITION(not this->streamName.empty(), "Cannot create a QualifiedFieldName with an empty field name");
             PRECONDITION(not this->fieldName.empty(), "Cannot create a QualifiedFieldName with an empty field name");
         }
+
         std::string streamName;
         std::string fieldName;
     };
@@ -120,7 +126,16 @@ private:
     std::unordered_map<std::string, size_t> nameToField;
 };
 
+/// Returns a copy of the input schema without any source qualifier on the schema fields
+Schema withoutSourceQualifier(const Schema& input);
+
 }
+
+template <>
+struct std::hash<NES::Schema::Field>
+{
+    size_t operator()(const NES::Schema::Field& field) const noexcept { return folly::hash::hash_combine(field.name, field.dataType); }
+};
 
 FMT_OSTREAM(NES::Schema);
 FMT_OSTREAM(NES::Schema::Field);

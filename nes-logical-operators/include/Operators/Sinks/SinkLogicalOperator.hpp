@@ -26,63 +26,67 @@
 #include <Operators/LogicalOperator.hpp>
 #include <Sinks/SinkDescriptor.hpp>
 #include <Traits/Trait.hpp>
+#include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
 #include <SerializableOperator.pb.h>
 
 namespace NES
 {
 
-struct SinkLogicalOperator final : LogicalOperatorConcept
+struct SinkLogicalOperator final
 {
     /// During deserialization, we don't need to know/use the name of the sink anymore.
     SinkLogicalOperator() = default;
     /// During query parsing, we require the name of the sink and need to assign it an id.
     explicit SinkLogicalOperator(std::string sinkName);
+    explicit SinkLogicalOperator(SinkDescriptor sinkDescriptor);
 
-    std::string sinkName;
-    std::shared_ptr<Sinks::SinkDescriptor> sinkDescriptor;
+    [[nodiscard]] bool operator==(const SinkLogicalOperator& rhs) const;
+    void serialize(SerializableOperator&) const;
 
-    /// currently only use for testing purposes in IntegrationTestUtil
-    void setOutputSchema(Schema schema);
+    [[nodiscard]] SinkLogicalOperator withTraitSet(TraitSet traitSet) const;
+    [[nodiscard]] TraitSet getTraitSet() const;
 
-    [[nodiscard]] bool operator==(const LogicalOperatorConcept& rhs) const override;
-    [[nodiscard]] SerializableOperator serialize() const override;
+    [[nodiscard]] SinkLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
+    [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
 
-    [[nodiscard]] TraitSet getTraitSet() const override;
+    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
+    [[nodiscard]] Schema getOutputSchema() const;
 
-    [[nodiscard]] LogicalOperator withChildren(std::vector<LogicalOperator> children) const override;
-    [[nodiscard]] std::vector<LogicalOperator> getChildren() const override;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId) const;
+    [[nodiscard]] std::string_view getName() const noexcept;
 
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const override;
-    [[nodiscard]] Schema getOutputSchema() const override;
+    [[nodiscard]] SinkLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
 
-    [[nodiscard]] std::vector<std::vector<OriginId>> getInputOriginIds() const override;
-    [[nodiscard]] std::vector<OriginId> getOutputOriginIds() const override;
-    [[nodiscard]] LogicalOperator withInputOriginIds(std::vector<std::vector<OriginId>> ids) const override;
-    [[nodiscard]] LogicalOperator withOutputOriginIds(std::vector<OriginId> ids) const override;
+    [[nodiscard]] std::string getSinkName() const noexcept;
+    [[nodiscard]] std::optional<SinkDescriptor> getSinkDescriptor() const;
 
-    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
-
-    [[nodiscard]] LogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const override;
+    [[nodiscard]] SinkLogicalOperator withSinkDescriptor(SinkDescriptor sinkDescriptor) const;
 
     struct ConfigParameters
     {
-        static inline const NES::Configurations::DescriptorConfig::ConfigParameter<std::string> SINK_NAME{
+        static inline const DescriptorConfig::ConfigParameter<std::string> SINK_NAME{
             "SinkName",
             std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return NES::Configurations::DescriptorConfig::tryGet(SINK_NAME, config); }};
+            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(SINK_NAME, config); }};
 
-        static inline std::unordered_map<std::string, NES::Configurations::DescriptorConfig::ConfigParameterContainer> parameterMap
-            = NES::Configurations::DescriptorConfig::createConfigParameterContainerMap(SINK_NAME);
+        static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
+            = DescriptorConfig::createConfigParameterContainerMap(SINK_NAME);
     };
 
 private:
     static constexpr std::string_view NAME = "Sink";
 
     std::vector<LogicalOperator> children;
+    TraitSet traitSet;
     std::vector<OriginId> inputOriginIds;
     std::vector<OriginId> outputOriginIds;
+
+    std::string sinkName;
+    std::optional<SinkDescriptor> sinkDescriptor;
+
+    friend class OperatorSerializationUtil;
 };
+
+static_assert(LogicalOperatorConcept<SinkLogicalOperator>);
 }

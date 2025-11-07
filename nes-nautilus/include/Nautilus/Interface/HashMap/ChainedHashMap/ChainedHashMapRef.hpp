@@ -41,12 +41,10 @@ public:
     /// Especially a wrapper around a ChainedHashMapEntry.
     struct ChainedEntryRef
     {
-        void copyKeysToEntry(const Record& keys, const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider) const;
-        void
-        copyKeysToEntry(const ChainedEntryRef& otherEntryRef, const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider) const;
-        void copyValuesToEntry(const Record& values, const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider) const;
-        void
-        copyValuesToEntry(const ChainedEntryRef& otherEntryRef, const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider) const;
+        void copyKeysToEntry(const Record& keys, const nautilus::val<AbstractBufferProvider*>& bufferProvider) const;
+        void copyKeysToEntry(const ChainedEntryRef& otherEntryRef, const nautilus::val<AbstractBufferProvider*>& bufferProvider) const;
+        void copyValuesToEntry(const Record& values, const nautilus::val<AbstractBufferProvider*>& bufferProvider) const;
+        void copyValuesToEntry(const ChainedEntryRef& otherEntryRef, const nautilus::val<AbstractBufferProvider*>& bufferProvider) const;
         [[nodiscard]] VarVal getKey(const Record::RecordFieldIdentifier& fieldIdentifier) const;
         [[nodiscard]] Record getKey() const;
         [[nodiscard]] Record getValue() const;
@@ -57,14 +55,14 @@ public:
         ChainedEntryRef(
             const nautilus::val<ChainedHashMapEntry*>& entryRef,
             const nautilus::val<ChainedHashMap*>& hashMapRef,
-            std::vector<MemoryProvider::FieldOffsets> fieldsKey,
-            std::vector<MemoryProvider::FieldOffsets> fieldsValue);
+            std::vector<BufferRef::FieldOffsets> fieldsKey,
+            std::vector<BufferRef::FieldOffsets> fieldsValue);
 
         ChainedEntryRef(
             const nautilus::val<ChainedHashMapEntry*>& entryRef,
             const nautilus::val<ChainedHashMap*>& hashMapRef,
-            MemoryProvider::ChainedEntryMemoryProvider memoryProviderKeys,
-            MemoryProvider::ChainedEntryMemoryProvider memoryProviderValues);
+            BufferRef::ChainedEntryMemoryProvider memoryProviderKeys,
+            BufferRef::ChainedEntryMemoryProvider memoryProviderValues);
 
         ChainedEntryRef(const ChainedEntryRef& other);
         ChainedEntryRef& operator=(const ChainedEntryRef& other);
@@ -74,8 +72,8 @@ public:
 
         nautilus::val<ChainedHashMapEntry*> entryRef;
         nautilus::val<ChainedHashMap*> hashMapRef;
-        MemoryProvider::ChainedEntryMemoryProvider memoryProviderKeys;
-        MemoryProvider::ChainedEntryMemoryProvider memoryProviderValues;
+        BufferRef::ChainedEntryMemoryProvider memoryProviderKeys;
+        BufferRef::ChainedEntryMemoryProvider memoryProviderValues;
     };
 
     /// Iterator for iterating over all entries in the hash map.
@@ -86,9 +84,13 @@ public:
     public:
         EntryIterator(
             const nautilus::val<HashMap*>& hashMapRef,
+            const nautilus::val<ChainedHashMapEntry*>& currentEntry,
+            const nautilus::val<uint64_t>& entrySize,
             const nautilus::val<uint64_t>& tupleIndex,
-            const std::vector<MemoryProvider::FieldOffsets>& fieldKeys,
-            const std::vector<MemoryProvider::FieldOffsets>& fieldValues);
+            const nautilus::val<uint64_t>& indexOnPage,
+            const nautilus::val<uint64_t>& numberOfTuplesInCurrentPage,
+            const nautilus::val<uint64_t>& pageIndex,
+            const nautilus::val<uint64_t>& numberOfPages);
         EntryIterator& operator++();
         nautilus::val<bool> operator==(const EntryIterator& other) const;
         nautilus::val<bool> operator!=(const EntryIterator& other) const;
@@ -96,16 +98,20 @@ public:
 
     private:
         nautilus::val<HashMap*> hashMapRef;
-        ChainedEntryRef currentEntry;
-        nautilus::val<uint64_t> chainIndex;
+        nautilus::val<ChainedHashMapEntry*> currentEntry;
+        nautilus::val<uint64_t> entrySize;
+        /// TODO #1152 create a custom class for these indices
         nautilus::val<uint64_t> tupleIndex;
-        nautilus::val<uint64_t> numberOfChains;
+        nautilus::val<uint64_t> indexOnPage;
+        nautilus::val<uint64_t> numberOfTuplesInCurrentPage;
+        nautilus::val<uint64_t> pageIndex;
+        nautilus::val<uint64_t> numberOfPages;
     };
 
     ChainedHashMapRef(
         const nautilus::val<HashMap*>& hashMapRef,
-        std::vector<MemoryProvider::FieldOffsets> fieldsKey,
-        std::vector<MemoryProvider::FieldOffsets> fieldsValue,
+        std::vector<BufferRef::FieldOffsets> fieldsKey,
+        std::vector<BufferRef::FieldOffsets> fieldsValue,
         const nautilus::val<uint64_t>& entriesPerPage,
         const nautilus::val<uint64_t>& entrySize);
     ChainedHashMapRef(const ChainedHashMapRef& other);
@@ -116,12 +122,13 @@ public:
         const Record& recordKey,
         const HashFunction& hashFunction,
         const std::function<void(nautilus::val<AbstractHashMapEntry*>&)>& onInsert,
-        const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider) override;
+        const nautilus::val<AbstractBufferProvider*>& bufferProvider) override;
     void insertOrUpdateEntry(
         const nautilus::val<AbstractHashMapEntry*>& otherEntry,
         const std::function<void(nautilus::val<AbstractHashMapEntry*>&)>& onUpdate,
         const std::function<void(nautilus::val<AbstractHashMapEntry*>&)>& onInsert,
-        const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider) override;
+        const nautilus::val<AbstractBufferProvider*>& bufferProvider) override;
+    nautilus::val<AbstractHashMapEntry*> findEntry(const nautilus::val<AbstractHashMapEntry*>& otherEntry) override;
     [[nodiscard]] EntryIterator begin() const;
     [[nodiscard]] EntryIterator end() const;
 
@@ -130,13 +137,13 @@ private:
     /// Finds the chain for the given hash value. If no chain exists, it returns nullptr.
     [[nodiscard]] nautilus::val<ChainedHashMapEntry*> findChain(const HashFunction::HashValue& hash) const;
     nautilus::val<ChainedHashMapEntry*>
-    insert(const HashFunction::HashValue& hash, const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider);
+    insert(const HashFunction::HashValue& hash, const nautilus::val<AbstractBufferProvider*>& bufferProvider);
     [[nodiscard]] nautilus::val<bool> compareKeys(const ChainedEntryRef& entryRef, const Record& keys) const;
     [[nodiscard]] nautilus::val<ChainedHashMapEntry*> findKey(const Record& recordKey, const HashFunction::HashValue& hash) const;
     [[nodiscard]] nautilus::val<ChainedHashMapEntry*> findEntry(const ChainedEntryRef& otherEntryRef) const;
 
-    std::vector<MemoryProvider::FieldOffsets> fieldKeys;
-    std::vector<MemoryProvider::FieldOffsets> fieldValues;
+    std::vector<BufferRef::FieldOffsets> fieldKeys;
+    std::vector<BufferRef::FieldOffsets> fieldValues;
     nautilus::val<uint64_t> entriesPerPage;
     nautilus::val<uint64_t> entrySize;
 };

@@ -63,10 +63,6 @@ auto toSpdlogLevel(const LogLevel level)
             spdlogLevel = spdlog::level::err;
             break;
         }
-        case LogLevel::LOG_FATAL_ERROR: {
-            spdlogLevel = spdlog::level::critical;
-            break;
-        }
         case LogLevel::LOG_NONE: {
             spdlogLevel = spdlog::level::off;
             break;
@@ -163,6 +159,7 @@ void Logger::changeLogLevel(LogLevel newLevel)
 struct LoggerHolder
 {
     static std::shared_ptr<Logger> singleton;
+
     ~LoggerHolder()
     {
         singleton.reset();
@@ -172,6 +169,7 @@ struct LoggerHolder
         /// spdlog::shutdown();
     }
 };
+
 std::shared_ptr<Logger> LoggerHolder::singleton = nullptr;
 
 }

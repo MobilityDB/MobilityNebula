@@ -12,41 +12,48 @@
     limitations under the License.
 */
 
+#include <Serialization/QueryPlanSerializationUtil.hpp>
+
 #include <functional>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 #include <Identifiers/Identifiers.hpp>
 #include <Iterators/BFSIterator.hpp>
+#include <Operators/Sinks/SinkLogicalOperator.hpp>
 #include <Plans/LogicalPlan.hpp>
 #include <Serialization/OperatorSerializationUtil.hpp>
-#include <Serialization/QueryPlanSerializationUtil.hpp>
+#include <Serialization/TraitSetSerializationUtil.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <ErrorHandling.hpp>
 #include <SerializableOperator.pb.h>
 #include <SerializableQueryPlan.pb.h>
+#include <from_current.hpp>
 
 namespace NES
 {
 
 SerializableQueryPlan QueryPlanSerializationUtil::serializeQueryPlan(const LogicalPlan& queryPlan)
 {
-    INVARIANT(queryPlan.rootOperators.size() == 1, "Query plan should currently have only one root operator");
-    auto rootOperator = queryPlan.rootOperators.front();
+    INVARIANT(queryPlan.getRootOperators().size() == 1, "Query plan should currently have only one root operator");
+    auto rootOperator = queryPlan.getRootOperators().front();
 
     SerializableQueryPlan serializableQueryPlan;
     /// Serialize Query Plan operators
-    auto& serializedOperatorMap = *serializableQueryPlan.mutable_operatormap();
+    std::set<OperatorId> alreadySerialized;
     for (auto itr : BFSRange(rootOperator))
     {
-        if (serializedOperatorMap.find(itr.getId().getRawValue()) != serializedOperatorMap.end())
+        if (alreadySerialized.contains(itr.getId()))
         {
             /// Skip rest of the steps as the operator is already serialized
             continue;
         }
+        alreadySerialized.insert(itr.getId());
         NES_TRACE("QueryPlan: Inserting operator in collection of already visited node.");
-        const SerializableOperator serializeOperator = itr.serialize();
-        serializedOperatorMap[itr.getId().getRawValue()] = serializeOperator;
+        auto* sOp = serializableQueryPlan.add_operators();
+        itr.serialize(*sOp);
+        TraitSetSerializationUtil::serialize(itr.getTraitSet(), sOp->mutable_trait_set());
     }
 
     /// Serialize the root operator ids
@@ -57,16 +64,54 @@ SerializableQueryPlan QueryPlanSerializationUtil::serializeQueryPlan(const Logic
 
 LogicalPlan QueryPlanSerializationUtil::deserializeQueryPlan(const SerializableQueryPlan& serializedQueryPlan)
 {
+    std::vector<Exception> deserializeExceptions;
+
     /// 1) Deserialize all operators into a map
     std::unordered_map<OperatorId::Underlying, LogicalOperator> baseOps;
-    for (const auto& [_, serializedOp] : serializedQueryPlan.operatormap())
+    std::unordered_map<OperatorId::Underlying, std::vector<OperatorId::Underlying>> baseChildren;
+    for (const auto& serializedOp : serializedQueryPlan.operators())
     {
-        baseOps.emplace(serializedOp.operator_id(), OperatorSerializationUtil::deserializeOperator(serializedOp));
+        CPPTRACE_TRY
+        {
+            const auto operatorId = serializedOp.operator_id();
+            auto [_, inserted] = baseOps.emplace(operatorId, OperatorSerializationUtil::deserializeOperator(serializedOp));
+            if (!inserted)
+            {
+                throw CannotDeserialize("Duplicate operator id in {}", serializedQueryPlan.DebugString());
+            }
+            auto& opChildren = baseChildren[operatorId];
+            opChildren.reserve(serializedOp.children_ids_size());
+            for (auto child : serializedOp.children_ids())
+            {
+                opChildren.push_back(child);
+            }
+        }
+        CPPTRACE_CATCH(...)
+        {
+            deserializeExceptions.push_back(wrapExternalException());
+        }
+    }
+
+    if (!deserializeExceptions.empty())
+    {
+        std::string msgs;
+        for (auto& deserExc : deserializeExceptions)
+        {
+            msgs += '\n';
+            msgs += deserExc.what();
+            msgs += deserExc.trace().to_string(true);
+        }
+        throw CannotDeserialize(
+            "Deserialization of {} out of {} operators failed! Encountered Errors:{}",
+            deserializeExceptions.size(),
+            serializedQueryPlan.operators_size(),
+            msgs);
     }
 
     /// 2) Recursive builder to attach all children
     std::unordered_map<OperatorId::Underlying, LogicalOperator> builtOps;
-    std::function<LogicalOperator(OperatorId::Underlying)> build = [&](OperatorId::Underlying id) -> LogicalOperator
+    std::function<LogicalOperator(OperatorId::Underlying, const std::set<OperatorId::Underlying>&)> build
+        = [&](OperatorId::Underlying id, const std::set<OperatorId::Underlying>& ancestors) -> LogicalOperator
     {
         if (const auto memoIt = builtOps.find(id); memoIt != builtOps.end())
         {
@@ -74,26 +119,60 @@ LogicalPlan QueryPlanSerializationUtil::deserializeQueryPlan(const SerializableQ
         }
         const auto baseIt = baseOps.find(id);
 
-        INVARIANT(baseIt != baseOps.end(), "Unknown operator id: {}", id);
+        if (baseIt == baseOps.end())
+        {
+            throw CannotDeserialize("Unknown operator id: {}", id);
+        }
         const LogicalOperator op = baseIt->second;
 
-        const auto& serializedOp = serializedQueryPlan.operatormap().at(id);
         std::vector<LogicalOperator> children;
-        for (const auto childId : serializedOp.children_ids())
+        auto anc = ancestors;
+        anc.insert(id);
+        for (const auto childId : baseChildren.at(id))
         {
-            children.push_back(build(childId));
+            if (ancestors.contains(childId))
+            {
+                throw CannotDeserialize("Cycle in operator graph! Operator {} has operator {} as child and ancestor!", id, childId);
+            }
+            children.push_back(build(childId, anc));
         }
 
-        LogicalOperator withKids = op.withChildren(std::move(children));
+        LogicalOperator withKids = op.withChildren(std::move(children)).withOperatorId(op.getId());
         builtOps.emplace(id, withKids);
         return withKids;
     };
 
     /// 3) Build root-operators
+    if (serializedQueryPlan.rootoperatorids().empty())
+    {
+        throw CannotDeserialize("Query Plan has no root operator(s)!");
+    }
     std::vector<LogicalOperator> rootOperators;
     for (auto rootId : serializedQueryPlan.rootoperatorids())
     {
-        rootOperators.push_back(build(rootId));
+        rootOperators.push_back(build(rootId, {}));
+    }
+
+    if (rootOperators.size() != 1)
+    {
+        throw CannotDeserialize("Plan contains multiple root operators!");
+    }
+
+    auto sink = rootOperators.at(0).tryGetAs<SinkLogicalOperator>();
+    if (!sink)
+    {
+        throw CannotDeserialize(
+            "Plan root has to be a source, but got {} from\n{}", rootOperators.at(0), serializedQueryPlan.DebugString());
+    }
+
+    if (sink->getChildren().empty())
+    {
+        throw CannotDeserialize("Sink has no children! From\n{}", serializedQueryPlan.DebugString());
+    }
+
+    if (not sink.value()->getSinkDescriptor())
+    {
+        throw CannotDeserialize("Sink has no descriptor!");
     }
 
     /// 4) Finalize plan

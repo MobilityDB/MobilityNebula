@@ -19,6 +19,7 @@
 #include <mutex>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 #include <Configurations/Descriptor.hpp>
@@ -26,7 +27,6 @@
 #include <Identifiers/Identifiers.hpp>
 #include <Sources/LogicalSource.hpp>
 #include <Sources/SourceDescriptor.hpp>
-
 
 namespace NES
 {
@@ -47,7 +47,7 @@ public:
     /// @param schema the schema of fields without the logical source name as a prefix
     /// @return the created logical source if successful with a schema containing the logical source name as a prefix,
     /// nullopt if a logical source with that name already existed
-    [[nodiscard]] std::optional<LogicalSource> addLogicalSource(const std::string& logicalSourceName, const Schema& schema);
+    [[nodiscard]] std::optional<NES::LogicalSource> addLogicalSource(const std::string& logicalSourceName, const Schema& schema);
 
 
     /// @brief method to delete a logical source and any associated physical source.
@@ -58,11 +58,9 @@ public:
     /// @return nullopt if the logical source is not registered anymore, otherwise a source descriptor with an assigned id
     [[nodiscard]] std::optional<SourceDescriptor> addPhysicalSource(
         const LogicalSource& logicalSource,
-        WorkerId workerId,
-        const std::string& sourceType,
-        int buffersInLocalPool,
-        NES::Configurations::DescriptorConfig::Config&& descriptorConfig,
-        const ParserConfig& parserConfig);
+        std::string_view sourceType,
+        std::unordered_map<std::string, std::string> descriptorConfig,
+        const std::unordered_map<std::string, std::string>& parserConfig);
 
     /// @brief removes a physical source
     /// @return true if there is a source descriptor with that id registered and it was removed
@@ -75,6 +73,12 @@ public:
 
     [[nodiscard]] std::optional<SourceDescriptor> getPhysicalSource(PhysicalSourceId physicalSourceId) const;
 
+    [[nodiscard]] std::optional<SourceDescriptor> getInlineSource(
+        const std::string& sourceType,
+        const Schema& schema,
+        std::unordered_map<std::string, std::string> parserConfigMap,
+        std::unordered_map<std::string, std::string> sourceConfigMap) const;
+
     /// @brief retrieves physical sources for a logical source
     /// @returns nullopt if the logical source is not registered anymore, else the set of source descriptors associated with it
     [[nodiscard]] std::optional<std::unordered_set<SourceDescriptor>> getPhysicalSources(const LogicalSource& logicalSource) const;
@@ -85,7 +89,7 @@ public:
 
 private:
     mutable std::recursive_mutex catalogMutex;
-    std::atomic<PhysicalSourceId::Underlying> nextPhysicalSourceId{INITIAL_PHYSICAL_SOURCE_ID.getRawValue()};
+    mutable std::atomic<PhysicalSourceId::Underlying> nextPhysicalSourceId{INITIAL_PHYSICAL_SOURCE_ID.getRawValue()};
     std::unordered_map<std::string, LogicalSource> namesToLogicalSourceMapping;
     std::unordered_map<PhysicalSourceId, SourceDescriptor> idsToPhysicalSources;
     std::unordered_map<LogicalSource, std::unordered_set<SourceDescriptor>> logicalToPhysicalSourceMapping;

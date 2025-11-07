@@ -17,31 +17,32 @@
 #include <cstdint>
 #include <memory>
 #include <numeric>
+#include <ranges>
 #include <utility>
 #include <vector>
+
 #include <Aggregation/AggregationBuildPhysicalOperator.hpp>
 #include <Aggregation/AggregationOperatorHandler.hpp>
 #include <Aggregation/AggregationProbePhysicalOperator.hpp>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
-#include <Aggregation/Function/Meos/TemporalSequenceAggregationPhysicalFunction.hpp>
-#include <Aggregation/Function/Meos/VarAggregationFunction.hpp>
-#include <Operators/Windows/Aggregations/Meos/TemporalSequenceAggregationLogicalFunction.hpp>
-#include <Configurations/Worker/QueryOptimizerConfiguration.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
+#include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessPhysicalFunction.hpp>
 #include <Functions/FunctionProvider.hpp>
 #include <Functions/PhysicalFunction.hpp>
 #include <MemoryLayout/ColumnLayout.hpp>
+#include <Nautilus/Interface/BufferRef/ColumnTupleBufferRef.hpp>
 #include <Nautilus/Interface/Hash/MurMur3HashFunction.hpp>
 #include <Nautilus/Interface/HashMap/ChainedHashMap/ChainedEntryMemoryProvider.hpp>
 #include <Nautilus/Interface/HashMap/ChainedHashMap/ChainedHashMap.hpp>
-#include <Nautilus/Interface/MemoryProvider/ColumnTupleBufferMemoryProvider.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <Operators/LogicalOperator.hpp>
 #include <Operators/Windows/WindowedAggregationLogicalOperator.hpp>
 #include <RewriteRules/AbstractRewriteRule.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <SliceStore/DefaultTimeBasedSliceStore.hpp>
+#include <Traits/OutputOriginIdsTrait.hpp>
+#include <Traits/TraitSet.hpp>
 #include <Watermark/TimeFunction.hpp>
 #include <WindowTypes/Measures/TimeCharacteristic.hpp>
 #include <WindowTypes/Types/TimeBasedWindowType.hpp>
@@ -50,7 +51,11 @@
 #include <ErrorHandling.hpp>
 #include <HashMapOptions.hpp>
 #include <PhysicalOperator.hpp>
+#include <QueryExecutionConfiguration.hpp>
 #include <RewriteRuleRegistry.hpp>
+// Special-case lowering for TEMPORAL_SEQUENCE (multi-input) aggregation
+#include <Operators/Windows/Aggregations/Meos/TemporalSequenceAggregationLogicalFunctionV2.hpp>
+#include <Aggregation/Function/Meos/TemporalSequenceAggregationPhysicalFunction.hpp>
 
 namespace NES
 {
@@ -106,8 +111,8 @@ static std::unique_ptr<TimeFunction> getTimeFunction(const WindowedAggregationLo
 
 namespace
 {
-std::vector<std::shared_ptr<AggregationPhysicalFunction>> getAggregationPhysicalFunctions(
-    const WindowedAggregationLogicalOperator& logicalOperator, const NES::Configurations::QueryOptimizerConfiguration& configuration)
+std::vector<std::shared_ptr<AggregationPhysicalFunction>>
+getAggregationPhysicalFunctions(const WindowedAggregationLogicalOperator& logicalOperator, const QueryExecutionConfiguration& configuration)
 {
     std::vector<std::shared_ptr<AggregationPhysicalFunction>> aggregationPhysicalFunctions;
     const auto& aggregationDescriptors = logicalOperator.getWindowAggregation();
@@ -116,72 +121,57 @@ std::vector<std::shared_ptr<AggregationPhysicalFunction>> getAggregationPhysical
         auto physicalInputType = DataTypeProvider::provideDataType(descriptor->getInputStamp().type);
         auto physicalFinalType = DataTypeProvider::provideDataType(descriptor->getFinalAggregateStamp().type);
 
-        auto aggregationInputFunction = QueryCompilation::FunctionProvider::lowerFunction(descriptor->onField);
         const auto resultFieldIdentifier = descriptor->asField.getFieldName();
-        auto layout = std::make_shared<Memory::MemoryLayouts::ColumnLayout>(
-            configuration.pageSize.getValue(), logicalOperator.getInputSchemas()[0]);
-        auto memoryProvider = std::make_shared<Interface::MemoryProvider::ColumnTupleBufferMemoryProvider>(layout);
+        auto layout = std::make_shared<ColumnLayout>(configuration.pageSize.getValue(), logicalOperator.getInputSchemas()[0]);
+        auto columnBufferRef = std::make_shared<Interface::BufferRef::ColumnTupleBufferRef>(layout);
 
-        auto name = descriptor->getName();
+        const auto name = descriptor->getName();
+
+        // Custom lowering path for TEMPORAL_SEQUENCE: needs three field functions (lon, lat, ts)
+        if (name == std::string_view("TemporalSequence"))
+        {
+            auto tsDescriptor = std::dynamic_pointer_cast<TemporalSequenceAggregationLogicalFunctionV2>(descriptor);
+            INVARIANT(tsDescriptor != nullptr, "Expected TemporalSequenceAggregationLogicalFunctionV2 for TemporalSequence");
+
+            // Lower the three input fields (lon, lat, timestamp)
+            auto lonPF = QueryCompilation::FunctionProvider::lowerFunction(tsDescriptor->getLonField());
+            auto latPF = QueryCompilation::FunctionProvider::lowerFunction(tsDescriptor->getLatField());
+            auto tsPF = QueryCompilation::FunctionProvider::lowerFunction(tsDescriptor->getTimestampField());
+
+            // Create a dedicated in-memory layout for the aggregation state (PagedVector) that
+            // matches the field identifiers used by the physical function ("lon", "lat", "timestamp").
+            // Using the input schema here is incorrect because it would not match the internal
+            // record written by the aggregation state, causing lookups by name to fail.
+            Schema stateSchema;
+            stateSchema.addField("lon", tsDescriptor->getLonField().getDataType());
+            stateSchema.addField("lat", tsDescriptor->getLatField().getDataType());
+            stateSchema.addField("timestamp", tsDescriptor->getTimestampField().getDataType());
+            auto tupleBufferRef = Interface::BufferRef::TupleBufferRef::create(configuration.pageSize.getValue(), stateSchema);
+
+            auto phys = std::make_shared<TemporalSequenceAggregationPhysicalFunction>(
+                std::move(physicalInputType),
+                std::move(physicalFinalType),
+                lonPF,
+                latPF,
+                tsPF,
+                resultFieldIdentifier,
+                tupleBufferRef);
+            aggregationPhysicalFunctions.push_back(std::move(phys));
+            continue;
+        }
+
+        // Default path: use registry for single-input aggregations
+        auto aggregationInputFunction = QueryCompilation::FunctionProvider::lowerFunction(descriptor->onField);
         auto aggregationArguments = AggregationPhysicalFunctionRegistryArguments(
             std::move(physicalInputType),
             std::move(physicalFinalType),
             std::move(aggregationInputFunction),
             resultFieldIdentifier,
-            memoryProvider);
-        if (name == "TemporalSequence")
-        {
-            // Cast to get access to the specific TemporalSequence fields
-            auto* temporalSeqDescriptor = dynamic_cast<const TemporalSequenceAggregationLogicalFunction*>(descriptor.get());
-            PRECONDITION(temporalSeqDescriptor, "Expected TemporalSequenceAggregationLogicalFunction but got different type");
-            
-            // Create physical functions for all three input fields
-            auto lonPhysicalFunction = QueryCompilation::FunctionProvider::lowerFunction(temporalSeqDescriptor->getLonField());
-            auto latPhysicalFunction = QueryCompilation::FunctionProvider::lowerFunction(temporalSeqDescriptor->getLatField());
-            auto timestampPhysicalFunction = QueryCompilation::FunctionProvider::lowerFunction(temporalSeqDescriptor->getTimestampField());
-            
-            // TEMPORAL_SEQUENCE outputs VARSIZED trajectory data
-            auto varsizedType = DataTypeProvider::provideDataType(DataType::Type::VARSIZED);
-            
-            // Create memory layout and provider for PagedVector with proper schema for temporal sequence
-            // Temporal sequences need to store lon, lat, and timestamp for each point
-            auto temporalSequenceSchema = Schema()
-                .addField("lon", DataType(DataType::Type::FLOAT64))
-                .addField("lat", DataType(DataType::Type::FLOAT64))
-                .addField("timestamp", DataType(DataType::Type::INT64));
-                
-            auto layout = std::make_shared<Memory::MemoryLayouts::ColumnLayout>(
-                NES::Configurations::DEFAULT_PAGED_VECTOR_SIZE, temporalSequenceSchema);
-            auto memoryProvider = std::make_shared<Nautilus::Interface::MemoryProvider::ColumnTupleBufferMemoryProvider>(layout);
-            
-            // Get the actual input type from the lon field (should be FLOAT64)
-            auto lonFieldType = temporalSeqDescriptor->getLonField().getDataType();
-            auto inputDataType = DataTypeProvider::provideDataType(lonFieldType.type);
-            
-            aggregationPhysicalFunctions.emplace_back(std::make_shared<TemporalSequenceAggregationPhysicalFunction>(
-                std::move(inputDataType),      // Input type (FLOAT64 for coordinates)
-                std::move(physicalFinalType), // Result type (will be VARSIZED)
-                std::move(lonPhysicalFunction),
-                std::move(latPhysicalFunction),
-                std::move(timestampPhysicalFunction),
-                resultFieldIdentifier,
-                memoryProvider));
-        }
-        else if (auto aggregationPhysicalFunction
+            columnBufferRef);
+        if (auto aggregationPhysicalFunction
             = AggregationPhysicalFunctionRegistry::instance().create(std::string(name), std::move(aggregationArguments)))
         {
             aggregationPhysicalFunctions.push_back(aggregationPhysicalFunction.value());
-        }
-        else if (name == "Var")
-        {
-            /// We assume that the count is a u64
-            auto countType = DataTypeProvider::provideDataType(DataType::Type::UINT64);
-            aggregationPhysicalFunctions.emplace_back(std::make_shared<VarAggregationFunction>(
-                std::move(physicalInputType),
-                std::move(physicalFinalType),
-                std::move(aggregationInputFunction),
-                resultFieldIdentifier,
-                std::move(countType)));
         }
         else
         {
@@ -194,20 +184,25 @@ std::vector<std::shared_ptr<AggregationPhysicalFunction>> getAggregationPhysical
 
 RewriteRuleResultSubgraph LowerToPhysicalWindowedAggregation::apply(LogicalOperator logicalOperator)
 {
-    PRECONDITION(logicalOperator.tryGet<WindowedAggregationLogicalOperator>(), "Expected a WindowedAggregationLogicalOperator");
-    PRECONDITION(logicalOperator.getInputOriginIds().size() == 1, "Expected one origin id vector");
-    PRECONDITION(logicalOperator.getOutputOriginIds().size() == 1, "Expected one output origin id");
+    PRECONDITION(logicalOperator.tryGetAs<WindowedAggregationLogicalOperator>(), "Expected a WindowedAggregationLogicalOperator");
+    PRECONDITION(std::ranges::size(logicalOperator.getChildren()) == 1, "Expected one child");
+    auto outputOriginIdsOpt = getTrait<OutputOriginIdsTrait>(logicalOperator.getTraitSet());
+    auto inputOriginIdsOpt = getTrait<OutputOriginIdsTrait>(logicalOperator.getChildren().at(0).getTraitSet());
+    PRECONDITION(outputOriginIdsOpt.has_value(), "Expected the outputOriginIds trait to be set");
+    PRECONDITION(inputOriginIdsOpt.has_value(), "Expected the inputOriginIds trait to be set");
+    auto& outputOriginIds = outputOriginIdsOpt.value();
+    PRECONDITION(std::ranges::size(outputOriginIds) == 1, "Expected one output origin id");
     PRECONDITION(logicalOperator.getInputSchemas().size() == 1, "Expected one input schema");
 
-    auto aggregation = logicalOperator.get<WindowedAggregationLogicalOperator>();
+    auto aggregation = logicalOperator.getAs<WindowedAggregationLogicalOperator>();
     auto handlerId = getNextOperatorHandlerId();
     auto outputSchema = aggregation.getOutputSchema();
-    auto inputOriginIds = aggregation.getInputOriginIds()[0];
-    auto outputOriginId = aggregation.getOutputOriginIds()[0];
-    auto timeFunction = getTimeFunction(aggregation);
-    auto windowType = std::dynamic_pointer_cast<Windowing::TimeBasedWindowType>(aggregation.getWindowType());
+    auto outputOriginId = outputOriginIds[0];
+    auto inputOriginIds = inputOriginIdsOpt.value();
+    auto timeFunction = getTimeFunction(*aggregation);
+    auto windowType = std::dynamic_pointer_cast<Windowing::TimeBasedWindowType>(aggregation->getWindowType());
     INVARIANT(windowType != nullptr, "Window type must be a time-based window type");
-    auto aggregationPhysicalFunctions = getAggregationPhysicalFunctions(aggregation, conf);
+    auto aggregationPhysicalFunctions = getAggregationPhysicalFunctions(*aggregation, conf);
 
     const auto valueSize = std::accumulate(
         aggregationPhysicalFunctions.begin(),
@@ -218,7 +213,7 @@ RewriteRuleResultSubgraph LowerToPhysicalWindowedAggregation::apply(LogicalOpera
     uint64_t keySize = 0;
     std::vector<PhysicalFunction> keyFunctions;
     auto newInputSchema = aggregation.getInputSchemas()[0];
-    for (auto& nodeFunctionKey : aggregation.getGroupingKeys())
+    for (auto& nodeFunctionKey : aggregation->getGroupingKeys())
     {
         auto loweredFunctionType = nodeFunctionKey.getDataType();
         if (loweredFunctionType.isType(DataType::Type::VARSIZED))
@@ -235,11 +230,11 @@ RewriteRuleResultSubgraph LowerToPhysicalWindowedAggregation::apply(LogicalOpera
     const auto pageSize = conf.pageSize.getValue();
     const auto entriesPerPage = pageSize / entrySize;
 
-    const auto& [fieldKeyNames, fieldValueNames] = getKeyAndValueFields(aggregation);
+    const auto& [fieldKeyNames, fieldValueNames] = getKeyAndValueFields(*aggregation);
     const auto& [fieldKeys, fieldValues]
-        = Interface::MemoryProvider::ChainedEntryMemoryProvider::createFieldOffsets(newInputSchema, fieldKeyNames, fieldValueNames);
+        = Interface::BufferRef::ChainedEntryMemoryProvider::createFieldOffsets(newInputSchema, fieldKeyNames, fieldValueNames);
 
-    const auto windowMetaData = WindowMetaData{aggregation.getWindowStartFieldName(), aggregation.getWindowEndFieldName()};
+    const auto windowMetaData = WindowMetaData{aggregation->getWindowStartFieldName(), aggregation->getWindowEndFieldName()};
 
     const HashMapOptions hashMapOptions(
         std::make_unique<Interface::MurMur3HashFunction>(),
@@ -253,10 +248,10 @@ RewriteRuleResultSubgraph LowerToPhysicalWindowedAggregation::apply(LogicalOpera
         pageSize,
         numberOfBuckets);
 
-    auto sliceAndWindowStore = std::make_unique<DefaultTimeBasedSliceStore>(
-        windowType->getSize().getTime(), windowType->getSlide().getTime(), inputOriginIds.size());
+    auto sliceAndWindowStore
+        = std::make_unique<DefaultTimeBasedSliceStore>(windowType->getSize().getTime(), windowType->getSlide().getTime());
     auto handler = std::make_shared<AggregationOperatorHandler>(
-        inputOriginIds, outputOriginId, std::move(sliceAndWindowStore), aggregation.requiresSequentialAggregation());
+        inputOriginIds | std::ranges::to<std::vector>(), outputOriginId, std::move(sliceAndWindowStore), conf.maxNumberOfBuckets);
     auto build = AggregationBuildPhysicalOperator(handlerId, std::move(timeFunction), aggregationPhysicalFunctions, hashMapOptions);
     auto probe = AggregationProbePhysicalOperator(hashMapOptions, aggregationPhysicalFunctions, handlerId, windowMetaData);
 
@@ -274,7 +269,7 @@ RewriteRuleResultSubgraph LowerToPhysicalWindowedAggregation::apply(LogicalOpera
 
     /// Creates a physical leaf for each logical leaf. Required, as this operator can have any number of sources.
     std::vector leafes(logicalOperator.getChildren().size(), buildWrapper);
-    return {.root = probeWrapper, .leafs = {leafes}};
+    return {.root = probeWrapper, .leafs = leafes};
 }
 
 std::unique_ptr<AbstractRewriteRule>

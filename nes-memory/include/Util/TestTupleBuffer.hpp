@@ -14,22 +14,26 @@
 
 #pragma once
 
+#include <Runtime/TupleBuffer.hpp>
+
 #include <cstdint>
 #include <cstring>
 #include <memory>
 #include <ostream>
+#include <span>
 #include <string>
 #include <type_traits>
 #include <variant>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/Schema.hpp>
+#include <Identifiers/NESStrongType.hpp>
 #include <MemoryLayout/MemoryLayout.hpp>
+#include <MemoryLayout/VariableSizedAccess.hpp>
 #include <Runtime/BufferManager.hpp>
-#include <Runtime/TupleBuffer.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <ErrorHandling.hpp>
 
-namespace NES::Memory::MemoryLayouts
+namespace NES
 {
 
 template <class Type>
@@ -43,7 +47,6 @@ concept ContainsString = requires { requires(std::is_same_v<std::string, Types> 
 template <class Type>
 concept IsString = std::is_same_v<std::remove_cvref_t<Type>, std::string>;
 
-
 /// The DynamicField allows to read and write a field at a
 /// specific address and a specific data type.
 /// For all field accesses we check that the template type is the same as the selected physical field type.
@@ -51,7 +54,7 @@ concept IsString = std::is_same_v<std::remove_cvref_t<Type>, std::string>;
 class DynamicField
 {
 public:
-    explicit DynamicField(const uint8_t* address, DataType physicalType);
+    explicit DynamicField(std::span<const uint8_t> memory, DataType physicalType);
 
     /// Read a pointer type and return the value as a pointer.
     /// @tparam Type of the field requires to be a NesType.
@@ -60,11 +63,13 @@ public:
     requires IsNesType<Type> && std::is_pointer<Type>::value
     [[nodiscard]] Type read() const
     {
-        if (not physicalType.isSameDataType<Type>())
+        /// For VARSIZED, we access the field via uint64_t to read the @class VariableSizedAccess
+        if (not physicalType.isSameDataType<Type>()
+            and not(physicalType.isType(DataType::Type::VARSIZED) and std::is_same_v<std::remove_cvref_t<Type>, std::uint64_t>))
         {
             throw CannotAccessBuffer("Wrong field type passed. Field is of type {} but accessed as {}", physicalType, typeid(Type).name());
         }
-        return reinterpret_cast<Type>(const_cast<uint8_t*>(address));
+        return reinterpret_cast<Type>(const_cast<uint8_t*>(memory.data()));
     };
 
     /// @brief Reads a field with a value Type. Checks if the passed Type is the same as the physical field type.
@@ -72,14 +77,16 @@ public:
     /// @throws CannotAccessBuffer if the passed Type is not the same as the physicalType of the field.
     /// @return Value of the field.
     template <class Type>
-    requires(IsNesType<Type> && not std::is_pointer<Type>::value)
+    requires(IsNesType<Type> && not std::is_pointer_v<Type>)
     [[nodiscard]] Type& read() const
     {
-        if (not physicalType.isSameDataType<Type>())
+        /// For VARSIZED, we access the field via uint64_t to read the @class VariableSizedAccess
+        if (not physicalType.isSameDataType<Type>()
+            and not(physicalType.isType(DataType::Type::VARSIZED) and std::is_same_v<std::remove_cvref_t<Type>, std::uint64_t>))
         {
             throw CannotAccessBuffer("Wrong field type passed. Field is of type {} but accessed as {}", physicalType, typeid(Type).name());
         }
-        return *reinterpret_cast<Type*>(const_cast<uint8_t*>(address));
+        return *reinterpret_cast<Type*>(const_cast<uint8_t*>(memory.data()));
     };
 
     /// @brief Reads a field with a value Type. Checks if the passed Type is the same as the physical field type.
@@ -87,14 +94,16 @@ public:
     /// @throws CannotAccessBuffer if the passed Type is not the same as the physicalType of the field.
     /// @return Value of the field.
     template <class Type>
-    requires(NESIdentifier<Type> && not std::is_pointer<Type>::value)
+    requires(NESIdentifier<Type> && not std::is_pointer_v<Type>)
     inline Type read() const
     {
-        if (not physicalType.isSameDataType<typename Type::Underlying>())
+        /// For VARSIZED, we access the field via uint64_t to read the @class VariableSizedAccess
+        if (not physicalType.isSameDataType<Type>()
+            and not(physicalType.isType(DataType::Type::VARSIZED) and std::is_same_v<std::remove_cvref_t<Type>, std::uint64_t>))
         {
             throw CannotAccessBuffer("Wrong field type passed. Field is of type {} but accessed as {}", physicalType, typeid(Type).name());
         }
-        return Type(*reinterpret_cast<typename Type::Underlying*>(const_cast<uint8_t*>(address)));
+        return Type(*reinterpret_cast<typename Type::Underlying*>(const_cast<uint8_t*>(memory.data())));
     };
 
     /// @brief Writes a value to a specific field address.
@@ -109,7 +118,7 @@ public:
         {
             throw CannotAccessBuffer("Wrong field type passed. Field is of type {} but accessed as {}", physicalType, typeid(Type).name());
         }
-        *reinterpret_cast<Type*>(const_cast<uint8_t*>(address)) = value;
+        *reinterpret_cast<Type*>(const_cast<uint8_t*>(memory.data())) = value;
     };
 
     /// @brief Writes a value to a specific field address.
@@ -124,7 +133,7 @@ public:
         {
             throw CannotAccessBuffer("Wrong field type passed. Field is of type {} but accessed as {}", physicalType, typeid(Type).name());
         }
-        *reinterpret_cast<typename Type::Underlying*>(const_cast<uint8_t*>(address)) = value.getRawValue();
+        *reinterpret_cast<typename Type::Underlying*>(const_cast<uint8_t*>(memory.data())) = value.getRawValue();
     };
 
     [[nodiscard]] std::string toString() const;
@@ -139,10 +148,10 @@ public:
 
     [[nodiscard]] const DataType& getPhysicalType() const;
 
-    [[nodiscard]] const uint8_t* getAddressPointer() const;
+    [[nodiscard]] std::span<const uint8_t> getMemory() const;
 
 private:
-    const uint8_t* address;
+    std::span<const uint8_t> memory;
     DataType physicalType;
 };
 
@@ -152,7 +161,7 @@ class DynamicTuple
 {
 public:
     /// Each tuple contains the index, to the memory layout and to the tuple buffer.
-    DynamicTuple(uint64_t tupleIndex, std::shared_ptr<MemoryLayout> memoryLayout, Memory::TupleBuffer buffer);
+    DynamicTuple(uint64_t tupleIndex, std::shared_ptr<MemoryLayout> memoryLayout, TupleBuffer buffer);
 
     /// @throws CannotAccessBuffer if field index is invalid
     DynamicField operator[](std::size_t fieldIndex) const;
@@ -162,9 +171,9 @@ public:
     DynamicField operator[](std::string fieldName) const;
 
     void
-    writeVarSized(std::variant<const uint64_t, const std::string> field, std::string value, Memory::AbstractBufferProvider& bufferProvider);
+    writeVarSized(std::variant<const uint64_t, const std::string> field, std::string_view value, AbstractBufferProvider& bufferProvider);
 
-    std::string readVarSized(std::variant<const uint64_t, const std::string> field);
+    [[nodiscard]] std::string readVarSized(std::variant<const uint64_t, const std::string> field) const;
 
     [[nodiscard]] std::string toString(const Schema& schema) const;
 
@@ -176,7 +185,7 @@ public:
 private:
     uint64_t tupleIndex;
     std::shared_ptr<MemoryLayout> memoryLayout;
-    Memory::TupleBuffer buffer;
+    TupleBuffer buffer;
 };
 
 /**
@@ -227,9 +236,9 @@ public:
         NO_HEADER_END_IN_NEWLINE,
         NO_HEADER_END_WITHOUT_NEWLINE,
     };
-    explicit TestTupleBuffer(const std::shared_ptr<MemoryLayout>& memoryLayout, const Memory::TupleBuffer& buffer);
+    explicit TestTupleBuffer(const std::shared_ptr<MemoryLayout>& memoryLayout, const TupleBuffer& buffer);
 
-    static TestTupleBuffer createTestTupleBuffer(const Memory::TupleBuffer& buffer, const Schema& schema);
+    static TestTupleBuffer createTestTupleBuffer(const TupleBuffer& buffer, const Schema& schema);
 
     /// Gets the number of tuples a tuple buffer with this memory layout could occupy.
     [[nodiscard]] uint64_t getCapacity() const;
@@ -240,10 +249,10 @@ public:
     void setNumberOfTuples(uint64_t value);
 
 
-    /// @throws CannotAccessBuffer if index is larger then buffer capacity
+    /// @throws CannotAccessBuffer if index is larger than buffer capacity
     DynamicTuple operator[](std::size_t tupleIndex) const;
 
-    Memory::TupleBuffer getBuffer();
+    TupleBuffer getBuffer();
 
     /**
      * @brief Iterator to process the tuples in a TestTupleBuffer.
@@ -316,7 +325,7 @@ public:
      */
     template <typename... Types>
     requires(ContainsString<Types> || ...)
-    void pushRecordToBuffer(std::tuple<Types...> record, Memory::BufferManager* bufferManager)
+    void pushRecordToBuffer(std::tuple<Types...> record, BufferManager* bufferManager)
     {
         pushRecordToBufferAtIndex(record, buffer.getNumberOfTuples(), bufferManager);
     }
@@ -333,8 +342,7 @@ public:
      * @return true if the record was pushed successfully, false otherwise.
      */
     template <typename... Types>
-    void
-    pushRecordToBufferAtIndex(std::tuple<Types...> record, uint64_t recordIndex, Memory::AbstractBufferProvider* bufferProvider = nullptr)
+    void pushRecordToBufferAtIndex(std::tuple<Types...> record, uint64_t recordIndex, AbstractBufferProvider* bufferProvider = nullptr)
     {
         uint64_t numberOfRecords = buffer.getNumberOfTuples();
         uint64_t fieldIndex = 0;
@@ -416,8 +424,9 @@ private:
         {
             if constexpr (IsString<typename std::tuple_element<I, std::tuple<Types...>>::type>)
             {
-                auto childBufferIdx = (*this)[recordIndex][I].read<Memory::TupleBuffer::NestedTupleBufferKey>();
-                std::get<I>(record) = readVarSizedData(this->buffer, childBufferIdx);
+                const VariableSizedAccess childBufferIdx{
+                    *reinterpret_cast<uint64_t*>(const_cast<uint8_t*>((*this)[recordIndex][I].getMemory().data()))};
+                std::get<I>(record) = MemoryLayout::readVarSizedDataAsString(this->buffer, childBufferIdx);
             }
             else
             {
@@ -431,7 +440,7 @@ private:
     }
 
     std::shared_ptr<MemoryLayout> memoryLayout;
-    Memory::TupleBuffer buffer;
+    TupleBuffer buffer;
 };
 
 }

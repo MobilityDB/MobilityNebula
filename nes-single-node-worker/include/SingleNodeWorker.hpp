@@ -23,6 +23,8 @@
 #include <Runtime/Execution/QueryStatus.hpp>
 #include <Runtime/NodeEngine.hpp>
 #include <Runtime/QueryTerminationType.hpp>
+#include <Util/Pointers.hpp>
+#include <CompositeStatisticListener.hpp>
 #include <ErrorHandling.hpp>
 #include <QueryCompiler.hpp>
 #include <QueryOptimizer.hpp>
@@ -30,7 +32,6 @@
 
 namespace NES
 {
-struct PrintingStatisticListener;
 
 /// @brief The SingleNodeWorker is a compiling StreamProcessingEngine, working alone on local sources and sinks, without external
 /// coordination. The SingleNodeWorker can register LogicalQueryPlans which are lowered into an executable format, by the
@@ -38,14 +39,14 @@ struct PrintingStatisticListener;
 /// The Class itself is NonCopyable, but Movable, it owns the QueryCompiler and the NodeEngine.
 class SingleNodeWorker
 {
-    std::shared_ptr<PrintingStatisticListener> listener;
-    std::shared_ptr<NodeEngine> nodeEngine;
-    size_t bufferSize;
-    std::unique_ptr<QueryOptimizer> optimizer;
-    std::unique_ptr<QueryCompilation::QueryCompiler> compiler;
+    SharedPtr<CompositeStatisticListener> listener;
+    SharedPtr<NodeEngine> nodeEngine;
+    UniquePtr<QueryOptimizer> optimizer;
+    UniquePtr<QueryCompilation::QueryCompiler> compiler;
+    SingleNodeWorkerConfiguration configuration;
 
 public:
-    explicit SingleNodeWorker(const Configuration::SingleNodeWorkerConfiguration&);
+    explicit SingleNodeWorker(const SingleNodeWorkerConfiguration&);
     ~SingleNodeWorker();
     /// Non-Copyable
     SingleNodeWorker(const SingleNodeWorker& other) = delete;
@@ -59,26 +60,26 @@ public:
     /// returned the query can be started with the QueryId. The registered Query will be in the StoppedState
     /// @param plan Fully Specified LogicalQueryPlan.
     /// @return QueryId which identifies the registered Query
-    [[nodiscard]] std::expected<QueryId, Exception> registerQuery(LogicalPlan plan) const;
+    [[nodiscard]] std::expected<QueryId, Exception> registerQuery(LogicalPlan plan) noexcept;
 
     /// Starts the Query asynchronously and moves it into the RunningState. Query execution error are only reported during runtime
     /// of the query.
     /// @param queryId identifies the registered query
-    void startQuery(QueryId queryId);
+    std::expected<void, Exception> startQuery(QueryId queryId) noexcept;
 
     /// Stops the Query and moves it into the StoppedState. The exact semantics and guarantees depend on the chosen
     ///  QueryTerminationType
     /// @param queryId identifies the registered query
     /// @param terminationType dictates what happens with in in-flight data
-    void stopQuery(QueryId queryId, QueryTerminationType terminationType);
+    std::expected<void, Exception> stopQuery(QueryId queryId, QueryTerminationType terminationType) noexcept;
 
     /// Unregisters a stopped Query.
     /// @param queryId identifies the registered stopped query
-    void unregisterQuery(QueryId queryId);
+    std::expected<void, Exception> unregisterQuery(QueryId queryId) noexcept;
 
     /// Complete history of query status changes.
     [[nodiscard]] std::optional<QueryLog::Log> getQueryLog(QueryId queryId) const;
     /// Summary structure for query.
-    [[nodiscard]] std::optional<QuerySummary> getQuerySummary(QueryId queryId) const;
+    [[nodiscard]] std::expected<LocalQueryStatus, Exception> getQueryStatus(QueryId queryId) const noexcept;
 };
 }

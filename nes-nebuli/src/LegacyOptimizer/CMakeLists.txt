@@ -11,10 +11,14 @@
 # limitations under the License.
 
 add_source_files(nes-legacy-optimizer
+        InlineSinkBindingPhase.cpp
+        InlineSourceBindingPhase.cpp
         SourceInferencePhase.cpp
-        SequentialAggregationRule.cpp
         LogicalSourceExpansionRule.cpp
+        RedundantUnionRemovalRule.cpp
+        RedundantProjectionRemovalRule.cpp
         OriginIdInferencePhase.cpp
         TypeInferencePhase.cpp
-        ModelInferenceCompilationRule.cpp
+        SinkBindingRule.cpp
+        LegacyOptimizer.cpp
 )

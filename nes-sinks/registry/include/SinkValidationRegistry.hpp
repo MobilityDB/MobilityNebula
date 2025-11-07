@@ -19,10 +19,11 @@
 #include <Configurations/Descriptor.hpp>
 #include <Util/Registry.hpp>
 
-namespace NES::Sinks
+namespace NES
 {
 
-using SinkValidationRegistryReturnType = NES::Configurations::DescriptorConfig::Config;
+using SinkValidationRegistryReturnType = DescriptorConfig::Config;
+
 struct SinkValidationRegistryArguments
 {
     std::unordered_map<std::string, std::string> config;

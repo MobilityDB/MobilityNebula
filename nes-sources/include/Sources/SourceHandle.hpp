@@ -24,11 +24,16 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-namespace NES::Sources
+namespace NES
 {
 
 /// Hides SourceThread implementation.
 class SourceThread;
+
+struct SourceRuntimeConfiguration
+{
+    size_t inflightBufferLimit;
+};
 
 /// Interface class to handle sources.
 /// Created from a source descriptor via the SourceProvider.
@@ -40,8 +45,8 @@ class SourceHandle
 public:
     explicit SourceHandle(
         OriginId originId, /// Todo #241: Rethink use of originId for sources, use new identifier for unique identification.
-        std::shared_ptr<NES::Memory::AbstractPoolProvider> bufferPool,
-        size_t numberOfBuffersInLocalPool,
+        SourceRuntimeConfiguration configuration,
+        std::shared_ptr<AbstractBufferProvider> bufferPool,
         std::unique_ptr<Source> sourceImplementation);
 
     ~SourceHandle();
@@ -50,18 +55,21 @@ public:
     void stop() const;
 
     /// Tries to stop the source within a given timeout.
-    [[nodiscard]] SourceReturnType::TryStopResult tryStop(std::chrono::milliseconds timeout) const;
+    [[nodiscard]] NES::SourceReturnType::TryStopResult tryStop(std::chrono::milliseconds timeout) const;
 
     friend std::ostream& operator<<(std::ostream& out, const SourceHandle& sourceHandle);
 
     /// Todo #241: Rethink use of originId for sources, use new identifier for unique identification.
     [[nodiscard]] OriginId getSourceId() const;
 
+    const SourceRuntimeConfiguration& getRuntimeConfiguration() const { return configuration; }
+
 private:
+    SourceRuntimeConfiguration configuration;
     /// Used to print the data source via the overloaded '<<' operator.
     std::unique_ptr<SourceThread> sourceThread;
 };
 
 }
 
-FMT_OSTREAM(NES::Sources::SourceHandle);
+FMT_OSTREAM(NES::SourceHandle);

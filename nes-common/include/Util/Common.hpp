@@ -18,6 +18,9 @@
 #include <ostream>
 #include <string>
 #include <vector>
+
+#include <experimental/propagate_const>
+
 #include <ErrorHandling.hpp>
 
 namespace NES
@@ -105,24 +108,16 @@ std::unique_ptr<T> dynamic_pointer_cast(std::unique_ptr<S>&& ptr) noexcept
     return nullptr;
 }
 
-/// Creates new unique temporary directory with a custom prefix
-std::filesystem::path createTempDir(std::string_view prefix);
-
-class TempDirectoryCleanup
+template <typename T>
+std::shared_ptr<const T> copyPtr(const std::experimental::propagate_const<std::shared_ptr<T>>& ptr)
 {
-    std::optional<std::filesystem::path> deleteOnExit;
-    void cleanup() noexcept;
+    return std::shared_ptr<const T>{std::experimental::get_underlying(ptr)};
+}
 
-public:
-    explicit TempDirectoryCleanup(std::filesystem::path delete_on_exit);
-    ~TempDirectoryCleanup();
-    TempDirectoryCleanup(const TempDirectoryCleanup& other) = delete;
-    TempDirectoryCleanup(TempDirectoryCleanup&& other) noexcept;
-    TempDirectoryCleanup& operator=(const TempDirectoryCleanup& other) = delete;
-    TempDirectoryCleanup& operator=(TempDirectoryCleanup&& other) noexcept;
-};
-
-/// Convert an errno value into an error message string
-std::string errnoString(int error);
+template <typename T>
+std::shared_ptr<T> copyPtr(std::experimental::propagate_const<std::shared_ptr<T>>& ptr)
+{
+    return std::shared_ptr<T>{std::experimental::get_underlying(ptr)};
+}
 
 }

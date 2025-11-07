@@ -38,69 +38,62 @@ public:
     LogicalPlan() = default;
     explicit LogicalPlan(LogicalOperator rootOperator);
     explicit LogicalPlan(QueryId queryId, std::vector<LogicalOperator> rootOperators);
+    explicit LogicalPlan(QueryId queryId, std::vector<LogicalOperator> rootOperators, std::string originalSql);
+
+    LogicalPlan(const LogicalPlan& other) = default;
+    LogicalPlan& operator=(const LogicalPlan& other);
+    LogicalPlan(LogicalPlan&& other) noexcept;
+    LogicalPlan& operator=(LogicalPlan&& other) noexcept;
 
     [[nodiscard]] bool operator==(const LogicalPlan& otherPlan) const;
     friend std::ostream& operator<<(std::ostream& os, const LogicalPlan& plan);
 
-    std::vector<LogicalOperator> rootOperators;
-
     [[nodiscard]] QueryId getQueryId() const;
-    [[nodiscard]] const std::string& getOriginalSql() const;
+    [[nodiscard]] std::string getOriginalSql() const;
+    [[nodiscard]] std::vector<LogicalOperator> getRootOperators() const;
+
+    [[nodiscard]] LogicalPlan withRootOperators(const std::vector<LogicalOperator>& operators) const;
 
     void setOriginalSql(const std::string& sql);
     void setQueryId(QueryId id);
 
 private:
-    /// Holds the original SQL string
-    std::string originalSql;
     QueryId queryId = INVALID_QUERY_ID;
+    std::vector<LogicalOperator> rootOperators;
+    std::string originalSql; /// Holds the original SQL string
 };
 
 /// Get all parent operators of the target operator
 [[nodiscard]] std::vector<LogicalOperator> getParents(const LogicalPlan& plan, const LogicalOperator& target);
 
 /// Replace `target` with `replacement`, keeping target's children
-[[nodiscard]] std::optional<LogicalPlan>
-replaceOperator(const LogicalPlan& plan, const LogicalOperator& target, LogicalOperator replacement);
+[[nodiscard]] std::optional<LogicalPlan> replaceOperator(const LogicalPlan& plan, OperatorId target, LogicalOperator replacement);
 
 /// Replace `target` with `replacement`, keeping the children that are already inside `replacement`
-[[nodiscard]] std::optional<LogicalPlan>
-replaceSubtree(const LogicalPlan& plan, const LogicalOperator& target, const LogicalOperator& replacement);
+[[nodiscard]] std::optional<LogicalPlan> replaceSubtree(const LogicalPlan& plan, OperatorId target, const LogicalOperator& replacement);
 
 /// Adds a new operator to the plan and promotes it as new root by reparenting existing root operators and replacing the current roots
 [[nodiscard]] LogicalPlan promoteOperatorToRoot(const LogicalPlan& plan, const LogicalOperator& newRoot);
 
-template <class T>
-[[nodiscard]] std::vector<T> getOperatorByType(const LogicalPlan& plan)
+[[nodiscard]] LogicalPlan addRootOperators(const LogicalPlan& plan, const std::vector<LogicalOperator>& rootsToAdd);
+
+template <LogicalOperatorConcept T>
+[[nodiscard]] std::vector<TypedLogicalOperator<T>> getOperatorByType(const LogicalPlan& plan)
 {
-    std::vector<T> operators;
+    std::vector<TypedLogicalOperator<T>> operators;
     std::ranges::for_each(
-        plan.rootOperators,
+        plan.getRootOperators(),
         [&operators](const auto& rootOperator)
         {
             auto typedOps = BFSRange(rootOperator)
-                | std::views::filter([&](const LogicalOperator& op) { return op.tryGet<T>().has_value(); })
-                | std::views::transform([](const LogicalOperator& op) { return op.get<T>(); });
+                | std::views::filter([&](const LogicalOperator& op) { return op.tryGetAs<T>().has_value(); })
+                | std::views::transform([](const LogicalOperator& op) { return op.getAs<T>(); });
             std::ranges::copy(typedOps, std::back_inserter(operators));
         });
     return operators;
 }
 
-template <typename... TraitTypes>
-[[nodiscard]] std::vector<LogicalOperator> getOperatorsByTraits(const LogicalPlan& plan)
-{
-    std::vector<LogicalOperator> matchingOperators;
-    std::ranges::for_each(
-        plan.rootOperators,
-        [&matchingOperators](const auto& rootOperator)
-        {
-            auto ops = BFSRange(rootOperator);
-            auto filtered = ops | std::views::filter([&](const LogicalOperator& op) { return hasTraits<TraitTypes...>(op.getTraitSet()); });
-
-            std::ranges::copy(filtered, std::back_inserter(matchingOperators));
-        });
-    return matchingOperators;
-}
+[[nodiscard]] std::optional<LogicalOperator> getOperatorById(const LogicalPlan& plan, OperatorId operatorId);
 
 /// Returns a string representation of the logical query plan
 [[nodiscard]] std::string explain(const LogicalPlan& plan, ExplainVerbosity verbosity);
@@ -113,4 +106,5 @@ template <typename... TraitTypes>
 [[nodiscard]] std::unordered_set<LogicalOperator> flatten(const LogicalPlan& plan);
 
 }
+
 FMT_OSTREAM(NES::LogicalPlan);

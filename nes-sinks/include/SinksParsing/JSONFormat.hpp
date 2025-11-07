@@ -15,47 +15,45 @@
 #pragma once
 #include <SinksParsing/Format.hpp>
 
+#include <cstddef>
+#include <ostream>
+#include <string>
+#include <vector>
+#include <DataTypes/DataType.hpp>
 #include <DataTypes/Schema.hpp>
 #include <Runtime/TupleBuffer.hpp>
-#include <memory>
-#include <ostream>
-#include <variant>
-#include <vector>
 
-namespace NES::Sinks {
+namespace NES
+{
 
-class JSONFormat : public Format {
+class JSONFormat : public Format
+{
 public:
-  /// Stores precalculated offsets based on the input schema.
-  /// The JSONFormat class constructs the formatting context during its
-  /// construction and stores it as a member to speed up the actual formatting.
-  struct FormattingContext {
-    size_t schemaSizeInBytes{};
-    std::vector<size_t> offsets;
-    std::vector<std::string> names;
-    std::vector<DataType> physicalTypes;
-  };
+    /// Stores precalculated offsets based on the input schema.
+    /// The JSONFormat class constructs the formatting context during its construction and stores it as a member to speed up
+    /// the actual formatting.
+    struct FormattingContext
+    {
+        size_t schemaSizeInBytes{};
+        std::vector<size_t> offsets;
+        std::vector<std::string> names;
+        std::vector<DataType> physicalTypes;
+    };
 
-  explicit JSONFormat(Schema schema);
+    explicit JSONFormat(const Schema& schema);
 
-  /// Return formatted content of TupleBuffer, contains timestamp if specified
-  /// in config.
-  std::string
-  getFormattedBuffer(const Memory::TupleBuffer &inputBuffer) const override;
+    /// Return formatted content of TupleBuffer, contains timestamp if specified in config.
+    [[nodiscard]] std::string getFormattedBuffer(const TupleBuffer& inputBuffer) const override;
 
-  /// Reads a TupleBuffer and uses the supplied 'schema' to format it to JSON.
-  /// Returns result as a string. VARSIZED fields are base64-encoded to remain
-  /// JSON-safe (e.g., trajectories).
-  static std::string
-  tupleBufferToFormattedJSONString(Memory::TupleBuffer tbuffer,
-                                   const FormattingContext &formattingContext);
-  std::ostream &toString(std::ostream &os) const override {
-    return os << *this;
-  }
-  friend std::ostream &operator<<(std::ostream &out, const JSONFormat &format);
+    /// Reads a TupleBuffer and uses the supplied 'schema' to format it to JSON. Returns result as a string.
+    static std::string tupleBufferToFormattedJSONString(TupleBuffer tbuffer, const FormattingContext& formattingContext);
+
+    std::ostream& toString(std::ostream& os) const override { return os << *this; }
+
+    friend std::ostream& operator<<(std::ostream& out, const JSONFormat& format);
 
 private:
-  FormattingContext formattingContext;
+    FormattingContext formattingContext;
 };
 
-} // namespace NES::Sinks
+}

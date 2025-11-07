@@ -28,15 +28,12 @@ namespace NES
 class AvgAggregationLogicalFunction final : public WindowAggregationLogicalFunction
 {
 public:
-    static std::shared_ptr<WindowAggregationLogicalFunction> create(const FieldAccessLogicalFunction& onField);
-    static std::shared_ptr<WindowAggregationLogicalFunction>
-    create(const FieldAccessLogicalFunction& onField, const FieldAccessLogicalFunction& asField);
     AvgAggregationLogicalFunction(const FieldAccessLogicalFunction& onField, const FieldAccessLogicalFunction& asField);
     explicit AvgAggregationLogicalFunction(const FieldAccessLogicalFunction& onField);
 
     void inferStamp(const Schema& schema) override;
     ~AvgAggregationLogicalFunction() override = default;
-    [[nodiscard]] NES::SerializableAggregationFunction serialize() const override;
+    [[nodiscard]] SerializableAggregationFunction serialize() const override;
     [[nodiscard]] std::string_view getName() const noexcept override;
 
 private:

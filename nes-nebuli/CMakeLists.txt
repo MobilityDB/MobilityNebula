@@ -17,32 +17,62 @@ get_source(nes-catalogs CATALOG_SOURCE_FILES)
 get_source(nes-legacy-optimizer LEGACYOPTIMIZER_SOURCE_FILES)
 get_source(nes-coordinator COORDINATOR_SOURCE_FILES)
 get_source(nes-yaml-binder YAML_BINDER_SOURCE_FILES)
+get_source(nes-query-manager-grpc QUERY_MANAGER_GRPC_SOURCE_FILES)
+get_source(nes-query-manager-embedded QUERY_MANAGER_EMBEDDED_SOURCE_FILES)
 
-add_library(nes-nebuli-lib STATIC src/NebuLI.cpp ${CATALOG_SOURCE_FILES} ${LEGACYOPTIMIZER_SOURCE_FILES} ${OPERATORS_SOURCE_FILES} ${COORDINATOR_SOURCE_FILES} ${CLIENT_SOURCE_FILES} ${YAML_BINDER_SOURCE_FILES})
+add_library(nes-nebuli-lib STATIC ${QUERY_MANAGER_GRPC_SOURCE_FILES} ${CATALOG_SOURCE_FILES} ${LEGACYOPTIMIZER_SOURCE_FILES} ${OPERATORS_SOURCE_FILES} ${COORDINATOR_SOURCE_FILES} ${CLIENT_SOURCE_FILES} ${YAML_BINDER_SOURCE_FILES})
+add_library(nes-nebuli-embedded-lib STATIC ${QUERY_MANAGER_GRPC_SOURCE_FILES} ${CATALOG_SOURCE_FILES} ${LEGACYOPTIMIZER_SOURCE_FILES} ${OPERATORS_SOURCE_FILES} ${COORDINATOR_SOURCE_FILES} ${CLIENT_SOURCE_FILES} ${YAML_BINDER_SOURCE_FILES} ${QUERY_MANAGER_EMBEDDED_SOURCE_FILES} )
 
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(argparse CONFIG REQUIRED)
+find_package(replxx CONFIG REQUIRED)
 
 target_include_directories(nes-nebuli-lib
         PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/private>)
 
 target_link_libraries(nes-nebuli-lib
-        PUBLIC nes-logical-operators nes-inference
+        PUBLIC nes-logical-operators nes-sql-parser
+        PRIVATE yaml-cpp::yaml-cpp
+)
+
+target_compile_definitions(nes-nebuli-embedded-lib PUBLIC
+        EMBED_ENGINE="1"
+)
+
+target_include_directories(nes-nebuli-embedded-lib
+        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/private>)
+
+target_link_libraries(nes-nebuli-embedded-lib
+        PUBLIC nes-logical-operators nes-single-node-worker-lib nes-sql-parser
         PRIVATE nes-sql-parser yaml-cpp::yaml-cpp
 )
 
-add_executable(nes-nebuli src/NebuLIStarter.cpp)
+add_executable(nes-nebuli src/NebuLIStarter.cpp src/Repl.cpp)
 # Nebuli loads a Query using `dlopen` this requires the executable to be dynamic
 set_property(TARGET nes-nebuli PROPERTY ENABLE_EXPORTS ON)
-target_link_libraries(nes-nebuli PUBLIC nes-nebuli-lib argparse::argparse yaml-cpp::yaml-cpp)
+target_link_libraries(nes-nebuli PUBLIC nes-nebuli-lib argparse::argparse yaml-cpp::yaml-cpp replxx::replxx)
+
 target_include_directories(nes-nebuli
         PUBLIC $<INSTALL_INTERFACE:/include/nebulastream>
 )
-
 target_include_directories(nes-nebuli
         PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/private>)
+
+add_executable(nes-nebuli-embedded src/NebuLIStarter.cpp src/Repl.cpp)
+# Nebuli loads a Query using `dlopen` this requires the executable to be dynamic
+set_property(TARGET nes-nebuli-embedded PROPERTY ENABLE_EXPORTS ON)
+target_link_libraries(nes-nebuli-embedded PUBLIC nes-nebuli-embedded-lib nes-single-node-worker-lib argparse::argparse yaml-cpp::yaml-cpp replxx::replxx)
+
+target_include_directories(nes-nebuli-embedded
+        PUBLIC $<INSTALL_INTERFACE:/include/nebulastream>
+)
+target_include_directories(nes-nebuli-embedded
+        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/private>)
+
 function(add_nes_test_nebuli)
     add_nes_test(${ARGN})
     set(TARGET_NAME ${ARGV0})
@@ -50,3 +80,9 @@ function(add_nes_test_nebuli)
     target_include_directories(${TARGET_NAME}
             PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../private>)
 endfunction()
+
+add_test(
+        NAME "repl-test"
+#        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/test/test_repl.sh ${CMAKE_CURRENT_SOURCE_DIR}/test/test_large.sql ${CMAKE_CURRENT_BINARY_DIR}/nes-nebuli-embedded ${CMAKE_CURRENT_BINARY_DIR}/../nes-systests/testdata ${CMAKE_CURRENT_BINARY_DIR}/../nes-systests/working-dir ${CMAKE_CURRENT_SOURCE_DIR}/test/expected_output.json ${CMAKE_CURRENT_BINARY_DIR}/test
+)

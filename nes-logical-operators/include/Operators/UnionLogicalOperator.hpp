@@ -17,54 +17,53 @@
 #include <string>
 #include <string_view>
 #include <vector>
+
 #include <DataTypes/Schema.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
 #include <Traits/Trait.hpp>
+#include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
 #include <SerializableOperator.pb.h>
 
 namespace NES
 {
 
-class UnionLogicalOperator : public LogicalOperatorConcept
+class UnionLogicalOperator
 {
 public:
     explicit UnionLogicalOperator();
 
-    [[nodiscard]] bool operator==(const LogicalOperatorConcept& rhs) const override;
-    [[nodiscard]] SerializableOperator serialize() const override;
+    [[nodiscard]] bool operator==(const UnionLogicalOperator& rhs) const;
+    void serialize(SerializableOperator&) const;
 
-    [[nodiscard]] TraitSet getTraitSet() const override;
+    [[nodiscard]] UnionLogicalOperator withTraitSet(TraitSet traitSet) const;
+    [[nodiscard]] TraitSet getTraitSet() const;
 
-    [[nodiscard]] LogicalOperator withChildren(std::vector<LogicalOperator> children) const override;
-    [[nodiscard]] std::vector<LogicalOperator> getChildren() const override;
+    [[nodiscard]] UnionLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
+    [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
 
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const override;
-    [[nodiscard]] Schema getOutputSchema() const override;
+    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
+    [[nodiscard]] Schema getOutputSchema() const;
 
-    [[nodiscard]] std::vector<std::vector<OriginId>> getInputOriginIds() const override;
-    [[nodiscard]] std::vector<OriginId> getOutputOriginIds() const override;
-    [[nodiscard]] LogicalOperator withInputOriginIds(std::vector<std::vector<OriginId>> ids) const override;
-    [[nodiscard]] LogicalOperator withOutputOriginIds(std::vector<OriginId> ids) const override;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId) const;
+    [[nodiscard]] std::string_view getName() const noexcept;
 
-    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
-
-    [[nodiscard]] LogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const override;
+    [[nodiscard]] UnionLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
 
     /// Set the schemas directly without inference used for operator registration
-    [[nodiscard]] LogicalOperator setInputSchemas(std::vector<Schema> inputSchemas) const;
-    [[nodiscard]] LogicalOperator setOutputSchema(const Schema& outputSchema) const;
+    [[nodiscard]] UnionLogicalOperator setInputSchemas(std::vector<Schema> inputSchemas) const;
+    [[nodiscard]] UnionLogicalOperator setOutputSchema(const Schema& outputSchema) const;
 
 private:
     static constexpr std::string_view NAME = "Union";
 
     std::vector<LogicalOperator> children;
-    Schema leftInputSchema, rightInputSchema, outputSchema;
-    std::vector<std::vector<OriginId>> inputOriginIds;
-    std::vector<OriginId> outputOriginIds;
+    std::vector<Schema> inputSchemas;
+    Schema outputSchema;
+    TraitSet traitSet;
 };
 
+static_assert(LogicalOperatorConcept<UnionLogicalOperator>);
 
 }

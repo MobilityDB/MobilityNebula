@@ -17,7 +17,7 @@
 #include <utility>
 #include <vector>
 #include <MemoryLayout/MemoryLayout.hpp>
-#include <Nautilus/Interface/MemoryProvider/TupleBufferMemoryProvider.hpp>
+#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
 #include <Nautilus/Interface/PagedVector/PagedVector.hpp>
 #include <Nautilus/Interface/RecordBuffer.hpp>
 #include <Runtime/AbstractBufferProvider.hpp>
@@ -34,19 +34,18 @@ uint64_t getTotalNumberOfEntriesProxy(const PagedVector* pagedVector)
     return pagedVector->getTotalNumberOfEntries();
 }
 
-const Memory::TupleBuffer* createNewEntryProxy(
-    PagedVector* pagedVector, Memory::AbstractBufferProvider* bufferProvider, const Memory::MemoryLayouts::MemoryLayout* memoryLayout)
+const TupleBuffer* createNewEntryProxy(PagedVector* pagedVector, AbstractBufferProvider* bufferProvider, const MemoryLayout* memoryLayout)
 {
     pagedVector->appendPageIfFull(bufferProvider, memoryLayout);
     return std::addressof(pagedVector->getLastPage());
 }
 
-const Memory::TupleBuffer* getFirstPageProxy(const PagedVector* pagedVector)
+const TupleBuffer* getFirstPageProxy(const PagedVector* pagedVector)
 {
     return std::addressof(pagedVector->getFirstPage());
 }
 
-const Memory::TupleBuffer* getTupleBufferForEntryProxy(const PagedVector* pagedVector, const uint64_t entryPos)
+const TupleBuffer* getTupleBufferForEntryProxy(const PagedVector* pagedVector, const uint64_t entryPos)
 {
     return pagedVector->getTupleBufferForEntry(entryPos);
 }
@@ -62,16 +61,16 @@ nautilus::val<uint64_t> PagedVectorRef::getNumberOfTuples() const
 }
 
 PagedVectorRef::PagedVectorRef(
-    const nautilus::val<PagedVector*>& pagedVectorRef, const std::shared_ptr<MemoryProvider::TupleBufferMemoryProvider>& memoryProvider)
-    : pagedVectorRef(pagedVectorRef), memoryProvider(memoryProvider), memoryLayout(memoryProvider->getMemoryLayout().get())
+    const nautilus::val<PagedVector*>& pagedVectorRef, const std::shared_ptr<BufferRef::TupleBufferRef>& bufferRef)
+    : pagedVectorRef(pagedVectorRef), bufferRef(bufferRef), memoryLayout(bufferRef->getMemoryLayout().get())
 {
 }
 
-void PagedVectorRef::writeRecord(const Record& record, const nautilus::val<Memory::AbstractBufferProvider*>& bufferProvider) const
+void PagedVectorRef::writeRecord(const Record& record, const nautilus::val<AbstractBufferProvider*>& bufferProvider) const
 {
     auto recordBuffer = RecordBuffer(invoke(createNewEntryProxy, pagedVectorRef, bufferProvider, memoryLayout));
     auto numTuplesOnPage = recordBuffer.getNumRecords();
-    memoryProvider->writeRecord(numTuplesOnPage, recordBuffer, record, bufferProvider);
+    bufferRef->writeRecord(numTuplesOnPage, recordBuffer, record, bufferProvider);
     recordBuffer.setNumRecords(numTuplesOnPage + 1);
 }
 
@@ -82,7 +81,7 @@ Record PagedVectorRef::readRecord(const nautilus::val<uint64_t>& pos, const std:
     /// As calling getNumberOfTuples on each page would require one invoke per page.
     const auto recordBuffer = RecordBuffer(invoke(getTupleBufferForEntryProxy, pagedVectorRef, pos));
     auto recordEntry = invoke(getBufferPosForEntryProxy, pagedVectorRef, pos);
-    const auto record = memoryProvider->readRecord(projections, recordBuffer, recordEntry);
+    const auto record = bufferRef->readRecord(projections, recordBuffer, recordEntry);
     return record;
 }
 
@@ -92,7 +91,7 @@ PagedVectorRefIter PagedVectorRef::begin(const std::vector<Record::RecordFieldId
     const auto numberOfTuplesInPagedVector = invoke(getTotalNumberOfEntriesProxy, pagedVectorRef);
     const auto curPage = nautilus::invoke(getTupleBufferForEntryProxy, pagedVectorRef, pos);
     const auto posOnPage = nautilus::invoke(getBufferPosForEntryProxy, pagedVectorRef, pos);
-    PagedVectorRefIter pagedVectorRefIter(*this, memoryProvider, projections, curPage, posOnPage, pos, numberOfTuplesInPagedVector);
+    PagedVectorRefIter pagedVectorRefIter(*this, bufferRef, projections, curPage, posOnPage, pos, numberOfTuplesInPagedVector);
     return pagedVectorRefIter;
 }
 
@@ -100,22 +99,22 @@ PagedVectorRefIter PagedVectorRef::end(const std::vector<Record::RecordFieldIden
 {
     /// End does not point to any existing page. Therefore, we only set the pos
     const auto pos = invoke(getTotalNumberOfEntriesProxy, pagedVectorRef);
-    const nautilus::val<Memory::TupleBuffer*> curPage(nullptr);
+    const nautilus::val<TupleBuffer*> curPage(nullptr);
     const nautilus::val<uint64_t> posOnPage(0);
-    PagedVectorRefIter pagedVectorRefIter(*this, memoryProvider, projections, curPage, posOnPage, pos, pos);
+    PagedVectorRefIter pagedVectorRefIter(*this, bufferRef, projections, curPage, posOnPage, pos, pos);
     return pagedVectorRefIter;
 }
 
 nautilus::val<bool> PagedVectorRef::operator==(const PagedVectorRef& other) const
 {
-    return memoryProvider == other.memoryProvider && pagedVectorRef == other.pagedVectorRef;
+    return bufferRef == other.bufferRef && pagedVectorRef == other.pagedVectorRef;
 }
 
 PagedVectorRefIter::PagedVectorRefIter(
     PagedVectorRef pagedVector,
-    const std::shared_ptr<MemoryProvider::TupleBufferMemoryProvider>& memoryProvider,
+    const std::shared_ptr<BufferRef::TupleBufferRef>& bufferRef,
     const std::vector<Record::RecordFieldIdentifier>& projections,
-    const nautilus::val<Memory::TupleBuffer*>& curPage,
+    const nautilus::val<TupleBuffer*>& curPage,
     const nautilus::val<uint64_t>& posOnPage,
     const nautilus::val<uint64_t>& pos,
     const nautilus::val<uint64_t>& numberOfTuplesInPagedVector)
@@ -125,7 +124,7 @@ PagedVectorRefIter::PagedVectorRefIter(
     , numberOfTuplesInPagedVector(numberOfTuplesInPagedVector)
     , posOnPage(posOnPage)
     , curPage(curPage)
-    , memoryProvider(memoryProvider)
+    , bufferRef(bufferRef)
 {
 }
 
@@ -133,7 +132,7 @@ Record PagedVectorRefIter::operator*() const
 {
     const RecordBuffer recordBuffer(curPage);
     auto recordEntry = posOnPage;
-    return memoryProvider->readRecord(projections, recordBuffer, recordEntry);
+    return bufferRef->readRecord(projections, recordBuffer, recordEntry);
 }
 
 PagedVectorRefIter& PagedVectorRefIter::operator++()

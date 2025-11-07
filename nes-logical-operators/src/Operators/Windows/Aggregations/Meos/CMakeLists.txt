@@ -11,4 +11,4 @@
 # limitations under the License.
 
 add_plugin(Var AggregationLogicalFunction nes-logical-operators VarAggregationLogicalFunction.cpp)
-add_plugin(TemporalSequence AggregationLogicalFunction nes-logical-operators TemporalSequenceAggregationLogicalFunction.cpp)
+add_plugin(TemporalSequence AggregationLogicalFunction nes-logical-operators TemporalSequenceAggregationLogicalFunctionV2.cpp)

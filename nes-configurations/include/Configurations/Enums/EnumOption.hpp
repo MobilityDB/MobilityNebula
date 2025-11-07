@@ -17,15 +17,18 @@
 #include <Configurations/BaseConfiguration.hpp>
 #include <Configurations/OptionVisitor.hpp>
 #include <Configurations/TypedBaseOption.hpp>
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <magic_enum/magic_enum.hpp>
 #include <yaml-cpp/yaml.h>
 #include <ErrorHandling.hpp>
 
-namespace NES::Configurations
+namespace NES
 {
 
 template <class T>
 concept IsEnum = std::is_enum<T>::value;
+
 /// This class defines an option, which has only the member of an enum as possible values.
 template <IsEnum T>
 class EnumOption : public TypedBaseOption<T>
@@ -54,7 +57,7 @@ public:
 
     void accept(OptionVisitor& visitor) override
     {
-        auto* config = dynamic_cast<NES::Configurations::BaseConfiguration*>(this);
+        auto* config = dynamic_cast<BaseConfiguration*>(this);
         visitor.visitConcrete(this->name, this->description, magic_enum::enum_name(this->getDefaultValue()));
         if (config)
         {
@@ -77,6 +80,7 @@ protected:
         }
         this->value = magic_enum::enum_cast<T>(node.as<std::string>()).value();
     };
+
     void parseFromString(std::string identifier, std::unordered_map<std::string, std::string>& inputParams) override
     {
         auto value = inputParams[identifier];
@@ -94,4 +98,11 @@ protected:
     };
 };
 
+/// Helper function to generate all enum option for configuration description in the form: [enum1|enum2|...]
+template <typename E>
+std::string_view enumPipeList()
+{
+    static const std::string text = fmt::format("[{}]", fmt::join(magic_enum::enum_names<E>(), "|"));
+    return text;
+}
 }

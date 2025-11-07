@@ -12,9 +12,9 @@ ARG ARCH
 ARG SANITIZER="none"
 ARG STDLIB=libcxx
 ARG LLVM_VERSION=20
-RUN apk update && apk add wget zstd
-ADD https://github.com/nebulastream/clang-binaries/releases/download/vcustom-libcxx-mlir-${LLVM_VERSION}/nes-llvm-${LLVM_VERSION}-${ARCH}-${SANITIZER}-${STDLIB}.tar.zstd .
-RUN  zstd --decompress nes-llvm-${LLVM_VERSION}-${ARCH}-${SANITIZER}-${STDLIB}.tar.zstd --stdout | tar -xf - && rm nes-llvm-${LLVM_VERSION}-${ARCH}-${SANITIZER}-${STDLIB}.tar.zstd
+RUN apk update && apk add zstd
+ADD https://github.com/nebulastream/clang-binaries/releases/download/vmlir-${LLVM_VERSION}/nes-llvm-${LLVM_VERSION}-${ARCH}-${SANITIZER}-${STDLIB}.tar.zstd llvm.tar.zstd
+RUN zstd --decompress llvm.tar.zstd --stdout | tar -x
 
 FROM nebulastream/nes-development-base:${TAG}
 ARG STDLIB=libcxx

@@ -12,12 +12,13 @@
     limitations under the License.
 */
 
+#include <Functions/ArithmeticalFunctions/CeilLogicalFunction.hpp>
+
 #include <string>
 #include <string_view>
 #include <vector>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/Schema.hpp>
-#include <Functions/ArithmeticalFunctions/CeilLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
 #include <Util/PlanRenderer.hpp>
@@ -71,7 +72,6 @@ std::string_view CeilLogicalFunction::getType() const
     return NAME;
 }
 
-
 bool CeilLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
 {
     if (const auto* other = dynamic_cast<const CeilLogicalFunction*>(&rhs))
@@ -102,7 +102,10 @@ SerializableFunction CeilLogicalFunction::serialize() const
 
 LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterCeilLogicalFunction(LogicalFunctionRegistryArguments arguments)
 {
-    PRECONDITION(arguments.children.size() == 1, "CeilLogicalFunction requires exactly one child, but got {}", arguments.children.size());
+    if (arguments.children.size() != 1)
+    {
+        throw CannotDeserialize("Function requires exactly one child, but got {}", arguments.children.size());
+    }
     return CeilLogicalFunction(arguments.children[0]);
 }
 

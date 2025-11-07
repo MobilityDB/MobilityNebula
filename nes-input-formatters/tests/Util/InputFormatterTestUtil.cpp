@@ -23,6 +23,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <numeric>
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -35,17 +36,14 @@
 #include <DataTypes/Schema.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Identifiers/NESStrongType.hpp>
-#include <InputFormatters/InputFormatter.hpp>
 #include <InputFormatters/InputFormatterProvider.hpp>
-#include <InputFormatters/InputFormatterTask.hpp>
+#include <InputFormatters/InputFormatterTaskPipeline.hpp>
 #include <Runtime/BufferManager.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Sources/SourceCatalog.hpp>
-#include <Sources/SourceDescriptor.hpp>
 #include <Sources/SourceHandle.hpp>
 #include <Sources/SourceProvider.hpp>
 #include <Sources/SourceReturnType.hpp>
-#include <Sources/SourceValidationProvider.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <Util/Overloaded.hpp>
 #include <fmt/format.h>
@@ -57,67 +55,76 @@ namespace NES::InputFormatterTestUtil
 
 Schema createSchema(const std::vector<TestDataTypes>& testDataTypes)
 {
+    const auto fieldNamesOther = testDataTypes | NES::views::enumerate
+        | std::views::transform([](const auto& idxDataTypePair) { return fmt::format("Field_{}", std::get<0>(idxDataTypePair)); })
+        | std::ranges::to<std::vector>();
+
+    return createSchema(testDataTypes, fieldNamesOther);
+}
+
+Schema createSchema(const std::vector<TestDataTypes>& testDataTypes, const std::vector<std::string>& testFieldNames)
+{
     auto schema = Schema{};
-    for (size_t fieldNumber = 1; const auto& dataType : testDataTypes)
+    for (const auto& [fieldNumber, dataType] : testDataTypes | NES::views::enumerate)
     {
         switch (dataType)
         {
             case TestDataTypes::UINT8:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::UINT8));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::UINT8));
                 break;
             case TestDataTypes::UINT16:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::UINT16));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::UINT16));
                 break;
             case TestDataTypes::UINT32:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::UINT32));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::UINT32));
                 break;
             case TestDataTypes::UINT64:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::UINT64));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::UINT64));
                 break;
             case TestDataTypes::INT8:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::INT8));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::INT8));
                 break;
             case TestDataTypes::INT16:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::INT16));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::INT16));
                 break;
             case TestDataTypes::INT32:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::INT32));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::INT32));
                 break;
             case TestDataTypes::INT64:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::INT64));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::INT64));
                 break;
             case TestDataTypes::FLOAT32:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::FLOAT32));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::FLOAT32));
                 break;
             case TestDataTypes::FLOAT64:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::FLOAT64));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::FLOAT64));
                 break;
             case TestDataTypes::BOOLEAN:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::BOOLEAN));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::BOOLEAN));
                 break;
             case TestDataTypes::CHAR:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::CHAR));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::CHAR));
                 break;
             case TestDataTypes::VARSIZED:
-                schema.addField("Field_" + std::to_string(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::VARSIZED));
+                schema.addField(testFieldNames.at(fieldNumber), DataTypeProvider::provideDataType(DataType::Type::VARSIZED));
                 break;
         }
-        ++fieldNumber;
     }
     return schema;
 }
 
-std::function<void(OriginId, Sources::SourceReturnType::SourceReturnType)>
-getEmitFunction(ThreadSafeVector<NES::Memory::TupleBuffer>& resultBuffers)
+SourceReturnType::EmitFunction getEmitFunction(ThreadSafeVector<TupleBuffer>& resultBuffers)
 {
-    return [&resultBuffers](const OriginId, Sources::SourceReturnType::SourceReturnType returnType)
+    return [&resultBuffers](
+               const OriginId, SourceReturnType::SourceReturnType returnType, const std::stop_token&) -> SourceReturnType::EmitResult
     {
         std::visit(
             Overloaded{
-                [&](const Sources::SourceReturnType::Data& data) { resultBuffers.emplace_back(data.buffer); },
-                [](const Sources::SourceReturnType::EoS&) { NES_DEBUG("Reached EoS in source"); },
-                [](const Sources::SourceReturnType::Error& error) { throw error.ex; }},
-            returnType);
+                [&](SourceReturnType::Data data) { resultBuffers.emplace_back(std::move(data.buffer)); },
+                [](SourceReturnType::EoS) { NES_DEBUG("Reached EoS in source"); },
+                [](SourceReturnType::Error error) { throw std::move(error.ex); }},
+            std::move(returnType));
+        return SourceReturnType::EmitResult::SUCCESS;
     };
 }
 
@@ -132,7 +139,7 @@ ParserConfig validateAndFormatParserConfig(const std::unordered_map<std::string,
     {
         throw InvalidConfigParameter("Parser configuration must contain: type");
     }
-    if (const auto tupleDelimiter = parserConfig.find("tupleDelimiter"); tupleDelimiter != parserConfig.end())
+    if (const auto tupleDelimiter = parserConfig.find("tuple_delimiter"); tupleDelimiter != parserConfig.end())
     {
         /// TODO #651: Add full support for tuple delimiters that are larger than one byte.
         PRECONDITION(tupleDelimiter->second.size() == 1, "We currently do not support tuple delimiters larger than one byte.");
@@ -143,7 +150,7 @@ ParserConfig validateAndFormatParserConfig(const std::unordered_map<std::string,
         NES_DEBUG("Parser configuration did not contain: tupleDelimiter, using default: \\n");
         validParserConfig.tupleDelimiter = '\n';
     }
-    if (const auto fieldDelimiter = parserConfig.find("fieldDelimiter"); fieldDelimiter != parserConfig.end())
+    if (const auto fieldDelimiter = parserConfig.find("field_delimiter"); fieldDelimiter != parserConfig.end())
     {
         validParserConfig.fieldDelimiter = fieldDelimiter->second;
     }
@@ -155,43 +162,35 @@ ParserConfig validateAndFormatParserConfig(const std::unordered_map<std::string,
     return validParserConfig;
 }
 
-std::unique_ptr<Sources::SourceHandle> createFileSource(
+std::unique_ptr<SourceHandle> createFileSource(
     SourceCatalog& sourceCatalog,
     const std::string& filePath,
     const Schema& schema,
-    std::shared_ptr<Memory::BufferManager> sourceBufferPool,
-    const int numberOfLocalBuffersInSource)
+    std::shared_ptr<BufferManager> sourceBufferPool,
+    const size_t numberOfRequiredSourceBuffers)
 {
-    std::unordered_map<std::string, std::string> fileSourceConfiguration{{"filePath", filePath}};
-    auto validatedSourceConfiguration = Sources::SourceValidationProvider::provide("File", std::move(fileSourceConfiguration));
+    std::unordered_map<std::string, std::string> fileSourceConfiguration{
+        {"file_path", filePath}, {"max_inflight_buffers", std::to_string(numberOfRequiredSourceBuffers)}};
     const auto logicalSource = sourceCatalog.addLogicalSource("TestSource", schema);
     INVARIANT(logicalSource.has_value(), "TestSource already existed");
-    const auto sourceDescriptor = sourceCatalog.addPhysicalSource(
-        logicalSource.value(),
-        INITIAL<WorkerId>,
-        "File",
-        numberOfLocalBuffersInSource,
-        std::move(validatedSourceConfiguration),
-        ParserConfig{});
+    const auto sourceDescriptor
+        = sourceCatalog.addPhysicalSource(logicalSource.value(), "File", std::move(fileSourceConfiguration), {{"type", "CSV"}});
     INVARIANT(sourceDescriptor.has_value(), "Test File Source couldn't be created");
-    return Sources::SourceProvider::lower(NES::OriginId(1), sourceDescriptor.value(), std::move(sourceBufferPool), -1);
+
+    const SourceProvider sourceProvider(numberOfRequiredSourceBuffers, std::move(sourceBufferPool));
+    return sourceProvider.lower(NES::OriginId(1), sourceDescriptor.value());
 }
-std::shared_ptr<InputFormatters::InputFormatterTask> createInputFormatterTask(const Schema& schema)
+
+std::shared_ptr<InputFormatterTaskPipeline> createInputFormatterTask(const Schema& schema, std::string formatterType)
 {
     const std::unordered_map<std::string, std::string> parserConfiguration{
-        {"type", "CSV"}, {"tupleDelimiter", "\n"}, {"fieldDelimiter", "|"}};
-    auto validatedParserConfiguration = validateAndFormatParserConfig(parserConfiguration);
+        {"type", std::move(formatterType)}, {"tuple_delimiter", "\n"}, {"field_delimiter", "|"}};
+    const auto validatedParserConfiguration = validateAndFormatParserConfig(parserConfiguration);
 
-    std::unique_ptr<InputFormatters::InputFormatter> inputFormatter = InputFormatters::InputFormatterProvider::provideInputFormatter(
-        validatedParserConfiguration.parserType,
-        schema,
-        validatedParserConfiguration.tupleDelimiter,
-        validatedParserConfiguration.fieldDelimiter);
-
-    return std::make_shared<InputFormatters::InputFormatterTask>(OriginId(1), std::move(inputFormatter));
+    return provideInputFormatterTask(schema, validatedParserConfiguration);
 }
 
-void waitForSource(const std::vector<NES::Memory::TupleBuffer>& resultBuffers, const size_t numExpectedBuffers)
+void waitForSource(const std::vector<TupleBuffer>& resultBuffers, const size_t numExpectedBuffers)
 {
     /// Wait for the file source to fill all expected tuple buffers. Timeout after 1 second (it should never take that long).
     const auto timeout = std::chrono::seconds(1);
@@ -202,31 +201,14 @@ void waitForSource(const std::vector<NES::Memory::TupleBuffer>& resultBuffers, c
     }
 }
 
-bool compareFiles(const std::filesystem::path& file1, const std::filesystem::path& file2)
-{
-    std::cout << fmt::format("File sizes do not match: {} vs. {}.", file1.c_str(), file2.c_str());
-
-    if (file_size(file1) != file_size(file2))
-    {
-        std::cout << fmt::format(
-            "File sizes do not match: {} vs. {}.", std::filesystem::file_size(file1), std::filesystem::file_size(file2));
-        return false;
-    }
-
-    std::ifstream f1(file1, std::ifstream::binary);
-    std::ifstream f2(file2, std::ifstream::binary);
-
-    return std::equal(std::istreambuf_iterator(f1.rdbuf()), std::istreambuf_iterator<char>(), std::istreambuf_iterator(f2.rdbuf()));
-}
-
-TestablePipelineTask createInputFormatterTask(
+TestPipelineTask createInputFormatterTask(
     const SequenceNumber sequenceNumber,
     const WorkerThreadId workerThreadId,
-    Memory::TupleBuffer taskBuffer,
-    std::shared_ptr<InputFormatters::InputFormatterTask> inputFormatterTask)
+    TupleBuffer taskBuffer,
+    std::shared_ptr<InputFormatterTaskPipeline> inputFormatterTask)
 {
     taskBuffer.setSequenceNumber(sequenceNumber);
-    return TestablePipelineTask(workerThreadId, taskBuffer, std::move(inputFormatterTask));
+    return TestPipelineTask{workerThreadId, taskBuffer, std::move(inputFormatterTask)};
 }
 
 }

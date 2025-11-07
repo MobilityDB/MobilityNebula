@@ -28,8 +28,7 @@
 #include <string>
 
 #include <MemoryLayout/ColumnLayout.hpp>
-#include <Nautilus/Interface/MemoryProvider/ColumnTupleBufferMemoryProvider.hpp>
-#include <Nautilus/Interface/MemoryProvider/TupleBufferMemoryProvider.hpp>
+#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
 #include <Nautilus/Interface/PagedVector/PagedVector.hpp>
 #include <Nautilus/Interface/PagedVector/PagedVectorRef.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -65,9 +64,9 @@ TemporalSequenceAggregationPhysicalFunction::TemporalSequenceAggregationPhysical
     PhysicalFunction latFunctionParam,
     PhysicalFunction timestampFunctionParam,
     Nautilus::Record::RecordFieldIdentifier resultFieldIdentifier,
-    std::shared_ptr<Nautilus::Interface::MemoryProvider::TupleBufferMemoryProvider> memProviderPagedVector)
+    std::shared_ptr<Nautilus::Interface::BufferRef::TupleBufferRef> bufferRef)
     : AggregationPhysicalFunction(std::move(inputType), std::move(resultType), lonFunctionParam, std::move(resultFieldIdentifier))
-    , memProviderPagedVector(std::move(memProviderPagedVector))
+    , bufferRef(std::move(bufferRef))
     , lonFunction(std::move(lonFunctionParam))
     , latFunction(std::move(latFunctionParam))
     , timestampFunction(std::move(timestampFunctionParam))
@@ -75,14 +74,14 @@ TemporalSequenceAggregationPhysicalFunction::TemporalSequenceAggregationPhysical
 }
 
 void TemporalSequenceAggregationPhysicalFunction::lift(
-    const nautilus::val<AggregationState*>& aggregationState, ExecutionContext& executionContext, const Nautilus::Record& record)
+    const nautilus::val<AggregationState*>& aggregationState, PipelineMemoryProvider& pipelineMemoryProvider, const Nautilus::Record& record)
 {
     const auto pagedVectorPtr = static_cast<nautilus::val<Nautilus::Interface::PagedVector*>>(aggregationState);
 
     // For TEMPORAL_SEQUENCE, we need to store lon, lat, and timestamp values
-    auto lonValue = lonFunction.execute(record, executionContext.pipelineMemoryProvider.arena);
-    auto latValue = latFunction.execute(record, executionContext.pipelineMemoryProvider.arena);
-    auto timestampValue = timestampFunction.execute(record, executionContext.pipelineMemoryProvider.arena);
+    auto lonValue = lonFunction.execute(record, pipelineMemoryProvider.arena);
+    auto latValue = latFunction.execute(record, pipelineMemoryProvider.arena);
+    auto timestampValue = timestampFunction.execute(record, pipelineMemoryProvider.arena);
 
     // Create a record with all three fields for temporal sequence
     Record aggregateStateRecord({
@@ -91,8 +90,8 @@ void TemporalSequenceAggregationPhysicalFunction::lift(
         {std::string(TimestampFieldName), timestampValue}
     });
 
-    const Nautilus::Interface::PagedVectorRef pagedVectorRef(pagedVectorPtr, memProviderPagedVector);
-    pagedVectorRef.writeRecord(aggregateStateRecord, executionContext.pipelineMemoryProvider.bufferProvider);
+    const Nautilus::Interface::PagedVectorRef pagedVectorRef(pagedVectorPtr, bufferRef);
+    pagedVectorRef.writeRecord(aggregateStateRecord, pipelineMemoryProvider.bufferProvider);
 }
 
 void TemporalSequenceAggregationPhysicalFunction::combine(
@@ -120,8 +119,8 @@ Nautilus::Record TemporalSequenceAggregationPhysicalFunction::lower(
 
     // Getting the paged vector from the aggregation state
     const auto pagedVectorPtr = static_cast<nautilus::val<Nautilus::Interface::PagedVector*>>(aggregationState);
-    const Nautilus::Interface::PagedVectorRef pagedVectorRef(pagedVectorPtr, memProviderPagedVector);
-    const auto allFieldNames = memProviderPagedVector->getMemoryLayout()->getSchema().getFieldNames();
+    const Nautilus::Interface::PagedVectorRef pagedVectorRef(pagedVectorPtr, bufferRef);
+    const auto allFieldNames = bufferRef->getMemoryLayout()->getSchema().getFieldNames();
     const auto numberOfEntries = invoke(
         +[](const Nautilus::Interface::PagedVector* pagedVector)
         {

@@ -12,6 +12,8 @@
     limitations under the License.
 */
 
+#include <Operators/Windows/Aggregations/MaxAggregationLogicalFunction.hpp>
+
 #include <memory>
 #include <string>
 #include <string_view>
@@ -19,12 +21,10 @@
 #include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/MaxAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <AggregationLogicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
 #include <SerializableVariantDescriptor.pb.h>
-
 
 namespace NES
 {
@@ -38,17 +38,6 @@ MaxAggregationLogicalFunction::MaxAggregationLogicalFunction(const FieldAccessLo
 {
 }
 
-std::shared_ptr<WindowAggregationLogicalFunction> MaxAggregationLogicalFunction::create(const FieldAccessLogicalFunction& onField)
-{
-    return std::make_shared<MaxAggregationLogicalFunction>(onField);
-}
-
-std::shared_ptr<WindowAggregationLogicalFunction>
-MaxAggregationLogicalFunction::create(const FieldAccessLogicalFunction& onField, const FieldAccessLogicalFunction& asField)
-{
-    return std::make_shared<MaxAggregationLogicalFunction>(onField, asField);
-}
-
 std::string_view MaxAggregationLogicalFunction::getName() const noexcept
 {
     return NAME;
@@ -58,7 +47,10 @@ void MaxAggregationLogicalFunction::inferStamp(const Schema& schema)
 {
     /// We first infer the dataType of the input field and set the output dataType as the same.
     onField = onField.withInferredDataType(schema).get<FieldAccessLogicalFunction>();
-    INVARIANT(onField.getDataType().isNumeric(), "aggregations on non numeric fields is not supported, but got {}", onField.getDataType());
+    if (not onField.getDataType().isNumeric())
+    {
+        throw CannotDeserialize("aggregations on non numeric fields is not supported, but got {}", onField.getDataType());
+    }
 
     ///Set fully qualified name for the as Field
     auto onFieldName = onField.getFieldName();
@@ -99,8 +91,10 @@ SerializableAggregationFunction MaxAggregationLogicalFunction::serialize() const
 AggregationLogicalFunctionRegistryReturnType
 AggregationLogicalFunctionGeneratedRegistrar::RegisterMaxAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
 {
-    PRECONDITION(
-        arguments.fields.size() == 2, "MaxAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
-    return MaxAggregationLogicalFunction::create(arguments.fields[0], arguments.fields[1]);
+    if (arguments.fields.size() != 2)
+    {
+        throw CannotDeserialize("MaxAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
+    }
+    return std::make_shared<MaxAggregationLogicalFunction>(arguments.fields[0], arguments.fields[1]);
 }
 }

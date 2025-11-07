@@ -38,6 +38,7 @@ namespace NES
 /// https://github.com/nebulastream/nebulastream-public/pull/464/files
 struct CallbackRef;
 struct CallbackOwner;
+
 struct Callback
 {
     static std::pair<CallbackOwner, CallbackRef> create(std::string context);
@@ -51,6 +52,7 @@ private:
 struct CallbackRef
 {
     CallbackRef() = default;
+
     explicit CallbackRef(std::shared_ptr<Callback> ref) : ref(std::move(ref)) { }
 
 private:
@@ -62,7 +64,9 @@ private:
 struct CallbackOwner
 {
     CallbackOwner() = default;
+
     explicit CallbackOwner(std::string context, std::weak_ptr<Callback> owner) : context(std::move(context)), owner(std::move(owner)) { }
+
     CallbackOwner(const CallbackOwner& other) = delete;
     CallbackOwner& operator=(const CallbackOwner& other) = delete;
 
@@ -71,7 +75,9 @@ struct CallbackOwner
     /// Destructor and move assignment will erase all pending callbacks
     ~CallbackOwner();
     CallbackOwner& operator=(CallbackOwner&& other) noexcept;
+
     explicit operator bool() const { return !owner.expired(); }
+
     void addCallback(absl::AnyInvocable<void()> callbackFunction) const;
 
     /// Only call this function if you can guarantee that:
@@ -120,6 +126,7 @@ struct RunningQueryPlanNode
 
 
     ~RunningQueryPlanNode();
+
     RunningQueryPlanNode(
         PipelineId id,
         std::vector<std::shared_ptr<RunningQueryPlanNode>> successors,
@@ -165,7 +172,7 @@ struct StoppingQueryPlan
 };
 
 /// It is possible to attach callbacks to the RunningQueryPlan
-struct RunningQueryPlan
+struct RunningQueryPlan final
 {
     /// Returns a RunningQueryPlan alongside a CallbackRef.
     /// The CallbackRef prevents the RunningQueryPlan from completing its setup:
@@ -179,10 +186,9 @@ struct RunningQueryPlan
         std::shared_ptr<QueryLifetimeListener>);
 
     /// Stopping a RunningQueryPlan will:
-    /// 1. Keep all callbacks alive. Eventually onDestruction will be called.
-    /// 2. Initialize pipeline termination asynchronously.
-    /// 3. Block until all sources are terminated.
-    static std::pair<std::unique_ptr<StoppingQueryPlan>, CallbackRef> stop(std::unique_ptr<RunningQueryPlan> runningQueryPlan);
+    /// 1. Initialize pipeline termination asynchronously.
+    /// 2. Block until all sources are terminated.
+    static std::unique_ptr<StoppingQueryPlan> stop(std::unique_ptr<RunningQueryPlan> runningQueryPlan);
 
     /// Disposing a RunningQueryPlan will:
     /// 1. Not notify any listeners. `onDestruction` will not be called.

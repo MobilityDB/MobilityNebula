@@ -15,73 +15,60 @@
 #include <LegacyOptimizer/LogicalSourceExpansionRule.hpp>
 
 #include <ranges>
-#include <string>
 #include <utility>
 #include <vector>
-
 #include <Operators/LogicalOperator.hpp>
 #include <Operators/Sources/SourceDescriptorLogicalOperator.hpp>
 #include <Operators/Sources/SourceNameLogicalOperator.hpp>
+#include <Operators/UnionLogicalOperator.hpp>
 #include <Plans/LogicalPlan.hpp>
 #include <Util/PlanRenderer.hpp>
 #include <ErrorHandling.hpp>
 
-namespace NES::LegacyOptimizer
+namespace NES
 {
 
 void LogicalSourceExpansionRule::apply(LogicalPlan& queryPlan) const
 {
-    auto sourceOperators = getOperatorByType<SourceNameLogicalOperator>(queryPlan);
-
-    for (const auto& sourceOp : sourceOperators)
+    for (const auto& sourceOp : getOperatorByType<SourceNameLogicalOperator>(queryPlan))
     {
-        const auto logicalSourceOpt = sourceCatalog->getLogicalSource(sourceOp.getLogicalSourceName());
+        const auto logicalSourceOpt = sourceCatalog->getLogicalSource(sourceOp->getLogicalSourceName());
         if (not logicalSourceOpt.has_value())
         {
-            throw UnknownSource("{}", sourceOp.getLogicalSourceName());
+            throw UnknownSourceName("{}", sourceOp->getLogicalSourceName());
         }
         const auto& logicalSource = logicalSourceOpt.value();
         const auto entriesOpt = sourceCatalog->getPhysicalSources(logicalSource);
 
         if (not entriesOpt.has_value())
         {
-            throw UnknownSource("Source \"{}\" was removed concurrently", sourceOp.getLogicalSourceName());
+            throw UnknownSourceName("Source \"{}\" was removed concurrently", sourceOp->getLogicalSourceName());
         }
         const auto& entries = entriesOpt.value();
         if (entries.empty())
         {
-            throw UnknownSource("No physical sources present for logical source \"{}\"", sourceOp.getLogicalSourceName());
+            throw UnknownSourceName("No physical sources present for logical source \"{}\"", sourceOp->getLogicalSourceName());
         }
 
-        auto sourceDescriptorOperators = entries | std::ranges::to<std::vector>();
+        auto expandedSourceOperators = entries
+            | std::views::transform([](const auto& entry) { return LogicalOperator{SourceDescriptorLogicalOperator{entry}}; })
+            | std::ranges::to<std::vector>();
 
-        /// Replace the source name logical operator with the source descriptor operators
-        for (auto parents = getParents(queryPlan, sourceOp); const auto& parent : parents)
-        {
-            auto children = parent.getChildren()
-                | std::views::filter(
-                                [&sourceOp](const LogicalOperator& child)
-                                {
-                                    if (const auto sourceNameOp = child.tryGet<SourceNameLogicalOperator>())
-                                    {
-                                        return sourceNameOp->getLogicalSourceName() != sourceOp.getLogicalSourceName();
-                                    }
-                                    return true;
-                                })
-                | std::ranges::to<std::vector>();
-            for (const auto& entry : entries)
-            {
-                children.emplace_back(SourceDescriptorLogicalOperator{entry});
-            }
-            auto newParent = parent.withChildren(std::move(children));
-            auto replaceResult = replaceSubtree(queryPlan, parent, newParent);
-            INVARIANT(
-                replaceResult.has_value(),
-                "Failed to replace operator {} with {}",
-                parent.explain(ExplainVerbosity::Debug),
-                newParent.explain(ExplainVerbosity::Debug));
-            queryPlan = std::move(replaceResult.value());
-        }
+        INVARIANT(getParents(queryPlan, sourceOp).size() == 1, "Source name operator must have exactly one parent");
+        auto parent = getParents(queryPlan, sourceOp).front();
+        INVARIANT(
+            parent.getChildren().size() == 1 && parent.getChildren().front() == sourceOp,
+            "Parent of source name operator must have exactly one child, the source itself");
+
+        auto newParent = parent.withChildren({UnionLogicalOperator{}.withChildren(std::move(expandedSourceOperators))});
+        auto replaceResult = replaceSubtree(queryPlan, parent.getId(), newParent);
+
+        INVARIANT(
+            replaceResult.has_value(),
+            "Failed to replace operator {} with {}",
+            parent.explain(ExplainVerbosity::Debug),
+            newParent.explain(ExplainVerbosity::Debug));
+        queryPlan = std::move(replaceResult.value());
     }
 }
 

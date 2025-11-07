@@ -19,6 +19,7 @@
 #include <memory>
 #include <utility>
 #include <Identifiers/Identifiers.hpp>
+#include <MemoryLayout/VariableSizedAccess.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Time/Timestamp.hpp>
 #include <Util/Logger/Logger.hpp>
@@ -26,16 +27,12 @@
 #include <ErrorHandling.hpp>
 
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
-    #include <iostream>
     #include <mutex>
     #include <thread>
-    #include <Util/Overloaded.hpp>
-    #include <fmt/color.h>
-    #include <fmt/format.h>
     #include <cpptrace.hpp>
 #endif
 
-namespace NES::Memory
+namespace NES
 {
 
 namespace detail
@@ -51,7 +48,7 @@ MemorySegment& MemorySegment::operator=(const MemorySegment& other) = default;
 
 MemorySegment::MemorySegment(
     uint8_t* ptr,
-    uint32_t size,
+    const uint32_t size,
     std::function<void(MemorySegment*, BufferRecycler*)>&& recycleFunction,
     uint8_t* controlBlock) /// NOLINT (readability-non-const-parameter)
     : ptr(ptr), size(size), controlBlock(new(controlBlock) BufferControlBlock(this, std::move(recycleFunction)))
@@ -79,15 +76,6 @@ MemorySegment::~MemorySegment()
         ///      the release function in general. Do you agree?).
         {
             const auto refCnt = controlBlock->getReferenceCount();
-
-#ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
-            if (refCnt != 0)
-            {
-                controlBlock->dumpOwningThreadInfo();
-                return;
-            }
-#endif
-
             INVARIANT(refCnt == 0, "invalid reference counter {} on mem segment dtor", refCnt);
         }
 
@@ -123,20 +111,14 @@ MemorySegment* BufferControlBlock::getOwner() const
  * @param threadName
  * @param callstack
  */
-BufferControlBlock::ThreadOwnershipInfo retainInfo()
+void fillThreadOwnershipInfo(std::string& threadName, cpptrace::raw_trace& callstack)
 {
     std::stringbuf threadNameBuffer;
     std::ostream os1(&threadNameBuffer);
     os1 << std::this_thread::get_id();
-    return BufferControlBlock::Retain(threadNameBuffer.str(), cpptrace::raw_trace::current(1));
-}
 
-BufferControlBlock::ThreadOwnershipInfo releaseInfo()
-{
-    std::stringbuf threadNameBuffer;
-    std::ostream os1(&threadNameBuffer);
-    os1 << std::this_thread::get_id();
-    return BufferControlBlock::Release(threadNameBuffer.str(), cpptrace::raw_trace::current(1));
+    threadName = threadNameBuffer.str();
+    callstack = cpptrace::raw_trace::current(1);
 }
 #endif
 bool BufferControlBlock::prepare(const std::shared_ptr<BufferRecycler>& recycler)
@@ -145,7 +127,9 @@ bool BufferControlBlock::prepare(const std::shared_ptr<BufferRecycler>& recycler
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
     /// store the current thread that owns the buffer and track which function obtained the buffer
     std::unique_lock lock(owningThreadsMutex);
-    owningThreads[std::this_thread::get_id()].emplace_back(retainInfo());
+    ThreadOwnershipInfo info;
+    fillThreadOwnershipInfo(info.threadName, info.callstack);
+    owningThreads[std::this_thread::get_id()].emplace_back(info);
 #endif
     if (referenceCounter.compare_exchange_strong(expected, 1))
     {
@@ -162,7 +146,9 @@ BufferControlBlock* BufferControlBlock::retain()
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
     /// store the current thread that owns the buffer (shared) and track which function increased the coutner of the buffer
     std::unique_lock lock(owningThreadsMutex);
-    owningThreads[std::this_thread::get_id()].emplace_back(retainInfo());
+    ThreadOwnershipInfo info;
+    fillThreadOwnershipInfo(info.threadName, info.callstack);
+    owningThreads[std::this_thread::get_id()].emplace_back(info);
 #endif
     ++referenceCounter;
     return this;
@@ -172,32 +158,16 @@ BufferControlBlock* BufferControlBlock::retain()
 void BufferControlBlock::dumpOwningThreadInfo()
 {
     std::unique_lock lock(owningThreadsMutex);
-    NES_FATAL_ERROR("Buffer {} has {} live references", fmt::ptr(getOwner()), referenceCounter.load());
+    throw UnknownException("Buffer {} has {} live references", fmt::ptr(getOwner()), referenceCounter.load());
     for (auto& item : owningThreads)
     {
         for (auto& v : item.second)
         {
-            std::visit(
-                Overloaded{
-                    [&](const Release& v)
-                    {
-                        NES_ERROR(
-                            "Thread {} {} {} on callstack: {}",
-                            v.threadName,
-                            fmt::styled("Released", fmt::emphasis::bold | fmt::fg(fmt::color::green)),
-                            fmt::ptr(getOwner()),
-                            v.callstack.resolve().to_string(true));
-                    },
-                    [&](const Retain& v)
-                    {
-                        NES_ERROR(
-                            "Thread {} {} {} requested on callstack: {}",
-                            v.threadName,
-                            fmt::styled("Retain", fmt::emphasis::bold | fmt::fg(fmt::color::red)),
-                            fmt::ptr(getOwner()),
-                            v.callstack.resolve().to_string(true));
-                    }},
-                v);
+            throw UnknownException(
+                "Thread {} has buffer {} requested on callstack: {}",
+                v.threadName,
+                fmt::ptr(getOwner()),
+                v.callstack.resolve().to_string());
         }
     }
 }
@@ -212,20 +182,20 @@ bool BufferControlBlock::release()
 {
     if (const uint32_t prevRefCnt = referenceCounter.fetch_sub(1); prevRefCnt == 1)
     {
-        numberOfTuples = 0;
         for (auto&& child : children)
         {
             child->controlBlock->release();
         }
         children.clear();
-        auto recycler = std::move(owningBufferRecycler);
-        recycleCallback(owner, recycler.get());
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
         {
             std::unique_lock lock(owningThreadsMutex);
             owningThreads.clear();
         }
 #endif
+        const auto recycler = std::move(owningBufferRecycler);
+        numberOfTuples = 0;
+        recycleCallback(owner, recycler.get());
         return true;
     }
     else
@@ -244,6 +214,19 @@ bool BufferControlBlock::release()
 #endif
     return false;
 }
+
+#ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
+BufferControlBlock::ThreadOwnershipInfo::ThreadOwnershipInfo(std::string&& threadName, cpptrace::raw_trace&& callstack)
+    : threadName(threadName), callstack(callstack)
+{
+    /// nop
+}
+
+BufferControlBlock::ThreadOwnershipInfo::ThreadOwnershipInfo() : threadName("NOT-SAMPLED"), callstack(cpptrace::raw_trace::current(1))
+{
+    /// nop
+}
+#endif
 
 /// -----------------------------------------------------------------------------
 /// ------------------ Utility functions for TupleBuffer ------------------------
@@ -323,18 +306,19 @@ void BufferControlBlock::setOriginId(const OriginId originId)
 /// ------------------ VarLen fields support for TupleBuffer --------------------
 /// -----------------------------------------------------------------------------
 
-uint32_t BufferControlBlock::storeChildBuffer(BufferControlBlock* control)
+VariableSizedAccess::Index BufferControlBlock::storeChildBuffer(BufferControlBlock* control)
 {
     control->retain();
     children.emplace_back(control->owner);
-    return children.size() - 1;
+    return VariableSizedAccess::Index{children.size() - 1};
 }
 
-bool BufferControlBlock::loadChildBuffer(uint16_t index, BufferControlBlock*& control, uint8_t*& ptr, uint32_t& size) const
+bool BufferControlBlock::loadChildBuffer(
+    const VariableSizedAccess::Index index, BufferControlBlock*& control, uint8_t*& ptr, uint32_t& size) const
 {
-    PRECONDITION(index < children.size(), "Index={} is out of range={}", index, children.size());
+    PRECONDITION(index.index < children.size(), "Index={} is out of range={}", index, children.size());
 
-    auto* child = children[index];
+    auto* child = children[index.index];
     control = child->controlBlock->retain();
     ptr = child->ptr;
     size = child->size;

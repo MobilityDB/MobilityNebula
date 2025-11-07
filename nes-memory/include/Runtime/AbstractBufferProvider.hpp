@@ -23,7 +23,7 @@
 /// global: overall buffer manager
 /// local: buffer manager that we give to the processing
 /// fixed: buffer manager that we use for sources
-namespace NES::Memory
+namespace NES
 {
 enum class BufferManagerType : uint8_t
 {
@@ -31,6 +31,7 @@ enum class BufferManagerType : uint8_t
     LOCAL,
     FIXED
 };
+
 class AbstractBufferProvider
 {
 public:
@@ -38,10 +39,6 @@ public:
     {
         /// nop
     }
-
-    virtual void destroy() = 0;
-
-    virtual size_t getAvailableBuffers() const = 0;
 
     virtual BufferManagerType getBufferManagerType() const = 0;
 
@@ -58,15 +55,6 @@ public:
 
     /// Returns an unpooled buffer of size bufferSize wrapped in an optional or an invalid option if an error
     virtual std::optional<TupleBuffer> getUnpooledBuffer(size_t bufferSize) = 0;
-};
-
-class AbstractPoolProvider
-{
-public:
-    /// @brief Create a fixed buffer manager that is assigned to one pipeline or thread
-    /// @param numberOfReservedBuffers number of exclusive buffers to give to the pool
-    /// @return a local buffer manager with numberOfReservedBuffers exclusive buffer
-    virtual std::optional<std::shared_ptr<AbstractBufferProvider>> createFixedSizeBufferPool(size_t numberOfReservedBuffers) = 0;
 };
 
 }

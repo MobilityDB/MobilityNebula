@@ -19,7 +19,7 @@
 #include <Operators/LogicalOperator.hpp>
 #include <Plans/LogicalPlan.hpp>
 
-namespace NES::LegacyOptimizer
+namespace NES
 {
 
 static LogicalOperator propagateSchema(const LogicalOperator& op)
@@ -47,12 +47,12 @@ static LogicalOperator propagateSchema(const LogicalOperator& op)
 void TypeInferencePhase::apply(LogicalPlan& queryPlan) const /// NOLINT(readability-convert-member-functions-to-static)
 {
     std::vector<LogicalOperator> newRoots;
-    for (const auto& sink : queryPlan.rootOperators)
+    for (const auto& sink : queryPlan.getRootOperators())
     {
         const LogicalOperator inferredRoot = propagateSchema(sink);
         newRoots.push_back(inferredRoot);
     }
-    queryPlan.rootOperators = newRoots;
+    queryPlan = queryPlan.withRootOperators(newRoots);
 }
 
 }

@@ -20,7 +20,7 @@
 #include <utility>
 #include <Identifiers/Identifiers.hpp>
 #include <MemoryLayout/RowLayout.hpp>
-#include <Nautilus/Interface/MemoryProvider/RowTupleBufferMemoryProvider.hpp>
+#include <Nautilus/Interface/BufferRef/RowTupleBufferRef.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <EmitOperatorHandler.hpp>
@@ -44,17 +44,17 @@ using OperatorPipelineMap = std::unordered_map<OperatorId, std::shared_ptr<Pipel
 /// Helper function to add a default scan operator
 /// This is used only when the wrapped operator does not already provide a scan
 /// @note Once we have refactored the memory layout and schema we can get rid of the configured buffer size.
-/// Do not add further parameters here that should be part of the QueryOptimizerConfiguration.
+/// Do not add further parameters here that should be part of the QueryExecutionConfiguration.
 void addDefaultScan(const std::shared_ptr<Pipeline>& pipeline, const PhysicalOperatorWrapper& wrappedOp, uint64_t configuredBufferSize)
 {
     PRECONDITION(pipeline->isOperatorPipeline(), "Only add scan physical operator to operator pipelines");
     auto schema = wrappedOp.getInputSchema();
     INVARIANT(schema.has_value(), "Wrapped operator has no input schema");
 
-    auto layout = std::make_shared<Memory::MemoryLayouts::RowLayout>(configuredBufferSize, schema.value());
-    const auto memoryProvider = std::make_shared<Interface::MemoryProvider::RowTupleBufferMemoryProvider>(layout);
+    auto layout = std::make_shared<RowLayout>(configuredBufferSize, schema.value());
+    const auto bufferRef = std::make_shared<Interface::BufferRef::RowTupleBufferRef>(layout);
     /// Prepend the default scan operator.
-    pipeline->prependOperator(ScanPhysicalOperator(memoryProvider, schema->getFieldNames()));
+    pipeline->prependOperator(ScanPhysicalOperator(bufferRef, schema->getFieldNames()));
 }
 
 /// Creates a new pipeline that contains a scan followed by the wrappedOpAfterScan. The newly created pipeline is a successor of the prevPipeline
@@ -67,10 +67,10 @@ std::shared_ptr<Pipeline> createNewPiplineWithScan(
     auto schema = wrappedOpAfterScan.getInputSchema();
     INVARIANT(schema.has_value(), "Wrapped operator has no input schema");
 
-    auto layout = std::make_shared<Memory::MemoryLayouts::RowLayout>(configuredBufferSize, schema.value());
-    const auto memoryProvider = std::make_shared<Interface::MemoryProvider::RowTupleBufferMemoryProvider>(layout);
+    auto layout = std::make_shared<RowLayout>(configuredBufferSize, schema.value());
+    const auto bufferRef = std::make_shared<Interface::BufferRef::RowTupleBufferRef>(layout);
 
-    const auto newPipeline = std::make_shared<Pipeline>(ScanPhysicalOperator(memoryProvider, schema->getFieldNames()));
+    const auto newPipeline = std::make_shared<Pipeline>(ScanPhysicalOperator(bufferRef, schema->getFieldNames()));
     prevPipeline->addSuccessor(newPipeline, prevPipeline);
     pipelineMap[wrappedOpAfterScan.getPhysicalOperator().getId()] = newPipeline;
     newPipeline->appendOperator(wrappedOpAfterScan.getPhysicalOperator());
@@ -80,19 +80,19 @@ std::shared_ptr<Pipeline> createNewPiplineWithScan(
 /// Helper function to add a default emit operator
 /// This is used only when the wrapped operator does not already provide an emit
 /// @note Once we have refactored the memory layout and schema we can get rid of the configured buffer size.
-/// Do not add further parameters here that should be part of the QueryOptimizerConfiguration.
+/// Do not add further parameters here that should be part of the QueryExecutionConfiguration.
 void addDefaultEmit(const std::shared_ptr<Pipeline>& pipeline, const PhysicalOperatorWrapper& wrappedOp, uint64_t configuredBufferSize)
 {
     PRECONDITION(pipeline->isOperatorPipeline(), "Only add emit physical operator to operator pipelines");
     auto schema = wrappedOp.getOutputSchema();
     INVARIANT(schema.has_value(), "Wrapped operator has no output schema");
 
-    auto layout = std::make_shared<Memory::MemoryLayouts::RowLayout>(configuredBufferSize, schema.value());
-    const auto memoryProvider = std::make_shared<Interface::MemoryProvider::RowTupleBufferMemoryProvider>(layout);
+    auto layout = std::make_shared<RowLayout>(configuredBufferSize, schema.value());
+    const auto bufferRef = std::make_shared<Interface::BufferRef::RowTupleBufferRef>(layout);
     /// Create an operator handler for the emit
     const OperatorHandlerId operatorHandlerIndex = getNextOperatorHandlerId();
     pipeline->getOperatorHandlers().emplace(operatorHandlerIndex, std::make_shared<EmitOperatorHandler>());
-    pipeline->appendOperator(EmitPhysicalOperator(operatorHandlerIndex, memoryProvider));
+    pipeline->appendOperator(EmitPhysicalOperator(operatorHandlerIndex, bufferRef));
 }
 
 enum class PipelinePolicy : uint8_t
@@ -113,6 +113,10 @@ void buildPipelineRecursively(
     const OperatorId opId = opWrapper->getPhysicalOperator().getId();
     if (const auto it = pipelineMap.find(opId); it != pipelineMap.end())
     {
+        if (prevOpWrapper and prevOpWrapper->getPipelineLocation() != PhysicalOperatorWrapper::PipelineLocation::EMIT)
+        {
+            addDefaultEmit(currentPipeline, *prevOpWrapper, configuredBufferSize);
+        }
         currentPipeline->addSuccessor(it->second, currentPipeline);
         return;
     }
@@ -167,7 +171,6 @@ void buildPipelineRecursively(
             {
                 currentPipeline->getOperatorHandlers().emplace(opWrapper->getHandlerId().value(), opWrapper->getHandler().value());
             }
-            pipelineMap.emplace(opId, currentPipeline);
             for (auto& child : opWrapper->getChildren())
             {
                 buildPipelineRecursively(child, opWrapper, currentPipeline, pipelineMap, PipelinePolicy::ForceNew, configuredBufferSize);
@@ -267,11 +270,10 @@ std::shared_ptr<PipelinedQueryPlan> apply(const PhysicalPlan& physicalPlan)
         for (const auto& child : rootWrapper->getChildren())
         {
             buildPipelineRecursively(child, nullptr, rootPipeline, pipelineMap, PipelinePolicy::ForceNew, configuredBufferSize);
-            NES_DEBUG("Constructed pipelines: {}", *pipelinedPlan);
         }
     }
 
-    NES_DEBUG("Constructed pipeline plan with {} root pipelines.", pipelinedPlan->getPipelines().size());
+    NES_DEBUG("Constructed pipeline plan with {} root pipelines.\n{}", pipelinedPlan->getPipelines().size(), *pipelinedPlan);
     return pipelinedPlan;
 }
 }

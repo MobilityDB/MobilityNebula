@@ -14,12 +14,14 @@
 
 #include <TestTaskQueue.hpp>
 
+#include <chrono>
 #include <cstddef>
 #include <memory>
 #include <ostream>
 #include <ranges>
 #include <utility>
 #include <vector>
+
 #include <Identifiers/Identifiers.hpp>
 #include <Runtime/AbstractBufferProvider.hpp>
 #include <Runtime/TupleBuffer.hpp>
@@ -30,15 +32,10 @@
 
 namespace NES
 {
-bool TestPipelineExecutionContext::emitBuffer(const NES::Memory::TupleBuffer& resultBuffer, const ContinuationPolicy continuationPolicy)
+bool TestPipelineExecutionContext::emitBuffer(const TupleBuffer& resultBuffer, const ContinuationPolicy continuationPolicy)
 {
     switch (continuationPolicy)
     {
-        case ContinuationPolicy::REPEAT: {
-            PRECONDITION(repeatTaskCallback != nullptr, "Cannot repeat a task without a valid repeatTaskCallback function");
-            repeatTaskCallback();
-            break;
-        }
         case ContinuationPolicy::NEVER: {
             resultBuffers->at(workerThreadId.getRawValue()).emplace_back(resultBuffer);
             break;
@@ -47,31 +44,34 @@ bool TestPipelineExecutionContext::emitBuffer(const NES::Memory::TupleBuffer& re
             resultBuffers->at(workerThreadId.getRawValue()).emplace_back(resultBuffer);
             break;
         }
-        default:
-            throw NES::NotImplemented(
-                "Not supporting ContinuationPolicy {} in TestPipelineExecutionContext.", magic_enum::enum_name(continuationPolicy));
     }
     return true;
 }
-NES::Memory::TupleBuffer TestPipelineExecutionContext::allocateTupleBuffer()
+
+TupleBuffer TestPipelineExecutionContext::allocateTupleBuffer()
 {
     if (auto buffer = bufferManager->getBufferNoBlocking())
     {
-        auto tb = buffer.value();
-        tb.setCreationTimestampInMS(ingressTs);
-        return tb;
+        return buffer.value();
     }
-    throw NES::BufferAllocationFailure("Required more buffers in TestTaskQueue than provided.");
+    throw BufferAllocationFailure("Required more buffers in TestTaskQueue than provided.");
 }
 
-void TestablePipelineStage::execute(const NES::Memory::TupleBuffer& tupleBuffer, NES::PipelineExecutionContext& pec)
+void TestPipelineExecutionContext::repeatTask(const TupleBuffer&, std::chrono::milliseconds)
+{
+    PRECONDITION(repeatTaskCallback != nullptr, "Cannot repeat a task without a valid repeatTaskCallback function");
+    repeatTaskCallback();
+}
+
+void TestPipelineStage::execute(const TupleBuffer& tupleBuffer, PipelineExecutionContext& pec)
 {
     for (const auto& [_, taskFunction] : taskSteps)
     {
         taskFunction(tupleBuffer, pec);
     }
 }
-std::ostream& TestablePipelineStage::toString(std::ostream& os) const
+
+std::ostream& TestPipelineStage::toString(std::ostream& os) const
 {
     if (taskSteps.empty())
     {
@@ -87,19 +87,18 @@ std::ostream& TestablePipelineStage::toString(std::ostream& os) const
 }
 
 SingleThreadedTestTaskQueue::SingleThreadedTestTaskQueue(
-    std::shared_ptr<NES::Memory::BufferManager> bufferProvider,
-    std::shared_ptr<std::vector<std::vector<NES::Memory::TupleBuffer>>> resultBuffers)
+    std::shared_ptr<BufferManager> bufferProvider, std::shared_ptr<std::vector<std::vector<TupleBuffer>>> resultBuffers)
     : bufferProvider(std::move(bufferProvider)), resultBuffers(std::move(resultBuffers))
 {
 }
 
-void SingleThreadedTestTaskQueue::processTasks(std::vector<TestablePipelineTask> pipelineTasks)
+void SingleThreadedTestTaskQueue::processTasks(std::vector<TestPipelineTask> pipelineTasks)
 {
     enqueueTasks(std::move(pipelineTasks));
     runTasks();
 }
 
-void SingleThreadedTestTaskQueue::enqueueTasks(std::vector<TestablePipelineTask> pipelineTasks)
+void SingleThreadedTestTaskQueue::enqueueTasks(std::vector<TestPipelineTask> pipelineTasks)
 {
     PRECONDITION(not pipelineTasks.empty(), "Test tasks must not be empty.");
     this->eps = pipelineTasks.front().eps;
@@ -107,7 +106,7 @@ void SingleThreadedTestTaskQueue::enqueueTasks(std::vector<TestablePipelineTask>
     for (const auto& testTask : pipelineTasks)
     {
         auto pipelineExecutionContext = std::make_shared<TestPipelineExecutionContext>(
-            this->bufferProvider, NES::WorkerThreadId(testTask.workerThreadId.getRawValue()), PipelineId(0), this->resultBuffers);
+            this->bufferProvider, WorkerThreadId(testTask.workerThreadId.getRawValue()), PipelineId(0), this->resultBuffers);
         /// There is a circular dependency, because the repeatTaskCallback needs to know about the pec and the pec needs to know about the
         /// repeatTaskCallback. The Tasks own the pec. When a tasks goes out of scope, so should the pec and the repeatTaskCallback.
         /// Thus, we give a weak_ptr of the pec to the repeatTaskCallback, which is guaranteed to be alive during the lifetime of the repeatTaskCallback.
@@ -137,12 +136,11 @@ void SingleThreadedTestTaskQueue::runTasks()
     eps->stop(*pipelineExecutionContext);
 }
 
-
 MultiThreadedTestTaskQueue::MultiThreadedTestTaskQueue(
     const size_t numberOfThreads,
-    const std::vector<TestablePipelineTask>& testTasks,
-    std::shared_ptr<NES::Memory::AbstractBufferProvider> bufferProvider,
-    std::shared_ptr<std::vector<std::vector<NES::Memory::TupleBuffer>>> resultBuffers)
+    const std::vector<TestPipelineTask>& testTasks,
+    std::shared_ptr<AbstractBufferProvider> bufferProvider,
+    std::shared_ptr<std::vector<std::vector<TupleBuffer>>> resultBuffers)
     : threadTasks(testTasks.size())
     , numberOfWorkerThreads(numberOfThreads)
     , completionLatch(numberOfThreads)
@@ -171,6 +169,7 @@ MultiThreadedTestTaskQueue::MultiThreadedTestTaskQueue(
         threadTasks.blockingWrite(WorkTask{.task = testTask, .pipelineExecutionContext = pipelineExecutionContext});
     }
 }
+
 void MultiThreadedTestTaskQueue::startProcessing()
 {
     timer.start();
@@ -194,7 +193,7 @@ void MultiThreadedTestTaskQueue::threadFunction(const size_t threadIdx)
     WorkTask workTask{};
     while (threadTasks.readIfNotEmpty(workTask))
     {
-        workTask.pipelineExecutionContext->workerThreadId = NES::WorkerThreadId(threadIdx);
+        workTask.pipelineExecutionContext->workerThreadId = WorkerThreadId(threadIdx);
         workTask.task.execute(*workTask.pipelineExecutionContext);
     }
     completionLatch.count_down();

@@ -12,53 +12,68 @@
     limitations under the License.
 */
 
+#include <Plans/LogicalPlanBuilder.hpp>
+
+#include <array>
 #include <memory>
+#include <ranges>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
 #include <Configurations/Descriptor.hpp>
+#include <DataTypes/Schema.hpp>
 #include <Functions/ConstantValueLogicalFunction.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
-#include <Functions/FieldAssignmentLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Functions/RenameLogicalFunction.hpp>
 #include <Iterators/BFSIterator.hpp>
 #include <Operators/EventTimeWatermarkAssignerLogicalOperator.hpp>
 #include <Operators/IngestionTimeWatermarkAssignerLogicalOperator.hpp>
-#include <Operators/MapLogicalOperator.hpp>
 #include <Operators/ProjectionLogicalOperator.hpp>
 #include <Operators/SelectionLogicalOperator.hpp>
+#include <Operators/Sinks/InlineSinkLogicalOperator.hpp>
 #include <Operators/Sinks/SinkLogicalOperator.hpp>
+#include <Operators/Sources/InlineSourceLogicalOperator.hpp>
 #include <Operators/Sources/SourceNameLogicalOperator.hpp>
 #include <Operators/UnionLogicalOperator.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <Operators/Windows/JoinLogicalOperator.hpp>
 #include <Operators/Windows/WindowedAggregationLogicalOperator.hpp>
 #include <Plans/LogicalPlan.hpp>
-#include <Plans/LogicalPlanBuilder.hpp>
 #include <Util/Common.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <WindowTypes/Measures/TimeCharacteristic.hpp>
 #include <WindowTypes/Types/TimeBasedWindowType.hpp>
 #include <WindowTypes/Types/WindowType.hpp>
 #include <ErrorHandling.hpp>
-#include <LogicalInferModelNameOperator.hpp>
 
 namespace NES
 {
 LogicalPlan LogicalPlanBuilder::createLogicalPlan(std::string logicalSourceName)
 {
     NES_TRACE("LogicalPlanBuilder: create query plan for input source  {}", logicalSourceName);
-    const NES::Configurations::DescriptorConfig::Config sourceDescriptorConfig{};
-    auto queryPlan = LogicalPlan(SourceNameLogicalOperator(logicalSourceName));
-    return queryPlan;
+    const DescriptorConfig::Config sourceDescriptorConfig{};
+    return LogicalPlan(SourceNameLogicalOperator(logicalSourceName));
 }
 
-LogicalPlan LogicalPlanBuilder::addProjection(std::vector<LogicalFunction> functions, const LogicalPlan& queryPlan)
+LogicalPlan LogicalPlanBuilder::createLogicalPlan(
+    std::string inlineSourceType,
+    const Schema& schema,
+    std::unordered_map<std::string, std::string> sourceConfig,
+    std::unordered_map<std::string, std::string> parserConfig)
+{
+    return LogicalPlan(InlineSourceLogicalOperator{std::move(inlineSourceType), schema, std::move(sourceConfig), std::move(parserConfig)});
+}
+
+LogicalPlan LogicalPlanBuilder::addProjection(
+    std::vector<ProjectionLogicalOperator::Projection> projections, bool asterisk, const LogicalPlan& queryPlan)
 {
     NES_TRACE("LogicalPlanBuilder: add projection operator to query plan");
-    return promoteOperatorToRoot(queryPlan, ProjectionLogicalOperator(std::move(functions)));
+    return promoteOperatorToRoot(
+        queryPlan, ProjectionLogicalOperator(std::move(projections), ProjectionLogicalOperator::Asterisk(asterisk)));
 }
 
 LogicalPlan LogicalPlanBuilder::addSelection(LogicalFunction selectionFunction, const LogicalPlan& queryPlan)
@@ -71,23 +86,13 @@ LogicalPlan LogicalPlanBuilder::addSelection(LogicalFunction selectionFunction, 
     return promoteOperatorToRoot(queryPlan, SelectionLogicalOperator(std::move(selectionFunction)));
 }
 
-LogicalPlan LogicalPlanBuilder::addMap(const LogicalFunction& mapFunction, const LogicalPlan& queryPlan)
-{
-    NES_TRACE("LogicalPlanBuilder: add map operator to query plan");
-    if (mapFunction.tryGet<RenameLogicalFunction>())
-    {
-        throw UnsupportedQuery("Map function cannot have a FieldRenameFunction");
-    }
-    return promoteOperatorToRoot(queryPlan, MapLogicalOperator(mapFunction.get<FieldAssignmentLogicalFunction>()));
-}
-
 LogicalPlan LogicalPlanBuilder::addWindowAggregation(
     LogicalPlan queryPlan,
     const std::shared_ptr<Windowing::WindowType>& windowType,
     std::vector<std::shared_ptr<WindowAggregationLogicalFunction>> windowAggs,
     std::vector<FieldAccessLogicalFunction> onKeys)
 {
-    PRECONDITION(not queryPlan.rootOperators.empty(), "invalid query plan, as the root operator is empty");
+    PRECONDITION(not queryPlan.getRootOperators().empty(), "invalid query plan, as the root operator is empty");
 
     if (auto* timeBasedWindowType = dynamic_cast<Windowing::TimeBasedWindowType*>(windowType.get()))
     {
@@ -110,7 +115,7 @@ LogicalPlan LogicalPlanBuilder::addWindowAggregation(
         throw NotImplemented("Only TimeBasedWindowType is supported for now");
     }
 
-    auto inputSchema = queryPlan.rootOperators[0].getOutputSchema();
+    auto inputSchema = queryPlan.getRootOperators().front().getOutputSchema();
     return promoteOperatorToRoot(queryPlan, WindowedAggregationLogicalOperator(std::move(onKeys), std::move(windowAggs), windowType));
 }
 
@@ -120,14 +125,6 @@ LogicalPlan LogicalPlanBuilder::addUnion(LogicalPlan leftLogicalPlan, LogicalPla
     leftLogicalPlan = addBinaryOperatorAndUpdateSource(UnionLogicalOperator(), leftLogicalPlan, std::move(rightLogicalPlan));
     return leftLogicalPlan;
 }
-
-LogicalPlan
-LogicalPlanBuilder::addInferModel(const std::string& model, const std::vector<LogicalFunction>& inputFields, LogicalPlan queryPlan)
-{
-    NES_TRACE("QueryPlanBuilder: add map inferModel to query plan");
-    return promoteOperatorToRoot(queryPlan, LogicalOperator(InferModel::LogicalInferModelNameOperator(model, inputFields)));
-}
-
 
 LogicalPlan LogicalPlanBuilder::addJoin(
     LogicalPlan leftLogicalPlan,
@@ -151,8 +148,8 @@ LogicalPlan LogicalPlanBuilder::addJoin(
                 if (visitedFunctions.find(leftVisitingOp) == visitedFunctions.end())
                 {
                     visitedFunctions.insert(leftVisitingOp);
-                    auto leftChild = leftVisitingOp.getChildren()[0];
-                    auto rightChild = leftVisitingOp.getChildren()[1];
+                    auto leftChild = leftVisitingOp.getChildren().at(0);
+                    auto rightChild = leftVisitingOp.getChildren().at(1);
                     /// ensure that the child nodes are not binary
                     if ((leftChild.getChildren().size() == 1) && (rightChild.getChildren().size() == 1))
                     {
@@ -169,9 +166,9 @@ LogicalPlan LogicalPlanBuilder::addJoin(
     }
 
 
-    INVARIANT(!rightLogicalPlan.rootOperators.empty(), "RootOperators of rightLogicalPlan are empty");
-    auto rootOperatorRhs = rightLogicalPlan.rootOperators[0];
-    auto leftJoinType = leftLogicalPlan.rootOperators[0].getOutputSchema();
+    INVARIANT(!rightLogicalPlan.getRootOperators().empty(), "RootOperators of rightLogicalPlan are empty");
+    auto rootOperatorRhs = rightLogicalPlan.getRootOperators().front();
+    auto leftJoinType = leftLogicalPlan.getRootOperators().front().getOutputSchema();
     auto rightLogicalPlanJoinType = rootOperatorRhs.getOutputSchema();
 
     /// check if query contain watermark assigner, and add if missing (as default behaviour)
@@ -187,6 +184,12 @@ LogicalPlan LogicalPlanBuilder::addJoin(
 LogicalPlan LogicalPlanBuilder::addSink(std::string sinkName, const LogicalPlan& queryPlan)
 {
     return promoteOperatorToRoot(queryPlan, SinkLogicalOperator(std::move(sinkName)));
+}
+
+LogicalPlan LogicalPlanBuilder::addInlineSink(
+    std::string type, const Schema& schema, std::unordered_map<std::string, std::string> sinkConfig, const LogicalPlan& queryPlan)
+{
+    return promoteOperatorToRoot(queryPlan, InlineSinkLogicalOperator(std::move(type), schema, std::move(sinkConfig)));
 }
 
 LogicalPlan
@@ -214,9 +217,9 @@ LogicalPlanBuilder::checkAndAddWatermarkAssigner(LogicalPlan queryPlan, const st
 }
 
 LogicalPlan LogicalPlanBuilder::addBinaryOperatorAndUpdateSource(
-    const LogicalOperator& operatorNode, LogicalPlan leftLogicalPlan, LogicalPlan rightLogicalPlan)
+    const LogicalOperator& operatorNode, const LogicalPlan& leftLogicalPlan, const LogicalPlan& rightLogicalPlan)
 {
-    leftLogicalPlan.rootOperators.push_back(rightLogicalPlan.rootOperators[0]);
-    return promoteOperatorToRoot(leftLogicalPlan, operatorNode);
+    auto newRootOperators = std::ranges::views::join(std::array{leftLogicalPlan.getRootOperators(), rightLogicalPlan.getRootOperators()});
+    return promoteOperatorToRoot(leftLogicalPlan.withRootOperators(newRootOperators | std::ranges::to<std::vector>()), operatorNode);
 }
 }

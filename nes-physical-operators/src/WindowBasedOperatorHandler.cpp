@@ -32,11 +32,9 @@ namespace NES
 WindowBasedOperatorHandler::WindowBasedOperatorHandler(
     const std::vector<OriginId>& inputOrigins,
     const OriginId outputOriginId,
-    std::unique_ptr<WindowSlicesStoreInterface> sliceAndWindowStore,
-    bool sequentialProcessing)
+    std::unique_ptr<WindowSlicesStoreInterface> sliceAndWindowStore)
     : sliceAndWindowStore(std::move(sliceAndWindowStore))
     , numberOfWorkerThreads(0)
-    , sequentialProcessing(sequentialProcessing)
     , outputOriginId(outputOriginId)
     , inputOrigins(inputOrigins)
 {
@@ -62,7 +60,6 @@ WindowSlicesStoreInterface& WindowBasedOperatorHandler::getSliceAndWindowStore()
 {
     return *sliceAndWindowStore;
 }
-
 
 void WindowBasedOperatorHandler::garbageCollectSlicesAndWindows(const BufferMetaData& bufferMetaData) const
 {
@@ -95,7 +92,6 @@ void WindowBasedOperatorHandler::checkAndTriggerWindows(const BufferMetaData& bu
     const auto slicesAndWindowInfo = sliceAndWindowStore->getTriggerableWindowSlices(newGlobalWatermark);
     triggerSlices(slicesAndWindowInfo, pipelineCtx);
 }
-
 
 void WindowBasedOperatorHandler::triggerAllWindows(PipelineExecutionContext* pipelineCtx)
 {

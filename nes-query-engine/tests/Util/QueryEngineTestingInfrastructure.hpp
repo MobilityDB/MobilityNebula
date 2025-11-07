@@ -19,6 +19,7 @@
 #include <condition_variable>
 #include <cstddef>
 #include <cstdint>
+#include <exception>
 #include <future>
 #include <initializer_list>
 #include <memory>
@@ -75,15 +76,14 @@ constexpr std::chrono::milliseconds DEFAULT_LONG_AWAIT_TIMEOUT = std::chrono::mi
 
 /// Creates raw TupleBuffer data based on a recognizable pattern which can later be identified using `verifyIdentifier`.
 std::vector<std::byte> identifiableData(size_t identifier);
-bool verifyIdentifier(const Memory::TupleBuffer& buffer, size_t identifier);
-
+bool verifyIdentifier(const TupleBuffer& buffer, size_t identifier);
 
 /// Mock Implementation of the QueryEngineStatisticListener. This can be used to verify that certain
 /// statistic events have been emitted during test execution.
-class TestQueryStatisticListener : public NES::QueryEngineStatisticListener
+class TestQueryStatisticListener : public QueryEngineStatisticListener
 {
 public:
-    MOCK_METHOD(void, onEvent, (NES::Event), (override));
+    MOCK_METHOD(void, onEvent, (Event), (override));
 };
 
 /// Mock implementation for the QueryStatusListener. This allows to verify query status events, e.g. `Running`, `Stopped`.
@@ -108,9 +108,11 @@ struct ExpectStats
     void apply(Name v) \
     { \
         EXPECT_CALL(*listener, onEvent(::testing::VariantWith<NES::Name>(::testing::_))).Times(::testing::Between(v.lower, v.upper)); \
-    }
+    } /// TODO #1035: remove namespace testing
     STAT_TYPE(QueryStart);
     STAT_TYPE(QueryStop);
+    STAT_TYPE(QueryStopRequest);
+    STAT_TYPE(QueryFail);
     STAT_TYPE(PipelineStart);
     STAT_TYPE(PipelineStop);
     STAT_TYPE(TaskExecutionStart);
@@ -120,7 +122,7 @@ struct ExpectStats
 
     explicit ExpectStats(std::shared_ptr<TestQueryStatisticListener> listener) : listener(std::move(listener))
     {
-        EXPECT_CALL(*this->listener, onEvent(::testing::VariantWith<NES::QueryStart>(::testing::_)))
+        EXPECT_CALL(*this->listener, onEvent(::testing::VariantWith<NES::QueryStart>(::testing::_))) /// needed because not in ExpectStats
             .WillRepeatedly(::testing::Invoke([](auto) { }));
         EXPECT_CALL(*this->listener, onEvent(::testing::VariantWith<NES::QueryStop>(::testing::_)))
             .WillRepeatedly(::testing::Invoke([](auto) { }));
@@ -135,6 +137,10 @@ struct ExpectStats
         EXPECT_CALL(*this->listener, onEvent(::testing::VariantWith<NES::TaskExpired>(::testing::_)))
             .WillRepeatedly(::testing::Invoke([](auto) { }));
         EXPECT_CALL(*this->listener, onEvent(::testing::VariantWith<NES::TaskEmit>(::testing::_)))
+            .WillRepeatedly(::testing::Invoke([](auto) { }));
+        EXPECT_CALL(*this->listener, onEvent(::testing::VariantWith<NES::QueryStopRequest>(::testing::_)))
+            .WillRepeatedly(::testing::Invoke([](auto) { }));
+        EXPECT_CALL(*this->listener, onEvent(::testing::VariantWith<NES::QueryFail>(::testing::_)))
             .WillRepeatedly(::testing::Invoke([](auto) { }));
     }
 
@@ -152,7 +158,7 @@ class QueryStatusListener final : public AbstractQueryStatusListener
 public:
     MOCK_METHOD(bool, logSourceTermination, (QueryId, OriginId, QueryTerminationType, std::chrono::system_clock::time_point), (override));
     MOCK_METHOD(bool, logQueryFailure, (QueryId, Exception, std::chrono::system_clock::time_point), (override));
-    MOCK_METHOD(bool, logQueryStatusChange, (QueryId, QueryStatus, std::chrono::system_clock::time_point), (override));
+    MOCK_METHOD(bool, logQueryStatusChange, (QueryId, QueryState, std::chrono::system_clock::time_point), (override));
 };
 
 /// Mock implementation for internal interfaces of the QueryEngine. These are used when verifying the behavior of internal
@@ -162,26 +168,13 @@ struct TestWorkEmitter : WorkEmitter
     MOCK_METHOD(
         bool,
         emitWork,
-        (QueryId,
-         const std::shared_ptr<RunningQueryPlanNode>&,
-         Memory::TupleBuffer,
-         BaseTask::onComplete,
-         BaseTask::onFailure,
-         PipelineExecutionContext::ContinuationPolicy),
+        (QueryId, const std::shared_ptr<RunningQueryPlanNode>&, TupleBuffer, TaskCallback, PipelineExecutionContext::ContinuationPolicy),
         (override));
-    MOCK_METHOD(
-        void,
-        emitPipelineStart,
-        (QueryId, const std::shared_ptr<RunningQueryPlanNode>&, BaseTask::onComplete, BaseTask::onFailure),
-        (override));
-    MOCK_METHOD(
-        void,
-        emitPendingPipelineStop,
-        (QueryId, std::shared_ptr<RunningQueryPlanNode>, BaseTask::onComplete, BaseTask::onFailure),
-        (override));
-    MOCK_METHOD(
-        void, emitPipelineStop, (QueryId, std::unique_ptr<RunningQueryPlanNode>, BaseTask::onComplete, BaseTask::onFailure), (override));
+    MOCK_METHOD(void, emitPipelineStart, (QueryId, const std::shared_ptr<RunningQueryPlanNode>&, TaskCallback), (override));
+    MOCK_METHOD(void, emitPendingPipelineStop, (QueryId, std::shared_ptr<RunningQueryPlanNode>, TaskCallback), (override));
+    MOCK_METHOD(void, emitPipelineStop, (QueryId, std::unique_ptr<RunningQueryPlanNode>, TaskCallback), (override));
 };
+
 struct TestQueryLifetimeController : QueryLifetimeController
 {
     MOCK_METHOD(void, initializeSourceFailure, (QueryId, OriginId, std::weak_ptr<RunningSource>, Exception), (override));
@@ -214,23 +207,38 @@ public:
     std::atomic_bool failOnStart = false;
     std::atomic_bool failOnStop = false;
     std::atomic<size_t> throwOnNthInvocation = -1;
+    std::atomic<size_t> repeatCount = 0;
+    std::atomic<size_t> repeatCountDuringStop = 0;
 
     std::promise<void> start;
     std::promise<void> stop;
+    std::promise<void> destruction;
     std::shared_future<void> startFuture = start.get_future().share();
     std::shared_future<void> stopFuture = stop.get_future().share();
+    std::shared_future<void> destructionFuture = destruction.get_future().share();
 
     /// Back reference this is set during construction of a TestPipeline
     ExecutablePipelineStage* stage = nullptr;
 
     [[nodiscard]] testing::AssertionResult waitForStart() const { return waitForFuture(startFuture, DEFAULT_LONG_AWAIT_TIMEOUT); }
+
     [[nodiscard]] testing::AssertionResult waitForStop() const { return waitForFuture(stopFuture, DEFAULT_LONG_AWAIT_TIMEOUT); }
+
+    [[nodiscard]] testing::AssertionResult waitForDestruction() const
+    {
+        return waitForFuture(destructionFuture, DEFAULT_LONG_AWAIT_TIMEOUT);
+    }
+
     [[nodiscard]] testing::AssertionResult keepRunning() const
     {
         return waitForFuture(stopFuture, DEFAULT_AWAIT_TIMEOUT) ? testing::AssertionFailure() : testing::AssertionSuccess();
     }
+
     [[nodiscard]] testing::AssertionResult wasStarted() const { return waitForFuture(startFuture, std::chrono::milliseconds(0)); }
+
     [[nodiscard]] testing::AssertionResult wasStopped() const { return waitForFuture(stopFuture, std::chrono::milliseconds(0)); }
+
+    [[nodiscard]] testing::AssertionResult wasDestroyed() const { return waitForFuture(destructionFuture, std::chrono::milliseconds(0)); }
 };
 
 struct TestPipeline final : ExecutablePipelineStage
@@ -239,7 +247,13 @@ struct TestPipeline final : ExecutablePipelineStage
     {
         this->controller->stage = this;
     }
-    ~TestPipeline() override { controller->stage = nullptr; }
+
+    ~TestPipeline() override
+    {
+        controller->stage = nullptr;
+        controller->destruction.set_value();
+    }
+
     void start(PipelineExecutionContext&) override
     {
         std::this_thread::sleep_for(controller->startDuration.load());
@@ -250,22 +264,54 @@ struct TestPipeline final : ExecutablePipelineStage
         }
     }
 
-    void stop(PipelineExecutionContext&) override
+    std::atomic_size_t stopCalled = 0;
+
+    void stop(PipelineExecutionContext& pec) override
     {
         std::this_thread::sleep_for(controller->stopDuration.load());
-        controller->stop.set_value();
         if (controller->failOnStop)
         {
             throw Exception("I should throw here.", 9999);
         }
+
+        auto stopCalls = stopCalled.fetch_add(1);
+        auto repeatsDuringStop = controller->repeatCountDuringStop.load();
+        if (stopCalls == repeatsDuringStop)
+        {
+            controller->stop.set_value();
+        }
+        else if (stopCalls > repeatsDuringStop)
+        {
+            controller->stop.set_exception(std::make_exception_ptr(TestException("Pipeline was terminated to often")));
+        }
+        else /*if (stopCalls < repeatsDuringStop)*/
+        {
+            pec.repeatTask(TupleBuffer(), std::chrono::milliseconds(10));
+        }
     }
 
-    void execute(const Memory::TupleBuffer& inputTupleBuffer, PipelineExecutionContext& pipelineExecutionContext) override
+    void execute(const TupleBuffer& inputTupleBuffer, PipelineExecutionContext& pipelineExecutionContext) override
     {
         if (controller->invocations.fetch_add(1) + 1 == controller->throwOnNthInvocation)
         {
             throw Exception("I should throw here.", 9999);
         }
+
+        /// Handle repeat functionality
+        const size_t maxRepeats = controller->repeatCount.load();
+        if (maxRepeats > 0)
+        {
+            /// Get current repeat count from creation timestamp
+            const uint64_t currentRepeatCount = inputTupleBuffer.getWatermark().getRawValue();
+            if (currentRepeatCount < maxRepeats)
+            {
+                auto copiedBuffer = Testing::copyBuffer(inputTupleBuffer, *pipelineExecutionContext.getBufferManager());
+                copiedBuffer.setWatermark(Timestamp(currentRepeatCount + 1));
+                pipelineExecutionContext.repeatTask(copiedBuffer, std::chrono::milliseconds(10));
+                return;
+            }
+        }
+
         pipelineExecutionContext.emitBuffer(inputTupleBuffer, PipelineExecutionContext::ContinuationPolicy::POSSIBLE);
     }
 
@@ -275,54 +321,99 @@ protected:
     std::ostream& toString(std::ostream& os) const override;
 };
 
-
 struct TestSinkController
 {
     /// Waits for *at least* `numberOfExpectedBuffers`
     testing::AssertionResult waitForNumberOfReceivedBuffersOrMore(size_t numberOfExpectedBuffers);
 
-    void insertBuffer(Memory::TupleBuffer&& buffer);
+    void insertBuffer(TupleBuffer&& buffer);
 
-    std::vector<Memory::TupleBuffer> takeBuffers();
+    std::vector<TupleBuffer> takeBuffers();
 
-    testing::AssertionResult waitForInitialization(std::chrono::milliseconds timeout) const { return waitForFuture(setup_future, timeout); }
-    testing::AssertionResult waitForDestruction(std::chrono::milliseconds timeout) const
+    testing::AssertionResult waitForStart() const { return waitForFuture(startFuture, DEFAULT_LONG_AWAIT_TIMEOUT); }
+
+    testing::AssertionResult waitForDestruction() const { return waitForFuture(destructionFuture, DEFAULT_LONG_AWAIT_TIMEOUT); }
+
+    testing::AssertionResult waitForStop() const { return waitForFuture(stopFuture, DEFAULT_LONG_AWAIT_TIMEOUT); }
+
+    [[nodiscard]] testing::AssertionResult keepRunning() const
     {
-        return waitForFuture(destroyed_future, timeout);
+        return waitForFuture(stopFuture, DEFAULT_AWAIT_TIMEOUT) ? testing::AssertionFailure() : testing::AssertionSuccess();
     }
-    testing::AssertionResult waitForShutdown(std::chrono::milliseconds timeout) const { return waitForFuture(shutdown_future, timeout); }
+
+    testing::AssertionResult wasStopped() const { return waitForFuture(stopFuture, std::chrono::milliseconds(0)); }
+
+    testing::AssertionResult wasStarted() const { return waitForFuture(startFuture, std::chrono::milliseconds(0)); }
+
+    testing::AssertionResult wasDestroyed() const { return waitForFuture(destructionFuture, std::chrono::milliseconds(0)); }
 
     std::atomic<size_t> invocations = 0;
+    std::atomic<size_t> repeatCount = 0;
+    std::atomic<size_t> repeatCountDuringStop = 0;
 
 private:
-    folly::Synchronized<std::vector<Memory::TupleBuffer>, std::mutex> receivedBuffers;
+    folly::Synchronized<std::vector<TupleBuffer>, std::mutex> receivedBuffers;
     std::condition_variable receivedBufferTrigger;
-    std::promise<void> setup;
-    std::promise<void> shutdown;
-    std::promise<void> destroyed;
-    std::shared_future<void> setup_future = setup.get_future().share();
-    std::shared_future<void> shutdown_future = shutdown.get_future().share();
-    std::shared_future<void> destroyed_future = destroyed.get_future().share();
+    std::promise<void> start;
+    std::promise<void> stop;
+    std::promise<void> destruction;
+    std::shared_future<void> startFuture = start.get_future().share();
+    std::shared_future<void> stopFuture = stop.get_future().share();
+    std::shared_future<void> destructionFuture = destruction.get_future().share();
     friend class TestSink;
 };
 
 class TestSink final : public ExecutablePipelineStage
 {
 public:
-    void start(PipelineExecutionContext&) override { controller->setup.set_value(); }
-    void execute(const Memory::TupleBuffer& inputBuffer, PipelineExecutionContext&) override
+    void start(PipelineExecutionContext&) override { controller->start.set_value(); }
+
+    void execute(const TupleBuffer& inputBuffer, PipelineExecutionContext& pipelineExecutionContext) override
     {
-        controller->insertBuffer(copyBuffer(inputBuffer, *bufferProvider));
+        controller->insertBuffer(Testing::copyBuffer(inputBuffer, *bufferProvider));
+
+        /// Handle repeat functionality
+        const size_t maxRepeats = controller->repeatCount.load();
+        if (maxRepeats > 0)
+        {
+            /// Get current repeat count from creation timestamp
+            const uint64_t currentRepeatCount = inputBuffer.getWatermark().getRawValue();
+            if (currentRepeatCount < maxRepeats)
+            {
+                auto copiedBuffer = Testing::copyBuffer(inputBuffer, *bufferProvider);
+                copiedBuffer.setWatermark(Timestamp(currentRepeatCount + 1));
+                pipelineExecutionContext.repeatTask(copiedBuffer, std::chrono::milliseconds(10));
+            }
+        }
     }
 
-    void stop(PipelineExecutionContext&) override { controller->shutdown.set_value(); }
+    std::atomic_size_t stopCalled = 0;
 
-    TestSink(std::shared_ptr<Memory::AbstractBufferProvider> bufferProvider, std::shared_ptr<TestSinkController> controller)
+    void stop(PipelineExecutionContext& pec) override
+    {
+        auto stopCalls = stopCalled.fetch_add(1);
+        auto repeatsDuringStop = controller->repeatCountDuringStop.load();
+        if (stopCalls == repeatsDuringStop)
+        {
+            controller->stop.set_value();
+        }
+        else if (stopCalls > repeatsDuringStop)
+        {
+            controller->stop.set_exception(std::make_exception_ptr(TestException("Pipeline was terminated to often")));
+        }
+        else /*if (stopCalls < repeatsDuringStop)*/
+        {
+            pec.repeatTask(TupleBuffer(), std::chrono::milliseconds(10));
+        }
+    }
+
+    TestSink(std::shared_ptr<AbstractBufferProvider> bufferProvider, std::shared_ptr<TestSinkController> controller)
         : bufferProvider(std::move(bufferProvider)), controller(std::move(controller))
     {
     }
 
-    ~TestSink() override { controller->destroyed.set_value(); }
+    ~TestSink() override { controller->destruction.set_value(); }
+
     TestSink(const TestSink& other) = delete;
     TestSink(TestSink&& other) noexcept = delete;
     TestSink& operator=(const TestSink& other) = delete;
@@ -332,12 +423,12 @@ protected:
     std::ostream& toString(std::ostream& os) const override;
 
 private:
-    std::shared_ptr<Memory::AbstractBufferProvider> bufferProvider;
+    std::shared_ptr<AbstractBufferProvider> bufferProvider;
     std::shared_ptr<TestSinkController> controller;
 };
 
 std::tuple<std::shared_ptr<ExecutablePipeline>, std::shared_ptr<TestSinkController>>
-createSinkPipeline(PipelineId id, std::shared_ptr<Memory::AbstractBufferProvider> bm);
+createSinkPipeline(PipelineId id, std::shared_ptr<AbstractBufferProvider> bm);
 
 std::tuple<std::shared_ptr<ExecutablePipeline>, std::shared_ptr<TestPipelineController>>
 createPipeline(PipelineId id, const std::vector<std::shared_ptr<ExecutablePipeline>>& successors);
@@ -345,18 +436,22 @@ createPipeline(PipelineId id, const std::vector<std::shared_ptr<ExecutablePipeli
 struct QueryPlanBuilder
 {
     using identifier_t = size_t;
+
     struct SourceDescriptor
     {
         OriginId sourceId = INVALID<OriginId>;
     };
+
     struct PipelineDescriptor
     {
         PipelineId pipelineId = INVALID<PipelineId>;
     };
+
     struct SinkDescriptor
     {
         PipelineId pipelineId = INVALID<PipelineId>;
     };
+
     using QueryComponentDescriptor = std::variant<SourceDescriptor, SinkDescriptor, PipelineDescriptor>;
 
     identifier_t addPipeline(const std::vector<identifier_t>& predecssors);
@@ -371,13 +466,13 @@ struct QueryPlanBuilder
         std::unordered_map<identifier_t, OriginId> sourceIds;
         std::unordered_map<identifier_t, PipelineId> pipelineIds;
 
-        std::unordered_map<identifier_t, std::shared_ptr<Sources::TestSourceControl>> sourceCtrls;
+        std::unordered_map<identifier_t, std::shared_ptr<TestSourceControl>> sourceCtrls;
         std::unordered_map<identifier_t, std::shared_ptr<TestSinkController>> sinkCtrls;
         std::unordered_map<identifier_t, std::shared_ptr<TestPipelineController>> pipelineCtrls;
         std::unordered_map<identifier_t, ExecutablePipelineStage*> stages;
     };
 
-    TestPlanCtrl build(QueryId queryId, std::shared_ptr<Memory::BufferManager> bm) &&;
+    TestPlanCtrl build(QueryId queryId, std::shared_ptr<BufferManager> bm) &&;
 
     QueryPlanBuilder(identifier_t nextIdentifier, PipelineId::Underlying pipelineIdCounter, OriginId::Underlying originIdCounter);
 
@@ -396,7 +491,7 @@ struct TestingHarness
     explicit TestingHarness(size_t numberOfThreads, size_t numberOfBuffers);
     explicit TestingHarness();
 
-    std::shared_ptr<Memory::BufferManager> bm = Memory::BufferManager::create();
+    std::shared_ptr<BufferManager> bm = BufferManager::create();
     std::shared_ptr<TestQueryStatisticListener> statListener = std::make_shared<TestQueryStatisticListener>();
     ExpectStats stats{statListener};
     std::shared_ptr<QueryStatusListener> status = std::make_shared<QueryStatusListener>();
@@ -409,14 +504,14 @@ struct TestingHarness
 
     QueryPlanBuilder::identifier_t lastIdentifier = 0;
     std::unordered_map<QueryPlanBuilder::identifier_t, ExecutablePipelineStage*> stages;
-    std::unordered_map<QueryPlanBuilder::identifier_t, std::shared_ptr<Sources::TestSourceControl>> sourceControls;
+    std::unordered_map<QueryPlanBuilder::identifier_t, std::shared_ptr<TestSourceControl>> sourceControls;
     std::unordered_map<QueryPlanBuilder::identifier_t, std::shared_ptr<TestSinkController>> sinkControls;
     std::unordered_map<QueryPlanBuilder::identifier_t, std::shared_ptr<TestPipelineController>> pipelineControls;
     std::unordered_map<QueryId, std::unique_ptr<std::promise<void>>> queryTermination;
     std::unordered_map<QueryId, std::shared_future<void>> queryTerminationFutures;
     std::unordered_map<QueryId, std::unique_ptr<std::promise<void>>> queryRunning;
     std::unordered_map<QueryId, std::shared_future<void>> queryRunningFutures;
-    std::unordered_map<std::shared_ptr<SourceDescriptor>, std::unique_ptr<Sources::SourceHandle>> unusedSources;
+    std::unordered_map<std::shared_ptr<SourceDescriptor>, std::unique_ptr<SourceHandle>> unusedSources;
 
     std::unordered_map<QueryPlanBuilder::identifier_t, OriginId> sourceIds;
     std::unordered_map<QueryPlanBuilder::identifier_t, PipelineId> pipelineIds;
@@ -435,7 +530,7 @@ struct TestingHarness
     std::unique_ptr<ExecutableQueryPlan> addNewQuery(QueryPlanBuilder&& builder);
 
     /// List of status events to be emitted by a query with QueryId `id`
-    void expectQueryStatusEvents(QueryId id, std::initializer_list<QueryStatus> states);
+    void expectQueryStatusEvents(QueryId id, std::initializer_list<QueryState> states);
 
     /// Expects a source for a given query to be terminated (gracefully or due to a failure)
     void expectSourceTermination(QueryId id, QueryPlanBuilder::identifier_t source, QueryTerminationType type);
@@ -473,6 +568,7 @@ template <size_t FailAfterNElements, size_t SourceToFail>
 struct FailAfter
 {
     size_t next = 0;
+
     std::optional<size_t> operator()()
     {
         if (next++ == FailAfterNElements)
@@ -488,6 +584,7 @@ struct DataThread
 {
     constexpr static auto DEFAULT_DATA_GENERATOR_INTERVAL = std::chrono::milliseconds(10);
     constexpr static size_t SEED = 0xDEADBEEF;
+
     void operator()(const std::stop_token& stopToken)
     {
         size_t identifier = 0;
@@ -527,10 +624,10 @@ struct DataThread
         }
     }
 
-    explicit DataThread(std::vector<std::shared_ptr<Sources::TestSourceControl>> sources) : sources(std::move(sources)) { }
+    explicit DataThread(std::vector<std::shared_ptr<TestSourceControl>> sources) : sources(std::move(sources)) { }
 
 private:
-    std::vector<std::shared_ptr<Sources::TestSourceControl>> sources;
+    std::vector<std::shared_ptr<TestSourceControl>> sources;
     size_t failAfterBuffers = 0;
 };
 
@@ -540,7 +637,7 @@ class DataGenerator
     std::jthread thread;
 
 public:
-    void start(std::vector<std::shared_ptr<Sources::TestSourceControl>> sources)
+    void start(std::vector<std::shared_ptr<TestSourceControl>> sources)
     {
         thread = std::jthread(DataThread<FailurePolicy>{std::move(sources)});
     }

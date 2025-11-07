@@ -20,19 +20,22 @@
 #include <functional>
 #include <memory>
 #include <ostream>
+#include <span>
 #include <sstream>
 #include <string>
 #include <utility>
 #include <Identifiers/Identifiers.hpp>
+#include <MemoryLayout/VariableSizedAccess.hpp>
 #include <Runtime/BufferRecycler.hpp>
 #include <Time/Timestamp.hpp>
+#include <ErrorHandling.hpp>
 
 namespace NES
 {
 class UnpooledChunksManager;
 }
 
-namespace NES::Memory
+namespace NES
 {
 namespace detail
 {
@@ -66,7 +69,7 @@ class TupleBuffer
 {
     /// Utilize the wrapped-memory constructor
     friend class BufferManager;
-    friend class NES::UnpooledChunksManager;
+    friend class UnpooledChunksManager;
     friend class FixedSizeBufferPool;
     friend class LocalBufferPool;
     friend class detail::MemorySegment;
@@ -78,20 +81,8 @@ class TupleBuffer
     }
 
 public:
-    ///@brief This is the logical identifier of a child tuple buffer
-    using NestedTupleBufferKey = uint32_t;
-
-
     /// @brief Default constructor creates an empty wrapper around nullptr without controlBlock (nullptr) and size 0.
     [[nodiscard]] TupleBuffer() noexcept = default;
-
-    /**
-     * @brief Interprets the void* as a pointer to the content of tuple buffer
-     * @note if bufferPointer is not pointing to the begin of an data buffer the behavior of this function is undefined.
-     * @param bufferPointer
-     * @return TupleBuffer
-     */
-    [[maybe_unused]] static TupleBuffer reinterpretAsTupleBuffer(void* bufferPointer);
 
 
     /// @brief Copy constructor: Increase the reference count associated to the control buffer.
@@ -131,24 +122,20 @@ public:
     /// @brief Decrease internal reference counter by one and release the resource when the reference count reaches 0.
     void release() noexcept;
 
-    int8_t* getBuffer() noexcept;
-
-    /// @brief return the TupleBuffer's content as pointer to `T`.
-    template <typename T = int8_t>
-    T* getBuffer() noexcept
+    template <typename T = std::byte>
+    requires(std::is_trivially_copyable_v<T>)
+    std::span<T> getAvailableMemoryArea() noexcept
     {
-        static_assert(alignof(T) <= alignof(std::max_align_t), "Alignment of type T is stricter than allowed.");
-        static_assert(std::has_single_bit(alignof(T)));
-        return reinterpret_cast<T*>(ptr);
+        PRECONDITION(reinterpret_cast<std::uintptr_t>(ptr) % alignof(T) == 0, "Bad alignment for type: {}", typeid(T).name());
+        return std::span<T>{std::bit_cast<T*>(ptr), size / sizeof(T)};
     }
 
-    /// @brief return the TupleBuffer's content as pointer to `T`.
-    template <typename T = int8_t>
-    const T* getBuffer() const noexcept
+    template <typename T = std::byte>
+    requires(std::is_trivially_copyable_v<T>)
+    std::span<const T> getAvailableMemoryArea() const noexcept
     {
-        static_assert(alignof(T) <= alignof(std::max_align_t), "Alignment of type T is stricter than allowed.");
-        static_assert(std::has_single_bit(alignof(T)));
-        return reinterpret_cast<const T*>(ptr);
+        PRECONDITION(reinterpret_cast<std::uintptr_t>(ptr) % alignof(const T) == 0, "Bad alignment for type: {}", typeid(T).name());
+        return std::span<const T>{std::bit_cast<const T*>(ptr), size / sizeof(const T)};
     }
 
     [[nodiscard]] uint32_t getReferenceCounter() const noexcept;
@@ -187,14 +174,12 @@ public:
     void setOriginId(OriginId id) noexcept;
 
     ///@brief attach a child tuple buffer to the parent. the child tuple buffer is then identified via NestedTupleBufferKey
-    [[nodiscard]] NestedTupleBufferKey storeChildBuffer(TupleBuffer& buffer) const noexcept;
+    [[nodiscard]] VariableSizedAccess::Index storeChildBuffer(TupleBuffer& buffer) noexcept;
 
     ///@brief retrieve a child tuple buffer via its NestedTupleBufferKey
-    [[nodiscard]] TupleBuffer loadChildBuffer(NestedTupleBufferKey bufferIndex) const noexcept;
+    [[nodiscard]] TupleBuffer loadChildBuffer(VariableSizedAccess::Index bufferIndex) const noexcept;
 
-    [[nodiscard]] uint32_t getNumberOfChildrenBuffer() const noexcept;
-
-    bool hasSpaceLeft(uint64_t used, uint64_t needed) const;
+    [[nodiscard]] uint32_t getNumberOfChildBuffers() const noexcept;
 
 private:
     /**
@@ -212,20 +197,4 @@ private:
  * @param bufferPointer pointer to the data region of an buffer.
  */
 [[maybe_unused]] bool recycleTupleBuffer(void* bufferPointer);
-
-/**
- * @brief Allocates an object of T in the tuple buffer.
- * Set the number of tuples to one.
- * @tparam T
- * @param buffer
- * @return T+
- */
-template <typename T>
-T* allocateWithin(TupleBuffer& buffer)
-{
-    auto ptr = new (buffer.getBuffer()) T();
-    buffer.setNumberOfTuples(1);
-    return ptr;
-};
-
 }

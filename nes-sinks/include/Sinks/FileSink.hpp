@@ -21,19 +21,19 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include <Configurations/ConfigurationsNames.hpp>
+
 #include <Configurations/Descriptor.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Sinks/Sink.hpp>
 #include <Sinks/SinkDescriptor.hpp>
 #include <SinksParsing/CSVFormat.hpp>
+#include <SinksParsing/Format.hpp>
 #include <folly/Synchronized.h>
 #include <PipelineExecutionContext.hpp>
 
-namespace NES::Sinks
+namespace NES
 {
-
 /// A sink that writes formatted TupleBuffers to arbitrary files.
 class FileSink final : public Sink
 {
@@ -48,10 +48,10 @@ public:
     FileSink& operator=(FileSink&&) = delete;
 
     void start(PipelineExecutionContext& pipelineExecutionContext) override;
-    void execute(const Memory::TupleBuffer& inputTupleBuffer, PipelineExecutionContext& pipelineExecutionContext) override;
+    void execute(const TupleBuffer& inputTupleBuffer, PipelineExecutionContext& pipelineExecutionContext) override;
     void stop(PipelineExecutionContext& pipelineExecutionContext) override;
 
-    static Configurations::DescriptorConfig::Config validateAndFormat(std::unordered_map<std::string, std::string> config);
+    static DescriptorConfig::Config validateAndFormat(std::unordered_map<std::string, std::string> config);
 
 protected:
     std::ostream& toString(std::ostream& str) const override;
@@ -61,7 +61,6 @@ private:
     std::string outputFilePath;
     bool isAppend;
     bool isOpen;
-    /// Todo #417: support abstract/arbitrary formatter
     std::unique_ptr<Format> formatter;
     folly::Synchronized<std::ofstream> outputFileStream;
 };
@@ -69,25 +68,18 @@ private:
 /// Todo #355 : combine configuration with source configuration (get rid of duplicated code)
 struct ConfigParametersFile
 {
-    static inline const Configurations::DescriptorConfig::ConfigParameter<Configurations::EnumWrapper, Configurations::InputFormat>
-        INPUT_FORMAT{
-            "inputFormat",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return Configurations::DescriptorConfig::tryGet(INPUT_FORMAT, config); }};
-    static inline const Configurations::DescriptorConfig::ConfigParameter<std::string> FILEPATH{
-        "filePath",
+    static inline const DescriptorConfig::ConfigParameter<EnumWrapper, InputFormat> INPUT_FORMAT{
+        "input_format",
         std::nullopt,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return Configurations::DescriptorConfig::tryGet(FILEPATH, config); }};
-    static inline const Configurations::DescriptorConfig::ConfigParameter<bool> APPEND{
+        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(INPUT_FORMAT, config); }};
+    static inline const DescriptorConfig::ConfigParameter<bool> APPEND{
         "append",
         false,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return Configurations::DescriptorConfig::tryGet(APPEND, config); }};
+        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(APPEND, config); }};
 
-    static inline std::unordered_map<std::string, Configurations::DescriptorConfig::ConfigParameterContainer> parameterMap
-        = Configurations::DescriptorConfig::createConfigParameterContainerMap(INPUT_FORMAT, FILEPATH, APPEND);
+    static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
+        = DescriptorConfig::createConfigParameterContainerMap(
+            SinkDescriptor::parameterMap, SinkDescriptor::FILE_PATH, INPUT_FORMAT, APPEND);
 };
 
 }
@@ -95,7 +87,7 @@ struct ConfigParametersFile
 namespace fmt
 {
 template <>
-struct formatter<NES::Sinks::FileSink> : ostream_formatter
+struct formatter<NES::FileSink> : ostream_formatter
 {
 };
 }

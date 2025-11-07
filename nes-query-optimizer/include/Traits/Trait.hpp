@@ -15,11 +15,19 @@
 #pragma once
 
 #include <algorithm>
+#include <cstddef>
+#include <functional>
 #include <memory>
 #include <optional>
+#include <string>
+#include <string_view>
 #include <type_traits>
+#include <typeindex>
 #include <typeinfo>
-#include <vector>
+#include <unordered_set>
+
+#include <Util/PlanRenderer.hpp>
+
 #include <ErrorHandling.hpp>
 #include <SerializableTrait.pb.h>
 
@@ -36,6 +44,7 @@ struct TraitConcept
     /// Returns the type information of this trait.
     /// @return const std::type_info& The type information of this trait.
     [[nodiscard]] virtual const std::type_info& getType() const = 0;
+    [[nodiscard]] virtual std::string_view getName() const = 0;
 
     /// Serializes this trait to a protobuf message.
     /// @return SerializableTrait The serialized trait.
@@ -45,6 +54,32 @@ struct TraitConcept
     /// @param other The trait to compare with.
     /// @return bool True if the traits are equal, false otherwise.
     virtual bool operator==(const TraitConcept& other) const = 0;
+
+    [[nodiscard]] virtual std::string explain(ExplainVerbosity verbosity) const = 0;
+
+    /// Computes the hash value for this trait.
+    /// @return size_t The hash value.
+    [[nodiscard]] virtual size_t hash() const = 0;
+};
+
+/// Base class providing default implementations for traits without custom data
+template <typename Derived>
+struct DefaultTrait : TraitConcept
+{
+    bool operator==(const TraitConcept& other) const final { return typeid(other) == typeid(Derived); }
+
+    [[nodiscard]] size_t hash() const final { return std::type_index(typeid(Derived)).hash_code(); }
+
+    [[nodiscard]] const std::type_info& getType() const final { return typeid(Derived); }
+
+    [[nodiscard]] SerializableTrait serialize() const final { return SerializableTrait{}; }
+
+    [[nodiscard]] std::string explain(ExplainVerbosity) const final { return "DefaultTrait"; }
+
+    friend Derived;
+
+private:
+    DefaultTrait() = default;
 };
 
 /// A type-erased wrapper for traits.
@@ -69,6 +104,10 @@ struct Trait
 
     Trait(const Trait& other);
     Trait(Trait&&) noexcept;
+
+    bool operator==(const Trait& other) const { return self->equals(*other.self); }
+
+    [[nodiscard]] size_t hash() const { return self->hash(); }
 
     /// Attempts to get the underlying trait as type TraitType.
     /// @tparam TraitType The type to try to get the trait as.
@@ -103,6 +142,11 @@ struct Trait
     /// @return SerializableTrait The serialized trait.
     [[nodiscard]] SerializableTrait serialize() const;
 
+    [[nodiscard]] const std::type_info& getTypeInfo() const;
+    [[nodiscard]] std::string_view getName() const;
+
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
+
 private:
     struct Concept : TraitConcept
     {
@@ -114,6 +158,7 @@ private:
     struct Model : Concept
     {
         TraitType data;
+
         explicit Model(TraitType d) : data(std::move(d)) { }
 
         [[nodiscard]] std::unique_ptr<Concept> clone() const override { return std::make_unique<Model>(data); }
@@ -136,31 +181,24 @@ private:
             return false;
         }
 
+        [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const override { return data.explain(verbosity); }
+
+        [[nodiscard]] size_t hash() const override { return data.hash(); }
+
         [[nodiscard]] const std::type_info& getType() const override { return data.getType(); }
+
+        [[nodiscard]] std::string_view getName() const override { return data.getName(); }
+
         [[nodiscard]] SerializableTrait serialize() const override { return data.serialize(); }
     };
 
     std::unique_ptr<Concept> self;
 };
 
-using TraitSet = std::vector<Trait>;
 }
 
-template <typename T>
-bool hasTrait(const NES::TraitSet& traitSet)
+template <>
+struct std::hash<NES::Trait>
 {
-    for (const auto& trait : traitSet)
-    {
-        if (trait.tryGet<T>())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-template <typename... TraitTypes>
-bool hasTraits(const NES::TraitSet& traitSet)
-{
-    return (hasTrait<TraitTypes>(traitSet) && ...);
-}
+    size_t operator()(const NES::Trait& trait) const noexcept { return trait.hash(); }
+};

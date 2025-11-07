@@ -15,13 +15,12 @@ add_source_files(nes-physical-operators
         MapPhysicalOperator.cpp
         SelectionPhysicalOperator.cpp
         UnionPhysicalOperator.cpp
+        UnionRenamePhysicalOperator.cpp
         PhysicalOperator.cpp
         EmitPhysicalOperator.cpp
         EmitOperatorHandler.cpp
         ScanPhysicalOperator.cpp
         HashMapSlice.cpp
-        SequencePhysicalOperator.cpp
-        SequenceOperatorHandler.cpp
         SourcePhysicalOperator.cpp
         SinkPhysicalOperator.cpp
         WindowBasedOperatorHandler.cpp

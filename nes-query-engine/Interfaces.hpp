@@ -45,13 +45,12 @@ public:
     virtual bool emitWork(
         QueryId,
         const std::shared_ptr<RunningQueryPlanNode>& target,
-        Memory::TupleBuffer,
-        BaseTask::onComplete,
-        BaseTask::onFailure,
+        TupleBuffer,
+        TaskCallback,
         PipelineExecutionContext::ContinuationPolicy continuationPolicy)
         = 0;
-    virtual void emitPipelineStart(QueryId, const std::shared_ptr<RunningQueryPlanNode>&, BaseTask::onComplete, BaseTask::onFailure) = 0;
-    virtual void emitPendingPipelineStop(QueryId, std::shared_ptr<RunningQueryPlanNode>, BaseTask::onComplete, BaseTask::onFailure) = 0;
-    virtual void emitPipelineStop(QueryId, std::unique_ptr<RunningQueryPlanNode>, BaseTask::onComplete, BaseTask::onFailure) = 0;
+    virtual void emitPipelineStart(QueryId, const std::shared_ptr<RunningQueryPlanNode>&, TaskCallback) = 0;
+    virtual void emitPendingPipelineStop(QueryId, std::shared_ptr<RunningQueryPlanNode>, TaskCallback) = 0;
+    virtual void emitPipelineStop(QueryId, std::unique_ptr<RunningQueryPlanNode>, TaskCallback) = 0;
 };
 }

@@ -3,19 +3,21 @@
 # groups: [Aggregation, MEOS, SpatioTemporal, WindowOperators]
 
 # Test 1: Basic temporal sequence aggregation with window (following array_agg pattern)
-Source gps_data FLOAT64 longitude FLOAT64 latitude UINT64 timestamp INLINE
+CREATE LOGICAL SOURCE gps_data(longitude FLOAT64, latitude FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR gps_data TYPE File;
+ATTACH INLINE
 -73.9857,40.7484,1000
 -73.9787,40.7505,2000
 -73.9715,40.7589,3000
 -73.9650,40.7620,4000
 -73.9600,40.7650,7000
 
-SINK basic_result UINT64 gps_data$start UINT64 gps_data$end VARSIZED gps_data$trajectory
+CREATE SINK basic_result(gps_data.start UINT64, gps_data.end UINT64, gps_data.TRAJECTORY VARSIZED) TYPE File;
 
-SELECT start, end, TEMPORAL_SEQUENCE(longitude, latitude, timestamp) AS trajectory
+SELECT start, end, TEMPORAL_SEQUENCE(longitude, latitude, timestamp) AS TRAJECTORY
 FROM gps_data
-WINDOW TUMBLING(timestamp, size 5000 ms)
-INTO basic_result
+WINDOW TUMBLING(timestamp, SIZE 5000 MS)
+INTO basic_result;
 ----
 0,5000,BINARY(125)
 5000,10000,BINARY(38)

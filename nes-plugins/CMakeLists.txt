@@ -17,12 +17,12 @@ include(${PROJECT_SOURCE_DIR}/cmake/PluginRegistrationUtil.cmake)
 
 # activate optional plugins and add the path "THE/PATH" to the build (adding all dependencies of the optional plugin)
 activate_optional_plugin("Sources/TCPSource" ON)
+# Enable the Generator source plugin; required by systests and repl tests
+activate_optional_plugin("Sources/GeneratorSource" ON)
+activate_optional_plugin("Sinks/VoidSink" ON)
 activate_optional_plugin("Sources/MQTTSource" ON)
 activate_optional_plugin("Sinks/MQTTSink" ON)
-activate_optional_plugin("ImageManip" OFF)
-activate_optional_plugin("Inference/IREE" OFF)
-activate_optional_plugin("Sources/GeneratorSource" OFF)
-activate_optional_plugin("Sources/AudioSource" OFF)
+
 
 # MEOS is a dependency
 activate_optional_plugin("MEOS" ON)

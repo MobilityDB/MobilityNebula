@@ -19,22 +19,21 @@
 #include <memory>
 #include <vector>
 #include <Identifiers/Identifiers.hpp>
-#include <Join/NestedLoopJoin/NLJSlice.hpp>
 #include <Join/StreamJoinOperatorHandler.hpp>
-#include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/MemoryProvider/TupleBufferMemoryProvider.hpp>
-#include <Nautilus/Interface/PagedVector/PagedVector.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <SliceStore/Slice.hpp>
 #include <SliceStore/WindowSlicesStoreInterface.hpp>
-#include <folly/Synchronized.h>
-#include <PipelineExecutionContext.hpp>
 
 namespace NES
 {
 /// This task models the information for a join window trigger
 struct EmittedNLJWindowTrigger
 {
+    EmittedNLJWindowTrigger(const WindowInfo& windowInfo, const SliceEnd leftSliceEnd, const SliceEnd rightSliceEnd)
+        : leftSliceEnd(leftSliceEnd), rightSliceEnd(rightSliceEnd), windowInfo(windowInfo)
+    {
+    }
+
     SliceEnd leftSliceEnd;
     SliceEnd rightSliceEnd;
     WindowInfo windowInfo;
@@ -48,10 +47,11 @@ public:
         OriginId outputOriginId,
         std::unique_ptr<WindowSlicesStoreInterface> sliceAndWindowStore);
 
-    [[nodiscard]] std::function<std::vector<std::shared_ptr<Slice>>(SliceStart, SliceEnd)> getCreateNewSlicesFunction() const override;
+    [[nodiscard]] std::function<std::vector<std::shared_ptr<Slice>>(SliceStart, SliceEnd)>
+    getCreateNewSlicesFunction(const CreateNewSlicesArguments&) const override;
 
 private:
-    void emitSliceIdsToProbe(
+    void emitSlicesToProbe(
         Slice& sliceLeft,
         Slice& sliceRight,
         const WindowInfo& windowInfo,

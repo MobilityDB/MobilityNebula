@@ -26,12 +26,12 @@
 #include <Runtime/TupleBuffer.hpp>
 #include <Sinks/Sink.hpp>
 #include <Sinks/SinkDescriptor.hpp>
-#include <SinksParsing/CSVFormat.hpp>
+#include <SinksParsing/Format.hpp>
 #include <Util/Logger/Formatter.hpp>
 #include <Checksum.hpp>
 #include <PipelineExecutionContext.hpp>
 
-namespace NES::Sinks
+namespace NES
 {
 
 /// A sink that counts the number of tuples and accumulates a checksum, which is written to file once the query is stopped.
@@ -47,8 +47,8 @@ public:
     /// Opens file and writes schema to file, if the file is empty.
     void start(PipelineExecutionContext&) override;
     void stop(PipelineExecutionContext&) override;
-    void execute(const Memory::TupleBuffer& inputBuffer, PipelineExecutionContext&) override;
-    static Configurations::DescriptorConfig::Config validateAndFormat(std::unordered_map<std::string, std::string> config);
+    void execute(const TupleBuffer& inputBuffer, PipelineExecutionContext&) override;
+    static DescriptorConfig::Config validateAndFormat(std::unordered_map<std::string, std::string> config);
 
 protected:
     std::ostream& toString(std::ostream& os) const override { return os << "ChecksumSink"; }
@@ -58,21 +58,15 @@ private:
     std::string outputFilePath;
     std::ofstream outputFileStream;
     Checksum checksum;
-    std::unique_ptr<CSVFormat> formatter;
+    std::unique_ptr<Format> formatter;
 };
 
 struct ConfigParametersChecksum
 {
-    static inline const Configurations::DescriptorConfig::ConfigParameter<std::string> FILEPATH{
-        "filePath",
-        std::nullopt,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return Configurations::DescriptorConfig::tryGet(FILEPATH, config); }};
-
-    static inline std::unordered_map<std::string, Configurations::DescriptorConfig::ConfigParameterContainer> parameterMap
-        = Configurations::DescriptorConfig::createConfigParameterContainerMap(FILEPATH);
+    static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
+        = DescriptorConfig::createConfigParameterContainerMap(SinkDescriptor::FILE_PATH);
 };
 
 }
 
-FMT_OSTREAM(NES::Sinks::ChecksumSink);
+FMT_OSTREAM(NES::ChecksumSink);

@@ -33,13 +33,13 @@
 #include <SinkRegistry.hpp>
 #include <SinkValidationRegistry.hpp>
 
-namespace NES::Sinks
+namespace NES
 {
 
 ChecksumSink::ChecksumSink(const SinkDescriptor& sinkDescriptor)
     : isOpen(false)
-    , outputFilePath(sinkDescriptor.getFromConfig(ConfigParametersChecksum::FILEPATH))
-    , formatter(std::make_unique<CSVFormat>(sinkDescriptor.schema, true))
+    , outputFilePath(sinkDescriptor.getFromConfig(SinkDescriptor::FILE_PATH))
+    , formatter(std::make_unique<CSVFormat>(*sinkDescriptor.getSchema(), true))
 {
 }
 
@@ -81,25 +81,24 @@ void ChecksumSink::stop(PipelineExecutionContext&)
     isOpen = false;
 }
 
-void ChecksumSink::execute(const Memory::TupleBuffer& inputBuffer, PipelineExecutionContext&)
+void ChecksumSink::execute(const TupleBuffer& inputBuffer, PipelineExecutionContext&)
 {
     PRECONDITION(inputBuffer, "Invalid input buffer in ChecksumSink.");
     const std::string formatted = formatter->getFormattedBuffer(inputBuffer);
     checksum.add(formatted);
 }
 
-Configurations::DescriptorConfig::Config ChecksumSink::validateAndFormat(std::unordered_map<std::string, std::string> config)
+DescriptorConfig::Config ChecksumSink::validateAndFormat(std::unordered_map<std::string, std::string> config)
 {
-    return Configurations::DescriptorConfig::validateAndFormat<ConfigParametersChecksum>(std::move(config), NAME);
+    return DescriptorConfig::validateAndFormat<ConfigParametersChecksum>(std::move(config), NAME);
 }
 
-SinkValidationRegistryReturnType
-SinkValidationGeneratedRegistrar::RegisterChecksumSinkValidation(SinkValidationRegistryArguments sinkConfig)
+SinkValidationRegistryReturnType RegisterChecksumSinkValidation(SinkValidationRegistryArguments sinkConfig)
 {
     return ChecksumSink::validateAndFormat(std::move(sinkConfig.config));
 }
 
-SinkRegistryReturnType SinkGeneratedRegistrar::RegisterChecksumSink(SinkRegistryArguments sinkRegistryArguments)
+SinkRegistryReturnType RegisterChecksumSink(SinkRegistryArguments sinkRegistryArguments)
 {
     return std::make_unique<ChecksumSink>(sinkRegistryArguments.sinkDescriptor);
 }

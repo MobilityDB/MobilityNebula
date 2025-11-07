@@ -1,0 +1,18 @@
+# name: function/spatiotemporal/MEOS_EDWithin_Temporal_Geometry.test
+# description: Test EDWITHIN_TGEO_GEO with temporal coordinates against static geometries
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry]
+
+Source edwithin_tests UINT32 id FLOAT64 lon FLOAT64 lat UINT64 timestamp VARSIZED geom_wkt
+Attach File CSV nes-systests/configs/inputFormatters/csv_pipe_delimiter.yaml edwithin_tests INLINE
+1|4.3658|50.6456|1609459200|'SRID=4326;POINT(4.3658 50.6456)'
+2|4.1000|50.8000|1609459200|'SRID=4326;POINT(4.3658 50.6456)'
+
+SINK edwithin_results UINT32 edwithin_tests$id INT32 edwithin_tests$within
+
+SELECT id,
+       EDWITHIN_TGEO_GEO(lon, lat, timestamp, geom_wkt, FLOAT64(0.2)) AS within
+FROM edwithin_tests
+INTO edwithin_results
+----
+1,1
+2,0

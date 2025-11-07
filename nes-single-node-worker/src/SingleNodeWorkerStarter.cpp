@@ -14,6 +14,7 @@
 
 #include <csignal>
 #include <semaphore>
+#include <thread>
 #include <Configurations/Util.hpp>
 #include <Util/Logger/LogLevel.hpp>
 #include <Util/Logger/Logger.hpp>
@@ -33,11 +34,13 @@ namespace
 /// the shutdownBarrier to be released by the signal handler and then shuts the grpc server down, which unblocks the `Wait` call
 /// in the main function.
 std::binary_semaphore shutdownBarrier{0};
+
 void signalHandler(int signal)
 {
     NES_INFO("Received signal {}. Shutting down.", signal);
     shutdownBarrier.release();
 }
+
 std::jthread shutdownHook(grpc::Server& server)
 {
     return std::jthread(
@@ -51,13 +54,18 @@ std::jthread shutdownHook(grpc::Server& server)
 
 int main(const int argc, const char* argv[])
 {
-    signal(SIGINT, signalHandler);
-    signal(SIGTERM, signalHandler);
-
     CPPTRACE_TRY
     {
         NES::Logger::setupLogging("singleNodeWorker.log", NES::LogLevel::LOG_DEBUG);
-        auto configuration = NES::Configurations::loadConfiguration<NES::Configuration::SingleNodeWorkerConfiguration>(argc, argv);
+        if (std::signal(SIGINT, signalHandler) == SIG_ERR)
+        {
+            NES_ERROR("Failed to set SIGINT signal handler")
+        }
+        if (std::signal(SIGTERM, signalHandler) == SIG_ERR)
+        {
+            NES_ERROR("Failed to set SIGTERM signal handler")
+        }
+        auto configuration = NES::loadConfiguration<NES::SingleNodeWorkerConfiguration>(argc, argv);
         if (!configuration)
         {
             return 0;

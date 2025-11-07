@@ -14,13 +14,14 @@
 
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <variant>
 #include <Identifiers/Identifiers.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <ErrorHandling.hpp>
 
-namespace NES::Sources::SourceReturnType
+namespace NES::SourceReturnType
 {
 /// Todo #237: Improve error handling in sources
 struct Error
@@ -30,7 +31,7 @@ struct Error
 
 struct Data
 {
-    NES::Memory::TupleBuffer buffer;
+    TupleBuffer buffer;
 };
 
 struct EoS
@@ -43,7 +44,13 @@ enum class TryStopResult : uint8_t
     TIMEOUT
 };
 
+enum class EmitResult : uint8_t
+{
+    SUCCESS,
+    STOP_REQUESTED,
+};
+
 using SourceReturnType = std::variant<Error, Data, EoS>;
-using EmitFunction = std::function<void(const OriginId, SourceReturnType)>;
+using EmitFunction = std::function<EmitResult(OriginId, SourceReturnType, const std::stop_token&)>;
 
 }

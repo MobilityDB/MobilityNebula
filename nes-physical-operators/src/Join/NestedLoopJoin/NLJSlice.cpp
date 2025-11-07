@@ -20,7 +20,6 @@
 #include <numeric>
 #include <utility>
 #include <Identifiers/Identifiers.hpp>
-#include <Join/NestedLoopJoin/NLJSlice.hpp>
 #include <Join/StreamJoinUtil.hpp>
 #include <Nautilus/Interface/PagedVector/PagedVector.hpp>
 #include <SliceStore/Slice.hpp>
@@ -83,7 +82,6 @@ NLJSlice::getPagedVectorRef(const WorkerThreadId workerThreadId, const JoinBuild
     }
     std::unreachable();
 }
-
 
 void NLJSlice::combinePagedVectors()
 {

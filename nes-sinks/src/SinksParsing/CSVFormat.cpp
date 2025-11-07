@@ -23,14 +23,15 @@
 #include <string>
 #include <DataTypes/Schema.hpp>
 #include <MemoryLayout/MemoryLayout.hpp>
+#include <MemoryLayout/VariableSizedAccess.hpp>
 #include <Runtime/TupleBuffer.hpp>
-#include <SinksParsing/CSVFormat.hpp>
+#include <SinksParsing/Format.hpp>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <magic_enum/magic_enum.hpp>
 #include <ErrorHandling.hpp>
 
-namespace NES::Sinks
+namespace NES
 {
 CSVFormat::CSVFormat(const Schema& schema) : CSVFormat(schema, false)
 {
@@ -50,17 +51,16 @@ CSVFormat::CSVFormat(const Schema& pSchema, const bool escapeStrings) : Format(p
     formattingContext.schemaSizeInBytes = schema.getSizeOfSchemaInBytes();
 }
 
-
-std::string CSVFormat::getFormattedBuffer(const Memory::TupleBuffer& inputBuffer) const
+std::string CSVFormat::getFormattedBuffer(const TupleBuffer& inputBuffer) const
 {
     return tupleBufferToFormattedCSVString(inputBuffer, formattingContext);
 }
 
-std::string CSVFormat::tupleBufferToFormattedCSVString(Memory::TupleBuffer tbuffer, const FormattingContext& formattingContext) const
+std::string CSVFormat::tupleBufferToFormattedCSVString(TupleBuffer tbuffer, const FormattingContext& formattingContext) const
 {
     std::stringstream ss;
     const auto numberOfTuples = tbuffer.getNumberOfTuples();
-    const auto buffer = std::span(tbuffer.getBuffer<char>(), numberOfTuples * formattingContext.schemaSizeInBytes);
+    const auto buffer = tbuffer.getAvailableMemoryArea().subspan(0, numberOfTuples * formattingContext.schemaSizeInBytes);
     for (size_t i = 0; i < numberOfTuples; i++)
     {
         auto tuple = buffer.subspan(i * formattingContext.schemaSizeInBytes, formattingContext.schemaSizeInBytes);
@@ -71,12 +71,14 @@ std::string CSVFormat::tupleBufferToFormattedCSVString(Memory::TupleBuffer tbuff
                               const auto physicalType = formattingContext.physicalTypes[index];
                               if (physicalType.type == DataType::Type::VARSIZED)
                               {
-                                  auto childIdx = *reinterpret_cast<const uint32_t*>(&tuple[formattingContext.offsets[index]]);
+                                  const VariableSizedAccess variableSizedAccess{
+                                      *std::bit_cast<const uint64_t*>(&tuple[formattingContext.offsets[index]])};
+                                  auto varSizedData = MemoryLayout::readVarSizedDataAsString(tbuffer, variableSizedAccess);
                                   if (copyOfEscapeStrings)
                                   {
-                                      return "\"" + Memory::MemoryLayouts::readVarSizedData(tbuffer, childIdx) + "\"";
+                                      return "\"" + varSizedData + "\"";
                                   }
-                                  return Memory::MemoryLayouts::readVarSizedData(tbuffer, childIdx);
+                                  return varSizedData;
                               }
                               return physicalType.formattedBytesToString(&tuple[formattingContext.offsets[index]]);
                           });

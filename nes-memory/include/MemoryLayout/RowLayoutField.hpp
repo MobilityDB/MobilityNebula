@@ -15,6 +15,7 @@
 #pragma once
 
 #include <cstdint>
+#include <span>
 #include <utility>
 #include <MemoryLayout/MemoryLayout.hpp>
 #include <MemoryLayout/RowLayout.hpp>
@@ -22,7 +23,7 @@
 #include <Util/Logger/Logger.hpp>
 #include <ErrorHandling.hpp>
 
-namespace NES::Memory::MemoryLayouts
+namespace NES
 {
 /**
  * @brief The RowLayoutField enables assesses to a specific field in a row layout.
@@ -36,11 +37,10 @@ template <class T, bool boundaryChecks = true>
 class RowLayoutField
 {
 public:
-    static inline RowLayoutField<T, boundaryChecks>
-    create(uint64_t fieldIndex, std::shared_ptr<RowLayout> layout, Memory::TupleBuffer& buffer);
+    static inline RowLayoutField<T, boundaryChecks> create(uint64_t fieldIndex, std::shared_ptr<RowLayout> layout, TupleBuffer& buffer);
 
     static inline RowLayoutField<T, boundaryChecks>
-    create(const std::string& fieldName, std::shared_ptr<RowLayout> layout, Memory::TupleBuffer& buffer);
+    create(const std::string& fieldName, std::shared_ptr<RowLayout> layout, TupleBuffer& buffer);
 
     /**
      * Accesses the value of this field for a specific record.
@@ -50,18 +50,19 @@ public:
     inline T& operator[](size_t recordIndex);
 
 private:
-    RowLayoutField(std::shared_ptr<RowLayout> layout, uint8_t* basePointer, uint64_t fieldIndex, uint64_t recordSize)
-        : fieldIndex(fieldIndex), recordSize(recordSize), basePointer(basePointer), layout(std::move(layout)) { };
+    RowLayoutField(
+        std::shared_ptr<RowLayout> layout, const std::span<std::byte> baseSpan, const uint64_t fieldIndex, const uint64_t recordSize)
+        : fieldIndex(fieldIndex), recordSize(recordSize), baseSpan(baseSpan), layout(std::move(layout)) { };
 
     uint64_t fieldIndex;
     uint64_t recordSize;
-    uint8_t* basePointer;
+    std::span<std::byte> baseSpan;
     std::shared_ptr<RowLayout> layout;
 };
 
 template <class T, bool boundaryChecks>
 inline RowLayoutField<T, boundaryChecks>
-RowLayoutField<T, boundaryChecks>::create(uint64_t fieldIndex, std::shared_ptr<RowLayout> layout, Memory::TupleBuffer& buffer)
+RowLayoutField<T, boundaryChecks>::create(uint64_t fieldIndex, std::shared_ptr<RowLayout> layout, TupleBuffer& buffer)
 {
     INVARIANT(
         boundaryChecks && fieldIndex < layout->getSchema().getNumberOfFields(),
@@ -69,17 +70,14 @@ RowLayoutField<T, boundaryChecks>::create(uint64_t fieldIndex, std::shared_ptr<R
         layout->getSchema().getNumberOfFields(),
         fieldIndex);
 
-    /// via pointer arithmetic gets the starting field address
-    auto* bufferBasePointer = &(buffer.getBuffer<uint8_t>()[0]);
-    auto offSet = layout->getFieldOffset(0, fieldIndex);
-    auto* basePointer = bufferBasePointer + offSet;
-
-    return RowLayoutField<T, boundaryChecks>(layout, basePointer, fieldIndex, layout->getTupleSize());
+    const auto offSet = layout->getFieldOffset(0, fieldIndex);
+    auto basePointer = buffer.getAvailableMemoryArea().subspan(offSet);
+    return RowLayoutField(layout, basePointer, fieldIndex, layout->getTupleSize());
 }
 
 template <class T, bool boundaryChecks>
 inline RowLayoutField<T, boundaryChecks>
-RowLayoutField<T, boundaryChecks>::create(const std::string& fieldName, std::shared_ptr<RowLayout> layout, Memory::TupleBuffer& buffer)
+RowLayoutField<T, boundaryChecks>::create(const std::string& fieldName, std::shared_ptr<RowLayout> layout, TupleBuffer& buffer)
 {
     auto fieldIndex = layout->getFieldIndexFromName(fieldName);
     INVARIANT(fieldIndex.has_value(), "Could not find fieldIndex for {}", fieldName);
@@ -91,7 +89,7 @@ inline T& RowLayoutField<T, boundaryChecks>::operator[](size_t recordIndex)
 {
     INVARIANT(
         boundaryChecks && recordIndex < layout->getCapacity(), "recordIndex out of bounds! {}  >= {}", layout->getCapacity(), recordIndex);
-    return *reinterpret_cast<T*>(basePointer + (recordSize * recordIndex));
+    return *reinterpret_cast<T*>(baseSpan.data() + (recordSize * recordIndex));
 }
 
 }

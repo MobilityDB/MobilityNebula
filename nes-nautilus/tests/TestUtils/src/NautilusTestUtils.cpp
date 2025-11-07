@@ -11,7 +11,6 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-
 #include <NautilusTestUtils.hpp>
 
 #include <algorithm>
@@ -22,6 +21,7 @@
 #include <memory>
 #include <numeric>
 #include <random>
+#include <span>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -31,9 +31,9 @@
 #include <MemoryLayout/MemoryLayout.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
+#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
 #include <Nautilus/Interface/Hash/HashFunction.hpp>
 #include <Nautilus/Interface/Hash/MurMur3HashFunction.hpp>
-#include <Nautilus/Interface/MemoryProvider/TupleBufferMemoryProvider.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <Nautilus/Interface/RecordBuffer.hpp>
 #include <Nautilus/Util.hpp>
@@ -59,47 +59,46 @@ std::unique_ptr<Interface::HashFunction> NautilusTestUtils::getMurMurHashFunctio
     return std::make_unique<Interface::MurMur3HashFunction>();
 }
 
-std::vector<Memory::TupleBuffer> NautilusTestUtils::createMonotonicallyIncreasingValues(
-    const Schema& schema, const uint64_t numberOfTuples, Memory::BufferManager& bufferManager, const uint64_t minSizeVarSizedData)
+std::vector<TupleBuffer> NautilusTestUtils::createMonotonicallyIncreasingValues(
+    const Schema& schema, const uint64_t numberOfTuples, BufferManager& bufferManager, const uint64_t minSizeVarSizedData)
 {
     /// We log the seed to gain reproducibility of the test
     const auto seed = std::random_device()();
     NES_INFO("Seed for creating values: {}", seed);
 
-    constexpr auto maxSizeVarSizedData = 20;
+    const auto maxSizeVarSizedData = std::max(20UL, minSizeVarSizedData + 1);
     return createMonotonicallyIncreasingValues(schema, numberOfTuples, bufferManager, seed, minSizeVarSizedData, maxSizeVarSizedData);
 }
 
-std::vector<Memory::TupleBuffer> NautilusTestUtils::createMonotonicallyIncreasingValues(
-    const Schema& schema, const uint64_t numberOfTuples, Memory::BufferManager& bufferManager)
+std::vector<TupleBuffer>
+NautilusTestUtils::createMonotonicallyIncreasingValues(const Schema& schema, const uint64_t numberOfTuples, BufferManager& bufferManager)
 {
     constexpr auto minSizeVarSizedData = 10;
     return createMonotonicallyIncreasingValues(schema, numberOfTuples, bufferManager, minSizeVarSizedData);
 }
 
-std::vector<Memory::TupleBuffer> NautilusTestUtils::createMonotonicallyIncreasingValues(
+std::vector<TupleBuffer> NautilusTestUtils::createMonotonicallyIncreasingValues(
     const Schema& schema,
     const uint64_t numberOfTuples,
-    Memory::BufferManager& bufferManager,
+    BufferManager& bufferManager,
     const uint64_t seed,
     const uint64_t minSizeVarSizedData,
     const uint64_t maxSizeVarSizedData)
 {
     /// Creating here the memory provider for the tuple buffers that store the data
-    const auto memoryProviderInputBuffer
-        = Interface::MemoryProvider::TupleBufferMemoryProvider::create(bufferManager.getBufferSize(), schema);
+    const auto memoryProviderInputBuffer = Interface::BufferRef::TupleBufferRef::create(bufferManager.getBufferSize(), schema);
 
 
     /// If we have large number of tuples, we should compile the query otherwise, it is faster to run it in the interpreter.
     /// We set the threshold to be 10k tuples.
     constexpr auto thresholdForCompile = 10 * 1000;
-    auto backend
-        = numberOfTuples > thresholdForCompile ? Configurations::ExecutionMode::COMPILER : Configurations::ExecutionMode::INTERPRETER;
+    auto backend = numberOfTuples > thresholdForCompile ? ExecutionMode::COMPILER : ExecutionMode::INTERPRETER;
     if (not compiledFunctions.contains({FUNCTION_CREATE_MONOTONIC_VALUES_FOR_BUFFER, backend}))
     {
         nautilus::engine::Options options;
-        const auto compilation = backend == Configurations::ExecutionMode::COMPILER;
+        const auto compilation = backend == ExecutionMode::COMPILER;
         options.setOption("engine.Compilation", compilation);
+        options.setOption("mlir.enableMultithreading", mlirEnableMultithreading);
         const nautilus::engine::NautilusEngine engine(options);
         compileFillBufferFunction(FUNCTION_CREATE_MONOTONIC_VALUES_FOR_BUFFER, backend, options, schema, memoryProviderInputBuffer);
     }
@@ -116,7 +115,7 @@ std::vector<Memory::TupleBuffer> NautilusTestUtils::createMonotonicallyIncreasin
     /// Now, we have to call the compiled function to fill the buffer with the values.
     /// We are using the buffer manager to get a buffer of a fixed size.
     /// Therefore, we have to iterate in a loop and fill multiple buffers until we have created the required numberofTuples.
-    std::vector<Memory::TupleBuffer> buffers;
+    std::vector<TupleBuffer> buffers;
     const auto capacity = memoryProviderInputBuffer->getMemoryLayout()->getCapacity();
     INVARIANT(capacity > 0, "Capacity should be larger than 0");
 
@@ -127,7 +126,7 @@ std::vector<Memory::TupleBuffer> NautilusTestUtils::createMonotonicallyIncreasin
         auto buffer = bufferManager.getBufferBlocking();
         auto outputBufferIndex = createShuffledVector(tuplesToFill);
         const auto sizeVarSizedData = (rand() % (maxSizeVarSizedData + 1 - minSizeVarSizedData)) + minSizeVarSizedData;
-        callCompiledFunction<void, Memory::TupleBuffer*, Memory::AbstractBufferProvider*, uint64_t, uint64_t, uint64_t, uint64_t*>(
+        callCompiledFunction<void, TupleBuffer*, AbstractBufferProvider*, uint64_t, uint64_t, uint64_t, uint64_t*>(
             {FUNCTION_CREATE_MONOTONIC_VALUES_FOR_BUFFER, backend},
             std::addressof(buffer),
             std::addressof(bufferManager),
@@ -164,15 +163,15 @@ Schema NautilusTestUtils::createSchemaFromBasicTypes(const std::vector<DataType:
 
 void NautilusTestUtils::compileFillBufferFunction(
     std::string_view functionName,
-    Configurations::ExecutionMode backend,
+    ExecutionMode backend,
     nautilus::engine::Options& options,
     const Schema& schema,
-    const std::shared_ptr<Interface::MemoryProvider::TupleBufferMemoryProvider>& memoryProviderInputBuffer)
+    const std::shared_ptr<Interface::BufferRef::TupleBufferRef>& memoryProviderInputBuffer)
 {
     /// We are not allowed to use const or const references for the lambda function params, as nautilus does not support this in the registerFunction method.
     /// NOLINTBEGIN(performance-unnecessary-value-param)
-    const std::function tmp = [=](nautilus::val<Memory::TupleBuffer*> buffer,
-                                  nautilus::val<Memory::AbstractBufferProvider*> bufferProvider,
+    const std::function tmp = [=](nautilus::val<TupleBuffer*> buffer,
+                                  nautilus::val<AbstractBufferProvider*> bufferProvider,
                                   nautilus::val<uint64_t> numberOfTuplesToFill,
                                   nautilus::val<uint64_t> startForValues,
                                   nautilus::val<uint64_t> sizeVarSizedDataVal,
@@ -197,8 +196,9 @@ void NautilusTestUtils::compileFillBufferFunction(
                 else if (field.dataType.isType(DataType::Type::VARSIZED))
                 {
                     const auto pointerToVarSizedData = nautilus::invoke(
-                        +[](const Memory::TupleBuffer* inputBuffer, Memory::AbstractBufferProvider* bufferProviderVal, const uint64_t size)
+                        +[](TupleBuffer* inputBuffer, AbstractBufferProvider* bufferProviderVal, const uint64_t size)
                         {
+                            INVARIANT(inputBuffer != nullptr, "InputTuplebuffer MUST NOT be null at this point");
                             /// Creating a random string of the given size
                             auto randchar = []() -> char
                             {
@@ -210,16 +210,15 @@ void NautilusTestUtils::compileFillBufferFunction(
                             std::generate_n(randomString.begin(), size, randchar);
 
                             /// Adding the random string to the buffer and returning the pointer to the data
-                            const auto varSizedPosition
-                                = Memory::MemoryLayouts::writeVarSizedData(*inputBuffer, randomString, *bufferProviderVal).value();
-                            const auto varSizedDataBuffer = inputBuffer->loadChildBuffer(varSizedPosition);
-                            return varSizedDataBuffer.getBuffer();
+                            const auto combinedIdxOffset = MemoryLayout::writeVarSized<MemoryLayout::PREPEND_LENGTH_AS_UINT32>(
+                                *inputBuffer, *bufferProviderVal, std::as_bytes(std::span{randomString}));
+                            return MemoryLayout::loadAssociatedVarSizedValue(*inputBuffer, combinedIdxOffset).data();
                         },
                         recordBuffer.getReference(),
                         bufferProvider,
                         sizeVarSizedDataVal);
 
-                    record.write(fieldName, VarVal(VariableSizedData(pointerToVarSizedData, VariableSizedData::Owned(true))));
+                    record.write(fieldName, VarVal(VariableSizedData(pointerToVarSizedData)));
                 }
                 else
                 {
@@ -233,14 +232,15 @@ void NautilusTestUtils::compileFillBufferFunction(
     };
     /// NOLINTEND(performance-unnecessary-value-param)
 
-    const bool compilation = (backend == Configurations::ExecutionMode::COMPILER);
+    const bool compilation = (backend == ExecutionMode::COMPILER);
     options.setOption("engine.Compilation", compilation);
     auto engine = nautilus::engine::NautilusEngine(options);
+    options.setOption("mlir.enableMultithreading", mlirEnableMultithreading);
     auto compiledFunction = engine.registerFunction(tmp);
 
-    compiledFunctions[{functionName, backend}] = std::make_unique<
-        FunctionWrapper<void, Memory::TupleBuffer*, Memory::AbstractBufferProvider*, uint64_t, uint64_t, uint64_t, uint64_t*>>(
-        std::move(compiledFunction));
+    compiledFunctions[{functionName, backend}]
+        = std::make_unique<FunctionWrapper<void, TupleBuffer*, AbstractBufferProvider*, uint64_t, uint64_t, uint64_t, uint64_t*>>(
+            std::move(compiledFunction));
 }
 
 std::string NautilusTestUtils::compareRecords(

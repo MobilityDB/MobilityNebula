@@ -11,6 +11,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+#include <PipelinedQueryPlan.hpp>
+
 
 #include <cstddef>
 #include <memory>
@@ -21,23 +23,16 @@
 #include <Identifiers/Identifiers.hpp>
 #include <Util/ExecutionMode.hpp>
 #include <Pipeline.hpp>
-#include <PipelinedQueryPlan.hpp>
 
 namespace NES
 {
 
-PipelinedQueryPlan::PipelinedQueryPlan(QueryId id, Nautilus::Configurations::ExecutionMode executionMode)
-    : queryId(id), executionMode(executionMode) { };
+PipelinedQueryPlan::PipelinedQueryPlan(QueryId id, ExecutionMode executionMode) : queryId(id), executionMode(executionMode) { };
 
 static void printPipeline(const Pipeline* pipeline, std::ostream& os, int indentLevel)
 {
     const std::string indent(indentLevel * 2, ' ');
     os << indent << *pipeline << "\n";
-    for (const auto& succ : pipeline->getSuccessors())
-    {
-        os << indent << "Successor Pipeline:\n";
-        os << indent << "  " << *succ << "\n";
-    }
 }
 
 std::ostream& operator<<(std::ostream& os, const PipelinedQueryPlan& plan)
@@ -71,7 +66,7 @@ QueryId PipelinedQueryPlan::getQueryId() const
     return queryId;
 }
 
-Nautilus::Configurations::ExecutionMode PipelinedQueryPlan::getExecutionMode() const
+ExecutionMode PipelinedQueryPlan::getExecutionMode() const
 {
     return executionMode;
 }

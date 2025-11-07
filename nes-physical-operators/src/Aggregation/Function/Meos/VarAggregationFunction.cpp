@@ -46,7 +46,7 @@ VarAggregationFunction::VarAggregationFunction(
 
 void VarAggregationFunction::lift(
     const nautilus::val<AggregationState*>& aggregationState,
-    ExecutionContext& executionContext,
+    PipelineMemoryProvider& pipelineMemoryProvider,
     const Nautilus::Record& record)
 {
     /// Reading old min, max, and count from the aggregation state.
@@ -60,7 +60,7 @@ void VarAggregationFunction::lift(
     const auto count = Nautilus::VarVal::readVarValFromMemory(memAreaCount, countType.type);
 
     /// Getting the new value and updating the aggregates
-    const auto value = inputFunction.execute(record, executionContext.pipelineMemoryProvider.arena);
+    const auto value = inputFunction.execute(record, pipelineMemoryProvider.arena);
     
     /// Update min if value is smaller
     if (value < min)

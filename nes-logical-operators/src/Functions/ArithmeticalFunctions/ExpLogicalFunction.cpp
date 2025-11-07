@@ -12,12 +12,13 @@
     limitations under the License.
 */
 
+#include <Functions/ArithmeticalFunctions/ExpLogicalFunction.hpp>
+
 #include <string>
 #include <string_view>
 #include <vector>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/Schema.hpp>
-#include <Functions/ArithmeticalFunctions/ExpLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
 #include <Util/PlanRenderer.hpp>
@@ -98,10 +99,12 @@ SerializableFunction ExpLogicalFunction::serialize() const
     return serializedFunction;
 }
 
-
 LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterExpLogicalFunction(LogicalFunctionRegistryArguments arguments)
 {
-    PRECONDITION(arguments.children.size() == 1, "ExpLogicalFunction requires exactly one child, but got {}", arguments.children.size());
+    if (arguments.children.size() != 1)
+    {
+        throw CannotDeserialize("Function requires exactly one child, but got {}", arguments.children.size());
+    }
     return ExpLogicalFunction(arguments.children[0]);
 }
 }

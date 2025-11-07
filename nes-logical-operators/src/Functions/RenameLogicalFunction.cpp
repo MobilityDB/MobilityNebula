@@ -11,6 +11,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+#include <Functions/RenameLogicalFunction.hpp>
+
 #include <string>
 #include <string_view>
 #include <utility>
@@ -20,7 +22,6 @@
 #include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
-#include <Functions/RenameLogicalFunction.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <Util/PlanRenderer.hpp>
@@ -123,15 +124,14 @@ LogicalFunction RenameLogicalFunction::withInferredDataType(const Schema& schema
     return copy;
 }
 
-
 SerializableFunction RenameLogicalFunction::serialize() const
 {
     SerializableFunction serializedFunction;
     serializedFunction.set_function_type(NAME);
     serializedFunction.add_children()->CopyFrom(child.serialize());
 
-    const NES::Configurations::DescriptorConfig::ConfigType configVariant = getNewFieldName();
-    const SerializableVariantDescriptor variantDescriptor = Configurations::descriptorConfigTypeToProto(configVariant);
+    const DescriptorConfig::ConfigType configVariant = getNewFieldName();
+    const SerializableVariantDescriptor variantDescriptor = descriptorConfigTypeToProto(configVariant);
     (*serializedFunction.mutable_config())["NewFieldName"] = variantDescriptor;
 
     DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
@@ -139,15 +139,27 @@ SerializableFunction RenameLogicalFunction::serialize() const
     return serializedFunction;
 }
 
-
 LogicalFunctionRegistryReturnType
 LogicalFunctionGeneratedRegistrar::RegisterRenameLogicalFunction(LogicalFunctionRegistryArguments arguments)
 {
-    PRECONDITION(arguments.config.contains("NewFieldName"), "RenameLogicalFunction requires a NewFieldName in its config");
-    PRECONDITION(arguments.children.size() == 1, "RenameLogicalFunction requires exactly one child, but got {}", arguments.children.size());
-    PRECONDITION(arguments.children[0].tryGet<FieldAccessLogicalFunction>(), "Child must be a FieldAccessLogicalFunction");
+    if (not arguments.config.contains("NewFieldName"))
+    {
+        throw CannotDeserialize("RenameLogicalFunction requires a NewFieldName in its config");
+    }
+    if (arguments.children.size() != 1)
+    {
+        throw CannotDeserialize("RenameLogicalFunction requires exactly one child, but got {}", arguments.children.size());
+    }
+    if (arguments.children[0].tryGet<FieldAccessLogicalFunction>())
+    {
+        throw CannotDeserialize(
+            "Child must be a FieldAccessLogicalFunction but got {}", arguments.children[0].explain(ExplainVerbosity::Short));
+    }
     auto newFieldName = get<std::string>(arguments.config["NewFieldName"]);
-    PRECONDITION(!newFieldName.empty(), "NewFieldName cannot be empty");
+    if (newFieldName.empty())
+    {
+        throw CannotDeserialize("NewFieldName cannot be empty");
+    }
     return RenameLogicalFunction(arguments.children[0].get<FieldAccessLogicalFunction>(), newFieldName);
 }
 

@@ -22,18 +22,18 @@
 #include <ErrorHandling.hpp>
 #include <SinkRegistry.hpp>
 
-namespace NES::Sinks::SinkProvider
+namespace NES
 {
 
 std::unique_ptr<Sink> lower(const SinkDescriptor& sinkDescriptor)
 {
     NES_DEBUG("The sinkDescriptor is: {}", sinkDescriptor);
-    auto sinkArguments = NES::Sinks::SinkRegistryArguments(sinkDescriptor);
-    if (auto sink = SinkRegistry::instance().create(sinkDescriptor.sinkType, sinkArguments); sink.has_value())
+    auto sinkArguments = SinkRegistryArguments(sinkDescriptor);
+    if (auto sink = SinkRegistry::instance().create(sinkDescriptor.getSinkType(), sinkArguments); sink.has_value())
     {
         return std::move(sink.value());
     }
-    throw UnknownSinkType("Unknown Sink Descriptor Type: {}", sinkDescriptor.sinkType);
+    throw UnknownSinkType("Unknown Sink Descriptor Type: {}", sinkDescriptor.getSinkType());
 }
 
 }

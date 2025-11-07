@@ -12,22 +12,26 @@
     limitations under the License.
 */
 
+#include <Operators/SelectionLogicalOperator.hpp>
+
+#include <algorithm>
 #include <cstddef>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <variant>
 #include <vector>
+
+#include <fmt/format.h>
+
 #include <Configurations/Descriptor.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
-#include <Operators/SelectionLogicalOperator.hpp>
 #include <Serialization/FunctionSerializationUtil.hpp>
 #include <Serialization/SchemaSerializationUtil.hpp>
 #include <Traits/Trait.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalOperatorRegistry.hpp>
 #include <SerializableOperator.pb.h>
@@ -50,32 +54,31 @@ LogicalFunction SelectionLogicalOperator::getPredicate() const
     return predicate;
 }
 
-bool SelectionLogicalOperator::operator==(const LogicalOperatorConcept& rhs) const
+bool SelectionLogicalOperator::operator==(const SelectionLogicalOperator& rhs) const
 {
-    if (const auto* const rhsOperator = dynamic_cast<const SelectionLogicalOperator*>(&rhs))
-    {
-        return predicate == rhsOperator->predicate && getOutputSchema() == rhsOperator->getOutputSchema()
-            && getInputSchemas() == rhsOperator->getInputSchemas() && getInputOriginIds() == rhsOperator->getInputOriginIds()
-            && getOutputOriginIds() == rhsOperator->getOutputOriginIds();
-    }
-    return false;
+    return predicate == rhs.predicate && getOutputSchema() == rhs.getOutputSchema() && getInputSchemas() == rhs.getInputSchemas()
+        && getTraitSet() == rhs.getTraitSet();
 };
 
-std::string SelectionLogicalOperator::explain(ExplainVerbosity verbosity) const
+std::string SelectionLogicalOperator::explain(ExplainVerbosity verbosity, OperatorId opId) const
 {
     if (verbosity == ExplainVerbosity::Debug)
     {
-        return fmt::format("SELECTION(opId: {}, predicate: {})", id, predicate.explain(verbosity));
+        return fmt::format(
+            "SELECTION(opId: {}, predicate: {}, traitSet: {})", opId, predicate.explain(verbosity), traitSet.explain(verbosity));
     }
     return fmt::format("SELECTION({})", predicate.explain(verbosity));
 }
 
-LogicalOperator SelectionLogicalOperator::withInferredSchema(std::vector<Schema> inputSchemas) const
+SelectionLogicalOperator SelectionLogicalOperator::withInferredSchema(std::vector<Schema> inputSchemas) const
 {
     auto copy = *this;
-    INVARIANT(!inputSchemas.empty(), "Selection should have at least one input");
+    if (inputSchemas.empty())
+    {
+        throw CannotDeserialize("Selection should have at least one input");
+    }
 
-    const auto& firstSchema = inputSchemas[0];
+    const auto& firstSchema = inputSchemas.at(0);
     for (const auto& schema : inputSchemas)
     {
         if (schema != firstSchema)
@@ -96,13 +99,20 @@ LogicalOperator SelectionLogicalOperator::withInferredSchema(std::vector<Schema>
 
 TraitSet SelectionLogicalOperator::getTraitSet() const
 {
-    return {};
+    return traitSet;
 }
 
-LogicalOperator SelectionLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
+SelectionLogicalOperator SelectionLogicalOperator::withTraitSet(TraitSet traitSet) const
 {
     auto copy = *this;
-    copy.children = children;
+    copy.traitSet = std::move(traitSet);
+    return copy;
+}
+
+SelectionLogicalOperator SelectionLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
+{
+    auto copy = *this;
+    copy.children = std::move(children);
     return copy;
 }
 
@@ -116,70 +126,26 @@ Schema SelectionLogicalOperator::getOutputSchema() const
     return outputSchema;
 }
 
-std::vector<std::vector<OriginId>> SelectionLogicalOperator::getInputOriginIds() const
-{
-    return {inputOriginIds};
-}
-
-std::vector<OriginId> SelectionLogicalOperator::getOutputOriginIds() const
-{
-    return outputOriginIds;
-}
-
-LogicalOperator SelectionLogicalOperator::withInputOriginIds(std::vector<std::vector<OriginId>> ids) const
-{
-    auto copy = *this;
-    copy.inputOriginIds = ids[0];
-    return copy;
-}
-
-LogicalOperator SelectionLogicalOperator::withOutputOriginIds(std::vector<OriginId> ids) const
-{
-    auto copy = *this;
-    copy.outputOriginIds = ids;
-    return copy;
-}
-
 std::vector<LogicalOperator> SelectionLogicalOperator::getChildren() const
 {
     return children;
 }
 
-SerializableOperator SelectionLogicalOperator::serialize() const
+void SelectionLogicalOperator::serialize(SerializableOperator& serializableOperator) const
 {
     SerializableLogicalOperator proto;
 
     proto.set_operator_type(NAME);
-    auto* traitSetProto = proto.mutable_trait_set();
-    for (const auto& trait : getTraitSet())
-    {
-        *traitSetProto->add_traits() = trait.serialize();
-    }
 
-    auto inputs = getInputSchemas();
-    auto originLists = getInputOriginIds();
-    for (size_t i = 0; i < inputs.size(); ++i)
+    for (const auto& input : getInputSchemas())
     {
         auto* schProto = proto.add_input_schemas();
-        SchemaSerializationUtil::serializeSchema(inputs[i], schProto);
-
-        auto* olist = proto.add_input_origin_lists();
-        for (auto originId : originLists[i])
-        {
-            olist->add_origin_ids(originId.getRawValue());
-        }
-    }
-
-    for (auto outId : getOutputOriginIds())
-    {
-        proto.add_output_origin_ids(outId.getRawValue());
+        SchemaSerializationUtil::serializeSchema(input, schProto);
     }
 
     auto* outSch = proto.mutable_output_schema();
     SchemaSerializationUtil::serializeSchema(outputSchema, outSch);
 
-    SerializableOperator serializableOperator;
-    serializableOperator.set_operator_id(id.getRawValue());
     for (auto& child : getChildren())
     {
         serializableOperator.add_children_ids(child.getId().getRawValue());
@@ -188,31 +154,26 @@ SerializableOperator SelectionLogicalOperator::serialize() const
     FunctionList funcList;
     auto* serializedFunction = funcList.add_functions();
     serializedFunction->CopyFrom(getPredicate().serialize());
-    (*serializableOperator.mutable_config())[ConfigParameters::SELECTION_FUNCTION_NAME]
-        = Configurations::descriptorConfigTypeToProto(funcList);
+    (*serializableOperator.mutable_config())[ConfigParameters::SELECTION_FUNCTION_NAME] = descriptorConfigTypeToProto(funcList);
 
     serializableOperator.mutable_operator_()->CopyFrom(proto);
-    return serializableOperator;
 }
 
 LogicalOperatorRegistryReturnType
-LogicalOperatorGeneratedRegistrar::RegisterSelectionLogicalOperator(NES::LogicalOperatorRegistryArguments arguments)
+LogicalOperatorGeneratedRegistrar::RegisterSelectionLogicalOperator(LogicalOperatorRegistryArguments arguments)
 {
-    auto functionVariant = arguments.config[SelectionLogicalOperator::ConfigParameters::SELECTION_FUNCTION_NAME];
-    if (std::holds_alternative<NES::FunctionList>(functionVariant))
+    auto functionVariant = arguments.config.at(SelectionLogicalOperator::ConfigParameters::SELECTION_FUNCTION_NAME);
+    if (std::holds_alternative<FunctionList>(functionVariant))
     {
         const auto functions = std::get<FunctionList>(functionVariant).functions();
 
-        INVARIANT(functions.size() == 1, "Expected exactly one function");
+        if (functions.size() != 1)
+        {
+            throw CannotDeserialize("Expected exactly one function but got {}", functions.size());
+        }
         auto function = FunctionSerializationUtil::deserializeFunction(functions[0]);
         auto logicalOperator = SelectionLogicalOperator(function);
-        if (auto& id = arguments.id)
-        {
-            logicalOperator.id = *id;
-        }
-        return logicalOperator.withInferredSchema(arguments.inputSchemas)
-            .withInputOriginIds(arguments.inputOriginIds)
-            .withOutputOriginIds(arguments.outputOriginIds);
+        return logicalOperator.withInferredSchema(arguments.inputSchemas);
     }
     throw UnknownLogicalOperator();
 }

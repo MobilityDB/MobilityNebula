@@ -30,7 +30,11 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
+
+#include <Sources/SourceCatalog.hpp>
+#include <Sources/SourceDescriptor.hpp>
 #include <fmt/base.h>
 #include <fmt/format.h>
 
@@ -39,7 +43,7 @@
 #include <Identifiers/Identifiers.hpp>
 #include <Listeners/QueryLog.hpp>
 #include <Plans/LogicalPlan.hpp>
-#include <SystestSources/SourceTypes.hpp>
+#include <Sinks/SinkCatalog.hpp>
 #include <Util/Logger/Formatter.hpp>
 #include <magic_enum/magic_enum.hpp>
 #include <ErrorHandling.hpp>
@@ -47,10 +51,14 @@
 
 #include <Identifiers/NESStrongType.hpp>
 
-
 namespace NES::Systest
 {
-struct LoadedQueryPlan;
+
+
+class SystestRunner;
+
+using TestName = std::string;
+using TestGroup = std::string;
 
 using SystestQueryId = NESStrongType<uint64_t, struct SystestQueryId_, 0, 1>;
 static constexpr SystestQueryId INVALID_SYSTEST_QUERY_ID = INVALID<SystestQueryId>;
@@ -62,24 +70,6 @@ struct ExpectedError
     std::optional<std::string> message;
 };
 
-class SystestRunner;
-
-using TestName = std::string;
-using TestGroup = std::string;
-
-struct SystestField
-{
-    DataType type;
-    std::string name;
-    friend std::ostream& operator<<(std::ostream& os, const SystestField& field)
-    {
-        os << fmt::format("{} {}", magic_enum::enum_name(field.type.type), field.name);
-        return os;
-    }
-    bool operator==(const SystestField& other) const = default;
-    bool operator!=(const SystestField& other) const = default;
-};
-
 class SourceInputFile
 {
 public:
@@ -88,7 +78,9 @@ public:
     explicit constexpr SourceInputFile(Underlying value) : value(std::move(value)) { }
 
     friend std::ostream& operator<<(std::ostream& os, const SourceInputFile& timestamp) { return os << timestamp.value; }
+
     [[nodiscard]] Underlying getRawValue() const { return value; }
+
     friend std::strong_ordering operator<=>(const SourceInputFile& lhs, const SourceInputFile& rhs) = default;
 
 private:
@@ -101,37 +93,36 @@ struct SystestQuery
     resultFile(const std::filesystem::path& workingDir, std::string_view testName, SystestQueryId queryIdInTestFile);
 
     static std::filesystem::path sourceFile(const std::filesystem::path& workingDir, std::string_view testName, uint64_t sourceId);
-    SystestQuery() = default;
-    explicit SystestQuery(
-        TestName testName,
-        std::string queryDefinition,
-        std::filesystem::path sqlLogicTestFile,
-        std::expected<LogicalPlan, Exception> queryPlan,
-        SystestQueryId queryIdInFile,
-        std::filesystem::path workingDir,
-        const Schema& sinkSchema,
-        std::unordered_map<std::string, std::pair<std::optional<SourceInputFile>, uint64_t>> sourceNamesToFilepathAndCount,
-        std::optional<ExpectedError> expectedError);
-
     [[nodiscard]] std::filesystem::path resultFile() const;
+    [[nodiscard]] std::filesystem::path resultFileForDifferentialQuery() const;
 
     TestName testName;
-    std::string queryDefinition;
-    std::filesystem::path sqlLogicTestFile;
-    std::expected<LogicalPlan, Exception> queryPlan;
     SystestQueryId queryIdInFile = INVALID_SYSTEST_QUERY_ID;
+    std::filesystem::path testFilePath;
     std::filesystem::path workingDir;
-    Schema expectedSinkSchema;
-    std::unordered_map<std::string, std::pair<std::optional<SourceInputFile>, uint64_t>> sourceNamesToFilepathAndCount;
-    std::optional<ExpectedError> expectedError;
-};
+    /// The schema of the data written to a CSV file.
+    /// It's different, for example, for the checksum sink because the schema written to the CSV is not the input schema to the sink.
+    std::string queryDefinition;
 
+    struct PlanInfo
+    {
+        LogicalPlan queryPlan;
+        std::unordered_map<SourceDescriptor, std::pair<SourceInputFile, uint64_t>> sourcesToFilePathsAndCounts;
+        Schema sinkOutputSchema;
+    };
+
+    std::expected<PlanInfo, Exception> planInfoOrException;
+    std::variant<std::vector<std::string>, ExpectedError> expectedResultsOrExpectedError;
+    std::shared_ptr<const std::vector<std::jthread>> additionalSourceThreads;
+    std::optional<LogicalPlan> differentialQueryPlan;
+};
 
 struct RunningQuery
 {
-    SystestQuery query;
+    SystestQuery systestQuery;
     QueryId queryId = INVALID_QUERY_ID;
-    QuerySummary querySummary;
+    std::optional<QueryId> differentialQueryPair;
+    LocalQueryStatus queryStatus{};
     std::optional<uint64_t> bytesProcessed{0};
     std::optional<uint64_t> tuplesProcessed{0};
     bool passed = false;
@@ -141,178 +132,50 @@ struct RunningQuery
     [[nodiscard]] std::string getThroughput() const;
 };
 
-/// Assures that the number of parsed queries matches the number of parsed results
-class SystestQueryIdAssigner
-{
-    static constexpr SystestQueryId::Underlying INITIAL_QUERY_NUMBER = SystestQueryId::INITIAL;
-
-public:
-    explicit SystestQueryIdAssigner() = default;
-
-    [[nodiscard]] SystestQueryId getNextQueryNumber()
-    {
-        if (currentQueryNumber != currentQueryResultNumber)
-        {
-            throw SLTUnexpectedToken(
-                "The number of queries {} must match the number of results {}", currentQueryNumber, currentQueryResultNumber);
-        }
-
-        return SystestQueryId(currentQueryNumber++);
-    }
-
-    [[nodiscard]] SystestQueryId getNextQueryResultNumber()
-    {
-        if (currentQueryNumber != (currentQueryResultNumber + 1))
-        {
-            throw SLTUnexpectedToken(
-                "The number of queries {} must match the number of results {}", currentQueryNumber, currentQueryResultNumber);
-        }
-
-        return SystestQueryId(currentQueryResultNumber++);
-    }
-
-    void skipQueryResultOfQueryWithExpectedError()
-    {
-        if (currentQueryNumber != (currentQueryResultNumber + 1))
-        {
-            throw SLTUnexpectedToken(
-                "The number of queries {} must match the number of results {}", currentQueryNumber, currentQueryResultNumber);
-        }
-
-        ++currentQueryResultNumber;
-    }
-
-private:
-    SystestQueryId::Underlying currentQueryNumber = SystestQueryId::INITIAL;
-    SystestQueryId::Underlying currentQueryResultNumber = SystestQueryId::INITIAL;
-};
-
 struct TestFile
 {
-    explicit TestFile(const std::filesystem::path& file);
-    explicit TestFile(const std::filesystem::path& file, std::unordered_set<SystestQueryId> onlyEnableQueriesWithTestQueryNumber);
+    explicit TestFile(
+        const std::filesystem::path& file, std::shared_ptr<SourceCatalog> sourceCatalog, std::shared_ptr<SinkCatalog> sinkCatalog);
+    explicit TestFile(
+        const std::filesystem::path& file,
+        std::unordered_set<SystestQueryId> onlyEnableQueriesWithTestQueryNumber,
+        std::shared_ptr<SourceCatalog> sourceCatalog,
+        std::shared_ptr<SinkCatalog> sinkCatalog);
     [[nodiscard]] std::string getLogFilePath() const;
+
     [[nodiscard]] TestName name() const { return file.stem().string(); }
 
     std::filesystem::path file;
     std::unordered_set<SystestQueryId> onlyEnableQueriesWithTestQueryNumber;
     std::vector<TestGroup> groups;
     std::vector<SystestQuery> queries;
+    std::shared_ptr<SourceCatalog> sourceCatalog;
+    std::shared_ptr<SinkCatalog> sinkCatalog;
 };
 
 /// intermediate representation storing all considered test files
 using TestFileMap = std::unordered_map<std::filesystem::path, TestFile>;
-using QueryResultMap = std::unordered_map<std::filesystem::path, std::vector<std::string>>;
-
-/// Groups (global) variables used throughout the main function call of SystestStarter
-/// Only selected classes/structs may modify its internals:
-class SystestParser;
-struct LoadedQueryPlan;
-class SystestStarterGlobals
-{
-    class SystestBinder
-    {
-    public:
-        SystestBinder() = default; /// Load query plan objects by parsing an SLT file for queries and lowering it
-        /// Returns a triplet of the lowered query plan, the query name and the schema of the sink
-        static std::vector<LoadedQueryPlan> loadFromSLTFile(
-            SystestStarterGlobals& systestStarterGlobals, const std::filesystem::path& testFilePath, std::string_view testFileName);
-
-    private:
-        uint64_t sourceIndex = 0;
-        uint64_t currentQueryNumber = 0;
-        std::string currentTestFileName;
-    };
-
-public:
-    SystestStarterGlobals() = default;
-    explicit SystestStarterGlobals(
-        std::filesystem::path workingDir, std::filesystem::path testDataDir, std::filesystem::path configDir, TestFileMap testFileMap)
-        : workingDir(std::move(workingDir))
-        , testDataDir(std::move(testDataDir))
-        , configDir(std::move(configDir))
-        , testFileMap(std::move(testFileMap))
-        , dataServerThreads(std::make_shared<std::vector<std::jthread>>())
-    {
-    }
-
-    [[nodiscard]] const std::filesystem::path& getWorkingDir() const { return workingDir; }
-    [[nodiscard]] const std::filesystem::path& getTestDataDir() const { return testDataDir; }
-    [[nodiscard]] std::filesystem::path getConfigDir() const { return configDir; }
-    [[nodiscard]] const TestFileMap& getTestFileMap() const { return testFileMap; }
-    [[nodiscard]] const QueryResultMap& getQueryResultMap() const { return queryResultMap; }
-
-private:
-    friend void loadQueriesFromTestFile(const TestFile& testfile, SystestStarterGlobals& systestStarterGlobals);
-    friend std::vector<LoadedQueryPlan>
-    loadFromSLTFile(SystestStarterGlobals& systestStarterGlobals, const std::filesystem::path& testFilePath, std::string_view testFileName);
 
 
-    void addQueryResult(const std::string_view testFileName, const SystestQueryId queryResultNumber, std::vector<std::string> resultLines)
-    {
-        queryResultMap.emplace(SystestQuery::resultFile(workingDir, testFileName, queryResultNumber), std::move(resultLines));
-    }
-
-    void setDataServerThreadsInAttachSource(SystestAttachSource& attachSource) const { attachSource.serverThreads = dataServerThreads; }
-
-    void addQuery(
-        TestName testName,
-        std::string queryDefinition,
-        std::filesystem::path sqlLogicTestFile,
-        std::expected<LogicalPlan, Exception> queryPlan,
-        const SystestQueryId queryIdInFile,
-        std::filesystem::path workingDir,
-        const Schema& sinkSchema,
-        std::unordered_map<std::string, std::pair<std::optional<SourceInputFile>, uint64_t>> sourceNamesToFilepathAndCount,
-        std::optional<ExpectedError> expectedError)
-    {
-        if (const auto it = testFileMap.find(sqlLogicTestFile); it != testFileMap.end())
-        {
-            it->second.queries.emplace_back(
-                std::move(testName),
-                std::move(queryDefinition),
-                std::move(sqlLogicTestFile),
-                std::move(queryPlan),
-                queryIdInFile,
-                std::move(workingDir),
-                sinkSchema,
-                std::move(sourceNamesToFilepathAndCount),
-                std::move(expectedError));
-            return;
-        }
-        throw TestException("Tried to add query to testFile {}, which does not exist.", sqlLogicTestFile.string());
-    }
-
-    std::filesystem::path workingDir;
-    std::filesystem::path testDataDir;
-    std::filesystem::path configDir;
-    TestFileMap testFileMap;
-    QueryResultMap queryResultMap;
-    SystestBinder binder;
-    std::shared_ptr<std::vector<std::jthread>> dataServerThreads;
-};
 std::ostream& operator<<(std::ostream& os, const TestFileMap& testMap);
 
 /// load test file map objects from files defined in systest config
-TestFileMap loadTestFileMap(const Configuration::SystestConfiguration& config);
+TestFileMap loadTestFileMap(const SystestConfiguration& config);
 
-/// returns a vector of queries to run derived for our testfilemap
-std::vector<SystestQuery> loadQueries(SystestStarterGlobals& systestStarterGlobals);
 }
-
-FMT_OSTREAM(NES::Systest::SystestField);
 
 template <>
 struct fmt::formatter<NES::Systest::RunningQuery> : formatter<std::string>
 {
     static constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
     static auto format(const NES::Systest::RunningQuery& runningQuery, format_context& ctx) -> decltype(ctx.out())
     {
         return fmt::format_to(
             ctx.out(),
             "[{}, systest -t {}:{}]",
-            runningQuery.query.testName,
-            runningQuery.query.sqlLogicTestFile,
-            runningQuery.query.queryIdInFile);
+            runningQuery.systestQuery.testName,
+            runningQuery.systestQuery.testFilePath,
+            runningQuery.systestQuery.queryIdInFile);
     }
 };

@@ -27,10 +27,11 @@
 #include <Runtime/TupleBuffer.hpp>
 #include <Sources/Source.hpp>
 #include <Sources/SourceDescriptor.hpp>
-#include <SystestSources/SourceTypes.hpp>
 
-namespace NES::Sources
+namespace NES
 {
+
+static constexpr std::string_view SYSTEST_FILE_PATH_PARAMETER = "file_path";
 
 class FileSource final : public Source
 {
@@ -45,8 +46,7 @@ public:
     FileSource(FileSource&&) = delete;
     FileSource& operator=(FileSource&&) = delete;
 
-    size_t fillTupleBuffer(
-        NES::Memory::TupleBuffer& tupleBuffer, Memory::AbstractBufferProvider& bufferProvider, const std::stop_token& stopToken) override;
+    size_t fillTupleBuffer(TupleBuffer& tupleBuffer, const std::stop_token& stopToken) override;
 
     /// Open file socket.
     void open() override;
@@ -54,7 +54,7 @@ public:
     void close() override;
 
     /// validates and formats a string to string configuration
-    static NES::Configurations::DescriptorConfig::Config validateAndFormat(std::unordered_map<std::string, std::string> config);
+    static DescriptorConfig::Config validateAndFormat(std::unordered_map<std::string, std::string> config);
 
     [[nodiscard]] std::ostream& toString(std::ostream& str) const override;
 
@@ -66,14 +66,13 @@ private:
 
 struct ConfigParametersCSV
 {
-    static inline const NES::Configurations::DescriptorConfig::ConfigParameter<std::string> FILEPATH{
+    static inline const DescriptorConfig::ConfigParameter<std::string> FILEPATH{
         std::string(SYSTEST_FILE_PATH_PARAMETER),
         std::nullopt,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return NES::Configurations::DescriptorConfig::tryGet(FILEPATH, config); }};
+        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(FILEPATH, config); }};
 
-    static inline std::unordered_map<std::string, NES::Configurations::DescriptorConfig::ConfigParameterContainer> parameterMap
-        = NES::Configurations::DescriptorConfig::createConfigParameterContainerMap(FILEPATH);
+    static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
+        = DescriptorConfig::createConfigParameterContainerMap(SourceDescriptor::parameterMap, FILEPATH);
 };
 
 }

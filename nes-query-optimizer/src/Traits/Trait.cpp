@@ -12,8 +12,13 @@
     limitations under the License.
 */
 
-#include <memory>
 #include <Traits/Trait.hpp>
+
+#include <memory>
+#include <string>
+#include <string_view>
+#include <typeinfo>
+#include <Util/PlanRenderer.hpp>
 #include <SerializableTrait.pb.h>
 
 namespace NES
@@ -39,4 +44,18 @@ SerializableTrait Trait::serialize() const
     return self->serialize();
 }
 
+const std::type_info& Trait::getTypeInfo() const
+{
+    return self->getType();
+}
+
+std::string_view Trait::getName() const
+{
+    return self->getName();
+}
+
+std::string Trait::explain(const ExplainVerbosity verbosity) const
+{
+    return self->explain(verbosity);
+}
 }

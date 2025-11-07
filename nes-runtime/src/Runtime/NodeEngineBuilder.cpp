@@ -14,48 +14,36 @@
 
 #include <Runtime/NodeEngineBuilder.hpp>
 
-#include <chrono>
 #include <memory>
 #include <utility>
 #include <Configuration/WorkerConfiguration.hpp>
 #include <Listeners/QueryLog.hpp>
-#include <Listeners/SystemEventListener.hpp>
 #include <Runtime/BufferManager.hpp>
 #include <Runtime/NodeEngine.hpp>
+#include <Sources/SourceProvider.hpp>
 #include <QueryEngine.hpp>
-#include <QueryEngineStatisticListener.hpp>
 
 namespace NES
 {
 
 
-NodeEngineBuilder::NodeEngineBuilder(
-    const NES::Configurations::WorkerConfiguration& workerConfiguration,
-    std::shared_ptr<SystemEventListener> systemEventListener,
-    std::shared_ptr<QueryEngineStatisticListener> statisticEventListener)
-    : workerConfiguration(workerConfiguration)
-    , systemEventListener(std::move(std::move(systemEventListener)))
-    , statisticEventListener(std::move(std::move(statisticEventListener)))
+NodeEngineBuilder::NodeEngineBuilder(const WorkerConfiguration& workerConfiguration, std::shared_ptr<StatisticListener> statisticsListener)
+    : workerConfiguration(workerConfiguration), statisticsListener(std::move(statisticsListener))
 {
 }
 
-
 std::unique_ptr<NodeEngine> NodeEngineBuilder::build()
 {
-    auto bufferManager = Memory::BufferManager::create(
+    auto bufferManager = BufferManager::create(
         workerConfiguration.bufferSizeInBytes.getValue(), workerConfiguration.numberOfBuffersInGlobalBufferManager.getValue());
     auto queryLog = std::make_shared<QueryLog>();
 
+    auto queryEngine = std::make_unique<QueryEngine>(workerConfiguration.queryEngine, statisticsListener, queryLog, bufferManager);
 
-    auto queryEngine
-        = std::make_unique<QueryEngine>(workerConfiguration.queryEngineConfiguration, statisticEventListener, queryLog, bufferManager);
+    auto sourceProvider = std::make_unique<SourceProvider>(workerConfiguration.defaultMaxInflightBuffers.getValue(), bufferManager);
 
     return std::make_unique<NodeEngine>(
-        std::move(bufferManager),
-        systemEventListener,
-        std::move(queryLog),
-        std::move(queryEngine),
-        workerConfiguration.numberOfBuffersInSourceLocalPools.getValue());
+        std::move(bufferManager), statisticsListener, std::move(queryLog), std::move(queryEngine), std::move(sourceProvider));
 }
 
 }

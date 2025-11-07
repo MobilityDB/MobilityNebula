@@ -14,14 +14,16 @@
 
 #pragma once
 
+#include <cctype>
 #include <compare>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <unordered_map>
-#include <Configurations/ConfigurationsNames.hpp>
+
 #include <Configurations/Descriptor.hpp>
 #include <Configurations/Enums/EnumWrapper.hpp>
 #include <DataTypes/Schema.hpp>
@@ -45,16 +47,13 @@ struct ParserConfig
     std::string tupleDelimiter;
     std::string fieldDelimiter;
     friend bool operator==(const ParserConfig& lhs, const ParserConfig& rhs) = default;
+    friend std::ostream& operator<<(std::ostream& os, const ParserConfig& obj);
     static ParserConfig create(std::unordered_map<std::string, std::string> configMap);
 };
 
-class SourceDescriptor final : public NES::Configurations::Descriptor
+class SourceDescriptor final : public Descriptor
 {
 public:
-    /// Per default, we set an 'invalid' number of buffers in source local buffer pool.
-    /// Given an invalid value, the NodeEngine takes its configured value. Otherwise the source-specific configuration takes priority.
-    static constexpr int INVALID_NUMBER_OF_BUFFERS_IN_LOCAL_POOL = -1;
-
     ~SourceDescriptor() = default;
     SourceDescriptor(const SourceDescriptor& other) = default;
     /// Deleted, because the descriptors have a const field
@@ -72,9 +71,7 @@ public:
     [[nodiscard]] std::string getSourceType() const;
     [[nodiscard]] ParserConfig getParserConfig() const;
 
-    [[nodiscard]] WorkerId getWorkerId() const;
     [[nodiscard]] PhysicalSourceId getPhysicalSourceId() const;
-    [[nodiscard]] int32_t getBuffersInLocalPool() const;
 
     [[nodiscard]] SerializableSourceDescriptor serialize() const;
     [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
@@ -82,22 +79,34 @@ public:
 private:
     friend class SourceCatalog;
     friend OperatorSerializationUtil;
+
     PhysicalSourceId physicalSourceId;
     LogicalSource logicalSource;
-    WorkerId workerId;
     std::string sourceType;
     ParserConfig parserConfig;
-    int32_t numberOfBuffersInLocalPool;
 
     /// Used by Sources to create a valid SourceDescriptor.
     explicit SourceDescriptor(
-        LogicalSource logicalSource,
         PhysicalSourceId physicalSourceId,
-        WorkerId workerId,
-        std::string sourceType,
-        int32_t numberOfBuffersInLocalPool,
-        NES::Configurations::DescriptorConfig::Config&& config,
+        LogicalSource logicalSource,
+        std::string_view sourceType,
+        DescriptorConfig::Config config,
         ParserConfig parserConfig);
+
+public:
+    /// Per default, we set an 'invalid' number of max inflight buffers. We choose zero as an invalid number as giving zero buffers to a source would make it unusable.
+    /// Given an invalid value, the NodeEngine takes its configured value. Otherwise, the source-specific configuration takes priority.
+    static constexpr size_t INVALID_MAX_INFLIGHT_BUFFERS = 0;
+    /// NOLINTNEXTLINE(cert-err58-cpp)
+    static inline const DescriptorConfig::ConfigParameter<size_t> MAX_INFLIGHT_BUFFERS{
+        "max_inflight_buffers",
+        INVALID_MAX_INFLIGHT_BUFFERS,
+        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(MAX_INFLIGHT_BUFFERS, config); }};
+
+
+    /// NOLINTNEXTLINE(cert-err58-cpp)
+    static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
+        = DescriptorConfig::createConfigParameterContainerMap(MAX_INFLIGHT_BUFFERS);
 };
 
 }
@@ -112,3 +121,4 @@ struct std::hash<NES::SourceDescriptor>
 };
 
 FMT_OSTREAM(NES::SourceDescriptor);
+FMT_OSTREAM(NES::ParserConfig);

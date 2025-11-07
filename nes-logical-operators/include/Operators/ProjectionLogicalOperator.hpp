@@ -18,6 +18,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 #include <Configurations/Descriptor.hpp>
 #include <DataTypes/Schema.hpp>
@@ -25,61 +26,78 @@
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
 #include <Traits/Trait.hpp>
+#include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
 #include <SerializableOperator.pb.h>
 
 namespace NES
 {
 
-/// The projection operator only narrows down the fields of an input schema to a smaller subset. The map operator handles renaming and adding new fields.
-class ProjectionLogicalOperator : public LogicalOperatorConcept
+/// Combines both selecting the fields to project and renaming/mapping of fields
+class ProjectionLogicalOperator
 {
 public:
-    explicit ProjectionLogicalOperator(std::vector<LogicalFunction> functions);
+    class Asterisk
+    {
+        bool value;
 
-    [[nodiscard]] const std::vector<LogicalFunction>& getFunctions() const;
+    public:
+        explicit Asterisk(bool value) : value(value) { }
 
-    [[nodiscard]] bool operator==(const LogicalOperatorConcept& rhs) const override;
-    [[nodiscard]] SerializableOperator serialize() const override;
+        friend ProjectionLogicalOperator;
+    };
 
-    [[nodiscard]] TraitSet getTraitSet() const override;
+    using Projection = std::pair<std::optional<FieldIdentifier>, LogicalFunction>;
+    ProjectionLogicalOperator(std::vector<Projection> projections, Asterisk asterisk);
 
-    [[nodiscard]] LogicalOperator withChildren(std::vector<LogicalOperator> children) const override;
-    [[nodiscard]] std::vector<LogicalOperator> getChildren() const override;
+    [[nodiscard]] const std::vector<Projection>& getProjections() const;
 
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const override;
-    [[nodiscard]] Schema getOutputSchema() const override;
+    [[nodiscard]] bool operator==(const ProjectionLogicalOperator& rhs) const;
+    void serialize(SerializableOperator&) const;
 
-    [[nodiscard]] std::vector<std::vector<OriginId>> getInputOriginIds() const override;
-    [[nodiscard]] std::vector<OriginId> getOutputOriginIds() const override;
-    [[nodiscard]] LogicalOperator withInputOriginIds(std::vector<std::vector<OriginId>> ids) const override;
-    [[nodiscard]] LogicalOperator withOutputOriginIds(std::vector<OriginId> ids) const override;
+    [[nodiscard]] ProjectionLogicalOperator withTraitSet(TraitSet traitSet) const;
+    [[nodiscard]] TraitSet getTraitSet() const;
 
-    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
+    [[nodiscard]] ProjectionLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
+    [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
 
-    [[nodiscard]] LogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const override;
+    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
+    [[nodiscard]] Schema getOutputSchema() const;
+
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId opId) const;
+    [[nodiscard]] std::string_view getName() const noexcept;
+
+    [[nodiscard]] std::vector<std::string> getAccessedFields() const;
+
+    [[nodiscard]] ProjectionLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
 
     struct ConfigParameters
     {
-        static inline const NES::Configurations::DescriptorConfig::ConfigParameter<std::string> PROJECTION_FUNCTION_NAME{
+        static inline const DescriptorConfig::ConfigParameter<std::string> PROJECTION_FUNCTION_NAME{
             "projectionFunctionName",
             std::nullopt,
             [](const std::unordered_map<std::string, std::string>& config)
-            { return NES::Configurations::DescriptorConfig::tryGet(PROJECTION_FUNCTION_NAME, config); }};
+            { return DescriptorConfig::tryGet(PROJECTION_FUNCTION_NAME, config); }};
 
-        static inline std::unordered_map<std::string, NES::Configurations::DescriptorConfig::ConfigParameterContainer> parameterMap
-            = NES::Configurations::DescriptorConfig::createConfigParameterContainerMap(PROJECTION_FUNCTION_NAME);
+        static inline const DescriptorConfig::ConfigParameter<std::string> ASTERISK{
+            "asterisk",
+            std::nullopt,
+            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(ASTERISK, config); }};
+
+        static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
+            = DescriptorConfig::createConfigParameterContainerMap(PROJECTION_FUNCTION_NAME, ASTERISK);
     };
 
 private:
     static constexpr std::string_view NAME = "Projection";
-    std::vector<LogicalFunction> functions;
+    std::vector<Projection> projections;
 
+    bool asterisk = false;
     std::vector<LogicalOperator> children;
+    TraitSet traitSet;
     Schema inputSchema, outputSchema;
-    std::vector<OriginId> inputOriginIds;
-    std::vector<OriginId> outputOriginIds;
 };
+
+static_assert(LogicalOperatorConcept<ProjectionLogicalOperator>);
 
 }

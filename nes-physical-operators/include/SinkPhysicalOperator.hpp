@@ -24,15 +24,15 @@ namespace NES
 class SinkPhysicalOperator final : public PhysicalOperatorConcept
 {
 public:
-    explicit SinkPhysicalOperator(std::shared_ptr<Sinks::SinkDescriptor> descriptor);
+    explicit SinkPhysicalOperator(const SinkDescriptor& descriptor);
     [[nodiscard]] std::optional<PhysicalOperator> getChild() const override;
     void setChild(PhysicalOperator) override;
 
-    [[nodiscard]] std::shared_ptr<Sinks::SinkDescriptor> getDescriptor() const;
+    [[nodiscard]] SinkDescriptor getDescriptor() const;
 
     bool operator==(const SinkPhysicalOperator& other) const;
 
 private:
-    std::shared_ptr<Sinks::SinkDescriptor> descriptor;
+    SinkDescriptor descriptor;
 };
 }

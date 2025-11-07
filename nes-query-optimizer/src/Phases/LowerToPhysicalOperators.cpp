@@ -11,6 +11,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+#include <Phases/LowerToPhysicalOperators.hpp>
 
 #include <algorithm>
 #include <memory>
@@ -18,31 +19,69 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <Configurations/Worker/QueryOptimizerConfiguration.hpp>
 #include <Operators/LogicalOperator.hpp>
 #include <Plans/LogicalPlan.hpp>
 #include <RewriteRules/AbstractRewriteRule.hpp>
+#include <Traits/ImplementationTypeTrait.hpp>
+#include <Traits/Trait.hpp>
+#include <Traits/TraitSet.hpp>
+#include <Util/Logger/Logger.hpp>
 #include <ErrorHandling.hpp>
 #include <PhysicalOperator.hpp>
 #include <PhysicalPlan.hpp>
 #include <PhysicalPlanBuilder.hpp>
+#include <QueryExecutionConfiguration.hpp>
 #include <RewriteRuleRegistry.hpp>
 
 namespace NES::LowerToPhysicalOperators
 {
 
-static RewriteRuleResultSubgraph::SubGraphRoot
+namespace
+{
+std::unique_ptr<AbstractRewriteRule>
+resolveRewriteRule(const LogicalOperator& logicalOperator, const RewriteRuleRegistryArguments& registryArgument)
+{
+    const auto logicalOperatorName = logicalOperator.getName();
+    if (logicalOperatorName == "Join")
+    {
+        const auto traitSet = logicalOperator.getTraitSet();
+        const auto implementationTraitOpt = getTrait<ImplementationTypeTrait>(traitSet);
+        PRECONDITION(implementationTraitOpt.has_value(), "Join operator must have an implementation type trait");
+        switch (const auto& implementationTrait = implementationTraitOpt.value(); implementationTrait.implementationType)
+        {
+            case JoinImplementation::HASH_JOIN: {
+                if (auto ruleOptional = RewriteRuleRegistry::instance().create(std::string("HashJoin"), registryArgument))
+                {
+                    return std::move(ruleOptional.value());
+                }
+                throw UnknownOptimizerRule("Rewrite rule for logical operator '{}' can't be resolved", logicalOperator.getName());
+            }
+            case JoinImplementation::NESTED_LOOP_JOIN: {
+                if (auto ruleOptional = RewriteRuleRegistry::instance().create(std::string("NLJoin"), registryArgument))
+                {
+                    return std::move(ruleOptional.value());
+                }
+                throw UnknownOptimizerRule("Rewrite rule for logical operator '{}' can't be resolved", logicalOperator.getName());
+            }
+            case JoinImplementation::CHOICELESS: {
+                throw UnknownOptimizerRule("ImplementationTrait cannot be choiceless for join", logicalOperator.getName());
+            }
+        }
+    }
+    if (auto ruleOptional = RewriteRuleRegistry::instance().create(std::string(logicalOperatorName), registryArgument))
+    {
+        return std::move(ruleOptional.value());
+    }
+    throw UnknownOptimizerRule("Rewrite rule for logical operator '{}' can't be resolved", logicalOperator.getName());
+}
+}
+
+RewriteRuleResultSubgraph::SubGraphRoot
 lowerOperatorRecursively(const LogicalOperator& logicalOperator, const RewriteRuleRegistryArguments& registryArgument)
 {
     /// Try to resolve rewrite rule for the current logical operator
-    const auto rule = [](const LogicalOperator& logicalOperator, const RewriteRuleRegistryArguments& registryArgument)
-    {
-        if (auto ruleOptional = RewriteRuleRegistry::instance().create(std::string(logicalOperator.getName()), registryArgument))
-        {
-            return std::move(ruleOptional.value());
-        }
-        throw UnknownOptimizerRule("Rewrite rule for logical operator '{}' can't be resolved", logicalOperator.getName());
-    }(logicalOperator, registryArgument);
+    const auto rule = resolveRewriteRule(logicalOperator, registryArgument);
+
     /// We apply the rule and receive a subgraph
     const auto [root, leafs] = rule->apply(logicalOperator);
     INVARIANT(
@@ -84,12 +123,12 @@ lowerOperatorRecursively(const LogicalOperator& logicalOperator, const RewriteRu
     return root;
 }
 
-PhysicalPlan apply(const LogicalPlan& queryPlan, const NES::Configurations::QueryOptimizerConfiguration& conf) /// NOLINT
+PhysicalPlan apply(const LogicalPlan& queryPlan, const QueryExecutionConfiguration& conf) /// NOLINT
 {
     const auto registryArgument = RewriteRuleRegistryArguments{conf};
     std::vector<std::shared_ptr<PhysicalOperatorWrapper>> newRootOperators;
-    newRootOperators.reserve(queryPlan.rootOperators.size());
-    for (const auto& logicalRoot : queryPlan.rootOperators)
+    newRootOperators.reserve(queryPlan.getRootOperators().size());
+    for (const auto& logicalRoot : queryPlan.getRootOperators())
     {
         newRootOperators.push_back(lowerOperatorRecursively(logicalRoot, registryArgument));
     }

@@ -124,7 +124,6 @@ AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGenerated
     NES_FATAL_ERROR(
         "TemporalSequenceAggregationLogicalFunction requires lon, lat, timestamp, and alias fields but got {}",
         arguments.fields.size());
-    return {};
 }
 
 } // namespace NES

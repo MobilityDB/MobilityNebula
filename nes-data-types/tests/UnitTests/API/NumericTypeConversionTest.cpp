@@ -21,6 +21,7 @@
 #include <gtest/gtest.h>
 #include <magic_enum/magic_enum.hpp>
 #include <BaseUnitTest.hpp>
+
 namespace NES
 {
 
@@ -41,7 +42,6 @@ public:
         NES_INFO("NumericTypeConversionTest test class SetUpTestCase.");
     }
 };
-
 
 TEST_P(NumericTypeConversionTest, SimpleTest)
 {
@@ -132,7 +132,7 @@ INSTANTIATE_TEST_CASE_P(
             DataType::Type::FLOAT64, DataType::Type::FLOAT32, DataTypeProvider::provideDataType(DataType::Type::FLOAT64)},
         TypeConversionTestInput{
             DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataTypeProvider::provideDataType(DataType::Type::FLOAT64)}),
-    [](const testing::TestParamInfo<NES::NumericTypeConversionTest::ParamType>& info)
+    [](const testing::TestParamInfo<NumericTypeConversionTest::ParamType>& info)
     {
         return fmt::format(
             "{}_{}_{}",

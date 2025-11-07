@@ -26,7 +26,6 @@ namespace NES
 struct RunningQueryPlan;
 struct RunningQueryPlanNode;
 
-
 /// The Running Source is a wrapper around the SourceHandle. The Lifecycle of the RunningSource controls start/stop of the source handle.
 /// The purpose of the running source is to create the emit function which and redirects external events towards the task queue, where one of
 /// the WorkerThreads can handle them. We cannot allow that the SourceThread causes the RunningSource to be destroyed, which would cause a
@@ -42,7 +41,7 @@ public:
     /// UnRegistering a source should not block, but it may not succeed (immediately), the tryUnregister
     static std::shared_ptr<RunningSource> create(
         QueryId queryId,
-        std::unique_ptr<Sources::SourceHandle> source,
+        std::unique_ptr<SourceHandle> source,
         std::vector<std::shared_ptr<RunningQueryPlanNode>> successors,
         std::function<bool(std::vector<std::shared_ptr<RunningQueryPlanNode>>&&)> tryUnregister,
         std::function<void(Exception)> unregisterWithError,
@@ -61,17 +60,17 @@ public:
     void fail(Exception exception) const;
 
     /// Calls the underlying `tryStop`
-    [[nodiscard]] Sources::SourceReturnType::TryStopResult tryStop() const;
+    [[nodiscard]] SourceReturnType::TryStopResult tryStop() const;
 
 private:
     RunningSource(
         std::vector<std::shared_ptr<RunningQueryPlanNode>> successors,
-        std::unique_ptr<Sources::SourceHandle> source,
+        std::unique_ptr<SourceHandle> source,
         std::function<bool(std::vector<std::shared_ptr<RunningQueryPlanNode>>&&)> tryUnregister,
         std::function<void(Exception)> unregisterWithError);
 
     std::vector<std::shared_ptr<RunningQueryPlanNode>> successors;
-    std::unique_ptr<Sources::SourceHandle> source;
+    std::unique_ptr<SourceHandle> source;
     std::function<bool(std::vector<std::shared_ptr<RunningQueryPlanNode>>&&)> tryUnregister;
     std::function<void(Exception)> unregisterWithError;
 };

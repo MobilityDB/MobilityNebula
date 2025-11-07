@@ -12,6 +12,7 @@
     limitations under the License.
 */
 
+#include <chrono>
 #include <concepts>
 #include <condition_variable>
 #include <cstddef>
@@ -49,13 +50,14 @@ namespace stdv = std::ranges::views;
 namespace NES::Testing
 {
 using namespace NES;
+
 class QueryPlanTest : public BaseUnitTest
 {
 public:
     /* Will be called before any test in this class are executed. */
     static void SetUpTestSuite()
     {
-        NES::Logger::setupLogging("QueryPlanTest.log", NES::LogLevel::LOG_DEBUG);
+        Logger::setupLogging("QueryPlanTest.log", LogLevel::LOG_DEBUG);
         NES_DEBUG("Setup QueryPlanTest test class.");
     }
 
@@ -107,7 +109,6 @@ private:
     ExecutablePipelineStage* stage;
 };
 
-
 class DataSourceMatcher
 {
 public:
@@ -132,28 +133,26 @@ private:
     OriginId source;
 };
 
-
 template <typename R, typename T>
 concept RangeOf = std::ranges::range<R> && std::same_as<std::ranges::range_value_t<R>, T>;
 
 struct TestPipelineExecutionContext : PipelineExecutionContext
 {
+    MOCK_METHOD(void, repeatTask, (const TupleBuffer&, std::chrono::milliseconds), (override));
     MOCK_METHOD(WorkerThreadId, getId, (), (const, override));
-    MOCK_METHOD(Memory::TupleBuffer, allocateTupleBuffer, (), (override));
+    MOCK_METHOD(TupleBuffer, allocateTupleBuffer, (), (override));
     MOCK_METHOD(uint64_t, getNumberOfWorkerThreads, (), (const, override));
-    MOCK_METHOD(std::shared_ptr<Memory::AbstractBufferProvider>, getBufferManager, (), (const, override));
+    MOCK_METHOD(std::shared_ptr<AbstractBufferProvider>, getBufferManager, (), (const, override));
     MOCK_METHOD(PipelineId, getPipelineId, (), (const, override));
     MOCK_METHOD((std::unordered_map<OperatorHandlerId, std::shared_ptr<OperatorHandler>>&), getOperatorHandlers, (), (override));
     MOCK_METHOD(void, setOperatorHandlers, ((std::unordered_map<OperatorHandlerId, std::shared_ptr<OperatorHandler>>&)), (override));
-    MOCK_METHOD(bool, emitBuffer, (const Memory::TupleBuffer&, ContinuationPolicy), (override));
-    MOCK_METHOD(void, setIngressCreationTimestamp, (NES::Timestamp), (override));
+    MOCK_METHOD(bool, emitBuffer, (const TupleBuffer&, ContinuationPolicy), (override));
 };
 
 struct TerminatePipelineArgs
 {
     std::unique_ptr<RunningQueryPlanNode> target;
-    BaseTask::onComplete onComplete;
-    BaseTask::onFailure onFailure;
+    TaskCallback callback;
 };
 
 template <typename Args, typename KeyT>
@@ -259,9 +258,9 @@ std::unique_ptr<Terminations> Terminations::setup(const RangeOf<ExecutablePipeli
     auto terminations = std::make_unique<Terminations>();
     for (auto* stage : stages)
     {
-        EXPECT_CALL(emitter, emitPipelineStop(::testing::_, UniquePtrStageMatcher(stage), ::testing::_, ::testing::_))
-            .WillOnce(::testing::Invoke([&terminations, stage](auto, auto termination, auto complete, auto fail)
-                                        { terminations->add(stage, std::move(termination), std::move(complete), std::move(fail)); }));
+        EXPECT_CALL(emitter, emitPipelineStop(::testing::_, UniquePtrStageMatcher(stage), ::testing::_))
+            .WillOnce(::testing::Invoke([&terminations, stage](auto, auto termination, auto callback)
+                                        { terminations->add(stage, std::move(termination), std::move(callback)); }));
     }
 
     return terminations;
@@ -275,24 +274,24 @@ template <>
     try
     {
         args.target->stage->stop(pec);
-        args.onComplete();
+        args.callback.callOnSuccess();
     }
     catch (const Exception& e)
     {
-        args.onFailure(e);
+        args.callback.callOnFailure(e);
     }
-
+    args.callback.callOnComplete();
     return ::testing::AssertionSuccess();
 }
 
 struct SetupPipelineArgs
 {
     std::weak_ptr<RunningQueryPlanNode> target;
-    BaseTask::onComplete onComplete;
-    BaseTask::onFailure onFailure;
+    TaskCallback callback;
 };
 
 using Setups = EmittedTask<SetupPipelineArgs, ExecutablePipelineStage*>;
+
 template <>
 template <typename... TArgs>
 std::unique_ptr<Setups> Setups::setup(const RangeOf<ExecutablePipelineStage*> auto& stages, TArgs&&... args)
@@ -301,9 +300,9 @@ std::unique_ptr<Setups> Setups::setup(const RangeOf<ExecutablePipelineStage*> au
     auto& emitter = std::get<0>(std::forward_as_tuple<TArgs>(args)...);
     for (auto* stage : stages)
     {
-        EXPECT_CALL(emitter, emitPipelineStart(::testing::_, StageMatcher(stage), ::testing::_, ::testing::_))
-            .WillOnce(::testing::Invoke([&setups, stage](auto, auto setup, auto complete, auto fail)
-                                        { setups->add(stage, std::move(setup), std::move(complete), std::move(fail)); }));
+        EXPECT_CALL(emitter, emitPipelineStart(::testing::_, StageMatcher(stage), ::testing::_))
+            .WillOnce(::testing::Invoke([&setups, stage](auto, const auto& setup, auto callback)
+                                        { setups->add(stage, std::move(setup), std::move(callback)); }));
     }
 
     return setups;
@@ -319,14 +318,14 @@ template <>
         if (auto strongRef = args.target.lock())
         {
             strongRef->stage->start(pec);
-            args.onComplete();
+            args.callback.callOnSuccess();
         }
     }
     catch (const Exception& e)
     {
-        args.onFailure(e);
+        args.callback.callOnFailure(e);
     }
-
+    args.callback.callOnComplete();
     return ::testing::AssertionSuccess();
 }
 
@@ -352,6 +351,7 @@ std::unique_ptr<SourceStops> SourceStops::setup(const RangeOf<OriginId> auto& or
 
     return setups;
 }
+
 template <>
 ::testing::AssertionResult SourceStops::executeEmittedTask(SourceStopArgs&& stops)
 {
@@ -519,7 +519,7 @@ TEST_F(QueryPlanTest, RunningQueryPlanTestInitialPipelineSetup)
 
     {
         auto runningQueryPlan = RunningQueryPlan::start(QueryId(0), std::move(queryPlan), controller, emitter, listener);
-        setups->waitForTasks(2);
+        EXPECT_TRUE(setups->waitForTasks(2));
         EXPECT_FALSE(srcCtrl->waitUntilOpened());
     }
 
@@ -572,7 +572,7 @@ TEST_F(QueryPlanTest, RunningQueryPlanTestSourceSetup)
 
         EXPECT_TRUE(srcCtrl->waitUntilOpened());
         EXPECT_FALSE(srcCtrl->waitUntilClosed());
-        stopping = dropRef(RunningQueryPlan::stop(std::move(runningQueryPlan)));
+        stopping = RunningQueryPlan::stop(std::move(runningQueryPlan));
     }
 
     EXPECT_TRUE(terminations->handle(test.stages.at(pipeline)));
@@ -614,7 +614,7 @@ TEST_F(QueryPlanTest, RunningQueryPlanTestPartialConstruction)
         EXPECT_TRUE(setups->waitForTasks(3));
         /// Only setup the pipeline1 pipeline
         EXPECT_TRUE(setups->handle(test.stages[pipeline1]));
-        stopping = dropRef(RunningQueryPlan::stop(std::move(runningQueryPlan)));
+        stopping = RunningQueryPlan::stop(std::move(runningQueryPlan));
     }
 
     EXPECT_TRUE(terminations->handle(test.stages[pipeline1]));
@@ -711,7 +711,6 @@ TEST_F(QueryPlanTest, RefCountTestMultipleSourceOneOfThemEoS)
     }
 }
 
-
 TEST_F(QueryPlanTest, DisposingQueryPlanWhileSourceIsAboutToBeTerminated)
 {
     TestingHarness test;
@@ -745,7 +744,6 @@ TEST_F(QueryPlanTest, DisposingQueryPlanWhileSourceIsAboutToBeTerminated)
     EXPECT_TRUE(srcCtrl->waitUntilDestroyed());
     EXPECT_TRUE(srcCtrl->wasClosed());
 }
-
 
 TEST_F(QueryPlanTest, DestroyingQueryPlanWhileSourceIsAboutToBeTerminated)
 {

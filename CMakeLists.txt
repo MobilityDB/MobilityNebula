@@ -27,7 +27,7 @@ option(NES_ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers (might improve
 option(NES_ENABLE_EXPERIMENTAL_EXECUTION_MLIR "Enables the MLIR backend." ON)
 option(NES_LOG_WITH_STACKTRACE "Log exceptions with stacktrace" ON)
 option(ENABLE_LARGE_TESTS "Runs testcases with larger input data" OFF)
-option(CMAKE_NES_DEBUG_TUPLE_BUFFER_LEAKS "Heavyweight instrumentation for Tuplebuffer debugging" OFF)
+option(NES_DEBUG_TUPLE_BUFFER_LEAKS "Heavyweight instrumentation for Tuplebuffer debugging" OFF)
 
 
 if (CMAKE_BUILD_TYPE STREQUAL "Benchmark")
@@ -83,7 +83,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
 
 # Set NES Flags
 set(NES_SPECIFIC_FLAGS)
-if (CMAKE_NES_DEBUG_TUPLE_BUFFER_LEAKS)
+if (NES_DEBUG_TUPLE_BUFFER_LEAKS)
     set(NES_SPECIFIC_FLAGS "${NES_SPECIFIC_FLAGS} -DNES_DEBUG_TUPLE_BUFFER_LEAKS=1")
 endif ()
 
@@ -96,7 +96,7 @@ endif ()
 set_nes_log_level_value(NES_LOGGING_VALUE)
 
 # Set Optimization Flags
-set(NES_WARNINGS "-Wall -Wconstant-conversion -Wbitwise-instead-of-logical -Wextra -pedantic -Wno-null-character -Wno-dollar-in-identifier-extension -Werror=extra -Werror=exceptions -Werror=all -Werror=integer-overflow -Werror=return-type -Werror=return-stack-address -Werror=delete-non-virtual-dtor -Werror=deprecated -Werror=writable-strings -Werror=array-bounds -Werror=ignored-qualifiers -Werror=sign-compare -Wno-deprecated-copy-with-dtor -Wno-unused-variable -Wno-unused-but-set-variable -Wno-deprecated-declarations -Wno-invalid-offsetof ")
+set(NES_WARNINGS "-Wall -Wconstant-conversion -Wbitwise-instead-of-logical -Wextra -pedantic -Wno-null-character -Wno-dollar-in-identifier-extension -Werror=extra -Werror=exceptions -Werror=all -Werror=integer-overflow -Werror=return-type -Werror=return-stack-address -Werror=delete-non-virtual-dtor -Werror=deprecated -Werror=writable-strings -Werror=array-bounds -Werror=ignored-qualifiers -Werror=sign-compare -Wno-deprecated-copy-with-dtor -Wno-unused-variable -Wno-unused-but-set-variable -Wno-deprecated-declarations -Wno-invalid-offsetof -Wno-nullability-extension")
 set(CMAKE_CXX_FLAGS "${NES_WARNINGS} -fno-omit-frame-pointer ${NES_SPECIFIC_FLAGS}")
 
 # setup rpath for linker
@@ -124,7 +124,6 @@ if (ENABLE_IWYU)
         message(WARNING "IWYU is enabled but not found! You will not get any suggestions")
     endif ()
 endif ()
-
 
 # Native/Generic march support
 if (NES_BUILD_NATIVE)

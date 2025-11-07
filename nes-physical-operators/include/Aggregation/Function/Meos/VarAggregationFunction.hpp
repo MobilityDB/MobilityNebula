@@ -37,7 +37,7 @@ public:
         DataType countType);
     void lift(
         const nautilus::val<AggregationState*>& aggregationState,
-        ExecutionContext& executionContext,
+        PipelineMemoryProvider& pipelineMemoryProvider,
         const Nautilus::Record& record) override;
     void combine(
         nautilus::val<AggregationState*> aggregationState1,

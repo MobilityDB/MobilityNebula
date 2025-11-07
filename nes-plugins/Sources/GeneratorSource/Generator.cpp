@@ -21,12 +21,14 @@
 #include <utility>
 #include <variant>
 #include <vector>
+
 #include <Util/Logger/Logger.hpp>
 #include <Util/Overloaded.hpp>
+#include <Util/Strings.hpp>
 #include <ErrorHandling.hpp>
 #include <GeneratorFields.hpp>
 
-namespace NES::Sources
+namespace NES
 {
 
 void Generator::generateTuple(std::ostream& ostream)
@@ -47,10 +49,10 @@ void Generator::generateTuple(std::ostream& ostream)
     std::visit(generateField, *this->fields.front());
     for (auto& field : this->fields | std::views::drop(1))
     {
-        ostream << NES::Sources::Generator::fieldDelimiter;
+        ostream << Generator::fieldDelimiter;
         std::visit(generateField, *field);
     }
-    ostream << NES::Sources::Generator::tupleDelimiter;
+    ostream << Generator::tupleDelimiter;
 }
 
 void Generator::addField(std::unique_ptr<GeneratorFields::GeneratorFieldType> field)
@@ -67,6 +69,7 @@ void Generator::addField(std::unique_ptr<GeneratorFields::GeneratorFieldType> fi
     this->numFields++;
     this->fields.emplace_back(std::move(field));
 }
+
 /// TODO #355: Parse from YAML Nodes instead of a string
 void Generator::parseRawSchemaLine(std::string_view line)
 {
@@ -82,8 +85,7 @@ void Generator::parseRawSchemaLine(std::string_view line)
     }
     else
     {
-        NES_FATAL_ERROR("Invalid line, {} is not a recognized generatorType: {}", firstWord, line);
-        throw NES::InvalidConfigParameter("Invalid line, {} is not a recognized generatorType: {}", firstWord, line);
+        throw InvalidConfigParameter("Invalid line, {} is not a recognized generatorType: {}", firstWord, line);
     }
 }
 
@@ -91,26 +93,27 @@ void Generator::parseRawSchemaLine(std::string_view line)
 void Generator::parseSchema(const std::string_view rawSchema)
 {
     PRECONDITION(!rawSchema.empty(), "Cannot parse a schema from an empty string!");
-    auto view = rawSchema | std::ranges::views::split('\n')
-        | std::views::transform([](const auto& subView) { return std::string_view(subView); })
-        | std::views::filter([](const auto& subView) { return !subView.empty(); });
-    for (const std::vector lines(view.begin(), view.end()); const auto line : lines)
+
+    for (const auto schemaLine = Util::splitOnMultipleDelimiters(rawSchema, {'\n', ','}); const auto& field : schemaLine)
     {
-        parseRawSchemaLine(line);
+        parseRawSchemaLine(Util::trimWhiteSpaces(std::string_view(field)));
     }
 }
 
 bool Generator::shouldStop() const
 {
-    if (this->sequenceStopsGenerator == GeneratorStop::ALL)
+    switch (this->sequenceStopsGenerator)
     {
-        return this->numStoppableFields == this->numStoppedFields;
+        case GeneratorStop::ALL: {
+            return this->numStoppableFields == this->numStoppedFields;
+        }
+        case GeneratorStop::ONE: {
+            return this->numStoppedFields >= 1;
+        }
+        default: {
+            return false;
+        }
     }
-    if (this->sequenceStopsGenerator == GeneratorStop::ONE)
-    {
-        return this->numStoppedFields >= 1;
-    }
-    return false;
 }
 
 }

@@ -13,25 +13,32 @@
 */
 
 #pragma once
-#include <memory>
+#include <concepts>
 #include <ostream>
 #include <ranges>
+#include <sstream>
+#include <string>
+#include <utility>
 #include <DataTypes/Schema.hpp>
 #include <Runtime/TupleBuffer.hpp>
+#include <fmt/base.h>
+#include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <magic_enum/magic_enum.hpp>
+#include <ErrorHandling.hpp>
 
-namespace NES::Sinks
+namespace NES
 {
 
 class Format
 {
 public:
-    explicit Format(Schema schema) : schema(std::move(schema)) { }
+    explicit Format(const Schema& schema) : schema(schema) { }
+
     virtual ~Format() noexcept = default;
 
     /// Returns the schema of formatted according to the specific SinkFormat represented as string.
-    std::string getFormattedSchema() const
+    [[nodiscard]] std::string getFormattedSchema() const
     {
         PRECONDITION(schema.hasFields(), "Encountered schema without fields.");
         std::stringstream ss;
@@ -43,11 +50,11 @@ public:
         return fmt::format("{}\n", ss.str());
     }
 
-
     /// Return formatted content of TupleBuffer, contains timestamp if specified in config.
-    virtual std::string getFormattedBuffer(const Memory::TupleBuffer& inputBuffer) const = 0;
+    [[nodiscard]] virtual std::string getFormattedBuffer(const TupleBuffer& inputBuffer) const = 0;
 
     virtual std::ostream& toString(std::ostream&) const = 0;
+
     friend std::ostream& operator<<(std::ostream& os, const Format& obj) { return obj.toString(os); }
 
 protected:
@@ -56,7 +63,7 @@ protected:
 
 }
 
-template <std::derived_from<NES::Sinks::Format> Format>
+template <std::derived_from<NES::Format> Format>
 struct fmt::formatter<Format> : fmt::ostream_formatter
 {
 };

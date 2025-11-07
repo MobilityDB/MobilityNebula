@@ -15,34 +15,27 @@
 #include <YAML/YAMLBinder.hpp>
 
 #include <istream>
-#include <memory>
-#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include <Configurations/ConfigurationsNames.hpp>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
-#include <Identifiers/NESStrongType.hpp>
-#include <Operators/Sinks/SinkLogicalOperator.hpp>
+#include <DataTypes/Schema.hpp>
+#include <Plans/LogicalPlan.hpp>
 #include <SQLQueryParser/AntlrSQLQueryParser.hpp>
 #include <Sinks/SinkDescriptor.hpp>
 #include <Sources/LogicalSource.hpp>
 #include <Sources/SourceCatalog.hpp> /// NOLINT(misc-include-cleaner)
 #include <Sources/SourceDescriptor.hpp>
-#include <Sources/SourceValidationProvider.hpp>
 #include <Util/Logger/Logger.hpp>
-#include <Util/Strings.hpp>
-#include <fmt/ranges.h>
 #include <yaml-cpp/exceptions.h>
 #include <yaml-cpp/node/node.h>
 #include <yaml-cpp/node/parse.h>
 #include <yaml-cpp/yaml.h> /// NOLINT(misc-include-cleaner)
 #include <ErrorHandling.hpp>
-
 
 namespace
 {
@@ -72,6 +65,7 @@ struct convert<NES::CLI::SchemaField>
         return true;
     }
 };
+
 template <>
 struct convert<NES::CLI::Sink>
 {
@@ -79,10 +73,12 @@ struct convert<NES::CLI::Sink>
     {
         rhs.name = node["name"].as<std::string>();
         rhs.type = node["type"].as<std::string>();
+        rhs.schema = node["schema"].as<std::vector<NES::CLI::SchemaField>>();
         rhs.config = node["config"].as<std::unordered_map<std::string, std::string>>();
         return true;
     }
 };
+
 template <>
 struct convert<NES::CLI::LogicalSource>
 {
@@ -93,28 +89,16 @@ struct convert<NES::CLI::LogicalSource>
         return true;
     }
 };
+
 template <>
 struct convert<NES::CLI::PhysicalSource>
 {
     static bool decode(const Node& node, NES::CLI::PhysicalSource& rhs)
     {
         rhs.logical = node["logical"].as<std::string>();
-        rhs.parserConfig = node["parserConfig"].as<std::unordered_map<std::string, std::string>>();
-        rhs.sourceConfig = node["sourceConfig"].as<std::unordered_map<std::string, std::string>>();
-        return true;
-    }
-};
-
-template <>
-struct convert<NES::CLI::Model>
-{
-    static bool decode(const Node& node, NES::CLI::Model& rhs)
-    {
-        rhs.name = node["name"].as<std::string>();
-        rhs.inputs
-            = node["inputs"].as<std::vector<std::string>>() | std::views::transform(stringToFieldType) | std::ranges::to<std::vector>();
-        rhs.outputs = node["outputs"].as<std::vector<NES::CLI::SchemaField>>();
-        rhs.path = node["path"].as<std::string>();
+        rhs.type = node["type"].as<std::string>();
+        rhs.parserConfig = node["parser_config"].as<std::unordered_map<std::string, std::string>>();
+        rhs.sourceConfig = node["source_config"].as<std::unordered_map<std::string, std::string>>();
         return true;
     }
 };
@@ -124,31 +108,36 @@ struct convert<NES::CLI::QueryConfig>
 {
     static bool decode(const Node& node, NES::CLI::QueryConfig& rhs)
     {
-        const auto sink = node["sink"].as<NES::CLI::Sink>();
-        rhs.sinks.emplace(sink.name, sink);
+        rhs.sinks = node["sinks"].as<std::vector<NES::CLI::Sink>>();
         rhs.logical = node["logical"].as<std::vector<NES::CLI::LogicalSource>>();
         rhs.physical = node["physical"].as<std::vector<NES::CLI::PhysicalSource>>();
         rhs.query = node["query"].as<std::string>();
-        if (node["models"].IsDefined())
-        {
-            rhs.models = node["models"].as<std::vector<NES::CLI::Model>>();
-        }
         return true;
     }
 };
-
 }
 
 namespace NES::CLI
 {
 
 
-SchemaField::SchemaField(std::string name, const std::string& typeName) : SchemaField(std::move(name), stringToFieldType(typeName))
+CLI::SchemaField::SchemaField(std::string name, const std::string& typeName) : SchemaField(std::move(name), stringToFieldType(typeName))
 {
 }
 
-SchemaField::SchemaField(std::string name, DataType type) : name(std::move(name)), type(std::move(type))
+CLI::SchemaField::SchemaField(std::string name, DataType type) : name(std::move(name)), type(std::move(type))
 {
+}
+
+/// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+Schema YAMLBinder::bindSchema(const std::vector<SchemaField>& attributeFields) const
+{
+    auto schema = Schema{Schema::MemoryLayoutType::ROW_LAYOUT};
+    for (const auto& [name, type] : attributeFields)
+    {
+        schema.addField(name, type);
+    }
+    return schema;
 }
 
 std::vector<NES::LogicalSource> YAMLBinder::bindRegisterLogicalSources(const std::vector<LogicalSource>& unboundSources)
@@ -157,12 +146,8 @@ std::vector<NES::LogicalSource> YAMLBinder::bindRegisterLogicalSources(const std
     /// Add logical sources to the SourceCatalog to prepare adding physical sources to each logical source.
     for (const auto& [logicalSourceName, schemaFields] : unboundSources)
     {
-        auto schema = Schema{Schema::MemoryLayoutType::ROW_LAYOUT};
+        auto schema = bindSchema(schemaFields);
         NES_INFO("Adding logical source: {}", logicalSourceName);
-        for (const auto& [name, type] : schemaFields)
-        {
-            schema.addField(name, type);
-        }
         if (const auto registeredSource = sourceCatalog->addLogicalSource(logicalSourceName, schema); registeredSource.has_value())
         {
             boundSources.push_back(registeredSource.value());
@@ -175,106 +160,54 @@ std::vector<NES::LogicalSource> YAMLBinder::bindRegisterLogicalSources(const std
     return boundSources;
 }
 
-std::vector<SourceDescriptor> YAMLBinder::bindRegisterPhysicalSources(const std::vector<PhysicalSource>& unboundSources)
+std::vector<SourceDescriptor> CLI::YAMLBinder::bindRegisterPhysicalSources(const std::vector<PhysicalSource>& unboundSources)
 {
     std::vector<SourceDescriptor> boundSources{};
     /// Add physical sources to corresponding logical sources.
-    for (auto [logicalSourceName, parserConfig, sourceConfig] : unboundSources)
+    for (auto [logicalSourceName, sourceType, parserConfig, sourceConfig] : unboundSources)
     {
         auto logicalSource = sourceCatalog->getLogicalSource(logicalSourceName);
         if (not logicalSource.has_value())
         {
-            throw UnknownSource("{}", logicalSourceName);
+            throw UnknownSourceName("{}", logicalSourceName);
         }
-        PRECONDITION(
-            sourceConfig.contains(std::string{Configurations::SOURCE_TYPE_CONFIG}),
-            "Missing `Configurations::SOURCE_TYPE_CONFIG` in source configuration");
-        auto sourceType = sourceConfig.at(std::string{Configurations::SOURCE_TYPE_CONFIG});
         NES_DEBUG("Source type is: {}", sourceType);
 
-        auto buffersInLocalPool = SourceDescriptor::INVALID_NUMBER_OF_BUFFERS_IN_LOCAL_POOL;
-
-        if (const auto configuredNumSourceLocalBuffers = sourceConfig.find(std::string{Configurations::NUMBER_OF_BUFFERS_IN_LOCAL_POOL});
-            configuredNumSourceLocalBuffers != sourceConfig.end())
-        {
-            if (const auto customBuffersInLocalPool = Util::from_chars<int>(configuredNumSourceLocalBuffers->second))
-            {
-                buffersInLocalPool = customBuffersInLocalPool.value();
-            }
-        }
-        const auto validInputFormatterConfig = ParserConfig::create(parserConfig);
-        auto validSourceConfig = Sources::SourceValidationProvider::provide(sourceType, std::move(sourceConfig));
-        const auto sourceDescriptorOpt = sourceCatalog->addPhysicalSource(
-            logicalSource.value(),
-            INITIAL<WorkerId>,
-            sourceType,
-            buffersInLocalPool,
-            std::move(validSourceConfig),
-            validInputFormatterConfig);
+        const auto sourceDescriptorOpt = sourceCatalog->addPhysicalSource(logicalSource.value(), sourceType, sourceConfig, parserConfig);
         if (not sourceDescriptorOpt.has_value())
         {
-            throw UnknownSource("{}", logicalSource.value().getLogicalSourceName());
+            throw UnknownSourceName("{}", logicalSource.value().getLogicalSourceName());
         }
         boundSources.push_back(sourceDescriptorOpt.value());
     }
     return boundSources;
 }
 
-std::vector<Nebuli::Inference::ModelDescriptor> YAMLBinder::bindRegisterModels(const std::vector<Model>& unboundModels)
+std::vector<SinkDescriptor> CLI::YAMLBinder::bindRegisterSinks(const std::vector<Sink>& unboundSinks)
 {
-    auto boundModels = unboundModels
-        | std::views::transform(
-                           [](const auto& model)
-                           {
-                               Schema schema{};
-                               for (auto [name, type] : model.outputs)
-                               {
-                                   schema.addField(name, type);
-                               }
-                               return Nebuli::Inference::ModelDescriptor{model.name, model.path, model.inputs, schema};
-                           })
-        | std::ranges::to<std::vector>();
-    std::ranges::for_each(boundModels, [&](const auto& model) { modelCatalog->registerModel(model); });
-    return boundModels;
+    std::vector<SinkDescriptor> boundSinks{};
+    for (const auto& [sinkName, schemaFields, sinkType, sinkConfig] : unboundSinks)
+    {
+        auto schema = bindSchema(schemaFields);
+        NES_DEBUG("Adding sink: {} of type {}", sinkName, sinkType);
+        if (auto sinkDescriptor = sinkCatalog->addSinkDescriptor(sinkName, schema, sinkType, sinkConfig); sinkDescriptor.has_value())
+        {
+            boundSinks.push_back(sinkDescriptor.value());
+        }
+    }
+    return boundSinks;
 }
 
-BoundQueryConfig YAMLBinder::parseAndBind(std::istream& inputStream)
+LogicalPlan CLI::YAMLBinder::parseAndBind(std::istream& inputStream)
 {
-    BoundQueryConfig config{};
-    auto& [plan, sinks, logicalSources, physicalSources, models] = config;
     try
     {
-        auto [queryString, unboundSinks, unboundLogicalSources, unboundPhysicalSources, unboundModels]
-            = YAML::Load(inputStream).as<QueryConfig>();
-        plan = AntlrSQLQueryParser::createLogicalQueryPlanFromSQLString(queryString);
-        const auto sinkOperators = plan.rootOperators;
-        if (sinkOperators.size() != 1)
-        {
-            throw QueryInvalid(
-                "NebulaStream currently only supports a single sink per query, but the query contains: {}", sinkOperators.size());
-        }
-        auto sinkOperator = sinkOperators.at(0).tryGet<SinkLogicalOperator>();
-        INVARIANT(sinkOperator.has_value(), "Root operator in plan was not sink");
-
-        if (const auto foundSink = unboundSinks.find(sinkOperator->sinkName); foundSink != unboundSinks.end())
-        {
-            auto validatedSinkConfig = Sinks::SinkDescriptor::validateAndFormatConfig(foundSink->second.type, foundSink->second.config);
-            auto sinkDescriptor = std::make_shared<Sinks::SinkDescriptor>(foundSink->second.type, std::move(validatedSinkConfig), false);
-            sinkOperator->sinkDescriptor = sinkDescriptor;
-            sinks = std::unordered_map{std::make_pair(foundSink->second.name, sinkDescriptor)};
-        }
-        else
-        {
-            throw UnknownSinkType(
-                "Sinkname {} not specified in the configuration {}",
-                sinkOperator->sinkName,
-                fmt::join(std::ranges::views::keys(sinks), ","));
-        }
-        plan.rootOperators.at(0) = *sinkOperator;
-        logicalSources = bindRegisterLogicalSources(unboundLogicalSources);
-        physicalSources = bindRegisterPhysicalSources(unboundPhysicalSources);
-        models = bindRegisterModels(unboundModels);
-        return config;
+        auto [queryString, unboundSinks, unboundLogicalSources, unboundPhysicalSources] = YAML::Load(inputStream).as<QueryConfig>();
+        bindRegisterLogicalSources(unboundLogicalSources);
+        bindRegisterPhysicalSources(unboundPhysicalSources);
+        bindRegisterSinks(unboundSinks);
+        auto plan = AntlrSQLQueryParser::createLogicalQueryPlanFromSQLString(queryString);
+        return plan;
     }
     catch (const YAML::ParserException& pex)
     {

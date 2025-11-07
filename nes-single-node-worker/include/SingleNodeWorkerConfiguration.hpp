@@ -16,17 +16,16 @@
 #include <string>
 #include <Configuration/WorkerConfiguration.hpp>
 #include <Configurations/BaseConfiguration.hpp>
-#include <Configurations/PrintingVisitor.hpp>
 #include <Configurations/ScalarOption.hpp>
 
-namespace NES::Configuration
+namespace NES
 {
 
-class SingleNodeWorkerConfiguration final : public NES::Configurations::BaseConfiguration
+class SingleNodeWorkerConfiguration final : public BaseConfiguration
 {
 public:
     /// GRPC Server Address URI. By default, it binds to any address and listens on port 8080
-    NES::Configurations::StringOption grpcAddressUri
+    StringOption grpcAddressUri
         = {"grpc",
            "[::]:8080",
            R"(The address to try to bind to the server in URI form. If
@@ -35,13 +34,20 @@ please use IPv6 any, i.e., [::]:<port>, which also accepts IPv4
 connections.  Valid values include dns:///localhost:1234,
 192.168.1.1:31416, dns:///[::1]:27182, etc.)"};
 
+    /// Enable Google Event Trace logging (Chrome tracing format)
+    BoolOption enableGoogleEventTrace
+        = {"enable_google_eventTrace",
+           "false",
+           "Enable Google Event Trace logging that generates Chrome tracing compatible JSON files for performance analysis."};
+
 protected:
-    std::vector<BaseOption*> getOptions() override { return {&workerConfiguration, &grpcAddressUri}; }
+    std::vector<BaseOption*> getOptions() override { return {&workerConfiguration, &grpcAddressUri, &enableGoogleEventTrace}; }
+
     template <typename T>
     friend void generateHelp(std::ostream& ostream);
 
 public:
     SingleNodeWorkerConfiguration() = default;
-    NES::Configurations::WorkerConfiguration workerConfiguration = {"worker", "NodeEngine Configuration"};
+    WorkerConfiguration workerConfiguration = {"worker", "NodeEngine Configuration"};
 };
 }

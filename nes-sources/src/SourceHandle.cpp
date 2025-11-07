@@ -25,27 +25,30 @@
 #include <Sources/SourceReturnType.hpp>
 #include <SourceThread.hpp>
 
-namespace NES::Sources
+namespace NES
 {
 SourceHandle::SourceHandle(
     OriginId originId,
-    std::shared_ptr<NES::Memory::AbstractPoolProvider> bufferPool,
-    size_t numberOfBuffersInLocalPool,
+    SourceRuntimeConfiguration configuration,
+    std::shared_ptr<AbstractBufferProvider> bufferPool,
     std::unique_ptr<Source> sourceImplementation)
+    : configuration(std::move(configuration))
 {
-    this->sourceThread = std::make_unique<SourceThread>(
-        std::move(originId), std::move(bufferPool), numberOfBuffersInLocalPool, std::move(sourceImplementation));
+    this->sourceThread = std::make_unique<SourceThread>(std::move(originId), std::move(bufferPool), std::move(sourceImplementation));
 }
+
 SourceHandle::~SourceHandle() = default;
 
 bool SourceHandle::start(SourceReturnType::EmitFunction&& emitFunction) const
 {
     return this->sourceThread->start(std::move(emitFunction));
 }
+
 void SourceHandle::stop() const
 {
     this->sourceThread->stop();
 }
+
 SourceReturnType::TryStopResult SourceHandle::tryStop(const std::chrono::milliseconds timeout) const
 {
     return this->sourceThread->tryStop(timeout);

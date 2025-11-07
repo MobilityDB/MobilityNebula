@@ -20,7 +20,7 @@
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <DataTypes/DataType.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/Interface/MemoryProvider/TupleBufferMemoryProvider.hpp>
+#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <Util/Registry.hpp>
 
@@ -28,13 +28,14 @@ namespace NES
 {
 
 using AggregationPhysicalFunctionRegistryReturnType = std::shared_ptr<AggregationPhysicalFunction>;
+
 struct AggregationPhysicalFunctionRegistryArguments
 {
     DataType inputType;
     DataType resultType;
     PhysicalFunction inputFunction;
     Record::RecordFieldIdentifier resultFieldIdentifier;
-    std::optional<std::shared_ptr<Interface::MemoryProvider::TupleBufferMemoryProvider>> memProviderPagedVector;
+    std::optional<std::shared_ptr<Interface::BufferRef::TupleBufferRef>> bufferRefPagedVector;
 };
 
 class AggregationPhysicalFunctionRegistry : public BaseRegistry<
@@ -45,7 +46,6 @@ class AggregationPhysicalFunctionRegistry : public BaseRegistry<
 {
 };
 }
-
 
 #define INCLUDED_FROM_REGISTRY_AGGREGATION_PHYSICAL_FUNCTION
 #include <AggregationPhysicalFunctionGeneratedRegistrar.inc>

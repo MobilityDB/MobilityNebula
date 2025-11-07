@@ -31,6 +31,7 @@
 #include <Util/Logger/Formatter.hpp>
 #include <Util/PlanRenderer.hpp>
 #include <boost/core/demangle.hpp>
+#include <CompilationContext.hpp>
 #include <ErrorHandling.hpp>
 
 namespace NES
@@ -59,7 +60,7 @@ struct PhysicalOperatorConcept
     virtual void setChild(struct PhysicalOperator child) = 0;
 
     /// This is called once before the operator starts processing records.
-    virtual void setup(ExecutionContext& executionCtx) const;
+    virtual void setup(ExecutionContext& executionCtx, CompilationContext& compilationContext) const;
 
     /// Opens the operator for processing records.
     /// This is called before each batch of records is processed.
@@ -81,7 +82,7 @@ struct PhysicalOperatorConcept
 
 protected:
     /// Helper classes to propagate to the child
-    void setupChild(ExecutionContext& executionCtx) const;
+    void setupChild(ExecutionContext& executionCtx, CompilationContext& compilationContext) const;
     void openChild(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const;
     void closeChild(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const;
     void executeChild(ExecutionContext& executionCtx, Record& record) const;
@@ -115,9 +116,9 @@ struct PhysicalOperator
     PhysicalOperator& operator=(const PhysicalOperator& other);
 
     [[nodiscard]] std::optional<PhysicalOperator> getChild() const;
-    void setChild(PhysicalOperator child);
+    [[nodiscard]] PhysicalOperator withChild(PhysicalOperator child) const;
 
-    void setup(ExecutionContext& executionCtx) const;
+    void setup(ExecutionContext& executionCtx, CompilationContext& compilationContext) const;
     void open(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const;
     void close(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const;
     void terminate(ExecutionContext& executionCtx) const;
@@ -154,9 +155,18 @@ struct PhysicalOperator
     }
 
 private:
+    /// Constructs a PhysicalOperator from a concrete operator type.
+    /// @tparam T The type of the operator. Must satisfy IsPhysicalOperator concept.
+    /// @param op The operator to wrap.
+    template <IsPhysicalOperator T>
+    PhysicalOperator(std::shared_ptr<T> op) : self(std::move(op)) /// NOLINT
+    {
+    }
+
     struct Concept : PhysicalOperatorConcept
     {
         explicit Concept(OperatorId existingId) : PhysicalOperatorConcept(existingId) { }
+
         [[nodiscard]] virtual std::shared_ptr<Concept> clone() const = 0;
         [[nodiscard]] virtual std::string toString() const = 0;
     };
@@ -176,7 +186,10 @@ private:
 
         void setChild(PhysicalOperator child) override { data.setChild(child); }
 
-        void setup(ExecutionContext& executionCtx) const override { data.setup(executionCtx); }
+        void setup(ExecutionContext& executionCtx, CompilationContext& compilationContext) const override
+        {
+            data.setup(executionCtx, compilationContext);
+        }
 
         void open(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const override { data.open(executionCtx, recordBuffer); }
 
@@ -193,7 +206,7 @@ private:
         }
     };
 
-    std::shared_ptr<Concept> self;
+    std::shared_ptr<const Concept> self;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const PhysicalOperator& op)
@@ -259,4 +272,5 @@ private:
     PipelineLocation pipelineLocation;
 };
 }
+
 FMT_OSTREAM(NES::PhysicalOperator);

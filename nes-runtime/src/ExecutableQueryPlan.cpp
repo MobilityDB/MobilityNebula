@@ -60,37 +60,32 @@ std::ostream& operator<<(std::ostream& os, const ExecutableQueryPlan& instantiat
     return os;
 }
 
-
-std::unique_ptr<ExecutableQueryPlan> ExecutableQueryPlan::instantiate(
-    CompiledQueryPlan& compiledQueryPlan,
-    const std::shared_ptr<Memory::AbstractPoolProvider>& poolProvider,
-    int numberOfBuffersInSourceLocalPools)
+std::unique_ptr<ExecutableQueryPlan>
+ExecutableQueryPlan::instantiate(CompiledQueryPlan& compiledQueryPlan, const SourceProvider& sourceProvider)
 {
     std::vector<SourceWithSuccessor> instantiatedSources;
 
-    std::unordered_map<OriginId, std::vector<std::shared_ptr<ExecutablePipeline>>> instantiatedSinksWithSourcePredecessor;
-    PipelineId::Underlying pipelineIdGenerator = compiledQueryPlan.pipelines.size() + PipelineId::INITIAL;
+    std::unordered_map<OperatorId, std::vector<std::shared_ptr<ExecutablePipeline>>> instantiatedSinksWithSourcePredecessor;
 
-    for (auto& [descriptor, predecessors] : compiledQueryPlan.sinks)
+    for (auto& [pipelineId, descriptor, predecessors] : compiledQueryPlan.sinks)
     {
-        auto sink = ExecutablePipeline::create(PipelineId(pipelineIdGenerator++), Sinks::SinkProvider::lower(*descriptor), {});
+        auto sink = ExecutablePipeline::create(pipelineId, lower(descriptor), {});
         compiledQueryPlan.pipelines.push_back(sink);
         for (const auto& predecessor : predecessors)
         {
             std::visit(
                 Overloaded{
-                    [&](const OriginId& source) { instantiatedSinksWithSourcePredecessor[source].push_back(sink); },
+                    [&](const OperatorId& source) { instantiatedSinksWithSourcePredecessor[source].push_back(sink); },
                     [&](const std::weak_ptr<ExecutablePipeline>& pipeline) { pipeline.lock()->successors.push_back(sink); },
                 },
                 predecessor);
         }
     }
 
-    for (auto [id, descriptor, successors] : compiledQueryPlan.sources)
+    for (auto [originId, operatorId, descriptor, successors] : compiledQueryPlan.sources)
     {
-        std::ranges::copy(instantiatedSinksWithSourcePredecessor[id], std::back_inserter(successors));
-        instantiatedSources.emplace_back(
-            NES::Sources::SourceProvider::lower(id, descriptor, poolProvider, numberOfBuffersInSourceLocalPools), std::move(successors));
+        std::ranges::copy(instantiatedSinksWithSourcePredecessor[operatorId], std::back_inserter(successors));
+        instantiatedSources.emplace_back(sourceProvider.lower(originId, descriptor), std::move(successors));
     }
 
 

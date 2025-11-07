@@ -29,26 +29,27 @@
 #include <magic_enum/magic_enum.hpp>
 #include <BaseUnitTest.hpp>
 
-namespace NES::Memory::MemoryLayouts
+namespace NES
 {
 
 class DynamicMemoryLayoutTestParameterized : public Testing::BaseUnitTest, public testing::WithParamInterface<Schema::MemoryLayoutType>
 {
 public:
-    std::shared_ptr<Memory::BufferManager> bufferManager;
+    std::shared_ptr<BufferManager> bufferManager;
     Schema schema;
     std::unique_ptr<TestTupleBuffer> testBuffer;
     Schema::MemoryLayoutType memoryLayoutType = GetParam();
 
     static void SetUpTestCase()
     {
-        NES::Logger::setupLogging("DynamicMemoryLayoutTest.log", NES::LogLevel::LOG_DEBUG);
+        Logger::setupLogging("DynamicMemoryLayoutTest.log", LogLevel::LOG_DEBUG);
         NES_INFO("Setup DynamicMemoryLayoutTest test class.");
     }
+
     void SetUp() override
     {
         Testing::BaseUnitTest::SetUp();
-        bufferManager = Memory::BufferManager::create(4096, 10);
+        bufferManager = BufferManager::create(4096, 10);
 
         schema = Schema{Schema::MemoryLayoutType::ROW_LAYOUT}
                      .addField("t1", DataType::Type::UINT16)

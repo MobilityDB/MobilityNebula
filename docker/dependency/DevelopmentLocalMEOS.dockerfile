@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# The development image adds common development tools we use during development and the CI uses for the pre-build-check
+# Development image that installs MEOS from a local tarball in the build context
 ARG TAG=latest
 FROM nebulastream/nes-development-dependency:${TAG}
 
@@ -33,36 +33,11 @@ RUN git clone https://github.com/aras-p/ClangBuildAnalyzer.git \
     && rm -rf ClangBuildAnalyzer \
     && ClangBuildAnalyzer --version
 
-# Build and install MEOS (required by MEOS plugin)
-# Avoid git clone (which may require credentials in some environments). Prefer public tarballs.
-ARG MEOS_REF=""
-ARG MEOS_TARBALL_URL=""
+# Build and install MEOS from local tarball (required by MEOS plugin)
+# Place the tarball at docker/dependency/assets/meos.tar.gz before building.
+ADD docker/dependency/assets/meos.tar.gz /tmp/meos.tar.gz
 RUN set -eux; \
-    mkdir -p /tmp; cd /tmp; \
-    # Determine reference list to try
-    if [ -n "${MEOS_TARBALL_URL}" ]; then \
-      echo "Fetching MEOS from explicit URL: ${MEOS_TARBALL_URL}"; \
-      curl -LfsS -o meos.tar.gz "${MEOS_TARBALL_URL}" || { echo "Failed to download MEOS from MEOS_TARBALL_URL"; exit 1; }; \
-      fetched=1; \
-    else \
-      refs_to_try="${MEOS_REF}"; \
-      if [ -z "${refs_to_try}" ]; then refs_to_try="refs/heads/develop refs/heads/dev refs/heads/main refs/heads/master"; fi; \
-      fetched=0; \
-      for ref in $refs_to_try; do \
-        for base in "https://codeload.github.com/MobilityDB/MEOS/tar.gz" "https://github.com/MobilityDB/MEOS/archive"; do \
-          if [ "${base#*codeload}" != "${base}" ]; then \
-            url="$base/$ref"; \
-          else \
-            url="$base/$ref.tar.gz"; \
-          fi; \
-          echo "Attempting to fetch MEOS from: $url"; \
-          if curl -LfsS -o meos.tar.gz "$url"; then \
-            fetched=1; break 2; \
-          fi; \
-        done; \
-      done; \
-    fi; \
-    if [ "$fetched" -ne 1 ]; then echo "Failed to download MEOS source tarball"; exit 1; fi; \
+    cd /tmp; \
     tar -xzf meos.tar.gz; \
     meos_src=$(find . -maxdepth 1 -type d -name 'MEOS-*' | head -n 1); \
     cd "$meos_src"; \

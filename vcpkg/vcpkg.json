@@ -41,6 +41,8 @@
     "nautilus",
     "replxx",
     "spdlog",
-    "yaml-cpp"
+    "yaml-cpp",
+    { "name": "paho-mqtt" },
+    { "name": "paho-mqttpp3", "features": ["ssl"] }
   ]
 }

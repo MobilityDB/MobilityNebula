@@ -34,8 +34,7 @@ RUN git clone https://github.com/aras-p/ClangBuildAnalyzer.git \
     && ClangBuildAnalyzer --version
 
 # Build and install MEOS (required by MEOS plugin)
-ARG MEOS_REPO=https://github.com/MobilityDB/MEOS.git
-RUN git clone --depth 1 ${MEOS_REPO} /tmp/meos \
+RUN GIT_TERMINAL_PROMPT=0 git clone --depth 1 https://github.com/MobilityDB/MEOS.git /tmp/meos \
     && cd /tmp/meos \
     && if [ -f CMakeLists.txt ]; then \
          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \

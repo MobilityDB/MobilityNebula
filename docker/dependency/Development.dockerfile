@@ -12,7 +12,15 @@ RUN apt-get update -y && apt-get install -y \
         gdb \
         python3-venv \
         python3-bs4 \
-        openjdk-21-jre-headless
+        openjdk-21-jre-headless \
+        libgeos-dev \
+        libproj-dev \
+        libgsl-dev \
+        libjson-c-dev \
+        autoconf \
+        automake \
+        libtool \
+        pkg-config
 
 # The vcpkg port of antlr requires the jar to be available somewhere
 ADD --checksum=sha256:eae2dfa119a64327444672aff63e9ec35a20180dc5b8090b7a6ab85125df4d76 --chmod=744 \
@@ -24,6 +32,22 @@ RUN git clone https://github.com/aras-p/ClangBuildAnalyzer.git \
     && cmake --install ClangBuildAnalyzer/build \
     && rm -rf ClangBuildAnalyzer \
     && ClangBuildAnalyzer --version
+
+# Build and install MEOS (required by MEOS plugin)
+ARG MEOS_REPO=https://github.com/MobilityDB/MEOS.git
+RUN git clone --depth 1 ${MEOS_REPO} /tmp/meos \
+    && cd /tmp/meos \
+    && if [ -f CMakeLists.txt ]; then \
+         cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+         && cmake --build build -j \
+         && cmake --install build; \
+       else \
+         (./autogen.sh || true) \
+         && ./configure --prefix=/usr/local \
+         && make -j"$(nproc)" \
+         && make install; \
+       fi \
+    && rm -rf /tmp/meos
 
 # Install GDB Libc++ Pretty Printer
 RUN wget -P /usr/share/libcxx/  https://raw.githubusercontent.com/llvm/llvm-project/refs/tags/llvmorg-19.1.7/libcxx/utils/gdb/libcxx/printers.py && \

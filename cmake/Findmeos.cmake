@@ -13,11 +13,14 @@
 
 find_path(meos_INCLUDE_DIR
         NAMES meos.h
+        HINTS $ENV{MEOS_ROOT} ${MEOS_ROOT}
+        PATH_SUFFIXES include
         PATHS /usr/local/include)
 
 find_library(meos NAMES meos
-        PATHS /usr/local/lib
-        )
+        HINTS $ENV{MEOS_ROOT} ${MEOS_ROOT}
+        PATH_SUFFIXES lib lib64
+        PATHS /usr/local/lib)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(meos

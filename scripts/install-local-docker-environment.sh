@@ -164,6 +164,8 @@ if [ $BUILD_LOCAL -eq 1 ]; then
 
   docker build -f docker/dependency/Development.dockerfile \
             --build-arg TAG=local \
+            ${MEOS_REF:+--build-arg MEOS_REF=${MEOS_REF}} \
+            ${MEOS_TARBALL_URL:+--build-arg MEOS_TARBALL_URL=${MEOS_TARBALL_URL}} \
             -t nebulastream/nes-development:default .
 
   docker build -f docker/dependency/DevelopmentLocal.dockerfile \

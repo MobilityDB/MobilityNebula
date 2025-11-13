@@ -162,8 +162,17 @@ if [ $BUILD_LOCAL -eq 1 ]; then
           --build-arg SANITIZER=${SANITIZER} \
           -t nebulastream/nes-development-dependency:local .
 
-  docker build -f docker/dependency/Development.dockerfile \
+  # Choose dev Dockerfile: prefer local MEOS tarball if present
+  DEV_DOCKERFILE=docker/dependency/Development.dockerfile
+  if [ -f docker/dependency/assets/meos.tar.gz ]; then
+    echo "Detected local MEOS tarball: using DevelopmentLocalMEOS.dockerfile"
+    DEV_DOCKERFILE=docker/dependency/DevelopmentLocalMEOS.dockerfile
+  fi
+
+  docker build -f ${DEV_DOCKERFILE} \
             --build-arg TAG=local \
+            ${MEOS_REF:+--build-arg MEOS_REF=${MEOS_REF}} \
+            ${MEOS_TARBALL_URL:+--build-arg MEOS_TARBALL_URL=${MEOS_TARBALL_URL}} \
             -t nebulastream/nes-development:default .
 
   docker build -f docker/dependency/DevelopmentLocal.dockerfile \

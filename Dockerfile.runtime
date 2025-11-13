@@ -1,0 +1,34 @@
+# syntax=docker/dockerfile:1.6
+ARG NES_BASE_TAG=local
+FROM nebulastream/nes-development:${NES_BASE_TAG}
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+USER root
+ENV NES_HOME=/opt/mobilitynebula \
+    NES_BUILD_DIR=/opt/mobilitynebula/build
+WORKDIR ${NES_HOME}
+
+COPY . ${NES_HOME}
+ENV PATH=${NES_HOME}/bin:${PATH}
+
+RUN set -euxo pipefail; \
+    install -d ${NES_HOME}/bin; \
+    find "${NES_BUILD_DIR}" -type f -perm /111 -not -path '*/tests/*' \
+         \( -name 'nes-*' -o -name 'queries' \) -print0 | \
+      while IFS= read -r -d '' bin; do \
+        name=$(basename "${bin}"); \
+        install -Dm755 "${bin}" "${NES_HOME}/bin/${name}"; \
+        ln -sf "${NES_HOME}/bin/${name}" "/usr/local/bin/${name}"; \
+      done; \
+    if [ -f "${NES_BUILD_DIR}/nes-systests/systest/systest" ]; then \
+        install -Dm755 "${NES_BUILD_DIR}/nes-systests/systest/systest" "${NES_HOME}/bin/nes-systest"; \
+        ln -sf "${NES_HOME}/bin/nes-systest" "/usr/local/bin/nes-systest"; \
+    fi; \
+    if [ -x "${NES_HOME}/bin/nes-single-node-worker" ]; then \
+        ln -sf /usr/local/bin/nes-single-node-worker /usr/local/bin/nes-single-worker || true; \
+    fi; \
+    ldconfig
+
+ENTRYPOINT []
+CMD ["nes-single-node-worker"]

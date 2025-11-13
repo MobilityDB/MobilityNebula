@@ -62,3 +62,21 @@ This project supports multiple build types to cater to different stages of devel
 - **Assert Checks**: Disabled.
 - **Use Case**: Designed for maximum performance, omitting all logging and assert checks, including null pointer checks. Suitable for thoroughly tested environments where performance is critical.
 - Use this with care, as this is not regularly tested, i.e., Release terminates deterministically if a bug occurs (failed invariant/precondition), whereas Benchmark will be in an undefined state.
+
+## Runtime Docker Image
+
+You can reuse the binaries that were already compiled via `scripts/install-local-docker-environment.sh -l` by packaging the workspace with `Dockerfile.runtime`. The Docker context now includes the `build/` tree, so make sure it contains the artifacts you want to run (for example `cmake -B build -S . && cmake --build build --target nes-single-node-worker`).
+
+1. Build the runtime image (the default `NES_BASE_TAG=local` expects the locally built `nebulastream/nes-development:local` base image):
+   ```bash
+   docker build -f Dockerfile.runtime -t mobility-nebula:runtime .
+   ```
+   Use `--build-arg NES_BASE_TAG=<tag>` if you prefer another published base tag.
+2. Tag and push the image:
+   ```bash
+   docker tag mobility-nebula:runtime marianamgarcez/mobility-nebula:runtime
+   docker login
+   docker push marianamgarcez/mobility-nebula:runtime
+   ```
+
+The resulting image contains the full repository under `/opt/mobilitynebula`, exposes every `nes-*` executable from the `build/` directory on `PATH`, and is ready to start with `nes-single-node-worker` by default. Override the container command to run other tools, e.g. `docker run --rm mobility-nebula:runtime nes-nebuli --help`.

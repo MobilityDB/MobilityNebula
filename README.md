@@ -80,3 +80,15 @@ You can reuse the binaries that were already compiled via `scripts/install-local
    ```
 
 The resulting image contains the full repository under `/opt/mobilitynebula`, exposes every `nes-*` executable from the `build/` directory on `PATH`, and is ready to start with `nes-single-node-worker` by default. Override the container command to run other tools, e.g. `docker run --rm mobility-nebula:runtime nes-nebuli --help`.
+
+### Runtime docker-compose helper
+
+Ship the runtime image together with an automated query registration via Docker Compose:
+
+```bash
+docker compose -f docker-compose.runtime.yaml up
+```
+
+- `nes-worker` exposes port `8080` to the host and keeps running `nes-single-node-worker`.
+- `query-registration` waits for the worker to accept connections and then runs `nes-nebuli -d -s nes-worker:8080 -w register -x -i /opt/mobilitynebula/Queries/Query0.yaml`. After the registration finishes the container stops; re-run `docker compose up query-registration` whenever you need to register again.
+- Override the image via `NES_RUNTIME_IMAGE=myregistry/mobility-nebula:runtime docker compose -f docker-compose.runtime.yaml up` if you have a different tag.

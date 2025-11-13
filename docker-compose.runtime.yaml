@@ -7,7 +7,7 @@ services:
     command:
       - /bin/bash
       - -c
-      - nes-single-node-worker --worker.query_engine.number_of_worker_threads=$NES_WORKER_THREADS
+      - nes-single-node-worker --worker.query_engine.number_of_worker_threads=$$NES_WORKER_THREADS
     ports:
       - "8080:8080"
     restart: unless-stopped

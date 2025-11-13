@@ -1,12 +1,13 @@
-version: "3.9"
-
 services:
   nes-worker:
     image: ${NES_RUNTIME_IMAGE:-marianamgarcez/mobility-nebula:runtime}
     container_name: nes-worker
+    environment:
+      NES_WORKER_THREADS: ${NES_WORKER_THREADS:-2}
     command:
-      - nes-single-node-worker
-      - --worker.query_engine.number_of_worker_threads=${NES_WORKER_THREADS:-2}
+      - /bin/bash
+      - -c
+      - nes-single-node-worker --worker.query_engine.number_of_worker_threads=$NES_WORKER_THREADS
     ports:
       - "8080:8080"
     restart: unless-stopped

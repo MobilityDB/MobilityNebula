@@ -13,7 +13,8 @@ COPY . ${NES_HOME}
 ENV PATH=${NES_HOME}/bin:${PATH}
 
 RUN set -euxo pipefail; \
-    install -d ${NES_HOME}/bin; \
+    install -d ${NES_HOME}/bin ${NES_HOME}/Input ${NES_HOME}/Output; \
+    ln -sfn ${NES_HOME} /workspace; \
     find "${NES_BUILD_DIR}" -type f -perm /111 -not -path '*/tests/*' \
          \( -name 'nes-*' -o -name 'queries' \) -print0 | \
       while IFS= read -r -d '' bin; do \
@@ -29,6 +30,8 @@ RUN set -euxo pipefail; \
         ln -sf /usr/local/bin/nes-single-node-worker /usr/local/bin/nes-single-worker || true; \
     fi; \
     ldconfig
+
+ENV LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
 
 ENTRYPOINT []
 CMD ["nes-single-node-worker"]

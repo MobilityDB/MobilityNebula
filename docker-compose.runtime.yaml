@@ -1,10 +1,13 @@
-version: "3.9"
-
 services:
   nes-worker:
     image: ${NES_RUNTIME_IMAGE:-marianamgarcez/mobility-nebula:runtime}
     container_name: nes-worker
-    command: ["nes-single-node-worker"]
+    environment:
+      NES_WORKER_THREADS: ${NES_WORKER_THREADS:-2}
+    command:
+      - /bin/bash
+      - -c
+      - nes-single-node-worker --worker.query_engine.number_of_worker_threads=$$NES_WORKER_THREADS
     ports:
       - "8080:8080"
     restart: unless-stopped
@@ -25,5 +28,5 @@ services:
           echo "Waiting for nes-worker to be reachable..."
           sleep 1
         done
-        nes-nebuli -d -s nes-worker:8080 -w register -x -i /opt/mobilitynebula/Queries/Query0.yaml
+        nes-nebuli -d -s nes-worker:8080 -w register -x -i /workspace/Queries/Query1-csv.yaml
     restart: "no"

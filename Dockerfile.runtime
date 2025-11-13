@@ -13,7 +13,8 @@ COPY . ${NES_HOME}
 ENV PATH=${NES_HOME}/bin:${PATH}
 
 RUN set -euxo pipefail; \
-    install -d ${NES_HOME}/bin; \
+    install -d ${NES_HOME}/bin ${NES_HOME}/Input ${NES_HOME}/Output; \
+    ln -sfn ${NES_HOME} /workspace; \
     find "${NES_BUILD_DIR}" -type f -perm /111 -not -path '*/tests/*' \
          \( -name 'nes-*' -o -name 'queries' \) -print0 | \
       while IFS= read -r -d '' bin; do \

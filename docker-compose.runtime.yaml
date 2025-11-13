@@ -25,5 +25,5 @@ services:
           echo "Waiting for nes-worker to be reachable..."
           sleep 1
         done
-        nes-nebuli -d -s nes-worker:8080 -w register -x -i /opt/mobilitynebula/Queries/Query0.yaml
+        nes-nebuli -d -s nes-worker:8080 -w register -x -i /workspace/Queries/Query1-csv.yaml
     restart: "no"

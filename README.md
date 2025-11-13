@@ -90,5 +90,6 @@ docker compose -f docker-compose.runtime.yaml up
 ```
 
 - `nes-worker` exposes port `8080` to the host and keeps running `nes-single-node-worker`.
-- `query-registration` waits for the worker to accept connections and then runs `nes-nebuli -d -s nes-worker:8080 -w register -x -i /opt/mobilitynebula/Queries/Query0.yaml`. After the registration finishes the container stops; re-run `docker compose up query-registration` whenever you need to register again.
+- `query-registration` waits for the worker to accept connections and then runs `nes-nebuli -d -s nes-worker:8080 -w register -x -i /workspace/Queries/Query1-csv.yaml`. After the registration finishes the container stops; re-run `docker compose up query-registration` whenever you need to register again.
+- The SNCB sample input (`Input/input_sncb.csv`) is part of the image and available at `/workspace/Input/input_sncb.csv`, while Query1-csv writes its output to `/workspace/Output/output_query1.csv` inside the container.
 - Override the image via `NES_RUNTIME_IMAGE=myregistry/mobility-nebula:runtime docker compose -f docker-compose.runtime.yaml up` if you have a different tag.

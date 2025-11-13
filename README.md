@@ -1,3 +1,19 @@
+
+MobilityNebula
+===============
+
+An open-source geospatial trajectory data streaming platform based on [NebulaStream](https://nebula.stream/).
+
+<img src="docs/images/mobilitydb-logo.svg" width="200" alt="MobilityDB Logo" />
+
+MobilityNebula explores the advantages of [MobilityDB](https://github.com/MobilityDB/MobilityDB) datatypes and functions in the NebulaStream environment, using the [MEOS](https://libmeos.org/) library as middleware.
+
+The MobilityDB project is developed by the Computer & Decision Engineering Department of the [Université libre de Bruxelles](https://www.ulb.be/) (ULB) under the direction of [Prof. Esteban Zimányi](http://cs.ulb.ac.be/members/esteban/). ULB is an OGC Associate Member and member of the OGC Moving Feature Standard Working Group ([MF-SWG](https://www.ogc.org/projects/groups/movfeatswg)).
+
+<img src="docs/images/OGC_Associate_Member_3DR.png" width="100" alt="OGC Associate Member Logo" />
+
+More information about MobilityDB, including publications, presentations, etc., can be found in the MobilityDB [website](https://mobilitydb.com).
+
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="docs/resources/NebulaBanner.png">
@@ -14,14 +30,10 @@
     <img src="https://img.shields.io/badge/Benchmark-Conbench-blue?labelColor=3D444C"
          alt="Conbench" />
   </a>
-  <a href="https://codecov.io/github/nebulastream/nebulastream" > 
-    <img src="https://codecov.io/github/nebulastream/nebulastream/graph/badge.svg?token=ER83Nm1crF" alt="Codecov"/> 
-  </a>  
 </div>
 
 ----
-
-NebulaStream is our attempt to develop a general-purpose, end-to-end data management system for the IoT.
+NebulaStream is TU Berlin/ BIFOLD attempt to develop a general-purpose, end-to-end data management system for the IoT.
 It provides an out-of-the-box experience with rich data processing functionalities and a high ease-of-use.
 
 NebulaStream is a joint research project between the DIMA group at TU Berlin and BIFOLD.
@@ -32,11 +44,13 @@ Learn more about Nebula Stream at https://www.nebula.stream or take a look at ou
 We use `clang-format` and `clang-tidy` to ensure code quality and consistency.
 To run the checks, you can use the target `format`. 
 
+## Project Structure
+Check the [Project Structure](docs/project_structure.md) to understand the dependency between components. 
 
 ## Development
-NebulaStream targets C++23 using all features implemented in both `libc++` 19 and `libstdc++` 14. All tests are using
-`Clang` 19.
-Follow the [development guide](docs/development/development.md) to learn how to set up the development environment.
+NebulaStream targets C++23 using all features implemented in both `libc++` 18 and `libstdc++` 13.2. All tests are using
+`Clang` 18.
+Follow the [development guide](docs/technical/development.md) to learn how to set up the development environment.
 To see our code of conduct, please refer to [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md).
 
 ## Build Types
@@ -63,34 +77,16 @@ This project supports multiple build types to cater to different stages of devel
 - **Use Case**: Designed for maximum performance, omitting all logging and assert checks, including null pointer checks. Suitable for thoroughly tested environments where performance is critical.
 - Use this with care, as this is not regularly tested, i.e., Release terminates deterministically if a bug occurs (failed invariant/precondition), whereas Benchmark will be in an undefined state.
 
-## Runtime Docker Image
 
-You can reuse the binaries that were already compiled via `scripts/install-local-docker-environment.sh -l` by packaging the workspace with `Dockerfile.runtime`. The Docker context now includes the `build/` tree, so make sure it contains the artifacts you want to run (for example `cmake -B build -S . && cmake --build build --target nes-single-node-worker`).
 
-1. Build the runtime image (the default `NES_BASE_TAG=local` expects the locally built `nebulastream/nes-development:local` base image):
-   ```bash
-   docker build -f Dockerfile.runtime -t mobility-nebula:runtime .
-   ```
-   Use `--build-arg NES_BASE_TAG=<tag>` if you prefer another published base tag.
-2. Tag and push the image:
-   ```bash
-   docker tag mobility-nebula:runtime marianamgarcez/mobility-nebula:runtime
-   docker login
-   docker push marianamgarcez/mobility-nebula:runtime
-   ```
+# Publications
+[1] Mariana M. Garcez Duarte, Dwi P. A. Nugroho, Georges Tod, Evert Bevernage, Pieter Moelans, Emine Tas, Esteban Zimányi, Mahmoud Sakr, Steffen Zeuch, and Volker Markl. 2025. Mobility Stream Processing on NebulaStream and MEOS. In Companion of the 2025 International Conference on Management of Data (SIGMOD/PODS '25). Association for Computing Machinery, New York, NY, USA, 79–82. https://doi.org/10.1145/3722212.3725116
 
-The resulting image contains the full repository under `/opt/mobilitynebula`, exposes every `nes-*` executable from the `build/` directory on `PATH`, and is ready to start with `nes-single-node-worker` by default. Override the container command to run other tools, e.g. `docker run --rm mobility-nebula:runtime nes-nebuli --help`.
+[2] Mariana M. Garcez Duarte, Dwi P. A. Nugroho, Georges Tod, Evert Bevernage, Pieter Moelans, Elias Saerens, Esteban Zimányi, Mahmoud Sakr, Steffen Zeuch. 2025. 
+Mobility Data Stream Processing Beyond the Cloud. 33rd ACM SIGSPATIAL
+International Conference on Advances in Geographic Information Systems
+(ACM SIGSPATIAL 2025).
 
-### Runtime docker-compose helper
 
-Ship the runtime image together with an automated query registration via Docker Compose:
-
-```bash
-docker compose -f docker-compose.runtime.yaml up
-```
-
-- `nes-worker` exposes port `8080` to the host and keeps running `nes-single-node-worker`.
-- `query-registration` waits for the worker to accept connections and then runs `nes-nebuli -d -s nes-worker:8080 -w register -x -i /workspace/Queries/Query1-csv.yaml`. After the registration finishes the container stops; re-run `docker compose up query-registration` whenever you need to register again.
-- The SNCB sample input (`Input/input_sncb.csv`) is part of the image and available at `/workspace/Input/input_sncb.csv`, while Query1-csv writes its output to `/workspace/Output/output_query1.csv` inside the container.
-- Override the image via `NES_RUNTIME_IMAGE=myregistry/mobility-nebula:runtime docker compose -f docker-compose.runtime.yaml up` if you have a different tag.
-- Defaults for `NES_RUNTIME_IMAGE` and `NES_WORKER_THREADS` live in the project `.env` (auto-loaded by Docker Compose). Override them by exporting env vars before running Compose, e.g. `NES_WORKER_THREADS=4 docker compose -f docker-compose.runtime.yaml up`.
+# Acknowledgements
+This work was supported in part by the Horizon Framework Programme of the European Union under grant agreement No. 101070279 ([MobiSpaces](https://mobispaces.eu)).

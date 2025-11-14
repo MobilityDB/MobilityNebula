@@ -36,7 +36,7 @@ public:
     QueryEngineConfiguration(const std::string& name, const std::string& description) : BaseConfiguration(name, description) { }
 
     UIntOption numberOfWorkerThreads
-        = {"number_of_worker_threads", "4", "Number of worker threads used within the QueryEngine", {numberOfThreadsValidator()}};
+        = {"number_of_worker_threads", "2", "Number of worker threads used within the QueryEngine", {numberOfThreadsValidator()}};
     UIntOption admissionQueueSize
         = {"admission_queue_size", "1000", "Size of the bounded admission queue used within the QueryEngine", {queueSizeValidator()}};
 

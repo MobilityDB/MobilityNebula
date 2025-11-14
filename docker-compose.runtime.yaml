@@ -1,0 +1,32 @@
+services:
+  nes-worker:
+    image: ${NES_RUNTIME_IMAGE:-marianamgarcez/mobility-nebula:runtime}
+    container_name: nes-worker
+    environment:
+      NES_WORKER_THREADS: ${NES_WORKER_THREADS:-2}
+    command:
+      - /bin/bash
+      - -c
+      - nes-single-node-worker --worker.query_engine.number_of_worker_threads=$$NES_WORKER_THREADS
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  query-registration:
+    image: ${NES_RUNTIME_IMAGE:-marianamgarcez/mobility-nebula:runtime}
+    depends_on:
+      - nes-worker
+    command:
+      - /bin/bash
+      - -c
+      - |
+        set -euo pipefail
+        for i in {1..60}; do
+          if (echo > /dev/tcp/nes-worker/8080) >/dev/null 2>&1; then
+            break
+          fi
+          echo "Waiting for nes-worker to be reachable..."
+          sleep 1
+        done
+        nes-nebuli -d -s nes-worker:8080 -w register -x -i /workspace/Queries/Query1-csv.yaml
+    restart: "no"

@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# The development image adds common development tools we use during development and the CI uses for the pre-build-check
+# Development image that installs MEOS from a local tarball in the build context
 ARG TAG=latest
 FROM nebulastream/nes-development-dependency:${TAG}
 
@@ -33,7 +33,25 @@ RUN git clone https://github.com/aras-p/ClangBuildAnalyzer.git \
     && rm -rf ClangBuildAnalyzer \
     && ClangBuildAnalyzer --version
 
-# MEOS is provided by the base/dependency image (MobilityDB built with MEOS). No additional MEOS build here.
+# Build and install MEOS from local tarball (required by MEOS plugin)
+# Place the tarball at docker/dependency/assets/meos.tar.gz before building.
+ADD docker/dependency/assets/meos.tar.gz /tmp/meos.tar.gz
+RUN set -eux; \
+    cd /tmp; \
+    tar -xzf meos.tar.gz; \
+    meos_src=$(find . -maxdepth 1 -type d -name 'MEOS-*' | head -n 1); \
+    cd "$meos_src"; \
+    if [ -f CMakeLists.txt ]; then \
+      cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+      && cmake --build build -j \
+      && cmake --install build; \
+    else \
+      (./autogen.sh || true) \
+      && ./configure --prefix=/usr/local \
+      && make -j"$(nproc)" \
+      && make install; \
+    fi; \
+    rm -rf /tmp/meos.tar.gz "$meos_src"
 
 # Install GDB Libc++ Pretty Printer
 RUN wget -P /usr/share/libcxx/  https://raw.githubusercontent.com/llvm/llvm-project/refs/tags/llvmorg-19.1.7/libcxx/utils/gdb/libcxx/printers.py && \

@@ -1,0 +1,14 @@
+# name: MEOS_EContains_TGeo_TGeo
+# description: TEMPORAL_ECONTAINS_TGEOMETRY (econtains_tgeo_tgeo): two single-instant tgeompoints at the same instant; contains iff coincident.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, EContains]
+CREATE LOGICAL SOURCE ect(id UINT32, lonA FLOAT64, latA FLOAT64, tsA UINT64, lonB FLOAT64, latB FLOAT64, tsB UINT64);
+CREATE PHYSICAL SOURCE FOR ect TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200|4.3658|50.6456|1609459200
+2|4.3658|50.6456|1609459200|4.4000|50.7000|1609459200
+
+CREATE SINK ect_out(ect.id UINT32, contains INT32) TYPE File;
+SELECT id, TEMPORAL_ECONTAINS_TGEOMETRY(lonA, latA, tsA, lonB, latB, tsB) AS contains FROM ect INTO ect_out;
+----
+1,1
+2,0

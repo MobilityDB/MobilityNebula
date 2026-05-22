@@ -1,0 +1,51 @@
+# BerlinMOD-Q4 — windowed form
+# "Per 10-second tumbling window, distinct vehicles inside region R."
+# Intra-window scoping: a vehicle present inside R during the window is reported.
+
+query: |
+  SELECT start,
+         end,
+         vehicle_id,
+         COUNT(time_utc) AS events_in_r
+  FROM berlinmod_stream
+  WHERE edwithin_tgeo_geo(gps_lon,
+                          gps_lat,
+                          time_utc,
+                          'SRID=4326;POLYGON((4.30 50.84, 4.36 50.84, 4.36 50.86, 4.30 50.86, 4.30 50.84))',
+                          FLOAT64(0.0)) = INT32(1)
+  GROUP BY vehicle_id
+  WINDOW TUMBLING(time_utc, SIZE 10 SEC)
+  INTO file_sink;
+
+sinks:
+  - name: FILE_SINK
+    type: File
+    schema:
+      - { name: BERLINMOD_STREAM$START,       type: UINT64 }
+      - { name: BERLINMOD_STREAM$END,         type: UINT64 }
+      - { name: BERLINMOD_STREAM$VEHICLE_ID,  type: UINT64 }
+      - { name: BERLINMOD_STREAM$EVENTS_IN_R, type: UINT64 }
+    config:
+      file_path: "/workspace/Output/output_berlinmod_q4_windowed.csv"
+      input_format: CSV
+
+logical:
+  - name: BERLINMOD_STREAM
+    schema:
+      - { name: TIME_UTC,   type: UINT64 }
+      - { name: VEHICLE_ID, type: UINT64 }
+      - { name: GPS_LON,    type: FLOAT64 }
+      - { name: GPS_LAT,    type: FLOAT64 }
+
+physical:
+  - logical: BERLINMOD_STREAM
+    type: TCP
+    parser_config:
+      type: CSV
+      field_delimiter: ","
+      tuple_delimiter: "\n"
+    source_config:
+      socket_host: "host.docker.internal"
+      socket_port: "32325"
+      socket_type: "SOCK_STREAM"
+      socket_domain: "AF_INET"

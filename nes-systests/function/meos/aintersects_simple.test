@@ -1,0 +1,27 @@
+# name: MEOS_AIntersects_Simple
+# description: TEMPORAL_AINTERSECTS for temporal-temporal (6-arg) and temporal-static-geometry (4-arg, geometry constant).
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, AIntersects]
+
+CREATE LOGICAL SOURCE ai_tt(test_id UINT32, lonA FLOAT64, latA FLOAT64, tsA UINT64, lonB FLOAT64, latB FLOAT64, tsB UINT64);
+CREATE PHYSICAL SOURCE FOR ai_tt TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|-73.9857|40.7484|1609459200|-73.9857|40.7484|1609459200
+2|-73.9857|40.7484|1609459200|-73.9800|40.7450|1609459200
+
+CREATE SINK ai_tt_out(ai_tt.test_id UINT32, aintersects INT32) TYPE File;
+SELECT test_id, TEMPORAL_AINTERSECTS_TGEOMETRY(lonA, latA, tsA, lonB, latB, tsB) AS aintersects FROM ai_tt INTO ai_tt_out;
+----
+1,1
+2,0
+
+CREATE LOGICAL SOURCE ai_ts(test_id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR ai_ts TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|-73.9855|40.7485|1609459200
+2|-73.9800|40.7450|1609459200
+
+CREATE SINK ai_ts_out(ai_ts.test_id UINT32, aintersects INT32) TYPE File;
+SELECT test_id, TEMPORAL_AINTERSECTS_GEOMETRY(lon, lat, timestamp, 'SRID=4326;POINT(-73.9855 40.7485)') AS aintersects FROM ai_ts INTO ai_ts_out;
+----
+1,1
+2,0

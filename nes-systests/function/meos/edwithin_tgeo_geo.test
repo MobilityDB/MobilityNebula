@@ -1,0 +1,13 @@
+# name: MEOS_TemporalEDWithinGeometry
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, EDWithin]
+CREATE LOGICAL SOURCE edw(id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR edw TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+2|4.1000|50.8000|1609459200
+
+CREATE SINK edw_out(edw.id UINT32, within INT32) TYPE File;
+SELECT id, EDWITHIN_TGEO_GEO(lon, lat, timestamp, 'SRID=4326;POINT(4.3658 50.6456)', FLOAT64(0.2)) AS within FROM edw INTO edw_out;
+----
+1,1
+2,0

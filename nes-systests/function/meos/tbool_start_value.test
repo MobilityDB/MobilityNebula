@@ -1,0 +1,13 @@
+# name: MEOS_TBOOL_START_VALUE
+# groups: [Function, MEOS, TemporalBoolean, Codegen]
+CREATE LOGICAL SOURCE tsta(id UINT64, value BOOLEAN, ts UINT64);
+CREATE PHYSICAL SOURCE FOR tsta TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|true|1609459200
+2|false|1609545600
+
+CREATE SINK tsta_out(tsta.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, TBOOL_START_VALUE(value, ts) AS r FROM tsta INTO tsta_out;
+----
+1,1
+2,0

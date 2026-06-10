@@ -1,0 +1,12 @@
+# name: MEOS_INTERSECTION_SET_DATE
+# description: intersection_set_date value-mixed set/span/spanset algebra.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE intersectionsetdat(id UINT64, lit VARSIZED, val INT32);
+CREATE PHYSICAL SOURCE FOR intersectionsetdat TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{2020-01-01, 2020-01-05}'|7305
+
+CREATE SINK intersectionsetdat_out(intersectionsetdat.id UINT64, r VARSIZED) TYPE File;
+SELECT id, INTERSECTION_SET_DATE(lit, val) AS r FROM intersectionsetdat INTO intersectionsetdat_out;
+----
+1,{2020-01-01}

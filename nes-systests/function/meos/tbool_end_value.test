@@ -1,0 +1,13 @@
+# name: MEOS_TBOOL_END_VALUE
+# groups: [Function, MEOS, TemporalBoolean, Codegen]
+CREATE LOGICAL SOURCE tend(id UINT64, value BOOLEAN, ts UINT64);
+CREATE PHYSICAL SOURCE FOR tend TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|true|1609459200
+2|false|1609545600
+
+CREATE SINK tend_out(tend.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, TBOOL_END_VALUE(value, ts) AS r FROM tend INTO tend_out;
+----
+1,1
+2,0

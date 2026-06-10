@@ -1,0 +1,13 @@
+# name: MEOS_NAD_STBOX_STBOX
+# groups: [Function, MEOS, Codegen]
+CREATE LOGICAL SOURCE ndss(id UINT64, boxa VARSIZED, boxb VARSIZED);
+CREATE PHYSICAL SOURCE FOR ndss TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|STBOX X((1,1),(3,3))|STBOX X((10,10),(11,11))
+2|STBOX X((1,1),(3,3))|STBOX X((2,2),(4,4))
+
+CREATE SINK ndss_out(ndss.id UINT64, r FLOAT64) TYPE File;
+SELECT id, NAD_STBOX_STBOX(boxa, boxb) AS r FROM ndss INTO ndss_out;
+----
+1,9.899495
+2,0.0

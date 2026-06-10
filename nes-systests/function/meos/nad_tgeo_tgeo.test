@@ -1,0 +1,14 @@
+# name: MEOS_NAD_TGEO_TGEO
+# description: Nearest-approach distance between two single-instant tgeompoints (genuine nad_tgeo_tgeo).
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, NAD, Codegen]
+CREATE LOGICAL SOURCE ndtt(id UINT64, lonA FLOAT64, latA FLOAT64, tsA UINT64, lonB FLOAT64, latB FLOAT64, tsB UINT64);
+CREATE PHYSICAL SOURCE FOR ndtt TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200|4.3658|50.6456|1609459200
+2|4.0|50.0|1609459200|5.0|51.0|1609459200
+
+CREATE SINK ndtt_out(ndtt.id UINT64, r FLOAT64) TYPE File;
+SELECT id, NAD_TGEO_TGEO(lonA, latA, tsA, lonB, latB, tsB) AS r FROM ndtt INTO ndtt_out;
+----
+1,0.0
+2,1.414214

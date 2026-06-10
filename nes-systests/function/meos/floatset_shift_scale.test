@@ -1,0 +1,12 @@
+# name: MEOS_FLOATSET_SHIFT_SCALE
+# description: floatset_shift_scale — shift+scale a span/set/spanset (hasshift=haswidth=true).
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE floatsetss(id UINT64, lit VARSIZED, sh FLOAT64, wd FLOAT64);
+CREATE PHYSICAL SOURCE FOR floatsetss TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{1.0, 3.0, 7.0}'|10.0|20.0
+
+CREATE SINK floatsetss_out(floatsetss.id UINT64, r VARSIZED) TYPE File;
+SELECT id, FLOATSET_SHIFT_SCALE(lit, sh, wd) AS r FROM floatsetss INTO floatsetss_out;
+----
+1,{11,17.666666666666668,31}

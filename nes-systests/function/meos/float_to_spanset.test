@@ -1,0 +1,12 @@
+# name: MEOS_FLOAT_TO_SPANSET
+# description: float_to_spanset — construct a spanset from a single float value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE floattospanset(id UINT64, value FLOAT64);
+CREATE PHYSICAL SOURCE FOR floattospanset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.0
+
+CREATE SINK floattospanset_out(floattospanset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, FLOAT_TO_SPANSET(value) AS r FROM floattospanset INTO floattospanset_out;
+----
+1,{[2.5e-323,2.5e-323]}

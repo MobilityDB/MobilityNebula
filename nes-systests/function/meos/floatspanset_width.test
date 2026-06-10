@@ -1,0 +1,14 @@
+# name: MEOS_FLOATSPANSET_WIDTH
+# description: floatspanset_width — total width of a float spanset.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE floatspansetwidths(id UINT64, a VARSIZED);
+CREATE PHYSICAL SOURCE FOR floatspansetwidths TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{[1.0, 5.0), [10.0, 15.0)}'
+2|'{[3.0, 7.5)}'
+
+CREATE SINK floatspansetwidths_out(floatspansetwidths.id UINT64, r FLOAT64) TYPE File;
+SELECT id, FLOATSPANSET_WIDTH(a) AS r FROM floatspansetwidths INTO floatspansetwidths_out;
+----
+1,9.0
+2,4.5

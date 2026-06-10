@@ -1,0 +1,12 @@
+# name: MEOS_BIGINT_TO_SET
+# description: bigint_to_set — construct a set from a single bigint value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE biginttoset(id UINT64, value INT64);
+CREATE PHYSICAL SOURCE FOR biginttoset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5
+
+CREATE SINK biginttoset_out(biginttoset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, BIGINT_TO_SET(value) AS r FROM biginttoset INTO biginttoset_out;
+----
+1,{5}

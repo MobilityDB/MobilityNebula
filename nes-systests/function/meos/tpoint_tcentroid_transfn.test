@@ -1,0 +1,14 @@
+# name: MEOS_TPOINT_TCENTROID_TRANSFN
+# description: Windowed TPOINT_TCENTROID_TRANSFN -> aggregate tgeompoint centroid (hex-WKB); same-timestamp points averaged via tpoint_tcentroid_transfn/finalfn.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Aggregation]
+CREATE LOGICAL SOURCE tpc(vehicle_id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tpc TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.0|50.0|1609459200
+1|6.0|52.0|1609459200
+1|5.0|51.0|1609462800
+
+CREATE SINK tpc_out(tpc.vehicle_id UINT64, tpc.r VARSIZED) TYPE File;
+SELECT vehicle_id, TPOINT_TCENTROID_TRANSFN(lon, lat, timestamp) AS r FROM tpc GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tpc_out;
+----
+1,012E0006020000000301010000000000000000001440000000000080494000A0AD30CA5A020001010000000000000000001440000000000080494000444107CB5A0200

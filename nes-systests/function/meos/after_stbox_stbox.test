@@ -1,0 +1,14 @@
+# name: MEOS_AFTER_STBOX_STBOX
+# description: Cross-vehicle AFTER_STBOX_STBOX over two per-vehicle extent STBoxes (each a VARSIZED stbox text, e.g. two TSPATIAL_EXTENT_TRANSFN outputs in a self-join). Box A=((1,1),(3,3)); B=((2,2),(4,4)) overlaps A; C=((10,10),(11,11)) is disjoint and to the right of A.
+# groups: [Function, MEOS, SpatioTemporal, Box, CrossStream]
+CREATE LOGICAL SOURCE sbz00(id UINT64, boxa VARSIZED, boxb VARSIZED);
+CREATE PHYSICAL SOURCE FOR sbz00 TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|STBOX T([2020-01-01 00:00:00+00, 2020-01-02 00:00:00+00])|STBOX T([2020-01-01 12:00:00+00, 2020-01-03 00:00:00+00])
+2|STBOX T([2020-01-01 00:00:00+00, 2020-01-02 00:00:00+00])|STBOX T([2020-01-05 00:00:00+00, 2020-01-06 00:00:00+00])
+
+CREATE SINK sbz00_out(sbz00.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, AFTER_STBOX_STBOX(boxa, boxb) AS r FROM sbz00 INTO sbz00_out;
+----
+1,0
+2,0

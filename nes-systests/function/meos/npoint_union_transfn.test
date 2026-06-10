@@ -1,0 +1,13 @@
+# name: MEOS_NPOINT_UNION_TRANSFN
+# description: Windowed NPOINT_UNION_TRANSFN -> aggregate container (text) over a stream of VARSIZED literals; timestamp is windowing-only.
+# groups: [Function, MEOS, Set, Span, Aggregation]
+CREATE LOGICAL SOURCE cnpu(vehicle_id UINT64, value VARSIZED, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR cnpu TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|NPoint(1, 0.5)|1609459200
+1|NPoint(1, 0.7)|1609462800
+
+CREATE SINK cnpu_out(cnpu.vehicle_id UINT64, cnpu.r VARSIZED) TYPE File;
+SELECT vehicle_id, NPOINT_UNION_TRANSFN(value, timestamp) AS r FROM cnpu GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO cnpu_out;
+----
+1,{"NPoint(1,0.5)", "NPoint(1,0.7)"}

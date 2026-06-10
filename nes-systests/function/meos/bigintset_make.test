@@ -1,0 +1,16 @@
+# name: MEOS_BIGINTSET_MAKE_Aggregation
+# groups: [Function, MEOS, Aggregation, Codegen]
+CREATE LOGICAL SOURCE bigintsetmakes(gid UINT64, value INT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR bigintsetmakes TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|100|1609459200
+1|200|1609459201
+1|300|1609459202
+2|500|1609459200
+2|600|1609459201
+
+CREATE SINK bigintsetmakes_out(bigintsetmakes.gid UINT64, bigintsetmakes.r VARSIZED) TYPE File;
+SELECT gid, BIGINTSET_MAKE(value, ts) AS r FROM bigintsetmakes GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO bigintsetmakes_out;
+----
+1,{100,200,300}
+2,{500,600}

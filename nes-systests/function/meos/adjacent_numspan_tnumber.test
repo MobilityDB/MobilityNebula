@@ -1,0 +1,14 @@
+# name: MEOS_ADJACENT_NUMSPAN_TNUMBER
+# description: adjacent_numspan_tnumber (tnumber, number span) value topological adjacency.
+# groups: [Function, MEOS, TNumber, Topological, Codegen]
+CREATE LOGICAL SOURCE adjacentnum(id UINT64, value FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR adjacentnum TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.0|1609459200
+2|9.0|1609459200
+
+CREATE SINK adjacentnum_out(adjacentnum.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, ADJACENT_NUMSPAN_TNUMBER(value, ts, '[3.0, 7.0)') AS r FROM adjacentnum INTO adjacentnum_out;
+----
+1,0
+2,0

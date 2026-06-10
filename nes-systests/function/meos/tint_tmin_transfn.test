@@ -1,0 +1,14 @@
+# name: MEOS_TINT_TMIN_TRANSFN
+# description: Windowed TINT_TMIN_TRANSFN -> aggregate Temporal (hex-WKB) via the per-op tagg transfn (tMin); same-timestamp events merged by the aggregation fn.
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE tin(vehicle_id UINT64, value INT32, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tin TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5|1609459200
+1|3|1609459200
+1|7|1609462800
+
+CREATE SINK tin_out(tin.vehicle_id UINT64, tin.r VARSIZED) TYPE File;
+SELECT vehicle_id, TINT_TMIN_TRANSFN(value, timestamp) AS r FROM tin GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tin_out;
+----
+1,0123000602000000030300000000A0AD30CA5A02000700000000444107CB5A0200

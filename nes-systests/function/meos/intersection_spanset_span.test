@@ -1,0 +1,14 @@
+# name: MEOS_INTERSECTION_SPANSET_SPAN
+# description: intersection_spanset_span over two text literals; type-generic MEOS set-algebra returning the result span/set/spanset text (VARSIZED).
+# groups: [Function, MEOS, SpanSet, Codegen]
+CREATE LOGICAL SOURCE uspp(id UINT64, a VARSIZED, b VARSIZED);
+CREATE PHYSICAL SOURCE FOR uspp TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{[1, 5), [10, 15)}'|'[3, 12)'
+2|'{[1, 5), [10, 15)}'|'[2, 11)'
+
+CREATE SINK uspp_out(uspp.id UINT64, r VARSIZED) TYPE File;
+SELECT id, INTERSECTION_SPANSET_SPAN(a, b) AS r FROM uspp INTO uspp_out;
+----
+1,{[3,5),[10,12)}
+2,{[2,5),[10,11)}

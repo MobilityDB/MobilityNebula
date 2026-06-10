@@ -1,0 +1,12 @@
+# name: MEOS_NPOINTSET_MAKE_Aggregation
+# groups: [Function, MEOS, Aggregation, Codegen]
+CREATE LOGICAL SOURCE npsm(gid UINT64, value VARSIZED, ts UINT64);
+CREATE PHYSICAL SOURCE FOR npsm TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'NPoint(1, 0.5)'|1609459200
+1|'NPoint(1, 0.7)'|1609459201
+
+CREATE SINK npsm_out(npsm.gid UINT64, npsm.r VARSIZED) TYPE File;
+SELECT gid, NPOINTSET_MAKE(value, ts) AS r FROM npsm GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO npsm_out;
+----
+1,{"NPoint(1,0.5)","NPoint(1,0.7)"}

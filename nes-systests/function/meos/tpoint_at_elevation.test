@@ -1,0 +1,12 @@
+# name: MEOS_TPOINT_AT_ELEVATION
+# description: TPOINT_AT_ELEVATION restricts a 3D temporal point (a hex-WKB tgeompoint instant) to an elevation (Z) span, emitted as hex-WKB.
+# groups: [Function, MEOS, SpatioTemporal]
+CREATE LOGICAL SOURCE tpointatelevations(id UINT64, a VARSIZED, b VARSIZED);
+CREATE PHYSICAL SOURCE FOR tpointatelevations TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|012E00110101000080000000000000F03F000000000000F03F00000000000014400060C286073E0200|'[0, 10]'
+
+CREATE SINK tpointatelevations_out(tpointatelevations.id UINT64, r VARSIZED) TYPE File;
+SELECT id, TPOINT_AT_ELEVATION(a, b) AS r FROM tpointatelevations INTO tpointatelevations_out;
+----
+1,012E00110101000080000000000000F03F000000000000F03F00000000000014400060C286073E0200

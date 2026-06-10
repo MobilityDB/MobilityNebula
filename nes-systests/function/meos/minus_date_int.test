@@ -1,0 +1,14 @@
+# name: MEOS_MINUS_DATE_INT
+# description: MINUS_DATE_INT shifts a date (DateADT days since 2000-01-01, e.g. 7309=2020-01-05) back by a number of days, returning the resulting date.
+# groups: [Function, MEOS, DateTime]
+CREATE LOGICAL SOURCE minusdateints(id UINT64, value INT32, arg0 INT32);
+CREATE PHYSICAL SOURCE FOR minusdateints TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|7309|4
+2|7336|31
+
+CREATE SINK minusdateints_out(minusdateints.id UINT64, r VARSIZED) TYPE File;
+SELECT id, MINUS_DATE_INT(value, arg0) AS r FROM minusdateints INTO minusdateints_out;
+----
+1,2020-01-01
+2,2020-01-01

@@ -1,0 +1,14 @@
+# name: MEOS_TFLOAT_TSUM_TRANSFN
+# description: Windowed TFLOAT_TSUM_TRANSFN -> aggregate Temporal (hex-WKB) via the per-op tagg transfn (tSum); same-timestamp events merged by the aggregation fn.
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE tfs(vehicle_id UINT64, value FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tfs TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.5|1609459200
+1|3.5|1609459200
+1|2.0|1609462800
+
+CREATE SINK tfs_out(tfs.vehicle_id UINT64, tfs.r VARSIZED) TYPE File;
+SELECT vehicle_id, TFLOAT_TSUM_TRANSFN(value, timestamp) AS r FROM tfs GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tfs_out;
+----
+1,012100060200000003000000000000224000A0AD30CA5A0200000000000000004000444107CB5A0200

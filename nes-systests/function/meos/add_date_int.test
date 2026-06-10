@@ -1,0 +1,14 @@
+# name: MEOS_ADD_DATE_INT
+# description: ADD_DATE_INT shifts a date (DateADT days since 2000-01-01, e.g. 7305=2020-01-01) forward by a number of days, returning the resulting date.
+# groups: [Function, MEOS, DateTime]
+CREATE LOGICAL SOURCE adddateints(id UINT64, value INT32, arg0 INT32);
+CREATE PHYSICAL SOURCE FOR adddateints TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|7305|4
+2|7305|31
+
+CREATE SINK adddateints_out(adddateints.id UINT64, r VARSIZED) TYPE File;
+SELECT id, ADD_DATE_INT(value, arg0) AS r FROM adddateints INTO adddateints_out;
+----
+1,2020-01-05
+2,2020-02-01

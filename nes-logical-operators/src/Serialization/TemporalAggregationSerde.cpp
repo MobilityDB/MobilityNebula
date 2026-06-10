@@ -14,7 +14,12 @@
 
 #include <Serialization/TemporalAggregationSerde.hpp>
 
+#include <string>
+#include <vector>
+
 #include <Configurations/Descriptor.hpp>
+#include <DataTypes/DataTypeProvider.hpp>
+#include <Functions/ConstantValueLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Serialization/FunctionSerializationUtil.hpp>
 
@@ -50,6 +55,98 @@ SerializableAggregationFunction serializeTemporalSequence(
     saf.mutable_as_field()->CopyFrom(asProto);
 
     return saf;
+}
+
+SerializableAggregationFunction serializeTemporalSequence(
+    const FieldAccessLogicalFunction& x,
+    const FieldAccessLogicalFunction& y,
+    const FieldAccessLogicalFunction& theta,
+    const FieldAccessLogicalFunction& ts,
+    const FieldAccessLogicalFunction& asField)
+{
+    SerializableAggregationFunction saf;
+    saf.set_type("TemporalSequence");
+
+    // on_field: x
+    SerializableFunction xProto;
+    xProto.CopyFrom(LogicalFunction(x).serialize());
+
+    // Pack extra fields (y, theta, ts) into on_field.config as a FunctionList.
+    // parseTemporalSequence() loops over any number of extras, so this round-
+    // trips as [x, y, theta, ts, as].
+    FunctionList extraList;
+    *extraList.add_functions() = LogicalFunction(y).serialize();
+    *extraList.add_functions() = LogicalFunction(theta).serialize();
+    *extraList.add_functions() = LogicalFunction(ts).serialize();
+
+    const auto key = std::string(TEMPORAL_SEQUENCE_EXTRA_FIELDS_KEY);
+    (*xProto.mutable_config())[key] = descriptorConfigTypeToProto(extraList);
+    saf.mutable_on_field()->CopyFrom(xProto);
+
+    // as_field: alias
+    SerializableFunction asProto;
+    asProto.CopyFrom(LogicalFunction(asField).serialize());
+    saf.mutable_as_field()->CopyFrom(asProto);
+
+    return saf;
+}
+
+void serializeConstArgs(SerializableAggregationFunction& saf, const std::vector<std::string>& constArgs)
+{
+    if (constArgs.empty())
+    {
+        return;
+    }
+
+    // Pack each constant literal as a ConstantValueLogicalFunction into a FunctionList and
+    // attach it under our key inside on_field.config — mirroring how serializeTemporalSequence
+    // packs the extra fields. The DataType is a placeholder (the physical layer parses the
+    // literal string to its real C type); the literal string is the payload.
+    FunctionList constList;
+    for (const auto& c : constArgs)
+    {
+        const ConstantValueLogicalFunction constFn(DataTypeProvider::provideDataType(DataType::Type::VARSIZED), c);
+        *constList.add_functions() = LogicalFunction(constFn).serialize();
+    }
+
+    const auto key = std::string(TEMPORAL_SEQUENCE_CONST_ARGS_KEY);
+    (*saf.mutable_on_field()->mutable_config())[key] = descriptorConfigTypeToProto(constList);
+
+    // Mirror into the proto's native `literals` repeated field so the existing
+    // deserializeWindowAggregationFunction() feeds them straight into args.literals.
+    for (const auto& c : constArgs)
+    {
+        saf.add_literals(c);
+    }
+}
+
+std::vector<std::string> parseConstArgs(const SerializableAggregationFunction& saf)
+{
+    std::vector<std::string> out;
+    const auto key = std::string(TEMPORAL_SEQUENCE_CONST_ARGS_KEY);
+    const auto& onFieldCfg = saf.on_field().config();
+    if (!onFieldCfg.contains(key))
+    {
+        return out;
+    }
+    const auto variant = protoToDescriptorConfigType(onFieldCfg.at(key));
+    if (std::holds_alternative<FunctionList>(variant))
+    {
+        const auto list = std::get<FunctionList>(variant);
+        for (const auto& f : list.functions())
+        {
+            const auto lf = FunctionSerializationUtil::deserializeFunction(f);
+            if (auto cst = lf.tryGet<ConstantValueLogicalFunction>())
+            {
+                out.push_back(cst->getConstantValue());
+            }
+            else
+            {
+                throw CannotDeserialize("TemporalSequence: const arg is not ConstantValueLogicalFunction");
+            }
+        }
+    }
+    return out;
 }
 
 std::vector<FieldAccessLogicalFunction> parseTemporalSequence(const SerializableAggregationFunction& saf)

@@ -1,0 +1,13 @@
+# name: MEOS_GEO_UNION_TRANSFN
+# description: Windowed GEO_UNION_TRANSFN -> aggregate container (text) over a stream of VARSIZED literals; timestamp is windowing-only.
+# groups: [Function, MEOS, Set, Span, Aggregation]
+CREATE LOGICAL SOURCE cgeu(vehicle_id UINT64, value VARSIZED, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR cgeu TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|SRID=4326;Point(1 1)|1609459200
+1|SRID=4326;Point(2 2)|1609462800
+
+CREATE SINK cgeu_out(cgeu.vehicle_id UINT64, cgeu.r VARSIZED) TYPE File;
+SELECT vehicle_id, GEO_UNION_TRANSFN(value, timestamp) AS r FROM cgeu GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO cgeu_out;
+----
+1,{"POINT(1 1)", "POINT(2 2)"}

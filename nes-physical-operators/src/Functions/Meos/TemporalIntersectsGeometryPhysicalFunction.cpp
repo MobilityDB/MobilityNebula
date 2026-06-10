@@ -1,3 +1,4 @@
+#define NES_PLUGIN_OPERATOR_TU
 #include <utility>
 #include <vector>
 #include <string>
@@ -15,6 +16,9 @@
 #include <iostream>
 #include <val.hpp>
 #include <function.hpp>
+
+/* Decoupled from the regenerated plugin registrar (see PhysicalFunctionRegistry.hpp): only the registry types are pulled in, and this operator declares its own Register function. */
+namespace NES::PhysicalFunctionGeneratedRegistrar { PhysicalFunctionRegistryReturnType RegisterTemporalIntersectsGeometryPhysicalFunction(PhysicalFunctionRegistryArguments); }
 
 namespace NES {
 

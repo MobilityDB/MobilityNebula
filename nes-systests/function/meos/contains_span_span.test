@@ -1,0 +1,14 @@
+# name: MEOS_CONTAINS_SPAN_SPAN
+# description: contains_span_span over two intspan text literals (type-generic span topology predicate, INT32).
+# groups: [Function, MEOS, Span, Codegen]
+CREATE LOGICAL SOURCE spsrc(id UINT64, a VARSIZED, b VARSIZED);
+CREATE PHYSICAL SOURCE FOR spsrc TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'[1, 10)'|'[3, 5)'
+2|'[1, 5)'|'[6, 9)'
+
+CREATE SINK spsrc_out(spsrc.id UINT64, r INT32) TYPE File;
+SELECT id, CONTAINS_SPAN_SPAN(a, b) AS r FROM spsrc INTO spsrc_out;
+----
+1,1
+2,0

@@ -1,0 +1,13 @@
+# name: MEOS_SPANSET_EXTENT_TRANSFN
+# description: Windowed SPANSET_EXTENT_TRANSFN -> aggregate container (text) over a stream of VARSIZED literals; timestamp is windowing-only.
+# groups: [Function, MEOS, Set, Span, Aggregation]
+CREATE LOGICAL SOURCE csse(vehicle_id UINT64, value VARSIZED, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR csse TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|{[1.5, 5.5), [10.5, 15.5)}|1609459200
+1|{[2.5, 7.5)}|1609462800
+
+CREATE SINK csse_out(csse.vehicle_id UINT64, csse.r VARSIZED) TYPE File;
+SELECT vehicle_id, SPANSET_EXTENT_TRANSFN(value, timestamp) AS r FROM csse GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO csse_out;
+----
+1,[1.5, 15.5)

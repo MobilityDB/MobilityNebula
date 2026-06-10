@@ -1,0 +1,12 @@
+# name: MEOS_INT_TO_SPANSET
+# description: int_to_spanset — construct a spanset from a single int value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE inttospanset(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR inttospanset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5
+
+CREATE SINK inttospanset_out(inttospanset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, INT_TO_SPANSET(value) AS r FROM inttospanset INTO inttospanset_out;
+----
+1,{[5,6)}

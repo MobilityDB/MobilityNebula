@@ -1,0 +1,14 @@
+# name: MEOS_BOX3D_TO_STBOX
+# description: BOX3D_TO_STBOX converts a PostGIS BOX3D (a VARSIZED box3d text literal, e.g. a STBOX_TO_BOX3D output) to its spatiotemporal STBox. Row 1 is a z=0 box; row 2 carries a non-zero z range.
+# groups: [Function, MEOS, SpatioTemporal, Box]
+CREATE LOGICAL SOURCE bts(id UINT64, box VARSIZED);
+CREATE PHYSICAL SOURCE FOR bts TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|BOX3D((1,1,0),(3,3,0))
+2|BOX3D((1,1,1),(3,3,5))
+
+CREATE SINK bts_out(bts.id UINT64, r VARSIZED) TYPE File;
+SELECT id, BOX3D_TO_STBOX(box) AS r FROM bts INTO bts_out;
+----
+1,STBOX,Z((1,1,0),(3,3,0))
+2,STBOX,Z((1,1,1),(3,3,5))

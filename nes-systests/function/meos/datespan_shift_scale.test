@@ -1,0 +1,12 @@
+# name: MEOS_DATESPAN_SHIFT_SCALE
+# description: datespan_shift_scale (int shift/width).
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE datespanss(id UINT64, lit VARSIZED, sh INT32, wd INT32);
+CREATE PHYSICAL SOURCE FOR datespanss TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'[2020-01-01, 2020-01-10)'|10|20
+
+CREATE SINK datespanss_out(datespanss.id UINT64, r VARSIZED) TYPE File;
+SELECT id, DATESPAN_SHIFT_SCALE(lit, sh, wd) AS r FROM datespanss INTO datespanss_out;
+----
+1,[2020-01-11,2020-02-01)

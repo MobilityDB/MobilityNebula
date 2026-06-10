@@ -1,0 +1,14 @@
+# name: MEOS_POSE_ORIENTATION
+# description: POSE_ORIENTATION returns the orientation quaternion of a 3D pose (a static Pose literal with a Z point and a W,X,Y,Z quaternion) as an array of doubles.
+# groups: [Function, MEOS, Pose]
+CREATE LOGICAL SOURCE poseorientations(id UINT64, a VARSIZED);
+CREATE PHYSICAL SOURCE FOR poseorientations TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'Pose(Point(1 1 1),0.5,0.5,0.5,0.5)'
+2|'Pose(Point(2 2 2),0.7071,0,0,0.7071)'
+
+CREATE SINK poseorientations_out(poseorientations.id UINT64, r VARSIZED) TYPE File;
+SELECT id, POSE_ORIENTATION(a) AS r FROM poseorientations INTO poseorientations_out;
+----
+1,{0.500000,0.500000,0.500000,0.500000}
+2,{0.707107,0.000000,0.000000,0.707107}

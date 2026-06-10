@@ -1,0 +1,12 @@
+# name: MEOS_UNION_SET_DATE
+# description: union_set_date value-mixed set/span/spanset algebra.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE unionsetdate(id UINT64, lit VARSIZED, val INT32);
+CREATE PHYSICAL SOURCE FOR unionsetdate TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{2020-01-01, 2020-01-05}'|7307
+
+CREATE SINK unionsetdate_out(unionsetdate.id UINT64, r VARSIZED) TYPE File;
+SELECT id, UNION_SET_DATE(lit, val) AS r FROM unionsetdate INTO unionsetdate_out;
+----
+1,{2020-01-01,2020-01-03,2020-01-05}

@@ -1,0 +1,14 @@
+# name: MEOS_BEFORE_TSTZSPAN_TEMPORAL
+# description: before_tstzspan_temporal (temporal, tstzspan) time topological relationship.
+# groups: [Function, MEOS, Temporal, Topological, Codegen]
+CREATE LOGICAL SOURCE beforetstzs(id UINT64, value FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR beforetstzs TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.0|1609459200
+2|5.0|1609632000
+
+CREATE SINK beforetstzs_out(beforetstzs.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, BEFORE_TSTZSPAN_TEMPORAL(value, ts, '[2021-01-01 00:00:00+00, 2021-01-02 00:00:00+00)') AS r FROM beforetstzs INTO beforetstzs_out;
+----
+1,0
+2,1

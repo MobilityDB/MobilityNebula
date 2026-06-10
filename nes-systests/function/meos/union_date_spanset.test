@@ -1,0 +1,12 @@
+# name: MEOS_UNION_DATE_SPANSET
+# description: union_date_spanset value-mixed set/span/spanset algebra.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE uniondatespanset(id UINT64, lit VARSIZED, val INT32);
+CREATE PHYSICAL SOURCE FOR uniondatespanset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{[2020-01-01, 2020-01-10)}'|7307
+
+CREATE SINK uniondatespanset_out(uniondatespanset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, UNION_DATE_SPANSET(lit, val) AS r FROM uniondatespanset INTO uniondatespanset_out;
+----
+1,{[2020-01-01,2020-01-10)}

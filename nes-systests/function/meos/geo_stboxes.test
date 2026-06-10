@@ -1,0 +1,12 @@
+# name: MEOS_GEO_STBOXES
+# description: GEO_STBOXES returns the array of spatiotemporal boxes of the segments of a (multi)line geometry.
+# groups: [Function, MEOS, Geo, Box]
+CREATE LOGICAL SOURCE geostboxess(id UINT64, a VARSIZED);
+CREATE PHYSICAL SOURCE FOR geostboxess TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'MULTILINESTRING((0 0,1 1),(2 2,3 3))'
+
+CREATE SINK geostboxess_out(geostboxess.id UINT64, r VARSIZED) TYPE File;
+SELECT id, GEO_STBOXES(a) AS r FROM geostboxess INTO geostboxess_out;
+----
+1,{STBOX,X((0,0),(1,1)),STBOX,X((2,2),(3,3))}

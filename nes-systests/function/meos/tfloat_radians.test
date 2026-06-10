@@ -1,0 +1,13 @@
+# name: MEOS_TFLOAT_RADIANS
+# groups: [Function, MEOS, TemporalNumber, Codegen]
+CREATE LOGICAL SOURCE tfloatc(id UINT64, value FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR tfloatc TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|2.5|1609459200
+2|10.0|1609545600
+
+CREATE SINK tfloatc_out(tfloatc.id UINT64, r FLOAT64) TYPE File;
+SELECT id, TFLOAT_RADIANS(value, ts) AS r FROM tfloatc INTO tfloatc_out;
+----
+1,0.043633
+2,0.174533

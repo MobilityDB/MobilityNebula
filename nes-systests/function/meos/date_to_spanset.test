@@ -1,0 +1,12 @@
+# name: MEOS_DATE_TO_SPANSET
+# description: date_to_spanset — construct a spanset from a single date value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE datetospanset(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR datetospanset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|7305
+
+CREATE SINK datetospanset_out(datetospanset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, DATE_TO_SPANSET(value) AS r FROM datetospanset INTO datetospanset_out;
+----
+1,{[2020-01-01,2020-01-02)}

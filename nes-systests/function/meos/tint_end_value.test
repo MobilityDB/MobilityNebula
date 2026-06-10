@@ -1,0 +1,17 @@
+# name: MEOS_TINT_END_VALUE_Aggregation
+# description: Windowed TINT_END_VALUE over per-(window,group) temporal.
+# groups: [Function, MEOS, Aggregation, Codegen]
+CREATE LOGICAL SOURCE aiend(gid UINT64, reading INT32, ts UINT64);
+CREATE PHYSICAL SOURCE FOR aiend TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|10|1609459200
+1|22|1609459201
+1|18|1609459202
+2|5|1609459200
+2|99|1609459201
+
+CREATE SINK aiend_out(aiend.gid UINT64, aiend.r INT32) TYPE File;
+SELECT gid, TINT_END_VALUE(reading, ts) AS r FROM aiend GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO aiend_out;
+----
+1,18
+2,99

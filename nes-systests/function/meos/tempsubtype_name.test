@@ -1,0 +1,14 @@
+# name: MEOS_TEMPSUBTYPE_NAME
+# description: TEMPSUBTYPE_NAME maps a tempSubtype (TINSTANT=1, TSEQUENCE=2) to its name.
+# groups: [Function, MEOS, Catalog]
+CREATE LOGICAL SOURCE tsn(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR tsn TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1
+2|2
+
+CREATE SINK tsn_out(tsn.id UINT64, r VARSIZED) TYPE File;
+SELECT id, TEMPSUBTYPE_NAME(value) AS r FROM tsn INTO tsn_out;
+----
+1,Instant
+2,Sequence

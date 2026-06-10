@@ -1,0 +1,14 @@
+# name: MEOS_GEO_BASETYPE
+# description: GEO_BASETYPE over a MeosType enum value (e.g. T_GEOMETRY=42, T_INT4=15) — a now-public meos_catalog.h type-reflection predicate.
+# groups: [Function, MEOS, Catalog]
+CREATE LOGICAL SOURCE gbt(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR gbt TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|42
+2|15
+
+CREATE SINK gbt_out(gbt.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, GEO_BASETYPE(value) AS r FROM gbt INTO gbt_out;
+----
+1,1
+2,0

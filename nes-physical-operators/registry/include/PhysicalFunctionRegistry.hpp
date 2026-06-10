@@ -34,6 +34,15 @@ class PhysicalFunctionRegistry
 };
 }
 
+/* MEOS: a plugin operator .cpp (which #defines NES_PLUGIN_OPERATOR_TU before
+   including this header) needs only the registry types declared above to define
+   its own Register<Op> function — not the generated registrar that lists every
+   plugin. That .inc is regenerated whenever any operator is added, so including
+   it here forces all generated operator TUs to recompile on every add. Skipping
+   it for operator TUs decouples them; the central registerAll consumers (which do
+   not define the macro) still get it. */
+#ifndef NES_PLUGIN_OPERATOR_TU
 #define INCLUDED_FROM_REGISTRY_PHYSICAL_FUNCTION
 #include <PhysicalFunctionGeneratedRegistrar.inc>
 #undef INCLUDED_FROM_REGISTRY_PHYSICAL_FUNCTION
+#endif

@@ -1,0 +1,14 @@
+# name: MEOS_OVERAFTER_TSTZSPAN_TEMPORAL
+# description: overafter_tstzspan_temporal (temporal, tstzspan) time topological relationship.
+# groups: [Function, MEOS, Temporal, Topological, Codegen]
+CREATE LOGICAL SOURCE overafterts(id UINT64, value FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR overafterts TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.0|1609459200
+2|5.0|1609632000
+
+CREATE SINK overafterts_out(overafterts.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, OVERAFTER_TSTZSPAN_TEMPORAL(value, ts, '[2021-01-01 00:00:00+00, 2021-01-02 00:00:00+00)') AS r FROM overafterts INTO overafterts_out;
+----
+1,1
+2,0

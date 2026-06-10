@@ -1,0 +1,13 @@
+# name: MEOS_TSTZSET_TCOUNT_TRANSFN
+# description: Windowed TSTZSET_TCOUNT_TRANSFN -> aggregate Temporal (hex-WKB) via the per-op SkipList tagg transfn; VARSIZED value, timestamp windowing-only.
+# groups: [Function, MEOS, Aggregation]
+CREATE LOGICAL SOURCE ctsc(vehicle_id UINT64, value VARSIZED, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR ctsc TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|{2020-01-01 00:00:00+00, 2020-01-01 00:10:00+00}|1609459200
+1|{2020-01-01 00:00:00+00}|1609462800
+
+CREATE SINK ctsc_out(ctsc.vehicle_id UINT64, ctsc.r VARSIZED) TYPE File;
+SELECT vehicle_id, TSTZSET_TCOUNT_TRANSFN(value, timestamp) AS r FROM ctsc GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO ctsc_out;
+----
+1,012300060200000003020000000060C286073E02000100000000A685AA073E0200

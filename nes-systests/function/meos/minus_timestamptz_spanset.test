@@ -1,0 +1,12 @@
+# name: MEOS_MINUS_TIMESTAMPTZ_SPANSET
+# description: minus_timestamptz_spanset value-mixed set/span/spanset algebra.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE minustimestamptzsp(id UINT64, lit VARSIZED, val INT64);
+CREATE PHYSICAL SOURCE FOR minustimestamptzsp TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{[2021-01-01 00:00:00+00, 2021-01-05 00:00:00+00)}'|665452800000000
+
+CREATE SINK minustimestamptzsp_out(minustimestamptzsp.id UINT64, r VARSIZED) TYPE File;
+SELECT id, MINUS_TIMESTAMPTZ_SPANSET(lit, val) AS r FROM minustimestamptzsp INTO minustimestamptzsp_out;
+----
+1,{[2021-02-01,00:00:00+00,2021-02-01,00:00:00+00]}

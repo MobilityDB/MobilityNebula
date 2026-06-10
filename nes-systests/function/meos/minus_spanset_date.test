@@ -1,0 +1,12 @@
+# name: MEOS_MINUS_SPANSET_DATE
+# description: minus_spanset_date value-mixed set/span/spanset algebra.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE minusspansetdate(id UINT64, lit VARSIZED, val INT32);
+CREATE PHYSICAL SOURCE FOR minusspansetdate TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{[2020-01-01, 2020-01-10)}'|7307
+
+CREATE SINK minusspansetdate_out(minusspansetdate.id UINT64, r VARSIZED) TYPE File;
+SELECT id, MINUS_SPANSET_DATE(lit, val) AS r FROM minusspansetdate INTO minusspansetdate_out;
+----
+1,{[2020-01-01,2020-01-03),[2020-01-04,2020-01-10)}

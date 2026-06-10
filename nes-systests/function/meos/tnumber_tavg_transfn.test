@@ -1,0 +1,14 @@
+# name: MEOS_TNUMBER_TAVG_TRANSFN
+# description: Windowed TNUMBER_TAVG_TRANSFN -> aggregate Temporal (hex-WKB) via the per-op tagg transfn (tAvg); same-timestamp events merged by the aggregation fn.
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE tav(vehicle_id UINT64, value FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tav TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.0|1609459200
+1|6.0|1609459200
+1|9.0|1609462800
+
+CREATE SINK tav_out(tav.vehicle_id UINT64, tav.r VARSIZED) TYPE File;
+SELECT vehicle_id, TNUMBER_TAVG_TRANSFN(value, timestamp) AS r FROM tav GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tav_out;
+----
+1,012100060200000003000000000000144000A0AD30CA5A0200000000000000224000444107CB5A0200

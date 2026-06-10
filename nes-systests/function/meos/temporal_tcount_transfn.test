@@ -1,0 +1,14 @@
+# name: MEOS_TEMPORAL_TCOUNT_TRANSFN
+# description: Windowed TEMPORAL_TCOUNT_TRANSFN -> aggregate Temporal (hex-WKB) via the per-op tagg transfn (tCount); same-timestamp events merged by the aggregation fn.
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE tct(vehicle_id UINT64, value FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tct TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.0|1609459200
+1|3.0|1609459200
+1|2.0|1609462800
+
+CREATE SINK tct_out(tct.vehicle_id UINT64, tct.r VARSIZED) TYPE File;
+SELECT vehicle_id, TEMPORAL_TCOUNT_TRANSFN(value, timestamp) AS r FROM tct GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tct_out;
+----
+1,0123000602000000030200000000A0AD30CA5A02000100000000444107CB5A0200

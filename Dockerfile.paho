@@ -1,0 +1,60 @@
+# Adds Eclipse Paho MQTT (C + C++) to the NebulaStream dev image so that
+# find_package(PahoMqttCpp CONFIG) succeeds and the optional MQTT source/sink
+# plugins build. The base dev image's vcpkg ships no upstream ports tree and its
+# build attempted a non-existent port (paho-mqttcpp), so paho was never present.
+#
+# Paho is built with the SAME toolchain NebulaStream uses (clang-19, libc++,
+# c++23, static, -fPIC) so the C++ wrapper is ABI-compatible with the rest of
+# the build and the MQTT plugin links against PahoMqttCpp::paho-mqttpp3-static.
+#
+#   docker build -f Dockerfile.paho -t localhost/nes-development:mobilitynebula-v5 .
+ARG BASE_IMAGE=localhost/nes-development:mobilitynebula-v4
+FROM ${BASE_IMAGE}
+
+ARG PAHO_C_TAG=v1.3.14
+ARG PAHO_CPP_TAG=v1.4.1
+ENV CC=clang-19 CXX=clang++-19
+
+# 1) Paho MQTT C client (static, SSL, PIC) — pure C, no libc++ concern.
+RUN set -eux; \
+    cd /tmp; \
+    git clone --depth 1 --branch ${PAHO_C_TAG} https://github.com/eclipse-paho/paho.mqtt.c.git; \
+    cmake -S paho.mqtt.c -B paho.mqtt.c/build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DPAHO_BUILD_STATIC=ON -DPAHO_BUILD_SHARED=OFF \
+        -DPAHO_WITH_SSL=ON -DPAHO_HIGH_PERFORMANCE=ON \
+        -DPAHO_ENABLE_TESTING=OFF \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        -DCMAKE_INSTALL_PREFIX=/usr/local; \
+    cmake --build paho.mqtt.c/build --target install; \
+    rm -rf /tmp/paho.mqtt.c
+
+# libc++ char_traits<unsigned char> shim (see header for rationale). Installed
+# where find_package(PahoMqttCpp) adds it to the include path, and pulled into
+# the installed mqtt/types.h so the NebulaStream MQTT plugin compiles too.
+COPY docker/paho_uchar_char_traits.h /usr/local/include/paho_uchar_char_traits.h
+
+# 2) Paho MQTT C++ wrapper, built with the project's clang/libc++/c++23 toolchain
+#    so it is ABI-compatible. libc++ provides no std::char_traits<unsigned char>,
+#    which Paho's std::basic_string<unsigned char> buffers require; pull the
+#    char_traits shim into the installed mqtt/types.h (so the NebulaStream MQTT
+#    plugin gets it too) and force-include it, and pin Paho to c++23 so it
+#    matches the project's libc++ standard library.
+RUN set -eux; \
+    cd /tmp; \
+    git clone --depth 1 --branch ${PAHO_CPP_TAG} https://github.com/eclipse-paho/paho.mqtt.cpp.git; \
+    sed -i '1i #include <paho_uchar_char_traits.h>' paho.mqtt.cpp/include/mqtt/types.h; \
+    find paho.mqtt.cpp -name CMakeLists.txt -exec sed -i 's/CXX_STANDARD 11/CXX_STANDARD 23/g' {} +; \
+    cmake -S paho.mqtt.cpp -B paho.mqtt.cpp/build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DPAHO_BUILD_STATIC=ON -DPAHO_BUILD_SHARED=OFF \
+        -DPAHO_WITH_SSL=ON \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        -DCMAKE_CXX_COMPILER=clang++-19 -DCMAKE_C_COMPILER=clang-19 \
+        -DCMAKE_CXX_STANDARD=23 -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+        -DCMAKE_CXX_FLAGS="-stdlib=libc++ -fPIC -include paho_uchar_char_traits.h" \
+        -DCMAKE_INSTALL_PREFIX=/usr/local; \
+    cmake --build paho.mqtt.cpp/build --target install; \
+    test -f /usr/local/lib/cmake/PahoMqttCpp/PahoMqttCppConfig.cmake; \
+    ldconfig; \
+    rm -rf /tmp/paho.mqtt.cpp

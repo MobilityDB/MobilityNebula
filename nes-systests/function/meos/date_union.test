@@ -1,0 +1,14 @@
+# name: MEOS_DateUnion_Aggregation
+# description: Windowed DATE_UNION_TRANSFN — DateADT values unioned into a DATESET via date_union_transfn.
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE du(vehicle_id UINT64, value INT32, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR du TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|100|1609459200
+1|200|1609459201
+1|150|1609459202
+
+CREATE SINK du_out(du.vehicle_id UINT64, du.uset VARSIZED) TYPE File;
+SELECT vehicle_id, DATE_UNION_TRANSFN(value, timestamp) AS uset FROM du GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO du_out;
+----
+1,{2000-04-10, 2000-05-30, 2000-07-19}

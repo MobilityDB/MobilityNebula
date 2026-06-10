@@ -1,0 +1,14 @@
+# name: MEOS_TEMPORAL_TFLOAT_END_VALUE_Aggregation
+# groups: [Function, MEOS, Aggregation, Codegen]
+CREATE LOGICAL SOURCE tfloaa(gid UINT64, reading FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR tfloaa TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|10.5|1609459200
+1|22.7|1609459201
+2|5.0|1609459200
+
+CREATE SINK tfloaa_out(tfloaa.gid UINT64, tfloaa.r FLOAT64) TYPE File;
+SELECT gid, TFLOAT_END_VALUE(reading, ts) AS r FROM tfloaa GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO tfloaa_out;
+----
+1,22.7
+2,5.0

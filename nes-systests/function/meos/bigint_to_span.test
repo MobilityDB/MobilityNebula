@@ -1,0 +1,12 @@
+# name: MEOS_BIGINT_TO_SPAN
+# description: bigint_to_span — construct a span from a single bigint value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE biginttospan(id UINT64, value INT64);
+CREATE PHYSICAL SOURCE FOR biginttospan TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5
+
+CREATE SINK biginttospan_out(biginttospan.id UINT64, r VARSIZED) TYPE File;
+SELECT id, BIGINT_TO_SPAN(value) AS r FROM biginttospan INTO biginttospan_out;
+----
+1,[5,6)

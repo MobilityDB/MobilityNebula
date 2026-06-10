@@ -1,0 +1,14 @@
+# name: MEOS_TEMPORAL_SUBTYPE
+# description: TEMPORAL_SUBTYPE returns the subtype name (Instant/Sequence/...) of a temporal value. A per-event tfloat instant is an Instant.
+# groups: [Function, MEOS, Catalog, Temporal]
+CREATE LOGICAL SOURCE tsub(id UINT64, value FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR tsub TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.0|1609459200
+2|7.5|1609545600
+
+CREATE SINK tsub_out(tsub.id UINT64, r VARSIZED) TYPE File;
+SELECT id, TEMPORAL_SUBTYPE(value, ts) AS r FROM tsub INTO tsub_out;
+----
+1,Instant
+2,Instant

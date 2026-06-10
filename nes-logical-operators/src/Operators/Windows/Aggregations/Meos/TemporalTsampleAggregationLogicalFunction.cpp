@@ -1,0 +1,123 @@
+/*
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
+#include <Operators/Windows/Aggregations/Meos/TemporalTsampleAggregationLogicalFunction.hpp>
+
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+#include <Configurations/Descriptor.hpp>
+#include <DataTypes/DataTypeProvider.hpp>
+#include <DataTypes/Schema.hpp>
+#include <Functions/FieldAccessLogicalFunction.hpp>
+#include <Functions/LogicalFunction.hpp>
+#include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Serialization/TemporalAggregationSerde.hpp>
+
+#include <AggregationLogicalFunctionRegistry.hpp>
+#include <ErrorHandling.hpp>
+#include <SerializableVariantDescriptor.pb.h>
+
+namespace NES
+{
+
+TemporalTsampleAggregationLogicalFunction::TemporalTsampleAggregationLogicalFunction(
+    const FieldAccessLogicalFunction& lonField,
+    const FieldAccessLogicalFunction& latField,
+    const FieldAccessLogicalFunction& timestampField,
+    const FieldAccessLogicalFunction& asField,
+    std::vector<std::string> constArgs)
+    : WindowAggregationLogicalFunction(
+          lonField.getDataType(),
+          DataTypeProvider::provideDataType(partialAggregateStampType),
+          DataTypeProvider::provideDataType(finalAggregateStampType),
+          lonField,
+          asField)
+    , lonField(lonField)
+    , latField(latField)
+    , timestampField(timestampField)
+    , constArgs(std::move(constArgs))
+{
+}
+
+std::shared_ptr<WindowAggregationLogicalFunction>
+TemporalTsampleAggregationLogicalFunction::create(
+    const FieldAccessLogicalFunction& lonField,
+    const FieldAccessLogicalFunction& latField,
+    const FieldAccessLogicalFunction& timestampField,
+    std::vector<std::string> constArgs)
+{
+    return std::make_shared<TemporalTsampleAggregationLogicalFunction>(lonField, latField, timestampField, lonField, std::move(constArgs));
+}
+
+std::string_view TemporalTsampleAggregationLogicalFunction::getName() const noexcept
+{
+    return NAME;
+}
+
+void TemporalTsampleAggregationLogicalFunction::inferStamp(const Schema& schema)
+{
+    lonField = lonField.withInferredDataType(schema).get<FieldAccessLogicalFunction>();
+    latField = latField.withInferredDataType(schema).get<FieldAccessLogicalFunction>();
+    timestampField = timestampField.withInferredDataType(schema).get<FieldAccessLogicalFunction>();
+
+    onField = lonField;
+
+    if (!lonField.getDataType().isNumeric() || !latField.getDataType().isNumeric() || !timestampField.getDataType().isNumeric())
+    {
+        throw CannotInferSchema("TemporalTsampleAggregationLogicalFunction: lon, lat, and timestamp fields must be numeric.");
+    }
+
+    const auto onFieldName = onField.getFieldName();
+    const auto asFieldName = asField.getFieldName();
+    const auto attributeNameResolver = onFieldName.substr(0, onFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR) + 1);
+    if (asFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR) == std::string::npos)
+    {
+        asField = asField.withFieldName(attributeNameResolver + asFieldName).get<FieldAccessLogicalFunction>();
+    }
+    else
+    {
+        const auto fieldName = asFieldName.substr(asFieldName.find_last_of(Schema::ATTRIBUTE_NAME_SEPARATOR) + 1);
+        asField = asField.withFieldName(attributeNameResolver + fieldName).get<FieldAccessLogicalFunction>();
+    }
+    asField = asField.withDataType(getFinalAggregateStamp()).get<FieldAccessLogicalFunction>();
+    inputStamp = onField.getDataType();
+}
+
+NES::SerializableAggregationFunction TemporalTsampleAggregationLogicalFunction::serialize() const
+{
+    auto saf = TemporalAggregationSerde::serializeTemporalSequence(lonField, latField, timestampField, asField);
+    TemporalAggregationSerde::serializeConstArgs(saf, constArgs);
+    saf.set_type(std::string(NAME));
+    return saf;
+}
+
+AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterTemporalTsampleAggregationLogicalFunction(
+    AggregationLogicalFunctionRegistryArguments arguments)
+{
+    if (arguments.fields.size() == 4)
+    {
+        auto ptr = std::make_shared<TemporalTsampleAggregationLogicalFunction>(
+            arguments.fields[0], arguments.fields[1], arguments.fields[2], arguments.fields[3],
+            arguments.literals);
+        return ptr;
+    }
+    throw CannotDeserialize(
+        "TemporalTsampleAggregationLogicalFunction requires lon, lat, timestamp, and alias fields but got {}",
+        arguments.fields.size());
+}
+
+} // namespace NES

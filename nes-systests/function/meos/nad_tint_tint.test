@@ -1,0 +1,14 @@
+# name: MEOS_NAD_TINT_TINT
+# description: Nearest-approach distance between two single-instant tints (genuine nad_tint_tint).
+# groups: [Function, MEOS, TNumber, TInt, NAD, Codegen]
+CREATE LOGICAL SOURCE ndii(id UINT64, valueA INT32, tsA UINT64, valueB INT32, tsB UINT64);
+CREATE PHYSICAL SOURCE FOR ndii TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|42|1609459200|40|1609459200
+2|17|1609459200|17|1609459200
+
+CREATE SINK ndii_out(ndii.id UINT64, r INT32) TYPE File;
+SELECT id, NAD_TINT_TINT(valueA, tsA, valueB, tsB) AS r FROM ndii INTO ndii_out;
+----
+1,2
+2,0

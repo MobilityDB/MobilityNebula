@@ -1,0 +1,14 @@
+# name: MEOS_TINT_WSUM_TRANSFN
+# description: Windowed TINT_WSUM_TRANSFN -> aggregate Temporal (hex-WKB) via the per-op windowed tagg transfn (1-hour radius).
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE wsm(vehicle_id UINT64, value INT32, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR wsm TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5|1609459200
+1|3|1609459200
+1|2|1609462800
+
+CREATE SINK wsm_out(wsm.vehicle_id UINT64, wsm.r VARSIZED) TYPE File;
+SELECT vehicle_id, TINT_WSUM_TRANSFN(value, timestamp) AS r FROM wsm GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO wsm_out;
+----
+1,0123000B0200000002000000030800000000A0AD30CA5A02000A00000000444107CB5A020002000000020200000000444107CB5A02000200000000E8D4DDCB5A0200

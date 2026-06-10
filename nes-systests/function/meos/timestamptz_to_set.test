@@ -1,0 +1,12 @@
+# name: MEOS_TIMESTAMPTZ_TO_SET
+# description: timestamptz_to_set — construct a set from a single timestamptz value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE timestamptztoset(id UINT64, value INT64);
+CREATE PHYSICAL SOURCE FOR timestamptztoset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|662774400000000
+
+CREATE SINK timestamptztoset_out(timestamptztoset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, TIMESTAMPTZ_TO_SET(value) AS r FROM timestamptztoset INTO timestamptztoset_out;
+----
+1,{"2021-01-01,00:00:00+00"}

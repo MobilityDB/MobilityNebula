@@ -1,0 +1,14 @@
+# name: MEOS_TGEO_AT_STBOX
+# description: Restrict a single-instant tgeompoint to a spatial STBOX; 1 if the instant survives, 0 if clipped away (genuine tgeo_at_stbox).
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Stbox, Codegen]
+CREATE LOGICAL SOURCE tgas(id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tgas TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+2|4.1000|50.8000|1609459200
+
+CREATE SINK tgas_out(tgas.id UINT64, r INT32) TYPE File;
+SELECT id, TGEO_AT_STBOX(lon, lat, timestamp, 'SRID=4326;STBOX X((4.3,50.6),(4.4,50.7))') AS r FROM tgas INTO tgas_out;
+----
+1,1
+2,0

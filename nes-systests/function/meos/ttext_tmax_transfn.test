@@ -1,0 +1,14 @@
+# name: MEOS_TTEXT_TMAX_TRANSFN
+# description: Windowed TTEXT_TMAX_TRANSFN -> aggregate ttext (hex-WKB) via the per-op tagg transfn (tMax); VARSIZED text value, same-timestamp values merged.
+# groups: [Function, MEOS, TemporalText, Aggregation]
+CREATE LOGICAL SOURCE ttx(vehicle_id UINT64, value VARSIZED, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR ttx TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|ABC|1609459200
+1|XYZ|1609459200
+1|DEF|1609462800
+
+CREATE SINK ttx_out(ttx.vehicle_id UINT64, ttx.r VARSIZED) TYPE File;
+SELECT vehicle_id, TTEXT_TMAX_TRANSFN(value, timestamp) AS r FROM ttx GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO ttx_out;
+----
+1,012900060200000003030000000000000058595A00A0AD30CA5A0200030000000000000044454600444107CB5A0200

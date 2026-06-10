@@ -1,0 +1,14 @@
+# name: MEOS_BIGINTSPANSET_WIDTH
+# description: bigintspanset_width — total width of an bigint spanset.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE bigintspansetwidths(id UINT64, a VARSIZED);
+CREATE PHYSICAL SOURCE FOR bigintspansetwidths TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{[1, 5), [10, 15)}'
+2|'{[3, 7)}'
+
+CREATE SINK bigintspansetwidths_out(bigintspansetwidths.id UINT64, r INT64) TYPE File;
+SELECT id, BIGINTSPANSET_WIDTH(a) AS r FROM bigintspansetwidths INTO bigintspansetwidths_out;
+----
+1,9
+2,4

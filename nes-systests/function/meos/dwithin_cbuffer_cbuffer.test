@@ -1,0 +1,14 @@
+# name: MEOS_DWITHIN_CBUFFER_CBUFFER
+# description: DWITHIN_CBUFFER_CBUFFER tests whether two circular buffers (static Cbuffer literals) are within a given distance. Row 1 are close + within; row 2 are far + not within.
+# groups: [Function, MEOS, Cbuffer]
+CREATE LOGICAL SOURCE dwithincbuffercbuffers(id UINT64, a VARSIZED, b VARSIZED, dist FLOAT64);
+CREATE PHYSICAL SOURCE FOR dwithincbuffercbuffers TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'Cbuffer(Point(1 1),0.5)'|'Cbuffer(Point(2 2),0.5)'|2.0
+2|'Cbuffer(Point(0 0),0.5)'|'Cbuffer(Point(10 10),0.5)'|1.0
+
+CREATE SINK dwithincbuffercbuffers_out(dwithincbuffercbuffers.id UINT64, r INT32) TYPE File;
+SELECT id, DWITHIN_CBUFFER_CBUFFER(a, b, dist) AS r FROM dwithincbuffercbuffers INTO dwithincbuffercbuffers_out;
+----
+1,1
+2,0

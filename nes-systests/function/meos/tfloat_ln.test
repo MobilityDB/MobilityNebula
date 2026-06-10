@@ -1,0 +1,13 @@
+# name: MEOS_TFLOAT_LN
+# groups: [Function, MEOS, Codegen]
+CREATE LOGICAL SOURCE tfloatm(id UINT64, value FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR tfloatm TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|2.5|1609459200
+2|10.0|1609545600
+
+CREATE SINK tfloatm_out(tfloatm.id UINT64, r FLOAT64) TYPE File;
+SELECT id, TFLOAT_LN(value, ts) AS r FROM tfloatm INTO tfloatm_out;
+----
+1,0.916291
+2,2.302585

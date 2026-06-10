@@ -1,0 +1,12 @@
+# name: MEOS_TIMESTAMPTZ_TO_SPANSET
+# description: timestamptz_to_spanset — construct a spanset from a single timestamptz value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE timestamptztospanset(id UINT64, value INT64);
+CREATE PHYSICAL SOURCE FOR timestamptztospanset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|662774400000000
+
+CREATE SINK timestamptztospanset_out(timestamptztospanset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, TIMESTAMPTZ_TO_SPANSET(value) AS r FROM timestamptztospanset INTO timestamptztospanset_out;
+----
+1,{[2021-01-01,00:00:00+00,2021-01-01,00:00:00+00]}

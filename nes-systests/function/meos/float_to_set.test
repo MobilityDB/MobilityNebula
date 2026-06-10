@@ -1,0 +1,12 @@
+# name: MEOS_FLOAT_TO_SET
+# description: float_to_set — construct a set from a single float value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE floattoset(id UINT64, value FLOAT64);
+CREATE PHYSICAL SOURCE FOR floattoset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.0
+
+CREATE SINK floattoset_out(floattoset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, FLOAT_TO_SET(value) AS r FROM floattoset INTO floattoset_out;
+----
+1,{5}

@@ -1,0 +1,15 @@
+# name: MEOS_ECONTAINS_TGEO_GEO
+# description: Per-event ever-contains between a single-instant tgeompoint and a static geometry (genuine econtains_tgeo_geo).
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, StaticGeometry, EContains, Codegen]
+
+CREATE LOGICAL SOURCE econtains_tests(id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64, geom_wkt VARSIZED);
+CREATE PHYSICAL SOURCE FOR econtains_tests TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200|'SRID=4326;POINT(4.3658 50.6456)'
+2|4.1000|50.8000|1609459200|'SRID=4326;POINT(4.3658 50.6456)'
+
+CREATE SINK econtains_results(econtains_tests.id UINT32, contains INT32) TYPE File;
+SELECT id, ECONTAINS_TGEO_GEO(lon, lat, timestamp, geom_wkt) AS contains FROM econtains_tests INTO econtains_results;
+----
+1,1
+2,0

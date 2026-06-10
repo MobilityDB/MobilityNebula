@@ -1,0 +1,18 @@
+# name: function/spatiotemporal/MEOS_TemporalEContainsTCbufferCbuffer.test
+# description: Per-event ever-r between a single-instant tcbuffer (lon, lat, radius, ts) and a static Cbuffer literal. Exercises the W11 codegen shape — 5-arg lift with second-arg parsed via cbuffer_in() instead of the geometry parser used in W10.
+# groups: [Function, MEOS, SpatioTemporal, TCbuffer, EContains, Codegen]
+
+CREATE LOGICAL SOURCE eqcc2(id UINT32, lon FLOAT64, lat FLOAT64, radius FLOAT64, timestamp UINT64, cbuffer_literal VARSIZED);
+CREATE PHYSICAL SOURCE FOR eqcc2 TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|10.0|1609459200|'Cbuffer(Point(4.3658 50.6456),1.0)'
+2|4.3658|50.6456|0.0001|1609459200|'Cbuffer(Point(4.4000 50.7000),0.0001)'
+
+CREATE SINK eqcc2_out(eqcc2.id UINT32, r INT32) TYPE File;
+SELECT id,
+       EVER_EQ_TCBUFFER_CBUFFER(lon, lat, radius, timestamp, cbuffer_literal) AS r
+FROM eqcc2
+INTO eqcc2_out;
+----
+1,0
+2,0

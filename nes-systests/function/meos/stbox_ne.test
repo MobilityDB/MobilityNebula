@@ -1,0 +1,14 @@
+# name: MEOS_STBOX_NE
+# description: STBOX_NE over two per-vehicle extent STBoxes (VARSIZED stbox text). Box A=((1,1),(3,3)); B=((2,2),(4,4)).
+# groups: [Function, MEOS, SpatioTemporal, Box, Codegen]
+CREATE LOGICAL SOURCE sbcne(id UINT64, boxa VARSIZED, boxb VARSIZED);
+CREATE PHYSICAL SOURCE FOR sbcne TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|STBOX X((1,1),(3,3))|STBOX X((2,2),(4,4))
+2|STBOX X((1,1),(3,3))|STBOX X((10,10),(11,11))
+
+CREATE SINK sbcne_out(sbcne.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, STBOX_NE(boxa, boxb) AS r FROM sbcne INTO sbcne_out;
+----
+1,1
+2,1

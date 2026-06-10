@@ -1,0 +1,14 @@
+# name: MEOS_DateExtent_Aggregation
+# description: Windowed DATE_EXTENT_TRANSFN — DateADT value extent (DATESPAN) via date_extent_transfn.
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE de(vehicle_id UINT64, value INT32, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR de TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|100|1609459200
+1|200|1609459201
+1|150|1609459202
+
+CREATE SINK de_out(de.vehicle_id UINT64, de.extent VARSIZED) TYPE File;
+SELECT vehicle_id, DATE_EXTENT_TRANSFN(value, timestamp) AS extent FROM de GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO de_out;
+----
+1,[2000-04-10, 2000-07-20)

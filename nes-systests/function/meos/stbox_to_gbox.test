@@ -1,0 +1,14 @@
+# name: MEOS_STBOX_TO_GBOX
+# description: STBOX_TO_GBOX converts a spatiotemporal box (a VARSIZED stbox text literal, e.g. a TSPATIAL_EXTENT_TRANSFN output) to its PostGIS GBOX text. Row 1 is a spatial-only 2D box; row 2 carries a Z dimension.
+# groups: [Function, MEOS, SpatioTemporal, Box]
+CREATE LOGICAL SOURCE sbg(id UINT64, box VARSIZED);
+CREATE PHYSICAL SOURCE FOR sbg TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|STBOX X((1,1),(3,3))
+2|STBOX Z((1,1,1),(3,3,5))
+
+CREATE SINK sbg_out(sbg.id UINT64, r VARSIZED) TYPE File;
+SELECT id, STBOX_TO_GBOX(box) AS r FROM sbg INTO sbg_out;
+----
+1,GBOX,X((1,1),(3,3))
+2,GBOX,Z((1,1,1),(3,3,5))

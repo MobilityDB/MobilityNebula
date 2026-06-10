@@ -1,0 +1,14 @@
+# name: MEOS_ADJACENT_TSTZSPAN_TEMPORAL
+# description: adjacent_tstzspan_temporal (temporal, tstzspan) time topological relationship.
+# groups: [Function, MEOS, Temporal, Topological, Codegen]
+CREATE LOGICAL SOURCE adjacenttst(id UINT64, value FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR adjacenttst TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.0|1609459200
+2|5.0|1609632000
+
+CREATE SINK adjacenttst_out(adjacenttst.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, ADJACENT_TSTZSPAN_TEMPORAL(value, ts, '[2021-01-01 00:00:00+00, 2021-01-02 00:00:00+00)') AS r FROM adjacenttst INTO adjacenttst_out;
+----
+1,1
+2,0

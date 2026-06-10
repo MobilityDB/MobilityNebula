@@ -15,6 +15,9 @@ add_plugin(HashJoin RewriteRule nes-query-optimizer LowerToPhysicalHashJoin.cpp)
 add_plugin(Selection RewriteRule nes-query-optimizer LowerToPhysicalSelection.cpp)
 add_plugin(Projection RewriteRule nes-query-optimizer LowerToPhysicalProjection.cpp)
 add_plugin(WindowedAggregation RewriteRule nes-query-optimizer LowerToPhysicalWindowedAggregation.cpp)
+# The MEOS family compile-defines for this TU are scoped in
+# nes-query-optimizer/CMakeLists.txt (where the target is created); add_plugin
+# defers target creation, so the target is not visible in this directory scope.
 add_plugin(Union RewriteRule nes-query-optimizer LowerToPhysicalUnion.cpp)
 add_plugin(Sink RewriteRule nes-query-optimizer LowerToPhysicalSink.cpp)
 add_plugin(Source RewriteRule nes-query-optimizer LowerToPhysicalSource.cpp)

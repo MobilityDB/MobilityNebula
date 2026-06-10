@@ -1,0 +1,12 @@
+# name: MEOS_UNION_SPAN_TIMESTAMPTZ
+# description: union_span_timestamptz value-mixed set/span/spanset algebra.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE unionspantimestamp(id UINT64, lit VARSIZED, val INT64);
+CREATE PHYSICAL SOURCE FOR unionspantimestamp TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'[2021-01-01 00:00:00+00, 2021-01-05 00:00:00+00)'|662774400000000
+
+CREATE SINK unionspantimestamp_out(unionspantimestamp.id UINT64, r VARSIZED) TYPE File;
+SELECT id, UNION_SPAN_TIMESTAMPTZ(lit, val) AS r FROM unionspantimestamp INTO unionspantimestamp_out;
+----
+1,{[2021-01-01,00:00:00+00,2021-01-05,00:00:00+00)}

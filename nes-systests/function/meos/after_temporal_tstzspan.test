@@ -1,0 +1,14 @@
+# name: MEOS_AFTER_TEMPORAL_TSTZSPAN
+# description: after_temporal_tstzspan (temporal, tstzspan) time topological relationship.
+# groups: [Function, MEOS, Temporal, Topological, Codegen]
+CREATE LOGICAL SOURCE aftertempor(id UINT64, value FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR aftertempor TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.0|1609459200
+2|5.0|1609632000
+
+CREATE SINK aftertempor_out(aftertempor.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, AFTER_TEMPORAL_TSTZSPAN(value, ts, '[2021-01-01 00:00:00+00, 2021-01-02 00:00:00+00)') AS r FROM aftertempor INTO aftertempor_out;
+----
+1,0
+2,1

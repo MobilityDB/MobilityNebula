@@ -20,8 +20,19 @@ activate_optional_plugin("Sources/TCPSource" ON)
 # Enable the Generator source plugin; required by systests and repl tests
 activate_optional_plugin("Sources/GeneratorSource" ON)
 activate_optional_plugin("Sinks/VoidSink" ON)
-activate_optional_plugin("Sources/MQTTSource" ON)
-activate_optional_plugin("Sinks/MQTTSink" ON)
+# The MQTT source/sink plugins require PahoMqttCpp. Their CMakeLists call
+# find_package(PahoMqttCpp CONFIG REQUIRED), which aborts the whole
+# configuration when the package is absent. Detect it here and activate the
+# plugins only when present, so configuration succeeds in images that do not
+# ship PahoMqttCpp (e.g. the MEOS systest image) while MQTT is still built
+# automatically wherever the dependency is available.
+find_package(PahoMqttCpp CONFIG QUIET)
+if (PahoMqttCpp_FOUND)
+    activate_optional_plugin("Sources/MQTTSource" ON)
+    activate_optional_plugin("Sinks/MQTTSink" ON)
+else ()
+    message(STATUS "PahoMqttCpp not found; skipping the optional MQTT source/sink plugins.")
+endif ()
 
 # MEOS is a dependency
 activate_optional_plugin("MEOS" ON)

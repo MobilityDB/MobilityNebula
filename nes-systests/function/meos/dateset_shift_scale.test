@@ -1,0 +1,12 @@
+# name: MEOS_DATESET_SHIFT_SCALE
+# description: dateset_shift_scale (int shift/width).
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE datesetss(id UINT64, lit VARSIZED, sh INT32, wd INT32);
+CREATE PHYSICAL SOURCE FOR datesetss TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{2020-01-01, 2020-01-05}'|10|20
+
+CREATE SINK datesetss_out(datesetss.id UINT64, r VARSIZED) TYPE File;
+SELECT id, DATESET_SHIFT_SCALE(lit, sh, wd) AS r FROM datesetss INTO datesetss_out;
+----
+1,{2020-01-11,2020-02-01}

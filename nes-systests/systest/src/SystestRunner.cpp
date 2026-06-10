@@ -445,11 +445,18 @@ void printQueryResultToStdOut(
 
     /// spd logger cannot handle multiline prints with proper color and pattern.
     /// And as this is only for test runs we use stdout here.
-    std::cout << std::string(padSizeQueryCounter - queryCounterAsString.size(), ' ');
+    /* MEOS: clamp each padding width to zero when the content is wider than its
+       pad, otherwise the unsigned (padWidth - contentLength) underflows to a huge
+       size_t and std::string throws std::length_error. This crashed any run with
+       more than 999 queries (the counter reaches 4 digits while padSizeQueryCounter
+       is 3), and would also crash on a >118-char test name. */
+    const auto pad = [](long width, std::size_t used, char fill)
+    { return std::string(width > static_cast<long>(used) ? static_cast<std::size_t>(width) - used : 0, fill); };
+    std::cout << pad(padSizeQueryCounter, queryCounterAsString.size(), ' ');
     std::cout << queryCounterAsString << "/" << totalQueries << " ";
-    std::cout << runningQuery.systestQuery.testName << ":" << std::string(padSizeQueryNumber - queryNumberLength, '0')
+    std::cout << runningQuery.systestQuery.testName << ":" << pad(padSizeQueryNumber, queryNumberLength, '0')
               << queryNumberAsString;
-    std::cout << std::string(padSizeSuccess - (queryNameLength + padSizeQueryNumber), '.');
+    std::cout << pad(padSizeSuccess, queryNameLength + padSizeQueryNumber, '.');
     if (runningQuery.passed)
     {
         fmt::print(fmt::emphasis::bold | fg(fmt::color::green), "PASSED {}\n", queryPerformanceMessage);

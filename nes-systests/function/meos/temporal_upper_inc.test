@@ -1,0 +1,17 @@
+# name: MEOS_TEMPORAL_UPPER_INC_Aggregation
+# description: Windowed TEMPORAL_UPPER_INC.
+# groups: [Function, MEOS, Aggregation, Codegen]
+CREATE LOGICAL SOURCE temporax(gid UINT64, lon FLOAT64, lat FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR temporax TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.0|50.0|1609459200
+1|4.1|50.1|1609459201
+1|4.2|50.2|1609459202
+2|5.0|51.0|1609459200
+2|5.1|51.1|1609459201
+
+CREATE SINK temporax_out(temporax.gid UINT64, temporax.r BOOLEAN) TYPE File;
+SELECT gid, TEMPORAL_UPPER_INC(lon, lat, ts) AS r FROM temporax GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO temporax_out;
+----
+1,1
+2,1

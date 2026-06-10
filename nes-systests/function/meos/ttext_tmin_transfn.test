@@ -1,0 +1,14 @@
+# name: MEOS_TTEXT_TMIN_TRANSFN
+# description: Windowed TTEXT_TMIN_TRANSFN -> aggregate ttext (hex-WKB) via the per-op tagg transfn (tMin); VARSIZED text value, same-timestamp values merged.
+# groups: [Function, MEOS, TemporalText, Aggregation]
+CREATE LOGICAL SOURCE ttn(vehicle_id UINT64, value VARSIZED, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR ttn TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|ABC|1609459200
+1|XYZ|1609459200
+1|DEF|1609462800
+
+CREATE SINK ttn_out(ttn.vehicle_id UINT64, ttn.r VARSIZED) TYPE File;
+SELECT vehicle_id, TTEXT_TMIN_TRANSFN(value, timestamp) AS r FROM ttn GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO ttn_out;
+----
+1,012900060200000003030000000000000041424300A0AD30CA5A0200030000000000000044454600444107CB5A0200

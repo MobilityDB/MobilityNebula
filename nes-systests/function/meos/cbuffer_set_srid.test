@@ -1,0 +1,14 @@
+# name: MEOS_CBUFFER_SET_SRID
+# description: CBUFFER_SET_SRID sets the SRID of a circular buffer (a static Cbuffer literal) and returns the result.
+# groups: [Function, MEOS, Cbuffer]
+CREATE LOGICAL SOURCE cbuffersetsrids(id UINT64, a VARSIZED, arg0 INT32);
+CREATE PHYSICAL SOURCE FOR cbuffersetsrids TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'Cbuffer(Point(1 1),0.5)'|4326
+2|'Cbuffer(Point(2 2),1.5)'|4326
+
+CREATE SINK cbuffersetsrids_out(cbuffersetsrids.id UINT64, r VARSIZED) TYPE File;
+SELECT id, CBUFFER_SET_SRID(a, arg0) AS r FROM cbuffersetsrids INTO cbuffersetsrids_out;
+----
+1,Cbuffer(0101000020E6100000000000000000F03F000000000000F03F,0.5)
+2,Cbuffer(0101000020E610000000000000000000400000000000000040,1.5)

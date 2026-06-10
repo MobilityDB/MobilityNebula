@@ -1,0 +1,14 @@
+# name: MEOS_TFLOAT_MIN_VALUE
+# groups: [Function, MEOS, Aggregation]
+CREATE LOGICAL SOURCE tfminv(gid UINT64, reading FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR tfminv TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|10.5|1609459200
+1|22.7|1609459201
+2|5.0|1609459200
+
+CREATE SINK tfminv_out(tfminv.gid UINT64, tfminv.r FLOAT64) TYPE File;
+SELECT gid, TFLOAT_MIN_VALUE(reading, ts) AS r FROM tfminv GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO tfminv_out;
+----
+1,10.5
+2,5.0

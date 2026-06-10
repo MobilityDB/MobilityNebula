@@ -1,0 +1,13 @@
+# name: MEOS_POSE_UNION_TRANSFN
+# description: Windowed POSE_UNION_TRANSFN -> aggregate container (text) over a stream of VARSIZED literals; timestamp is windowing-only.
+# groups: [Function, MEOS, Set, Span, Aggregation]
+CREATE LOGICAL SOURCE cpou(vehicle_id UINT64, value VARSIZED, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR cpou TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|Pose(Point(1 1), 0.5)|1609459200
+1|Pose(Point(2 2), 1.0)|1609462800
+
+CREATE SINK cpou_out(cpou.vehicle_id UINT64, cpou.r VARSIZED) TYPE File;
+SELECT vehicle_id, POSE_UNION_TRANSFN(value, timestamp) AS r FROM cpou GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO cpou_out;
+----
+1,{"POSE (010100000000000000000000400000000000000040, 1)", "POSE (0101000000000000000000F03F000000000000F03F, 0.5)"}

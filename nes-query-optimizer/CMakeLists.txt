@@ -18,6 +18,15 @@ get_source(nes-query-optimizer NES_OPTIMIZER_SOURCE_FILES)
 
 # Add Library
 add_library(nes-query-optimizer ${NES_OPTIMIZER_SOURCE_FILES})
+
+# MEOS family compile-defines (CBUFFER/NPOINT/POSE/RGEO=1|0) for the windowed-
+# aggregation lowering, which guards family aggregations with #if <FAMILY>. Scoped
+# to this source (not global) so toggling a family recompiles only this TU and the
+# rest of the ccache stays warm. Set in the target's own directory scope so the
+# source property reaches the compile command.
+set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/RewriteRules/LowerToPhysical/LowerToPhysicalWindowedAggregation.cpp
+    PROPERTIES COMPILE_DEFINITIONS "${MEOS_FAMILY_COMPILE_DEFS}")
 target_link_libraries(nes-query-optimizer PUBLIC nes-configurations nes-nautilus nes-logical-operators nes-physical-operators nes-physical-operators-registry)
 target_include_directories(nes-query-optimizer
         PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

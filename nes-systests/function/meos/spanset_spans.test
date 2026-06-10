@@ -1,0 +1,14 @@
+# name: MEOS_SPANSET_SPANS
+# description: SPANSET_SPANS returns the array of spans of a span set (an int span set chosen to prove the subtype-agnostic function).
+# groups: [Function, MEOS, SpanSet, Span]
+CREATE LOGICAL SOURCE spansetspanss(id UINT64, a VARSIZED);
+CREATE PHYSICAL SOURCE FOR spansetspanss TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{[1, 5), [10, 20)}'
+2|'{[3, 8)}'
+
+CREATE SINK spansetspanss_out(spansetspanss.id UINT64, r VARSIZED) TYPE File;
+SELECT id, SPANSET_SPANS(a) AS r FROM spansetspanss INTO spansetspanss_out;
+----
+1,{[1,5),[10,20)}
+2,{[3,8)}

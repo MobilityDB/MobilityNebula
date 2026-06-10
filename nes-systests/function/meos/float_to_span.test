@@ -1,0 +1,12 @@
+# name: MEOS_FLOAT_TO_SPAN
+# description: float_to_span — construct a span from a single float value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE floattospan(id UINT64, value FLOAT64);
+CREATE PHYSICAL SOURCE FOR floattospan TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.0
+
+CREATE SINK floattospan_out(floattospan.id UINT64, r VARSIZED) TYPE File;
+SELECT id, FLOAT_TO_SPAN(value) AS r FROM floattospan INTO floattospan_out;
+----
+1,[5,5]

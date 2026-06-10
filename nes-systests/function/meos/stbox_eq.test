@@ -1,0 +1,14 @@
+# name: MEOS_STBOX_EQ
+# description: STBOX_EQ over two per-vehicle extent STBoxes (VARSIZED stbox text). Box A=((1,1),(3,3)); B=((2,2),(4,4)).
+# groups: [Function, MEOS, SpatioTemporal, Box, Codegen]
+CREATE LOGICAL SOURCE sbceq(id UINT64, boxa VARSIZED, boxb VARSIZED);
+CREATE PHYSICAL SOURCE FOR sbceq TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|STBOX X((1,1),(3,3))|STBOX X((2,2),(4,4))
+2|STBOX X((1,1),(3,3))|STBOX X((10,10),(11,11))
+
+CREATE SINK sbceq_out(sbceq.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, STBOX_EQ(boxa, boxb) AS r FROM sbceq INTO sbceq_out;
+----
+1,0
+2,0

@@ -1,0 +1,14 @@
+# name: MEOS_SPATIAL_BASETYPE
+# description: SPATIAL_BASETYPE over a MeosType enum value (e.g. T_GEOMETRY=42, T_INT4=15) — a now-public meos_catalog.h type-reflection predicate.
+# groups: [Function, MEOS, Catalog]
+CREATE LOGICAL SOURCE sbt(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR sbt TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|42
+2|15
+
+CREATE SINK sbt_out(sbt.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, SPATIAL_BASETYPE(value) AS r FROM sbt INTO sbt_out;
+----
+1,1
+2,0

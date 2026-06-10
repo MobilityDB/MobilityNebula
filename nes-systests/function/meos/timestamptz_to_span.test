@@ -1,0 +1,12 @@
+# name: MEOS_TIMESTAMPTZ_TO_SPAN
+# description: timestamptz_to_span — construct a span from a single timestamptz value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE timestamptztospan(id UINT64, value INT64);
+CREATE PHYSICAL SOURCE FOR timestamptztospan TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|662774400000000
+
+CREATE SINK timestamptztospan_out(timestamptztospan.id UINT64, r VARSIZED) TYPE File;
+SELECT id, TIMESTAMPTZ_TO_SPAN(value) AS r FROM timestamptztospan INTO timestamptztospan_out;
+----
+1,[2021-01-01,00:00:00+00,2021-01-01,00:00:00+00]

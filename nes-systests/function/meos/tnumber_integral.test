@@ -1,0 +1,14 @@
+# name: MEOS_TEMPORAL_TNUMBER_INTEGRAL_Aggregation
+# groups: [Function, MEOS, Aggregation, Codegen]
+CREATE LOGICAL SOURCE tnumba(gid UINT64, reading FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR tnumba TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|10.5|1609459200
+1|22.7|1609459201
+2|5.0|1609459200
+
+CREATE SINK tnumba_out(tnumba.gid UINT64, tnumba.r FLOAT64) TYPE File;
+SELECT gid, TNUMBER_INTEGRAL(reading, ts) AS r FROM tnumba GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO tnumba_out;
+----
+1,0.0
+2,0.0

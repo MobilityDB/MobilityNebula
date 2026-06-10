@@ -1,0 +1,14 @@
+# name: MEOS_GEO_TYPENAME
+# description: GEO_TYPENAME maps a liblwgeom geo type tag to its name.
+# groups: [Function, MEOS, Catalog]
+CREATE LOGICAL SOURCE gtn(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR gtn TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1
+2|3
+
+CREATE SINK gtn_out(gtn.id UINT64, r VARSIZED) TYPE File;
+SELECT id, GEO_TYPENAME(value) AS r FROM gtn INTO gtn_out;
+----
+1,Point
+2,Polygon

@@ -1,0 +1,14 @@
+# name: MEOS_BASETYPE_BYVALUE
+# description: BASETYPE_BYVALUE over a MeosType enum value (e.g. T_GEOMETRY=42, T_INT4=15) — a now-public meos_catalog.h type-reflection predicate.
+# groups: [Function, MEOS, Catalog]
+CREATE LOGICAL SOURCE bbv(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR bbv TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|15
+2|42
+
+CREATE SINK bbv_out(bbv.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, BASETYPE_BYVALUE(value) AS r FROM bbv INTO bbv_out;
+----
+1,1
+2,0

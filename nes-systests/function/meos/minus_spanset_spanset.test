@@ -1,0 +1,14 @@
+# name: MEOS_MINUS_SPANSET_SPANSET
+# description: minus_spanset_spanset over two text literals; type-generic MEOS set-algebra returning the result span/set/spanset text (VARSIZED).
+# groups: [Function, MEOS, SpanSet, Codegen]
+CREATE LOGICAL SOURCE upss(id UINT64, a VARSIZED, b VARSIZED);
+CREATE PHYSICAL SOURCE FOR upss TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{[1, 5), [10, 15)}'|'{[3, 7)}'
+2|'{[1, 5), [10, 15)}'|'{[12, 20)}'
+
+CREATE SINK upss_out(upss.id UINT64, r VARSIZED) TYPE File;
+SELECT id, MINUS_SPANSET_SPANSET(a, b) AS r FROM upss INTO upss_out;
+----
+1,{[1,3),[10,15)}
+2,{[1,5),[10,12)}

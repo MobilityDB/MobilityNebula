@@ -1,0 +1,12 @@
+# name: MEOS_TDWITHIN_GEO_TGEO
+# description: TDWITHIN_GEO_TGEO tests, over time, whether a geometry is within a distance of a temporal geo (a hex-WKB tgeompoint instant), returning a temporal boolean as hex-WKB.
+# groups: [Function, MEOS, SpatioTemporal]
+CREATE LOGICAL SOURCE tdwithingeotgeos(id UINT64, a VARSIZED, b VARSIZED, dist FLOAT64);
+CREATE PHYSICAL SOURCE FOR tdwithingeotgeos TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'SRID=4326;POINT(1 1)'|012E0041E61000000101000020E6100000000000000000004000000000000000400060C286073E0200|2.0
+
+CREATE SINK tdwithingeotgeos_out(tdwithingeotgeos.id UINT64, r VARSIZED) TYPE File;
+SELECT id, TDWITHIN_GEO_TGEO(a, b, dist) AS r FROM tdwithingeotgeos INTO tdwithingeotgeos_out;
+----
+1,011A0001010060C286073E0200

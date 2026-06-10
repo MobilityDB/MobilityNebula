@@ -1,0 +1,14 @@
+# name: MEOS_BASETYPE_VARLENGTH
+# description: BASETYPE_VARLENGTH over a MeosType enum value (e.g. T_GEOMETRY=42, T_INT4=15) — a now-public meos_catalog.h type-reflection predicate.
+# groups: [Function, MEOS, Catalog]
+CREATE LOGICAL SOURCE bvl(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR bvl TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|42
+2|15
+
+CREATE SINK bvl_out(bvl.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, BASETYPE_VARLENGTH(value) AS r FROM bvl INTO bvl_out;
+----
+1,1
+2,0

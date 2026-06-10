@@ -1,0 +1,14 @@
+# name: MEOS_TEXTCAT_TEXT_TEXTSET
+# description: TEXTCAT_TEXT_TEXTSET concatenates a text before each element of a text set.
+# groups: [Function, MEOS, Text, Set]
+CREATE LOGICAL SOURCE textcattexttextsets(id UINT64, a VARSIZED, b VARSIZED);
+CREATE PHYSICAL SOURCE FOR textcattexttextsets TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'AAA'|'{"BBB", "CCC"}'
+2|'X-'|'{"1", "2", "3"}'
+
+CREATE SINK textcattexttextsets_out(textcattexttextsets.id UINT64, r VARSIZED) TYPE File;
+SELECT id, TEXTCAT_TEXT_TEXTSET(a, b) AS r FROM textcattexttextsets INTO textcattexttextsets_out;
+----
+1,{"AAABBB","AAACCC"}
+2,{"X-1","X-2","X-3"}

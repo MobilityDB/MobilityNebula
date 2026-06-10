@@ -1,0 +1,14 @@
+# name: MEOS_TFLOAT_AVG_VALUE
+# groups: [Function, MEOS, Aggregation]
+CREATE LOGICAL SOURCE tfavgv(gid UINT64, reading FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR tfavgv TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|10.5|1609459200
+1|22.7|1609459201
+2|5.0|1609459200
+
+CREATE SINK tfavgv_out(tfavgv.gid UINT64, tfavgv.r FLOAT64) TYPE File;
+SELECT gid, TNUMBER_AVG_VALUE(reading, ts) AS r FROM tfavgv GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO tfavgv_out;
+----
+1,16.6
+2,5.0

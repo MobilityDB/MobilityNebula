@@ -1,0 +1,12 @@
+# name: MEOS_TSTZSET_SHIFT_SCALE
+# description: tstzset_shift_scale (interval shift/duration).
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE tstzsetss(id UINT64, lit VARSIZED, shf VARSIZED, dur VARSIZED);
+CREATE PHYSICAL SOURCE FOR tstzsetss TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{2021-01-01 00:00:00+00, 2021-01-03 00:00:00+00}'|'1 day'|'10 days'
+
+CREATE SINK tstzsetss_out(tstzsetss.id UINT64, r VARSIZED) TYPE File;
+SELECT id, TSTZSET_SHIFT_SCALE(lit, shf, dur) AS r FROM tstzsetss INTO tstzsetss_out;
+----
+1,{"2021-01-02,00:00:00+00","2021-01-12,00:00:00+00"}

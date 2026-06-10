@@ -1,0 +1,17 @@
+# name: MEOS_TINT_MAX_VALUE_Aggregation
+# description: Windowed TINT_MAX_VALUE over per-(window,group) temporal.
+# groups: [Function, MEOS, Aggregation, Codegen]
+CREATE LOGICAL SOURCE aimax(gid UINT64, reading INT32, ts UINT64);
+CREATE PHYSICAL SOURCE FOR aimax TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|10|1609459200
+1|22|1609459201
+1|18|1609459202
+2|5|1609459200
+2|99|1609459201
+
+CREATE SINK aimax_out(aimax.gid UINT64, aimax.r INT32) TYPE File;
+SELECT gid, TINT_MAX_VALUE(reading, ts) AS r FROM aimax GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO aimax_out;
+----
+1,22
+2,99

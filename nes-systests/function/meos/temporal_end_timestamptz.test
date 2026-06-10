@@ -1,0 +1,15 @@
+# name: MEOS_TEMPORAL_END_TIMESTAMPTZ
+# description: Windowed aggregate building a tgeompoint trajectory and returning its end timestamp (genuine temporal_end_timestamptz).
+# groups: [Function, MEOS, Aggregation, Codegen]
+CREATE LOGICAL SOURCE tets(gid UINT64, lon FLOAT64, lat FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR tets TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.0|50.0|1609459200
+1|4.1|50.1|1609459260
+2|5.0|51.0|1609459200
+
+CREATE SINK tets_out(tets.gid UINT64, tets.r INT64) TYPE File;
+SELECT gid, TEMPORAL_END_TIMESTAMPTZ(lon, lat, ts) AS r FROM tets GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO tets_out;
+----
+1,662774460000000
+2,662774400000000

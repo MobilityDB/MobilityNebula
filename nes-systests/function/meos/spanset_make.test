@@ -1,0 +1,12 @@
+# name: MEOS_SPANSET_MAKE_Aggregation
+# groups: [Function, MEOS, Aggregation, Codegen]
+CREATE LOGICAL SOURCE ssm(gid UINT64, value VARSIZED, ts UINT64);
+CREATE PHYSICAL SOURCE FOR ssm TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'[1, 3)'|1609459200
+1|'[5, 7)'|1609459201
+
+CREATE SINK ssm_out(ssm.gid UINT64, ssm.r VARSIZED) TYPE File;
+SELECT gid, SPANSET_MAKE(value, ts) AS r FROM ssm GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO ssm_out;
+----
+1,{[1, 3), [5, 7)}

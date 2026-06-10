@@ -1,0 +1,14 @@
+# name: MEOS_MINUS_TIMESTAMPTZ_TIMESTAMPTZ
+# description: MINUS_TIMESTAMPTZ_TIMESTAMPTZ over two TimestampTz values (microseconds since 2000-01-01, e.g. 662774400000000=2021-01-01) returning the Interval between them.
+# groups: [Function, MEOS, DateTime]
+CREATE LOGICAL SOURCE minustimestamptztimestamptzs(id UINT64, value INT64, arg0 INT64);
+CREATE PHYSICAL SOURCE FOR minustimestamptztimestamptzs TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|663120000000000|662774400000000
+2|662947200000000|662774400000000
+
+CREATE SINK minustimestamptztimestamptzs_out(minustimestamptztimestamptzs.id UINT64, r VARSIZED) TYPE File;
+SELECT id, MINUS_TIMESTAMPTZ_TIMESTAMPTZ(value, arg0) AS r FROM minustimestamptztimestamptzs INTO minustimestamptztimestamptzs_out;
+----
+1,4 days
+2,2 days

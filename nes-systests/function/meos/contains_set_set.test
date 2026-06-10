@@ -1,0 +1,14 @@
+# name: MEOS_CONTAINS_SET_SET
+# description: contains_set_set over two text literals; type-generic MEOS topology predicate, INT32.
+# groups: [Function, MEOS, Set, Codegen]
+CREATE LOGICAL SOURCE ssrc(id UINT64, a VARSIZED, b VARSIZED);
+CREATE PHYSICAL SOURCE FOR ssrc TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{1, 3, 5, 7}'|'{3, 5}'
+2|'{1, 3}'|'{4, 8}'
+
+CREATE SINK ssrc_out(ssrc.id UINT64, r INT32) TYPE File;
+SELECT id, CONTAINS_SET_SET(a, b) AS r FROM ssrc INTO ssrc_out;
+----
+1,1
+2,0

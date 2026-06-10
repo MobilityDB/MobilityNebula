@@ -1,0 +1,14 @@
+# name: MEOS_TBOOL_TOR_TRANSFN
+# description: Windowed TBOOL_TOR_TRANSFN -> aggregate tbool (hex-WKB) via the per-op tagg transfn (tOr); bool fed as int 0/1, same-timestamp events merged.
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE tbo(vehicle_id UINT64, value INT32, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tbo TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1|1609459200
+1|0|1609459200
+1|0|1609462800
+
+CREATE SINK tbo_out(tbo.vehicle_id UINT64, tbo.r VARSIZED) TYPE File;
+SELECT vehicle_id, TBOOL_TOR_TRANSFN(value, timestamp) AS r FROM tbo GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tbo_out;
+----
+1,011A000602000000030100A0AD30CA5A02000000444107CB5A0200

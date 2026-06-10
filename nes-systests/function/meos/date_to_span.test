@@ -1,0 +1,12 @@
+# name: MEOS_DATE_TO_SPAN
+# description: date_to_span — construct a span from a single date value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE datetospan(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR datetospan TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|7305
+
+CREATE SINK datetospan_out(datetospan.id UINT64, r VARSIZED) TYPE File;
+SELECT id, DATE_TO_SPAN(value) AS r FROM datetospan INTO datetospan_out;
+----
+1,[2020-01-01,2020-01-02)

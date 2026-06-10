@@ -1,0 +1,12 @@
+# name: MEOS_INTERSECTION_BIGINT_SET
+# description: intersection_bigint_set value-mixed set/span/spanset algebra.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE intersectionbigint(id UINT64, lit VARSIZED, val INT64);
+CREATE PHYSICAL SOURCE FOR intersectionbigint TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{1, 5, 9}'|5
+
+CREATE SINK intersectionbigint_out(intersectionbigint.id UINT64, r VARSIZED) TYPE File;
+SELECT id, INTERSECTION_BIGINT_SET(lit, val) AS r FROM intersectionbigint INTO intersectionbigint_out;
+----
+1,{5}

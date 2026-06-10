@@ -1,0 +1,12 @@
+# name: MEOS_MINUS_SET_TEXT
+# description: minus_set_text value-mixed set/span/spanset algebra.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE minussettext(id UINT64, lit VARSIZED, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR minussettext TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{"a", "b"}'|'c'
+
+CREATE SINK minussettext_out(minussettext.id UINT64, r VARSIZED) TYPE File;
+SELECT id, MINUS_SET_TEXT(lit, val) AS r FROM minussettext INTO minussettext_out;
+----
+1,{"a","b"}

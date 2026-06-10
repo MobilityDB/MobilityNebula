@@ -1,0 +1,18 @@
+# name: MEOS_TemporalEintersectsGeometry
+# description: Per-event ever-disjoint between a single-instant tgeompoint built from event fields and a static geometry. Exercises the 4-arg one-temporal-point codegen shape (W1).
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, StaticGeometry, EDisjoint, Codegen]
+
+CREATE LOGICAL SOURCE eing(id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64, geom_wkt VARSIZED);
+CREATE PHYSICAL SOURCE FOR eing TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200|'SRID=4326;POINT(4.3658 50.6456)'
+2|4.1000|50.8000|1609459200|'SRID=4326;POINT(4.3658 50.6456)'
+
+CREATE SINK eing_out(eing.id UINT32, r INT32) TYPE File;
+SELECT id,
+       EINTERSECTS_TGEO_GEO(lon, lat, timestamp, geom_wkt) AS r
+FROM eing
+INTO eing_out;
+----
+1,1
+2,0

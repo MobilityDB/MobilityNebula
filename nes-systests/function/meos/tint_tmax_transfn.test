@@ -1,0 +1,14 @@
+# name: MEOS_TINT_TMAX_TRANSFN
+# description: Windowed TINT_TMAX_TRANSFN -> aggregate Temporal (hex-WKB) via the per-op tagg transfn (tMax); same-timestamp events merged by the aggregation fn.
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE tix(vehicle_id UINT64, value INT32, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tix TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5|1609459200
+1|3|1609459200
+1|7|1609462800
+
+CREATE SINK tix_out(tix.vehicle_id UINT64, tix.r VARSIZED) TYPE File;
+SELECT vehicle_id, TINT_TMAX_TRANSFN(value, timestamp) AS r FROM tix GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tix_out;
+----
+1,0123000602000000030500000000A0AD30CA5A02000700000000444107CB5A0200

@@ -1,0 +1,13 @@
+# name: MEOS_CBUFFER_UNION_TRANSFN
+# description: Windowed CBUFFER_UNION_TRANSFN -> aggregate container (text) over a stream of VARSIZED literals; timestamp is windowing-only.
+# groups: [Function, MEOS, Set, Span, Aggregation]
+CREATE LOGICAL SOURCE ccbu(vehicle_id UINT64, value VARSIZED, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR ccbu TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|Cbuffer(Point(1 1),1.0)|1609459200
+1|Cbuffer(Point(2 2),0.5)|1609462800
+
+CREATE SINK ccbu_out(ccbu.vehicle_id UINT64, ccbu.r VARSIZED) TYPE File;
+SELECT vehicle_id, CBUFFER_UNION_TRANSFN(value, timestamp) AS r FROM ccbu GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO ccbu_out;
+----
+1,{"Cbuffer(0101000000000000000000F03F000000000000F03F,1)", "Cbuffer(010100000000000000000000400000000000000040,0.5)"}

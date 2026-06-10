@@ -1,0 +1,12 @@
+# name: MEOS_INTERSECTION_SPANSET_TIMESTAMPTZ
+# description: intersection_spanset_timestamptz value-mixed set/span/spanset algebra.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE intersectionspanse(id UINT64, lit VARSIZED, val INT64);
+CREATE PHYSICAL SOURCE FOR intersectionspanse TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{[2021-01-01 00:00:00+00, 2021-01-05 00:00:00+00)}'|662947200000000
+
+CREATE SINK intersectionspanse_out(intersectionspanse.id UINT64, r VARSIZED) TYPE File;
+SELECT id, INTERSECTION_SPANSET_TIMESTAMPTZ(lit, val) AS r FROM intersectionspanse INTO intersectionspanse_out;
+----
+1,{[2021-01-03,00:00:00+00,2021-01-03,00:00:00+00]}

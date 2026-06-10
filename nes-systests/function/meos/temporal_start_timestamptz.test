@@ -1,0 +1,15 @@
+# name: MEOS_TEMPORAL_START_TIMESTAMPTZ
+# description: Windowed aggregate building a tgeompoint trajectory and returning its start timestamp (genuine temporal_start_timestamptz).
+# groups: [Function, MEOS, Aggregation, Codegen]
+CREATE LOGICAL SOURCE tsts(gid UINT64, lon FLOAT64, lat FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR tsts TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.0|50.0|1609459200
+1|4.1|50.1|1609459260
+2|5.0|51.0|1609459200
+
+CREATE SINK tsts_out(tsts.gid UINT64, tsts.r INT64) TYPE File;
+SELECT gid, TEMPORAL_START_TIMESTAMPTZ(lon, lat, ts) AS r FROM tsts GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO tsts_out;
+----
+1,662774400000000
+2,662774400000000

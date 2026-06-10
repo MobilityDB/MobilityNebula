@@ -1,0 +1,16 @@
+# name: MEOS_DATESET_MAKE_Aggregation
+# groups: [Function, MEOS, Aggregation, Codegen]
+CREATE LOGICAL SOURCE datesetmakes(gid UINT64, value INT32, ts UINT64);
+CREATE PHYSICAL SOURCE FOR datesetmakes TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|7305|1609459200
+1|7306|1609459201
+1|7307|1609459202
+2|7400|1609459200
+2|7401|1609459201
+
+CREATE SINK datesetmakes_out(datesetmakes.gid UINT64, datesetmakes.r VARSIZED) TYPE File;
+SELECT gid, DATESET_MAKE(value, ts) AS r FROM datesetmakes GROUP BY gid WINDOW TUMBLING(ts, size 1 hour) INTO datesetmakes_out;
+----
+1,{2020-01-01,2020-01-02,2020-01-03}
+2,{2020-04-05,2020-04-06}

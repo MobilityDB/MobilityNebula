@@ -1,0 +1,13 @@
+# name: MEOS_TEMPORAL_EXTENT_TRANSFN
+# description: Windowed TEMPORAL_EXTENT_TRANSFN -> aggregate container (text) over a stream of VARSIZED literals; timestamp is windowing-only.
+# groups: [Function, MEOS, Set, Span, Aggregation]
+CREATE LOGICAL SOURCE ctxe(vehicle_id UINT64, value VARSIZED, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR ctxe TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1.5@2020-01-01 00:00:00+00|1609459200
+1|2.5@2020-01-03 00:00:00+00|1609462800
+
+CREATE SINK ctxe_out(ctxe.vehicle_id UINT64, ctxe.r VARSIZED) TYPE File;
+SELECT vehicle_id, TEMPORAL_EXTENT_TRANSFN(value, timestamp) AS r FROM ctxe GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO ctxe_out;
+----
+1,[2020-01-01 00:00:00+00, 2020-01-03 00:00:00+00]

@@ -1,0 +1,14 @@
+# name: MEOS_TGEO_MINUS_GEOM
+# description: Restrict a single-instant tgeompoint to the complement of a static geometry (genuine tgeo_minus_geom).
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, StaticGeometry, Codegen]
+CREATE LOGICAL SOURCE tgmg(id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tgmg TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+2|4.1000|50.8000|1609459200
+
+CREATE SINK tgmg_out(tgmg.id UINT64, r INT32) TYPE File;
+SELECT id, TGEO_MINUS_GEOM(lon, lat, timestamp, 'SRID=4326;POINT(4.3658 50.6456)') AS r FROM tgmg INTO tgmg_out;
+----
+1,0
+2,1

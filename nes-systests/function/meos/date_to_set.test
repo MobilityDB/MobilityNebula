@@ -1,0 +1,12 @@
+# name: MEOS_DATE_TO_SET
+# description: date_to_set — construct a set from a single date value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE datetoset(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR datetoset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|7305
+
+CREATE SINK datetoset_out(datetoset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, DATE_TO_SET(value) AS r FROM datetoset INTO datetoset_out;
+----
+1,{2020-01-01}

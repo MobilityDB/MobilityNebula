@@ -1,0 +1,12 @@
+# name: MEOS_BIGINTSPANSET_SHIFT_SCALE
+# description: bigintspanset_shift_scale — shift+scale a span/set/spanset (hasshift=haswidth=true).
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE bigintspansetss(id UINT64, lit VARSIZED, sh INT64, wd INT64);
+CREATE PHYSICAL SOURCE FOR bigintspansetss TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{[1, 5), [10, 15)}'|10|20
+
+CREATE SINK bigintspansetss_out(bigintspansetss.id UINT64, r VARSIZED) TYPE File;
+SELECT id, BIGINTSPANSET_SHIFT_SCALE(lit, sh, wd) AS r FROM bigintspansetss INTO bigintspansetss_out;
+----
+1,{[11,16),[24,32)}

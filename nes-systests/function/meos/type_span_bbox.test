@@ -1,0 +1,14 @@
+# name: MEOS_TYPE_SPAN_BBOX
+# description: TYPE_SPAN_BBOX over a MeosType enum value (T_INTSPAN=19 has a span bounding box, T_GEOMETRY=42 does not) — a now-public meos_catalog.h type-reflection predicate.
+# groups: [Function, MEOS, Catalog]
+CREATE LOGICAL SOURCE tsb(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR tsb TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|19
+2|42
+
+CREATE SINK tsb_out(tsb.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, TYPE_SPAN_BBOX(value) AS r FROM tsb INTO tsb_out;
+----
+1,1
+2,0

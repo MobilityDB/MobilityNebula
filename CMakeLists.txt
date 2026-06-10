@@ -29,6 +29,16 @@ option(NES_LOG_WITH_STACKTRACE "Log exceptions with stacktrace" ON)
 option(ENABLE_LARGE_TESTS "Runs testcases with larger input data" OFF)
 option(NES_DEBUG_TUPLE_BUFFER_LEAKS "Heavyweight instrumentation for Tuplebuffer debugging" OFF)
 
+# MEOS type-family compile flags. Mirror MobilityDB/MEOS selective compilation
+# (CBUFFER/NPOINT/POSE/RGEO): a family OFF drops its generated MEOS operators from
+# the build entirely (per-family add_subdirectory gated below) so the binary links
+# cleanly against a libmeos built with the same family disabled. Defaults match the
+# families enabled in the libmeos that the dev image links.
+option(CBUFFER "Include circular-buffer (tcbuffer) MEOS operators" ON)
+option(NPOINT "Include network-point (tnpoint) MEOS operators" ON)
+option(POSE "Include geopose (tpose) MEOS operators" ON)
+CMAKE_DEPENDENT_OPTION(RGEO "Include rigid-geometry (trgeometry) MEOS operators" ON "POSE" OFF)
+
 
 if (CMAKE_BUILD_TYPE STREQUAL "Benchmark")
     add_compile_definitions(NO_ASSERT)
@@ -62,6 +72,21 @@ set(CMAKE_THREAD_LIBS_INIT "-lpthread")
 include(cmake/Sanitizers.cmake)
 include(cmake/ImportDependencies.cmake)
 project(NES LANGUAGES C CXX)
+
+# MEOS family flags as a reusable define list (NAME=1|0), exactly as MobilityDB/MEOS
+# uses -DCBUFFER=1|0 etc. Applied with file/target scope where an #if <FAMILY> guard
+# actually appears (currently only the windowed-aggregation lowering) rather than
+# globally: a global add_compile_definitions would change every TU's compile command
+# and blow the whole ccache on any flag change. Keeping it scoped means toggling a
+# family recompiles only the guard file, and unrelated TUs keep hitting the cache.
+set(MEOS_FAMILY_COMPILE_DEFS "")
+foreach(_meos_family CBUFFER NPOINT POSE RGEO)
+  if(${_meos_family})
+    list(APPEND MEOS_FAMILY_COMPILE_DEFS ${_meos_family}=1)
+  else()
+    list(APPEND MEOS_FAMILY_COMPILE_DEFS ${_meos_family}=0)
+  endif()
+endforeach()
 set(VCPKG_POLICY_ALLOW_RESTRICTED_HEADERS enabled)
 message(STATUS "Going to use ${CMAKE_CXX_COMPILER}")
 

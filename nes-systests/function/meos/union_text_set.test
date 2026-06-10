@@ -1,0 +1,12 @@
+# name: MEOS_UNION_TEXT_SET
+# description: union_text_set value-mixed set/span/spanset algebra.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE uniontextset(id UINT64, lit VARSIZED, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR uniontextset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{"a", "b"}'|'c'
+
+CREATE SINK uniontextset_out(uniontextset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, UNION_TEXT_SET(lit, val) AS r FROM uniontextset INTO uniontextset_out;
+----
+1,{"a","b","c"}

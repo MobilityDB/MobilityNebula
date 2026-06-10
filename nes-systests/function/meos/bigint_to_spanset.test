@@ -1,0 +1,12 @@
+# name: MEOS_BIGINT_TO_SPANSET
+# description: bigint_to_spanset — construct a spanset from a single bigint value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE biginttospanset(id UINT64, value INT64);
+CREATE PHYSICAL SOURCE FOR biginttospanset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5
+
+CREATE SINK biginttospanset_out(biginttospanset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, BIGINT_TO_SPANSET(value) AS r FROM biginttospanset INTO biginttospanset_out;
+----
+1,{[5,6)}

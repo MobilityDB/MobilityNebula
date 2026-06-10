@@ -1,0 +1,14 @@
+# name: MEOS_ATOUCHES_TPOINT_GEO
+# description: Per-event atouches_tpoint_geo between a single-instant tgeompoint (lon,lat,ts) and a static geometry. Direct-call AtouchesTpointGeo operator (INT32).
+# groups: [Function, MEOS, TemporalGeometry, Codegen]
+CREATE LOGICAL SOURCE tpsrc(id UINT64, lon FLOAT64, lat FLOAT64, ts UINT64, geom VARSIZED);
+CREATE PHYSICAL SOURCE FOR tpsrc TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200|'SRID=4326;LINESTRING(4.3658 50.6456, 4.4 50.7)'
+2|4.1000|50.8000|1609459200|'SRID=4326;LINESTRING(4.3658 50.6456, 4.4 50.7)'
+
+CREATE SINK tpsrc_out(tpsrc.id UINT64, r INT32) TYPE File;
+SELECT id, ATOUCHES_TPOINT_GEO(lon, lat, ts, geom) AS r FROM tpsrc INTO tpsrc_out;
+----
+1,1
+2,0

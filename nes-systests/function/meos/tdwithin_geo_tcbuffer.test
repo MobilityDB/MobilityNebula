@@ -1,0 +1,12 @@
+# name: MEOS_TDWITHIN_GEO_TCBUFFER
+# description: TDWITHIN_GEO_TCBUFFER tests, over time, whether a geometry is within a distance of a temporal circular buffer (a hex-WKB tcbuffer instant), returning a temporal boolean as hex-WKB.
+# groups: [Function, MEOS, Cbuffer]
+CREATE LOGICAL SOURCE tdwithingeotcbuffers(id UINT64, a VARSIZED, b VARSIZED, dist FLOAT64);
+CREATE PHYSICAL SOURCE FOR tdwithingeotcbuffers TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'POINT(1 1)'|013B000100000000000000400000000000000040000000000000E03F0060C286073E0200|2.0
+
+CREATE SINK tdwithingeotcbuffers_out(tdwithingeotcbuffers.id UINT64, r VARSIZED) TYPE File;
+SELECT id, TDWITHIN_GEO_TCBUFFER(a, b, dist) AS r FROM tdwithingeotcbuffers INTO tdwithingeotcbuffers_out;
+----
+1,011A0001010060C286073E0200

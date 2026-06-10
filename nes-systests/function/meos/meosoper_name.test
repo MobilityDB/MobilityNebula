@@ -1,0 +1,14 @@
+# name: MEOS_MEOSOPER_NAME
+# description: MEOSOPER_NAME maps a MeosOper enum (EQ_OP=1, ADJACENT_OP=7) to its operator name.
+# groups: [Function, MEOS, Catalog]
+CREATE LOGICAL SOURCE mon(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR mon TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1
+2|7
+
+CREATE SINK mon_out(mon.id UINT64, r VARSIZED) TYPE File;
+SELECT id, MEOSOPER_NAME(value) AS r FROM mon INTO mon_out;
+----
+1,=
+2,-|-

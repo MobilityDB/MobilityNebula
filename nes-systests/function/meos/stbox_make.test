@@ -1,0 +1,14 @@
+# name: MEOS_STBOX_MAKE
+# description: STBOX_MAKE builds an STBox from hasx/hasz/geodetic, an SRID, the six bounds (xmin,xmax,ymin,ymax,zmin,zmax) and a time span. Row 1 is an XT (planar + time) box; row 2 carries a Z dimension (ZT).
+# groups: [Function, MEOS, Box]
+CREATE LOGICAL SOURCE stboxmakes(id UINT64, value BOOLEAN, arg0 BOOLEAN, arg1 BOOLEAN, arg2 INT32, arg3 FLOAT64, arg4 FLOAT64, arg5 FLOAT64, arg6 FLOAT64, arg7 FLOAT64, arg8 FLOAT64, arg9 VARSIZED);
+CREATE PHYSICAL SOURCE FOR stboxmakes TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|true|false|false|0|1.0|3.0|2.0|4.0|0.0|0.0|'[2021-01-01, 2021-01-02]'
+2|true|true|false|0|1.0|3.0|2.0|4.0|0.0|5.0|'[2021-01-01, 2021-01-02]'
+
+CREATE SINK stboxmakes_out(stboxmakes.id UINT64, r VARSIZED) TYPE File;
+SELECT id, STBOX_MAKE(value, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) AS r FROM stboxmakes INTO stboxmakes_out;
+----
+1,STBOX,XT(((1,2),(3,4)),[2021-01-01,00:00:00+00,2021-01-02,00:00:00+00])
+2,STBOX,ZT(((1,2,0),(3,4,5)),[2021-01-01,00:00:00+00,2021-01-02,00:00:00+00])

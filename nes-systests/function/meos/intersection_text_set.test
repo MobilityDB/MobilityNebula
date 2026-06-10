@@ -1,0 +1,12 @@
+# name: MEOS_INTERSECTION_TEXT_SET
+# description: intersection_text_set value-mixed set/span/spanset algebra.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE intersectiontextse(id UINT64, lit VARSIZED, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR intersectiontextse TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|'{"a", "b"}'|'a'
+
+CREATE SINK intersectiontextse_out(intersectiontextse.id UINT64, r VARSIZED) TYPE File;
+SELECT id, INTERSECTION_TEXT_SET(lit, val) AS r FROM intersectiontextse INTO intersectiontextse_out;
+----
+1,{"a"}

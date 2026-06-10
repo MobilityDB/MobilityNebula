@@ -1,0 +1,13 @@
+# name: MEOS_SET_EXTENT_TRANSFN
+# description: Windowed SET_EXTENT_TRANSFN -> aggregate container (text) over a stream of VARSIZED literals; timestamp is windowing-only.
+# groups: [Function, MEOS, Set, Span, Aggregation]
+CREATE LOGICAL SOURCE cste(vehicle_id UINT64, value VARSIZED, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR cste TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|{1.5, 3.5, 5.5}|1609459200
+1|{0.5, 8.5}|1609462800
+
+CREATE SINK cste_out(cste.vehicle_id UINT64, cste.r VARSIZED) TYPE File;
+SELECT vehicle_id, SET_EXTENT_TRANSFN(value, timestamp) AS r FROM cste GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO cste_out;
+----
+1,[0.5, 8.5]

@@ -1,0 +1,12 @@
+# name: MEOS_INT_TO_SET
+# description: int_to_set — construct a set from a single int value.
+# groups: [Function, MEOS, Algebra, Codegen]
+CREATE LOGICAL SOURCE inttoset(id UINT64, value INT32);
+CREATE PHYSICAL SOURCE FOR inttoset TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5
+
+CREATE SINK inttoset_out(inttoset.id UINT64, r VARSIZED) TYPE File;
+SELECT id, INT_TO_SET(value) AS r FROM inttoset INTO inttoset_out;
+----
+1,{5}

@@ -1,0 +1,12 @@
+# name: MEOS_TNPOINT_LENGTH
+# description: tnpoint_length over a single-instant tnpoint (rid, frac, ts).
+# groups: [Function, MEOS, Npoint, Codegen]
+CREATE LOGICAL SOURCE npsrc(id UINT64, rid INT64, frac FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR npsrc TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1|0.5|1609459200
+
+CREATE SINK npsrc_out(npsrc.id UINT64, r FLOAT64) TYPE File;
+SELECT id, TNPOINT_LENGTH(rid, frac, ts) AS r FROM npsrc INTO npsrc_out;
+----
+1,0.0

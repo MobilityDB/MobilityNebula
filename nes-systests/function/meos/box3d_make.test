@@ -1,0 +1,14 @@
+# name: MEOS_BOX3D_MAKE
+# description: BOX3D_MAKE builds a PostGIS BOX3D from its bounds (xmin,xmax,ymin,ymax,zmin,zmax) and an SRID.
+# groups: [Function, MEOS, Box]
+CREATE LOGICAL SOURCE box3dmakes(id UINT64, value FLOAT64, arg0 FLOAT64, arg1 FLOAT64, arg2 FLOAT64, arg3 FLOAT64, arg4 FLOAT64, arg5 INT32);
+CREATE PHYSICAL SOURCE FOR box3dmakes TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1.0|3.0|1.0|3.0|0.0|5.0|4326
+2|0.0|10.0|0.0|10.0|0.0|2.0|4326
+
+CREATE SINK box3dmakes_out(box3dmakes.id UINT64, r VARSIZED) TYPE File;
+SELECT id, BOX3D_MAKE(value, arg0, arg1, arg2, arg3, arg4, arg5) AS r FROM box3dmakes INTO box3dmakes_out;
+----
+1,SRID=4326;BOX3D((1,1,0),(3,3,5))
+2,SRID=4326;BOX3D((0,0,0),(10,10,2))

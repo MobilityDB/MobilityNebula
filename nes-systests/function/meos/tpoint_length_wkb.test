@@ -1,0 +1,12 @@
+# name: MEOS_TpointLengthWkb_FunctionOverValue
+# description: The MEOS function library composing over a VARSIZED hex-WKB MEOS value — tpoint_length applied per record to an upstream trajectory value (temporal_from_hexwkb), the efficient compose-on-materialized-trajectory mechanism.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry]
+CREATE LOGICAL SOURCE tlw(id UINT64, traj VARSIZED);
+CREATE PHYSICAL SOURCE FOR tlw TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|012E000E03000000030101000000D88173469476114018265305A352494000A0AD30CA5A020001010000007B14AE47E17A1140333333333353494040E2BC30CA5A020001010000000000000000801140A4703D0AD75349408024CC30CA5A0200
+
+CREATE SINK tlw_out(tlw.id UINT64, tlw.len FLOAT64) TYPE File;
+SELECT id, TPOINT_LENGTH_WKB(traj) AS len FROM tlw INTO tlw_out;
+----
+1,0.0131538303422

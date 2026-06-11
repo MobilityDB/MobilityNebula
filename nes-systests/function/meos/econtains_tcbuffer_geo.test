@@ -1,0 +1,14 @@
+# name: MEOS_EContains_TCbuffer_Geo
+# description: TEMPORAL_ECONTAINS_TCBUFFER: single-instant tcbuffer (lon,lat,radius) contains a static geometry constant.
+# groups: [Function, MEOS, SpatioTemporal, TCbuffer, EContains]
+CREATE LOGICAL SOURCE ecb(id UINT32, lon FLOAT64, lat FLOAT64, radius FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR ecb TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1.0|1609459200
+2|10.0|10.0|0.5|1609459200
+
+CREATE SINK ecb_out(ecb.id UINT32, contains INT32) TYPE File;
+SELECT id, TEMPORAL_ECONTAINS_TCBUFFER(lon, lat, radius, timestamp, 'POINT(4.3658 50.6456)') AS contains FROM ecb INTO ecb_out;
+----
+1,1
+2,0

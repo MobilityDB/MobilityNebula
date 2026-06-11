@@ -1,0 +1,14 @@
+# name: MEOS_FloatExtent_Aggregation
+# description: Windowed FLOAT_EXTENT — value extent (FLOATSPAN) over a tfloat stream via float_extent_transfn (W28 scalar-fold box-output aggregation).
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE fe(vehicle_id UINT64, value FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR fe TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|12.5|1609459200
+1|18.0|1609459201
+1|9.25|1609459202
+
+CREATE SINK fe_out(fe.vehicle_id UINT64, fe.extent VARSIZED) TYPE File;
+SELECT vehicle_id, FLOAT_EXTENT(value, timestamp) AS extent FROM fe GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO fe_out;
+----
+1,[9.25, 18]

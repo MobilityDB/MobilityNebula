@@ -1,0 +1,14 @@
+# name: MEOS_TpointSpeedExp_Aggregation
+# description: Windowed tgeompoint mini-trip grown on the in-process expandable Temporal* (appendInstant); TPOINT_SPEED_EXP applied to the live sequence, emitted as hex-WKB.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Aggregation]
+CREATE LOGICAL SOURCE tpsp(vehicle_id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tpsp TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+1|4.3700|50.6500|1609459201
+1|4.3750|50.6550|1609459202
+
+CREATE SINK tpsp_out(tpsp.vehicle_id UINT64, tpsp.speed VARSIZED) TYPE File;
+SELECT vehicle_id, TPOINT_SPEED_EXP(lon, lat, timestamp) AS speed FROM tpsp GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tpsp_out;
+----
+1,0121000A0300000003F6F730223DEA783F00A0AD30CA5A0200AB0CFF4F8DF67C3F40E2BC30CA5A0200AB0CFF4F8DF67C3F8024CC30CA5A0200

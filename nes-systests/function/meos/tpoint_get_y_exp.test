@@ -1,0 +1,14 @@
+# name: MEOS_TpointGetYExp_Aggregation
+# description: Windowed tgeompoint mini-trip grown on the in-process expandable Temporal* (appendInstant); TPOINT_GET_Y_EXP applied to the live sequence, emitted as hex-WKB.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Aggregation]
+CREATE LOGICAL SOURCE tpgy(vehicle_id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tpgy TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+1|4.3700|50.6500|1609459201
+1|4.3750|50.6550|1609459202
+
+CREATE SINK tpgy_out(tpgy.vehicle_id UINT64, tpgy.gety VARSIZED) TYPE File;
+SELECT vehicle_id, TPOINT_GET_Y_EXP(lon, lat, timestamp) AS gety FROM tpgy GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tpgy_out;
+----
+1,0121000E030000000318265305A352494000A0AD30CA5A0200333333333353494040E2BC30CA5A0200A4703D0AD75349408024CC30CA5A0200

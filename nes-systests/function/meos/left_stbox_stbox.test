@@ -1,0 +1,14 @@
+# name: MEOS_LeftStboxStbox_CrossVehicle
+# description: Cross-vehicle LEFT_STBOX_STBOX over two per-vehicle extent STBoxes (each a VARSIZED stbox text, e.g. two TSPATIAL_EXTENT outputs in a self-join). Box A=((1,1),(3,3)); B=((2,2),(4,4)) overlaps A; C=((10,10),(11,11)) is disjoint and to the right of A.
+# groups: [Function, MEOS, SpatioTemporal, Box, CrossStream]
+CREATE LOGICAL SOURCE lsb(id UINT64, boxa VARSIZED, boxb VARSIZED);
+CREATE PHYSICAL SOURCE FOR lsb TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|STBOX X((1,1),(3,3))|STBOX X((2,2),(4,4))
+2|STBOX X((1,1),(3,3))|STBOX X((10,10),(11,11))
+
+CREATE SINK lsb_out(lsb.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, LEFT_STBOX_STBOX(boxa, boxb) AS r FROM lsb INTO lsb_out;
+----
+1,0
+2,1

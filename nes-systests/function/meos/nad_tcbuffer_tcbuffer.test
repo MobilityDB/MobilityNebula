@@ -1,0 +1,16 @@
+# name: function/spatiotemporal/MEOS_TemporalNADTCbufferTCbuffer.test
+# description: Per-event nearest-approach distance between two single-instant tcbuffers (lon,lat,radius,ts), via nad_tcbuffer_tcbuffer (W21, double return; reuses the W12 two-tcbuffer template). Two identical tcbuffers (same centre and radius) overlap, so their nearest-approach distance is 0.
+# groups: [Function, MEOS, SpatioTemporal, TCbuffer, NAD, Codegen]
+
+CREATE LOGICAL SOURCE nad_tcb_tests(id UINT32, lonA FLOAT64, latA FLOAT64, radiusA FLOAT64, tsA UINT64, lonB FLOAT64, latB FLOAT64, radiusB FLOAT64, tsB UINT64);
+CREATE PHYSICAL SOURCE FOR nad_tcb_tests TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1.0|1609459200|4.3658|50.6456|1.0|1609459200
+
+CREATE SINK nad_tcb_results(nad_tcb_tests.id UINT32, distance FLOAT64) TYPE File;
+SELECT id,
+       TEMPORAL_NAD_TCBUFFER_TCBUFFER(lonA, latA, radiusA, tsA, lonB, latB, radiusB, tsB) AS distance
+FROM nad_tcb_tests
+INTO nad_tcb_results;
+----
+1,0

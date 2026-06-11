@@ -1,0 +1,80 @@
+{
+  "_comment": "Example input for codegen_nebula.py — first wave of MEOS spatial-relation E/A predicates. Each operator descriptor produces one logical .hpp/.cpp + one physical .hpp/.cpp file. Adjust the list to control which functions get generated.",
+  "operators": [
+    {
+      "nebula_name": "TemporalEDisjointGeometry",
+      "sql_token": "TEMPORAL_EDISJOINT_GEOMETRY",
+      "meos_call": "edisjoint_tgeo_geo",
+      "args": [
+        {"name": "lon",       "nautilus_type": "double",            "cpp_type": "double"},
+        {"name": "lat",       "nautilus_type": "double",            "cpp_type": "double"},
+        {"name": "timestamp", "nautilus_type": "uint64_t",          "cpp_type": "uint64_t"},
+        {"name": "geometry",  "nautilus_type": "VariableSizedData", "cpp_type": "const char*"}
+      ],
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_temporal_point": true,
+      "comment_one_liner": "Per-event ever-disjoint between a single-instant tgeompoint built from event fields and a static geometry."
+    },
+    {
+      "nebula_name": "TemporalATouchesGeometry",
+      "sql_token": "TEMPORAL_ATOUCHES_GEOMETRY",
+      "meos_call": "atouches_tgeo_geo",
+      "args": [
+        {"name": "lon",       "nautilus_type": "double",            "cpp_type": "double"},
+        {"name": "lat",       "nautilus_type": "double",            "cpp_type": "double"},
+        {"name": "timestamp", "nautilus_type": "uint64_t",          "cpp_type": "uint64_t"},
+        {"name": "geometry",  "nautilus_type": "VariableSizedData", "cpp_type": "const char*"}
+      ],
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_temporal_point": true,
+      "comment_one_liner": "Per-event always-touches between a single-instant tgeompoint and a static geometry."
+    },
+    {
+      "nebula_name": "TemporalECoversGeometry",
+      "sql_token": "TEMPORAL_ECOVERS_GEOMETRY",
+      "meos_call": "ecovers_tgeo_geo",
+      "args": [
+        {"name": "lon",       "nautilus_type": "double",            "cpp_type": "double"},
+        {"name": "lat",       "nautilus_type": "double",            "cpp_type": "double"},
+        {"name": "timestamp", "nautilus_type": "uint64_t",          "cpp_type": "uint64_t"},
+        {"name": "geometry",  "nautilus_type": "VariableSizedData", "cpp_type": "const char*"}
+      ],
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_temporal_point": true,
+      "comment_one_liner": "Per-event ever-covers between a single-instant tgeompoint and a static geometry."
+    },
+    {
+      "nebula_name": "TemporalACrossesGeometry",
+      "sql_token": "TEMPORAL_ACROSSES_GEOMETRY",
+      "meos_call": "acrosses_tgeo_geo",
+      "args": [
+        {"name": "lon",       "nautilus_type": "double",            "cpp_type": "double"},
+        {"name": "lat",       "nautilus_type": "double",            "cpp_type": "double"},
+        {"name": "timestamp", "nautilus_type": "uint64_t",          "cpp_type": "uint64_t"},
+        {"name": "geometry",  "nautilus_type": "VariableSizedData", "cpp_type": "const char*"}
+      ],
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_temporal_point": true,
+      "comment_one_liner": "Per-event always-crosses between a single-instant tgeompoint and a static geometry."
+    },
+    {
+      "nebula_name": "TemporalEOverlapsGeometry",
+      "sql_token": "TEMPORAL_EOVERLAPS_GEOMETRY",
+      "meos_call": "eoverlaps_tgeo_geo",
+      "args": [
+        {"name": "lon",       "nautilus_type": "double",            "cpp_type": "double"},
+        {"name": "lat",       "nautilus_type": "double",            "cpp_type": "double"},
+        {"name": "timestamp", "nautilus_type": "uint64_t",          "cpp_type": "uint64_t"},
+        {"name": "geometry",  "nautilus_type": "VariableSizedData", "cpp_type": "const char*"}
+      ],
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_temporal_point": true,
+      "comment_one_liner": "Per-event ever-overlaps between a single-instant tgeompoint and a static geometry."
+    }
+  ]
+}

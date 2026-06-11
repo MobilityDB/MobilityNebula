@@ -65,6 +65,9 @@
 #include <Operators/Windows/JoinLogicalOperator.hpp>
 #include <Operators/Windows/Aggregations/Meos/VarAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/Meos/TemporalSequenceAggregationLogicalFunction.hpp>
+#include <Operators/Windows/Aggregations/Meos/TemporalLengthAggregationLogicalFunction.hpp>
+#include <Operators/Windows/Aggregations/Meos/PairMeetingAggregationLogicalFunction.hpp>
+#include <Operators/Windows/Aggregations/Meos/CrossDistanceAggregationLogicalFunction.hpp>
 #include <Functions/Meos/TemporalIntersectsGeometryLogicalFunction.hpp>
 #include <Functions/Meos/TemporalAIntersectsGeometryLogicalFunction.hpp>
 #include <Functions/Meos/TemporalEDWithinGeometryLogicalFunction.hpp>
@@ -915,20 +918,165 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 helpers.top().functionBuilder.pop_back();
                 const auto longitudeFunction = helpers.top().functionBuilder.back();
                 helpers.top().functionBuilder.pop_back();
-                
+
                 // Verify all arguments are field access functions
                 if (!longitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
                     !latitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
                     !timestampFunction.tryGet<FieldAccessLogicalFunction>()) {
                     throw InvalidQuerySyntax("TEMPORAL_SEQUENCE arguments must be field references");
                 }
-                
+
                 helpers.top().windowAggs.push_back(
                     TemporalSequenceAggregationLogicalFunctionV2::create(longitudeFunction.get<FieldAccessLogicalFunction>(),
                                                                         latitudeFunction.get<FieldAccessLogicalFunction>(),
                                                                         timestampFunction.get<FieldAccessLogicalFunction>()));
                 // Push back one field access function to satisfy parser expectations
                 // This prevents the functionBuilder from being empty when processing the identifier
+                helpers.top().functionBuilder.push_back(longitudeFunction);
+            }
+            break;
+        case AntlrSQLLexer::TEMPORAL_LENGTH:
+            // Same three-input shape as TEMPORAL_SEQUENCE; differs only in the
+            // result type (FLOAT64 instead of VARSIZED). Closes BerlinMOD-Q6 to a
+            // full streaming-form cell.
+            if (helpers.top().functionBuilder.size() != 3) {
+                throw InvalidQuerySyntax("TEMPORAL_LENGTH requires exactly three arguments (longitude, latitude, timestamp), but got {}", helpers.top().functionBuilder.size());
+            }
+            {
+                const auto timestampFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                const auto latitudeFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                const auto longitudeFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+
+                if (!longitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
+                    !latitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
+                    !timestampFunction.tryGet<FieldAccessLogicalFunction>()) {
+                    throw InvalidQuerySyntax("TEMPORAL_LENGTH arguments must be field references");
+                }
+
+                helpers.top().windowAggs.push_back(
+                    TemporalLengthAggregationLogicalFunction::create(longitudeFunction.get<FieldAccessLogicalFunction>(),
+                                                                     latitudeFunction.get<FieldAccessLogicalFunction>(),
+                                                                     timestampFunction.get<FieldAccessLogicalFunction>()));
+                helpers.top().functionBuilder.push_back(longitudeFunction);
+            }
+            break;
+        case AntlrSQLLexer::PAIR_MEETING:
+            // Five-arg aggregation: lon, lat, ts, vehicle_id (FieldAccess) + dMeet
+            // (numeric constant — meeting-distance threshold in metres). The first four
+            // are pulled from functionBuilder; the fifth is pulled from constantBuilder
+            // (the parser parks numeric/string literals there). Closes Q5 × 3 cells to
+            // full; this branch makes the dMeet configurable per-query.
+            {
+                if (helpers.top().constantBuilder.empty()) {
+                    throw InvalidQuerySyntax(
+                        "PAIR_MEETING requires a numeric constant fifth argument (dMeet metres), "
+                        "e.g. PAIR_MEETING(lon, lat, timestamp, vehicle_id, 200.0)");
+                }
+                auto dMeetString = std::move(helpers.top().constantBuilder.back());
+                helpers.top().constantBuilder.pop_back();
+                double dMeetMetres;
+                try {
+                    dMeetMetres = std::stod(dMeetString);
+                } catch (const std::exception&) {
+                    throw InvalidQuerySyntax(
+                        "PAIR_MEETING fifth argument must be a numeric constant (dMeet metres), got `{}`",
+                        dMeetString);
+                }
+
+                if (helpers.top().functionBuilder.size() != 4) {
+                    throw InvalidQuerySyntax(
+                        "PAIR_MEETING requires exactly five arguments (lon, lat, timestamp, vehicle_id, dMeet), "
+                        "got {} field args + 1 constant",
+                        helpers.top().functionBuilder.size());
+                }
+
+                const auto vidFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                const auto timestampFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                const auto latitudeFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                const auto longitudeFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+
+                if (!longitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
+                    !latitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
+                    !timestampFunction.tryGet<FieldAccessLogicalFunction>() ||
+                    !vidFunction.tryGet<FieldAccessLogicalFunction>()) {
+                    throw InvalidQuerySyntax("PAIR_MEETING field arguments (lon, lat, timestamp, vehicle_id) must be field references");
+                }
+
+                helpers.top().windowAggs.push_back(
+                    PairMeetingAggregationLogicalFunction::create(longitudeFunction.get<FieldAccessLogicalFunction>(),
+                                                                  latitudeFunction.get<FieldAccessLogicalFunction>(),
+                                                                  timestampFunction.get<FieldAccessLogicalFunction>(),
+                                                                  vidFunction.get<FieldAccessLogicalFunction>(),
+                                                                  dMeetMetres));
+                helpers.top().functionBuilder.push_back(longitudeFunction);
+            }
+            break;
+        case AntlrSQLLexer::CROSS_DISTANCE:
+            // Six-arg aggregation: lon, lat, ts, vehicle_id (FieldAccess) + vidA, vidB
+            // (numeric constants — target vehicle IDs). The first four are pulled from
+            // functionBuilder; the fifth and sixth are pulled from constantBuilder.
+            // Closes Q9 × 3 cells to full; this branch makes the target vehicle pair
+            // configurable per-query. Mirrors PAIR_MEETING's 5-arg constant-parameterization
+            // pattern (PR #19).
+            {
+                // Pull the two vid constants from constantBuilder. Note: the constants
+                // are pushed in source order, so the LAST one pushed (vidB in the SQL
+                // call) is on top of the stack — pop in reverse order.
+                if (helpers.top().constantBuilder.size() < 2) {
+                    throw InvalidQuerySyntax(
+                        "CROSS_DISTANCE requires two numeric constant arguments (vidA, vidB), "
+                        "e.g. CROSS_DISTANCE(lon, lat, timestamp, vehicle_id, 100, 200)");
+                }
+                auto vidBString = std::move(helpers.top().constantBuilder.back());
+                helpers.top().constantBuilder.pop_back();
+                auto vidAString = std::move(helpers.top().constantBuilder.back());
+                helpers.top().constantBuilder.pop_back();
+                uint64_t vidA, vidB;
+                try {
+                    vidA = std::stoull(vidAString);
+                    vidB = std::stoull(vidBString);
+                } catch (const std::exception&) {
+                    throw InvalidQuerySyntax(
+                        "CROSS_DISTANCE constant arguments must be unsigned integers (vidA, vidB), got `{}` and `{}`",
+                        vidAString, vidBString);
+                }
+
+                if (helpers.top().functionBuilder.size() != 4) {
+                    throw InvalidQuerySyntax(
+                        "CROSS_DISTANCE requires exactly six arguments (lon, lat, timestamp, vehicle_id, vidA, vidB), "
+                        "got {} field args + 2 constants",
+                        helpers.top().functionBuilder.size());
+                }
+
+                const auto vidFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                const auto timestampFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                const auto latitudeFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                const auto longitudeFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+
+                if (!longitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
+                    !latitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
+                    !timestampFunction.tryGet<FieldAccessLogicalFunction>() ||
+                    !vidFunction.tryGet<FieldAccessLogicalFunction>()) {
+                    throw InvalidQuerySyntax("CROSS_DISTANCE field arguments (lon, lat, timestamp, vehicle_id) must be field references");
+                }
+
+                helpers.top().windowAggs.push_back(
+                    CrossDistanceAggregationLogicalFunction::create(longitudeFunction.get<FieldAccessLogicalFunction>(),
+                                                                    latitudeFunction.get<FieldAccessLogicalFunction>(),
+                                                                    timestampFunction.get<FieldAccessLogicalFunction>(),
+                                                                    vidFunction.get<FieldAccessLogicalFunction>(),
+                                                                    vidA, vidB));
                 helpers.top().functionBuilder.push_back(longitudeFunction);
             }
             break;
@@ -1224,6 +1372,90 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
                 helpers.top().functionBuilder.pop_back();
                 helpers.top().windowAggs.push_back(TemporalSequenceAggregationLogicalFunctionV2::create(lon, lat, ts));
+            }
+            else if (funcName == "TEMPORAL_LENGTH")
+            {
+                if (helpers.top().functionBuilder.size() < 3)
+                {
+                    throw InvalidQuerySyntax("TEMPORAL_LENGTH requires three arguments at {}", context->getText());
+                }
+                const auto ts = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                const auto lat = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                helpers.top().windowAggs.push_back(TemporalLengthAggregationLogicalFunction::create(lon, lat, ts));
+            }
+            else if (funcName == "PAIR_MEETING")
+            {
+                // Five-arg shape: 4 FieldAccess + 1 numeric constant (dMeet metres).
+                if (helpers.top().constantBuilder.empty())
+                {
+                    throw InvalidQuerySyntax(
+                        "PAIR_MEETING requires a numeric constant fifth argument (dMeet metres) at {}",
+                        context->getText());
+                }
+                auto dMeetString = std::move(helpers.top().constantBuilder.back());
+                helpers.top().constantBuilder.pop_back();
+                double dMeetMetres;
+                try { dMeetMetres = std::stod(dMeetString); }
+                catch (const std::exception&) {
+                    throw InvalidQuerySyntax(
+                        "PAIR_MEETING fifth argument must be a numeric constant (dMeet metres), got `{}` at {}",
+                        dMeetString, context->getText());
+                }
+                if (helpers.top().functionBuilder.size() < 4)
+                {
+                    throw InvalidQuerySyntax(
+                        "PAIR_MEETING requires four field args + 1 constant at {}", context->getText());
+                }
+                const auto vid = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                const auto ts = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                const auto lat = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                helpers.top().windowAggs.push_back(PairMeetingAggregationLogicalFunction::create(lon, lat, ts, vid, dMeetMetres));
+            }
+            else if (funcName == "CROSS_DISTANCE")
+            {
+                // Six-arg shape: 4 FieldAccess + 2 numeric constants (vidA, vidB).
+                if (helpers.top().constantBuilder.size() < 2)
+                {
+                    throw InvalidQuerySyntax(
+                        "CROSS_DISTANCE requires two numeric constant arguments (vidA, vidB) at {}",
+                        context->getText());
+                }
+                auto vidBString = std::move(helpers.top().constantBuilder.back());
+                helpers.top().constantBuilder.pop_back();
+                auto vidAString = std::move(helpers.top().constantBuilder.back());
+                helpers.top().constantBuilder.pop_back();
+                uint64_t vidA, vidB;
+                try {
+                    vidA = std::stoull(vidAString);
+                    vidB = std::stoull(vidBString);
+                } catch (const std::exception&) {
+                    throw InvalidQuerySyntax(
+                        "CROSS_DISTANCE constant arguments must be unsigned integers (vidA, vidB), got `{}` and `{}` at {}",
+                        vidAString, vidBString, context->getText());
+                }
+                if (helpers.top().functionBuilder.size() < 4)
+                {
+                    throw InvalidQuerySyntax(
+                        "CROSS_DISTANCE requires four field args + 2 constants at {}", context->getText());
+                }
+                const auto vid = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                const auto ts = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                const auto lat = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                helpers.top().windowAggs.push_back(CrossDistanceAggregationLogicalFunction::create(lon, lat, ts, vid, vidA, vidB));
             }
             else if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, helpers.top().functionBuilder))
             {

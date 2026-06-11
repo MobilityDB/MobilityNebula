@@ -1,0 +1,14 @@
+# name: MEOS_TimestamptzUnion_Aggregation
+# description: Windowed TIMESTAMPTZ_UNION — time union (TSTZSET, deduped+sorted) over an event-time field via timestamptz_union_transfn + set_union_finalfn (W30 set-collect aggregation).
+# groups: [Function, MEOS, Time, Aggregation]
+CREATE LOGICAL SOURCE tu(vehicle_id UINT64, value UINT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tu TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1609459200|1609459200
+1|1609459320|1609459320
+1|1609459260|1609459260
+
+CREATE SINK tu_out(tu.vehicle_id UINT64, tu.vals VARSIZED) TYPE File;
+SELECT vehicle_id, TIMESTAMPTZ_UNION(value, timestamp) AS vals FROM tu GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tu_out;
+----
+1,{"2021-01-01 00:00:00+00", "2021-01-01 00:01:00+00", "2021-01-01 00:02:00+00"}

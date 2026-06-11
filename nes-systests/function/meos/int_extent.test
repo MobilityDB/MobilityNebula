@@ -1,0 +1,14 @@
+# name: MEOS_IntExtent_Aggregation
+# description: Windowed INT_EXTENT — value extent (INTSPAN) over a tint stream via int_extent_transfn (W28 scalar-fold box-output aggregation).
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE ie(vehicle_id UINT64, value INT32, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR ie TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|12|1609459200
+1|18|1609459201
+1|9|1609459202
+
+CREATE SINK ie_out(ie.vehicle_id UINT64, ie.extent VARSIZED) TYPE File;
+SELECT vehicle_id, INT_EXTENT(value, timestamp) AS extent FROM ie GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO ie_out;
+----
+1,[9, 19)

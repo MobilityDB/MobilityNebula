@@ -1,0 +1,14 @@
+# name: MEOS_BigintExtent_Aggregation
+# description: Windowed BIGINT_EXTENT — value extent (BIGINTSPAN) over a tbigint stream via bigint_extent_transfn (W28 scalar-fold box-output aggregation).
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE be(vehicle_id UINT64, value INT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR be TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1200000000|1609459200
+1|1800000000|1609459201
+1|900000000|1609459202
+
+CREATE SINK be_out(be.vehicle_id UINT64, be.extent VARSIZED) TYPE File;
+SELECT vehicle_id, BIGINT_EXTENT(value, timestamp) AS extent FROM be GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO be_out;
+----
+1,[900000000, 1800000001)

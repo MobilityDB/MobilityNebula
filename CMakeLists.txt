@@ -239,6 +239,13 @@ endif ()
 
 add_custom_target(build_all_plugins)
 
+# Declared here so add_compile_definitions reaches all sibling nes-* targets.
+# nes-plugins/CMakeLists.txt re-declares the same option (no-op when cached).
+option(NES_ENABLE_MEOS "Enable MEOS plugin (requires libmeos installed on the system)" ON)
+if(NES_ENABLE_MEOS)
+    add_compile_definitions(NES_ENABLE_MEOS)
+endif()
+
 # Add target for common lib, which contains a minimal set
 # of shared functionality used by all components of nes
 file(GLOB NES_DIRECTORIES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "nes-*")

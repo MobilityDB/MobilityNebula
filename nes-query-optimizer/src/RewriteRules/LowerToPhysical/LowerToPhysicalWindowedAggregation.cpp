@@ -54,8 +54,12 @@
 #include <QueryExecutionConfiguration.hpp>
 #include <RewriteRuleRegistry.hpp>
 // Special-case lowering for TEMPORAL_SEQUENCE (multi-input) aggregation
+#ifdef NES_ENABLE_MEOS
 #include <Operators/Windows/Aggregations/Meos/TemporalSequenceAggregationLogicalFunctionV2.hpp>
+#include <Operators/Windows/Aggregations/Meos/TemporalLengthAggregationLogicalFunction.hpp>
 #include <Aggregation/Function/Meos/TemporalSequenceAggregationPhysicalFunction.hpp>
+#include <Aggregation/Function/Meos/TemporalLengthAggregationPhysicalFunction.hpp>
+#endif
 
 namespace NES
 {
@@ -128,6 +132,7 @@ getAggregationPhysicalFunctions(const WindowedAggregationLogicalOperator& logica
         const auto name = descriptor->getName();
 
         // Custom lowering path for TEMPORAL_SEQUENCE: needs three field functions (lon, lat, ts)
+#ifdef NES_ENABLE_MEOS
         if (name == std::string_view("TemporalSequence"))
         {
             auto tsDescriptor = std::dynamic_pointer_cast<TemporalSequenceAggregationLogicalFunctionV2>(descriptor);
@@ -149,6 +154,36 @@ getAggregationPhysicalFunctions(const WindowedAggregationLogicalOperator& logica
             auto tupleBufferRef = Interface::BufferRef::TupleBufferRef::create(configuration.pageSize.getValue(), stateSchema);
 
             auto phys = std::make_shared<TemporalSequenceAggregationPhysicalFunction>(
+                std::move(physicalInputType),
+                std::move(physicalFinalType),
+                lonPF,
+                latPF,
+                tsPF,
+                resultFieldIdentifier,
+                tupleBufferRef);
+            aggregationPhysicalFunctions.push_back(std::move(phys));
+            continue;
+        }
+#endif
+
+        // Custom lowering path for TEMPORAL_LENGTH: same three-input shape as TEMPORAL_SEQUENCE,
+        // returns a FLOAT64 (the spheroidal length of the per-(window, group) trajectory) instead of a VARSIZED WKB blob.
+        if (name == std::string_view("TemporalLength"))
+        {
+            auto tlDescriptor = std::dynamic_pointer_cast<TemporalLengthAggregationLogicalFunction>(descriptor);
+            INVARIANT(tlDescriptor != nullptr, "Expected TemporalLengthAggregationLogicalFunction for TemporalLength");
+
+            auto lonPF = QueryCompilation::FunctionProvider::lowerFunction(tlDescriptor->getLonField());
+            auto latPF = QueryCompilation::FunctionProvider::lowerFunction(tlDescriptor->getLatField());
+            auto tsPF = QueryCompilation::FunctionProvider::lowerFunction(tlDescriptor->getTimestampField());
+
+            Schema stateSchema;
+            stateSchema.addField("lon", tlDescriptor->getLonField().getDataType());
+            stateSchema.addField("lat", tlDescriptor->getLatField().getDataType());
+            stateSchema.addField("timestamp", tlDescriptor->getTimestampField().getDataType());
+            auto tupleBufferRef = Interface::BufferRef::TupleBufferRef::create(configuration.pageSize.getValue(), stateSchema);
+
+            auto phys = std::make_shared<TemporalLengthAggregationPhysicalFunction>(
                 std::move(physicalInputType),
                 std::move(physicalFinalType),
                 lonPF,

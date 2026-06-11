@@ -1,0 +1,53 @@
+# BerlinMOD-Q5 — snapshot form (PARTIAL)
+# "Pairs of vehicles meeting near P." NebulaStream's SQL has no stream-self-join,
+# so this YAML emits the per-window TEMPORAL_SEQUENCE for each vehicle near P.
+# Consumer joins the per-vehicle trajectories to compute pair distances and decide
+# meeting. Full BerlinMOD-Q5 semantics require this consumer-side post-processing.
+
+query: |
+  SELECT start,
+         end,
+         vehicle_id,
+         TEMPORAL_SEQUENCE(gps_lon, gps_lat, time_utc) AS trajectory
+  FROM berlinmod_stream
+  WHERE edwithin_tgeo_geo(gps_lon,
+                          gps_lat,
+                          time_utc,
+                          'SRID=4326;POINT(4.3517 50.8503)',
+                          FLOAT64(5000.0)) = INT32(1)
+  GROUP BY vehicle_id
+  WINDOW TUMBLING(time_utc, SIZE 5 SEC)
+  INTO file_sink;
+
+sinks:
+  - name: FILE_SINK
+    type: File
+    schema:
+      - { name: BERLINMOD_STREAM$START,      type: UINT64 }
+      - { name: BERLINMOD_STREAM$END,        type: UINT64 }
+      - { name: BERLINMOD_STREAM$VEHICLE_ID, type: UINT64 }
+      - { name: BERLINMOD_STREAM$TRAJECTORY, type: VARSIZED }
+    config:
+      file_path: "/workspace/Output/output_berlinmod_q5_snapshot.csv"
+      input_format: CSV
+
+logical:
+  - name: BERLINMOD_STREAM
+    schema:
+      - { name: TIME_UTC,   type: UINT64 }
+      - { name: VEHICLE_ID, type: UINT64 }
+      - { name: GPS_LON,    type: FLOAT64 }
+      - { name: GPS_LAT,    type: FLOAT64 }
+
+physical:
+  - logical: BERLINMOD_STREAM
+    type: TCP
+    parser_config:
+      type: CSV
+      field_delimiter: ","
+      tuple_delimiter: "\n"
+    source_config:
+      socket_host: "host.docker.internal"
+      socket_port: "32325"
+      socket_type: "SOCK_STREAM"
+      socket_domain: "AF_INET"

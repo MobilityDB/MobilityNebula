@@ -65,6 +65,7 @@
 #include <Operators/Windows/JoinLogicalOperator.hpp>
 #include <Operators/Windows/Aggregations/Meos/VarAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/Meos/TemporalSequenceAggregationLogicalFunction.hpp>
+#include <Operators/Windows/Aggregations/Meos/TemporalLengthAggregationLogicalFunction.hpp>
 #include <Functions/Meos/TemporalIntersectsGeometryLogicalFunction.hpp>
 #include <Functions/Meos/TemporalAIntersectsGeometryLogicalFunction.hpp>
 #include <Functions/Meos/TemporalEDWithinGeometryLogicalFunction.hpp>
@@ -915,20 +916,48 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 helpers.top().functionBuilder.pop_back();
                 const auto longitudeFunction = helpers.top().functionBuilder.back();
                 helpers.top().functionBuilder.pop_back();
-                
+
                 // Verify all arguments are field access functions
                 if (!longitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
                     !latitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
                     !timestampFunction.tryGet<FieldAccessLogicalFunction>()) {
                     throw InvalidQuerySyntax("TEMPORAL_SEQUENCE arguments must be field references");
                 }
-                
+
                 helpers.top().windowAggs.push_back(
                     TemporalSequenceAggregationLogicalFunctionV2::create(longitudeFunction.get<FieldAccessLogicalFunction>(),
                                                                         latitudeFunction.get<FieldAccessLogicalFunction>(),
                                                                         timestampFunction.get<FieldAccessLogicalFunction>()));
                 // Push back one field access function to satisfy parser expectations
                 // This prevents the functionBuilder from being empty when processing the identifier
+                helpers.top().functionBuilder.push_back(longitudeFunction);
+            }
+            break;
+        case AntlrSQLLexer::TEMPORAL_LENGTH:
+            // Same three-input shape as TEMPORAL_SEQUENCE; differs only in the
+            // result type (FLOAT64 instead of VARSIZED). Closes BerlinMOD-Q6 to a
+            // full streaming-form cell.
+            if (helpers.top().functionBuilder.size() != 3) {
+                throw InvalidQuerySyntax("TEMPORAL_LENGTH requires exactly three arguments (longitude, latitude, timestamp), but got {}", helpers.top().functionBuilder.size());
+            }
+            {
+                const auto timestampFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                const auto latitudeFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+                const auto longitudeFunction = helpers.top().functionBuilder.back();
+                helpers.top().functionBuilder.pop_back();
+
+                if (!longitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
+                    !latitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
+                    !timestampFunction.tryGet<FieldAccessLogicalFunction>()) {
+                    throw InvalidQuerySyntax("TEMPORAL_LENGTH arguments must be field references");
+                }
+
+                helpers.top().windowAggs.push_back(
+                    TemporalLengthAggregationLogicalFunction::create(longitudeFunction.get<FieldAccessLogicalFunction>(),
+                                                                     latitudeFunction.get<FieldAccessLogicalFunction>(),
+                                                                     timestampFunction.get<FieldAccessLogicalFunction>()));
                 helpers.top().functionBuilder.push_back(longitudeFunction);
             }
             break;
@@ -1224,6 +1253,20 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
                 helpers.top().functionBuilder.pop_back();
                 helpers.top().windowAggs.push_back(TemporalSequenceAggregationLogicalFunctionV2::create(lon, lat, ts));
+            }
+            else if (funcName == "TEMPORAL_LENGTH")
+            {
+                if (helpers.top().functionBuilder.size() < 3)
+                {
+                    throw InvalidQuerySyntax("TEMPORAL_LENGTH requires three arguments at {}", context->getText());
+                }
+                const auto ts = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                const auto lat = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
+                helpers.top().functionBuilder.pop_back();
+                helpers.top().windowAggs.push_back(TemporalLengthAggregationLogicalFunction::create(lon, lat, ts));
             }
             else if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, helpers.top().functionBuilder))
             {

@@ -1,0 +1,47 @@
+# BerlinMOD-Q9 — snapshot form (FULL)
+# "Distance between vehicles X (= 100) and Y (= 200) at time T." Per-5s
+# tumbling-tick window. CROSS_DISTANCE returns the spheroidal distance
+# between the two vehicles' latest known positions at the tick, or NaN if
+# either is unobserved. Hardcoded (VID_A, VID_B) = (100, 200) for the
+# scaffold. The snapshot at time T equals the batch BerlinMOD-Q9 result up
+# to T.
+
+query: |
+  SELECT start,
+         end,
+         CROSS_DISTANCE(gps_lon, gps_lat, time_utc, vehicle_id) AS distance_metres
+  FROM berlinmod_stream
+  WINDOW TUMBLING(time_utc, SIZE 5 SEC)
+  INTO file_sink;
+
+sinks:
+  - name: FILE_SINK
+    type: File
+    schema:
+      - { name: BERLINMOD_STREAM$START,           type: UINT64 }
+      - { name: BERLINMOD_STREAM$END,             type: UINT64 }
+      - { name: BERLINMOD_STREAM$DISTANCE_METRES, type: FLOAT64 }
+    config:
+      file_path: "/workspace/Output/output_berlinmod_q9_snapshot.csv"
+      input_format: CSV
+
+logical:
+  - name: BERLINMOD_STREAM
+    schema:
+      - { name: TIME_UTC,   type: UINT64 }
+      - { name: VEHICLE_ID, type: UINT64 }
+      - { name: GPS_LON,    type: FLOAT64 }
+      - { name: GPS_LAT,    type: FLOAT64 }
+
+physical:
+  - logical: BERLINMOD_STREAM
+    type: TCP
+    parser_config:
+      type: CSV
+      field_delimiter: ","
+      tuple_delimiter: "\n"
+    source_config:
+      socket_host: "host.docker.internal"
+      socket_port: "32325"
+      socket_type: "SOCK_STREAM"
+      socket_domain: "AF_INET"

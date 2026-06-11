@@ -1,0 +1,17 @@
+# name: MEOS_TemporalTNumberTwAvg_Aggregation
+# description: Windowed TEMPORAL_TNUMBER_TWAVG (time-weighted average) over per-(window,group) tnumber (W8 aggregation).
+# groups: [Function, MEOS, TNumber, Aggregation]
+CREATE LOGICAL SOURCE twa(sensor_id UINT64, reading FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR twa TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|10.0|1609459200
+1|20.0|1609459210
+1|30.0|1609459220
+2|5.0|1609459200
+2|15.0|1609459220
+
+CREATE SINK twa_out(twa.sensor_id UINT64, twa.tw_average FLOAT64) TYPE File;
+SELECT sensor_id, TEMPORAL_TNUMBER_TWAVG(reading, timestamp) AS tw_average FROM twa GROUP BY sensor_id WINDOW TUMBLING(timestamp, size 1 hour) INTO twa_out;
+----
+1,20.0
+2,10.0

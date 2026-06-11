@@ -29,6 +29,9 @@ using AggregationLogicalFunctionRegistryReturnType = std::shared_ptr<WindowAggre
 struct AggregationLogicalFunctionRegistryArguments
 {
     std::vector<FieldAccessLogicalFunction> fields;
+    /// Query-literal constants for parameterized aggregates (deserialized from
+    /// SerializableAggregationFunction.literals). Empty for field-only aggregates.
+    std::vector<std::string> literals;
 };
 
 class AggregationLogicalFunctionRegistry : public BaseRegistry<

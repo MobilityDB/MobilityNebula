@@ -1,0 +1,15 @@
+# name: MEOS_IntUnion_Aggregation
+# description: Windowed INT_UNION — value union (INTSET, deduped+sorted) over a tint stream via int_union_transfn + set_union_finalfn (W30 set-collect aggregation).
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE iu(vehicle_id UINT64, value INT32, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR iu TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|12|1609459200
+1|18|1609459201
+1|9|1609459202
+1|12|1609459203
+
+CREATE SINK iu_out(iu.vehicle_id UINT64, iu.vals VARSIZED) TYPE File;
+SELECT vehicle_id, INT_UNION(value, timestamp) AS vals FROM iu GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO iu_out;
+----
+1,{9, 12, 18}

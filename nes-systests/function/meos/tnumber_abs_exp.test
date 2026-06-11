@@ -1,0 +1,14 @@
+# name: MEOS_TnumberAbsExp_Aggregation
+# description: Value-output windowed aggregate — tnumber_abs over the expandable tfloat mini-series, result emitted as hex-WKB. All-positive input so abs is identity (the materialized tfloat sequence).
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE tae(vehicle_id UINT64, value FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tae TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|5.0|1609459200
+1|10.0|1609459201
+1|3.0|1609459202
+
+CREATE SINK tae_out(tae.vehicle_id UINT64, tae.r VARSIZED) TYPE File;
+SELECT vehicle_id, TNUMBER_ABS_EXP(value, timestamp) AS r FROM tae GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tae_out;
+----
+1,0121000E0300000003000000000000144000A0AD30CA5A0200000000000000244040E2BC30CA5A020000000000000008408024CC30CA5A0200

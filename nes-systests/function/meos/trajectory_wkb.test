@@ -1,0 +1,14 @@
+# name: MEOS_TrajectoryWkb_Aggregation
+# description: Windowed mini-trip trajectory materialized as a hex-WKB sequence value — the value the MEOS function library composes over (the efficient materialize-once mechanism). Its output is exactly the input TPOINT_LENGTH_WKB consumes.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Aggregation]
+CREATE LOGICAL SOURCE trw(vehicle_id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR trw TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+1|4.3700|50.6500|1609459201
+1|4.3750|50.6550|1609459202
+
+CREATE SINK trw_out(trw.vehicle_id UINT64, trw.traj VARSIZED) TYPE File;
+SELECT vehicle_id, TRAJECTORY_WKB(lon, lat, timestamp) AS traj FROM trw GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO trw_out;
+----
+1,012E000E03000000030101000000D88173469476114018265305A352494000A0AD30CA5A020001010000007B14AE47E17A1140333333333353494040E2BC30CA5A020001010000000000000000801140A4703D0AD75349408024CC30CA5A0200

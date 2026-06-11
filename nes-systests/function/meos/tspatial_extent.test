@@ -1,0 +1,14 @@
+# name: MEOS_TspatialExtent_Aggregation
+# description: Windowed TSPATIAL_EXTENT — spatiotemporal bounding box (STBox) over a per-(window,group) tgeo trajectory via tspatial_extent_transfn (W27 box-output aggregation).
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Aggregation]
+CREATE LOGICAL SOURCE tse(vehicle_id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tse TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+1|4.3700|50.6500|1609459201
+1|4.3750|50.6550|1609459202
+
+CREATE SINK tse_out(tse.vehicle_id UINT64, tse.extent VARSIZED) TYPE File;
+SELECT vehicle_id, TSPATIAL_EXTENT(lon, lat, timestamp) AS extent FROM tse GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tse_out;
+----
+1,STBOX XT(((4.3658,50.6456),(4.375,50.655)),[2021-01-01 00:00:00+00, 2021-01-01 00:00:02+00])

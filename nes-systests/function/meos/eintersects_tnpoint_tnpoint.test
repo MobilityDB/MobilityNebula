@@ -1,0 +1,18 @@
+# name: function/spatiotemporal/MEOS_TemporalEIntersectsTNpointTNpoint.test
+# description: Per-event ever-intersects between two single-instant tgeompoints, each resolved from a temporal network point (rid, fraction, ts) via tnpoint_to_tgeompoint at runtime. Exercises the W18 two-tnpoint composition codegen shape — two tnpoint_in -> two tnpoint_to_tgeompoint -> existing eintersects_tgeo_tgeo (shipped in W3). Both operands land in the network SRID, so no mixed-SRID concern. NOTE: running this test requires the MEOS ways network present at /usr/local/share/ways1000.csv (see meos/examples/data/ways1000.csv in MobilityDB); without it MEOS errors "Cannot open the ways CSV file". Two npoints on the same route at the same fraction and instant resolve to the same point (expect 1); on different routes they resolve to different points (expect 0).
+# groups: [Function, MEOS, SpatioTemporal, TNpoint, EIntersects, Composition, Codegen, Network]
+
+CREATE LOGICAL SOURCE tnpoint_eintersects_tests(id UINT32, ridA UINT64, fractionA FLOAT64, tsA UINT64, ridB UINT64, fractionB FLOAT64, tsB UINT64);
+CREATE PHYSICAL SOURCE FOR tnpoint_eintersects_tests TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|55|0.5|1609459200|55|0.5|1609459200
+2|55|0.5|1609459200|99|0.5|1609459200
+
+CREATE SINK tnpoint_eintersects_results(tnpoint_eintersects_tests.id UINT32, intersects INT32) TYPE File;
+SELECT id,
+       TEMPORAL_EINTERSECTS_TNPOINT_TNPOINT(ridA, fractionA, tsA, ridB, fractionB, tsB) AS intersects
+FROM tnpoint_eintersects_tests
+INTO tnpoint_eintersects_results;
+----
+1,1
+2,0

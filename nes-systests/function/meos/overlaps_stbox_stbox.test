@@ -1,0 +1,14 @@
+# name: MEOS_OverlapsStboxStbox_CrossVehicle
+# description: Cross-vehicle OVERLAPS_STBOX_STBOX over two per-vehicle extent STBoxes (each a VARSIZED stbox text, e.g. two TSPATIAL_EXTENT outputs in a self-join). Box A=((1,1),(3,3)); B=((2,2),(4,4)) overlaps A; C=((10,10),(11,11)) is disjoint and to the right of A.
+# groups: [Function, MEOS, SpatioTemporal, Box, CrossStream]
+CREATE LOGICAL SOURCE osb(id UINT64, boxa VARSIZED, boxb VARSIZED);
+CREATE PHYSICAL SOURCE FOR osb TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|STBOX X((1,1),(3,3))|STBOX X((2,2),(4,4))
+2|STBOX X((1,1),(3,3))|STBOX X((10,10),(11,11))
+
+CREATE SINK osb_out(osb.id UINT64, r BOOLEAN) TYPE File;
+SELECT id, OVERLAPS_STBOX_STBOX(boxa, boxb) AS r FROM osb INTO osb_out;
+----
+1,1
+2,0

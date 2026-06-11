@@ -1,0 +1,14 @@
+# name: MEOS_TgeoEndValueExp_Aggregation
+# description: Windowed tgeompoint mini-trip grown on the in-process expandable Temporal* (appendInstant); TGEO_END_VALUE_EXP emits a geometry value as canonical hex-EWKB.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Aggregation]
+CREATE LOGICAL SOURCE tgev(vehicle_id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tgev TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+1|4.3700|50.6500|1609459201
+1|4.3750|50.6550|1609459202
+
+CREATE SINK tgev_out(tgev.vehicle_id UINT64, tgev.endpt VARSIZED) TYPE File;
+SELECT vehicle_id, TGEO_END_VALUE_EXP(lon, lat, timestamp) AS endpt FROM tgev GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tgev_out;
+----
+1,0101000020E61000000000000000801140A4703D0AD7534940

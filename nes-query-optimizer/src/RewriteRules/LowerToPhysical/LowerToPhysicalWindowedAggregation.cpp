@@ -54,8 +54,10 @@
 #include <QueryExecutionConfiguration.hpp>
 #include <RewriteRuleRegistry.hpp>
 // Special-case lowering for TEMPORAL_SEQUENCE (multi-input) aggregation
+#ifdef NES_ENABLE_MEOS
 #include <Operators/Windows/Aggregations/Meos/TemporalSequenceAggregationLogicalFunctionV2.hpp>
 #include <Aggregation/Function/Meos/TemporalSequenceAggregationPhysicalFunction.hpp>
+#endif
 
 namespace NES
 {
@@ -128,6 +130,7 @@ getAggregationPhysicalFunctions(const WindowedAggregationLogicalOperator& logica
         const auto name = descriptor->getName();
 
         // Custom lowering path for TEMPORAL_SEQUENCE: needs three field functions (lon, lat, ts)
+#ifdef NES_ENABLE_MEOS
         if (name == std::string_view("TemporalSequence"))
         {
             auto tsDescriptor = std::dynamic_pointer_cast<TemporalSequenceAggregationLogicalFunctionV2>(descriptor);
@@ -159,6 +162,7 @@ getAggregationPhysicalFunctions(const WindowedAggregationLogicalOperator& logica
             aggregationPhysicalFunctions.push_back(std::move(phys));
             continue;
         }
+#endif
 
         // Default path: use registry for single-input aggregations
         auto aggregationInputFunction = QueryCompilation::FunctionProvider::lowerFunction(descriptor->onField);

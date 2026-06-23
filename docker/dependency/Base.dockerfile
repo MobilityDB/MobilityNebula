@@ -69,8 +69,9 @@ RUN apt update -y && apt install -y \
     libgeos-c1v5 \
     libxml2-dev
 
-# Build MobilityDB with MEOS enabled using GCC
-RUN git clone https://github.com/MobilityDB/MobilityDB.git -b master /usr/local/src/MobilityDB \
+# Build MobilityDB with MEOS enabled using GCC, pinned to the canonical ecosystem
+# pin ecosystem-pin-2026-06-22a (commit 043d5e723422d6134a9f5868a7007c9eae65730b)
+RUN git clone https://github.com/estebanzimanyi/MobilityDB.git -b ecosystem-pin-2026-06-22a /usr/local/src/MobilityDB \
     && mkdir -p /usr/local/src/MobilityDB/build \
     && cd /usr/local/src/MobilityDB/build \
     && cmake -DMEOS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ .. \

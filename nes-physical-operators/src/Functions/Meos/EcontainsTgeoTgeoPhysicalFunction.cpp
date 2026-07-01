@@ -13,10 +13,10 @@
 */
 
 #include <Functions/Meos/EcontainsTgeoTgeoPhysicalFunction.hpp>
+
 #include <Functions/PhysicalFunction.hpp>
 #include <MEOSWrapper.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <PhysicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
@@ -34,42 +34,68 @@ extern "C" {
 
 namespace NES {
 
-EcontainsTgeoTgeoPhysicalFunction::EcontainsTgeoTgeoPhysicalFunction(PhysicalFunction lon1, PhysicalFunction lat1, PhysicalFunction ts1, PhysicalFunction lon2, PhysicalFunction lat2, PhysicalFunction ts2)
+EcontainsTgeoTgeoPhysicalFunction::EcontainsTgeoTgeoPhysicalFunction(PhysicalFunction lonAFunction,
+                                                          PhysicalFunction latAFunction,
+                                                          PhysicalFunction tsAFunction,
+                                                          PhysicalFunction lonBFunction,
+                                                          PhysicalFunction latBFunction,
+                                                          PhysicalFunction tsBFunction)
 {
-    paramFns.reserve(6);
-    paramFns.push_back(std::move(lon1));
-    paramFns.push_back(std::move(lat1));
-    paramFns.push_back(std::move(ts1));
-    paramFns.push_back(std::move(lon2));
-    paramFns.push_back(std::move(lat2));
-    paramFns.push_back(std::move(ts2));
+    parameterFunctions.reserve(6);
+    parameterFunctions.push_back(std::move(lonAFunction));
+    parameterFunctions.push_back(std::move(latAFunction));
+    parameterFunctions.push_back(std::move(tsAFunction));
+    parameterFunctions.push_back(std::move(lonBFunction));
+    parameterFunctions.push_back(std::move(latBFunction));
+    parameterFunctions.push_back(std::move(tsBFunction));
 }
 
 VarVal EcontainsTgeoTgeoPhysicalFunction::execute(const Record& record, ArenaRef& arena) const
 {
-    auto lon1 = paramFns[0].execute(record, arena).cast<double>();
-    auto lat1 = paramFns[1].execute(record, arena).cast<double>();
-    auto ts1 = paramFns[2].execute(record, arena).cast<uint64_t>();
-    auto lon2 = paramFns[3].execute(record, arena).cast<double>();
-    auto lat2 = paramFns[4].execute(record, arena).cast<double>();
-    auto ts2 = paramFns[5].execute(record, arena).cast<uint64_t>();
+    std::vector<VarVal> parameterValues;
+    parameterValues.reserve(parameterFunctions.size());
+    for (const auto& function : parameterFunctions)
+    {
+        parameterValues.emplace_back(function.execute(record, arena));
+    }
+
+    auto lonA = parameterValues[0].cast<nautilus::val<double>>();
+    auto latA = parameterValues[1].cast<nautilus::val<double>>();
+    auto tsA  = parameterValues[2].cast<nautilus::val<uint64_t>>();
+    auto lonB = parameterValues[3].cast<nautilus::val<double>>();
+    auto latB = parameterValues[4].cast<nautilus::val<double>>();
+    auto tsB  = parameterValues[5].cast<nautilus::val<uint64_t>>();
+
     const auto result = nautilus::invoke(
-        +[](double lon1, double lat1, uint64_t ts1,
-            double lon2, double lat2, uint64_t ts2) -> double {
-            try {
+        +[](double lonAValue, double latAValue, uint64_t tsAValue,
+            double lonBValue, double latBValue, uint64_t tsBValue) -> int {
+            try
+            {
                 MEOS::Meos::ensureMeosInitialized();
-                std::string wkt1 = fmt::format("SRID=4326;POINT({},{})@{}", lon1, lat1, ts1);
-                Temporal* t1 = tgeompoint_in(wkt1.c_str());
-                if (!t1) return 0.0;
-                std::string wkt2 = fmt::format("SRID=4326;POINT({},{})@{}", lon2, lat2, ts2);
-                Temporal* t2 = tgeompoint_in(wkt2.c_str());
-                if (!t2) { free(t1); return 0.0; }
-                int r = econtains_tgeo_tgeo(t1, t2);
-                free(t1); free(t2);
-                return r > 0 ? 1.0 : 0.0;
-            } catch (const std::exception&) { return 0.0; }
+                if (!(lonAValue >= -180.0 && lonAValue <= 180.0 && latAValue >= -90.0 && latAValue <= 90.0)) return 0;
+                if (!(lonBValue >= -180.0 && lonBValue <= 180.0 && latBValue >= -90.0 && latBValue <= 90.0)) return 0;
+
+                const std::string tsAString = MEOS::Meos::convertEpochToTimestamp(tsAValue);
+                const std::string tsBString = MEOS::Meos::convertEpochToTimestamp(tsBValue);
+                std::string temporalGeometryAWkt = fmt::format("SRID=4326;Point({} {})@{}", lonAValue, latAValue, tsAString);
+                std::string temporalGeometryBWkt = fmt::format("SRID=4326;Point({} {})@{}", lonBValue, latBValue, tsBString);
+
+                MEOS::Meos::TemporalGeometry temporalGeometryA(temporalGeometryAWkt);
+                if (!temporalGeometryA.getGeometry()) return 0;
+                MEOS::Meos::TemporalGeometry temporalGeometryB(temporalGeometryBWkt);
+                if (!temporalGeometryB.getGeometry()) return 0;
+
+                // MEOS *_tgeo_tgeo spatial-relation: int fn(const Temporal*, const Temporal*).
+                return econtains_tgeo_tgeo(temporalGeometryA.getGeometry(),
+                                   temporalGeometryB.getGeometry());
+            }
+            catch (const std::exception&)
+            {
+                return 0;
+            }
         },
-        lon1, lat1, ts1, lon2, lat2, ts2);
+        lonA, latA, tsA, lonB, latB, tsB);
+
     return VarVal(result);
 }
 
@@ -79,13 +105,13 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterE
     PRECONDITION(arguments.childFunctions.size() == 6,
                  "EcontainsTgeoTgeoPhysicalFunction requires 6 children but got {}",
                  arguments.childFunctions.size());
-    return EcontainsTgeoTgeoPhysicalFunction(
-                                  std::move(arguments.childFunctions[0]),
-                                  std::move(arguments.childFunctions[1]),
-                                  std::move(arguments.childFunctions[2]),
-                                  std::move(arguments.childFunctions[3]),
-                                  std::move(arguments.childFunctions[4]),
-                                  std::move(arguments.childFunctions[5]));
+    auto arg0 = std::move(arguments.childFunctions[0]);
+    auto arg1 = std::move(arguments.childFunctions[1]);
+    auto arg2 = std::move(arguments.childFunctions[2]);
+    auto arg3 = std::move(arguments.childFunctions[3]);
+    auto arg4 = std::move(arguments.childFunctions[4]);
+    auto arg5 = std::move(arguments.childFunctions[5]);
+    return EcontainsTgeoTgeoPhysicalFunction(std::move(arg0), std::move(arg1), std::move(arg2), std::move(arg3), std::move(arg4), std::move(arg5));
 }
 
 } // namespace NES

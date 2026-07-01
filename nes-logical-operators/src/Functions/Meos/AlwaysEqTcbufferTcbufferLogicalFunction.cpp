@@ -26,67 +26,89 @@
 namespace NES
 {
 
-AlwaysEqTcbufferTcbufferLogicalFunction::AlwaysEqTcbufferTcbufferLogicalFunction(
-    LogicalFunction lon1, LogicalFunction lat1, LogicalFunction r1, LogicalFunction ts1,
-    LogicalFunction lon2, LogicalFunction lat2, LogicalFunction r2, LogicalFunction ts2)
-    : dataType(DataTypeProvider::provideDataType(DataType::Type::FLOAT64))
+AlwaysEqTcbufferTcbufferLogicalFunction::AlwaysEqTcbufferTcbufferLogicalFunction(LogicalFunction lonA,
+                                          LogicalFunction latA,
+                                          LogicalFunction radiusA,
+                                          LogicalFunction tsA,
+                                          LogicalFunction lonB,
+                                          LogicalFunction latB,
+                                          LogicalFunction radiusB,
+                                          LogicalFunction tsB)
+    : dataType(DataTypeProvider::provideDataType(DataType::Type::INT32))
 {
     parameters.reserve(8);
-    parameters.push_back(std::move(lon1));
-    parameters.push_back(std::move(lat1));
-    parameters.push_back(std::move(r1));
-    parameters.push_back(std::move(ts1));
-    parameters.push_back(std::move(lon2));
-    parameters.push_back(std::move(lat2));
-    parameters.push_back(std::move(r2));
-    parameters.push_back(std::move(ts2));
+    parameters.push_back(std::move(lonA));
+    parameters.push_back(std::move(latA));
+    parameters.push_back(std::move(radiusA));
+    parameters.push_back(std::move(tsA));
+    parameters.push_back(std::move(lonB));
+    parameters.push_back(std::move(latB));
+    parameters.push_back(std::move(radiusB));
+    parameters.push_back(std::move(tsB));
 }
 
-DataType AlwaysEqTcbufferTcbufferLogicalFunction::getDataType() const { return dataType; }
+DataType AlwaysEqTcbufferTcbufferLogicalFunction::getDataType() const
+{
+    return dataType;
+}
 
 LogicalFunction AlwaysEqTcbufferTcbufferLogicalFunction::withDataType(const DataType& newDataType) const
 {
-    auto copy = *this; copy.dataType = newDataType; return copy;
+    auto copy = *this;
+    copy.dataType = newDataType;
+    return copy;
 }
 
-std::vector<LogicalFunction> AlwaysEqTcbufferTcbufferLogicalFunction::getChildren() const { return parameters; }
+std::vector<LogicalFunction> AlwaysEqTcbufferTcbufferLogicalFunction::getChildren() const
+{
+    return parameters;
+}
 
 LogicalFunction AlwaysEqTcbufferTcbufferLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
-    PRECONDITION(children.size() == 8,
-                 "AlwaysEqTcbufferTcbufferLogicalFunction requires 8 children, but got {}", children.size());
-    auto copy = *this; copy.parameters = children; return copy;
+    PRECONDITION(children.size() == 8, "AlwaysEqTcbufferTcbufferLogicalFunction requires 8 children, but got {}", children.size());
+    auto copy = *this;
+    copy.parameters = children;
+    return copy;
 }
 
-std::string_view AlwaysEqTcbufferTcbufferLogicalFunction::getType() const { return NAME; }
+std::string_view AlwaysEqTcbufferTcbufferLogicalFunction::getType() const
+{
+    return NAME;
+}
 
 bool AlwaysEqTcbufferTcbufferLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
 {
     if (const auto* other = dynamic_cast<const AlwaysEqTcbufferTcbufferLogicalFunction*>(&rhs))
+    {
         return parameters == other->parameters;
+    }
     return false;
 }
 
 std::string AlwaysEqTcbufferTcbufferLogicalFunction::explain(ExplainVerbosity verbosity) const
 {
-    return fmt::format("{}({})", NAME, parameters[0].explain(verbosity));
+    std::string args;
+    for (size_t index = 0; index < parameters.size(); ++index)
+    {
+        if (index > 0)
+        {
+            args += ", ";
+        }
+        args += parameters[index].explain(verbosity);
+    }
+    return fmt::format("{}({})", NAME, args);
 }
 
 LogicalFunction AlwaysEqTcbufferTcbufferLogicalFunction::withInferredDataType(const Schema& schema) const
 {
-    std::vector<LogicalFunction> c;
-    c.reserve(8);
-    for (const auto& p : parameters)
-        c.emplace_back(p.withInferredDataType(schema));
-    INVARIANT(c[0].getDataType().isType(DataType::Type::FLOAT64), "lon1 must be FLOAT64");
-    INVARIANT(c[1].getDataType().isType(DataType::Type::FLOAT64), "lat1 must be FLOAT64");
-    INVARIANT(c[2].getDataType().isType(DataType::Type::FLOAT64), "r1 must be FLOAT64");
-    INVARIANT(c[3].getDataType().isType(DataType::Type::UINT64),  "ts1 must be UINT64");
-    INVARIANT(c[4].getDataType().isType(DataType::Type::FLOAT64), "lon2 must be FLOAT64");
-    INVARIANT(c[5].getDataType().isType(DataType::Type::FLOAT64), "lat2 must be FLOAT64");
-    INVARIANT(c[6].getDataType().isType(DataType::Type::FLOAT64), "r2 must be FLOAT64");
-    INVARIANT(c[7].getDataType().isType(DataType::Type::UINT64),  "ts2 must be UINT64");
-    return withChildren(c);
+    std::vector<LogicalFunction> newChildren;
+    newChildren.reserve(parameters.size());
+    for (const auto& child : parameters)
+    {
+        newChildren.emplace_back(child.withInferredDataType(schema));
+    }
+    return withChildren(newChildren);
 }
 
 SerializableFunction AlwaysEqTcbufferTcbufferLogicalFunction::serialize() const
@@ -95,7 +117,9 @@ SerializableFunction AlwaysEqTcbufferTcbufferLogicalFunction::serialize() const
     proto.set_function_type(std::string(NAME));
     DataTypeSerializationUtil::serializeDataType(dataType, proto.mutable_data_type());
     for (const auto& child : parameters)
+    {
         proto.add_children()->CopyFrom(child.serialize());
+    }
     return proto;
 }
 
@@ -105,14 +129,15 @@ LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterAlw
     PRECONDITION(arguments.children.size() == 8,
                  "AlwaysEqTcbufferTcbufferLogicalFunction requires 8 children but got {}",
                  arguments.children.size());
-    return AlwaysEqTcbufferTcbufferLogicalFunction(std::move(arguments.children[0]),
-                                 std::move(arguments.children[1]),
-                                 std::move(arguments.children[2]),
-                                 std::move(arguments.children[3]),
-                                 std::move(arguments.children[4]),
-                                 std::move(arguments.children[5]),
-                                 std::move(arguments.children[6]),
-                                 std::move(arguments.children[7]));
+    auto arg0 = std::move(arguments.children[0]);
+    auto arg1 = std::move(arguments.children[1]);
+    auto arg2 = std::move(arguments.children[2]);
+    auto arg3 = std::move(arguments.children[3]);
+    auto arg4 = std::move(arguments.children[4]);
+    auto arg5 = std::move(arguments.children[5]);
+    auto arg6 = std::move(arguments.children[6]);
+    auto arg7 = std::move(arguments.children[7]);
+    return AlwaysEqTcbufferTcbufferLogicalFunction(std::move(arg0), std::move(arg1), std::move(arg2), std::move(arg3), std::move(arg4), std::move(arg5), std::move(arg6), std::move(arg7));
 }
 
 } // namespace NES

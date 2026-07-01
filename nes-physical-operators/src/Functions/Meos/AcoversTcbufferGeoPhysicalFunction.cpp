@@ -13,77 +13,97 @@
 */
 
 #include <Functions/Meos/AcoversTcbufferGeoPhysicalFunction.hpp>
+
 #include <Functions/PhysicalFunction.hpp>
 #include <MEOSWrapper.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
+#include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <PhysicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
 #include <ExecutionContext.hpp>
+#include <fmt/format.h>
 #include <function.hpp>
+#include <string>
 #include <utility>
 #include <val.hpp>
-#include <fmt/format.h>
-#include <string.h>
-#include <stdlib.h>
 
 extern "C" {
 #include <meos.h>
-#include <meos_geo.h>
 #include <meos_cbuffer.h>
 }
 
 namespace NES {
 
-AcoversTcbufferGeoPhysicalFunction::AcoversTcbufferGeoPhysicalFunction(PhysicalFunction lon, PhysicalFunction lat,
-                                              PhysicalFunction radius, PhysicalFunction ts,
-                                              PhysicalFunction wkt)
+AcoversTcbufferGeoPhysicalFunction::AcoversTcbufferGeoPhysicalFunction(PhysicalFunction lonFunction,
+                                                          PhysicalFunction latFunction,
+                                                          PhysicalFunction radiusFunction,
+                                                          PhysicalFunction timestampFunction,
+                                                          PhysicalFunction geometryFunction)
 {
-    paramFns.reserve(5);
-    paramFns.push_back(std::move(lon));
-    paramFns.push_back(std::move(lat));
-    paramFns.push_back(std::move(radius));
-    paramFns.push_back(std::move(ts));
-    paramFns.push_back(std::move(wkt));
+    parameterFunctions.reserve(5);
+    parameterFunctions.push_back(std::move(lonFunction));
+    parameterFunctions.push_back(std::move(latFunction));
+    parameterFunctions.push_back(std::move(radiusFunction));
+    parameterFunctions.push_back(std::move(timestampFunction));
+    parameterFunctions.push_back(std::move(geometryFunction));
 }
 
 VarVal AcoversTcbufferGeoPhysicalFunction::execute(const Record& record, ArenaRef& arena) const
 {
-    auto lon    = paramFns[0].execute(record, arena).cast<double>();
-    auto lat    = paramFns[1].execute(record, arena).cast<double>();
-    auto radius = paramFns[2].execute(record, arena).cast<double>();
-    auto ts     = paramFns[3].execute(record, arena).cast<uint64_t>();
-    auto wkt    = paramFns[4].execute(record, arena);
+    std::vector<VarVal> parameterValues;
+    parameterValues.reserve(parameterFunctions.size());
+    for (const auto& function : parameterFunctions)
+    {
+        parameterValues.emplace_back(function.execute(record, arena));
+    }
+
+    auto lon       = parameterValues[0].cast<nautilus::val<double>>();
+    auto lat       = parameterValues[1].cast<nautilus::val<double>>();
+    auto radius    = parameterValues[2].cast<nautilus::val<double>>();
+    auto timestamp = parameterValues[3].cast<nautilus::val<uint64_t>>();
+    auto geometry  = parameterValues[4].cast<VariableSizedData>();
 
     const auto result = nautilus::invoke(
-        +[](double lon, double lat, double radius, uint64_t ts,
-            const char* wkt, uint32_t wkt_len) -> double {
-            try {
+        +[](double lonValue,
+            double latValue,
+            double radiusValue,
+            uint64_t timestampValue,
+            const char* geometryPtr,
+            uint32_t geometrySize) -> int {
+            try
+            {
                 MEOS::Meos::ensureMeosInitialized();
-                // Build tcbuffer instant: point + radius → cbuffer → instant
-                std::string pt_str = fmt::format("POINT({} {})", lon, lat);
-                GSERIALIZED* pt_gs = geom_in(pt_str.c_str(), -1);
-                if (!pt_gs) return 0.0;
-                Cbuffer* cb = cbuffer_make(pt_gs, radius);
-                free(pt_gs);
-                if (!cb) return 0.0;
-                Temporal* tcb_inst = (Temporal*)tcbufferinst_make(cb, (TimestampTz)ts);
-                free(cb);
-                if (!tcb_inst) return 0.0;
-                // Build target geometry from null-terminated WKT copy
-                char* wkt_str = (char*)malloc(wkt_len + 1);
-                memcpy(wkt_str, wkt, wkt_len);
-                wkt_str[wkt_len] = '\0';
-                GSERIALIZED* target_gs = geom_in(wkt_str, -1);
-                free(wkt_str);
-                if (!target_gs) { free(tcb_inst); return 0.0; }
-                int r = acovers_tcbuffer_geo(tcb_inst, target_gs);
-                free(tcb_inst);
-                free(target_gs);
-                return r > 0 ? 1.0 : 0.0;
-            } catch (const std::exception&) { return 0.0; }
+                if (!(lonValue >= -180.0 && lonValue <= 180.0 && latValue >= -90.0 && latValue <= 90.0)) return 0;
+                if (radiusValue < 0.0) return 0;
+
+                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
+                std::string tcbufferWkt = fmt::format("Cbuffer(Point({} {}),{})@{}",
+                                                     lonValue, latValue, radiusValue, timestampString);
+                std::string staticGeometryWkt(geometryPtr, geometrySize);
+
+                while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\'' || staticGeometryWkt.front() == '"'))
+                    staticGeometryWkt.erase(staticGeometryWkt.begin());
+                while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\'' || staticGeometryWkt.back() == '"'))
+                    staticGeometryWkt.pop_back();
+
+                if (tcbufferWkt.empty() || staticGeometryWkt.empty()) return 0;
+
+                Temporal* tcbuffer = tcbuffer_in(tcbufferWkt.c_str());
+                if (!tcbuffer) return 0;
+                MEOS::Meos::StaticGeometry staticGeometry(staticGeometryWkt);
+                if (!staticGeometry.getGeometry()) { free(tcbuffer); return 0; }
+
+                int r = acovers_tcbuffer_geo(tcbuffer, staticGeometry.getGeometry());
+                free(tcbuffer);
+                return r;
+            }
+            catch (const std::exception&)
+            {
+                return 0;
+            }
         },
-        lon, lat, radius, ts, wkt);
+        lon, lat, radius, timestamp, geometry.getContent(), geometry.getContentSize());
 
     return VarVal(result);
 }
@@ -94,11 +114,12 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterA
     PRECONDITION(arguments.childFunctions.size() == 5,
                  "AcoversTcbufferGeoPhysicalFunction requires 5 children but got {}",
                  arguments.childFunctions.size());
-    return AcoversTcbufferGeoPhysicalFunction(std::move(arguments.childFunctions[0]),
-                                  std::move(arguments.childFunctions[1]),
-                                  std::move(arguments.childFunctions[2]),
-                                  std::move(arguments.childFunctions[3]),
-                                  std::move(arguments.childFunctions[4]));
+    auto arg0 = std::move(arguments.childFunctions[0]);
+    auto arg1 = std::move(arguments.childFunctions[1]);
+    auto arg2 = std::move(arguments.childFunctions[2]);
+    auto arg3 = std::move(arguments.childFunctions[3]);
+    auto arg4 = std::move(arguments.childFunctions[4]);
+    return AcoversTcbufferGeoPhysicalFunction(std::move(arg0), std::move(arg1), std::move(arg2), std::move(arg3), std::move(arg4));
 }
 
 } // namespace NES

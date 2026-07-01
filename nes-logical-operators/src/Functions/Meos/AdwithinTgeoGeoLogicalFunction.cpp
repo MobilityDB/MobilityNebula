@@ -26,64 +26,83 @@
 namespace NES
 {
 
-AdwithinTgeoGeoLogicalFunction::AdwithinTgeoGeoLogicalFunction(LogicalFunction lon, LogicalFunction lat,
-                                            LogicalFunction ts, LogicalFunction wkt,
-                                            LogicalFunction dist)
-    : dataType(DataTypeProvider::provideDataType(DataType::Type::FLOAT64))
+AdwithinTgeoGeoLogicalFunction::AdwithinTgeoGeoLogicalFunction(LogicalFunction lon,
+                                          LogicalFunction lat,
+                                          LogicalFunction timestamp,
+                                          LogicalFunction geometry,
+                                          LogicalFunction dist)
+    : dataType(DataTypeProvider::provideDataType(DataType::Type::INT32))
 {
     parameters.reserve(5);
     parameters.push_back(std::move(lon));
     parameters.push_back(std::move(lat));
-    parameters.push_back(std::move(ts));
-    parameters.push_back(std::move(wkt));
+    parameters.push_back(std::move(timestamp));
+    parameters.push_back(std::move(geometry));
     parameters.push_back(std::move(dist));
 }
 
-DataType AdwithinTgeoGeoLogicalFunction::getDataType() const { return dataType; }
+DataType AdwithinTgeoGeoLogicalFunction::getDataType() const
+{
+    return dataType;
+}
 
 LogicalFunction AdwithinTgeoGeoLogicalFunction::withDataType(const DataType& newDataType) const
 {
-    auto copy = *this; copy.dataType = newDataType; return copy;
+    auto copy = *this;
+    copy.dataType = newDataType;
+    return copy;
 }
 
-std::vector<LogicalFunction> AdwithinTgeoGeoLogicalFunction::getChildren() const { return parameters; }
+std::vector<LogicalFunction> AdwithinTgeoGeoLogicalFunction::getChildren() const
+{
+    return parameters;
+}
 
 LogicalFunction AdwithinTgeoGeoLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
-    PRECONDITION(children.size() == 5,
-                 "AdwithinTgeoGeoLogicalFunction requires 5 children, but got {}", children.size());
-    auto copy = *this; copy.parameters = children; return copy;
+    PRECONDITION(children.size() == 5, "AdwithinTgeoGeoLogicalFunction requires 5 children, but got {}", children.size());
+    auto copy = *this;
+    copy.parameters = children;
+    return copy;
 }
 
-std::string_view AdwithinTgeoGeoLogicalFunction::getType() const { return NAME; }
+std::string_view AdwithinTgeoGeoLogicalFunction::getType() const
+{
+    return NAME;
+}
 
 bool AdwithinTgeoGeoLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
 {
     if (const auto* other = dynamic_cast<const AdwithinTgeoGeoLogicalFunction*>(&rhs))
+    {
         return parameters == other->parameters;
+    }
     return false;
 }
 
 std::string AdwithinTgeoGeoLogicalFunction::explain(ExplainVerbosity verbosity) const
 {
-    return fmt::format("{}({})", NAME, parameters[0].explain(verbosity));
+    std::string args;
+    for (size_t index = 0; index < parameters.size(); ++index)
+    {
+        if (index > 0)
+        {
+            args += ", ";
+        }
+        args += parameters[index].explain(verbosity);
+    }
+    return fmt::format("{}({})", NAME, args);
 }
 
 LogicalFunction AdwithinTgeoGeoLogicalFunction::withInferredDataType(const Schema& schema) const
 {
-    std::vector<LogicalFunction> c;
-    c.reserve(5);
-    c.emplace_back(parameters[0].withInferredDataType(schema));
-    c.emplace_back(parameters[1].withInferredDataType(schema));
-    c.emplace_back(parameters[2].withInferredDataType(schema));
-    c.emplace_back(parameters[3].withInferredDataType(schema));
-    c.emplace_back(parameters[4].withInferredDataType(schema));
-    INVARIANT(c[0].getDataType().isType(DataType::Type::FLOAT64), "lon must be FLOAT64");
-    INVARIANT(c[1].getDataType().isType(DataType::Type::FLOAT64), "lat must be FLOAT64");
-    INVARIANT(c[2].getDataType().isType(DataType::Type::UINT64),  "ts must be UINT64");
-    INVARIANT(c[3].getDataType().isType(DataType::Type::VARSIZED),"wkt must be VARSIZED");
-    INVARIANT(c[4].getDataType().isType(DataType::Type::FLOAT64), "dist must be FLOAT64");
-    return withChildren(c);
+    std::vector<LogicalFunction> newChildren;
+    newChildren.reserve(parameters.size());
+    for (const auto& child : parameters)
+    {
+        newChildren.emplace_back(child.withInferredDataType(schema));
+    }
+    return withChildren(newChildren);
 }
 
 SerializableFunction AdwithinTgeoGeoLogicalFunction::serialize() const
@@ -92,7 +111,9 @@ SerializableFunction AdwithinTgeoGeoLogicalFunction::serialize() const
     proto.set_function_type(std::string(NAME));
     DataTypeSerializationUtil::serializeDataType(dataType, proto.mutable_data_type());
     for (const auto& child : parameters)
+    {
         proto.add_children()->CopyFrom(child.serialize());
+    }
     return proto;
 }
 
@@ -102,11 +123,12 @@ LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterAdw
     PRECONDITION(arguments.children.size() == 5,
                  "AdwithinTgeoGeoLogicalFunction requires 5 children but got {}",
                  arguments.children.size());
-    return AdwithinTgeoGeoLogicalFunction(std::move(arguments.children[0]),
-                                 std::move(arguments.children[1]),
-                                 std::move(arguments.children[2]),
-                                 std::move(arguments.children[3]),
-                                 std::move(arguments.children[4]));
+    auto arg0 = std::move(arguments.children[0]);
+    auto arg1 = std::move(arguments.children[1]);
+    auto arg2 = std::move(arguments.children[2]);
+    auto arg3 = std::move(arguments.children[3]);
+    auto arg4 = std::move(arguments.children[4]);
+    return AdwithinTgeoGeoLogicalFunction(std::move(arg0), std::move(arg1), std::move(arg2), std::move(arg3), std::move(arg4));
 }
 
 } // namespace NES

@@ -13,6 +13,7 @@
 */
 
 #include <Functions/Meos/AlwaysNeTgeoGeoPhysicalFunction.hpp>
+
 #include <Functions/PhysicalFunction.hpp>
 #include <MEOSWrapper.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
@@ -34,40 +35,75 @@ extern "C" {
 
 namespace NES {
 
-AlwaysNeTgeoGeoPhysicalFunction::AlwaysNeTgeoGeoPhysicalFunction(PhysicalFunction lon, PhysicalFunction lat,
-                                              PhysicalFunction ts, PhysicalFunction wkt)
+AlwaysNeTgeoGeoPhysicalFunction::AlwaysNeTgeoGeoPhysicalFunction(PhysicalFunction lonFunction,
+                                                          PhysicalFunction latFunction,
+                                                          PhysicalFunction timestampFunction,
+                                                          PhysicalFunction geometryFunction)
 {
-    paramFns.reserve(4);
-    paramFns.push_back(std::move(lon));
-    paramFns.push_back(std::move(lat));
-    paramFns.push_back(std::move(ts));
-    paramFns.push_back(std::move(wkt));
+    parameterFunctions.reserve(4);
+    parameterFunctions.push_back(std::move(lonFunction));
+    parameterFunctions.push_back(std::move(latFunction));
+    parameterFunctions.push_back(std::move(timestampFunction));
+    parameterFunctions.push_back(std::move(geometryFunction));
 }
 
 VarVal AlwaysNeTgeoGeoPhysicalFunction::execute(const Record& record, ArenaRef& arena) const
 {
-    auto lon = paramFns[0].execute(record, arena).cast<double>();
-    auto lat = paramFns[1].execute(record, arena).cast<double>();
-    auto ts  = paramFns[2].execute(record, arena).cast<uint64_t>();
-    auto wkt = paramFns[3].execute(record, arena).cast<VariableSizedData>();
+    std::vector<VarVal> parameterValues;
+    parameterValues.reserve(parameterFunctions.size());
+    for (const auto& function : parameterFunctions)
+    {
+        parameterValues.emplace_back(function.execute(record, arena));
+    }
+
+    auto lon       = parameterValues[0].cast<nautilus::val<double>>();
+    auto lat       = parameterValues[1].cast<nautilus::val<double>>();
+    auto timestamp = parameterValues[2].cast<nautilus::val<uint64_t>>();
+    auto geometry  = parameterValues[3].cast<VariableSizedData>();
 
     const auto result = nautilus::invoke(
-        +[](double lon, double lat, uint64_t ts,
-            const char* w, uint32_t wsz) -> double {
-            try {
+        +[](double lonValue,
+            double latValue,
+            uint64_t timestampValue,
+            const char* geometryPtr,
+            uint32_t geometrySize) -> int {
+            try
+            {
                 MEOS::Meos::ensureMeosInitialized();
-                std::string wktStr(w, wsz);
-                std::string tgeoWkt = fmt::format("SRID=4326;POINT({},{})@{}", lon, lat, ts);
-                Temporal* tgeo = tgeompoint_in(tgeoWkt.c_str());
-                if (!tgeo) return 0.0;
-                GSERIALIZED* gs = geom_in(wktStr.c_str(), -1);
-                if (!gs) { free(tgeo); return 0.0; }
-                double r = always_ne_tgeo_geo(tgeo, gs) > 0 ? 1.0 : 0.0;
-                free(tgeo); free(gs);
-                return r;
-            } catch (const std::exception&) { return 0.0; }
+                if (!(lonValue >= -180.0 && lonValue <= 180.0 && latValue >= -90.0 && latValue <= 90.0)) {
+                    return 0;
+                }
+
+                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
+                std::string temporalGeometryWkt = fmt::format("SRID=4326;Point({} {})@{}", lonValue, latValue, timestampString);
+                std::string staticGeometryWkt(geometryPtr, geometrySize);
+
+                while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\'' || staticGeometryWkt.front() == '"'))
+                    staticGeometryWkt.erase(staticGeometryWkt.begin());
+                while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\'' || staticGeometryWkt.back() == '"'))
+                    staticGeometryWkt.pop_back();
+
+                if (temporalGeometryWkt.empty() || staticGeometryWkt.empty())
+                    return 0;
+
+                MEOS::Meos::TemporalGeometry temporalGeometry(temporalGeometryWkt);
+                if (!temporalGeometry.getGeometry()) return 0;
+                MEOS::Meos::StaticGeometry staticGeometry(staticGeometryWkt);
+                if (!staticGeometry.getGeometry()) return 0;
+
+                // MEOS spatial-relation call — same shape as TemporalEDWithin's
+                // edwithin_tgeo_geo, but specific MEOS function per generated operator.
+                // Real MEOS spatial-rel signature: int fn(const Temporal *, const GSERIALIZED *)
+                // (no `atstart` flag — that's specific to geog_dwithin / edwithin's 3-arg variant).
+                return always_ne_tgeo_geo(temporalGeometry.getGeometry(),
+                                   staticGeometry.getGeometry());
+            }
+            catch (const std::exception&)
+            {
+                return 0;
+            }
         },
-        lon, lat, ts, wkt);
+        lon, lat, timestamp, geometry.getContent(), geometry.getContentSize());
 
     return VarVal(result);
 }
@@ -78,10 +114,11 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterA
     PRECONDITION(arguments.childFunctions.size() == 4,
                  "AlwaysNeTgeoGeoPhysicalFunction requires 4 children but got {}",
                  arguments.childFunctions.size());
-    return AlwaysNeTgeoGeoPhysicalFunction(std::move(arguments.childFunctions[0]),
-                                  std::move(arguments.childFunctions[1]),
-                                  std::move(arguments.childFunctions[2]),
-                                  std::move(arguments.childFunctions[3]));
+    auto arg0 = std::move(arguments.childFunctions[0]);
+    auto arg1 = std::move(arguments.childFunctions[1]);
+    auto arg2 = std::move(arguments.childFunctions[2]);
+    auto arg3 = std::move(arguments.childFunctions[3]);
+    return AlwaysNeTgeoGeoPhysicalFunction(std::move(arg0), std::move(arg1), std::move(arg2), std::move(arg3));
 }
 
 } // namespace NES

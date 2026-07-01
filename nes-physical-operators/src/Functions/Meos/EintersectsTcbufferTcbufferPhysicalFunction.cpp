@@ -13,6 +13,7 @@
 */
 
 #include <Functions/Meos/EintersectsTcbufferTcbufferPhysicalFunction.hpp>
+
 #include <Functions/PhysicalFunction.hpp>
 #include <MEOSWrapper.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
@@ -20,75 +21,88 @@
 #include <PhysicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
 #include <ExecutionContext.hpp>
+#include <fmt/format.h>
 #include <function.hpp>
+#include <string>
 #include <utility>
 #include <val.hpp>
-#include <fmt/format.h>
-#include <stdlib.h>
 
 extern "C" {
 #include <meos.h>
-#include <meos_geo.h>
 #include <meos_cbuffer.h>
 }
 
 namespace NES {
 
-EintersectsTcbufferTcbufferPhysicalFunction::EintersectsTcbufferTcbufferPhysicalFunction(
-    PhysicalFunction lon1, PhysicalFunction lat1, PhysicalFunction r1, PhysicalFunction ts1,
-    PhysicalFunction lon2, PhysicalFunction lat2, PhysicalFunction r2, PhysicalFunction ts2)
+EintersectsTcbufferTcbufferPhysicalFunction::EintersectsTcbufferTcbufferPhysicalFunction(PhysicalFunction lonAFunction,
+                                                          PhysicalFunction latAFunction,
+                                                          PhysicalFunction radiusAFunction,
+                                                          PhysicalFunction tsAFunction,
+                                                          PhysicalFunction lonBFunction,
+                                                          PhysicalFunction latBFunction,
+                                                          PhysicalFunction radiusBFunction,
+                                                          PhysicalFunction tsBFunction)
 {
-    paramFns.reserve(8);
-    paramFns.push_back(std::move(lon1));
-    paramFns.push_back(std::move(lat1));
-    paramFns.push_back(std::move(r1));
-    paramFns.push_back(std::move(ts1));
-    paramFns.push_back(std::move(lon2));
-    paramFns.push_back(std::move(lat2));
-    paramFns.push_back(std::move(r2));
-    paramFns.push_back(std::move(ts2));
+    parameterFunctions.reserve(8);
+    parameterFunctions.push_back(std::move(lonAFunction));
+    parameterFunctions.push_back(std::move(latAFunction));
+    parameterFunctions.push_back(std::move(radiusAFunction));
+    parameterFunctions.push_back(std::move(tsAFunction));
+    parameterFunctions.push_back(std::move(lonBFunction));
+    parameterFunctions.push_back(std::move(latBFunction));
+    parameterFunctions.push_back(std::move(radiusBFunction));
+    parameterFunctions.push_back(std::move(tsBFunction));
 }
 
 VarVal EintersectsTcbufferTcbufferPhysicalFunction::execute(const Record& record, ArenaRef& arena) const
 {
-    auto lon1 = paramFns[0].execute(record, arena).cast<double>();
-    auto lat1 = paramFns[1].execute(record, arena).cast<double>();
-    auto r1   = paramFns[2].execute(record, arena).cast<double>();
-    auto ts1  = paramFns[3].execute(record, arena).cast<uint64_t>();
-    auto lon2 = paramFns[4].execute(record, arena).cast<double>();
-    auto lat2 = paramFns[5].execute(record, arena).cast<double>();
-    auto r2   = paramFns[6].execute(record, arena).cast<double>();
-    auto ts2  = paramFns[7].execute(record, arena).cast<uint64_t>();
+    std::vector<VarVal> parameterValues;
+    parameterValues.reserve(parameterFunctions.size());
+    for (const auto& function : parameterFunctions)
+    {
+        parameterValues.emplace_back(function.execute(record, arena));
+    }
+
+    auto lonA    = parameterValues[0].cast<nautilus::val<double>>();
+    auto latA    = parameterValues[1].cast<nautilus::val<double>>();
+    auto radiusA = parameterValues[2].cast<nautilus::val<double>>();
+    auto tsA     = parameterValues[3].cast<nautilus::val<uint64_t>>();
+    auto lonB    = parameterValues[4].cast<nautilus::val<double>>();
+    auto latB    = parameterValues[5].cast<nautilus::val<double>>();
+    auto radiusB = parameterValues[6].cast<nautilus::val<double>>();
+    auto tsB     = parameterValues[7].cast<nautilus::val<uint64_t>>();
 
     const auto result = nautilus::invoke(
-        +[](double lon1, double lat1, double r1, uint64_t ts1,
-            double lon2, double lat2, double r2, uint64_t ts2) -> double {
-            try {
+        +[](double lonAValue, double latAValue, double radiusAValue, uint64_t tsAValue,
+            double lonBValue, double latBValue, double radiusBValue, uint64_t tsBValue) -> int {
+            try
+            {
                 MEOS::Meos::ensureMeosInitialized();
-                std::string pt1 = fmt::format("POINT({} {})", lon1, lat1);
-                GSERIALIZED* gs1 = geom_in(pt1.c_str(), -1);
-                if (!gs1) return 0.0;
-                Cbuffer* cb1 = cbuffer_make(gs1, r1);
-                free(gs1);
-                if (!cb1) return 0.0;
-                Temporal* tcb1 = (Temporal*)tcbufferinst_make(cb1, (TimestampTz)ts1);
-                free(cb1);
-                if (!tcb1) return 0.0;
-                std::string pt2 = fmt::format("POINT({} {})", lon2, lat2);
-                GSERIALIZED* gs2 = geom_in(pt2.c_str(), -1);
-                if (!gs2) { free(tcb1); return 0.0; }
-                Cbuffer* cb2 = cbuffer_make(gs2, r2);
-                free(gs2);
-                if (!cb2) { free(tcb1); return 0.0; }
-                Temporal* tcb2 = (Temporal*)tcbufferinst_make(cb2, (TimestampTz)ts2);
-                free(cb2);
-                if (!tcb2) { free(tcb1); return 0.0; }
-                int r = eintersects_tcbuffer_tcbuffer(tcb1, tcb2);
-                free(tcb1); free(tcb2);
-                return r > 0 ? 1.0 : 0.0;
-            } catch (const std::exception&) { return 0.0; }
+                if (!(lonAValue >= -180.0 && lonAValue <= 180.0 && latAValue >= -90.0 && latAValue <= 90.0)) return 0;
+                if (!(lonBValue >= -180.0 && lonBValue <= 180.0 && latBValue >= -90.0 && latBValue <= 90.0)) return 0;
+                if (radiusAValue < 0.0 || radiusBValue < 0.0) return 0;
+
+                const std::string tsAString = MEOS::Meos::convertEpochToTimestamp(tsAValue);
+                const std::string tsBString = MEOS::Meos::convertEpochToTimestamp(tsBValue);
+                std::string wktA = fmt::format("Cbuffer(Point({} {}),{})@{}", lonAValue, latAValue, radiusAValue, tsAString);
+                std::string wktB = fmt::format("Cbuffer(Point({} {}),{})@{}", lonBValue, latBValue, radiusBValue, tsBString);
+
+                Temporal* tA = tcbuffer_in(wktA.c_str());
+                if (!tA) return 0;
+                Temporal* tB = tcbuffer_in(wktB.c_str());
+                if (!tB) { free(tA); return 0; }
+
+                int r = eintersects_tcbuffer_tcbuffer(tA, tB);
+                free(tA);
+                free(tB);
+                return r;
+            }
+            catch (const std::exception&)
+            {
+                return 0;
+            }
         },
-        lon1, lat1, r1, ts1, lon2, lat2, r2, ts2);
+        lonA, latA, radiusA, tsA, lonB, latB, radiusB, tsB);
 
     return VarVal(result);
 }
@@ -99,14 +113,15 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterE
     PRECONDITION(arguments.childFunctions.size() == 8,
                  "EintersectsTcbufferTcbufferPhysicalFunction requires 8 children but got {}",
                  arguments.childFunctions.size());
-    return EintersectsTcbufferTcbufferPhysicalFunction(std::move(arguments.childFunctions[0]),
-                                  std::move(arguments.childFunctions[1]),
-                                  std::move(arguments.childFunctions[2]),
-                                  std::move(arguments.childFunctions[3]),
-                                  std::move(arguments.childFunctions[4]),
-                                  std::move(arguments.childFunctions[5]),
-                                  std::move(arguments.childFunctions[6]),
-                                  std::move(arguments.childFunctions[7]));
+    auto arg0 = std::move(arguments.childFunctions[0]);
+    auto arg1 = std::move(arguments.childFunctions[1]);
+    auto arg2 = std::move(arguments.childFunctions[2]);
+    auto arg3 = std::move(arguments.childFunctions[3]);
+    auto arg4 = std::move(arguments.childFunctions[4]);
+    auto arg5 = std::move(arguments.childFunctions[5]);
+    auto arg6 = std::move(arguments.childFunctions[6]);
+    auto arg7 = std::move(arguments.childFunctions[7]);
+    return EintersectsTcbufferTcbufferPhysicalFunction(std::move(arg0), std::move(arg1), std::move(arg2), std::move(arg3), std::move(arg4), std::move(arg5), std::move(arg6), std::move(arg7));
 }
 
 } // namespace NES

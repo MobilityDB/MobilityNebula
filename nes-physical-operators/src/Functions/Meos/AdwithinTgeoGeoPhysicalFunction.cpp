@@ -13,6 +13,7 @@
 */
 
 #include <Functions/Meos/AdwithinTgeoGeoPhysicalFunction.hpp>
+
 #include <Functions/PhysicalFunction.hpp>
 #include <MEOSWrapper.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
@@ -34,43 +35,75 @@ extern "C" {
 
 namespace NES {
 
-AdwithinTgeoGeoPhysicalFunction::AdwithinTgeoGeoPhysicalFunction(PhysicalFunction lon, PhysicalFunction lat,
-                                              PhysicalFunction ts, PhysicalFunction wkt,
-                                              PhysicalFunction dist)
+AdwithinTgeoGeoPhysicalFunction::AdwithinTgeoGeoPhysicalFunction(PhysicalFunction lonFunction,
+                                                          PhysicalFunction latFunction,
+                                                          PhysicalFunction timestampFunction,
+                                                          PhysicalFunction geometryFunction,
+                                                          PhysicalFunction distFunction)
 {
-    paramFns.reserve(5);
-    paramFns.push_back(std::move(lon));
-    paramFns.push_back(std::move(lat));
-    paramFns.push_back(std::move(ts));
-    paramFns.push_back(std::move(wkt));
-    paramFns.push_back(std::move(dist));
+    parameterFunctions.reserve(5);
+    parameterFunctions.push_back(std::move(lonFunction));
+    parameterFunctions.push_back(std::move(latFunction));
+    parameterFunctions.push_back(std::move(timestampFunction));
+    parameterFunctions.push_back(std::move(geometryFunction));
+    parameterFunctions.push_back(std::move(distFunction));
 }
 
 VarVal AdwithinTgeoGeoPhysicalFunction::execute(const Record& record, ArenaRef& arena) const
 {
-    auto lon  = paramFns[0].execute(record, arena).cast<double>();
-    auto lat  = paramFns[1].execute(record, arena).cast<double>();
-    auto ts   = paramFns[2].execute(record, arena).cast<uint64_t>();
-    auto wkt  = paramFns[3].execute(record, arena).cast<VariableSizedData>();
-    auto dist = paramFns[4].execute(record, arena).cast<double>();
+    std::vector<VarVal> parameterValues;
+    parameterValues.reserve(parameterFunctions.size());
+    for (const auto& function : parameterFunctions)
+    {
+        parameterValues.emplace_back(function.execute(record, arena));
+    }
+
+    auto lon       = parameterValues[0].cast<nautilus::val<double>>();
+    auto lat       = parameterValues[1].cast<nautilus::val<double>>();
+    auto timestamp = parameterValues[2].cast<nautilus::val<uint64_t>>();
+    auto geometry  = parameterValues[3].cast<VariableSizedData>();
+    auto dist      = parameterValues[4].cast<nautilus::val<double>>();
 
     const auto result = nautilus::invoke(
-        +[](double lon, double lat, uint64_t ts,
-            const char* w, uint32_t wsz, double dist) -> double {
-            try {
+        +[](double lonValue,
+            double latValue,
+            uint64_t timestampValue,
+            const char* geometryPtr,
+            uint32_t geometrySize,
+            double distValue) -> int {
+            try
+            {
                 MEOS::Meos::ensureMeosInitialized();
-                std::string wktStr(w, wsz);
-                std::string tgeoWkt = fmt::format("SRID=4326;POINT({},{})@{}", lon, lat, ts);
-                Temporal* tgeo = tgeompoint_in(tgeoWkt.c_str());
-                if (!tgeo) return 0.0;
-                GSERIALIZED* gs = geom_in(wktStr.c_str(), -1);
-                if (!gs) { free(tgeo); return 0.0; }
-                int r = adwithin_tgeo_geo(tgeo, gs, dist);
-                free(tgeo); free(gs);
-                return r > 0 ? 1.0 : 0.0;
-            } catch (const std::exception&) { return 0.0; }
+                if (!(lonValue >= -180.0 && lonValue <= 180.0 && latValue >= -90.0 && latValue <= 90.0)) return 0;
+
+                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
+                std::string temporalGeometryWkt = fmt::format("SRID=4326;Point({} {})@{}", lonValue, latValue, timestampString);
+                std::string staticGeometryWkt(geometryPtr, geometrySize);
+
+                while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\'' || staticGeometryWkt.front() == '"'))
+                    staticGeometryWkt.erase(staticGeometryWkt.begin());
+                while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\'' || staticGeometryWkt.back() == '"'))
+                    staticGeometryWkt.pop_back();
+
+                if (temporalGeometryWkt.empty() || staticGeometryWkt.empty()) return 0;
+
+                MEOS::Meos::TemporalGeometry temporalGeometry(temporalGeometryWkt);
+                if (!temporalGeometry.getGeometry()) return 0;
+                MEOS::Meos::StaticGeometry staticGeometry(staticGeometryWkt);
+                if (!staticGeometry.getGeometry()) return 0;
+
+                // MEOS *_tgeo_geo with trailing distance arg
+                // — int fn(const Temporal*, const GSERIALIZED*, double).
+                return adwithin_tgeo_geo(temporalGeometry.getGeometry(),
+                                   staticGeometry.getGeometry(),
+                                   distValue);
+            }
+            catch (const std::exception&)
+            {
+                return 0;
+            }
         },
-        lon, lat, ts, wkt, dist);
+        lon, lat, timestamp, geometry.getContent(), geometry.getContentSize(), dist);
 
     return VarVal(result);
 }
@@ -81,11 +114,12 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterA
     PRECONDITION(arguments.childFunctions.size() == 5,
                  "AdwithinTgeoGeoPhysicalFunction requires 5 children but got {}",
                  arguments.childFunctions.size());
-    return AdwithinTgeoGeoPhysicalFunction(std::move(arguments.childFunctions[0]),
-                                  std::move(arguments.childFunctions[1]),
-                                  std::move(arguments.childFunctions[2]),
-                                  std::move(arguments.childFunctions[3]),
-                                  std::move(arguments.childFunctions[4]));
+    auto arg0 = std::move(arguments.childFunctions[0]);
+    auto arg1 = std::move(arguments.childFunctions[1]);
+    auto arg2 = std::move(arguments.childFunctions[2]);
+    auto arg3 = std::move(arguments.childFunctions[3]);
+    auto arg4 = std::move(arguments.childFunctions[4]);
+    return AdwithinTgeoGeoPhysicalFunction(std::move(arg0), std::move(arg1), std::move(arg2), std::move(arg3), std::move(arg4));
 }
 
 } // namespace NES

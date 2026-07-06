@@ -1,0 +1,16 @@
+# name: function/spatiotemporal/MEOS_TemporalNADTPoseTPose.test
+# description: Per-event nearest-approach distance between two single-instant tgeompoints, each resolved from a tpose (x,y,theta,ts) via tpose_to_tpoint, then nad_tgeo_tgeo (W19, double return). Two identical tposes resolve to the same point, so their nearest-approach distance is 0.
+# groups: [Function, MEOS, SpatioTemporal, TPose, NAD, Composition, Codegen]
+
+CREATE LOGICAL SOURCE nad_tpose_tests(id UINT32, xA FLOAT64, yA FLOAT64, thetaA FLOAT64, tsA UINT64, xB FLOAT64, yB FLOAT64, thetaB FLOAT64, tsB UINT64);
+CREATE PHYSICAL SOURCE FOR nad_tpose_tests TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|0.5|1609459200|4.3658|50.6456|0.5|1609459200
+
+CREATE SINK nad_tpose_results(nad_tpose_tests.id UINT32, distance FLOAT64) TYPE File;
+SELECT id,
+       TEMPORAL_NAD_TPOSE_TPOSE(xA, yA, thetaA, tsA, xB, yB, thetaB, tsB) AS distance
+FROM nad_tpose_tests
+INTO nad_tpose_results;
+----
+1,0

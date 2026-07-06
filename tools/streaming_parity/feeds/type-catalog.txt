@@ -1,0 +1,52 @@
+# Type-catalog / introspection (47): real MEOS external-API functions present in
+# the JMEOS binding (GeneratedFunctions), not emitted into the streaming facade
+# (the codegen scopes to per-event operators). Each takes a single meosType/SRID
+# int and returns type metadata; mostly trivially callable. They count as a
+# facade gap until the codegen emits them.
+alphanum_basetype
+alphanum_temptype
+alphanumset_type
+basetype_byvalue
+basetype_varlength
+geo_basetype
+geoset_type
+interptype_name
+lwproj_lookup
+meosoper_name
+numset_type
+numspan_basetype
+numspan_type
+set_basetype
+set_spantype
+set_type
+span_basetype
+span_canon_basetype
+span_tbox_type
+span_type
+spanset_type
+spatial_basetype
+spatialset_type
+spheroid_init_from_srid
+srid_check_latlong
+srid_is_latlong
+talpha_type
+talphanum_type
+temporal_basetype
+temporal_type
+tempsubtype_from_string
+tempsubtype_name
+tgeo_type
+tgeo_type_all
+tgeodetic_type
+tgeometry_type
+time_type
+timeset_type
+timespan_basetype
+timespan_type
+timespanset_type
+tnumber_basetype
+tnumber_spantype
+tnumber_type
+tpoint_type
+tspatial_type
+type_span_bbox

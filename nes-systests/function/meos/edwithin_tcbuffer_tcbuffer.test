@@ -1,0 +1,18 @@
+# name: function/spatiotemporal/MEOS_TemporalEDWithinTCbufferTCbuffer.test
+# description: Per-event ever-distance-within between two single-instant tcbuffers under a fixed threshold. Exercises the W13 codegen shape — new 9-arg lift template with two tcbuffer_in() per-event constructions plus a trailing double distance.
+# groups: [Function, MEOS, SpatioTemporal, TCbuffer, EDWithin, Codegen]
+
+CREATE LOGICAL SOURCE tcbuf_dw_tests(id UINT32, lonA FLOAT64, latA FLOAT64, radiusA FLOAT64, tsA UINT64, lonB FLOAT64, latB FLOAT64, radiusB FLOAT64, tsB UINT64);
+CREATE PHYSICAL SOURCE FOR tcbuf_dw_tests TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|0.0|0.0|1.0|1609459200|0.001|0.001|1.0|1609459200
+2|0.0|0.0|0.0001|1609459200|10.0|10.0|0.0001|1609459200
+
+CREATE SINK tcbuf_dw_results(tcbuf_dw_tests.id UINT32, within INT32) TYPE File;
+SELECT id,
+       TEMPORAL_EDWITHIN_TCBUFFER_TCBUFFER(lonA, latA, radiusA, tsA, lonB, latB, radiusB, tsB, FLOAT64(2.0)) AS within
+FROM tcbuf_dw_tests
+INTO tcbuf_dw_results;
+----
+1,1
+2,0

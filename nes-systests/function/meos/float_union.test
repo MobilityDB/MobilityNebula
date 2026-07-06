@@ -1,0 +1,15 @@
+# name: MEOS_FloatUnion_Aggregation
+# description: Windowed FLOAT_UNION — value union (FLOATSET, deduped+sorted) over a tfloat stream via float_union_transfn + set_union_finalfn (W30 set-collect aggregation).
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE fu(vehicle_id UINT64, value FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR fu TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|12.5|1609459200
+1|18.0|1609459201
+1|9.25|1609459202
+1|12.5|1609459203
+
+CREATE SINK fu_out(fu.vehicle_id UINT64, fu.vals VARSIZED) TYPE File;
+SELECT vehicle_id, FLOAT_UNION(value, timestamp) AS vals FROM fu GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO fu_out;
+----
+1,{9.25, 12.5, 18}

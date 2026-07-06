@@ -1,0 +1,18 @@
+# name: function/spatiotemporal/MEOS_EDisjoint_Temporal_Geometry_Static_Geometry.test
+# description: Per-event ever-disjoint between a single-instant tgeompoint built from event fields and a static geometry. Exercises the 4-arg one-temporal-point codegen shape (W1).
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, StaticGeometry, EDisjoint, Codegen]
+
+CREATE LOGICAL SOURCE edisjoint_tests(id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64, geom_wkt VARSIZED);
+CREATE PHYSICAL SOURCE FOR edisjoint_tests TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200|'SRID=4326;POINT(4.3658 50.6456)'
+2|4.1000|50.8000|1609459200|'SRID=4326;POINT(4.3658 50.6456)'
+
+CREATE SINK edisjoint_results(edisjoint_tests.id UINT32, disjoint INT32) TYPE File;
+SELECT id,
+       TEMPORAL_EDISJOINT_GEOMETRY(lon, lat, timestamp, geom_wkt) AS disjoint
+FROM edisjoint_tests
+INTO edisjoint_results;
+----
+1,0
+2,1

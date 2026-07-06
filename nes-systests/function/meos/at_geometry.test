@@ -1,0 +1,18 @@
+# name: function/spatiotemporal/MEOS_AtGeometry_Restriction.test
+# description: Per-event spatial restriction of a single-instant tgeompoint by a static polygon. Returns 1 if the point survives the at-restriction (lies inside the geom), 0 if clipped. Exercises the new one-tgeo-restriction codegen template (W6).
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Restriction, AtGeometry, Codegen]
+
+CREATE LOGICAL SOURCE at_geom_tests(id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64, polygon_wkt VARSIZED);
+CREATE PHYSICAL SOURCE FOR at_geom_tests TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.5|50.5|1609459200|'SRID=4326;POLYGON((4.0 50.0, 5.0 50.0, 5.0 51.0, 4.0 51.0, 4.0 50.0))'
+2|6.0|52.0|1609459260|'SRID=4326;POLYGON((4.0 50.0, 5.0 50.0, 5.0 51.0, 4.0 51.0, 4.0 50.0))'
+
+CREATE SINK at_geom_results(at_geom_tests.id UINT32, inside INT32) TYPE File;
+SELECT id,
+       TEMPORAL_AT_GEOMETRY(lon, lat, timestamp, polygon_wkt) AS inside
+FROM at_geom_tests
+INTO at_geom_results;
+----
+1,1
+2,0

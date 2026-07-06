@@ -1,0 +1,18 @@
+# name: MEOS_TemporalTPointIsSimple_Aggregation
+# description: Windowed TEMPORAL_TPOINT_IS_SIMPLE over per-(window,group) tgeo trajectory (W9 aggregation).
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Aggregation]
+CREATE LOGICAL SOURCE tis(vehicle_id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tis TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|0.0|0.0|1609459200
+1|1.0|1.0|1609459210
+1|2.0|2.0|1609459220
+2|0.0|0.0|1609459200
+2|1.0|1.0|1609459210
+2|0.0|0.0|1609459220
+
+CREATE SINK tis_out(tis.vehicle_id UINT64, tis.is_simple BOOLEAN) TYPE File;
+SELECT vehicle_id, TEMPORAL_TPOINT_IS_SIMPLE(lon, lat, timestamp) AS is_simple FROM tis GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tis_out;
+----
+1,1
+2,0

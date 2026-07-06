@@ -1,0 +1,14 @@
+# name: MEOS_TnpointToTgeompointExp_Aggregation
+# description: Windowed network-constrained trajectory grown by appendInstant over an expandable Temporal* — tnpoint_to_tgeompoint resolves each npoint route+fraction against the loaded ways network into spatial coordinates, yielding the tgeompoint trajectory as hex-WKB.
+# groups: [Function, MEOS, SpatioTemporal, TemporalNetworkPoint, Aggregation]
+CREATE LOGICAL SOURCE tntg(vehicle_id UINT64, rid INT64, frac FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tntg TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1|0.1|1609459200
+1|1|0.5|1609459210
+1|1|0.9|1609459220
+
+CREATE SINK tntg_out(tntg.vehicle_id UINT64, tntg.geom VARSIZED) TYPE File;
+SELECT vehicle_id, TNPOINT_TO_TGEOMPOINT_EXP(rid, frac, timestamp) AS geom FROM tntg GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tntg_out;
+----
+1,012E000E0200000003010100000056DF00AF5A225340A8C3C4955BF1544000A0AD30CA5A02000101000000B0166F4E2D9534402E3F4E8B5340524000CDDE31CA5A0200

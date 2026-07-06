@@ -31,53 +31,73 @@
 
 namespace MEOS {
 
-    // Global MEOS initialization
-    static bool meos_initialized = false;
+    // MEOS initialization.
+    //
+    // MEOS is thread-safe: session_timezone, the timezone cache, and the PROJ /
+    // ways / GSL caches are MEOS_TLS (thread-local). That means meos_initialize()
+    // sets up the calling thread's state — so it must run ON EVERY THREAD that
+    // calls MEOS. The engine runs operator pipelines on a worker thread pool, so
+    // a single process-global init flag leaves those worker threads with a NULL
+    // session_timezone; the first text-timestamp serialization on such a thread
+    // (tstzspan_out/stbox_out -> timestamp_out -> localsub) then segfaults. The
+    // hex-WKB path encodes raw microseconds and never touches the timezone, which
+    // is why only the text-output operators crashed. Initialize per thread.
+    static thread_local bool meos_thread_initialized = false;
+    static bool meos_atexit_registered = false;       // guarded by meos_init_mutex
+    static std::once_flag meos_env_once;               // process-global env, once
     static std::mutex meos_init_mutex;
     static std::mutex meos_parse_mutex;
     static std::mutex meos_exec_mutex;
 
     static void cleanupMeos() {
-        if (meos_initialized) {
-            meos_finalize();
-            meos_initialized = false;
+        // Frees the exiting thread's thread-local MEOS caches.
+        meos_finalize();
+    }
+
+    static void setupMeosEnv() {
+        // Process-global timezone environment for MEOS (PostgreSQL tzdb); runs once.
+        const char* tzEnv = std::getenv("TZ");
+        if (!tzEnv || *tzEnv == '\0') {
+            setenv("TZ", "UTC", 1);
         }
+        // PGTZ is used by the underlying PG timezone code; prefer same value as TZ
+        const char* pgtzEnv = std::getenv("PGTZ");
+        if (!pgtzEnv || *pgtzEnv == '\0') {
+            const char* tzNow = std::getenv("TZ");
+            setenv("PGTZ", tzNow ? tzNow : "UTC", 1);
+        }
+        // Provide a tz database directory if none is set and a common system path exists
+        const char* tzdirEnv = std::getenv("TZDIR");
+        if (!tzdirEnv || *tzdirEnv == '\0') {
+            namespace fs = std::filesystem;
+            const char* candidates[] = {"/usr/share/zoneinfo", "/usr/lib/zoneinfo", "/usr/share/lib/zoneinfo"};
+            for (const auto* cand : candidates) {
+                std::error_code ec;
+                if (fs::exists(cand, ec) && !ec) {
+                    setenv("TZDIR", cand, 1);
+                    break;
+                }
+            }
+        }
+        tzset();
     }
 
     static void ensureMeosInitialized() {
-        std::lock_guard<std::mutex> lk(meos_init_mutex);
-        if (!meos_initialized) {
-            // Ensure a sane timezone environment before initializing MEOS (uses PostgreSQL tzdb)
-            const char* tzEnv = std::getenv("TZ");
-            if (!tzEnv || *tzEnv == '\0') {
-                setenv("TZ", "UTC", 1);
-            }
-            // PGTZ is used by the underlying PG timezone code; prefer same value as TZ
-            const char* pgtzEnv = std::getenv("PGTZ");
-            if (!pgtzEnv || *pgtzEnv == '\0') {
-                const char* tzNow = std::getenv("TZ");
-                setenv("PGTZ", tzNow ? tzNow : "UTC", 1);
-            }
-            // Provide a tz database directory if none is set and a common system path exists
-            const char* tzdirEnv = std::getenv("TZDIR");
-            if (!tzdirEnv || *tzdirEnv == '\0') {
-                namespace fs = std::filesystem;
-                const char* candidates[] = {"/usr/share/zoneinfo", "/usr/lib/zoneinfo", "/usr/share/lib/zoneinfo"};
-                for (const auto* cand : candidates) {
-                    std::error_code ec;
-                    if (fs::exists(cand, ec) && !ec) {
-                        setenv("TZDIR", cand, 1);
-                        break;
-                    }
-                }
-            }
-            tzset();
-
-            meos_initialize();
-            meos_initialized = true;
-            // Register cleanup function to be called at program exit
-            std::atexit(cleanupMeos);
+        if (meos_thread_initialized) {
+            return;
         }
+        std::call_once(meos_env_once, setupMeosEnv);
+        {
+            // Serialize the per-thread meos_initialize() calls so the process-global
+            // initializations they perform (PROJ / GEOS / error handler) do not race.
+            std::lock_guard<std::mutex> lk(meos_init_mutex);
+            meos_initialize();   // sets up THIS thread's thread-local timezone + caches
+            if (!meos_atexit_registered) {
+                std::atexit(cleanupMeos);
+                meos_atexit_registered = true;
+            }
+        }
+        meos_thread_initialized = true;
     }
 
     Meos::Meos() { 

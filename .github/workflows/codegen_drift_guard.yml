@@ -1,0 +1,44 @@
+# Codegen drift-guard — the windowed-aggregation surface is generated, not hand-edited.
+# Pure-Python, path-filtered to the aggregation generator and its outputs: it does NOT
+# build NebulaStream. It regenerates the surface from the committed descriptor with
+# tools/codegen/codegen_aggregations.py and asserts the tree is unchanged (committed ==
+# generated), so a hand-edit cannot reintroduce drift such as an unguarded MEOS block.
+name: codegen drift-guard
+
+on:
+  pull_request:
+    paths:
+      - 'tools/codegen/codegen_aggregations.py'
+      - 'tools/codegen/aggregation-descriptor.json'
+      - 'nes-logical-operators/**/Aggregations/Meos/**'
+      - 'nes-physical-operators/**/Aggregation/Function/Meos/**'
+      - 'nes-query-optimizer/src/RewriteRules/LowerToPhysical/LowerToPhysicalWindowedAggregation.cpp'
+      - 'nes-sql-parser/AntlrSQL.g4'
+      - 'nes-sql-parser/src/AntlrSQLQueryPlanCreator.cpp'
+  push:
+    paths:
+      - 'tools/codegen/codegen_aggregations.py'
+      - 'tools/codegen/aggregation-descriptor.json'
+      - 'nes-logical-operators/**/Aggregations/Meos/**'
+      - 'nes-physical-operators/**/Aggregation/Function/Meos/**'
+      - 'nes-query-optimizer/src/RewriteRules/LowerToPhysical/LowerToPhysicalWindowedAggregation.cpp'
+      - 'nes-sql-parser/AntlrSQL.g4'
+      - 'nes-sql-parser/src/AntlrSQLQueryPlanCreator.cpp'
+
+jobs:
+  drift-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Regenerate the aggregation surface from the committed descriptor
+        run: python3 tools/codegen/codegen_aggregations.py --input tools/codegen/aggregation-descriptor.json --output-root .
+      - name: Assert the committed surface equals the generated surface
+        run: |
+          if ! git diff --quiet; then
+            echo "::error::Committed aggregation surface differs from the generator output. Run tools/codegen/codegen_aggregations.py and commit the result."
+            git diff --stat
+            exit 1
+          fi

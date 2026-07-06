@@ -1,0 +1,18 @@
+# name: function/spatiotemporal/MEOS_TemporalEIntersectsTCbufferTCbuffer.test
+# description: Per-event ever-intersects between two single-instant tcbuffers (lonA, latA, radiusA, tsA, lonB, latB, radiusB, tsB). Exercises the W12 codegen shape — new 8-arg lift template with two tcbuffer_in() per-event constructions.
+# groups: [Function, MEOS, SpatioTemporal, TCbuffer, EIntersects, Codegen]
+
+CREATE LOGICAL SOURCE tcbuf_tcbuf_tests(id UINT32, lonA FLOAT64, latA FLOAT64, radiusA FLOAT64, tsA UINT64, lonB FLOAT64, latB FLOAT64, radiusB FLOAT64, tsB UINT64);
+CREATE PHYSICAL SOURCE FOR tcbuf_tcbuf_tests TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|10.0|1609459200|4.3658|50.6456|5.0|1609459200
+2|4.3658|50.6456|0.0001|1609459200|4.5000|50.8000|0.0001|1609459200
+
+CREATE SINK tcbuf_tcbuf_results(tcbuf_tcbuf_tests.id UINT32, intersects INT32) TYPE File;
+SELECT id,
+       TEMPORAL_EINTERSECTS_TCBUFFER_TCBUFFER(lonA, latA, radiusA, tsA, lonB, latB, radiusB, tsB) AS intersects
+FROM tcbuf_tcbuf_tests
+INTO tcbuf_tcbuf_results;
+----
+1,1
+2,0

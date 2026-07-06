@@ -1,0 +1,14 @@
+# name: MEOS_TnumberExtent_Aggregation
+# description: Windowed TNUMBER_EXTENT — numeric-temporal bounding box (TBox) over a per-(window,group) tfloat sequence via tnumber_extent_transfn (W27 box-output aggregation).
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE tne(vehicle_id UINT64, value FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tne TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|12.5|1609459200
+1|18.0|1609459201
+1|9.25|1609459202
+
+CREATE SINK tne_out(tne.vehicle_id UINT64, tne.extent VARSIZED) TYPE File;
+SELECT vehicle_id, TNUMBER_EXTENT(value, timestamp) AS extent FROM tne GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tne_out;
+----
+1,TBOXFLOAT XT([9.25, 18],[2021-01-01 00:00:00+00, 2021-01-01 00:00:02+00])

@@ -1,0 +1,18 @@
+# name: function/spatiotemporal/MEOS_TemporalEDWithinTPoseTPose.test
+# description: Per-event ever-dwithin between two single-instant tgeompoints, each resolved from a tpose (x,y,theta,ts) via tpose_to_tpoint, then edwithin_tgeo_tgeo with a query-level distance constant (W20). Identical tposes are within any positive distance (expect 1); tposes ~0.07 deg apart are not within 0.001 (expect 0).
+# groups: [Function, MEOS, SpatioTemporal, TPose, EDWithin, Composition, Codegen]
+
+CREATE LOGICAL SOURCE edw_tpose_tests(id UINT32, xA FLOAT64, yA FLOAT64, thetaA FLOAT64, tsA UINT64, xB FLOAT64, yB FLOAT64, thetaB FLOAT64, tsB UINT64);
+CREATE PHYSICAL SOURCE FOR edw_tpose_tests TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|0.5|1609459200|4.3658|50.6456|0.5|1609459200
+2|4.3658|50.6456|0.5|1609459200|4.4000|50.7000|1.2|1609459200
+
+CREATE SINK edw_tpose_results(edw_tpose_tests.id UINT32, within INT32) TYPE File;
+SELECT id,
+       TEMPORAL_EDWITHIN_TPOSE_TPOSE(xA, yA, thetaA, tsA, xB, yB, thetaB, tsB, FLOAT64(0.001)) AS within
+FROM edw_tpose_tests
+INTO edw_tpose_results;
+----
+1,1
+2,0

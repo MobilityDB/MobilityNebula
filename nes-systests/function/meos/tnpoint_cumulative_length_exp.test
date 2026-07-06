@@ -1,0 +1,14 @@
+# name: MEOS_TnpointCumulativeLengthExp_Aggregation
+# description: Windowed network-constrained trajectory grown by appendInstant over an expandable Temporal* (no string-build, no WKB) — tnpoint_cumulative_length applied to the live mini-trip sequence, resolving npoint routes against the loaded ways network. Output is the cumulative-length tfloat as hex-WKB.
+# groups: [Function, MEOS, SpatioTemporal, TemporalNetworkPoint, Aggregation]
+CREATE LOGICAL SOURCE tncl(vehicle_id UINT64, rid INT64, frac FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tncl TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1|0.1|1609459200
+1|1|0.5|1609459210
+1|1|0.9|1609459220
+
+CREATE SINK tncl_out(tncl.vehicle_id UINT64, tncl.cumlen VARSIZED) TYPE File;
+SELECT vehicle_id, TNPOINT_CUMULATIVE_LENGTH_EXP(rid, frac, timestamp) AS cumlen FROM tncl GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tncl_out;
+----
+1,0121000E0200000003000000000000000000A0AD30CA5A02009A151B561B894C4000CDDE31CA5A0200

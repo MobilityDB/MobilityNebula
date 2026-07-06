@@ -1,0 +1,18 @@
+# name: function/spatiotemporal/MEOS_TemporalEIntersectsTPoseTPose.test
+# description: Per-event ever-intersects between two single-instant tgeompoints, each lifted from a tpose (x, y, theta, ts) via tpose_to_tpoint at runtime. Exercises the W15 two-tpose composition codegen shape — two tpose_in -> two tpose_to_tpoint -> existing eintersects_tgeo_tgeo (shipped in W3). No new MEOS symbols are needed for tpose; mirrors MobilityDB PR #987's SQL-level composition recipe at the binding layer.
+# groups: [Function, MEOS, SpatioTemporal, TPose, EIntersects, Composition, Codegen]
+
+CREATE LOGICAL SOURCE tpose_eintersects_tests(id UINT32, xA FLOAT64, yA FLOAT64, thetaA FLOAT64, tsA UINT64, xB FLOAT64, yB FLOAT64, thetaB FLOAT64, tsB UINT64);
+CREATE PHYSICAL SOURCE FOR tpose_eintersects_tests TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|0.5|1609459200|4.3658|50.6456|1.2|1609459200
+2|4.3658|50.6456|0.5|1609459200|4.4000|50.7000|1.2|1609459200
+
+CREATE SINK tpose_eintersects_results(tpose_eintersects_tests.id UINT32, intersects INT32) TYPE File;
+SELECT id,
+       TEMPORAL_EINTERSECTS_TPOSE_TPOSE(xA, yA, thetaA, tsA, xB, yB, thetaB, tsB) AS intersects
+FROM tpose_eintersects_tests
+INTO tpose_eintersects_results;
+----
+1,1
+2,0

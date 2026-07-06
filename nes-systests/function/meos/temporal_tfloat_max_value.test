@@ -1,0 +1,17 @@
+# name: MEOS_TemporalTFloatMaxValue_Aggregation
+# description: Windowed TEMPORAL_TFLOAT_MAX_VALUE over per-(window,group) tfloat (W7 aggregation).
+# groups: [Function, MEOS, TNumber, TFloat, Aggregation]
+CREATE LOGICAL SOURCE tfm(sensor_id UINT64, reading FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tfm TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|10.5|1609459200
+1|22.7|1609459201
+1|18.3|1609459202
+2|5.0|1609459200
+2|99.9|1609459201
+
+CREATE SINK tfm_out(tfm.sensor_id UINT64, tfm.peak FLOAT64) TYPE File;
+SELECT sensor_id, TEMPORAL_TFLOAT_MAX_VALUE(reading, timestamp) AS peak FROM tfm GROUP BY sensor_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tfm_out;
+----
+1,22.7
+2,99.9

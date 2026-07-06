@@ -1,0 +1,14 @@
+# name: MEOS_BigintUnion_Aggregation
+# description: Windowed BIGINT_UNION — value union (BIGINTSET, deduped+sorted) over a tbigint stream via bigint_union_transfn + set_union_finalfn (W30 set-collect aggregation).
+# groups: [Function, MEOS, TemporalNumber, Aggregation]
+CREATE LOGICAL SOURCE bu(vehicle_id UINT64, value INT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR bu TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1200000000|1609459200
+1|1800000000|1609459201
+1|900000000|1609459202
+
+CREATE SINK bu_out(bu.vehicle_id UINT64, bu.vals VARSIZED) TYPE File;
+SELECT vehicle_id, BIGINT_UNION(value, timestamp) AS vals FROM bu GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO bu_out;
+----
+1,{900000000, 1200000000, 1800000000}

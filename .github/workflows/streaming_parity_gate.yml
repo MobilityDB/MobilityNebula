@@ -1,0 +1,28 @@
+# Streaming-parity gate — the measured-not-guessed guard (Path-to-100 step 6).
+# Pure-Python, path-filtered to the parity tooling: it does NOT build NebulaStream
+# and never runs on a normal C++ PR. It checks the committed feed for an L3
+# callability regression and an over-claim (a "100%" callability statement while
+# the gap list is non-empty). Re-measuring the full surface needs the JMEOS jar +
+# libmeos and is run out-of-band (see tools/streaming_parity/feeds/README.md).
+name: streaming-parity gate
+
+on:
+  pull_request:
+    paths:
+      - 'tools/streaming_parity/**'
+      - 'doc/methodology/streaming_parity*'
+  push:
+    paths:
+      - 'tools/streaming_parity/**'
+      - 'doc/methodology/streaming_parity*'
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: streaming-parity gate (no L3 regression, no over-claim)
+        run: python3 tools/streaming_parity/ci_gate.py

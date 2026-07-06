@@ -1,0 +1,14 @@
+# name: MEOS_TemporalCopyExp_Aggregation
+# description: Value-output windowed aggregate — temporal_copy over the expandable mini-trip, result emitted as hex-WKB (proves f(traj)->Temporal serialized via temporal_as_hexwkb; the materialized sequence equals the TRAJECTORY_WKB output).
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Aggregation]
+CREATE LOGICAL SOURCE tce(vehicle_id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tce TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+1|4.3700|50.6500|1609459201
+1|4.3750|50.6550|1609459202
+
+CREATE SINK tce_out(tce.vehicle_id UINT64, tce.traj VARSIZED) TYPE File;
+SELECT vehicle_id, TEMPORAL_COPY_EXP(lon, lat, timestamp) AS traj FROM tce GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tce_out;
+----
+1,012E000E03000000030101000000D88173469476114018265305A352494000A0AD30CA5A020001010000007B14AE47E17A1140333333333353494040E2BC30CA5A020001010000000000000000801140A4703D0AD75349408024CC30CA5A0200

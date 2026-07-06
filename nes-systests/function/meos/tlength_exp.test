@@ -1,0 +1,14 @@
+# name: MEOS_TLengthExp_Aggregation
+# description: Windowed trajectory length over an expandable Temporal* grown by appendInstant (no string-build, no WKB) — the MEOS-native streaming aggregation. tpoint_length applied directly to the live mini-trip sequence.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Aggregation]
+CREATE LOGICAL SOURCE tle(vehicle_id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tle TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+1|4.3700|50.6500|1609459201
+1|4.3750|50.6550|1609459202
+
+CREATE SINK tle_out(tle.vehicle_id UINT64, tle.len FLOAT64) TYPE File;
+SELECT vehicle_id, TLENGTH_EXP(lon, lat, timestamp) AS len FROM tle GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tle_out;
+----
+1,0.0131538303422

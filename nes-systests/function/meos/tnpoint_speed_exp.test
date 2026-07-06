@@ -1,0 +1,14 @@
+# name: MEOS_TnpointSpeedExp_Aggregation
+# description: Windowed network-constrained trajectory grown by appendInstant over an expandable Temporal* — tnpoint_speed differentiates the route-fraction motion against the loaded ways network, yielding the speed tfloat as hex-WKB.
+# groups: [Function, MEOS, SpatioTemporal, TemporalNetworkPoint, Aggregation]
+CREATE LOGICAL SOURCE tnsp(vehicle_id UINT64, rid INT64, frac FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tnsp TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|1|0.1|1609459200
+1|1|0.5|1609459210
+1|1|0.9|1609459220
+
+CREATE SINK tnsp_out(tnsp.vehicle_id UINT64, tnsp.speed VARSIZED) TYPE File;
+SELECT vehicle_id, TNPOINT_SPEED_EXP(rid, frac, timestamp) AS speed FROM tnsp GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tnsp_out;
+----
+1,0121000A020000000348117CDE15D4064000A0AD30CA5A020048117CDE15D4064000CDDE31CA5A0200

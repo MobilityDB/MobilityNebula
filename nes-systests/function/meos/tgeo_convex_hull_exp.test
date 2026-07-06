@@ -1,0 +1,14 @@
+# name: MEOS_TgeoConvexHullExp_Aggregation
+# description: Windowed tgeompoint mini-trip grown on the in-process expandable Temporal* (appendInstant); TGEO_CONVEX_HULL_EXP emits a geometry value as canonical hex-EWKB.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Aggregation]
+CREATE LOGICAL SOURCE tgch(vehicle_id UINT64, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tgch TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+1|4.3700|50.6500|1609459201
+1|4.3750|50.6550|1609459202
+
+CREATE SINK tgch_out(tgch.vehicle_id UINT64, tgch.hull VARSIZED) TYPE File;
+SELECT vehicle_id, TGEO_CONVEX_HULL_EXP(lon, lat, timestamp) AS hull FROM tgch GROUP BY vehicle_id WINDOW TUMBLING(timestamp, size 1 hour) INTO tgch_out;
+----
+1,0103000020E61000000100000004000000D88173469476114018265305A35249407B14AE47E17A114033333333335349400000000000801140A4703D0AD7534940D88173469476114018265305A3524940

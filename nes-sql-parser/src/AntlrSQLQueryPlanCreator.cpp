@@ -69,6 +69,10 @@
 #include <Functions/Meos/TemporalAIntersectsGeometryLogicalFunction.hpp>
 #include <Functions/Meos/TemporalEDWithinGeometryLogicalFunction.hpp>
 #include <Functions/Meos/TemporalAtStBoxLogicalFunction.hpp>
+#include <Functions/Meos/TposeApplyGeoLogicalFunction.hpp>
+#include <Functions/Meos/TrgeometryAtGeomLogicalFunction.hpp>
+#include <Functions/Meos/TrgeometryBodyPointTrajectoryLogicalFunction.hpp>
+#include <Functions/Meos/TrgeometryMinusGeomLogicalFunction.hpp>
 #include <Plans/LogicalPlan.hpp>
 #include <Plans/LogicalPlanBuilder.hpp>
 #include <Util/Overloaded.hpp>
@@ -1187,6 +1191,123 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 TemporalAtStBoxLogicalFunction(lonFunction, latFunction, timestampFunction, stboxFunction, borderFlag));
         }
         break;
+
+        /* BEGIN CODEGEN PARSER GLUE: TPOSE_APPLY_GEO */
+        case AntlrSQLLexer::TPOSE_APPLY_GEO:
+        {
+            const auto argCount = context->expression().size();
+            if (argCount != 2)
+                throw InvalidQuerySyntax("TPOSE_APPLY_GEO requires exactly 2 arguments, but got {}", argCount);
+
+            while (!helpers.top().constantBuilder.empty())
+            {
+                auto constantValue = std::move(helpers.top().constantBuilder.back());
+                helpers.top().constantBuilder.pop_back();
+                DataType dataType;
+                char* endPtr = nullptr;
+                std::strtod(constantValue.c_str(), &endPtr);
+                if (endPtr != nullptr && *endPtr == '\0')
+                    dataType = DataTypeProvider::provideDataType(DataType::Type::FLOAT64);
+                else
+                    dataType = DataTypeProvider::provideDataType(DataType::Type::VARSIZED);
+                helpers.top().functionBuilder.emplace_back(ConstantValueLogicalFunction(dataType, std::move(constantValue)));
+            }
+
+            auto a1 = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
+            auto a0 = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
+
+            helpers.top().functionBuilder.emplace_back(TposeApplyGeoLogicalFunction(a0, a1));
+        }
+        break;
+        /* END CODEGEN PARSER GLUE: TPOSE_APPLY_GEO */
+
+        /* BEGIN CODEGEN PARSER GLUE: TRGEOMETRY_AT_GEOM */
+        case AntlrSQLLexer::TRGEOMETRY_AT_GEOM:
+        {
+            const auto argCount = context->expression().size();
+            if (argCount != 2)
+                throw InvalidQuerySyntax("TRGEOMETRY_AT_GEOM requires exactly 2 arguments, but got {}", argCount);
+
+            while (!helpers.top().constantBuilder.empty())
+            {
+                auto constantValue = std::move(helpers.top().constantBuilder.back());
+                helpers.top().constantBuilder.pop_back();
+                DataType dataType;
+                char* endPtr = nullptr;
+                std::strtod(constantValue.c_str(), &endPtr);
+                if (endPtr != nullptr && *endPtr == '\0')
+                    dataType = DataTypeProvider::provideDataType(DataType::Type::FLOAT64);
+                else
+                    dataType = DataTypeProvider::provideDataType(DataType::Type::VARSIZED);
+                helpers.top().functionBuilder.emplace_back(ConstantValueLogicalFunction(dataType, std::move(constantValue)));
+            }
+
+            auto a1 = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
+            auto a0 = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
+
+            helpers.top().functionBuilder.emplace_back(TrgeometryAtGeomLogicalFunction(a0, a1));
+        }
+        break;
+        /* END CODEGEN PARSER GLUE: TRGEOMETRY_AT_GEOM */
+
+        /* BEGIN CODEGEN PARSER GLUE: TRGEOMETRY_BODY_POINT_TRAJECTORY */
+        case AntlrSQLLexer::TRGEOMETRY_BODY_POINT_TRAJECTORY:
+        {
+            const auto argCount = context->expression().size();
+            if (argCount != 2)
+                throw InvalidQuerySyntax("TRGEOMETRY_BODY_POINT_TRAJECTORY requires exactly 2 arguments, but got {}", argCount);
+
+            while (!helpers.top().constantBuilder.empty())
+            {
+                auto constantValue = std::move(helpers.top().constantBuilder.back());
+                helpers.top().constantBuilder.pop_back();
+                DataType dataType;
+                char* endPtr = nullptr;
+                std::strtod(constantValue.c_str(), &endPtr);
+                if (endPtr != nullptr && *endPtr == '\0')
+                    dataType = DataTypeProvider::provideDataType(DataType::Type::FLOAT64);
+                else
+                    dataType = DataTypeProvider::provideDataType(DataType::Type::VARSIZED);
+                helpers.top().functionBuilder.emplace_back(ConstantValueLogicalFunction(dataType, std::move(constantValue)));
+            }
+
+            auto a1 = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
+            auto a0 = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
+
+            helpers.top().functionBuilder.emplace_back(TrgeometryBodyPointTrajectoryLogicalFunction(a0, a1));
+        }
+        break;
+        /* END CODEGEN PARSER GLUE: TRGEOMETRY_BODY_POINT_TRAJECTORY */
+
+        /* BEGIN CODEGEN PARSER GLUE: TRGEOMETRY_MINUS_GEOM */
+        case AntlrSQLLexer::TRGEOMETRY_MINUS_GEOM:
+        {
+            const auto argCount = context->expression().size();
+            if (argCount != 2)
+                throw InvalidQuerySyntax("TRGEOMETRY_MINUS_GEOM requires exactly 2 arguments, but got {}", argCount);
+
+            while (!helpers.top().constantBuilder.empty())
+            {
+                auto constantValue = std::move(helpers.top().constantBuilder.back());
+                helpers.top().constantBuilder.pop_back();
+                DataType dataType;
+                char* endPtr = nullptr;
+                std::strtod(constantValue.c_str(), &endPtr);
+                if (endPtr != nullptr && *endPtr == '\0')
+                    dataType = DataTypeProvider::provideDataType(DataType::Type::FLOAT64);
+                else
+                    dataType = DataTypeProvider::provideDataType(DataType::Type::VARSIZED);
+                helpers.top().functionBuilder.emplace_back(ConstantValueLogicalFunction(dataType, std::move(constantValue)));
+            }
+
+            auto a1 = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
+            auto a0 = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
+
+            helpers.top().functionBuilder.emplace_back(TrgeometryMinusGeomLogicalFunction(a0, a1));
+        }
+        break;
+        /* END CODEGEN PARSER GLUE: TRGEOMETRY_MINUS_GEOM */
+
 
         default:
             /// Check if the function is a constructor for a datatype

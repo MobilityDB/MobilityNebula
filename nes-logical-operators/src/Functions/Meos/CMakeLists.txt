@@ -18,3 +18,7 @@ add_plugin(TemporalAIntersectsGeometry LogicalFunction nes-logical-operators Tem
 add_plugin(TemporalEContainsGeometry LogicalFunction nes-logical-operators TemporalEContainsGeometryLogicalFunction.cpp)
 add_plugin(TemporalEDWithinGeometry LogicalFunction nes-logical-operators TemporalEDWithinGeometryLogicalFunction.cpp)
 add_plugin(TemporalAtStBox LogicalFunction nes-logical-operators TemporalAtStBoxLogicalFunction.cpp)
+add_plugin(TposeApplyGeo LogicalFunction nes-logical-operators TposeApplyGeoLogicalFunction.cpp)
+add_plugin(TrgeometryAtGeom LogicalFunction nes-logical-operators TrgeometryAtGeomLogicalFunction.cpp)
+add_plugin(TrgeometryBodyPointTrajectory LogicalFunction nes-logical-operators TrgeometryBodyPointTrajectoryLogicalFunction.cpp)
+add_plugin(TrgeometryMinusGeom LogicalFunction nes-logical-operators TrgeometryMinusGeomLogicalFunction.cpp)

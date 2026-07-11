@@ -54,6 +54,8 @@
           tbb
           python3
           openjdk21
+          paho-mqtt-c
+          paho-mqtt-cpp
         ]) ++ [ follyPkg antlr4Pkg ];
 
         antlr4Jar = pkgs.fetchurl {
@@ -244,6 +246,7 @@
             "-DNES_ENABLES_TESTS=ON"
             "-DCMAKE_MODULE_PATH=${libdwarfModule}/share/cmake/Modules"
             "-DANTLR4_JAR_LOCATION=${antlr4Jar}"
+            "-DNES_ENABLE_MEOS=OFF"
           ];
 
           enableParallelBuilding = true;
@@ -347,6 +350,7 @@
               "-DLLVM_DIR=${commonCmakeEnv.LLVM_DIR}"
               "-DANTLR4_JAR_LOCATION=${antlr4Jar}"
               "-DCMAKE_MODULE_PATH=${libdwarfModule}/share/cmake/Modules"
+              "-DNES_ENABLE_MEOS=OFF"
             ];
             shellHook = ''
               unset NES_PREBUILT_VCPKG_ROOT

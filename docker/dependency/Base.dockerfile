@@ -67,13 +67,30 @@ RUN apt update -y && apt install -y \
     libgeos-dev \
     libgeos++-dev \
     libgeos-c1v5 \
-    libxml2-dev
+    libxml2-dev \
+    zlib1g-dev \
+    libh3-dev \
+    libgdal-dev \
+    autoconf \
+    automake \
+    libtool \
+    pkg-config
 
-# Build MobilityDB with MEOS enabled using GCC
-RUN git clone https://github.com/MobilityDB/MobilityDB.git -b master /usr/local/src/MobilityDB \
-    && mkdir -p /usr/local/src/MobilityDB/build \
-    && cd /usr/local/src/MobilityDB/build \
-    && cmake -DMEOS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ .. \
+# Build MobilityDB with MEOS and ALL optional families enabled using GCC.
+# -DALL=ON mirrors the ecosystem-wide provision-meos recipe (all present and
+# future families: CBUFFER/NPOINT/POSE/RGEO/QUADBIN/H3/POINTCLOUD/RASTER/…), so
+# the libmeos the NES MEOS operators link against matches CI. POINTCLOUD builds
+# without PostgreSQL as of MobilityDB #1370 (cmake pointcloud_libpc, libxml2+zlib).
+# Pinned to an upstream master commit for a reproducible dependency image.
+RUN git clone https://github.com/MobilityDB/MobilityDB.git /usr/local/src/MobilityDB \
+    && cd /usr/local/src/MobilityDB \
+    && git checkout 5c5b3cd25b2dba55a137eeacc4b133998cbc6530 \
+    && mkdir -p build \
+    && cd build \
+    && cmake -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
+        -DH3_INCLUDE_DIR=/usr/include/h3 \
+        -DH3_LIBRARY=/usr/lib/$(gcc -dumpmachine)/libh3.so .. \
     && make -j$(nproc) \
     && make install \
     && ldconfig

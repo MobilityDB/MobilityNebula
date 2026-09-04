@@ -528,7 +528,18 @@ def text_value_input(ctype):
     enc = _TYPE_ENCODINGS.get(bare) or {}
     parser = enc.get("in")
     if not parser or parser != bare.lower() + "_in":
-        return None
+        # A type the encodings map does not describe may still declare the pair
+        # itself. `text` is the case: the catalog states its marshalling in the
+        # `wire` block as a plain JSON string rather than in typeEncodings, and
+        # `text_in(const char *) -> text *` with `text_out(const text *) ->
+        # char *` is the pair that builds one. Requiring the EXACT signatures is
+        # what keeps this from admitting a variety-locked parser: `span_in` takes
+        # a MeosType alongside the string, so a Span still declines here as it
+        # does above.
+        enc = _self_declared_text_codec(bare)
+        if not enc:
+            return None
+        parser = enc["in"]
     aux = _parser_aux_args(parser, enc)
     if aux is None:
         return None
@@ -539,6 +550,26 @@ def text_value_input(ctype):
         "cpp_type": bare,
         "headers": catalog_header(parser),
     }
+
+
+def _self_declared_text_codec(bare):
+    """The text codec a type declares for itself, or None.
+
+    Reads the catalog's own function list rather than its encodings map: a
+    `<t>_in(const char *) -> T *` paired with a `<t>_out(const T *) -> char *`
+    IS a text codec whatever the map says, and both have to be reachable for a
+    generated operator to call them.
+    """
+    lo = bare.lower()
+    dec, encf = _CATALOG.get(f"{lo}_in"), _CATALOG.get(f"{lo}_out")
+    if not dec or not encf:
+        return None
+    if dec.get("params") != ["char*"] or dec.get("returns") != f"{bare}*":
+        return None
+    if (encf.get("params") or [None])[0] != f"{bare}*" or encf.get("returns") != "char*":
+        return None
+    return {"in": f"{lo}_in", "out": f"{lo}_out", "in_aux": [], "out_aux": [],
+            "encoders": {"text": f"{lo}_out"}}
 
 
 def _parser_aux_args(parser, enc):

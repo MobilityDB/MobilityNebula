@@ -1,0 +1,48 @@
+# BerlinMOD-Q6 — snapshot form (PARTIAL)
+# "Cumulative distance travelled per vehicle." Emits the per-window per-vehicle
+# TEMPORAL_SEQUENCE trajectory; consumers compute length(trajectory) externally.
+# A native temporal_length() aggregation on the NebulaStream side would close
+# this as a FULL cell; see docs/berlinmod-streaming-forms.md.
+
+query: |
+  SELECT start,
+         end,
+         vehicle_id,
+         TEMPORAL_SEQUENCE(gps_lon, gps_lat, time_utc) AS trajectory
+  FROM berlinmod_stream
+  GROUP BY vehicle_id
+  WINDOW TUMBLING(time_utc, SIZE 5 SEC)
+  INTO file_sink;
+
+sinks:
+  - name: FILE_SINK
+    type: File
+    schema:
+      - { name: BERLINMOD_STREAM$START,      type: UINT64 }
+      - { name: BERLINMOD_STREAM$END,        type: UINT64 }
+      - { name: BERLINMOD_STREAM$VEHICLE_ID, type: UINT64 }
+      - { name: BERLINMOD_STREAM$TRAJECTORY, type: VARSIZED }
+    config:
+      file_path: "/workspace/Output/output_berlinmod_q6_snapshot.csv"
+      input_format: CSV
+
+logical:
+  - name: BERLINMOD_STREAM
+    schema:
+      - { name: TIME_UTC,   type: UINT64 }
+      - { name: VEHICLE_ID, type: UINT64 }
+      - { name: GPS_LON,    type: FLOAT64 }
+      - { name: GPS_LAT,    type: FLOAT64 }
+
+physical:
+  - logical: BERLINMOD_STREAM
+    type: TCP
+    parser_config:
+      type: CSV
+      field_delimiter: ","
+      tuple_delimiter: "\n"
+    source_config:
+      socket_host: "host.docker.internal"
+      socket_port: "32325"
+      socket_type: "SOCK_STREAM"
+      socket_domain: "AF_INET"

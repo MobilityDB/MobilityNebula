@@ -92,13 +92,28 @@ jobs:
       hash: ${{ steps.hash-and-lookup.outputs.hash }}
     runs-on: ubuntu-latest
     steps:
+      # This workflow is reached from pull_request_target, which runs with the
+      # base repository's token, secrets and runner access. Checking out a
+      # fork's head there and running a script out of it executes untrusted
+      # code in a trusted context, and actions/checkout refuses it.
+      #
+      # The hash is a function of the dependency files' CONTENT, so the fork's
+      # files are all that is needed and none of them has to run. The base
+      # repository is checked out for the script, the script is copied beyond
+      # the reach of the overlay (it lives in docker/dependency, which the
+      # overlay replaces), and only then are the pull request's dependency
+      # paths written into the tree as data.
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.head_sha }}
+      - name: Take the hashing script from the base repository
+        run: cp docker/dependency/hash_dependencies.sh "$RUNNER_TEMP/hash_dependencies.sh"
+      - name: Add the pull request's dependency files
+        run: |
+          git fetch --no-tags --depth=1 origin "${{ inputs.head_sha }}"
+          git checkout FETCH_HEAD -- vcpkg docker/dependency
       - name: Calculate and lookup hash
         id: hash-and-lookup
         run: |
-          HASH=$(docker/dependency/hash_dependencies.sh)
+          HASH=$(bash "$RUNNER_TEMP/hash_dependencies.sh")
           echo "Using Hash: $HASH"
           
           # Output the tag (hash) to GitHub Actions

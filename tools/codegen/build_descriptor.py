@@ -663,13 +663,6 @@ def operand_marshalling(ctype):
         return {"kind": "scalar", "cpp": SCALAR_CPP[ctype]}
     if ctype == "GSERIALIZED*":
         return {"kind": "geom", "cpp_type": "GSERIALIZED"}
-    if ctype == "TimestampTz":
-        # Every operand builder already makes a TimestampTz out of the event's
-        # epoch column, through the timestamp text and `timestamptz_in`. An
-        # ARGUMENT of that type is the same value by the same route, so it
-        # reuses a path that already compiles rather than assuming the width of
-        # a typedef the catalog does not resolve.
-        return {"kind": "epoch", "cpp": "uint64_t"}
     # `rstrip("*")` reads `Cbuffer**` as `Cbuffer`, so without this a
     # pointer-to-pointer -- an array of values, or a value written back through
     # the argument -- would be marshalled as the single value it is not.

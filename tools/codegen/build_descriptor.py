@@ -107,6 +107,10 @@ def load_catalog(path: str) -> None:
             # what the function ANSWERS, so a caller needing a different pointer
             # type reads the conversion off the catalog instead of assuming one
             "returns": _norm_ctype((entry.get("returnType") or {}).get("c")),
+            # the parameter names the function writes its answer through, which
+            # the catalog states rather than leaving to be guessed from a `*`
+            "outparams": ((entry.get("shape") or {}).get("outParams") or []),
+            "paramnames": [p.get("name") for p in (entry.get("params") or [])],
         }
     _TEMPORAL_TYPES.update(data.get("temporalTypes") or {})
     _TYPE_ENCODINGS.update(data.get("typeEncodings") or {})
@@ -792,6 +796,39 @@ def primary_operand_spec(marsh, index):
                       '                if (!{var}) return {z};\n'),
         }
     return None
+
+
+# The scalar answers a stream field can carry back, and the zero each falls to
+# when the function reports it found none.
+_OUT_RETURNS = {"double": "double", "int": "int", "bool": "bool"}
+
+
+def trailing_out_param(fn, ret, args):
+    """(index, return kind) for a function whose answer is a trailing out-param.
+
+    `stbox_tmax(const STBox *, TimestampTz *result)` answers `bool` and writes
+    the value through `result`; the catalog says so in `shape.outParams` rather
+    than leaving a `*` to be read as an out-parameter by shape. A per-event
+    operator expresses that directly -- declare the local, pass its address,
+    return it -- so the found-flag becomes the operator's own empty answer.
+
+    Only a LAST parameter qualifies, and only for a scalar this binding can hand
+    back: an out-param in the middle would reorder the call, and a type with no
+    return kind has nowhere to put the answer.
+    """
+    facts = _CATALOG.get(fn) or {}
+    outs = facts.get("outparams") or []
+    names = facts.get("paramnames") or []
+    if ret != "bool" or len(outs) != 1 or len(names) != len(args):
+        return None
+    try:
+        idx = names.index(outs[0])
+    except ValueError:
+        return None
+    if idx != len(args) - 1 or not args[idx].endswith("*"):
+        return None
+    kind = _OUT_RETURNS.get(args[idx][:-1])
+    return (idx, kind) if kind else None
 
 
 def value_marshalled(fn, ret, args):
@@ -1562,6 +1599,13 @@ def structural_residue(fn, ret, args, facts):
         return "RESIDUE:out-param-scalar"
     if "Datum" in ret or any("Datum" in a for a in args):
         return "RESIDUE:datum-internal"
+    if trailing_out_param(fn, ret, args):
+        # The function answers a PAIR: a flag saying whether it found anything,
+        # and the value written through the last parameter. GoMEOS hands both
+        # back -- `func STBOXTmax(box *STBox) (bool, int64)` -- and a per-event
+        # operator yields ONE field, so it can carry the flag or the value and
+        # not both. Returning the value alone would read "absent" as zero.
+        return "RESIDUE:out-param-pair"
     return None
 
 

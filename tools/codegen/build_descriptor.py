@@ -631,7 +631,7 @@ def operand_marshalling(ctype):
     if ctype in SCALAR_CPP:
         return {"kind": "scalar", "cpp": SCALAR_CPP[ctype]}
     if ctype == "GSERIALIZED*":
-        return {"kind": "geom"}
+        return {"kind": "geom", "cpp_type": "GSERIALIZED"}
     # `rstrip("*")` reads `Cbuffer**` as `Cbuffer`, so without this a
     # pointer-to-pointer -- an array of values, or a value written back through
     # the argument -- would be marshalled as the single value it is not.
@@ -640,6 +640,7 @@ def operand_marshalling(ctype):
     spec = text_value_input(ctype)
     if spec:
         return {"kind": "box", "box_type": spec["cpp_type"],
+                "cpp_type": spec["cpp_type"],
                 "parser": spec["parser"], "parser_aux": spec["parser_aux"],
                 "header": (spec["headers"] or ["meos.h"])[0]}
     spec = wkb_value_codec(ctype)
@@ -650,19 +651,55 @@ def operand_marshalling(ctype):
     return None
 
 
+def _text_encoder(bare):
+    """(encoder, its arguments after the value) for the text form of `bare`.
+
+    The encoder is `typeEncodings[T].encoders.text` and the arguments after the
+    value are what `out_aux` names, counted against the encoder's own
+    parameters. Reading the encoders entry rather than composing a name is what
+    answers a geometry, whose text encoder is `geo_as_ewkt` and not the
+    `<t>_out` every other type spells.
+    """
+    enc = _TYPE_ENCODINGS.get(bare) or {}
+    encoder = (enc.get("encoders") or {}).get("text")
+    if not encoder or encoder not in _CATALOG:
+        return None
+    header = (_CATALOG[encoder].get("file") or "")
+    if not reachable_header(header):
+        return None
+    params = _CATALOG[encoder].get("params") or []
+    aux = enc.get("out_aux") or []
+    if len(params) != 1 + len(aux):
+        return None
+    args = "".join(f", {a.get('default', 0)}" for a in aux)
+    return {"serializer": encoder, "serializer_args": args, "cpp_type": bare,
+            "headers": catalog_header(encoder)}
+
+
 def result_marshalling(ret):
     """How the result of a function comes back out, as a return_kind, or None.
 
-    A number is the value itself. Anything MEOS gives a generic hex-WKB encoder
-    is handed on in that form, which is the SAME exchange form the operand side
-    reads -- so the output of one operator is the input of the next, for a span
-    and a set exactly as it already is for a temporal.
+    A number is the value itself. Anything else leaves in THE SAME ENCODING the
+    operand side reads for that type, so the output of one operator is the input
+    of the next: a geometry as the EWKT a geometry operand is parsed from, a
+    circular buffer as the text its own `_in` reads back, a span as the hex-WKB
+    that is the only form stating which variety it is.
+
+    Asking `operand_marshalling` for the encoding, rather than picking one here,
+    is what keeps the two sides from disagreeing -- an answer serialized in a
+    form the operand side cannot parse composes with nothing.
     """
     if ret in ("bool", "int", "double"):
         return ret, None
-    spec = wkb_value_codec(ret)
-    if spec:
-        return "wkb", spec
+    marsh = operand_marshalling(ret)
+    if not marsh:
+        return None, None
+    if marsh["kind"] == "wkb_value":
+        spec = wkb_value_codec(ret)
+        return ("wkb", spec) if spec else (None, None)
+    if marsh["kind"] in ("box", "geom"):
+        spec = _text_encoder(marsh["cpp_type"])
+        return ("wkb", spec) if spec else (None, None)
     return None, None
 
 
@@ -678,6 +715,22 @@ def primary_operand_spec(marsh, index):
         return {"fields": [["box", "VariableSizedData"]],
                 "parser": marsh["parser"], "parser_aux": marsh["parser_aux"],
                 "cpp_type": marsh["box_type"], "headers": [marsh["header"]]}
+    if marsh["kind"] == "geom":
+        # The geometry is read with `geom_in`, which the binding already uses
+        # for a geometry ARGUMENT and which accepts the SRID-carrying EWKT the
+        # result side writes. Parsing it directly rather than through
+        # StaticGeometry leaves the value owned by the lambda, which is what the
+        # single `free(temp)` at the end of the call expects.
+        return {
+            "fields": [["geom", "VariableSizedData"]],
+            "header": "meos_geo.h", "headers": ["meos_geo.h"],
+            "cpp_type": "GSERIALIZED",
+            "build": ('                std::string {var}S(geomPtr, geomSize);\n'
+                      '                while (!{var}S.empty() && ({var}S.front()==\'\\\'\' || {var}S.front()==\'"\')) {var}S.erase({var}S.begin());\n'
+                      '                while (!{var}S.empty() && ({var}S.back()==\'\\\'\' || {var}S.back()==\'"\')) {var}S.pop_back();\n'
+                      '                GSERIALIZED* {var} = geom_in({var}S.c_str(), -1);\n'
+                      '                if (!{var}) return {z};\n'),
+        }
     if marsh["kind"] == "wkb_value":
         t, parser = marsh["value_type"], marsh["parser"]
         return {
@@ -723,13 +776,15 @@ def value_marshalled(fn, ret, args):
     spec = primary_operand_spec(marsh[primary], primary)
     if not spec:
         return None
-    headers = set(catalog_header(fn)) | {marsh[primary]["header"]}
+    headers = set(catalog_header(fn)) | set(spec.get("headers") or [])
     extras = []
     for i, m in enumerate(marsh):
         if i == primary:
             continue
         extras.append(m)
-        if m["kind"] in ("box", "wkb_value"):
+        if m["kind"] == "geom":
+            headers.add("meos_geo.h")
+        elif m["kind"] in ("box", "wkb_value"):
             headers.add(m["header"])
     d = {
         "nebula_name": pascal(fn), "sql_token": fn.upper(), "meos_call": fn,

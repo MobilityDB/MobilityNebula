@@ -4207,12 +4207,16 @@ def assemble_generic_physical(op):
         # would fill is declared only where the encoder asks for one.
         size_decl = ("                size_t hexSize = 0;\n"
                      if "&hexSize" in res_args else "")
+        # A function answering a temporal SUBTYPE hands back the Temporal it
+        # begins with; the local keeps the answered type and the cast sits at the
+        # encoder call.
+        res_cast = f"({op['result_cast']}) " if op.get("result_cast") else ""
         call_marshal = (f"                {res_type}* res = {op['meos_call']}({callargs});\n"
                         f"                free(temp);\n"
                         f"{bf}"
                         f"                if (!res) return {zero};\n"
                         f"{size_decl}"
-                        f"                char* hexOut = {res_ser}(res{res_args});\n"
+                        f"                char* hexOut = {res_ser}({res_cast}res{res_args});\n"
                         f"                free(res);\n"
                         f"                return hexOut;")
     elif extract_fn is None:

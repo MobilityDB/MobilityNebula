@@ -676,6 +676,12 @@ def _text_encoder(bare):
             "headers": catalog_header(encoder)}
 
 
+# The temporal subtypes an operand builder already hands on as the Temporal it
+# begins with. `scalar_base_input` casts a constructor's TInstant * for exactly
+# this reason; a function ANSWERING one states the same fact from the other side.
+_TEMPORAL_SUBTYPES = ("TInstant*", "TSequence*", "TSequenceSet*")
+
+
 def result_marshalling(ret):
     """How the result of a function comes back out, as a return_kind, or None.
 
@@ -691,6 +697,18 @@ def result_marshalling(ret):
     """
     if ret in ("bool", "int", "double"):
         return ret, None
+    if ret in _TEMPORAL_SUBTYPES:
+        # A TInstant, a TSequence and a TSequenceSet each BEGIN with the Temporal
+        # they are a kind of, so the Temporal encoder serializes one and the
+        # exchange form is the same hex-WKB every other temporal travels in. The
+        # operand side already reads this off the catalog when a constructor
+        # answers a TInstant *; answering one is the same fact.
+        spec = wkb_value_codec("Temporal*")
+        if spec:
+            # the local keeps the type the function ANSWERS; the cast is applied
+            # where the Temporal encoder is called, so neither side is a lie
+            return "wkb", dict(spec, cpp_type=ret.rstrip("*"), cast="Temporal *")
+        return None, None
     marsh = operand_marshalling(ret)
     if not marsh:
         return None, None
@@ -796,6 +814,8 @@ def value_marshalled(fn, ret, args):
     }
     if result:
         d["result_type"] = result["cpp_type"]
+        if result.get("cast"):
+            d["result_cast"] = result["cast"]
         d["result_serializer"] = result["serializer"]
         d["result_serializer_args"] = result["serializer_args"]
         headers.update(result["headers"])

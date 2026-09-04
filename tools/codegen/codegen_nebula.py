@@ -4148,6 +4148,16 @@ def assemble_generic_physical(op):
                 f'                if (!arg{i}T) {{ free(temp); return {zero}; }}\n')
             call_terms.append(f"arg{i}T")
             box_frees.append(f"free(arg{i}T);")
+        elif ex["kind"] == "epoch":
+            # The event carries the instant as the epoch every other operand
+            # builder reads, and the same helper turns it into the timestamp
+            # text `timestamptz_in` parses. Nothing here states the width of the
+            # typedef; MEOS answers it.
+            fields.append((f"arg{i}", ex["cpp"]))
+            parse_lines.append(
+                f'                TimestampTz arg{i}T = timestamptz_in('
+                f'MEOS::Meos::convertEpochToTimestamp(arg{i}).c_str(), -1);\n')
+            call_terms.append(f"arg{i}T")
         elif ex["kind"] == "wkb_value":
             # A static MEOS value -- a span, a set, a spanset, a box -- carried
             # as a VARSIZED hex-WKB field and read back with the type-generic

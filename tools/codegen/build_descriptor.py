@@ -529,12 +529,225 @@ def text_value_input(ctype):
     parser = enc.get("in")
     if not parser or parser != bare.lower() + "_in":
         return None
+    aux = _parser_aux_args(parser, enc)
+    if aux is None:
+        return None
     return {
         "fields": [["box", "VariableSizedData"]],
         "parser": parser,
+        "parser_aux": aux,
         "cpp_type": bare,
         "headers": catalog_header(parser),
     }
+
+
+def _parser_aux_args(parser, enc):
+    """The literal arguments a text parser takes AFTER the string, or None.
+
+    Most parsers read a string and nothing else, but `interval_in` also takes a
+    typmod, and the catalog says so twice over: the parser's own `params`, and
+    the `in_aux` entry naming the argument and the value to pass when a caller
+    has none. Counting the parameters rather than assuming one is what keeps a
+    type whose parser takes a second argument from being called with one.
+    """
+    params = (_CATALOG.get(parser) or {}).get("params")
+    if not params or params[0] != "char*":
+        return None
+    aux = enc.get("in_aux") or []
+    if len(params) != 1 + len(aux):
+        return None
+    return "".join(f", {a.get('default', 0)}" for a in aux)
+
+
+def wkb_value_codec(ctype):
+    """The type-GENERIC hex-WKB codec pair for `ctype`, or None.
+
+    The text form of a span states no variety: the catalog's own `in` for `Span`
+    is `bigintspan_in`, one of many, so a `Span *` argument cannot be read from
+    text without guessing which variety is meant, and `text_value_input`
+    declines it for exactly that reason. The hex-WKB form carries the variety
+    INSIDE the value, so ONE decoder answers every variety of the type, and MEOS
+    names that decoder for the type itself -- `span_from_hexwkb`,
+    `set_from_hexwkb`, `spanset_from_hexwkb`, `temporal_from_hexwkb`.
+
+    Both halves are read off the catalog: the decoder from
+    `typeEncodings[T].decoders.wkb`, the encoder as the `_as_hexwkb` sibling the
+    catalog declares. A type MEOS gives no generic decoder, or no encoder to
+    hand the value back on, declines rather than travel in a form it cannot
+    round-trip.
+    """
+    bare = ctype.rstrip("*")
+    enc = _TYPE_ENCODINGS.get(bare) or {}
+    decoder = (enc.get("decoders") or {}).get("wkb")
+    if decoder != bare.lower() + "_from_hexwkb":
+        return None
+    if (_CATALOG.get(decoder) or {}).get("params") != ["char*"]:
+        return None
+    encoder = bare.lower() + "_as_hexwkb"
+    args = _hexwkb_encoder_args(encoder)
+    if args is None:
+        return None
+    return {"parser": decoder, "serializer": encoder, "serializer_args": args,
+            "cpp_type": bare, "headers": catalog_header(decoder)}
+
+
+def _hexwkb_encoder_args(encoder):
+    """The arguments a hex-WKB encoder takes AFTER the value, or None.
+
+    The family is not one signature: `span_as_hexwkb` takes an endian variant
+    and a length out-parameter, `raster_as_hexwkb` only the length, and
+    `pcpoint_as_hexwkb` neither. Each parameter is read from the catalog and
+    answered by what it IS -- the variant by the NDR default this binding
+    already writes, the length by the local it fills -- so an encoder whose
+    parameters say something else declines instead of being called wrongly.
+    """
+    params = (_CATALOG.get(encoder) or {}).get("params")
+    if not params:
+        return None
+    out = []
+    for param in params[1:]:
+        if param == "uint8_t":
+            out.append(", 0")
+        elif param == "size_t*":
+            out.append(", &hexSize")
+        else:
+            return None
+    return "".join(out)
+
+
+def operand_marshalling(ctype):
+    """How one argument of `ctype` travels in a stream field, or None.
+
+    ONE reading of an argument type, shared by every shape, so a type admitted
+    by one is admitted by all. The order states the preference: a by-value
+    scalar is a column of its own width; a geometry is the WKT its own field
+    carries; a static value with a parser named for its type is that text; and
+    anything else MEOS gives a generic hex-WKB codec travels in that form.
+
+    Text before hex-WKB is what keeps the operators this generator already emits
+    byte-identical: a Cbuffer and an STBox carry both encodings, and the text one
+    is what their existing operators read.
+    """
+    if ctype in SCALAR_CPP:
+        return {"kind": "scalar", "cpp": SCALAR_CPP[ctype]}
+    if ctype == "GSERIALIZED*":
+        return {"kind": "geom"}
+    # `rstrip("*")` reads `Cbuffer**` as `Cbuffer`, so without this a
+    # pointer-to-pointer -- an array of values, or a value written back through
+    # the argument -- would be marshalled as the single value it is not.
+    if not ctype.endswith("*") or ctype.endswith("**"):
+        return None
+    spec = text_value_input(ctype)
+    if spec:
+        return {"kind": "box", "box_type": spec["cpp_type"],
+                "parser": spec["parser"], "parser_aux": spec["parser_aux"],
+                "header": (spec["headers"] or ["meos.h"])[0]}
+    spec = wkb_value_codec(ctype)
+    if spec:
+        return {"kind": "wkb_value", "value_type": spec["cpp_type"],
+                "parser": spec["parser"],
+                "header": (spec["headers"] or ["meos.h"])[0]}
+    return None
+
+
+def result_marshalling(ret):
+    """How the result of a function comes back out, as a return_kind, or None.
+
+    A number is the value itself. Anything MEOS gives a generic hex-WKB encoder
+    is handed on in that form, which is the SAME exchange form the operand side
+    reads -- so the output of one operator is the input of the next, for a span
+    and a set exactly as it already is for a temporal.
+    """
+    if ret in ("bool", "int", "double"):
+        return ret, None
+    spec = wkb_value_codec(ret)
+    if spec:
+        return "wkb", spec
+    return None, None
+
+
+def primary_operand_spec(marsh, index):
+    """The `input_spec` for the operand the emitted lambda builds first.
+
+    The emitter builds ONE operand ahead of the call and passes the rest as
+    extra arguments; which of the function's arguments that is depends only on
+    which one needs building, so it is read here rather than assumed to be the
+    first.
+    """
+    if marsh["kind"] == "box":
+        return {"fields": [["box", "VariableSizedData"]],
+                "parser": marsh["parser"], "parser_aux": marsh["parser_aux"],
+                "cpp_type": marsh["box_type"], "headers": [marsh["header"]]}
+    if marsh["kind"] == "wkb_value":
+        t, parser = marsh["value_type"], marsh["parser"]
+        return {
+            "fields": [["val", "VariableSizedData"]],
+            "header": marsh["header"],
+            "headers": [marsh["header"]],
+            "cpp_type": t,
+            "build": ('                std::string {var}Hex(valPtr, valSize);\n'
+                      f'                {t}* {{var}} = {parser}({{var}}Hex.c_str());\n'
+                      '                if (!{var}) return {z};\n'),
+        }
+    return None
+
+
+def value_marshalled(fn, ret, args):
+    """Any function whose result and EVERY argument the catalog can marshal.
+
+    The shapes above each name one arity and one operand vocabulary, so a
+    function differing from a covered one only in which type its second argument
+    takes falls out of the surface entirely. This one asks the catalog the same
+    question of every argument -- can a stream field carry a value of this type,
+    and can the answer be handed back -- and emits whenever all of them say yes.
+    It sits LAST, so every named shape keeps its own naming, ordering and
+    comments, and this answers only what none of them claimed.
+
+    The operand that gets BUILT is the first argument that needs building; the
+    rest travel as extra arguments in their own order, and `primary_index`
+    records where the built one goes back in the call. A function of scalars
+    alone declines: it has no operand to build, so it is not a per-event
+    operator over a MEOS value.
+    """
+    if not args:
+        return None
+    marsh = [operand_marshalling(a) for a in args]
+    if not all(marsh):
+        return None
+    return_kind, result = result_marshalling(ret)
+    if not return_kind:
+        return None
+    primary = next((i for i, m in enumerate(marsh) if m["kind"] != "scalar"), None)
+    if primary is None:
+        return None
+    spec = primary_operand_spec(marsh[primary], primary)
+    if not spec:
+        return None
+    headers = set(catalog_header(fn)) | {marsh[primary]["header"]}
+    extras = []
+    for i, m in enumerate(marsh):
+        if i == primary:
+            continue
+        extras.append(m)
+        if m["kind"] in ("box", "wkb_value"):
+            headers.add(m["header"])
+    d = {
+        "nebula_name": pascal(fn), "sql_token": fn.upper(), "meos_call": fn,
+        "build_generic": True, "return_kind": return_kind,
+        "input_type": spec["cpp_type"].lower() + "_value",
+        "input_spec": spec, "extra_args": extras, "primary_index": primary,
+        "comment_one_liner":
+            f"Per-event {fn}: {len(args)} catalog-marshalled operand(s) -> {return_kind}.",
+    }
+    if result:
+        d["result_type"] = result["cpp_type"]
+        d["result_serializer"] = result["serializer"]
+        d["result_serializer_args"] = result["serializer_args"]
+        headers.update(result["headers"])
+    headers.discard("meos.h")
+    if headers:
+        d["extra_headers"] = sorted(headers)
+    return d
 
 
 def _operand_phrase(inp):
@@ -1149,6 +1362,7 @@ SHAPES = {
     "trgeometry_trgeometry_predicate": trgeometry_trgeometry_predicate,
     "trgeometry_trgeometry_dwithin": trgeometry_trgeometry_dwithin,
     "trgeometry_nad": trgeometry_nad,
+    "value_marshalled": value_marshalled,
 }
 
 
@@ -1219,20 +1433,21 @@ def reachable_header(header):
     return bool(header) and bool(_UMBRELLA.fullmatch(header)) and "internal" not in header
 
 
-def _residue_reason(fn, ret, args, facts):
-    """Why this public function carries no per-event streamable operator.
+def structural_residue(fn, ret, args, facts):
+    """The residue reading no shape may override, or None.
 
-    Returns a reason string, or None when the function IS a candidate and its
-    absence from the generated set is a GAP the generator owes rather than a
-    property of the function.
+    What a function IS -- unreachable, an aggregate transition, a value's own
+    text form, an answer returned through its argument list -- decides that no
+    per-event operator exists for it, whatever a shape makes of its signature.
+    So this is asked BEFORE the shapes: asking it only where nothing matched
+    lets a shape claim an out-parameter or an aggregate's state transition and
+    the ledger then reads GENERATED for code no stream can run.
     """
     if not reachable_header(facts["file"]):
         return "RESIDUE:internal-header"
     category = facts["category"]
     if category in ("io", "constructor", "lifecycle", "index", "aggregate"):
         return f"RESIDUE:{category}"
-    if category not in _STREAMABLE_CATEGORIES:
-        return f"DEFERRED:category-{category}"
     # A pointer-to-pointer or a scalar out-parameter returns through its
     # argument list, which no per-event operator signature can express.
     if any(a.endswith("**") for a in args):
@@ -1241,6 +1456,25 @@ def _residue_reason(fn, ret, args, facts):
         return "RESIDUE:out-param-scalar"
     if "Datum" in ret or any("Datum" in a for a in args):
         return "RESIDUE:datum-internal"
+    return None
+
+
+def _residue_reason(fn, ret, args, facts):
+    """Why this public function carries no per-event streamable operator.
+
+    Returns a reason string, or None when the function IS a candidate and its
+    absence from the generated set is a GAP the generator owes rather than a
+    property of the function.
+
+    A category outside the streamable set is DEFERRED rather than residue: it
+    says no shape reaches this family YET, which a new shape is free to answer,
+    so it is read AFTER the shapes while `structural_residue` is read before.
+    """
+    structural = structural_residue(fn, ret, args, facts)
+    if structural:
+        return structural
+    if facts["category"] not in _STREAMABLE_CATEGORIES:
+        return f"DEFERRED:category-{facts['category']}"
     return None
 
 
@@ -1258,10 +1492,11 @@ def write_ledger(path, catalog, shapes):
     for fn in sorted(facts):
         ret, args = sigs.get(fn, ("", ()))
         bucket = None
-        if not reachable_header(facts[fn]["file"]):
-            # nothing can call it, so no shape may claim it
-            rows.append(f"RESIDUE:internal-header\t{fn}")
-            tally["RESIDUE"] += 1
+        structural = structural_residue(fn, ret, args, facts[fn])
+        if structural:
+            # what the function IS settles it, so no shape may claim it
+            rows.append(f"{structural}\t{fn}")
+            tally[structural.split(":")[0]] += 1
             continue
         for name, cls in shapes:
             try:
@@ -1318,7 +1553,12 @@ def main():
     if a.catalog:
         sigs = catalog_sigs(a.catalog)
         facts = catalog_candidates(a.catalog)
-        gap = {fn for fn, f in facts.items() if reachable_header(f["file"])}
+        # The SAME structural gate the ledger applies, so what the ledger calls
+        # GENERATED and what the descriptor carries are one set: a gate on only
+        # one of the two makes the ledger a claim about code the emitter does
+        # not write, or writes for a function the ledger calls residue.
+        gap = {fn for fn, f in facts.items()
+               if not structural_residue(fn, *sigs.get(fn, ("", ())), f)}
     else:
         sigs = parse_sigs(a.sigs)
         gap = {ln.strip() for ln in open(a.gap) if ln.strip()}

@@ -1737,11 +1737,15 @@ def input_spec(op):
         # stripping and the NULL check are the stbox builder's, parameterized by
         # type and parser -- reusing it keeps the two from drifting apart.
         base = GENERIC_INPUTS["stbox_text"]
+        # `interval_in` takes a typmod after the string; the descriptor carries
+        # whatever the catalog says follows, so the call is written from the
+        # parser's own signature rather than from stbox_in's arity.
+        call = f'{spec["parser"]}({{var}}S.c_str(){spec.get("parser_aux", "")})'
         return dict(
             spec,
             header="meos.h",
             build=(base["build"].replace("STBox", spec["cpp_type"])
-                                .replace("stbox_in", spec["parser"])))
+                                .replace("stbox_in({var}S.c_str())", call)))
     # Build the instant through the constructor rather than by spelling a WKT
     # literal. The timestamp goes through the same epoch helper the text form
     # uses, so the two agree on the stream's epoch convention by construction.
@@ -4128,7 +4132,7 @@ def assemble_generic_physical(op):
                 f'                std::string arg{i}S(arg{i}Ptr, arg{i}Size);\n'
                 f'                while (!arg{i}S.empty() && (arg{i}S.front()==\'\\\'\' || arg{i}S.front()==\'"\')) arg{i}S.erase(arg{i}S.begin());\n'
                 f'                while (!arg{i}S.empty() && (arg{i}S.back()==\'\\\'\' || arg{i}S.back()==\'"\')) arg{i}S.pop_back();\n'
-                f'                {ex["box_type"]}* arg{i}B = {ex["parser"]}(arg{i}S.c_str());\n'
+                f'                {ex["box_type"]}* arg{i}B = {ex["parser"]}(arg{i}S.c_str(){ex.get("parser_aux", "")});\n'
                 f'                if (!arg{i}B) {{ free(temp); return {zero}; }}\n')
             call_terms.append(f"arg{i}B")
             box_frees.append(f"free(arg{i}B);")
@@ -4144,6 +4148,20 @@ def assemble_generic_physical(op):
                 f'                if (!arg{i}T) {{ free(temp); return {zero}; }}\n')
             call_terms.append(f"arg{i}T")
             box_frees.append(f"free(arg{i}T);")
+        elif ex["kind"] == "wkb_value":
+            # A static MEOS value -- a span, a set, a spanset, a box -- carried
+            # as a VARSIZED hex-WKB field and read back with the type-generic
+            # decoder the catalog names for it. The text form of a span states
+            # no variety, so hex-WKB is the only encoding that round-trips one;
+            # this is the same exchange form a temporal operand already uses.
+            fields.append((f"arg{i}", "VariableSizedData"))
+            headers.add(ex.get("header", "meos.h"))
+            parse_lines.append(
+                f'                std::string arg{i}Hex(arg{i}Ptr, arg{i}Size);\n'
+                f'                {ex["value_type"]}* arg{i}V = {ex["parser"]}(arg{i}Hex.c_str());\n'
+                f'                if (!arg{i}V) {{ free(temp); return {zero}; }}\n')
+            call_terms.append(f"arg{i}V")
+            box_frees.append(f"free(arg{i}V);")
 
     # Build the parameterValues casts, lambda params, and invoke args from fields.
     casts, lparams, invoke = [], [], []
@@ -4164,20 +4182,37 @@ def assemble_generic_physical(op):
     inc = "\n".join(f"#include <{h}>" for h in
                     ["meos.h"] + sorted(h for h in headers if h != "meos.h"))
 
-    # A literal-first op (e.g. above_stbox_tspatial(box, temp),
-    # acontains_geo_tgeo(geom, temp)) calls with the STATIC operand -- box, span
-    # or geometry -- before the temporal; the default order is temporal-first.
-    if op.get("literal_first") and len(call_terms) == 2:
-        call_terms = [call_terms[1], call_terms[0]]
+    # The built operand goes back into the call where its own argument sits.
+    # `primary_index` says where that is; a literal-first op (e.g.
+    # above_stbox_tspatial(box, temp), acontains_geo_tgeo(geom, temp)) states the
+    # same thing the older way, that the STATIC operand -- box, span or geometry
+    # -- is called before the temporal. Reading the index rather than swapping a
+    # pair is what lets an operand sit in the middle of a longer argument list.
+    primary = op.get("primary_index")
+    if primary is None:
+        primary = 1 if (op.get("literal_first") and len(extras) == 1) else 0
+    call_terms = call_terms[1:]
+    call_terms.insert(primary, "temp")
     callargs = ", ".join(call_terms)
     bf = "".join(f"                {x}\n" for x in box_frees)
     if wkb:
-        call_marshal = (f"                Temporal* res = {op['meos_call']}({callargs});\n"
+        # What the result IS, and which encoder hands it on, are the result
+        # type's own facts and the descriptor carries both: a span comes back
+        # through span_as_hexwkb exactly as a temporal comes back through
+        # temporal_as_hexwkb, so the exchange form is one form for every type.
+        res_type = op.get("result_type", "Temporal")
+        res_ser = op.get("result_serializer", "temporal_as_hexwkb")
+        res_args = op.get("result_serializer_args", ", 0, &hexSize")
+        # `pcpoint_as_hexwkb` takes the value alone, so the length local it
+        # would fill is declared only where the encoder asks for one.
+        size_decl = ("                size_t hexSize = 0;\n"
+                     if "&hexSize" in res_args else "")
+        call_marshal = (f"                {res_type}* res = {op['meos_call']}({callargs});\n"
                         f"                free(temp);\n"
                         f"{bf}"
                         f"                if (!res) return {zero};\n"
-                        f"                size_t hexSize = 0;\n"
-                        f"                char* hexOut = temporal_as_hexwkb(res, 0, &hexSize);\n"
+                        f"{size_decl}"
+                        f"                char* hexOut = {res_ser}(res{res_args});\n"
                         f"                free(res);\n"
                         f"                return hexOut;")
     elif extract_fn is None:

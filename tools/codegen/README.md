@@ -92,6 +92,53 @@ selects the corresponding physical C++ template in `codegen_nebula.py`.
 | `build_tnumber_point_with_scalar` | value, ts, scalar | `int fn(Temporal*, double\|int)` |
 | `build_generic` | arbitrary typed fields | any MEOS scalar, via GENERIC_RETURNS map |
 
+## Value marshalling (the `value_marshalled` catch-all)
+
+The shapes above each name one arity and one operand vocabulary, so a function
+differing from a covered one only in the type of its second argument falls out
+of the surface. `value_marshalled` sits LAST in `SHAPES` and asks the catalog
+the same question of every argument and of the result: can a stream field carry
+a value of this type, and can the answer be handed back. It emits when all of
+them say yes, so every named shape keeps its own naming and ordering and this
+answers only what none of them claimed.
+
+One argument travels one of four ways, in this order of preference:
+
+| Argument type | Field | Read back with |
+|---|---|---|
+| `double` / `int` / `bool` / `int64_t` / `uint64_t` | its own width | — |
+| `GSERIALIZED *` | VARSIZED WKT | `StaticGeometry` |
+| a type whose `typeEncodings[T].in` is `<t>_in` | VARSIZED text | `<t>_in`, plus the arguments `in_aux` names |
+| a type whose `typeEncodings[T].decoders.wkb` is `<t>_from_hexwkb` | VARSIZED hex-WKB | `<t>_from_hexwkb` |
+
+Text before hex-WKB is what keeps the operators already emitted byte-identical:
+a Cbuffer and an STBox carry both encodings and their existing operators read
+the text one. The hex-WKB row is what admits a span, a set and a spanset at all
+— the text form of a `Span *` states no variety, and the catalog's own `in` for
+it is `bigintspan_in`, so text cannot round-trip one, while hex-WKB carries the
+variety inside the value and one decoder answers every variety.
+
+A result comes back as the number it is, or in the same hex-WKB exchange form,
+so the output of one operator is the input of the next for a span and a set
+exactly as it already is for a temporal. Every codec is called from its OWN
+catalogued signature: `interval_in` takes a typmod after the string,
+`raster_as_hexwkb` takes only a length, `pcpoint_as_hexwkb` neither.
+
+The operand that gets BUILT is the first argument that needs building;
+`primary_index` records where it goes back in the call, which is what lets an
+operand sit in the middle of a longer argument list.
+
+## Ledger bucket order
+
+`structural_residue()` is asked BEFORE the shapes and `_residue_reason()` after.
+What a function IS — unreachable through an umbrella header, an aggregate
+transition, a value's own text form, an answer returned through its argument
+list — decides that no per-event operator exists for it whatever a shape makes
+of its signature. A category merely outside the streamable set is DEFERRED
+instead, which says no shape reaches that family YET, so a new shape is free to
+answer it. The `--out` descriptor path applies the same structural gate, so what
+the ledger calls GENERATED and what the descriptor carries are one set.
+
 ## C-to-NES type map (GENERIC_RETURNS)
 
 | MEOS C return | nautilus_return | C++ return | zero literal |

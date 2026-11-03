@@ -25,7 +25,6 @@ And idempotently injects into 5 in-tree shared files:
         - functionName: alternation list
   * nes-sql-parser/src/AntlrSQLQueryPlanCreator.cpp
         - case AntlrSQLLexer::TOKEN: dispatch in the dedicated-token switch
-        - else if (funcName == "TOKEN") dispatch in the IDENTIFIER fallback chain
   * nes-query-optimizer/src/RewriteRules/LowerToPhysical/
         LowerToPhysicalWindowedAggregation.cpp
         - if (name == "Xxx") { ... } block lowering logical → physical
@@ -1862,10 +1861,11 @@ PHYSICAL_CPP_SETFOLD = _swap_once(
     "scalarfold serialize -> setfold (finalfn)")
 
 # ===========================================================================
-# Parser-glue templates: TWO dispatch sites in AntlrSQLQueryPlanCreator.cpp.
-# Site 1 is the dedicated-token case-switch (~line 965 in mariana's tree).
-# Site 2 is the IDENTIFIER fallback `else if (funcName == "TOKEN")` chain
-# (~line 2062 in mariana's tree).
+# Parser-glue template: the dedicated-token case-switch of exitFunctionCall in
+# AntlrSQLQueryPlanCreator.cpp. Every generated token has its own lexer entry,
+# so its case is the dispatch that runs; the `else if (funcName == "TOKEN")`
+# chain under `default:` is reached only by a token with no case, never by a
+# generated one, so no glue goes there.
 # ===========================================================================
 
 # Site 1 — case-switch dispatch. Two shapes (tgeo 3-arg, tnumber 2-arg).
@@ -1927,44 +1927,7 @@ CASE_SWITCH_TNUMBER = """\
         /* END CODEGEN AGGREGATION GLUE: {sql_token} (case-switch) */
 """
 
-# Site 2 — funcName == "TOKEN" string chain.
-FUNCNAME_CHAIN_TGEO = """\
-            /* BEGIN CODEGEN AGGREGATION GLUE: {sql_token} (funcName chain) */
-            else if (funcName == "{sql_token}")
-            {{
-                if (helpers.top().functionBuilder.size() < 3)
-                {{
-                    throw InvalidQuerySyntax("{sql_token} requires three arguments at {{}}", context->getText());
-                }}
-                const auto ts = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto lat = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                helpers.top().windowAggs.push_back({nebula_name}AggregationLogicalFunction::create(lon, lat, ts));
-            }}
-            /* END CODEGEN AGGREGATION GLUE: {sql_token} (funcName chain) */
-"""
-
-FUNCNAME_CHAIN_TNUMBER = """\
-            /* BEGIN CODEGEN AGGREGATION GLUE: {sql_token} (funcName chain) */
-            else if (funcName == "{sql_token}")
-            {{
-                if (helpers.top().functionBuilder.size() < 2)
-                {{
-                    throw InvalidQuerySyntax("{sql_token} requires two arguments at {{}}", context->getText());
-                }}
-                const auto ts = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto value = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                helpers.top().windowAggs.push_back({nebula_name}AggregationLogicalFunction::create(value, ts));
-            }}
-            /* END CODEGEN AGGREGATION GLUE: {sql_token} (funcName chain) */
-"""
-
-# Site 3 — optimizer logical→physical lowering rule.
+# Site 2 — optimizer logical→physical lowering rule.
 OPTIMIZER_LOWERING_TGEO = """\
         /* BEGIN CODEGEN AGGREGATION GLUE: {class_name_token} (optimizer lowering) */
         if (name == std::string_view("{class_name_token}"))
@@ -2324,10 +2287,6 @@ def case_switch_template_for(op):
     return CASE_SWITCH_TGEO if op["input_shape"] == "tgeo" else CASE_SWITCH_TNUMBER
 
 
-def funcname_chain_template_for(op):
-    return FUNCNAME_CHAIN_TGEO if op["input_shape"] == "tgeo" else FUNCNAME_CHAIN_TNUMBER
-
-
 def optimizer_lowering_template_for(op):
     return OPTIMIZER_LOWERING_TGEO if op["input_shape"] == "tgeo" else OPTIMIZER_LOWERING_TNUMBER
 
@@ -2366,10 +2325,12 @@ def emit_operator(op, output_root: Path):
     # value_compute (point/tgeo finalize): either fold the windowed sequence
     # directly with meos_scalar_fn, or — for the EXTENT shape — first reduce the
     # sequence to its bounding box (tspatial_to_stbox / ...) and apply a box
-    # accessor/predicate to that windowed extent. In box-output mode the
-    # finalize is the serialized extent box itself (no value_compute).
+    # accessor/predicate to that windowed extent. An operator with no scalar
+    # return (box, hex-WKB and expandable-Temporal* outputs alike) carries no
+    # return_cpp_type, and its finalize is the serialized value itself (no
+    # value_compute).
     box_build = op.get("extent_box_build_fn")
-    if op.get("return_mode") in ("box", "wkb"):
+    if not op.get("return_cpp_type"):
         fmt["value_compute"] = ""
     elif box_build:
         box_t = op.get("extent_box_type", "STBox")
@@ -2438,9 +2399,21 @@ def inject_cmake_entries(operators, output_root: Path) -> int:
                 continue
             new_lines.append(entry)
         if new_lines:
-            with cml.open("a") as f:
-                f.write("\n".join(new_lines) + "\n")
-            sys.stderr.write(f"  ✓ cmake-entries ({label}): appended {len(new_lines)} entry(ies)\n")
+            block = "\n".join(new_lines) + "\n"
+            # The physical Meos CMakeLists wraps its add_plugin calls in
+            # `if(NES_ENABLE_MEOS) ... endif()`; new entries land inside the
+            # guard (before the final endif), exactly as
+            # codegen_nebula.py#inject_cmake_entries places them, so a build
+            # with NES_ENABLE_MEOS=OFF never compiles a MEOS aggregation. The
+            # logical layer has no guard, so it appends at EOF.
+            idx = body.rfind("\nendif()")
+            if idx != -1:
+                insert_at = idx + 1  # just before the final `endif()` line
+                cml.write_text(body[:insert_at] + block + body[insert_at:])
+            else:
+                with cml.open("a") as f:
+                    f.write(block)
+            sys.stderr.write(f"  ✓ cmake-entries ({label}): added {len(new_lines)} entry(ies)\n")
             n_added += len(new_lines)
     return n_added
 
@@ -2504,7 +2477,7 @@ def inject_g4(operators, g4_path: Path) -> int:
 
 
 def inject_parser_cpp(operators, cpp_path: Path) -> int:
-    """Inject TWO dispatch sites + per-op #include."""
+    """Inject the case-switch dispatch site + per-op #include."""
     if not cpp_path.exists():
         sys.stderr.write(f"  ! parser-cpp: {cpp_path} not found, skipping\n")
         return 0
@@ -2579,40 +2552,6 @@ def inject_parser_cpp(operators, cpp_path: Path) -> int:
                 sys.stderr.write(f"  ✓ parser-cpp case-switch: added {len(new_case_blocks)} (before default:)\n")
         n_added += len(new_case_blocks)
 
-    # 3) funcName-chain dispatch — insert after the last `END CODEGEN AGGREGATION GLUE: ... (funcName chain)`,
-    #    else after mariana's CrossDistance else-if block.
-    new_chain_blocks = []
-    for op in operators:
-        tmpl = funcname_chain_template_for(op)
-        marker = f"/* BEGIN CODEGEN AGGREGATION GLUE: {op['sql_token']} (funcName chain) */"
-        if marker in body:
-            continue
-        if re.search(rf'funcName == "{re.escape(op["sql_token"])}"', body):
-            sys.stderr.write(
-                f"  ! parser-cpp: pre-existing funcName chain for {op['sql_token']}; skipping\n"
-            )
-            continue
-        new_chain_blocks.append(tmpl.format(sql_token=op["sql_token"], nebula_name=op["nebula_name"]))
-    if new_chain_blocks:
-        last_end_re = re.compile(r"/\* END CODEGEN AGGREGATION GLUE: [^*]+\(funcName chain\)\s*\*/")
-        ends = list(last_end_re.finditer(body))
-        if ends:
-            insert_at = ends[-1].end()
-            body = body[:insert_at] + "\n" + "\n".join(new_chain_blocks) + body[insert_at:]
-            sys.stderr.write(f"  ✓ parser-cpp funcName chain: added {len(new_chain_blocks)} (after marker)\n")
-        else:
-            anchor_re = re.compile(
-                r'(else if \(funcName == "CROSS_DISTANCE"\)[\s\S]+?\n\s*\}\n)',
-            )
-            m = anchor_re.search(body)
-            if m is None:
-                sys.stderr.write(f"  ! parser-cpp: no funcName chain anchor (after CROSS_DISTANCE) found\n")
-            else:
-                insertion = m.group(1) + "\n".join(new_chain_blocks)
-                body = body[: m.end()] + "\n".join(new_chain_blocks) + body[m.end():]
-                sys.stderr.write(f"  ✓ parser-cpp funcName chain: added {len(new_chain_blocks)} (after CROSS_DISTANCE)\n")
-        n_added += len(new_chain_blocks)
-
     cpp_path.write_text(body)
     return n_added
 
@@ -2654,7 +2593,8 @@ def inject_optimizer(operators, opt_path: Path) -> int:
         else:
             sys.stderr.write(f"  ! optimizer: no Aggregation/Function/Meos include anchor found\n")
 
-    # 2) The if-name-match block. Insert after last codegen END marker, else after mariana's CrossDistance block.
+    # 2) The if-name-match block. Insert after the last codegen END marker, else before the
+    #    `// Default path: use registry` comment.
     new_blocks = []
     for op in operators:
         tmpl = optimizer_lowering_template_for(op)
@@ -2676,15 +2616,20 @@ def inject_optimizer(operators, opt_path: Path) -> int:
             body = body[:insert_at] + "\n" + "\n".join(new_blocks) + body[insert_at:]
             sys.stderr.write(f"  ✓ optimizer lowering: added {len(new_blocks)} (after marker)\n")
         else:
-            # Anchor: insert just before the "Default path: use registry" comment.
-            anchor_re = re.compile(r"(\n\s*// Default path: use registry)")
+            # Anchor: inside the MEOS-only region that holds the hand-written TemporalSequence
+            # lowering, just before the line closing it, the way the includes above land inside
+            # the region holding the Meos includes: every emitted lowering names a MEOS physical
+            # class, which the build compiles only with NES_ENABLE_MEOS.
+            anchor_re = re.compile(
+                r'name == std::string_view\("TemporalSequence"\)[\s\S]*?(\n#endif)')
             m = anchor_re.search(body)
             if m is None:
-                sys.stderr.write(f"  ! optimizer: 'Default path' anchor not found\n")
+                sys.stderr.write(f"  ! optimizer: MEOS-only lowering region not found\n")
             else:
-                insertion = "\n" + "\n".join(new_blocks) + m.group(1)
-                body = body[: m.start()] + insertion + body[m.end():]
-                sys.stderr.write(f"  ✓ optimizer lowering: added {len(new_blocks)} (before Default path)\n")
+                insert_at = m.start(1)
+                body = body[:insert_at] + "\n" + "\n".join(new_blocks) + body[insert_at:]
+                sys.stderr.write(
+                    f"  ✓ optimizer lowering: added {len(new_blocks)} (inside the MEOS-only region)\n")
         n_added += len(new_blocks)
 
     opt_path.write_text(body)

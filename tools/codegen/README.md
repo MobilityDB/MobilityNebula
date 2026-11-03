@@ -15,8 +15,8 @@ MEOS headers (pinned)
   MEOS-API run.py          # libclang-based extractor (lives in MEOS-API repo)
         │  produces meos-idl.json (name + signature authority; NOT committed here)
         ▼
-  build_descriptor.py      # classifies gap functions into known operator SHAPEs
-        │  --sigs <header-dump> --gap <gap-list> --shapes <shape,...> --out <descriptor.json>
+  build_descriptor.py      # classifies catalog functions into known operator SHAPEs
+        │  --catalog <meos-idl.json> --shapes <shape,...> --out <descriptor.json>
         │  produces e.g. trgeo-descriptor.json
         ▼
   codegen_nebula.py        # emits C++ + patches build/grammar/QPC
@@ -48,10 +48,9 @@ python3 run.py /usr/local/include/meos.h /usr/local/include/meos_geo.h \
 ## Running the generator
 
 ```bash
-# 1. Build a descriptor from the IDL gap (example: trgeometry family)
+# 1. Build a descriptor from the IDL (example: trgeometry family)
 python3 tools/codegen/build_descriptor.py \
-    --sigs /tmp/cmp_sigs.txt \
-    --gap  /tmp/nebula_gap.txt \
+    --catalog /tmp/meos-idl.json \
     --shapes trgeometry_geo_predicate,geo_trgeometry_predicate,trgeometry_geo_dwithin,\
 trgeometry_trgeometry_predicate,trgeometry_trgeometry_dwithin,trgeometry_nad \
     --out tools/codegen/trgeo-descriptor.json

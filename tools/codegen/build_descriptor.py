@@ -1,34 +1,30 @@
 #!/usr/bin/env python3
-"""Build a codegen_nebula.py descriptor from classified MEOS gap functions.
+"""Build a codegen_nebula.py descriptor from the MEOS catalog.
 
-Reads a header-signature dump (one `extern <ret> <name>(<args>);` per line, as
-produced from the in-container /usr/local/include/meos*.h) plus a gap list
-(streamable functions not yet wired by a Nebula operator), classifies each
-function into a known operator SHAPE, and emits the JSON descriptor that
-codegen_nebula.py consumes.
+Reads the composed meos-idl.json, classifies each public function into a known
+operator SHAPE, and emits the JSON descriptor that codegen_nebula.py consumes.
 
 A SHAPE knows: the per-event SQL arg list, the `build_*` flag selecting the
 physical-cpp template, the MEOS return marshaling, and the per-base-type input
 ctor (tfloat_in / tint_in / ...). Adding a family = adding a classifier here;
 the C++ templates live in codegen_nebula.py.
 
-This keeps the bulk-emission measured-not-guessed: only functions whose exact
-in-header signature matches a SHAPE are emitted, and only if they are in the
-gap. Functions that don't match any SHAPE are reported, never silently dropped.
+A slot's C type is read from the catalog's `canonical` spelling, a slot naming
+a type of its own through `typedef` is classified by that name, and only a
+signature whose types match a SHAPE is emitted. Functions that don't match any
+SHAPE are reported, never silently dropped.
 
 The comparison classifiers (cmp_scalar_tempfirst, cmp_scalar_scalarfirst,
 cmp_two_temporal) derive the primary Nebula name and SQL token from the
-catalog's sqlfn field when --catalog is supplied.  For ever_eq_tfloat_float
-with sqlfn="eEq" this produces nebula_name="EEqTfloatFloat" and
-sql_token="E_EQ_TFLOAT_FLOAT" as the canonical primary, with
-alias_sql_token="EVER_EQ_TFLOAT_FLOAT" preserved as the keep-both backward-
-compat alias.  Without --catalog the classifiers fall back to the existing
-pascal(fn) / fn.upper() naming with no alias emitted.
+catalog's sqlfn field.  For ever_eq_tfloat_float with sqlfn="eEq" this produces
+nebula_name="EEqTfloatFloat" and sql_token="E_EQ_TFLOAT_FLOAT" as the canonical
+primary, with alias_sql_token="EVER_EQ_TFLOAT_FLOAT" preserved as the keep-both
+backward-compat alias.  A function with no sqlfn keeps the pascal(fn) /
+fn.upper() naming with no alias emitted.
 
 Usage:
-  build_descriptor.py --sigs /tmp/cmp_sigs.txt --gap /tmp/nebula_gap.txt \\
-                      --shapes cmp_scalar_tempfirst --out wave22.json \\
-                      [--catalog /path/to/meos-idl.json]
+  build_descriptor.py --catalog /path/to/meos-idl.json \\
+                      --shapes cmp_scalar_tempfirst --out wave22.json
 """
 import argparse
 import collections
@@ -48,14 +44,62 @@ import sys
 # The instant's text form `value@timestamp` is one grammar shared by every
 # temporal type, so it is a constant rather than a per-type entry.
 INSTANT_WKT = "{}@{}"
-# C type of a by-value operand -> the C++ spelling a stream field carries. This
-# is the binding's marshalling and not a MEOS fact, and it is ONE mapping: two
-# copies of it disagreed on which widths exist, so a shape reading one admitted
-# an operand the other declined. The two 64-bit widths are already what this
-# emitter writes for a timestamp and for a network-point route id, so they name
-# no new convention.
-SCALAR_CPP = {"double": "double", "int": "int32_t", "bool": "bool",
+# C width of a by-value operand -> the C++ spelling a stream field carries. This
+# is the binding's marshalling and not a MEOS fact, and it is ONE mapping: every
+# shape reads it through scalar_cpp(), so no two shapes disagree on which widths
+# exist. Its keys are C widths as the catalog's `canonical` states them, so a
+# MEOS `int32` slot (canonical `int32_t`) and an `int` slot reach the same
+# spelling. A width absent here, such as `int16_t` or `float`, has no stream
+# spelling in this binding and the shape declines it.
+SCALAR_CPP = {"double": "double", "int": "int32_t", "int32_t": "int32_t", "bool": "bool",
               "int64_t": "int64_t", "uint64_t": "uint64_t"}
+
+# Type of its own -> the C width its slots state (H3Index, Quadbin and S2CellId
+# -> uint64_t), collected from every slot carrying `typedef`, filled by
+# load_catalog().
+_OWN_TYPES: dict = {}
+
+
+def slot_type(slot):
+    """The type a catalog slot (a param or a returnType) is classified by.
+
+    It is the one reading of a slot that #load_catalog and #catalog_sigs share.
+    The catalog's `canonical` spelling states the width as MEOS declares it, and
+    `typedef` names a type of its own over that width, which replaces the bare
+    width so a shape can tell an `H3Index` from any other `uint64_t`. Qualifiers
+    are dropped, the `struct` tag of a structure is dropped so the structure is
+    named, and the pointer depth is kept: `const struct Cbuffer *` -> `Cbuffer*`.
+
+    A slot without `canonical` cannot be typed from the catalog, so the
+    generator stops rather than guess its width from a header spelling.
+    """
+    if not slot:
+        return ""
+    if "canonical" not in slot:
+        raise SystemExit(f"catalog slot {slot!r} carries no `canonical` type; "
+                         "the generator needs a catalog that states every slot's C type")
+    c = slot["canonical"].strip()
+    stars = c.count("*")
+    words = [w for w in c.replace("*", " ").split() if w not in ("const", "struct", "volatile")]
+    if not words:
+        return ""
+    base = slot.get("typedef") or " ".join(words)
+    return base + "*" * stars
+
+
+def scalar_cpp(ctype):
+    """The C++ spelling a stream field carries for the by-value type `ctype`.
+
+    It is the lookup #scalar_base_input and every scalar shape share. A type of
+    its own resolves through the width its slots state, so an `H3Index` operand
+    is carried as the `uint64_t` it is. A name the catalog keeps, such as
+    `TimestampTz` (its `typedefs` entry is int64_t), answers None: the stream
+    carries an event time in its own epoch and unit, so an operand taken from a
+    raw integer field would be a wrong instant, and every builder reaches a
+    TimestampTz through `timestamptz_in` or an explicit `(TimestampTz)` cast.
+    A width SCALAR_CPP does not hold also answers None, and the shape declines.
+    """
+    return SCALAR_CPP.get(ctype) or SCALAR_CPP.get(_OWN_TYPES.get(ctype, ""))
 
 # temporal type -> its catalog facts (base, bbox, number/spatial/linear flags),
 # populated by load_catalog().
@@ -103,11 +147,18 @@ def load_catalog(path: str) -> None:
             "file": entry.get("file") or "",
             # the C parameter types, so a caller can read a constructor's own
             # signature instead of restating what it takes
-            "params": [_norm_ctype(p.get("cType")) for p in (entry.get("params") or [])],
+            "params": [slot_type(p) for p in (entry.get("params") or [])],
             # what the function ANSWERS, so a caller needing a different pointer
             # type reads the conversion off the catalog instead of assuming one
-            "returns": _norm_ctype((entry.get("returnType") or {}).get("c")),
+            "returns": slot_type(entry.get("returnType")),
         }
+        for slot in (entry.get("params") or []) + [entry.get("returnType") or {}]:
+            own = slot.get("typedef")
+            if not own:
+                continue
+            width = slot_type({"canonical": slot["canonical"]}).rstrip("*")
+            if _OWN_TYPES.setdefault(own, width) != width:
+                raise SystemExit(f"catalog states {own} as both {_OWN_TYPES[own]} and {width}")
     _TEMPORAL_TYPES.update(data.get("temporalTypes") or {})
     _TYPE_ENCODINGS.update(data.get("typeEncodings") or {})
     _DERIVED_INPUTS.update(derived_inputs())
@@ -157,27 +208,6 @@ def _camel_to_upper_snake(s: str) -> str:
     return re.sub(r"([A-Z])", r"_\1", s).upper()
 
 
-def parse_sigs(path):
-    """name -> (ret, [normalized-arg-type, ...])."""
-    out = {}
-    for ln in open(path):
-        m = re.match(r"extern\s+([\w ]+?)\s*(\*?)\s*(\w+)\(([^)]*)\);", ln.strip())
-        if not m:
-            continue
-        ret = (m.group(1) + m.group(2)).strip()
-        name = m.group(3)
-        args = []
-        for a in m.group(4).split(","):
-            a = a.strip()
-            if not a or a == "void":
-                continue
-            base = re.sub(r"^const\s+", "", a)
-            ty = base.split()[0] + ("*" if "*" in a else "")
-            args.append(ty)
-        out[name] = (ret, tuple(args))
-    return out
-
-
 # --- SHAPE classifiers ------------------------------------------------------
 # Each returns a descriptor dict for `fn` if it matches, else None.
 
@@ -193,14 +223,17 @@ def cmp_scalar_tempfirst(fn, ret, args):
         return None
     if ret != "int" or len(args) != 2 or args[0] != "Temporal*":
         return None
-    if args[1] not in SCALAR_CPP:
+    if not scalar_cpp(args[1]):
         return None
     # as in the scalar-first twin, the NAME states the operand's temporal type
     base = _infer_input(fn)
     resolved = base_input(base) if base else None
     if not resolved:
         return None
-    in_fn, vcpp, wkt = resolved
+    in_fn, base_ctype, wkt = resolved
+    vcpp = scalar_cpp(base_ctype)
+    if not vcpp:
+        return None
     # type suffix = everything after the two-word verb+comparator prefix
     type_suffix = "_".join(parts[2:])
     # a record now exists for every catalogued function, so the guard tests the
@@ -228,7 +261,7 @@ def cmp_scalar_tempfirst(fn, ret, args):
         "nautilus_return": "INT32",
         "build_tnumber_point_with_scalar": True,
         "tnumber_value_cpp_type": vcpp,
-        "scalar_cpp_type": SCALAR_CPP[vcpp],
+        "scalar_cpp_type": vcpp,
         "tnumber_wkt_format": wkt,
         "tnumber_in_fn": in_fn,
         "comment_one_liner": (
@@ -255,7 +288,7 @@ def cmp_scalar_scalarfirst(fn, ret, args):
         return None
     if ret != "int" or len(args) != 2 or args[1] != "Temporal*":
         return None
-    if args[0] not in SCALAR_CPP:
+    if not scalar_cpp(args[0]):
         return None
     # Which temporal type the operand is, is stated by the NAME, not by the
     # scalar's C type: `always_eq_bigint_tbigint` names tbigint, and two
@@ -264,7 +297,10 @@ def cmp_scalar_scalarfirst(fn, ret, args):
     resolved = base_input(base) if base else None
     if not resolved:
         return None
-    in_fn, vcpp, wkt = resolved
+    in_fn, base_ctype, wkt = resolved
+    vcpp = scalar_cpp(base_ctype)
+    if not vcpp:
+        return None
     type_suffix = "_".join(parts[2:])
     # a record now exists for every catalogued function, so the guard tests the
     # sqlfn FIELD; a function with no SQL name keeps the fallback naming
@@ -291,7 +327,7 @@ def cmp_scalar_scalarfirst(fn, ret, args):
         "nautilus_return": "INT32",
         "build_tnumber_scalar_first": True,
         "tnumber_value_cpp_type": vcpp,
-        "scalar_cpp_type": SCALAR_CPP[vcpp],
+        "scalar_cpp_type": vcpp,
         "tnumber_wkt_format": wkt,
         "tnumber_in_fn": in_fn,
         "comment_one_liner": (
@@ -464,21 +500,22 @@ def scalar_base_input(temporal_type):
     table, whose eight hand-written entries were the generator's last statement
     of a fact the catalog already makes.
 
-    Two cases decline rather than guess. A POINTER base -- a Cbuffer, a Pose, an
-    Npoint, a geometry -- needs that value built first, which is a separate
-    question. And a base whose C type this binding has no spelling for is
-    declined because the width is not stated anywhere the generator can read:
-    `S2CellId` accepts a uint64_t at the call site, so a wrong width would
-    narrow in silence rather than fail to compile.
+    A base that is a type of its own -- `H3Index`, `Quadbin`, `S2CellId` -- is
+    carried as the width the catalog states for it. Three cases decline rather
+    than guess. A POINTER base -- a Cbuffer, a Pose, an Npoint, a geometry --
+    needs that value built first, which is a separate question. A base whose
+    width this binding has no stream spelling for has no field to carry it. And
+    a constructor whose second slot is not `TimestampTz` does not take the
+    `TimestampTz` the emitted builder passes it.
     """
     name = f"{temporal_type}inst_make"
     fn = _CATALOG.get(name)
     if not fn:
         return None
     params = fn.get("params") or []
-    if len(params) != 2 or "*" in params[0]:
+    if len(params) != 2 or "*" in params[0] or params[1] != "TimestampTz":
         return None
-    cpp = SCALAR_CPP.get(params[0])
+    cpp = scalar_cpp(params[0])
     if not cpp:
         return None
     spec = {
@@ -611,7 +648,7 @@ def temporal_unary_scalar(fn, ret, args):
 
 def temporal_x_scalar(fn, ret, args):
     """int|double|bool fn(const Temporal*, scalar). Generic shape, one scalar extra."""
-    if len(args) != 2 or args[0] != "Temporal*" or args[1] not in SCALAR_CPP:
+    if len(args) != 2 or args[0] != "Temporal*" or not scalar_cpp(args[1]):
         return None
     rk = {"int": "int", "double": "double", "bool": "bool"}.get(ret)
     inp = _infer_input(fn)
@@ -620,7 +657,7 @@ def temporal_x_scalar(fn, ret, args):
     return {
         "nebula_name": pascal(fn), "sql_token": fn.upper(), "meos_call": fn,
         "build_generic": True, "input_type": inp,
-        "extra_args": [{"kind": "scalar", "cpp": SCALAR_CPP[args[1]]}], "return_kind": rk,
+        "extra_args": [{"kind": "scalar", "cpp": scalar_cpp(args[1])}], "return_kind": rk,
         "comment_one_liner": f"Per-event {fn}: {_operand_phrase(inp)} against a scalar -> {rk}.",
     }
 
@@ -697,7 +734,7 @@ def temporal_geom_transform(fn, ret, args):
 def temporal_scalar_transform(fn, ret, args):
     """Temporal* fn(const Temporal*, scalar) — a transform against a scalar
     literal, the result serialized to hex-WKB."""
-    if len(args) != 2 or args[0] != "Temporal*" or args[1] not in SCALAR_CPP:
+    if len(args) != 2 or args[0] != "Temporal*" or not scalar_cpp(args[1]):
         return None
     if ret != "Temporal*":
         return None
@@ -707,7 +744,7 @@ def temporal_scalar_transform(fn, ret, args):
     d = {
         "nebula_name": pascal(fn), "sql_token": fn.upper(), "meos_call": fn,
         "build_generic": True, "input_type": inp,
-        "extra_args": [{"kind": "scalar", "cpp": SCALAR_CPP[args[1]]}],
+        "extra_args": [{"kind": "scalar", "cpp": scalar_cpp(args[1])}],
         "return_kind": "wkb",
         "comment_one_liner": (
             f"Per-event {fn}: {_operand_phrase(inp)} against a {args[1]} literal "
@@ -937,9 +974,8 @@ def two_temporal_temporal(fn, ret, args):
 
 
 # --- Trgeometry spatial predicate shapes (W148/W149 wave) -------------------
-# The current MEOS-API run.py correctly resolves GSERIALIZED* in the IDL, so
-# parse_sigs normalizes `const GSERIALIZED *` -> "GSERIALIZED*" (strip-const +
-# first-token + "*"). Classifiers use GSERIALIZED* for every geometry argument.
+# slot_type() reads `const GSERIALIZED *` as "GSERIALIZED*" (qualifiers dropped,
+# pointer depth kept). Classifiers use GSERIALIZED* for every geometry argument.
 #
 # Five classifiers, each selecting the correct emit_trgeometry_operator build key:
 #
@@ -1159,8 +1195,7 @@ SHAPES = {
 # anti-pattern the North Star names: a binding is a pure catalog projection,
 # never a hand list. The catalog already carries every signature and every
 # function's api/category/file, so both inputs are derivable and neither has to
-# be curated. `--sigs`/`--gap` stay accepted so an existing invocation keeps
-# working; `--catalog` alone is sufficient and is the canonical form.
+# be curated. `--catalog` is the only input.
 
 # The umbrella headers a consumer may include: meos.h and meos_<family>.h, and
 # never an internal one. A symbol declared only in an internal header cannot be
@@ -1174,22 +1209,12 @@ _UMBRELLA = re.compile(r"meos(_[a-z0-9]+)?\.h$")
 _STREAMABLE_CATEGORIES = {"predicate", "transformation", "accessor", "setop"}
 
 
-def _norm_ctype(c):
-    """Normalize a catalog C type to what parse_sigs produces for a header."""
-    c = re.sub(r"^\s*const\s+", "", (c or "").strip())
-    stars = c.count("*")
-    base = c.replace("*", "").strip().split()
-    if not base:
-        return ""
-    return base[0] + ("*" * stars if stars else "")
-
-
 def catalog_sigs(path):
-    """name -> (ret, (arg-type, ...)), the parse_sigs mapping read from the catalog."""
+    """name -> (ret, (arg-type, ...)), each type as slot_type() reads it."""
     out = {}
     for f in json.load(open(path))["functions"]:
-        ret = _norm_ctype((f.get("returnType") or {}).get("c"))
-        args = tuple(_norm_ctype(p.get("cType")) for p in (f.get("params") or []))
+        ret = slot_type(f.get("returnType"))
+        args = tuple(slot_type(p) for p in (f.get("params") or []))
         out[f["name"]] = (ret, tuple(a for a in args if a and a != "void"))
     return out
 
@@ -1284,26 +1309,21 @@ def write_ledger(path, catalog, shapes):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--sigs", help="header signature dump (legacy; --catalog supersedes it)")
-    ap.add_argument("--gap", help="streamable-not-wired list (legacy; --catalog supersedes it)")
     ap.add_argument("--shapes", required=True,
                     help="comma-separated SHAPE names to apply (order = match priority)")
     ap.add_argument("--out", help="descriptor JSON output path")
-    ap.add_argument("--catalog", default=None,
-                    help="composed meos-idl.json; the canonical single input — signatures "
+    ap.add_argument("--catalog", required=True,
+                    help="composed meos-idl.json; the single input — signatures "
                          "and the candidate surface are both read from it")
     ap.add_argument("--ledger", default=None,
                     help="write the complete public-surface partition to this path")
     a = ap.parse_args()
 
-    if not a.catalog and not (a.sigs and a.gap):
-        ap.error("--catalog is required (or the legacy --sigs with --gap)")
     if not a.out and not a.ledger:
         ap.error("nothing to write: pass --out, --ledger, or both")
 
-    if a.catalog:
-        load_catalog(a.catalog)
-        sys.stderr.write(f"catalog: loaded {len(_CATALOG)} sqlfn entries from {a.catalog}\n")
+    load_catalog(a.catalog)
+    sys.stderr.write(f"catalog: loaded {len(_CATALOG)} sqlfn entries from {a.catalog}\n")
 
     shape_names = a.shapes.split(",")
     if a.ledger:
@@ -1315,13 +1335,9 @@ def main():
         if not a.out:
             return
 
-    if a.catalog:
-        sigs = catalog_sigs(a.catalog)
-        facts = catalog_candidates(a.catalog)
-        gap = {fn for fn, f in facts.items() if reachable_header(f["file"])}
-    else:
-        sigs = parse_sigs(a.sigs)
-        gap = {ln.strip() for ln in open(a.gap) if ln.strip()}
+    sigs = catalog_sigs(a.catalog)
+    facts = catalog_candidates(a.catalog)
+    gap = {fn for fn, f in facts.items() if reachable_header(f["file"])}
     shapes = [SHAPES[s] for s in shape_names]
 
     ops, unmatched = [], []

@@ -389,7 +389,7 @@ namespace MEOS {
     int Meos::safe_edwithin_tgeo_geo(const Temporal* temp, const GSERIALIZED* gs, double dist)
     {
         std::lock_guard<std::mutex> lk(meos_exec_mutex);
-        return edwithin_tgeo_geo(temp, gs, dist);
+        return edwithin_tgeo_geo(temp, gs, dist, true);
     }
 
     int Meos::safe_eintersects_tgeo_geo(const Temporal* temp, const GSERIALIZED* gs)
@@ -442,7 +442,7 @@ namespace MEOS {
                         trim(first); trim(second);
                         auto split3 = [](const std::string& s){
                             std::vector<std::string> out; out.reserve(3);
-                            size_t p=0; size_t c1 = s.find(',');
+                            size_t c1 = s.find(',');
                             if (c1==std::string::npos) return out;
                             size_t c2 = s.find(',', c1+1);
                             if (c2==std::string::npos) return out;

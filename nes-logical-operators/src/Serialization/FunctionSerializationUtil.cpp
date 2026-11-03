@@ -63,14 +63,22 @@ deserializeWindowAggregationFunction(const SerializableAggregationFunction& seri
 {
     const auto& type = serializedFunction.type();
 
-    // Special handling for TemporalSequence: extra fields stored inside on_field.config
-    if (type == std::string("TemporalSequence"))
+    // An aggregation over several fields packs every field after the first inside
+    // on_field.config and serializes its own NAME as the type, so the packed-config
+    // key, not the type, identifies the packed form.
+    if (type == std::string("TemporalSequence")
+        || serializedFunction.on_field().config().contains(
+            std::string(TemporalAggregationSerde::TEMPORAL_SEQUENCE_EXTRA_FIELDS_KEY)))
     {
         AggregationLogicalFunctionRegistryArguments args;
         const auto fields = TemporalAggregationSerde::parseTemporalSequence(serializedFunction);
         for (const auto& f : fields)
         {
             args.fields.push_back(f);
+        }
+        for (const auto& literal : serializedFunction.literals())
+        {
+            args.literals.push_back(literal);
         }
         if (auto function = AggregationLogicalFunctionRegistry::instance().create(type, args))
         {

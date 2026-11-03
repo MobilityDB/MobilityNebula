@@ -52,6 +52,38 @@ SerializableAggregationFunction serializeTemporalSequence(
     return saf;
 }
 
+SerializableAggregationFunction serializePackedAggregation(
+    std::string_view name,
+    const FieldAccessLogicalFunction& first,
+    const std::vector<FieldAccessLogicalFunction>& extraFields,
+    const FieldAccessLogicalFunction& asField,
+    const std::vector<std::string>& literals)
+{
+    SerializableAggregationFunction saf;
+    saf.set_type(std::string(name));
+
+    SerializableFunction firstProto;
+    firstProto.CopyFrom(LogicalFunction(first).serialize());
+    FunctionList extraList;
+    for (const auto& field : extraFields)
+    {
+        *extraList.add_functions() = LogicalFunction(field).serialize();
+    }
+    const auto key = std::string(TEMPORAL_SEQUENCE_EXTRA_FIELDS_KEY);
+    (*firstProto.mutable_config())[key] = descriptorConfigTypeToProto(extraList);
+    saf.mutable_on_field()->CopyFrom(firstProto);
+
+    SerializableFunction asProto;
+    asProto.CopyFrom(LogicalFunction(asField).serialize());
+    saf.mutable_as_field()->CopyFrom(asProto);
+
+    for (const auto& literal : literals)
+    {
+        saf.add_literals(literal);
+    }
+    return saf;
+}
+
 std::vector<FieldAccessLogicalFunction> parseTemporalSequence(const SerializableAggregationFunction& saf)
 {
     std::vector<FieldAccessLogicalFunction> out;

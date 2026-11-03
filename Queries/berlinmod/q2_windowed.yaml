@@ -1,0 +1,43 @@
+# BerlinMOD-Q2 — windowed form
+# "Per 10-second tumbling window, trajectory of vehicle X (= 200)."
+
+query: |
+  SELECT start,
+         end,
+         TEMPORAL_SEQUENCE(gps_lon, gps_lat, time_utc) AS trajectory
+  FROM berlinmod_stream
+  WHERE vehicle_id = UINT64(200)
+  WINDOW TUMBLING(time_utc, SIZE 10 SEC)
+  INTO file_sink;
+
+sinks:
+  - name: FILE_SINK
+    type: File
+    schema:
+      - { name: BERLINMOD_STREAM$START,      type: UINT64 }
+      - { name: BERLINMOD_STREAM$END,        type: UINT64 }
+      - { name: BERLINMOD_STREAM$TRAJECTORY, type: VARSIZED }
+    config:
+      file_path: "/workspace/Output/output_berlinmod_q2_windowed.csv"
+      input_format: CSV
+
+logical:
+  - name: BERLINMOD_STREAM
+    schema:
+      - { name: TIME_UTC,   type: UINT64 }
+      - { name: VEHICLE_ID, type: UINT64 }
+      - { name: GPS_LON,    type: FLOAT64 }
+      - { name: GPS_LAT,    type: FLOAT64 }
+
+physical:
+  - logical: BERLINMOD_STREAM
+    type: TCP
+    parser_config:
+      type: CSV
+      field_delimiter: ","
+      tuple_delimiter: "\n"
+    source_config:
+      socket_host: "host.docker.internal"
+      socket_port: "32325"
+      socket_type: "SOCK_STREAM"
+      socket_domain: "AF_INET"

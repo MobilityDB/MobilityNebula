@@ -1,0 +1,53 @@
+# BerlinMOD-Q7 — snapshot form, POI 1 (4.3517, 50.8503, r=2000.0m)
+# "Per (window or tick), the first event in the window where each vehicle is
+# within the POI's radius — i.e. the per-window first passage through POI 1."
+# One YAML per (POI, form). Consumer reads the 3-POI fan-out to recover the
+# full per-(vehicle, POI) first-passage matrix.
+
+query: |
+  SELECT start,
+         end,
+         vehicle_id,
+         MIN(time_utc) AS first_passage_time
+  FROM berlinmod_stream
+  WHERE edwithin_tgeo_geo(gps_lon,
+                          gps_lat,
+                          time_utc,
+                          'SRID=4326;POINT(4.3517 50.8503)',
+                          FLOAT64(2000.0)) = INT32(1)
+  GROUP BY vehicle_id
+  WINDOW TUMBLING(time_utc, SIZE 5 SEC)
+  INTO file_sink;
+
+sinks:
+  - name: FILE_SINK
+    type: File
+    schema:
+      - { name: BERLINMOD_STREAM$START,              type: UINT64 }
+      - { name: BERLINMOD_STREAM$END,                type: UINT64 }
+      - { name: BERLINMOD_STREAM$VEHICLE_ID,         type: UINT64 }
+      - { name: BERLINMOD_STREAM$FIRST_PASSAGE_TIME, type: UINT64 }
+    config:
+      file_path: "/workspace/Output/output_berlinmod_q7_poi1_snapshot.csv"
+      input_format: CSV
+
+logical:
+  - name: BERLINMOD_STREAM
+    schema:
+      - { name: TIME_UTC,   type: UINT64 }
+      - { name: VEHICLE_ID, type: UINT64 }
+      - { name: GPS_LON,    type: FLOAT64 }
+      - { name: GPS_LAT,    type: FLOAT64 }
+
+physical:
+  - logical: BERLINMOD_STREAM
+    type: TCP
+    parser_config:
+      type: CSV
+      field_delimiter: ","
+      tuple_delimiter: "\n"
+    source_config:
+      socket_host: "host.docker.internal"
+      socket_port: "32325"
+      socket_type: "SOCK_STREAM"
+      socket_domain: "AF_INET"

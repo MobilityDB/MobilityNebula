@@ -64,7 +64,6 @@
 #include <Operators/Windows/Aggregations/SumAggregationLogicalFunction.hpp>
 #include <Operators/Windows/JoinLogicalOperator.hpp>
 #include <Operators/Windows/Aggregations/Meos/VarAggregationLogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/Meos/TemporalSequenceAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/Meos/TemporalLengthAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/Meos/PairMeetingAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/Meos/CrossDistanceAggregationLogicalFunction.hpp>

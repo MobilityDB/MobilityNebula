@@ -18,6 +18,7 @@
 /build-docker*
 /cmake-build*
 CMakeUserPresets.json
+*.o
 debug*
 vcpkg-repository
 

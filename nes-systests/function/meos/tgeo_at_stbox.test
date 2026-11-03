@@ -1,0 +1,13 @@
+# name: MEOS_TGeoAtStbox
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, AtStbox]
+CREATE LOGICAL SOURCE tas(id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR tas TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3000|50.3000|1609459200
+2|4.8000|50.9000|1609459200
+
+CREATE SINK tas_out(tas.id UINT32, inside INT32) TYPE File;
+SELECT id, TGEO_AT_STBOX(lon, lat, timestamp, 'SRID=4326;STBOX XT(((4.0,50.0),(4.6,50.8)),[2021-01-01,2021-01-02])') AS inside FROM tas INTO tas_out;
+----
+1,1
+2,0

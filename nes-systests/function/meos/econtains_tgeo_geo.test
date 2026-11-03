@@ -1,0 +1,14 @@
+# name: MEOS_EContains_TGeo_Geo
+# description: TEMPORAL_ECONTAINS_GEOMETRY (econtains_tgeo_geo): single-instant tgeompoint contains a static geometry constant. A point contains another point iff equal.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, EContains]
+CREATE LOGICAL SOURCE ec1(id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR ec1 TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.3658|50.6456|1609459200
+2|4.4000|50.7000|1609459200
+
+CREATE SINK ec1_out(ec1.id UINT32, contains INT32) TYPE File;
+SELECT id, TEMPORAL_ECONTAINS_GEOMETRY(lon, lat, timestamp, 'SRID=4326;POINT(4.3658 50.6456)') AS contains FROM ec1 INTO ec1_out;
+----
+1,1
+2,0

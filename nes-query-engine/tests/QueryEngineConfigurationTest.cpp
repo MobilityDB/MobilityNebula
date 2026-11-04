@@ -37,7 +37,7 @@ TEST_F(QueryEngineConfigurationTest, testConfigurationsDefault)
 {
     const QueryEngineConfiguration defaultConfig;
     EXPECT_EQ(defaultConfig.admissionQueueSize.getValue(), 1000);
-    EXPECT_EQ(defaultConfig.numberOfWorkerThreads.getValue(), 4);
+    EXPECT_EQ(defaultConfig.numberOfWorkerThreads.getValue(), 2);
 }
 
 TEST_F(QueryEngineConfigurationTest, testConfigurationsValidInput)

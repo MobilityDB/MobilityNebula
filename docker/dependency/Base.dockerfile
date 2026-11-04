@@ -63,13 +63,17 @@ RUN apt update -y && apt install -y \
     postgis \
     libproj-dev \
     libjson-c-dev \
-    libxml2-dev
+    libxml2-dev \
+    zlib1g-dev \
+    libh3-dev \
+    libgdal-dev
 
-# Build MobilityDB with MEOS enabled using GCC
+# Build MobilityDB with MEOS and every family using GCC, as the CI's nix build does: the H3 family
+# reads libh3, the raster family GDAL, and the point-cloud family libxml2 and zlib.
 RUN git clone https://github.com/MobilityDB/MobilityDB.git -b master /usr/local/src/MobilityDB \
     && mkdir -p /usr/local/src/MobilityDB/build \
     && cd /usr/local/src/MobilityDB/build \
-    && cmake -DMEOS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ .. \
+    && cmake -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ .. \
     && make -j$(nproc) \
     && make install \
     && ldconfig

@@ -23,6 +23,9 @@ jobs:
 
   smoke-tests:
     needs: [ get-dev-images ]
+    # The smoke tests and every job after them run in the development image on self-hosted
+    # runners, so they run where NES_SELF_HOSTED_RUNNERS is 'true' (see get_dev_images.yml).
+    if: vars.NES_SELF_HOSTED_RUNNERS == 'true'
     uses: ./.github/workflows/smoke-tests.yml
     with:
       dev_image_tag: ${{ needs.get-dev-images.outputs.image-tag }}

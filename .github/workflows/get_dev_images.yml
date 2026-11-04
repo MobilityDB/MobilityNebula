@@ -73,8 +73,12 @@ jobs:
   # instead, they wait their turn and run sequentially
   lock:
     runs-on: ubuntu-latest
+    # The lock serializes the image builds of one branch, which run only where
+    # NES_SELF_HOSTED_RUNNERS is 'true'. Elsewhere each run takes a group of its own: three runs of
+    # one commit call this workflow, and a concurrency group keeps one waiting request and cancels
+    # the others, which concludes their whole run cancelled.
     concurrency:
-      group: build-dev-image-lock-${{ inputs.branch-name }}
+      group: build-dev-image-lock-${{ vars.NES_SELF_HOSTED_RUNNERS == 'true' && inputs.branch-name || github.run_id }}
       cancel-in-progress: false
     steps:
       - run: echo "Acquired lock for ${{ inputs.branch-name }}"
@@ -153,7 +157,10 @@ jobs:
     # The Development Image contains the dependencies and additional tooling like clang-format.
     name: "Build Dev Images"
     needs: [ detect-dependency-changes ]
-    if: needs.detect-dependency-changes.outputs.build-dependency == 'true'
+    # Every job that needs a self-hosted runner runs only where the repository variable
+    # NES_SELF_HOSTED_RUNNERS is 'true': with no runner registered, such a job queues until it
+    # expires and holds the whole run unconcluded.
+    if: needs.detect-dependency-changes.outputs.build-dependency == 'true' && vars.NES_SELF_HOSTED_RUNNERS == 'true'
     runs-on: [ self-hosted, linux, Build, "${{ matrix.arch }}", dep-builder ]
     strategy:
       fail-fast: false
@@ -238,7 +245,7 @@ jobs:
     # This Job merges platform specific images into a single multi-platform image
     name: "Merge Dev Images"
     needs: [ build-dev-images, detect-dependency-changes ]
-    if: needs.detect-dependency-changes.outputs.build-dependency == 'true'
+    if: needs.detect-dependency-changes.outputs.build-dependency == 'true' && vars.NES_SELF_HOSTED_RUNNERS == 'true'
     runs-on: [ self-hosted, linux, Build, x64 ]
     steps:
       - uses: actions/checkout@v4

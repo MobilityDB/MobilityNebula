@@ -776,6 +776,16 @@ _TRGEO_PHYS_INCLUDES_NO_VS = """\
 #include <string.h>"""
 
 
+def _stream_instant(var):
+    """The C++ expression turning a stream event-time field into a TimestampTz.
+
+    A stream field carries a Unix epoch, which MEOS::Meos::convertEpochToTimestamp
+    renders as a zoned timestamp text and timestamptz_in reads back, so every
+    operator places an instant on the time line the text form uses.
+    """
+    return f"timestamptz_in(MEOS::Meos::convertEpochToTimestamp({var}).c_str(), -1)"
+
+
 def _trgeo_phys_header(nebula_name, includes):
     return (
         _TRGEO_LICENSE + "\n\n"
@@ -1117,7 +1127,7 @@ def _trgeo_phys_cpp_trgeometry_geo(nebula_name, meos_call, ctor_args):
         + "                if (!gref1) return 0.0;\n"
         + "                Pose* pose1 = pose_make_2d(x1, y1, theta1, false, 0);\n"
         + "                if (!pose1) { free(gref1); return 0.0; }\n"
-        + "                TInstant* inst1 = trgeometryinst_make(gref1, pose1, (TimestampTz)ts1);\n"
+        + "                TInstant* inst1 = trgeometryinst_make(gref1, pose1, " + _stream_instant("ts1") + ");\n"
         + "                free(gref1); free(pose1);\n"
         + "                if (!inst1) return 0.0;\n"
         + "                char* tgt_str = (char*)malloc(tgt_wktsz + 1);\n"
@@ -1165,7 +1175,7 @@ def _trgeo_phys_cpp_trgeometry_geo_nad(nebula_name, meos_call, ctor_args):
         + "                if (!gs_ref) return 0.0;\n"
         + "                Pose* pose = pose_make_2d(x, y, theta, false, 0);\n"
         + "                if (!pose) { free(gs_ref); return 0.0; }\n"
-        + "                TInstant* inst = trgeometryinst_make(gs_ref, pose, (TimestampTz)ts);\n"
+        + "                TInstant* inst = trgeometryinst_make(gs_ref, pose, " + _stream_instant("ts") + ");\n"
         + "                free(gs_ref); free(pose);\n"
         + "                if (!inst) return 0.0;\n"
         + "                char* tgt_str = (char*)malloc(tgt_len + 1);\n"
@@ -1211,7 +1221,7 @@ def _trgeo_phys_cpp_geo_trgeometry(nebula_name, meos_call, ctor_args):
         + "                if (!gref1) return 0.0;\n"
         + "                Pose* pose1 = pose_make_2d(x1, y1, theta1, false, 0);\n"
         + "                if (!pose1) { free(gref1); return 0.0; }\n"
-        + "                TInstant* inst1 = trgeometryinst_make(gref1, pose1, (TimestampTz)ts1);\n"
+        + "                TInstant* inst1 = trgeometryinst_make(gref1, pose1, " + _stream_instant("ts1") + ");\n"
         + "                free(gref1); free(pose1);\n"
         + "                if (!inst1) return 0.0;\n"
         + "                char* tgt_str = (char*)malloc(tgt_wktsz + 1);\n"
@@ -1263,7 +1273,7 @@ def _trgeo_phys_cpp_geo_trgeometry_eq(nebula_name, meos_call, ctor_args):
         + "                if (!gs_ref) { free(gs_tgt); return 0.0; }\n"
         + "                Pose* pose = pose_make_2d(x, y, theta, false, 0);\n"
         + "                if (!pose) { free(gs_tgt); free(gs_ref); return 0.0; }\n"
-        + "                TInstant* inst = trgeometryinst_make(gs_ref, pose, (TimestampTz)ts);\n"
+        + "                TInstant* inst = trgeometryinst_make(gs_ref, pose, " + _stream_instant("ts") + ");\n"
         + "                free(gs_ref); free(pose);\n"
         + "                if (!inst) { free(gs_tgt); return 0.0; }\n"
         + f"                int r = {meos_call}(gs_tgt, (Temporal*)inst);\n"
@@ -1306,7 +1316,7 @@ def _trgeo_phys_cpp_trgeometry_geo_with_dist(nebula_name, meos_call, ctor_args):
         + "                if (!gref1) return 0.0;\n"
         + "                Pose* pose1 = pose_make_2d(x1, y1, theta1, false, 0);\n"
         + "                if (!pose1) { free(gref1); return 0.0; }\n"
-        + "                TInstant* inst1 = trgeometryinst_make(gref1, pose1, (TimestampTz)ts1);\n"
+        + "                TInstant* inst1 = trgeometryinst_make(gref1, pose1, " + _stream_instant("ts1") + ");\n"
         + "                free(gref1); free(pose1);\n"
         + "                if (!inst1) return 0.0;\n"
         + "                char* tgt_str = (char*)malloc(tgt_wktsz + 1);\n"
@@ -1356,7 +1366,7 @@ def _trgeo_phys_cpp_trgeometry_trgeometry(nebula_name, meos_call, ctor_args):
         + "                if (!gref1) return 0.0;\n"
         + "                Pose* pose1 = pose_make_2d(x1, y1, theta1, false, 0);\n"
         + "                if (!pose1) { free(gref1); return 0.0; }\n"
-        + "                TInstant* inst1 = trgeometryinst_make(gref1, pose1, (TimestampTz)ts1);\n"
+        + "                TInstant* inst1 = trgeometryinst_make(gref1, pose1, " + _stream_instant("ts1") + ");\n"
         + "                free(gref1); free(pose1);\n"
         + "                if (!inst1) return 0.0;\n"
         + "                char* ref2_str = (char*)malloc(ref2_wktsz + 1);\n"
@@ -1365,7 +1375,7 @@ def _trgeo_phys_cpp_trgeometry_trgeometry(nebula_name, meos_call, ctor_args):
         + "                if (!gref2) return 0.0;\n"
         + "                Pose* pose2 = pose_make_2d(x2, y2, theta2, false, 0);\n"
         + "                if (!pose2) { free(gref2); return 0.0; }\n"
-        + "                TInstant* inst2 = trgeometryinst_make(gref2, pose2, (TimestampTz)ts2);\n"
+        + "                TInstant* inst2 = trgeometryinst_make(gref2, pose2, " + _stream_instant("ts2") + ");\n"
         + "                free(gref2); free(pose2);\n"
         + "                if (!inst2) { free(inst1); return 0.0; }\n"
         + f"                int r = {meos_call}((Temporal*)inst1, (Temporal*)inst2);\n"
@@ -1413,7 +1423,7 @@ def _trgeo_phys_cpp_trgeometry_trgeometry_nad(nebula_name, meos_call, ctor_args)
         + "                if (!gs1) return 0.0;\n"
         + "                Pose* p1 = pose_make_2d(x1, y1, theta1, false, 0);\n"
         + "                if (!p1) { free(gs1); return 0.0; }\n"
-        + "                TInstant* inst1 = trgeometryinst_make(gs1, p1, (TimestampTz)ts1);\n"
+        + "                TInstant* inst1 = trgeometryinst_make(gs1, p1, " + _stream_instant("ts1") + ");\n"
         + "                free(gs1); free(p1);\n"
         + "                if (!inst1) return 0.0;\n"
         + "                char* s2 = (char*)malloc(ref2_len + 1);\n"
@@ -1422,7 +1432,7 @@ def _trgeo_phys_cpp_trgeometry_trgeometry_nad(nebula_name, meos_call, ctor_args)
         + "                if (!gs2) { free(inst1); return 0.0; }\n"
         + "                Pose* p2 = pose_make_2d(x2, y2, theta2, false, 0);\n"
         + "                if (!p2) { free(inst1); free(gs2); return 0.0; }\n"
-        + "                TInstant* inst2 = trgeometryinst_make(gs2, p2, (TimestampTz)ts2);\n"
+        + "                TInstant* inst2 = trgeometryinst_make(gs2, p2, " + _stream_instant("ts2") + ");\n"
         + "                free(gs2); free(p2);\n"
         + "                if (!inst2) { free(inst1); return 0.0; }\n"
         + f"                int r = {meos_call}((Temporal*)inst1, (Temporal*)inst2);\n"
@@ -1469,7 +1479,7 @@ def _trgeo_phys_cpp_trgeometry_trgeometry_with_dist(nebula_name, meos_call, ctor
         + "                if (!gref1) return 0.0;\n"
         + "                Pose* pose1 = pose_make_2d(x1, y1, theta1, false, 0);\n"
         + "                if (!pose1) { free(gref1); return 0.0; }\n"
-        + "                TInstant* inst1 = trgeometryinst_make(gref1, pose1, (TimestampTz)ts1);\n"
+        + "                TInstant* inst1 = trgeometryinst_make(gref1, pose1, " + _stream_instant("ts1") + ");\n"
         + "                free(gref1); free(pose1);\n"
         + "                if (!inst1) return 0.0;\n"
         + "                char* ref2_str = (char*)malloc(ref2_wktsz + 1);\n"
@@ -1478,7 +1488,7 @@ def _trgeo_phys_cpp_trgeometry_trgeometry_with_dist(nebula_name, meos_call, ctor
         + "                if (!gref2) return 0.0;\n"
         + "                Pose* pose2 = pose_make_2d(x2, y2, theta2, false, 0);\n"
         + "                if (!pose2) { free(gref2); return 0.0; }\n"
-        + "                TInstant* inst2 = trgeometryinst_make(gref2, pose2, (TimestampTz)ts2);\n"
+        + "                TInstant* inst2 = trgeometryinst_make(gref2, pose2, " + _stream_instant("ts2") + ");\n"
         + "                free(gref2); free(pose2);\n"
         + "                if (!inst2) { free(inst1); return 0.0; }\n"
         + f"                int r = {meos_call}((Temporal*)inst1, (Temporal*)inst2, dist);\n"
@@ -1522,7 +1532,7 @@ def _trgeo_phys_cpp_nad_trgeometry_geo(nebula_name, meos_call, ctor_args):
         + "                if (!gs_ref) return 0.0;\n"
         + "                Pose* pose = pose_make_2d(x, y, theta, false, 0);\n"
         + "                if (!pose) { free(gs_ref); return 0.0; }\n"
-        + "                TInstant* inst = trgeometryinst_make(gs_ref, pose, (TimestampTz)ts);\n"
+        + "                TInstant* inst = trgeometryinst_make(gs_ref, pose, " + _stream_instant("ts") + ");\n"
         + "                free(gs_ref); free(pose);\n"
         + "                if (!inst) return 0.0;\n"
         + "                char* tgt_str = (char*)malloc(tgt_len + 1);\n"
@@ -1574,7 +1584,7 @@ def _trgeo_phys_cpp_nad_trgeometry_trgeometry(nebula_name, meos_call, ctor_args)
         + "                if (!gs1) return 0.0;\n"
         + "                Pose* p1 = pose_make_2d(x1, y1, theta1, false, 0);\n"
         + "                if (!p1) { free(gs1); return 0.0; }\n"
-        + "                TInstant* inst1 = trgeometryinst_make(gs1, p1, (TimestampTz)ts1);\n"
+        + "                TInstant* inst1 = trgeometryinst_make(gs1, p1, " + _stream_instant("ts1") + ");\n"
         + "                free(gs1); free(p1);\n"
         + "                if (!inst1) return 0.0;\n"
         + "                char* s2 = (char*)malloc(ref2_len + 1);\n"
@@ -1583,7 +1593,7 @@ def _trgeo_phys_cpp_nad_trgeometry_trgeometry(nebula_name, meos_call, ctor_args)
         + "                if (!gs2) { free(inst1); return 0.0; }\n"
         + "                Pose* p2 = pose_make_2d(x2, y2, theta2, false, 0);\n"
         + "                if (!p2) { free(inst1); free(gs2); return 0.0; }\n"
-        + "                TInstant* inst2 = trgeometryinst_make(gs2, p2, (TimestampTz)ts2);\n"
+        + "                TInstant* inst2 = trgeometryinst_make(gs2, p2, " + _stream_instant("ts2") + ");\n"
         + "                free(gs2); free(p2);\n"
         + "                if (!inst2) { free(inst1); return 0.0; }\n"
         + f"                double r = {meos_call}((Temporal*)inst1, (Temporal*)inst2);\n"
@@ -1750,8 +1760,7 @@ def input_spec(op):
         spec,
         header="meos.h",
         build=(
-            '                TimestampTz {var}Ts = timestamptz_in('
-            'MEOS::Meos::convertEpochToTimestamp(ts).c_str(), -1);\n'
+            '                TimestampTz {var}Ts = ' + _stream_instant("ts") + ';\n'
             f'                Temporal* {{var}} = {cast}{spec["ctor"]}(value, {{var}}Ts);\n'
             '                if (!{var}) return {z};\n'))
 

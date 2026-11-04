@@ -13,9 +13,7 @@ RUN apt-get update -y && apt-get install -y \
         python3-venv \
         python3-bs4 \
         openjdk-21-jre-headless \
-        libgeos-dev \
         libproj-dev \
-        libgsl-dev \
         libjson-c-dev \
         autoconf \
         automake \

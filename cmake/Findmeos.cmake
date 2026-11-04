@@ -35,17 +35,15 @@ if(meos_FOUND AND NOT TARGET meos::meos)
     
     # Find MEOS dependencies
     find_package(PkgConfig REQUIRED)
-    pkg_check_modules(GEOS REQUIRED geos)
     pkg_check_modules(PROJ REQUIRED proj)
-    find_library(GSL_LIB gsl)
     find_library(JSON_C_LIB json-c)
-    
+
     set_target_properties(meos::meos PROPERTIES
             IMPORTED_LOCATION "${meos}"
             INTERFACE_INCLUDE_DIRECTORIES "${meos_INCLUDE_DIR}"
-            INTERFACE_LINK_LIBRARIES "${GEOS_LIBRARIES};${PROJ_LIBRARIES};${GSL_LIB};${JSON_C_LIB}"
+            INTERFACE_LINK_LIBRARIES "${PROJ_LIBRARIES};${JSON_C_LIB}"
             )
     message(STATUS "meos include dir: ${meos_INCLUDE_DIR}")
     message(STATUS "meos library found")
-    message(STATUS "MEOS dependencies: GEOS=${GEOS_LIBRARIES}, PROJ=${PROJ_LIBRARIES}, GSL=${GSL_LIB}, JSON-C=${JSON_C_LIB}")
+    message(STATUS "MEOS dependencies: PROJ=${PROJ_LIBRARIES}, JSON-C=${JSON_C_LIB}")
 endif()

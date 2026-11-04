@@ -12,3 +12,6 @@
 
 add_plugin(Var AggregationLogicalFunction nes-logical-operators VarAggregationLogicalFunction.cpp)
 add_plugin(TemporalSequence AggregationLogicalFunction nes-logical-operators TemporalSequenceAggregationLogicalFunctionV2.cpp)
+add_plugin(TemporalLength AggregationLogicalFunction nes-logical-operators TemporalLengthAggregationLogicalFunction.cpp)
+add_plugin(PairMeeting AggregationLogicalFunction nes-logical-operators PairMeetingAggregationLogicalFunction.cpp)
+add_plugin(CrossDistance AggregationLogicalFunction nes-logical-operators CrossDistanceAggregationLogicalFunction.cpp)

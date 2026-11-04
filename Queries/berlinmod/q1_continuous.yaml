@@ -1,0 +1,47 @@
+# BerlinMOD-Q1 — continuous form
+# "Which vehicles have appeared in the stream?"
+# Per 1-second sliding bucket: emit (start, end, vehicle_id, event-count-in-bucket).
+# Reading N rows over consecutive buckets enumerates the distinct-vehicles-seen set.
+
+query: |
+  SELECT start,
+         end,
+         vehicle_id,
+         COUNT(time_utc) AS events
+  FROM berlinmod_stream
+  GROUP BY vehicle_id
+  WINDOW SLIDING(time_utc, SIZE 1 SEC, ADVANCE BY 1 SEC)
+  INTO file_sink;
+
+sinks:
+  - name: FILE_SINK
+    type: File
+    schema:
+      - { name: BERLINMOD_STREAM$START,      type: UINT64 }
+      - { name: BERLINMOD_STREAM$END,        type: UINT64 }
+      - { name: BERLINMOD_STREAM$VEHICLE_ID, type: UINT64 }
+      - { name: BERLINMOD_STREAM$EVENTS,     type: UINT64 }
+    config:
+      file_path: "/workspace/Output/output_berlinmod_q1_continuous.csv"
+      input_format: CSV
+
+logical:
+  - name: BERLINMOD_STREAM
+    schema:
+      - { name: TIME_UTC,   type: UINT64 }
+      - { name: VEHICLE_ID, type: UINT64 }
+      - { name: GPS_LON,    type: FLOAT64 }
+      - { name: GPS_LAT,    type: FLOAT64 }
+
+physical:
+  - logical: BERLINMOD_STREAM
+    type: TCP
+    parser_config:
+      type: CSV
+      field_delimiter: ","
+      tuple_delimiter: "\n"
+    source_config:
+      socket_host: "host.docker.internal"
+      socket_port: "32325"
+      socket_type: "SOCK_STREAM"
+      socket_domain: "AF_INET"

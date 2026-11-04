@@ -63,10 +63,6 @@ RUN apt update -y && apt install -y \
     postgis \
     libproj-dev \
     libjson-c-dev \
-    libgsl-dev \
-    libgeos-dev \
-    libgeos++-dev \
-    libgeos-c1v5 \
     libxml2-dev
 
 # Build MobilityDB with MEOS enabled using GCC

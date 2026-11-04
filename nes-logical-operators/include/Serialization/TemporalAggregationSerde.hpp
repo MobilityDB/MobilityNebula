@@ -14,7 +14,9 @@
 
 #pragma once
 
+#include <string>
 #include <string_view>
+#include <vector>
 
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <SerializableVariantDescriptor.pb.h>
@@ -30,6 +32,16 @@ SerializableAggregationFunction serializeTemporalSequence(
     const FieldAccessLogicalFunction& lat,
     const FieldAccessLogicalFunction& ts,
     const FieldAccessLogicalFunction& asField);
+
+/// Build a SerializableAggregationFunction for an aggregation over `first` and any number of
+/// `extraFields`, packing the extra fields as a FunctionList inside on_field.config and
+/// carrying `literals` as the query-literal constants. The type is the aggregation's own `name`.
+SerializableAggregationFunction serializePackedAggregation(
+    std::string_view name,
+    const FieldAccessLogicalFunction& first,
+    const std::vector<FieldAccessLogicalFunction>& extraFields,
+    const FieldAccessLogicalFunction& asField,
+    const std::vector<std::string>& literals);
 
 /// Parse lon, lat, ts, as FieldAccessLogicalFunctions from a SerializableAggregationFunction created by serializeTemporalSequence().
 /// Returns fields in the order: lon, lat, ts, as.

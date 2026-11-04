@@ -66,6 +66,11 @@ message SerializableAggregationFunction {
     string type = 1;
     SerializableFunction on_field = 2;
     SerializableFunction as_field = 3;
+    // Query-literal constants of a parameterized aggregation (e.g. a meeting
+    // distance or a vehicle pair), in the order the aggregation declares them.
+    // They travel with the plan so the worker rebuilds the aggregation with the
+    // values the query states.
+    repeated string literals = 5;
 }
 
 message AggregationFunctionList {

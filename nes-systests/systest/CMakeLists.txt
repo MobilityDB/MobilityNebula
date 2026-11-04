@@ -106,8 +106,9 @@ endif ()
 
 
 if (NOT CODE_COVERAGE)
-    ## We run all join and aggregation tests with different no. worker threads and different join strategies
-    set(workerThreads 1 2 4 8)
+    ## We run all join and aggregation tests with different no. worker threads and different join strategies.
+    ## The query engine refuses more worker threads than the machine has CPUs, so the list stops at four.
+    set(workerThreads 1 2 4)
     set(joinStrategies NESTED_LOOP_JOIN HASH_JOIN)
     foreach (workerThreads IN LISTS workerThreads)
         foreach (joinStrategy IN LISTS joinStrategies)

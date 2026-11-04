@@ -1,0 +1,51 @@
+name: NES PR Code Pipeline
+
+# The code pipeline of a pull request, called by pr.yml. Both jobs run on GitHub-hosted runners.
+on:
+  workflow_call:
+
+jobs:
+  # Build MobilityNebula with MEOS enabled, the configuration the dependency image ships, and run
+  # the unit tests and the systests.
+  build-and-test:
+    name: "Build and Test (MEOS)"
+    uses: ./.github/workflows/nix-build.yml
+    with:
+      head_sha: ${{ github.event.pull_request.head.sha || github.sha }}
+
+  # Run the operator generators against the MEOS-API catalog of MobilityDB master: a generator that
+  # stops, or that states a MEOS fact the catalog does not, fails the job.
+  generators:
+    name: "Generators"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - id: meos
+        uses: MobilityDB/MEOS-API/.github/actions/provision-meos@master
+        with:
+          mobilitydb-ref: master
+
+      - name: Check the generator tables against the catalog
+        run: python3 tools/codegen/check_no_hand_meos_facts.py "${{ steps.meos.outputs.catalog-path }}"
+
+      - name: Build the operator descriptor and the coverage ledger
+        run: |
+          SHAPES=$(python3 -c "import sys; sys.path.insert(0, 'tools/codegen'); import build_descriptor as b; print(','.join(b.SHAPES))")
+          python3 tools/codegen/build_descriptor.py \
+            --catalog "${{ steps.meos.outputs.catalog-path }}" \
+            --shapes "$SHAPES" \
+            --out "$RUNNER_TEMP/descriptor.json" \
+            --ledger "$RUNNER_TEMP/coverage-ledger.txt"
+
+      - name: Emit the operators
+        run: |
+          ROOT="$RUNNER_TEMP/emit"
+          mkdir -p "$ROOT/nes-logical-operators" "$ROOT/nes-physical-operators"
+          python3 tools/codegen/codegen_nebula.py \
+            --input "$RUNNER_TEMP/descriptor.json" \
+            --output-root "$ROOT" \
+            --no-parser-glue --no-cmake-entries

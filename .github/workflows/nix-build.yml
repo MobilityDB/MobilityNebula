@@ -3,7 +3,11 @@ name: Nix Build
 # Builds MobilityNebula with MEOS enabled inside the flake's devShell and runs its test suite.
 # libmeos is built from MobilityDB master with every family, inside the same devShell, so MEOS and
 # MobilityNebula share one toolchain and one set of libraries.
+# A pull request restores only the caches of its own ref and of main, so every push to main runs the
+# build and saves the compiler and Nix caches that the next pull requests start from.
 on:
+  push:
+    branches: [ main ]
   workflow_call:
     inputs:
       head_sha:
@@ -46,10 +50,31 @@ jobs:
           key: ccache-nix-${{ inputs.head_sha || github.sha }}
           restore-keys: ccache-nix-
 
-      - name: Build libmeos from MobilityDB master via devShell
+      - name: Resolve MobilityDB master
+        id: mobilitydb
         run: |
-          git clone --depth 1 https://github.com/MobilityDB/MobilityDB.git "$RUNNER_TEMP/mobilitydb"
-          git -C "$RUNNER_TEMP/mobilitydb" log -1 --format='MobilityDB master %H'
+          ./.nix/nix-run.sh ccache --zero-stats
+          sha=$(git ls-remote https://github.com/MobilityDB/MobilityDB.git refs/heads/master | cut -f1)
+          echo "MobilityDB master $sha"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      # The installed libmeos is a function of the MobilityDB commit and of the devShell that builds
+      # it, so a run on the same MobilityDB master and the same flake reuses it unbuilt.
+      - name: Restore libmeos
+        id: meos-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/meos
+          key: meos-${{ steps.mobilitydb.outputs.sha }}-${{ hashFiles('flake.nix', 'flake.lock') }}
+
+      - name: Build libmeos from MobilityDB master via devShell
+        if: steps.meos-cache.outputs.cache-hit != 'true'
+        env:
+          MOBILITYDB_SHA: ${{ steps.mobilitydb.outputs.sha }}
+        run: |
+          git init -q "$RUNNER_TEMP/mobilitydb"
+          git -C "$RUNNER_TEMP/mobilitydb" fetch -q --depth 1 https://github.com/MobilityDB/MobilityDB.git "$MOBILITYDB_SHA"
+          git -C "$RUNNER_TEMP/mobilitydb" checkout -q FETCH_HEAD
           ./.nix/nix-run.sh cmake -S "$RUNNER_TEMP/mobilitydb" -B "$RUNNER_TEMP/mobilitydb-build" -G Ninja \
             -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/meos"
           ./.nix/nix-run.sh cmake --build "$RUNNER_TEMP/mobilitydb-build" -j"$(nproc)"
@@ -69,15 +94,23 @@ jobs:
         run: |
           ./.nix/nix-cmake.sh --build cmake-build-nix -j"$(nproc)" -- -k 0
 
+      # The hits and misses of this run's libmeos and MobilityNebula builds, and the cache's size
+      # against its limit.
+      - name: Report the compiler cache
+        if: ${{ !cancelled() }}
+        run: ./.nix/nix-run.sh ccache --show-stats --verbose
+
       - name: Run the tests via devShell
         run: |
           source .github/.env/test-none.env
-          ./.nix/nix-run.sh ctest --test-dir cmake-build-nix --no-tests=error -j"$(nproc)" --output-on-failure --timeout 1200 ${ADDITIONAL_CTEST_ARGS}
+          read -ra extra_ctest_args <<< "${ADDITIONAL_CTEST_ARGS}"
+          ./.nix/nix-run.sh ctest --test-dir cmake-build-nix --no-tests=error -j"$(nproc)" --output-on-failure --timeout 1200 "${extra_ctest_args[@]}"
 
-      # Saved whatever the build's outcome: a failing build is the one a developer reruns, and an
-      # implicit post-job save would skip it.
+      # Saved after a passing or a failing build, since a failing build is the one a developer reruns
+      # and an implicit post-job save would skip it. A cancelled run holds a partial cache, and a
+      # pull request restores its own newest cache before main's, so a cancelled run saves none.
       - name: Save the compiler cache
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/cache/save@v4
         with:
           path: .ccache

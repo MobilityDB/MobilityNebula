@@ -115,7 +115,27 @@
           '';
         };
 
-        thirdPartyDeps = baseThirdPartyDeps ++ [
+        # The libraries libmeos links when MobilityDB master builds it with every family (-DALL=ON):
+        # PROJ and json-c always, h3 for the H3 family, GDAL for raster; libxml2 and zlib are
+        # already in baseThirdPartyDeps. GDAL is the minimal build: the full one links TileDB, which
+        # carries its own spdlog over fmt 10 into a process whose spdlog uses fmt 11.
+        meosDeps = with pkgs; [
+          proj
+          proj.dev
+          json_c
+          json_c.dev
+          h3_4
+          h3_4.dev
+          gdalMinimal
+          # proj.pc names sqlite3, libtiff-4 and libcurl in Requires.private, which pkg-config
+          # resolves on every lookup of proj, and libtiff-4.pc names Lerc.
+          sqlite.dev
+          libtiff.dev
+          curl.dev
+          lerc.dev
+        ];
+
+        thirdPartyDeps = baseThirdPartyDeps ++ meosDeps ++ [
           cpptracePkg
           argparsePkg
           libcuckooPkg

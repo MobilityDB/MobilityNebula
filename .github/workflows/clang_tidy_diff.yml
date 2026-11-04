@@ -22,13 +22,8 @@ on:
         required: false
         default: -1
 
-  # We need to use pull_request to run this workflow starting from our base repo and pull_request_target to run this
-  # workflow in our base repo (but starting from a fork), as clang-tidy-pr-comments needs 'write' permissions to our repo. This is solely possible
-  # with pull_request_target as pull_request provides 'read' permissions.
-  pull_request:
-    types: [ opened, synchronize, reopened ]
-  pull_request_target:
-    types: [ opened, synchronize, reopened ]
+  # Clang-Tidy runs in the development image on a self-hosted runner, which MobilityNebula does not
+  # register, so it starts only when a workflow calls it; the pull request pipeline is pr.yml.
 
 permissions:
   contents: read

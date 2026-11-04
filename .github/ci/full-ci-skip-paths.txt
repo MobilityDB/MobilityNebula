@@ -1,0 +1,9 @@
+*.md
+**/*.md
+*.txt
+**/*.txt
+LICENSE
+docs/**
+# We do not want to skip CmakeLists.txt
+![Cc][Mm][Aa][Kk][Ee][Ll][Ii][Ss][Tt][Ss].txt
+!**/[Cc][Mm][Aa][Kk][Ee][Ll][Ii][Ss][Tt][Ss].txt

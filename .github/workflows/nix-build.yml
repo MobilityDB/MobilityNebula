@@ -1,5 +1,8 @@
 name: Nix Build
 
+# Builds MobilityNebula with MEOS enabled inside the flake's devShell and runs its test suite.
+# libmeos is built from MobilityDB master with every family, inside the same devShell, so MEOS and
+# MobilityNebula share one toolchain and one set of libraries.
 on:
   workflow_call:
     inputs:
@@ -7,39 +10,86 @@ on:
         type: string
         required: true
         description: "ref of the branch"
+  workflow_dispatch:
+    inputs:
+      head_sha:
+        type: string
+        required: false
+        description: "ref of the branch"
+
+permissions:
+  contents: read
 
 jobs:
   nix-build:
     name: "Nix Build"
-    timeout-minutes: 60
+    timeout-minutes: 300
     runs-on: [ ubuntu-latest ]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.head_sha }}
+          ref: ${{ inputs.head_sha || github.sha }}
           fetch-depth: 0
           submodules: recursive
 
       - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+        with:
+          use-flakehub: false
+          use-gha-cache: true
 
-      - name: Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@v13
+      - name: Restore the compiler cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .ccache
+          key: ccache-nix-${{ inputs.head_sha || github.sha }}
+          restore-keys: ccache-nix-
+
+      - name: Build libmeos from MobilityDB master via devShell
+        run: |
+          git clone --depth 1 https://github.com/MobilityDB/MobilityDB.git "$RUNNER_TEMP/mobilitydb"
+          git -C "$RUNNER_TEMP/mobilitydb" log -1 --format='MobilityDB master %H'
+          ./.nix/nix-run.sh cmake -S "$RUNNER_TEMP/mobilitydb" -B "$RUNNER_TEMP/mobilitydb-build" -G Ninja \
+            -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/meos"
+          ./.nix/nix-run.sh cmake --build "$RUNNER_TEMP/mobilitydb-build" -j"$(nproc)"
+          ./.nix/nix-run.sh cmake --install "$RUNNER_TEMP/mobilitydb-build"
 
       - name: Configure via devShell
         run: |
-          ./.nix/nix-cmake.sh -DCMAKE_BUILD_TYPE=Debug -G Ninja -S . -B cmake-build-nix
+          ./.nix/nix-cmake.sh -DCMAKE_BUILD_TYPE=Debug -G Ninja -S . -B cmake-build-nix \
+            -DNES_ENABLE_MEOS=ON -DMEOS_ROOT="$RUNNER_TEMP/meos" | tee configure.log
+          # The MEOS plugin is optional in CMake: without libmeos it is skipped and the build passes
+          # without compiling a single MEOS source. Refuse that.
+          if grep -q "Skipping optional plugin: MEOS" configure.log; then
+            echo "::error::the MEOS plugin was skipped; libmeos was not found at $RUNNER_TEMP/meos"; exit 1
+          fi
 
       - name: Build via devShell
         run: |
-          ./.nix/nix-cmake.sh --build cmake-build-nix --target nes-single-node-worker -j"$(nproc)"
+          ./.nix/nix-cmake.sh --build cmake-build-nix -j"$(nproc)" -- -k 0
+
+      - name: Run the tests via devShell
+        run: |
+          source .github/.env/test-none.env
+          ./.nix/nix-run.sh ctest --test-dir cmake-build-nix --no-tests=error -j"$(nproc)" --output-on-failure --timeout 1200 ${ADDITIONAL_CTEST_ARGS}
+
+      # Saved whatever the build's outcome: a failing build is the one a developer reruns, and an
+      # implicit post-job save would skip it.
+      - name: Save the compiler cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .ccache
+          key: ccache-nix-${{ inputs.head_sha || github.sha }}
 
       - name: Upload build artifacts on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: nix-build-logs
           path: |
+            configure.log
             cmake-build-nix/CMakeFiles/CMakeOutput.log
             cmake-build-nix/CMakeFiles/CMakeError.log
           retention-days: 7

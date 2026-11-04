@@ -1,8 +1,8 @@
 name: NES PR CI Merge
+# Its jobs build and publish development images on self-hosted runners, which MobilityNebula does
+# not register, so it runs on demand only.
 on:
-  pull_request:
-    branches: [ main ]
-    types: [ closed ]
+  workflow_dispatch:
 
 jobs:
   get-dev-images:

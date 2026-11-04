@@ -14,6 +14,7 @@
 
 # Build files
 /build
+/.ccache
 /build-docker*
 /cmake-build*
 CMakeUserPresets.json

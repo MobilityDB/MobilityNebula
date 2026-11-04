@@ -1,80 +1,64 @@
 name: NES PR CI
 
-# The following pipeline is meant to run for every PR.
-# It will also apply the format check. If these steps are successful, it will try to build the PR and run the tests.
-# If this pr is called with act, it has to be used with a custom event.json and called via `act -e event.json`.
-# Otherwise, we are not running the job, as mentioned: https://github.com/nektos/act/issues/720
+# Orchestrator for every pull request, on the structure of NebulaStream's current pr.yml: classify
+# the diff once, run the code pipeline (pr_code.yml) unless only documentation changed, and report
+# one required status, "Code CI Done". Every job runs on a GitHub-hosted runner.
 on:
   pull_request:
     types: [ synchronize, opened, reopened ]
+  merge_group:
+    branches: [ main ]
 
-# cancel previous runs of same PR / branch.
+# Cancel previous runs of the same PR. In merge_group runs github.head_ref is empty, so fall back to
+# github.ref, the unique gh-readonly-queue ref.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}-pr
   cancel-in-progress: true
 
 jobs:
-  get-dev-images:
-    uses: ./.github/workflows/get_dev_images.yml
-    secrets: inherit
-    with:
-      branch-name: ${{ github.head_ref }}
-      head_sha: ${{ github.event.pull_request.head.sha }}
+  # Classify the diff (see .github/ci/full-ci-skip-paths.txt): a documentation-only PR skips the
+  # code pipeline.
+  classify:
+    runs-on: ubuntu-24.04
+    outputs:
+      hasCodeChanges: ${{ steps.classify.outputs.hasCodeChanges }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Full history so tj-actions can diff base_sha..sha; a shallow clone yields an empty diff.
+          fetch-depth: 0
+      - id: classify
+        uses: ./.github/actions/classify-pr-changes
+        with:
+          base-sha: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          head-sha: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}
 
-  smoke-tests:
-    needs: [ get-dev-images ]
-    uses: ./.github/workflows/smoke-tests.yml
-    with:
-      dev_image_tag: ${{ needs.get-dev-images.outputs.image-tag }}
-      head_sha: ${{ github.event.pull_request.head.sha }}
-      number_of_commits: ${{ github.event.pull_request.commits }}
-    secrets: inherit
+  code:
+    needs: [ classify ]
+    if: ${{ needs.classify.outputs.hasCodeChanges == 'true' }}
+    uses: ./.github/workflows/pr_code.yml
 
-  build-and-test:
-    needs: [ get-dev-images, smoke-tests ]
-    name: "Run build and test"
-    uses: ./.github/workflows/build_and_test.yml
-    secrets: inherit
-    with:
-      dev_image_tag: ${{ needs.get-dev-images.outputs.image-tag }}
-      head_sha: ${{ github.event.pull_request.head.sha }}
-
-  large-tests:
-    needs: [ get-dev-images, smoke-tests ]
-    name: "Run large scale tests"
-    uses: ./.github/workflows/large_test.yml
-    with:
-      dev_image_tag: ${{ needs.get-dev-images.outputs.image-tag }}
-      head_sha: ${{ github.event.pull_request.head.sha }}
-
-  run_code_coverage:
-    needs: [ get-dev-images, smoke-tests ]
-    name: "Run Code Coverage"
-    uses: ./.github/workflows/code_coverage.yml
-    with:
-      head_sha: ${{ github.event.pull_request.head.sha }}
-      dev_image_tag: ${{ needs.get-dev-images.outputs.image-tag }}
-    secrets: inherit
-
-  run_endless_mode:
-    needs: [ get-dev-images, smoke-tests ]
-    name: "Run Endless Mode"
-    uses: ./.github/workflows/endless-mode.yml
-    with:
-      dev_image_tag: ${{ needs.get-dev-images.outputs.image-tag }}
-      head_sha: ${{ github.event.pull_request.head.sha }}
-
-  test-nebuli-and-single-node-worker:
-    needs: [ get-dev-images, smoke-tests ]
-    name: "E2E Test using Nebuli and SingleNodeWorker"
-    uses: ./.github/workflows/execute_query.yml
-    with:
-      head_sha: ${{ github.event.pull_request.head.sha }}
-      dev_image_tag: ${{ needs.get-dev-images.outputs.image-tag }}
-      runtime_seconds: '$((1*60))'
-
-  nix-build:
-    name: "Run Nix Build"
-    uses: ./.github/workflows/nix-build.yml
-    with:
-      head_sha: ${{ github.event.pull_request.head.sha }}
+  # The one required status check. It always runs and reads the result of the jobs it gates.
+  code-ci-done:
+    name: Code CI Done
+    needs: [ classify, code ]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Gate
+        env:
+          CLASSIFY_RESULT: ${{ needs.classify.result }}
+          HAS_CODE: ${{ needs.classify.outputs.hasCodeChanges }}
+          CODE_RESULT: ${{ needs.code.result }}
+        run: |
+          # Fail-safe order: a broken classify must FAIL the gate, not silently pass it.
+          if [ "$CLASSIFY_RESULT" != "success" ]; then
+            echo "::error::classify did not succeed: $CLASSIFY_RESULT"; exit 1
+          fi
+          if [ "$HAS_CODE" != "true" ]; then
+            echo "No code changes — code CI legitimately skipped; passing."; exit 0
+          fi
+          if [ "$CODE_RESULT" = "success" ]; then
+            echo "Code CI succeeded."; exit 0
+          fi
+          echo "::error::Code CI did not succeed: $CODE_RESULT"; exit 1

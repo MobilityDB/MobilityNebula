@@ -1,0 +1,26 @@
+# name: MEOS_EIntersects_TGeo_Linestring_Polygon
+# description: TEMPORAL_EINTERSECTS_GEOMETRY: single-instant tgeompoint vs a static LINESTRING then a static POLYGON constant.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, EIntersects]
+CREATE LOGICAL SOURCE eil(id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR eil TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.0|50.0|1609459200
+2|9.0|9.0|1609459200
+
+CREATE SINK eil_out(eil.id UINT32, intersects INT32) TYPE File;
+SELECT id, TEMPORAL_EINTERSECTS_GEOMETRY(lon, lat, timestamp, 'SRID=4326;LINESTRING(4.0 50.0, 5.0 51.0)') AS intersects FROM eil INTO eil_out;
+----
+1,1
+2,0
+
+CREATE LOGICAL SOURCE eip(id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64);
+CREATE PHYSICAL SOURCE FOR eip TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|4.5|50.5|1609459200
+2|9.0|9.0|1609459200
+
+CREATE SINK eip_out(eip.id UINT32, intersects INT32) TYPE File;
+SELECT id, TEMPORAL_EINTERSECTS_GEOMETRY(lon, lat, timestamp, 'SRID=4326;POLYGON((4.0 50.0, 5.0 50.0, 5.0 51.0, 4.0 51.0, 4.0 50.0))') AS intersects FROM eip INTO eip_out;
+----
+1,1
+2,0

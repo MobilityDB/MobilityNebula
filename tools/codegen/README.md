@@ -164,4 +164,17 @@ NES_DEV_IMAGE=localhost/nes-development:my-tag \
 `codegen_aggregations.py` handles the separate aggregation four-layer shape
 (lift / combine / lower / cleanup), whose per-op structure differs from the
 scalar template above. Run it the same way, with a descriptor whose operators
-carry aggregation-specific fields.
+carry aggregation-specific fields; `aggregation-descriptor.json` is the
+committed one:
+
+```bash
+python3 tools/codegen/codegen_aggregations.py \
+    --input tools/codegen/aggregation-descriptor.json \
+    --output-root .
+```
+
+It emits the four files of each operator and patches, idempotently, the two
+aggregation CMakeLists (the physical entries inside `if(NES_ENABLE_MEOS)`),
+`AntlrSQL.g4` (lexer token + `functionName` alternative), the dedicated-token
+case of `exitFunctionCall` in `AntlrSQLQueryPlanCreator.cpp`, and the
+optimizer lowering in `LowerToPhysicalWindowedAggregation.cpp`.

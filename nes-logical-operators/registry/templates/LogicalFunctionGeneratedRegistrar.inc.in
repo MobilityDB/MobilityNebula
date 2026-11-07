@@ -24,6 +24,7 @@
 #include <string>
 #include <Util/Registry.hpp>
 
+#ifdef NES_REGISTRAR_DEFINITIONS
 namespace NES::LogicalFunctionGeneratedRegistrar
 {
 
@@ -34,10 +35,19 @@ namespace NES::LogicalFunctionGeneratedRegistrar
 namespace NES
 {
 template <>
-inline void Registrar<LogicalFunctionRegistry, std::string, LogicalFunctionRegistryReturnType, LogicalFunctionRegistryArguments>::registerAll([[maybe_unused]] Registry<Registrar>& registry)
+void Registrar<LogicalFunctionRegistry, std::string, LogicalFunctionRegistryReturnType, LogicalFunctionRegistryArguments>::registerAll([[maybe_unused]] Registry<Registrar>& registry)
 {
     using namespace NES::LogicalFunctionGeneratedRegistrar;
     @REGISTER_ALL_FUNCTION_CALLS@
 }
 
 }
+#else
+namespace NES
+{
+/// The registry's entries are added in the one translation unit defining NES_REGISTRAR_DEFINITIONS, which
+/// cmake/PluginRegistrationUtil.cmake generates; a plugin source sees the declarations of its own register functions
+template <>
+void Registrar<LogicalFunctionRegistry, std::string, LogicalFunctionRegistryReturnType, LogicalFunctionRegistryArguments>::registerAll(Registry<Registrar>& registry);
+}
+#endif

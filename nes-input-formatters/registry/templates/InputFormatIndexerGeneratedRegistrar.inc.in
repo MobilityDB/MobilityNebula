@@ -24,6 +24,7 @@
 #include <DataTypes/Schema.hpp>
 #include <Util/Registry.hpp>
 
+#ifdef NES_REGISTRAR_DEFINITIONS
 namespace NES
 {
 
@@ -34,10 +35,19 @@ namespace NES
 namespace NES
 {
 template <>
-inline void Registrar<InputFormatIndexerRegistry, std::string, InputFormatIndexerRegistryReturnType, InputFormatIndexerRegistryArguments>::registerAll(
+void Registrar<InputFormatIndexerRegistry, std::string, InputFormatIndexerRegistryReturnType, InputFormatIndexerRegistryArguments>::registerAll(
     [[maybe_unused]] Registry<Registrar>& registry)
 {
     using namespace NES;
     @REGISTER_ALL_FUNCTION_CALLS@
 }
 }
+#else
+namespace NES
+{
+/// The registry's entries are added in the one translation unit defining NES_REGISTRAR_DEFINITIONS, which
+/// cmake/PluginRegistrationUtil.cmake generates; a plugin source sees the declarations of its own register functions
+template <>
+void Registrar<InputFormatIndexerRegistry, std::string, InputFormatIndexerRegistryReturnType, InputFormatIndexerRegistryArguments>::registerAll(Registry<Registrar>& registry);
+}
+#endif

@@ -22,6 +22,7 @@
 #include <Util/Registry.hpp>
 #include <Configurations/Descriptor.hpp>
 
+#ifdef NES_REGISTRAR_DEFINITIONS
 namespace NES
 {
 
@@ -32,10 +33,19 @@ namespace NES
 namespace NES
 {
 template <>
-inline void Registrar<SinkValidationRegistry, std::string, SinkValidationRegistryReturnType, SinkValidationRegistryArguments>::registerAll(
+void Registrar<SinkValidationRegistry, std::string, SinkValidationRegistryReturnType, SinkValidationRegistryArguments>::registerAll(
     [[maybe_unused]] Registry<Registrar>& registry)
 {
     using namespace NES;
     @REGISTER_ALL_FUNCTION_CALLS@
 }
 }
+#else
+namespace NES
+{
+/// The registry's entries are added in the one translation unit defining NES_REGISTRAR_DEFINITIONS, which
+/// cmake/PluginRegistrationUtil.cmake generates; a plugin source sees the declarations of its own register functions
+template <>
+void Registrar<SinkValidationRegistry, std::string, SinkValidationRegistryReturnType, SinkValidationRegistryArguments>::registerAll(Registry<Registrar>& registry);
+}
+#endif

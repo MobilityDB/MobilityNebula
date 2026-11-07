@@ -45,6 +45,19 @@ function(add_plugin_as_library plugin_name plugin_registry plugin_registry_compo
 
     set_property(GLOBAL APPEND PROPERTY "${plugin_registry}_plugin_names" "${plugin_name}")
     set_property(GLOBAL APPEND PROPERTY "${plugin_registry}_plugin_libraries" "${plugin_library}")
+    foreach (source ${sources})
+        get_filename_component(plugin_source "${source}" ABSOLUTE)
+        record_plugin_source(${plugin_registry} ${plugin_name} "${plugin_source}" ${plugin_library})
+    endforeach ()
+endfunction()
+
+# records that the source defines the register function of the plugin, compiled in the target, so that the source is
+# handed the declaration of that function alone (generate_plugin_registrar)
+function(record_plugin_source plugin_registry plugin_name plugin_source plugin_target)
+    string(MD5 source_key "${plugin_source}")
+    set_property(GLOBAL APPEND PROPERTY "${plugin_registry}_plugin_sources" "${plugin_source}")
+    set_property(GLOBAL APPEND PROPERTY "${plugin_registry}_plugins_of_${source_key}" "${plugin_name}")
+    set_property(GLOBAL PROPERTY "${plugin_registry}_target_of_${source_key}" "${plugin_target}")
 endfunction()
 
 # adds the source files of the plugin to the source files of the component that the plugin registry belongs to
@@ -61,6 +74,10 @@ macro(add_plugin plugin_name plugin_registry plugin_registry_component)
         )
     endif ()
     set_property(GLOBAL APPEND PROPERTY "${plugin_registry}_plugin_names" "${plugin_name}")
+    foreach (source ${sources})
+        get_filename_component(plugin_source "${source}" ABSOLUTE)
+        record_plugin_source(${plugin_registry} ${plugin_name} "${plugin_source}" ${plugin_registry_component})
+    endforeach ()
 endmacro()
 
 # iterates over all plugins, collect all plugins with given name, inject plugins into registrar
@@ -101,12 +118,72 @@ function(generate_plugin_registrar current_dir current_binary_dir plugin_registr
 
     # remove the '.in' from the end of the file and write the result to the parent directory of the the template
 
+    # the definitions, with every declaration and every register call, in a file only the definitions unit includes
+    set(registrar_definitions_path ${current_binary_dir}/registry/templates/${plugin_registry}GeneratedRegistrarDefinitions.inc)
+    configure_file(
+            ${temp_registrar_header_template_file}
+            ${registrar_definitions_path}
+            @ONLY
+    )
+    # the header the registry includes, which holds no plugin and so stays the same file whatever plugins there are
+    set(REGISTER_FUNCTION_DECLARATIONS "")
+    set(REGISTER_ALL_FUNCTION_CALLS "")
     configure_file(
             ${temp_registrar_header_template_file}
             ${registrar_header_generated_path}
             @ONLY
     )
     file(REMOVE ${temp_registrar_header_template_file})
+
+    # The registrar is compiled once: the registry's header declares registerAll alone, and one generated translation
+    # unit defines it with the declarations of every register function. A plugin source is handed the declarations of
+    # the register functions it defines, so that adding or changing a plugin recompiles that source and that unit
+    # rather than every source including the registry. Each file is written only where its content changes.
+    file(GLOB registry_headers "${current_dir}/registry/include/*.hpp")
+    set(registry_header "")
+    foreach (header IN LISTS registry_headers)
+        file(STRINGS "${header}" includes_registrar REGEX "<${plugin_registry}GeneratedRegistrar\\.inc>")
+        if (includes_registrar)
+            get_filename_component(registry_header "${header}" NAME)
+        endif ()
+    endforeach ()
+    if (registry_header STREQUAL "")
+        message(FATAL_ERROR "No header in ${current_dir}/registry/include includes ${plugin_registry}GeneratedRegistrar.inc")
+    endif ()
+    string(REGEX MATCH "namespace ([A-Za-z_:]+)[ \t\r\n]*{[^{}]*@REGISTER_FUNCTION_DECLARATIONS@" declarations_block "${registrar_header_file_data}")
+    set(declarations_namespace "${CMAKE_MATCH_1}")
+    if (declarations_namespace STREQUAL "")
+        message(FATAL_ERROR "${registrar_header_template_path} declares its register functions in no namespace")
+    endif ()
+
+    # the guard the template checks that the registry's header defines around its inclusion
+    string(REGEX MATCH "#ifndef (INCLUDED_FROM_[A-Za-z_]+)" registrar_guard_line "${registrar_header_file_data}")
+    set(registrar_guard "${CMAKE_MATCH_1}")
+    if (registrar_guard STREQUAL "")
+        message(FATAL_ERROR "${registrar_header_template_path} states no INCLUDED_FROM_ guard")
+    endif ()
+    set(definitions_source "${current_binary_dir}/registry/templates/${plugin_registry}GeneratedRegistrar.cpp")
+    file(CONFIGURE OUTPUT "${definitions_source}"
+            CONTENT "#include <${registry_header}>\n#define NES_REGISTRAR_DEFINITIONS\n#define ${registrar_guard}\n#include \"${registrar_definitions_path}\"\n")
+    target_sources(${plugin_registry_component} PRIVATE "${definitions_source}")
+
+    get_property(plugin_sources GLOBAL PROPERTY ${plugin_registry}_plugin_sources)
+    list(REMOVE_DUPLICATES plugin_sources)
+    foreach (plugin_source IN LISTS plugin_sources)
+        string(MD5 source_key "${plugin_source}")
+        get_property(source_plugins GLOBAL PROPERTY ${plugin_registry}_plugins_of_${source_key})
+        get_property(source_target GLOBAL PROPERTY ${plugin_registry}_target_of_${source_key})
+        set(source_declarations "")
+        foreach (plugin_name IN LISTS source_plugins)
+            string(APPEND source_declarations
+                    "${plugin_registry}RegistryReturnType Register${plugin_name}${plugin_registry}(${plugin_registry}RegistryArguments);\n")
+        endforeach ()
+        set(declarations_header "${current_binary_dir}/registry/templates/${plugin_registry}Declarations/${source_key}.hpp")
+        file(CONFIGURE OUTPUT "${declarations_header}"
+                CONTENT "#pragma once\n#include <${registry_header}>\nnamespace ${declarations_namespace}\n{\n${source_declarations}}\n")
+        set_property(SOURCE "${plugin_source}" TARGET_DIRECTORY ${source_target}
+                APPEND PROPERTY COMPILE_OPTIONS "-include${declarations_header}")
+    endforeach ()
 endfunction()
 
 function(generate_plugin_registrars plugin_registry_component)

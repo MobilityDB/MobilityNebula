@@ -16,4 +16,6 @@ add_plugin(TemporalLength AggregationPhysicalFunction nes-physical-operators Tem
 add_plugin(PairMeeting AggregationPhysicalFunction nes-physical-operators PairMeetingAggregationPhysicalFunction.cpp)
 add_plugin(CrossDistance AggregationPhysicalFunction nes-physical-operators CrossDistanceAggregationPhysicalFunction.cpp)
 add_plugin(Var AggregationPhysicalFunction nes-physical-operators VarAggregationFunction.cpp)
+# A MEOS aggregate over one overload, whose kernels nes-plugins/MEOS/Aggregations registers
+add_source_files(nes-physical-operators MeosAggregationPhysicalFunction.cpp)
 endif()

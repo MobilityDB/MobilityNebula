@@ -12,6 +12,7 @@
 
 add_source_files(nes-logical-operators
         WindowAggregationLogicalFunction.cpp
+        AggregationLogicalFunctionProvider.cpp
 )
 
 add_subdirectory(Meos)

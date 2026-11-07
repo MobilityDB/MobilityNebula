@@ -141,6 +141,10 @@ std::vector<std::byte> image(const void* value, const size_t size)
 /* bigintset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string BigintsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -168,6 +172,10 @@ constexpr ExtensionType BigintsetType{.name = "BIGINTSET", .toText = BigintsetTo
 /* bigintspan: C type Span, carried as its memory image (span_copy / 24 bytes), read and written as the hex of its WKB */
 std::string BigintspanToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Span*>(fromImage(bytes, [](const void* laid) -> void* { return span_copy(static_cast<const Span*>(laid)); }));
     size_t size = 0;
@@ -195,6 +203,10 @@ constexpr ExtensionType BigintspanType{.name = "BIGINTSPAN", .toText = Bigintspa
 /* bigintspanset: C type SpanSet, carried as its memory image (spanset_copy / spanset_mem_size), read and written as the hex of its WKB */
 std::string BigintspansetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<SpanSet*>(fromImage(bytes, [](const void* laid) -> void* { return spanset_copy(static_cast<const SpanSet*>(laid)); }));
     size_t size = 0;
@@ -222,6 +234,10 @@ constexpr ExtensionType BigintspansetType{.name = "BIGINTSPANSET", .toText = Big
 /* box2d: C type GBOX, carried as its text form (gbox_in / gbox_out), read and written as its text string */
 std::string Box2dToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     return textOf(bytes);
 }
 
@@ -240,6 +256,10 @@ constexpr ExtensionType Box2dType{.name = "BOX2D", .toText = Box2dToText, .fromT
 /* box3d: C type BOX3D, carried as its text form (box3d_in / box3d_out), read and written as its text string */
 std::string Box3dToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     return textOf(bytes);
 }
 
@@ -258,6 +278,10 @@ constexpr ExtensionType Box3dType{.name = "BOX3D", .toText = Box3dToText, .fromT
 /* cbuffer: C type Cbuffer, carried as its memory image (cbuffer_copy / cbuffer_mem_size), read and written as the hex of its WKB */
 std::string CbufferToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<struct Cbuffer*>(fromImage(bytes, [](const void* laid) -> void* { return cbuffer_copy(static_cast<const struct Cbuffer*>(laid)); }));
     size_t size = 0;
@@ -285,6 +309,10 @@ constexpr ExtensionType CbufferType{.name = "CBUFFER", .toText = CbufferToText, 
 /* cbufferset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string CbuffersetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -312,6 +340,10 @@ constexpr ExtensionType CbuffersetType{.name = "CBUFFERSET", .toText = Cbufferse
 /* dateset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string DatesetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -339,6 +371,10 @@ constexpr ExtensionType DatesetType{.name = "DATESET", .toText = DatesetToText, 
 /* datespan: C type Span, carried as its memory image (span_copy / 24 bytes), read and written as the hex of its WKB */
 std::string DatespanToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Span*>(fromImage(bytes, [](const void* laid) -> void* { return span_copy(static_cast<const Span*>(laid)); }));
     size_t size = 0;
@@ -366,6 +402,10 @@ constexpr ExtensionType DatespanType{.name = "DATESPAN", .toText = DatespanToTex
 /* datespanset: C type SpanSet, carried as its memory image (spanset_copy / spanset_mem_size), read and written as the hex of its WKB */
 std::string DatespansetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<SpanSet*>(fromImage(bytes, [](const void* laid) -> void* { return spanset_copy(static_cast<const SpanSet*>(laid)); }));
     size_t size = 0;
@@ -393,6 +433,10 @@ constexpr ExtensionType DatespansetType{.name = "DATESPANSET", .toText = Datespa
 /* floatset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string FloatsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -420,6 +464,10 @@ constexpr ExtensionType FloatsetType{.name = "FLOATSET", .toText = FloatsetToTex
 /* floatspan: C type Span, carried as its memory image (span_copy / 24 bytes), read and written as the hex of its WKB */
 std::string FloatspanToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Span*>(fromImage(bytes, [](const void* laid) -> void* { return span_copy(static_cast<const Span*>(laid)); }));
     size_t size = 0;
@@ -447,6 +495,10 @@ constexpr ExtensionType FloatspanType{.name = "FLOATSPAN", .toText = FloatspanTo
 /* floatspanset: C type SpanSet, carried as its memory image (spanset_copy / spanset_mem_size), read and written as the hex of its WKB */
 std::string FloatspansetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<SpanSet*>(fromImage(bytes, [](const void* laid) -> void* { return spanset_copy(static_cast<const SpanSet*>(laid)); }));
     size_t size = 0;
@@ -474,6 +526,10 @@ constexpr ExtensionType FloatspansetType{.name = "FLOATSPANSET", .toText = Float
 /* geography: C type GSERIALIZED, carried as its memory image (geo_copy / geo_mem_size), read and written as its wkb string */
 std::string GeographyToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<GSERIALIZED*>(fromImage(bytes, [](const void* laid) -> void* { return geo_copy(static_cast<const GSERIALIZED*>(laid)); }));
     size_t size = 0;
@@ -501,6 +557,10 @@ constexpr ExtensionType GeographyType{.name = "GEOGRAPHY", .toText = GeographyTo
 /* geogset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string GeogsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -528,6 +588,10 @@ constexpr ExtensionType GeogsetType{.name = "GEOGSET", .toText = GeogsetToText, 
 /* geometry: C type GSERIALIZED, carried as its memory image (geo_copy / geo_mem_size), read and written as its wkb string */
 std::string GeometryToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<GSERIALIZED*>(fromImage(bytes, [](const void* laid) -> void* { return geo_copy(static_cast<const GSERIALIZED*>(laid)); }));
     size_t size = 0;
@@ -555,6 +619,10 @@ constexpr ExtensionType GeometryType{.name = "GEOMETRY", .toText = GeometryToTex
 /* geomset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string GeomsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -582,6 +650,10 @@ constexpr ExtensionType GeomsetType{.name = "GEOMSET", .toText = GeomsetToText, 
 /* h3index: C type H3Index, carried as its bytes form (h3index_from_wkb / h3index_as_wkb), read and written as the hex of its WKB */
 std::string H3indexToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     return hex(bytes);
 }
 
@@ -599,6 +671,10 @@ constexpr ExtensionType H3indexType{.name = "H3INDEX", .toText = H3indexToText, 
 /* h3indexset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string H3indexsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -626,6 +702,10 @@ constexpr ExtensionType H3indexsetType{.name = "H3INDEXSET", .toText = H3indexse
 /* intset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string IntsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -653,6 +733,10 @@ constexpr ExtensionType IntsetType{.name = "INTSET", .toText = IntsetToText, .fr
 /* intspan: C type Span, carried as its memory image (span_copy / 24 bytes), read and written as the hex of its WKB */
 std::string IntspanToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Span*>(fromImage(bytes, [](const void* laid) -> void* { return span_copy(static_cast<const Span*>(laid)); }));
     size_t size = 0;
@@ -680,6 +764,10 @@ constexpr ExtensionType IntspanType{.name = "INTSPAN", .toText = IntspanToText, 
 /* intspanset: C type SpanSet, carried as its memory image (spanset_copy / spanset_mem_size), read and written as the hex of its WKB */
 std::string IntspansetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<SpanSet*>(fromImage(bytes, [](const void* laid) -> void* { return spanset_copy(static_cast<const SpanSet*>(laid)); }));
     size_t size = 0;
@@ -707,6 +795,10 @@ constexpr ExtensionType IntspansetType{.name = "INTSPANSET", .toText = Intspanse
 /* jsonb: C type Jsonb, carried as its memory image (jsonb_copy / jsonb_mem_size), read and written as its text string */
 std::string JsonbToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Jsonb*>(fromImage(bytes, [](const void* laid) -> void* { return jsonb_copy(static_cast<const Jsonb*>(laid)); }));
     size_t size = 0;
@@ -734,6 +826,10 @@ constexpr ExtensionType JsonbType{.name = "JSONB", .toText = JsonbToText, .fromT
 /* jsonbset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string JsonbsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -761,6 +857,10 @@ constexpr ExtensionType JsonbsetType{.name = "JSONBSET", .toText = JsonbsetToTex
 /* jsonpath: C type JsonPath, carried as its memory image (jsonpath_copy / jsonpath_mem_size), read and written as its text string */
 std::string JsonpathToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<JsonPath*>(fromImage(bytes, [](const void* laid) -> void* { return jsonpath_copy(static_cast<const JsonPath*>(laid)); }));
     size_t size = 0;
@@ -788,6 +888,10 @@ constexpr ExtensionType JsonpathType{.name = "JSONPATH", .toText = JsonpathToTex
 /* npoint: C type Npoint, carried as its memory image (npoint_copy / 16 bytes), read and written as the hex of its WKB */
 std::string NpointToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Npoint*>(fromImage(bytes, [](const void* laid) -> void* { return npoint_copy(static_cast<const Npoint*>(laid)); }));
     size_t size = 0;
@@ -815,6 +919,10 @@ constexpr ExtensionType NpointType{.name = "NPOINT", .toText = NpointToText, .fr
 /* npointset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string NpointsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -842,6 +950,10 @@ constexpr ExtensionType NpointsetType{.name = "NPOINTSET", .toText = NpointsetTo
 /* nsegment: C type Nsegment, carried as its memory image (nsegment_copy / 24 bytes), read and written as the hex of its WKB */
 std::string NsegmentToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Nsegment*>(fromImage(bytes, [](const void* laid) -> void* { return nsegment_copy(static_cast<const Nsegment*>(laid)); }));
     size_t size = 0;
@@ -869,6 +981,10 @@ constexpr ExtensionType NsegmentType{.name = "NSEGMENT", .toText = NsegmentToTex
 /* pcpatch: C type Pcpatch, carried as its memory image (pcpatch_copy / pcpatch_mem_size), read and written as its wkb string */
 std::string PcpatchToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<struct Pcpatch*>(fromImage(bytes, [](const void* laid) -> void* { return pcpatch_copy(static_cast<const struct Pcpatch*>(laid)); }));
     size_t size = 0;
@@ -896,6 +1012,10 @@ constexpr ExtensionType PcpatchType{.name = "PCPATCH", .toText = PcpatchToText, 
 /* pcpatchset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string PcpatchsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -923,6 +1043,10 @@ constexpr ExtensionType PcpatchsetType{.name = "PCPATCHSET", .toText = Pcpatchse
 /* pcpoint: C type Pcpoint, carried as its memory image (pcpoint_copy / pcpoint_mem_size), read and written as its wkb string */
 std::string PcpointToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<struct Pcpoint*>(fromImage(bytes, [](const void* laid) -> void* { return pcpoint_copy(static_cast<const struct Pcpoint*>(laid)); }));
     size_t size = 0;
@@ -950,6 +1074,10 @@ constexpr ExtensionType PcpointType{.name = "PCPOINT", .toText = PcpointToText, 
 /* pcpointset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string PcpointsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -977,6 +1105,10 @@ constexpr ExtensionType PcpointsetType{.name = "PCPOINTSET", .toText = Pcpointse
 /* pose: C type Pose, carried as its memory image (pose_copy / pose_mem_size), read and written as the hex of its WKB */
 std::string PoseToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<struct Pose*>(fromImage(bytes, [](const void* laid) -> void* { return pose_copy(static_cast<const struct Pose*>(laid)); }));
     size_t size = 0;
@@ -1004,6 +1136,10 @@ constexpr ExtensionType PoseType{.name = "POSE", .toText = PoseToText, .fromText
 /* posechain: C type PoseChain, carried as its memory image (posechain_copy / posechain_mem_size), read and written as the hex of its WKB */
 std::string PosechainToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<struct PoseChain*>(fromImage(bytes, [](const void* laid) -> void* { return posechain_copy(static_cast<const struct PoseChain*>(laid)); }));
     size_t size = 0;
@@ -1031,6 +1167,10 @@ constexpr ExtensionType PosechainType{.name = "POSECHAIN", .toText = PosechainTo
 /* posechainset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string PosechainsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -1058,6 +1198,10 @@ constexpr ExtensionType PosechainsetType{.name = "POSECHAINSET", .toText = Posec
 /* poseset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string PosesetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -1085,6 +1229,10 @@ constexpr ExtensionType PosesetType{.name = "POSESET", .toText = PosesetToText, 
 /* quadbin: C type Quadbin, carried as its bytes form (quadbin_from_wkb / quadbin_as_wkb), read and written as the hex of its WKB */
 std::string QuadbinToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     return hex(bytes);
 }
 
@@ -1102,6 +1250,10 @@ constexpr ExtensionType QuadbinType{.name = "QUADBIN", .toText = QuadbinToText, 
 /* quadbinset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string QuadbinsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -1129,6 +1281,10 @@ constexpr ExtensionType QuadbinsetType{.name = "QUADBINSET", .toText = Quadbinse
 /* raquet: C type Raquet, carried as its memory image (raquet_copy / raquet_mem_size), read and written as the hex of its WKB */
 std::string RaquetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<struct Raquet*>(fromImage(bytes, [](const void* laid) -> void* { return raquet_copy(static_cast<const struct Raquet*>(laid)); }));
     size_t size = 0;
@@ -1156,6 +1312,10 @@ constexpr ExtensionType RaquetType{.name = "RAQUET", .toText = RaquetToText, .fr
 /* raster: C type Raster, carried as its memory image (raster_copy / raster_mem_size), read and written as the hex of its WKB */
 std::string RasterToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<struct Raster*>(fromImage(bytes, [](const void* laid) -> void* { return raster_copy(static_cast<const struct Raster*>(laid)); }));
     size_t size = 0;
@@ -1183,6 +1343,10 @@ constexpr ExtensionType RasterType{.name = "RASTER", .toText = RasterToText, .fr
 /* s2cell: C type S2CellId, carried as its bytes form (s2cell_from_wkb / s2cell_as_wkb), read and written as the hex of its WKB */
 std::string S2cellToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     return hex(bytes);
 }
 
@@ -1200,6 +1364,10 @@ constexpr ExtensionType S2cellType{.name = "S2CELL", .toText = S2cellToText, .fr
 /* s2cellset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string S2cellsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -1227,6 +1395,10 @@ constexpr ExtensionType S2cellsetType{.name = "S2CELLSET", .toText = S2cellsetTo
 /* stbox: C type STBox, carried as its memory image (stbox_copy / 80 bytes), read and written as the hex of its WKB */
 std::string StboxToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<STBox*>(fromImage(bytes, [](const void* laid) -> void* { return stbox_copy(static_cast<const STBox*>(laid)); }));
     size_t size = 0;
@@ -1254,6 +1426,10 @@ constexpr ExtensionType StboxType{.name = "STBOX", .toText = StboxToText, .fromT
 /* tbigint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TbigintToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1281,6 +1457,10 @@ constexpr ExtensionType TbigintType{.name = "TBIGINT", .toText = TbigintToText, 
 /* tbool: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TboolToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1308,6 +1488,10 @@ constexpr ExtensionType TboolType{.name = "TBOOL", .toText = TboolToText, .fromT
 /* tbox: C type TBox, carried as its memory image (tbox_copy / 56 bytes), read and written as the hex of its WKB */
 std::string TboxToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<TBox*>(fromImage(bytes, [](const void* laid) -> void* { return tbox_copy(static_cast<const TBox*>(laid)); }));
     size_t size = 0;
@@ -1335,6 +1519,10 @@ constexpr ExtensionType TboxType{.name = "TBOX", .toText = TboxToText, .fromText
 /* tcbuffer: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TcbufferToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1362,6 +1550,10 @@ constexpr ExtensionType TcbufferType{.name = "TCBUFFER", .toText = TcbufferToTex
 /* textset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string TextsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -1389,6 +1581,10 @@ constexpr ExtensionType TextsetType{.name = "TEXTSET", .toText = TextsetToText, 
 /* tfloat: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TfloatToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1416,6 +1612,10 @@ constexpr ExtensionType TfloatType{.name = "TFLOAT", .toText = TfloatToText, .fr
 /* tgeogpoint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TgeogpointToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1443,6 +1643,10 @@ constexpr ExtensionType TgeogpointType{.name = "TGEOGPOINT", .toText = Tgeogpoin
 /* tgeography: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TgeographyToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1470,6 +1674,10 @@ constexpr ExtensionType TgeographyType{.name = "TGEOGRAPHY", .toText = Tgeograph
 /* tgeometry: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TgeometryToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1497,6 +1705,10 @@ constexpr ExtensionType TgeometryType{.name = "TGEOMETRY", .toText = TgeometryTo
 /* tgeompoint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TgeompointToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1524,6 +1736,10 @@ constexpr ExtensionType TgeompointType{.name = "TGEOMPOINT", .toText = Tgeompoin
 /* th3index: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string Th3indexToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1551,6 +1767,10 @@ constexpr ExtensionType Th3indexType{.name = "TH3INDEX", .toText = Th3indexToTex
 /* tint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TintToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1578,6 +1798,10 @@ constexpr ExtensionType TintType{.name = "TINT", .toText = TintToText, .fromText
 /* tjsonb: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TjsonbToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1605,6 +1829,10 @@ constexpr ExtensionType TjsonbType{.name = "TJSONB", .toText = TjsonbToText, .fr
 /* tnpoint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TnpointToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1632,6 +1860,10 @@ constexpr ExtensionType TnpointType{.name = "TNPOINT", .toText = TnpointToText, 
 /* tpcbox: C type TPCBox, carried as its memory image (tpcbox_copy / 88 bytes), read and written as the hex of its WKB */
 std::string TpcboxToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<TPCBox*>(fromImage(bytes, [](const void* laid) -> void* { return tpcbox_copy(static_cast<const TPCBox*>(laid)); }));
     size_t size = 0;
@@ -1659,6 +1891,10 @@ constexpr ExtensionType TpcboxType{.name = "TPCBOX", .toText = TpcboxToText, .fr
 /* tpcpatch: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TpcpatchToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1686,6 +1922,10 @@ constexpr ExtensionType TpcpatchType{.name = "TPCPATCH", .toText = TpcpatchToTex
 /* tpcpoint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TpcpointToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1713,6 +1953,10 @@ constexpr ExtensionType TpcpointType{.name = "TPCPOINT", .toText = TpcpointToTex
 /* tpose: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TposeToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1740,6 +1984,10 @@ constexpr ExtensionType TposeType{.name = "TPOSE", .toText = TposeToText, .fromT
 /* tposechain: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TposechainToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1767,6 +2015,10 @@ constexpr ExtensionType TposechainType{.name = "TPOSECHAIN", .toText = Tposechai
 /* tquadbin: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TquadbinToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1794,6 +2046,10 @@ constexpr ExtensionType TquadbinType{.name = "TQUADBIN", .toText = TquadbinToTex
 /* trgeometry: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TrgeometryToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1821,6 +2077,10 @@ constexpr ExtensionType TrgeometryType{.name = "TRGEOMETRY", .toText = Trgeometr
 /* ts2cell: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string Ts2cellToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;
@@ -1848,6 +2108,10 @@ constexpr ExtensionType Ts2cellType{.name = "TS2CELL", .toText = Ts2cellToText, 
 /* tstzset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string TstzsetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Set*>(fromImage(bytes, [](const void* laid) -> void* { return set_copy(static_cast<const Set*>(laid)); }));
     size_t size = 0;
@@ -1875,6 +2139,10 @@ constexpr ExtensionType TstzsetType{.name = "TSTZSET", .toText = TstzsetToText, 
 /* tstzspan: C type Span, carried as its memory image (span_copy / 24 bytes), read and written as the hex of its WKB */
 std::string TstzspanToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Span*>(fromImage(bytes, [](const void* laid) -> void* { return span_copy(static_cast<const Span*>(laid)); }));
     size_t size = 0;
@@ -1902,6 +2170,10 @@ constexpr ExtensionType TstzspanType{.name = "TSTZSPAN", .toText = TstzspanToTex
 /* tstzspanset: C type SpanSet, carried as its memory image (spanset_copy / spanset_mem_size), read and written as the hex of its WKB */
 std::string TstzspansetToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<SpanSet*>(fromImage(bytes, [](const void* laid) -> void* { return spanset_copy(static_cast<const SpanSet*>(laid)); }));
     size_t size = 0;
@@ -1929,6 +2201,10 @@ constexpr ExtensionType TstzspansetType{.name = "TSTZSPANSET", .toText = Tstzspa
 /* ttext: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TtextToText(std::span<const std::byte> bytes)
 {
+    if (bytes.empty())
+    {
+        return {};
+    }
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<Temporal*>(fromImage(bytes, [](const void* laid) -> void* { return temporal_copy(static_cast<const Temporal*>(laid)); }));
     size_t size = 0;

@@ -51,6 +51,8 @@ OWNED = {
     "SHAPES": "the classifier registry — names of this file's own functions",
     "_STREAMABLE_CATEGORIES": "which catalog categories carry a per-event operator — a projection rule over a catalog field, holding no type name",
     "GENERIC_RETURNS": "C return type to Nautilus marshaller — the `bool` it holds is the C type, not the MEOS base type of the same spelling",
+    "SQL_SCALAR": "SQL scalar type to the NebulaStream data type carrying it and the C type of its slot (codegen_nebula_sql.py) — the `bool` it holds is that C type",
+    "C_NUMBER": "the C types a number crosses a kernel as (codegen_nebula_sql.py) — the `bool` it holds is the C type, not the MEOS base type",
     "_EXTRACT_KIND": "C type of an extracted value to the marshaller carrying it — the same C-type vocabulary, resolved against the catalog per operator",
     "_GENERIC_INPUT_FOR": (
         "which concrete type represents a CLASS token. The catalog states class "

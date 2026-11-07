@@ -28,7 +28,8 @@ endif()
 
 if(meos AND meos_INCLUDE_DIR)
     target_link_libraries(nes-meos PUBLIC ${meos})
-    target_include_directories(nes-meos PUBLIC ${meos_INCLUDE_DIR})
+    # libmeos's headers are a dependency's, read as system headers by every target linking the plugin
+    target_include_directories(nes-meos SYSTEM PUBLIC ${meos_INCLUDE_DIR})
     # Also link MEOS dependencies
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(PROJ REQUIRED proj)
@@ -37,7 +38,7 @@ if(meos AND meos_INCLUDE_DIR)
     # meos_h3.h includes <h3api.h>, which H3 installs in an h3 subdirectory, found as MobilityDB finds it
     find_path(H3_INCLUDE_DIR NAMES h3api.h PATH_SUFFIXES h3)
     if(H3_INCLUDE_DIR)
-        target_include_directories(nes-meos PUBLIC ${H3_INCLUDE_DIR})
+        target_include_directories(nes-meos SYSTEM PUBLIC ${H3_INCLUDE_DIR})
     endif()
 else()
     message(FATAL_ERROR "MEOS library not found. meos=${meos}, meos_INCLUDE_DIR=${meos_INCLUDE_DIR}")

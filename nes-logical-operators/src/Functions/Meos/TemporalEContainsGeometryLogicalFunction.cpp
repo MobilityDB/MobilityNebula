@@ -78,7 +78,7 @@ TemporalEContainsGeometryLogicalFunction::explain(ExplainVerbosity v) const {
         if(i) a += ", ";
         a += parameters[i].explain(v);
     }
-    return fmt::format("TEMPORAL_ECONTAINS_GEOMETRY({})", a);
+    return fmt::format("eContains({})", a);
 }
 
 LogicalFunction

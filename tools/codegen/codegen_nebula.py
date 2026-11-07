@@ -4418,7 +4418,7 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::Register{
 # The shape is encoded by the build_* flag; the dispatch block produces a
 # LogicalFunction ctor invocation matching the C++ operator's arg order.
 #
-# Mariana's existing TGEO_AT_STBOX and EDWITHIN_TGEO_GEO blocks are the
+# Mariana's existing TGEO_AT_STBOX and eDwithin blocks are the
 # in-tree reference for the constantBuilder→functionBuilder lift pattern.
 # ===========================================================================
 
@@ -4512,7 +4512,7 @@ DISPATCH_CASE_ONE_TEMPORAL_POINT_WITH_DIST = """\
             if (argCount != 5)
                 throw InvalidQuerySyntax("{sql_token} requires exactly 5 arguments (lon, lat, timestamp, geometry, distance), but got {{}}", argCount);
 
-            /* Lift constants (geometry + distance) — same shape as EDWITHIN_TGEO_GEO */
+            /* Lift constants (geometry + distance) — same shape as eDwithin */
             while (!helpers.top().constantBuilder.empty())
             {{
                 auto constantValue = std::move(helpers.top().constantBuilder.back());

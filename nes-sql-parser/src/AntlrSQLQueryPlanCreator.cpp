@@ -17,6 +17,7 @@
 #include <cctype>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <ranges>
@@ -841,7 +842,21 @@ void AntlrSQLQueryPlanCreator::exitConstantDefault(AntlrSQLParser::ConstantDefau
 void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallContext* context)
 {
     const auto funcName = Util::toUpperCase(context->children[0]->getText());
-    const auto tokenType = context->getStart()->getType();
+    /// The MEOS spatiotemporal relationships are called by the names the MEOS catalog states for them (eIntersects,
+    /// aIntersects, eContains, eDwithin). The lexer reads those names as identifiers, so they reserve no word and match
+    /// regardless of case; each takes a case label of its own, past the lexer's token types.
+    constexpr size_t MeosEIntersects = std::numeric_limits<size_t>::max();
+    constexpr size_t MeosAIntersects = MeosEIntersects - 1;
+    constexpr size_t MeosEContains = MeosEIntersects - 2;
+    constexpr size_t MeosEDwithin = MeosEIntersects - 3;
+    const auto tokenType = [&]() -> size_t
+    {
+        if (funcName == "EINTERSECTS") { return MeosEIntersects; }
+        if (funcName == "AINTERSECTS") { return MeosAIntersects; }
+        if (funcName == "ECONTAINS") { return MeosEContains; }
+        if (funcName == "EDWITHIN") { return MeosEDwithin; }
+        return context->getStart()->getType();
+    }();
 
     helpers.top().hasUnnamedAggregation = true;
     switch (tokenType) /// TODO #619: improve this switch case
@@ -1075,7 +1090,7 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 helpers.top().functionBuilder.push_back(longitudeFunction);
             }
             break;
-        case AntlrSQLLexer::TEMPORAL_EINTERSECTS_GEOMETRY:
+        case MeosEIntersects:
             {
                 // Convert constants from constantBuilder to ConstantValueLogicalFunction objects
                 while (!helpers.top().constantBuilder.empty()) {
@@ -1089,7 +1104,7 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
 
                 const auto argCount = helpers.top().functionBuilder.size();
                 if (argCount != 4 && argCount != 6) {
-                    throw InvalidQuerySyntax("TEMPORAL_EINTERSECTS_GEOMETRY requires either 4 arguments (lon1, lat1, timestamp1, static_geometry) or 6 arguments (lon1, lat1, timestamp1, lon2, lat2, timestamp2), but got {}", argCount);
+                    throw InvalidQuerySyntax("eIntersects requires either 4 arguments (lon1, lat1, timestamp1, static_geometry) or 6 arguments (lon1, lat1, timestamp1, lon2, lat2, timestamp2), but got {}", argCount);
                 }
 
                 if (argCount == 4) {
@@ -1125,7 +1140,7 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 }
             }
             break;
-        case AntlrSQLLexer::TEMPORAL_AINTERSECTS_GEOMETRY:
+        case MeosAIntersects:
             {
                 // Convert constants from constantBuilder to ConstantValueLogicalFunction objects
                 while (!helpers.top().constantBuilder.empty()) {
@@ -1138,7 +1153,7 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 }
                 const auto argCount = helpers.top().functionBuilder.size();
                 if (argCount != 4 && argCount != 6) {
-                    throw InvalidQuerySyntax("TEMPORAL_AINTERSECTS_GEOMETRY requires either 4 arguments (lon1, lat1, timestamp1, static_geometry) or 6 arguments (lon1, lat1, timestamp1, lon2, lat2, timestamp2), but got {}", argCount);
+                    throw InvalidQuerySyntax("aIntersects requires either 4 arguments (lon1, lat1, timestamp1, static_geometry) or 6 arguments (lon1, lat1, timestamp1, lon2, lat2, timestamp2), but got {}", argCount);
                 }
                 if (argCount == 4) {
                     // 4-parameter case: temporal-static intersection (lon1, lat1, timestamp1, static_geometry)
@@ -1173,7 +1188,7 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 }
             }
             break;
-        case AntlrSQLLexer::TEMPORAL_ECONTAINS_GEOMETRY: 
+        case MeosEContains: 
         {
             // move any literal WKT that’s still on constantBuilder into functionBuilder
             while(!helpers.top().constantBuilder.empty()){
@@ -1218,16 +1233,16 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                     helpers.top().functionBuilder.emplace_back(
                         TemporalEContainsGeometryLogicalFunction(first,second,third,last));
             } else {
-                throw InvalidQuerySyntax("TEMPORAL_ECONTAINS_GEOMETRY expects 4 or 6 arguments");
+                throw InvalidQuerySyntax("eContains expects 4 or 6 arguments");
             }
         }
         break;
-        case AntlrSQLLexer::EDWITHIN_TGEO_GEO:
+        case MeosEDwithin:
         {
             const auto argCount = context->expression().size();
             if (argCount != 5)
             {
-                throw InvalidQuerySyntax("EDWITHIN_TGEO_GEO requires exactly five arguments (lon, lat, timestamp, geometry, distance), but got {}", argCount);
+                throw InvalidQuerySyntax("eDwithin requires exactly five arguments (lon, lat, timestamp, geometry, distance), but got {}", argCount);
             }
 
             // Move pending constants into the function builder (WKT last)
@@ -1259,7 +1274,7 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
             }
 
             const auto total = helpers.top().functionBuilder.size();
-            PRECONDITION(total >= 5, "EDWITHIN_TGEO_GEO requires (lon, lat, timestamp, geometry, distance), but got {}", total);
+            PRECONDITION(total >= 5, "eDwithin requires (lon, lat, timestamp, geometry, distance), but got {}", total);
 
             // Order after move: [lon, lat, ts, distance, geometry]
             auto geometryFunction = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();

@@ -90,7 +90,7 @@ std::string TemporalAIntersectsGeometryLogicalFunction::explain(ExplainVerbosity
         if (i > 0) args += ", ";
         args += parameters[i].explain(verbosity);
     }
-    return fmt::format("TEMPORAL_AINTERSECTS_GEOMETRY({})", args);
+    return fmt::format("aIntersects({})", args);
 }
 
 LogicalFunction TemporalAIntersectsGeometryLogicalFunction::withInferredDataType(const Schema& schema) const

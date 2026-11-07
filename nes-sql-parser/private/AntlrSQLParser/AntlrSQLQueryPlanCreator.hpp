@@ -33,6 +33,12 @@ class AntlrSQLQueryPlanCreator final : public AntlrSQLBaseListener
     std::vector<std::variant<std::string, std::pair<std::string, ConfigMap>>> sinks;
     std::stack<LogicalPlan> queryPlans;
 
+    /// The arguments of a function call in order: an expression as the function builder holds it, a literal
+    /// as a constant of its type, a string VARSIZED and a number INT32, INT64 or FLOAT64 as it is written
+    [[nodiscard]] std::vector<LogicalFunction> callArguments(AntlrSQLParser::FunctionCallContext* context) const;
+    /// The call's arguments removed from the function and constant builders
+    void takeCallArguments(AntlrSQLParser::FunctionCallContext* context);
+
 public:
     [[nodiscard]] LogicalPlan getQueryPlan() const;
 

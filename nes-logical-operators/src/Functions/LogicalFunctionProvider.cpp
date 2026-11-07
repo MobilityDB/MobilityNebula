@@ -33,6 +33,11 @@ LogicalFunction provide(const std::string& functionName, std::vector<LogicalFunc
     throw FunctionNotImplemented("{} is not a registered function", functionName);
 }
 
+bool contains(const std::string& functionName)
+{
+    return LogicalFunctionRegistry::instance().contains(functionName);
+}
+
 std::optional<LogicalFunction> tryProvide(const std::string& functionName, std::vector<LogicalFunction> arguments)
 {
     return LogicalFunctionRegistry::instance().create(

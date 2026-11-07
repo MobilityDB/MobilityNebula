@@ -74,6 +74,10 @@ namespace MEOS {
             tzset();
 
             meos_initialize();
+            // An error returns the function's failure value with meos_errno set, rather than ending the
+            // process as the default handler does: a stream reading a malformed value refuses it and runs on.
+            // meos_initialize installs the default handler, so this comes after it.
+            meos_initialize_noexit_error_handler();
             meos_initialized = true;
             // Register cleanup function to be called at program exit
             std::atexit(cleanupMeos);

@@ -74,7 +74,8 @@ createSinkDefinition: SINK sinkName=identifier schemaDefinition TYPE type=identi
 schemaDefinition: '(' columnDefinition (',' columnDefinition)* ')';
 columnDefinition: identifierChain typeDefinition;
 
-typeDefinition: DATA_TYPE;
+/// A type a plugin adds is named by an identifier, which the binder resolves in the data type registry
+typeDefinition: DATA_TYPE | IDENTIFIER;
 
 fromQuery: AS query;
 

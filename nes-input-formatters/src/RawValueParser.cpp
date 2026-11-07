@@ -127,12 +127,39 @@ ParseFunctionSignature getBasicTypeParseFunction(const DataType::Type physicalTy
     return nullptr;
 }
 
-ParseFunctionSignature getParseFunction(const DataType::Type physicalType, const QuotationType quotationType)
+ParseFunctionSignature getExtensionParseFunction(const ExtensionType& extension, const QuotationType quotationType)
 {
-    if (physicalType == DataType::Type::VARSIZED)
+    return [&extension, quotationType](
+               const std::string_view inputString,
+               const size_t writeOffsetInBytes,
+               AbstractBufferProvider& bufferProvider,
+               TupleBuffer& tupleBufferFormatted)
+    {
+        auto text = inputString;
+        if (quotationType == QuotationType::DOUBLE_QUOTE)
+        {
+            INVARIANT(inputString.length() >= 2, "Input string must be at least 2 characters long.");
+            text = inputString.substr(1, inputString.length() - 2);
+        }
+        const auto valueBytes = extension.fromText(text);
+        const auto variableSizedAccess = MemoryLayout::writeVarSized<MemoryLayout::PREPEND_LENGTH_AS_UINT32>(
+            tupleBufferFormatted, bufferProvider, std::span{valueBytes});
+        const auto combinedIdxOffset = variableSizedAccess.getCombinedIdxOffset();
+        const auto parsedValueBytes = std::as_bytes(std::span{&combinedIdxOffset, 1});
+        std::ranges::copy(parsedValueBytes, tupleBufferFormatted.getAvailableMemoryArea().begin() + writeOffsetInBytes);
+    };
+}
+
+ParseFunctionSignature getParseFunction(const DataType& dataType, const QuotationType quotationType)
+{
+    if (dataType.extension != nullptr)
+    {
+        return getExtensionParseFunction(*dataType.extension, quotationType);
+    }
+    if (dataType.type == DataType::Type::VARSIZED)
     {
         return getStringParseFunction(quotationType);
     }
-    return getBasicTypeParseFunction(physicalType, quotationType);
+    return getBasicTypeParseFunction(dataType.type, quotationType);
 }
 }

@@ -255,6 +255,12 @@ NES::Schema parseFieldNames(const std::string_view fieldNamesRawLine)
         {
             dataType = NES::DataTypeProvider::provideDataType(NES::DataType::Type::VARSIZED);
         }
+        else if (auto extensionType = NES::DataTypeProvider::tryProvideDataType(NES::Util::toUpperCase(typeTrimmed));
+                 extensionType.has_value() and extensionType->isExtension())
+        {
+            /// A type a plugin adds, registered under its name in upper case
+            dataType = *extensionType;
+        }
         else
         {
             throw NES::SLTUnexpectedToken("Unknown basic type: {}", typeTrimmed);

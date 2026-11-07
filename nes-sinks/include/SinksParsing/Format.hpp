@@ -41,11 +41,14 @@ public:
     [[nodiscard]] std::string getFormattedSchema() const
     {
         PRECONDITION(schema.hasFields(), "Encountered schema without fields.");
+        /// A field of a type a plugin adds is named by that type, which the data type registry resolves
+        const auto typeName = [](const DataType& dataType) -> std::string_view
+        { return dataType.extension != nullptr ? dataType.extension->name : magic_enum::enum_name(dataType.type); };
         std::stringstream ss;
-        ss << schema.getFields().front().name << ":" << magic_enum::enum_name(schema.getFields().front().dataType.type);
+        ss << schema.getFields().front().name << ":" << typeName(schema.getFields().front().dataType);
         for (const auto& field : schema.getFields() | std::views::drop(1))
         {
-            ss << ',' << field.name << ':' << magic_enum::enum_name(field.dataType.type);
+            ss << ',' << field.name << ':' << typeName(field.dataType);
         }
         return fmt::format("{}\n", ss.str());
     }

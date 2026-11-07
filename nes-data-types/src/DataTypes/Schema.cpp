@@ -55,16 +55,16 @@ Schema::Schema(const MemoryLayoutType memoryLayoutType) : memoryLayoutType(memor
 
 Schema Schema::addField(std::string name, const DataType& dataType)
 {
-    return addField(std::move(name), dataType.type);
+    /// The whole data type is kept, so a field of a type a plugin adds keeps it
+    sizeOfSchemaInBytes += dataType.getSizeInBytes();
+    fields.emplace_back(std::move(name), dataType);
+    nameToField.emplace(fields.back().name, fields.size() - 1);
+    return *this;
 }
 
 Schema Schema::addField(std::string name, const DataType::Type type)
 {
-    DataType dataType{type};
-    sizeOfSchemaInBytes += dataType.getSizeInBytes();
-    fields.emplace_back(std::move(name), std::move(dataType));
-    nameToField.emplace(fields.back().name, fields.size() - 1);
-    return *this;
+    return addField(std::move(name), DataType{type});
 }
 
 /// No need to repopulate nameToField, since the key does not change

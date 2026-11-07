@@ -25,6 +25,7 @@
 #include <Sources/SourceDescriptor.hpp>
 #include <Util/Registry.hpp>
 
+#ifdef NES_REGISTRAR_DEFINITIONS
 namespace NES::SourceGeneratedRegistrar
 {
 
@@ -35,7 +36,7 @@ namespace NES::SourceGeneratedRegistrar
 namespace NES
 {
 template <>
-inline void
+void
 Registrar<SourceRegistry, std::string, SourceRegistryReturnType, SourceRegistryArguments>::registerAll([[maybe_unused]] Registry<Registrar>& registry)
 {
 
@@ -44,3 +45,12 @@ Registrar<SourceRegistry, std::string, SourceRegistryReturnType, SourceRegistryA
     @REGISTER_ALL_FUNCTION_CALLS@
 }
 }
+#else
+namespace NES
+{
+/// The registry's entries are added in the one translation unit defining NES_REGISTRAR_DEFINITIONS, which
+/// cmake/PluginRegistrationUtil.cmake generates; a plugin source sees the declarations of its own register functions
+template <>
+void Registrar<SourceRegistry, std::string, SourceRegistryReturnType, SourceRegistryArguments>::registerAll(Registry<Registrar>& registry);
+}
+#endif

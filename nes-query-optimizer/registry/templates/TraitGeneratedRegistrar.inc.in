@@ -19,6 +19,7 @@
 "Include instead include <TraitRegistry.hpp>"
 #endif
 
+#ifdef NES_REGISTRAR_DEFINITIONS
 namespace NES::TraitGeneratedRegistrar
 {
 
@@ -29,9 +30,18 @@ namespace NES::TraitGeneratedRegistrar
 namespace NES
 {
 template <>
-inline void Registrar<TraitRegistry, std::string, TraitRegistryReturnType, TraitRegistryArguments>::registerAll([[maybe_unused]] Registry<Registrar>& registry)
+void Registrar<TraitRegistry, std::string, TraitRegistryReturnType, TraitRegistryArguments>::registerAll([[maybe_unused]] Registry<Registrar>& registry)
 {
     using namespace TraitGeneratedRegistrar;
     @REGISTER_ALL_FUNCTION_CALLS@
 }
 }
+#else
+namespace NES
+{
+/// The registry's entries are added in the one translation unit defining NES_REGISTRAR_DEFINITIONS, which
+/// cmake/PluginRegistrationUtil.cmake generates; a plugin source sees the declarations of its own register functions
+template <>
+void Registrar<TraitRegistry, std::string, TraitRegistryReturnType, TraitRegistryArguments>::registerAll(Registry<Registrar>& registry);
+}
+#endif

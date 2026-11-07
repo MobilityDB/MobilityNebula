@@ -19,6 +19,7 @@
 "Include instead include <RewriteRuleRegistry.hpp>"
 #endif
 
+#ifdef NES_REGISTRAR_DEFINITIONS
 namespace NES::RewriteRuleGeneratedRegistrar
 {
 
@@ -29,9 +30,18 @@ namespace NES::RewriteRuleGeneratedRegistrar
 namespace NES
 {
 template <>
-inline void Registrar<RewriteRuleRegistry, std::string, RewriteRuleRegistryReturnType, RewriteRuleRegistryArguments>::registerAll([[maybe_unused]] Registry<Registrar>& registry)
+void Registrar<RewriteRuleRegistry, std::string, RewriteRuleRegistryReturnType, RewriteRuleRegistryArguments>::registerAll([[maybe_unused]] Registry<Registrar>& registry)
 {
     using namespace RewriteRuleGeneratedRegistrar;
     @REGISTER_ALL_FUNCTION_CALLS@
 }
 }
+#else
+namespace NES
+{
+/// The registry's entries are added in the one translation unit defining NES_REGISTRAR_DEFINITIONS, which
+/// cmake/PluginRegistrationUtil.cmake generates; a plugin source sees the declarations of its own register functions
+template <>
+void Registrar<RewriteRuleRegistry, std::string, RewriteRuleRegistryReturnType, RewriteRuleRegistryArguments>::registerAll(Registry<Registrar>& registry);
+}
+#endif

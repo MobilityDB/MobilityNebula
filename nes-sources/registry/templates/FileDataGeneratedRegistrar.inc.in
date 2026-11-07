@@ -22,6 +22,7 @@
 #include <string>
 #include <Util/Registry.hpp>
 
+#ifdef NES_REGISTRAR_DEFINITIONS
 namespace NES::FileDataGeneratedRegistrar
 {
 
@@ -32,7 +33,7 @@ namespace NES::FileDataGeneratedRegistrar
 namespace NES
 {
 template <>
-inline void
+void
 Registrar<FileDataRegistry, std::string, FileDataRegistryReturnType, FileDataRegistryArguments>::registerAll(
     [[maybe_unused]] Registry<Registrar>& registry)
 {
@@ -40,3 +41,12 @@ Registrar<FileDataRegistry, std::string, FileDataRegistryReturnType, FileDataReg
     @REGISTER_ALL_FUNCTION_CALLS@
 }
 }
+#else
+namespace NES
+{
+/// The registry's entries are added in the one translation unit defining NES_REGISTRAR_DEFINITIONS, which
+/// cmake/PluginRegistrationUtil.cmake generates; a plugin source sees the declarations of its own register functions
+template <>
+void Registrar<FileDataRegistry, std::string, FileDataRegistryReturnType, FileDataRegistryArguments>::registerAll(Registry<Registrar>& registry);
+}
+#endif

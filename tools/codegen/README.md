@@ -177,3 +177,22 @@ aggregation CMakeLists (the physical entries inside `if(NES_ENABLE_MEOS)`),
 `AntlrSQL.g4` (lexer token + `functionName` alternative), the dedicated-token
 case of `exitFunctionCall` in `AntlrSQLQueryPlanCreator.cpp`, and the
 optimizer lowering in `LowerToPhysicalWindowedAggregation.cpp`.
+
+## MEOS data types (codegen_nebula_sql.py)
+
+`codegen_nebula_sql.py` generates the MobilityNebula SQL surface the way MobilityFlink and
+MobilitySpark are generated: it reads the catalog through the model of JMEOS's
+`codegen_jvm.py`, vendored unchanged in `jmeos/`. It emits one data type per MEOS SQL type
+(`TGEOMPOINT`, `TFLOAT`, `STBOX`, ...), a type over `VARSIZED`
+(`nes-data-types/include/DataTypes/ExtensionType.hpp`) whose bytes are the value's memory image
+where the catalog states one for its C type, else the form its codec writes, as Flink carries
+it. A source reads, and a sink writes, the form the codec writes: the upper-case hex of the WKB
+for a byte codec, the codec's string otherwise.
+
+```bash
+python3 tools/codegen/codegen_nebula_sql.py --catalog <meos-idl.json> --output-root .
+```
+
+It writes `nes-plugins/MEOS/DataTypes/MeosDataTypes.cpp` and the `CMakeLists.txt` registering
+each type in the DataType registry under its catalog name in upper case; a schema names it
+regardless of case (`trip TGEOMPOINT`, `speed tfloat`).

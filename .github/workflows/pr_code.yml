@@ -49,3 +49,9 @@ jobs:
             --input "$RUNNER_TEMP/descriptor.json" \
             --output-root "$ROOT" \
             --no-parser-glue --no-cmake-entries
+
+      - name: Emit the MEOS data types
+        run: |
+          python3 tools/codegen/codegen_nebula_sql.py \
+            --catalog "${{ steps.meos.outputs.catalog-path }}" \
+            --output-root "$RUNNER_TEMP/emit"

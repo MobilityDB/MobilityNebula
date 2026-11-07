@@ -1,0 +1,371 @@
+#!/usr/bin/env python3
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""The MobilityNebula SQL surface, generated from the MEOS catalog as MobilityFlink's is.
+
+MobilityFlink and MobilitySpark take their SQL surface from one generator, JMEOS
+`tools/codegen_jvm.py` (engines `flink-sql` and `spark-sql`), vendored unchanged in
+`tools/codegen/jmeos/`. This generator reads the catalog through that generator's own model
+(`SqlModel`), so a MEOS SQL type has in NebulaStream the C type, the codec and the carried
+form it has in Flink and Spark.
+
+A MEOS value crosses NebulaStream as the bytes of a VARSIZED field whose data type names its
+MEOS type, an extension type (`nes-data-types/include/DataTypes/ExtensionType.hpp`). The
+bytes are the value's memory image where the catalog states one for its C type
+(typeEncodings[C].image), else the form its codec writes. Its text, which a source reads and a
+sink writes, is the form the codec writes: the upper-case hex of the WKB for a byte codec, the
+codec's string otherwise, the text MobilityFlink's value classes render.
+
+Each type is registered under its catalog SQL name in upper case, as NebulaStream registers
+every data type (INT8, VARSIZED), and a schema names it regardless of case. The header each
+function is declared in is the catalog's `file` field.
+
+Emitted:
+  nes-plugins/MEOS/DataTypes/MeosDataTypes.cpp   one extension type per MEOS SQL type
+  nes-plugins/MEOS/DataTypes/CMakeLists.txt      their registration in the DataType registry
+
+Usage:
+  codegen_nebula_sql.py --catalog meos-idl.json --output-root <MobilityNebula root>
+"""
+import argparse
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+
+LICENSE = """/*
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+"""
+
+CMAKE_LICENSE = """# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#    https://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""
+
+
+def load_jvm_generator():
+    """JMEOS's generator, vendored unchanged; it loads its Spark sibling from its own directory."""
+    path = HERE / 'jmeos' / 'codegen_jvm.py'
+    spec = importlib.util.spec_from_file_location('codegen_jvm', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_catalog(path):
+    """The MEOS catalog, as build_descriptor.load_catalog reads it."""
+    with open(path) as fh:  # BINDING-HEADER-PARSE-OK: reads meos-idl.json, the catalog itself; no header is read
+        return json.load(fh)
+
+
+def sql_model(cj, cat):
+    """JMEOS's SqlModel over the catalog. Where Flink binds the symbols of the JMEOS jar, NebulaStream
+    calls libmeos itself, so the functions it may call are the public ones of the catalog."""
+    callable_fns = {f['name']: {'ret': '', 'arg_types': []} for f in cat['functions'] if f.get('api') != 'internal'}
+    return cj.SqlModel(cat, callable_fns)
+
+
+def c_spelling(canonical):
+    """A catalog `canonical` C type as C++ writes it in a declaration."""
+    return canonical.replace(' *', '*').strip()
+
+
+def literal(aux):
+    """The C++ literal of the value the catalog states for a codec's trailing input, null where it
+    states none (geo_as_hexewkb's endian, which MEOS reads as the machine's byte order)."""
+    v = aux.get('default', 0)
+    if v is None:
+        return 'nullptr'
+    return json.dumps(v) if isinstance(v, str) else str(v)
+
+
+def ident(sql):
+    return ''.join(p.capitalize() for p in sql.split('_'))
+
+
+class TypeLayer:
+    """The extension type of each MEOS SQL type the model gives a codec."""
+
+    def __init__(self, cj, cat):
+        self.m = sql_model(cj, cat)
+        self.by_name = {f['name']: f for f in cat['functions']}
+        self.variant = cj.WKB_VARIANT
+        self.headers = set()
+
+    def fn(self, name):
+        """The catalog record of a function the types call; its `file` is included for its declaration."""
+        f = self.by_name[name]
+        self.headers.add(f['file'])
+        return f
+
+    def encoder_call(self, enc, value, aux):
+        """The call of the codec's encoder on `value`: its stated trailing inputs, the WKB variant a
+        writer taking one beside the value reads, and the length it answers in `size`."""
+        named = {a['name']: a for a in aux}
+        args = [value]
+        for p in self.fn(enc)['params'][1:]:
+            if c_spelling(p['canonical']) == 'size_t*':
+                args.append('&size')
+            elif p['name'] in named:
+                args.append(literal(named[p['name']]))
+            elif p['name'] == 'variant':
+                args.append(str(self.variant))
+            else:
+                raise SystemExit(f'{enc}: the catalog states no value for parameter {p["name"]}')
+        return f'{enc}({", ".join(args)})'
+
+    def decoder_call(self, kind, dec, aux):
+        """The call of the codec's decoder on the WKB `wkb` or the terminated text `terminated`."""
+        if kind == 'bytes':
+            return f'{dec}(wkb.data(), wkb.size())'
+        return f'{dec}(terminated.c_str(){"".join(", " + literal(a) for a in aux)})'
+
+    def source(self, sql):
+        """The C++ of the extension type of `sql`: its text writer, its text reader and its object."""
+        kind, dec, enc, in_aux, out_aux = self.m.codec[sql]
+        image = self.m.image.get(sql)
+        ctype = c_spelling(self.fn(dec)['returnType']['canonical'])
+        pointer = ctype.endswith('*')
+        name = ident(sql)
+        size_fn = image and image.get('size')
+        carried = (f'memory image ({image["copy"]} / {size_fn or str(image["sizeBytes"]) + " bytes"})' if image
+                   else f'{kind} form ({dec} / {enc})')
+        text = 'the hex of its WKB' if kind == 'bytes' else f'its {kind} string'
+        out = [f'/* {sql}: C type {self.m.sql_cbase[sql]}, carried as its {carried}, read and written as {text} */']
+
+        # The text of the value the bytes carry
+        out += [f'std::string {name}ToText(std::span<const std::byte> bytes)', '{']
+        if image:
+            copy = self.fn(image['copy'])['name']
+            base = ctype[:-1]
+            out += ['    MEOS::Meos::ensureMeosInitialized();',
+                    f'    auto* value = static_cast<{ctype}>(fromImage(bytes, [](const void* laid) -> void* '
+                    f'{{ return {copy}(static_cast<const {base}*>(laid)); }}));',
+                    '    size_t size = 0;',
+                    f'    auto* written = {self.encoder_call(enc, "value", out_aux)};',
+                    '    std::free(value);',
+                    f'    if (written == nullptr) {{ cannotWrite("{sql}"); }}',
+                    ('    auto text = hex(std::as_bytes(std::span{written, size}));' if kind == 'bytes'
+                     else '    std::string text{written};'),
+                    '    std::free(written);',
+                    '    return text;']
+        elif kind == 'bytes':
+            # the bytes are the codec's form, the WKB itself
+            out.append('    return hex(bytes);')
+        else:
+            # the bytes are the codec's string
+            out.append('    return textOf(bytes);')
+        out += ['}', '']
+
+        # The bytes of the value the text states
+        out += [f'std::vector<std::byte> {name}FromText(std::string_view text)', '{',
+                '    MEOS::Meos::ensureMeosInitialized();']
+        out.append('    const auto wkb = unhex(text);' if kind == 'bytes' else '    const std::string terminated{text};')
+        out.append(f'    auto value = {self.decoder_call(kind, dec, in_aux)};')
+        if pointer:
+            out.append(f'    if (value == nullptr) {{ cannotRead("{sql}", text); }}')
+        if image:
+            size = f'static_cast<size_t>({self.fn(size_fn)["name"]}(value))' if size_fn else f'size_t{{{image["sizeBytes"]}}}'
+            out += [f'    auto carried = image(value, {size});', '    std::free(value);', '    return carried;']
+        else:
+            # read to check it, then carried in the codec's form
+            out.append('    std::free(value);' if pointer else '    static_cast<void>(value);')
+            out.append('    return bytesOf(std::span{wkb});' if kind == 'bytes'
+                       else '    return bytesOf(std::span{terminated});')
+        out += ['}', '',
+                f'constexpr ExtensionType {name}Type{{.name = "{sql.upper()}", .toText = {name}ToText, .fromText = {name}FromText}};',
+                '']
+        return '\n'.join(out)
+
+    def registrar(self, sqls):
+        out = ['}', '', 'namespace NES', '{', '']
+        for sql in sqls:
+            out += [f'DataTypeRegistryReturnType DataTypeGeneratedRegistrar::Register{sql.upper()}DataType(DataTypeRegistryArguments)',
+                    '{',
+                    f'    return DataType{{.type = DataType::Type::VARSIZED, .extension = &{ident(sql)}Type}};',
+                    '}', '']
+        out.append('}')
+        return out
+
+
+PREAMBLE = r'''
+/* AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.
+ * One extension type per MEOS SQL type, carrying the form MobilityFlink's value class carries. */
+
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <span>
+#include <string>
+#include <string_view>
+#include <vector>
+
+extern "C" {
+@HEADERS@
+}
+
+#include <DataTypes/DataType.hpp>
+#include <DataTypes/ExtensionType.hpp>
+#include <MEOSWrapper.hpp>
+#include <DataTypeRegistry.hpp>
+#include <ErrorHandling.hpp>
+
+namespace
+{
+using NES::ExtensionType;
+
+[[noreturn]] void cannotWrite(std::string_view type)
+{
+    throw NES::FormattingError("MEOS cannot write a value of {}", type);
+}
+
+[[noreturn]] void cannotRead(std::string_view type, std::string_view text)
+{
+    throw NES::CannotFormatSourceData("MEOS reads no value of {} from '{}'", type, text);
+}
+
+/// The upper-case hex of the bytes, the text MobilityFlink renders a WKB in.
+std::string hex(std::span<const std::byte> bytes)
+{
+    static constexpr std::string_view digits = "0123456789ABCDEF";
+    std::string text;
+    text.reserve(2 * bytes.size());
+    for (const auto byte : bytes)
+    {
+        text.push_back(digits[std::to_integer<uint8_t>(byte) >> 4U]);
+        text.push_back(digits[std::to_integer<uint8_t>(byte) & 0xFU]);
+    }
+    return text;
+}
+
+/// The bytes the hex states, as the MEOS WKB readers take them.
+std::vector<uint8_t> unhex(std::string_view text)
+{
+    const auto digit = [text](const char c) -> uint8_t
+    {
+        if (c >= '0' and c <= '9')
+        {
+            return c - '0';
+        }
+        if (c >= 'A' and c <= 'F')
+        {
+            return c - 'A' + 10;
+        }
+        if (c >= 'a' and c <= 'f')
+        {
+            return c - 'a' + 10;
+        }
+        throw NES::CannotFormatSourceData("'{}' is not hexadecimal", text);
+    };
+    if (text.size() % 2 != 0)
+    {
+        throw NES::CannotFormatSourceData("'{}' has an odd number of hexadecimal digits", text);
+    }
+    std::vector<uint8_t> bytes(text.size() / 2);
+    for (size_t i = 0; i < bytes.size(); ++i)
+    {
+        bytes[i] = static_cast<uint8_t>((digit(text[2 * i]) << 4U) | digit(text[2 * i + 1]));
+    }
+    return bytes;
+}
+
+/// A copy of the bytes the span holds.
+template <typename T>
+std::vector<std::byte> bytesOf(std::span<const T> held)
+{
+    const auto bytes = std::as_bytes(held);
+    return {bytes.begin(), bytes.end()};
+}
+
+/// The string the bytes hold.
+std::string textOf(std::span<const std::byte> bytes)
+{
+    std::string text(bytes.size(), '\0');
+    std::memcpy(text.data(), bytes.data(), bytes.size());
+    return text;
+}
+
+/// The value whose memory image the bytes hold, as the catalog's copy function copies it from the image
+/// laid in memory malloc allocates, as MEOS allocates, which aligns it for any type.
+void* fromImage(std::span<const std::byte> bytes, void* (*copy)(const void*))
+{
+    void* laid = std::malloc(bytes.size());
+    std::memcpy(laid, bytes.data(), bytes.size());
+    void* value = copy(laid);
+    std::free(laid);
+    return value;
+}
+
+/// The memory image of the value, the size bytes it is laid in.
+std::vector<std::byte> image(const void* value, const size_t size)
+{
+    std::vector<std::byte> bytes(size);
+    std::memcpy(bytes.data(), value, size);
+    return bytes;
+}
+
+'''
+
+
+def run(args):
+    layer = TypeLayer(load_jvm_generator(), load_catalog(args.catalog))
+    sqls = sorted(layer.m.codec)
+    bodies = [layer.source(sql) for sql in sqls]
+    headers = '\n'.join(f'#include <{h}>' for h in sorted(layer.headers))
+    src = (LICENSE + PREAMBLE.replace('@HEADERS@', headers) + '\n'.join(bodies) + '\n'
+           + '\n'.join(layer.registrar(sqls)) + '\n')
+    out = Path(args.output_root) / 'nes-plugins' / 'MEOS' / 'DataTypes'
+    out.mkdir(parents=True, exist_ok=True)
+    (out / 'MeosDataTypes.cpp').write_text(src)
+    cmake = [CMAKE_LICENSE,
+             '# AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
+             '# Each MEOS SQL type is a data type of its own, registered under its name in upper case.', '']
+    cmake += [f'add_plugin({sql.upper()} DataType nes-data-types MeosDataTypes.cpp)' for sql in sqls]
+    cmake += ['', "# The types call libmeos and initialize MEOS through the plugin's wrapper.",
+              'target_link_libraries(nes-data-types PUBLIC nes-meos)', '']
+    (out / 'CMakeLists.txt').write_text('\n'.join(cmake))
+    print(f'codegen_nebula_sql: {len(sqls)} MEOS data types '
+          f'({sum(1 for s in sqls if s in layer.m.image)} carried as their memory image) into {out}')
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument('--catalog', required=True, help='meos-idl.json of the MEOS the build links')
+    ap.add_argument('--output-root', required=True, help='the MobilityNebula checkout')
+    run(ap.parse_args())
+
+
+if __name__ == '__main__':
+    sys.exit(main())

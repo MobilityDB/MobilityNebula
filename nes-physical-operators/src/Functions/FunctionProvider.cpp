@@ -113,6 +113,12 @@ PhysicalFunction FunctionProvider::lowerConstantFunction(const ConstantValueLogi
             return ConstantCharValueFunction(parseConstantValue<char>(stringValue));
         case DataType::Type::VARSIZED_POINTER_REP:
         case DataType::Type::VARSIZED: {
+            /// A constant of a type a plugin adds holds the bytes the type reads from its text
+            if (const auto* extension = constantFunction.getDataType().extension)
+            {
+                const auto bytes = extension->fromText(stringValue);
+                return ConstantValueVariableSizePhysicalFunction(std::bit_cast<const int8_t*>(bytes.data()), bytes.size());
+            }
             return ConstantValueVariableSizePhysicalFunction(std::bit_cast<const int8_t*>(stringValue.c_str()), stringValue.size());
         };
         case DataType::Type::UNDEFINED: {

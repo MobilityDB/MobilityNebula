@@ -1,5 +1,5 @@
 # name: function/spatiotemporal/MEOS_EIntersects_Temporal_Geometry_String.test
-# description: Test TEMPORAL_EINTERSECTS_GEOMETRY with string-based temporal geometries
+# description: Test eIntersects with string-based temporal geometries
 # groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, String]
 
 # Test 1: Multiple temporal geometry intersect operations (6-parameter: temporal-temporal coordinates)
@@ -17,8 +17,8 @@ Attach File CSV nes-systests/configs/inputFormatters/csv_pipe_delimiter.yaml tra
 SINK intersect_results UINT32 trajectories$id INT32 trajectories$intersects1 INT32 trajectories$intersects2
 
 SELECT id, 
-       TEMPORAL_EINTERSECTS_GEOMETRY(lon1, lat1, timestamp1, ref_lon, ref_lat, ref_timestamp) AS intersects1,
-       TEMPORAL_EINTERSECTS_GEOMETRY(lon2, lat2, timestamp2, ref_lon, ref_lat, ref_timestamp) AS intersects2
+       eIntersects(lon1, lat1, timestamp1, ref_lon, ref_lat, ref_timestamp) AS intersects1,
+       eIntersects(lon2, lat2, timestamp2, ref_lon, ref_lat, ref_timestamp) AS intersects2
 FROM trajectories
 INTO intersect_results
 ----
@@ -47,8 +47,8 @@ Attach File CSV nes-systests/configs/inputFormatters/csv_pipe_delimiter.yaml mix
 SINK mixed_results UINT32 mixed_data$obj_id INT32 mixed_data$temporal_intersect INT32 mixed_data$static_intersect
 
 SELECT obj_id,
-       TEMPORAL_EINTERSECTS_GEOMETRY(lon1, lat1, timestamp1, ref_lon, ref_lat, ref_timestamp) AS temporal_intersect,
-       TEMPORAL_EINTERSECTS_GEOMETRY(ref_lon, ref_lat, ref_timestamp, lon2, lat2, timestamp2) AS static_intersect
+       eIntersects(lon1, lat1, timestamp1, ref_lon, ref_lat, ref_timestamp) AS temporal_intersect,
+       eIntersects(ref_lon, ref_lat, ref_timestamp, lon2, lat2, timestamp2) AS static_intersect
 FROM mixed_data
 INTO mixed_results
 ----
@@ -75,8 +75,8 @@ Attach File CSV nes-systests/configs/inputFormatters/csv_pipe_delimiter.yaml mul
 SINK multi_check_results UINT32 multi_checks$traj_id INT32 multi_checks$check1 INT32 multi_checks$check2
 
 SELECT traj_id,
-       TEMPORAL_EINTERSECTS_GEOMETRY(lon1, lat1, timestamp1, ref_lon, ref_lat, ref_timestamp) AS check1,
-       TEMPORAL_EINTERSECTS_GEOMETRY(lon2, lat2, timestamp2, ref_lon, ref_lat, ref_timestamp) AS check2
+       eIntersects(lon1, lat1, timestamp1, ref_lon, ref_lat, ref_timestamp) AS check1,
+       eIntersects(lon2, lat2, timestamp2, ref_lon, ref_lat, ref_timestamp) AS check2
 FROM multi_checks
 INTO multi_check_results
 ----
@@ -99,7 +99,7 @@ Attach File CSV nes-systests/configs/inputFormatters/csv_pipe_delimiter.yaml val
 SINK validation_results UINT32 validation_points$sensor_id INT32 validation_points$intersects UINT32 validation_points$status_check
 
 SELECT sensor_id,
-       TEMPORAL_EINTERSECTS_GEOMETRY(lon, lat, timestamp, ref_lon, ref_lat, ref_timestamp) AS intersects,
+       eIntersects(lon, lat, timestamp, ref_lon, ref_lat, ref_timestamp) AS intersects,
        status AS status_check
 FROM validation_points
 INTO validation_results
@@ -124,7 +124,7 @@ Attach File CSV nes-systests/configs/inputFormatters/csv_pipe_delimiter.yaml seq
 SINK sequential_results UINT32 sequential_points$point_id INT32 sequential_points$is_match UINT32 sequential_points$match_count
 
 SELECT point_id,
-       TEMPORAL_EINTERSECTS_GEOMETRY(lon, lat, timestamp, ref_lon, ref_lat, ref_timestamp) AS is_match,
+       eIntersects(lon, lat, timestamp, ref_lon, ref_lat, ref_timestamp) AS is_match,
        point_id AS match_count
 FROM sequential_points
 INTO sequential_results

@@ -44,6 +44,10 @@ public:
 
     [[nodiscard]] virtual std::string_view getName() const noexcept = 0;
 
+    /// The name its physical aggregation is registered under: its name, unless it is one name over
+    /// several overloads lowered each by its own
+    [[nodiscard]] virtual std::string_view getPhysicalName() const noexcept { return getName(); }
+
     DataType inputStamp, partialAggregateStamp, finalAggregateStamp;
     FieldAccessLogicalFunction onField, asField;
 

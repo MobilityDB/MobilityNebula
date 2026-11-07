@@ -52,6 +52,7 @@
 #include <Functions/FieldAssignmentLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Functions/LogicalFunctionProvider.hpp>
+#include <Operators/Windows/Aggregations/AggregationLogicalFunctionProvider.hpp>
 #include <Operators/Windows/Aggregations/ArrayAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/AvgAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/CountAggregationLogicalFunction.hpp>
@@ -1562,6 +1563,15 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
                 helpers.top().functionBuilder.pop_back();
                 helpers.top().windowAggs.push_back(CrossDistanceAggregationLogicalFunction::create(lon, lat, ts, vid, vidA, vidB));
+            }
+            else if (auto aggregation = context->argument.size() == 1 and not helpers.top().functionBuilder.empty()
+                         and helpers.top().functionBuilder.back().tryGet<FieldAccessLogicalFunction>()
+                     ? AggregationLogicalFunctionProvider::tryProvide(
+                           funcName, helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>())
+                     : std::nullopt)
+            {
+                /// An aggregation over one field, as COUNT is; the field is left for the result's name
+                helpers.top().windowAggs.push_back(*aggregation);
             }
             else if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, callArguments(context)))
             {

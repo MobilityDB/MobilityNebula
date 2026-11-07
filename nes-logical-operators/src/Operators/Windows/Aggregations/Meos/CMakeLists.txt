@@ -15,3 +15,6 @@ add_plugin(TemporalSequence AggregationLogicalFunction nes-logical-operators Tem
 add_plugin(TemporalLength AggregationLogicalFunction nes-logical-operators TemporalLengthAggregationLogicalFunction.cpp)
 add_plugin(PairMeeting AggregationLogicalFunction nes-logical-operators PairMeetingAggregationLogicalFunction.cpp)
 add_plugin(CrossDistance AggregationLogicalFunction nes-logical-operators CrossDistanceAggregationLogicalFunction.cpp)
+
+# The MEOS aggregate called by its name, whose names and overloads nes-plugins/MEOS/Aggregations registers
+add_source_files(nes-logical-operators MeosAggregationLogicalFunction.cpp)

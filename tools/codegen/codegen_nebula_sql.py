@@ -33,6 +33,10 @@ function is declared in is the catalog's `file` field.
 Emitted:
   nes-plugins/MEOS/DataTypes/MeosDataTypes.cpp   one extension type per MEOS SQL type
   nes-plugins/MEOS/DataTypes/CMakeLists.txt      their registration in the DataType registry
+  nes-plugins/MEOS/Functions/                    one logical function per SQL name, one kernel per SQL signature
+  nes-plugins/MEOS/Aggregations/                 one logical aggregation per aggregate name, one operations
+                                                 struct per overload, run by MeosAggregateRuntime.hpp as
+                                                 MobilityDuck's meos_aggregate.hpp runs the same catalog entries
 
 Usage:
   codegen_nebula_sql.py --catalog meos-idl.json --output-root <MobilityNebula root>
@@ -660,6 +664,213 @@ class FunctionLayer:
         return files
 
 
+class AggregateLayer:
+    """The aggregates of the catalog's `aggregates` section over the types of the TypeLayer, as MobilityDuck's
+    tools/codegen_duck_udfs.py #_agg_ops and #gen_aggregates write them: one operations struct per catalog
+    entry, run by the MeosAggregate template of nes-plugins/MEOS/include/MeosAggregateRuntime.hpp, and one
+    aggregate per name over its overloads. An argument is decoded as a function's is (FunctionLayer) and the
+    result answered as a function's result is."""
+
+    # The MEOS function answering the start timestamp of a temporal value, the order an aggregate with no
+    # combine folds its rows in, as MobilityDuck's AGG_ORDER_KEY
+    ORDER_KEY = 'temporal_start_timestamptz'
+
+    def __init__(self, functions):
+        self.f = functions
+        self.t = functions.t
+        self.m = functions.m
+        self.by_name = {f['name']: f for f in functions.cat['functions']}
+        self.overloads = {}   # name -> [(NebulaStream argument type, result type, key)]
+        self.ops = []         # (key, C++ source, physical argument type)
+        self.left = {}
+
+    def leave(self, why):
+        self.left[why] = self.left.get(why, 0) + 1
+
+    def input(self, p, sql):
+        """How the SQL argument of type `sql` reaches the C parameter p, as #_agg_input: (field, decode, call,
+        free) with the argument at a0 and the row at row, or None"""
+        ctype = c_spelling(p['canonical'])
+        base = ctype.replace('const ', '').replace('struct ', '').rstrip('*').strip()
+        if sql in self.m.codec:
+            kind, dec = self.m.codec[sql][:2]
+            if not ctype.endswith('*'):
+                return None
+            if sql in self.m.image:
+                decode = 'row.a0 = MeosRuntime::laid(a0);'
+            elif kind != 'bytes':
+                # carried as the codec's string, decoded for the call
+                self.t.fn(dec)
+                decode = f'row.a0 = {dec}(MeosRuntime::text(a0).c_str());'
+            else:
+                return None
+            return ('void* a0;', decode + '\n        if (row.a0 == nullptr)\n        {\n            return false;\n        }',
+                    f'static_cast<{base}*>(row.a0)', 'std::free(row.a0);')
+        if sql == 'text' and ctype in ('text*', 'const text*'):
+            self.t.fn('cstring_to_text')
+            return ('text* a0;', 'row.a0 = cstring_to_text(MeosRuntime::text(a0).c_str());', 'row.a0',
+                    'std::free(row.a0);')
+        if sql in SQL_SCALAR and ctype in C_NUMBER:
+            return (f'{ctype} a0;', f'row.a0 = static_cast<{ctype}>(MeosRuntime::number<{SQL_SCALAR[sql][1]}>(a0));',
+                    'row.a0', '')
+        return None
+
+    def entry(self, a):
+        """The operations struct of catalog aggregate `a`, its overload added to its name, or the reason it is
+        left out, as #_agg_ops"""
+        roles = {r: (a.get(r) or {}).get('meos') for r in ('transition', 'combine', 'final')}
+        args, ret, stype = a.get('args') or [], a['ret'], a['stype']
+        name = a.get('altSqlName') or a['sqlName']
+        if not args:
+            return 'no argument'
+        if len(args) > 1:
+            return f'arity {len(args)}'
+        types = [self.f.nes_type(t) for t in args]
+        rtype = self.f.nes_type(ret)
+        if None in types or rtype is None:
+            return f'type {next(t for t, n in zip(args + [ret], types + [rtype]) if n is None)}'
+        if any(r and r not in self.by_name for r in roles.values()):
+            return 'role not in the catalog'
+        tf = self.by_name[roles['transition']]
+        gathers = not roles['combine']
+        if gathers and self.ORDER_KEY not in self.by_name:
+            return f'no combine and no {self.ORDER_KEY}'
+        params = tf.get('params') or []
+        vis = params[1:]
+        sig = next((s for s in tf.get('sqlSignatures') or [] if s.get('args') == [stype] + args), {})
+        bound = {**((tf.get('shape') or {}).get('boundArgs') or {}), **(sig.get('boundArgs') or {})}
+        bound = {n: v for n, v in bound.items() if n in {p['name'] for p in vis}}
+        walk = [i for i, p in enumerate(vis) if p['name'] not in bound]
+        if len(walk) != len(args):
+            return 'arity'
+        call = [None] * len(vis)
+        for i, p in enumerate(vis):
+            if p['name'] in bound:
+                call[i] = self.f.bound_literal(bound[p['name']], c_spelling(p['canonical']))
+                if call[i] is None:
+                    return f'bound {bound[p["name"]]}'
+        got = self.input(vis[walk[0]], args[0])
+        if got is None:
+            return f'argument {args[0]}/{c_spelling(vis[walk[0]]["canonical"])}'
+        field, decode, call[walk[0]], free = got
+        if gathers and field != 'void* a0;':
+            return 'no combine over a value of no temporal type'
+        ff = self.by_name.get(roles['final']) if roles['final'] else None
+        keeps = bool(ff and ff.get('params') and ff['params'][0]['canonical'].startswith('const '))
+        res = ff or tf
+        rc = c_spelling(res['returnType']['canonical'])
+        if not rc.endswith('*'):
+            return f'result {rc}'
+        answer = self.f.answer(ret, res)
+        if answer is None:
+            return f'result {ret} as {rc}'
+        lines, _ = answer
+        cast = lambda fn, i: f'static_cast<{c_spelling(fn["params"][i]["canonical"])}>'  # noqa: E731
+        key = f'MeosAggregate_{name}_{len(self.overloads.get(name, []))}'
+        for fn in (tf, self.by_name.get(roles['combine']), ff):
+            if fn:
+                self.t.fn(fn['name'])
+        L = [f'struct {key}Ops', '{', '    struct Row', '    {', f'        {field}', '    };',
+             f'    static constexpr bool GATHERS = {"true" if gathers else "false"};',
+             f'    static constexpr bool HAS_FINAL = {"true" if ff else "false"};',
+             f'    static constexpr bool KEEPS = {"true" if keeps else "false"};',
+             '    static bool Read(Row& row, int8_t* a0)', '    {', f'        {decode}', '        return true;', '    }',
+             '    static void* Transition(void* s, Row& row)', '    {',
+             f'        return {tf["name"]}({cast(tf, 0)}(s){"".join(", " + c for c in call)});', '    }',
+             '    static void Free(Row& row)', '    {', f'        {free}' if free else '        static_cast<void>(row);',
+             '    }']
+        if roles['combine']:
+            cf = self.by_name[roles['combine']]
+            L += ['    static void* Combine(void* a, void* b)', '    {',
+                  f'        return {cf["name"]}({cast(cf, 0)}(a), {cast(cf, 1)}(b));', '    }']
+        else:
+            L += ['    static void* Combine(void*, void*)', '    {', '        return nullptr;', '    }']
+        if ff:
+            L += ['    static void* Final(void* s)', '    {', f'        return {ff["name"]}({cast(ff, 0)}(s));', '    }']
+        else:
+            L += ['    static void* Final(void* s)', '    {', '        return s;', '    }']
+        body = [line.replace('\n', '\n    ') for line in lines]
+        L += ['    static int8_t* Write(void* v, int8_t* out)', '    {',
+              f'        auto* r = static_cast<{rc.replace("const ", "")}>(v);']
+        if 'MeosRuntime::number<' not in ''.join(lines):
+            L.append('        static_cast<void>(out);')
+        L += [f'    {line}' for line in body]
+        L += ['    }']
+        if gathers:
+            self.t.fn(self.ORDER_KEY)
+            L += ['    static int64_t Order(const Row& row)', '    {',
+                  f'        return {self.ORDER_KEY}(static_cast<const Temporal*>(row.a0));', '    }']
+        else:
+            L += ['    static int64_t Order(const Row&)', '    {', '        return 0;', '    }']
+        L += ['};', '']
+        self.ops.append((key, '\n'.join(L), types[0][1]))
+        self.overloads.setdefault(name, []).append((types[0][0], rtype[0], key))
+        return None
+
+    def build(self, functions):
+        """Every entry of the catalog's `aggregates` section, one overload per name and argument types, as
+        #gen_aggregates walks them; an aggregate sharing its name with a function stops the generation, the
+        parser taking a call of such a name over a field for the aggregate"""
+        seen = set()
+        for a in self.f.cat.get('aggregates') or []:
+            name = a.get('altSqlName') or a['sqlName']
+            key = (name.lower(), tuple(a.get('args') or []))
+            if key in seen:
+                continue
+            why = self.entry(a)
+            if why:
+                self.leave(why)
+                continue
+            seen.add(key)
+        clash = sorted(n for n in self.overloads if n.upper() in {f.upper() for f in functions} | self.f.taken)
+        if clash:
+            raise SystemExit(f'an aggregate and a function share a name: {", ".join(clash)}')
+
+    def logical_source(self):
+        out = [LICENSE, '/* AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
+               ' * Every MEOS aggregate by its name, each with the overloads the catalog states for it. */', '',
+               '#include <array>', '#include <memory>', '#include <Functions/FieldAccessLogicalFunction.hpp>',
+               '#include <Operators/Windows/Aggregations/Meos/MeosAggregationLogicalFunction.hpp>',
+               '#include <AggregationLogicalFunctionRegistry.hpp>', '#include <ErrorHandling.hpp>', '',
+               'namespace NES', '{', '', 'namespace', '{']
+        for n, (name, overloads) in enumerate(sorted(self.overloads.items())):
+            rows = ', '.join(f'MeosAggregateOverload{{"{a}", "{r}", "{k}"}}' for a, r, k in overloads)
+            out.append(f'constexpr std::array<MeosAggregateOverload, {len(overloads)}> overloads{n}{{{rows}}};')
+        out += ['}', '']
+        for n, (name, _) in enumerate(sorted(self.overloads.items())):
+            out += [f'AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::'
+                    f'Register{name}AggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)',
+                    '{', '    if (arguments.fields.size() != 2)', '    {',
+                    f'        throw CannotDeserialize("{name} takes an on and an as field, but got {{}}", arguments.fields.size());',
+                    '    }',
+                    f'    return std::make_shared<MeosAggregationLogicalFunction>("{name}", overloads{n}, arguments.fields[0], '
+                    'arguments.fields[1]);', '}', '']
+        out.append('}')
+        return '\n'.join(out) + '\n'
+
+    def kernel_source(self, headers):
+        out = [LICENSE, '/* AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
+               ' * The operations of the MEOS aggregates, one per overload, and their physical aggregations. */', '',
+               '#include <cstdint>', '#include <cstdlib>', '#include <cstring>', '#include <memory>', '#include <string>',
+               '#include <utility>', '', 'extern "C" {', headers, '}', '',
+               '#include <Aggregation/Function/Meos/MeosAggregationPhysicalFunction.hpp>', '#include <DataTypes/DataType.hpp>',
+               '#include <MeosAggregateRuntime.hpp>', '#include <MeosKernelRuntime.hpp>',
+               '#include <AggregationPhysicalFunctionRegistry.hpp>', '', 'namespace NES', '{', '', 'namespace', '{']
+        for key, src, _ in self.ops:
+            out += [src, f'using {key} = MeosRuntime::MeosAggregate<{key}Ops>;',
+                    f'constexpr MeosAggregateKernels {key}Kernels{{&{key}::Initialize, &{key}::Update, &{key}::Combine, '
+                    f'&{key}::Finish, &{key}::Destroy, {key}::StateSize}};', '']
+        out += ['}', '']
+        for key, _, ptype in self.ops:
+            out += [f'AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::'
+                    f'Register{key}AggregationPhysicalFunction(AggregationPhysicalFunctionRegistryArguments arguments)',
+                    '{', '    return std::make_shared<MeosAggregationPhysicalFunction>(std::move(arguments.inputType), '
+                    'std::move(arguments.resultType), std::move(arguments.inputFunction), std::move(arguments.resultFieldIdentifier), '
+                    f'DataType::Type::{ptype}, {key}Kernels);', '}', '']
+        out.append('}')
+        return '\n'.join(out) + '\n'
+
+
 def nebula_function_names(root):
     """The names NebulaStream's own logical functions are registered under, read from the add_plugin
     calls of the repository's CMakeLists"""
@@ -731,6 +942,30 @@ def run(args):
     print(f'codegen_nebula_sql: {len(functions.overloads)} MEOS functions over {len(functions.kernels)} SQL signatures '
           f'into {out}')
     for why, n in sorted(functions.left.items(), key=lambda x: -x[1]):
+        print(f'  left out {n:5d}  {why}')
+
+    # The aggregates, whose operations include the headers of the roles they call
+    layer.headers = set()
+    aggregates = AggregateLayer(functions)
+    aggregates.build(functions.overloads)
+    out = Path(args.output_root) / 'nes-plugins' / 'MEOS' / 'Aggregations'
+    out.mkdir(parents=True, exist_ok=True)
+    write_if_changed(out / 'MeosAggregations.cpp', aggregates.logical_source())
+    headers = '\n'.join(f'#include <{h}>' for h in sorted(layer.headers))
+    write_if_changed(out / 'MeosAggregationKernels.cpp', aggregates.kernel_source(headers))
+    cmake = [CMAKE_LICENSE,
+             '# AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
+             '# Each MEOS aggregate is a logical aggregation under its name, and each of its overloads a physical',
+             '# aggregation run by the MeosAggregate template over its operations.', '']
+    cmake += [f'add_plugin({name} AggregationLogicalFunction nes-logical-operators MeosAggregations.cpp)'
+              for name in sorted(aggregates.overloads)]
+    cmake.append('')
+    cmake += [f'add_plugin({key} AggregationPhysicalFunction nes-physical-operators MeosAggregationKernels.cpp)'
+              for key, *_ in aggregates.ops]
+    write_if_changed(out / 'CMakeLists.txt', '\n'.join(cmake) + '\n')
+    print(f'codegen_nebula_sql: {len(aggregates.overloads)} MEOS aggregates over {len(aggregates.ops)} overloads '
+          f'into {out}')
+    for why, n in sorted(aggregates.left.items(), key=lambda x: -x[1]):
         print(f'  left out {n:5d}  {why}')
 
 

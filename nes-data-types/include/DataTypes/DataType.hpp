@@ -21,6 +21,7 @@
 #include <ostream>
 #include <string>
 #include <type_traits>
+#include <DataTypes/ExtensionType.hpp>
 #include <Util/Logger/Formatter.hpp>
 
 namespace NES
@@ -124,8 +125,12 @@ struct DataType final
     [[nodiscard]] bool isSignedInteger() const;
     [[nodiscard]] bool isFloat() const;
     [[nodiscard]] bool isNumeric() const;
+    /// Whether the values are those of a type a plugin adds over VARSIZED (@struct ExtensionType).
+    [[nodiscard]] bool isExtension() const { return extension != nullptr; }
 
     Type type{Type::UNDEFINED};
+    /// The type a plugin adds, for a VARSIZED field carrying one; null for every other field.
+    const ExtensionType* extension{nullptr};
 };
 
 }
@@ -133,7 +138,10 @@ struct DataType final
 template <>
 struct std::hash<NES::DataType>
 {
-    size_t operator()(const NES::DataType& dataType) const noexcept { return static_cast<uint8_t>(dataType.type); }
+    size_t operator()(const NES::DataType& dataType) const noexcept
+    {
+        return static_cast<uint8_t>(dataType.type) ^ (std::hash<const void*>{}(dataType.extension) << 1U);
+    }
 };
 
 FMT_OSTREAM(NES::DataType);

@@ -34,4 +34,6 @@ message SerializableDataType {
   }
 
   Type type = 1;
+  // The name of the type a plugin adds over VARSIZED, empty for every other type
+  string extension = 2;
 }

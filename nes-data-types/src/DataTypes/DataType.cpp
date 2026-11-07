@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <optional>
 #include <ostream>
+#include <span>
 #include <string>
 #include <utility>
 #include <DataTypes/DataTypeProvider.hpp>
@@ -191,6 +192,10 @@ std::string DataType::formattedBytesToString(const void* data) const
             const StringLengthType textLength = *static_cast<const uint32_t*>(data);
             const auto* textPointer = static_cast<const char*>(data);
             textPointer += sizeof(StringLengthType); ///NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+            if (extension != nullptr)
+            {
+                return extension->toText(std::as_bytes(std::span{textPointer, textLength}));
+            }
             return {textPointer, textLength};
         }
         case Type::UNDEFINED:
@@ -308,6 +313,11 @@ std::optional<DataType> DataType::join(const DataType& otherDataType) const
     }
     if (this->type == Type::VARSIZED)
     {
+        /// Two values of an extension type join only with values of the same type, never with plain VARSIZED.
+        if (this->extension != nullptr or otherDataType.extension != nullptr)
+        {
+            return (*this == otherDataType) ? std::optional{*this} : std::nullopt;
+        }
         return (otherDataType.isType(Type::VARSIZED)) ? std::optional{DataTypeProvider::provideDataType(Type::VARSIZED)} : std::nullopt;
     }
 
@@ -353,6 +363,10 @@ std::optional<DataType> DataType::join(const DataType& otherDataType) const
 
 std::ostream& operator<<(std::ostream& os, const DataType& dataType)
 {
+    if (dataType.extension != nullptr)
+    {
+        return os << fmt::format("DataType(type: {}, extension: {})", magic_enum::enum_name(dataType.type), dataType.extension->name);
+    }
     return os << fmt::format("DataType(type: {})", magic_enum::enum_name(dataType.type));
 }
 

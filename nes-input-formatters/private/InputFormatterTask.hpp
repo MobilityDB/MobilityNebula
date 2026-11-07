@@ -183,7 +183,7 @@ public:
         /// field number, load the correct function for parsing from the vector.
         , parseFunctions(
               schema.getFields()
-              | std::views::transform([quotationType](const auto& field) { return getParseFunction(field.dataType.type, quotationType); })
+              | std::views::transform([quotationType](const auto& field) { return getParseFunction(field.dataType, quotationType); })
               | std::ranges::to<std::vector>())
     {
     }

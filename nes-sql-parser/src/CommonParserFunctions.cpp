@@ -288,6 +288,16 @@ Schema bindSchema(AntlrSQLParser::SchemaDefinitionContext* schemaDefAST)
 DataType bindDataType(AntlrSQLParser::TypeDefinitionContext* typeDefAST)
 {
     std::string dataTypeText = typeDefAST->getText();
+    if (typeDefAST->IDENTIFIER() != nullptr)
+    {
+        /// A type a plugin adds is registered under its name in upper case, and is named regardless of case.
+        const auto dataType = DataTypeProvider::tryProvideDataType(Util::toUpperCase(dataTypeText));
+        if (not dataType.has_value() or not dataType->isExtension())
+        {
+            throw UnknownDataType("{}", dataTypeText);
+        }
+        return *dataType;
+    }
 
     bool translated = false;
     bool isUnsigned = false;

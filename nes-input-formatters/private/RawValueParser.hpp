@@ -70,5 +70,6 @@ auto parseQuotedFieldString()
 }
 
 /// Takes a vector containing parse function for fields. Adds a parse function that parses strings to the vector.
-ParseFunctionSignature getParseFunction(DataType::Type physicalType, QuotationType quotationType);
+/// A field of a type a plugin adds over VARSIZED is parsed by that type (@struct ExtensionType).
+ParseFunctionSignature getParseFunction(const DataType& dataType, QuotationType quotationType);
 }

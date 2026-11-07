@@ -17,4 +17,6 @@ add_plugin(TemporalAIntersectsGeometry PhysicalFunction nes-physical-operators T
 add_plugin(TemporalEContainsGeometry PhysicalFunction nes-physical-operators TemporalEContainsGeometryPhysicalFunction.cpp)
 add_plugin(TemporalEDWithinGeometry PhysicalFunction nes-physical-operators TemporalEDWithinGeometryPhysicalFunction.cpp)
 add_plugin(TemporalAtStBox PhysicalFunction nes-physical-operators TemporalAtStBoxPhysicalFunction.cpp)
+# A MEOS function over one SQL signature, whose kernels nes-plugins/MEOS/Functions registers
+add_source_files(nes-physical-operators MeosPhysicalFunction.cpp)
 endif()

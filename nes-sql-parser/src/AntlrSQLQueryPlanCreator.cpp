@@ -14,11 +14,11 @@
 
 #include <AntlrSQLParser/AntlrSQLQueryPlanCreator.hpp>
 
-#include <cctype>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <algorithm>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -88,6 +88,94 @@
 
 namespace NES::Parsers
 {
+namespace
+{
+/// The constant an argument of a call is, when the whole argument is one, which the parser keeps in the
+/// constant builder (exitConstantDefault)
+AntlrSQLParser::ConstantDefaultContext* literalOf(antlr4::tree::ParseTree* argument)
+{
+    while (argument != nullptr)
+    {
+        if (auto* constant = dynamic_cast<AntlrSQLParser::ConstantDefaultContext*>(argument))
+        {
+            return constant;
+        }
+        if (argument->children.size() != 1)
+        {
+            return nullptr;
+        }
+        argument = argument->children.front();
+    }
+    return nullptr;
+}
+
+bool isLiteral(AntlrSQLParser::ExpressionContext* argument)
+{
+    return literalOf(argument) != nullptr;
+}
+
+/// The constant a literal argument states: a string VARSIZED, a boolean BOOLEAN, a number with a fraction
+/// FLOAT64, an integer INT32 where it fits and INT64 otherwise
+LogicalFunction literalConstant(AntlrSQLParser::ExpressionContext* argument, std::string value)
+{
+    auto* constant = literalOf(argument)->constant();
+    const auto type = [&]
+    {
+        if (dynamic_cast<AntlrSQLParser::BooleanLiteralContext*>(constant) != nullptr)
+        {
+            return DataType::Type::BOOLEAN;
+        }
+        if (auto* numeric = dynamic_cast<AntlrSQLParser::NumericLiteralContext*>(constant))
+        {
+            if (dynamic_cast<AntlrSQLParser::FloatLiteralContext*>(numeric->number()) != nullptr)
+            {
+                return DataType::Type::FLOAT64;
+            }
+            const auto digits = value.starts_with('-') ? value.substr(1) : value;
+            const bool fitsInt32 = digits.size() < 10 or (digits.size() == 10 and digits <= "2147483647");
+            return fitsInt32 ? DataType::Type::INT32 : DataType::Type::INT64;
+        }
+        return DataType::Type::VARSIZED;
+    }();
+    return ConstantValueLogicalFunction(DataTypeProvider::provideDataType(type), std::move(value));
+}
+}
+
+std::vector<LogicalFunction> AntlrSQLQueryPlanCreator::callArguments(AntlrSQLParser::FunctionCallContext* context) const
+{
+    const auto& helper = helpers.top();
+    const auto literals = static_cast<size_t>(std::ranges::count_if(context->argument, isLiteral));
+    const auto expressions = context->argument.size() - literals;
+    if (helper.functionBuilder.size() < expressions or helper.constantBuilder.size() < literals)
+    {
+        return {};
+    }
+    auto expression = helper.functionBuilder.end() - static_cast<std::ptrdiff_t>(expressions);
+    auto literal = helper.constantBuilder.end() - static_cast<std::ptrdiff_t>(literals);
+    std::vector<LogicalFunction> arguments;
+    arguments.reserve(context->argument.size());
+    for (auto* argument : context->argument)
+    {
+        if (isLiteral(argument))
+        {
+            arguments.push_back(literalConstant(argument, *literal++));
+        }
+        else
+        {
+            arguments.push_back(*expression++);
+        }
+    }
+    return arguments;
+}
+
+void AntlrSQLQueryPlanCreator::takeCallArguments(AntlrSQLParser::FunctionCallContext* context)
+{
+    auto& helper = helpers.top();
+    const auto literals = static_cast<size_t>(std::ranges::count_if(context->argument, isLiteral));
+    helper.functionBuilder.resize(helper.functionBuilder.size() - (context->argument.size() - literals));
+    helper.constantBuilder.resize(helper.constantBuilder.size() - literals);
+}
+
 LogicalPlan AntlrSQLQueryPlanCreator::getQueryPlan() const
 {
     if (sinks.empty())
@@ -844,17 +932,20 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
     const auto funcName = Util::toUpperCase(context->children[0]->getText());
     /// The MEOS spatiotemporal relationships are called by the names the MEOS catalog states for them (eIntersects,
     /// aIntersects, eContains, eDwithin). The lexer reads those names as identifiers, so they reserve no word and match
-    /// regardless of case; each takes a case label of its own, past the lexer's token types.
+    /// regardless of case. Over coordinates and timestamps, 4 or 6 arguments (5 with eDwithin's distance), each takes a
+    /// case label of its own, past the lexer's token types; over MEOS values they are the generated MEOS functions.
     constexpr size_t MeosEIntersects = std::numeric_limits<size_t>::max();
     constexpr size_t MeosAIntersects = MeosEIntersects - 1;
     constexpr size_t MeosEContains = MeosEIntersects - 2;
     constexpr size_t MeosEDwithin = MeosEIntersects - 3;
+    const auto arguments = context->argument.size();
+    const bool overCoordinates = arguments == 4 or arguments == 6;
     const auto tokenType = [&]() -> size_t
     {
-        if (funcName == "EINTERSECTS") { return MeosEIntersects; }
-        if (funcName == "AINTERSECTS") { return MeosAIntersects; }
-        if (funcName == "ECONTAINS") { return MeosEContains; }
-        if (funcName == "EDWITHIN") { return MeosEDwithin; }
+        if (funcName == "EINTERSECTS" and overCoordinates) { return MeosEIntersects; }
+        if (funcName == "AINTERSECTS" and overCoordinates) { return MeosAIntersects; }
+        if (funcName == "ECONTAINS" and overCoordinates) { return MeosEContains; }
+        if (funcName == "EDWITHIN" and arguments == 5) { return MeosEDwithin; }
         return context->getStart()->getType();
     }();
 
@@ -1347,8 +1438,13 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
         break;
 
         default:
-            /// Check if the function is a constructor for a datatype
-            if (const auto dataType = DataTypeProvider::tryProvideDataType(funcName); dataType.has_value())
+            /// Check if the function is a constructor for a datatype: a type named on one literal, as FLOAT64(0.2) or
+            /// TGEOMPOINT('012E...'). A type a function shares its name with, as the cast geography(stbox), names the
+            /// function on any other argument.
+            if (const auto dataType = DataTypeProvider::tryProvideDataType(funcName);
+                dataType.has_value()
+                and (not LogicalFunctionProvider::contains(funcName)
+                     or (context->argument.size() == 1 and isLiteral(context->argument.front()))))
             {
                 if (helpers.top().constantBuilder.empty())
                 {
@@ -1467,10 +1563,10 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 helpers.top().functionBuilder.pop_back();
                 helpers.top().windowAggs.push_back(CrossDistanceAggregationLogicalFunction::create(lon, lat, ts, vid, vidA, vidB));
             }
-            else if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, helpers.top().functionBuilder))
+            else if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, callArguments(context)))
             {
-                /// Remove exactly the functions used to create the 'logicalFunction' from the back of the function builder
-                helpers.top().functionBuilder.resize(helpers.top().functionBuilder.size() - logicalFunction.value().getChildren().size());
+                /// The call's arguments are taken from the builders and replaced by the function
+                takeCallArguments(context);
                 helpers.top().functionBuilder.push_back(*logicalFunction);
             }
             else if (funcName == "TEMPORAL_INTERSECTS")

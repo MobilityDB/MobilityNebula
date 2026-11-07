@@ -18,3 +18,6 @@ add_plugin(TemporalAIntersectsGeometry LogicalFunction nes-logical-operators Tem
 add_plugin(TemporalEContainsGeometry LogicalFunction nes-logical-operators TemporalEContainsGeometryLogicalFunction.cpp)
 add_plugin(TemporalEDWithinGeometry LogicalFunction nes-logical-operators TemporalEDWithinGeometryLogicalFunction.cpp)
 add_plugin(TemporalAtStBox LogicalFunction nes-logical-operators TemporalAtStBoxLogicalFunction.cpp)
+
+# The MEOS function called by its SQL name, whose names and signatures nes-plugins/MEOS/Functions registers
+add_source_files(nes-logical-operators MeosLogicalFunction.cpp)

@@ -38,6 +38,7 @@
 #include <Serialization/SchemaSerializationUtil.hpp>
 #include <Traits/Trait.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <WindowTypes/Types/SessionWindow.hpp>
 #include <WindowTypes/Types/SlidingWindow.hpp>
 #include <WindowTypes/Types/TimeBasedWindowType.hpp>
 #include <WindowTypes/Types/TumblingWindow.hpp>
@@ -319,6 +320,10 @@ void WindowedAggregationLogicalOperator::serialize(SerializableOperator& seriali
             sliding->set_size(slidingWindow->getSize().getTime());
             sliding->set_slide(slidingWindow->getSlide().getTime());
         }
+        else if (auto sessionWindow = std::dynamic_pointer_cast<Windowing::SessionWindow>(windowType))
+        {
+            windowInfo.mutable_session_window()->set_gap(sessionWindow->getGap().getTime());
+        }
     }
     (*serializableOperator.mutable_config())[ConfigParameters::WINDOW_INFOS] = descriptorConfigTypeToProto(windowInfo);
 
@@ -405,6 +410,16 @@ LogicalOperatorGeneratedRegistrar::RegisterWindowedAggregationLogicalOperator(Lo
                     Windowing::TimeMeasure(windowInfoProto.sliding_window().size()),
                     Windowing::TimeMeasure(windowInfoProto.sliding_window().slide()));
             }
+        }
+        else if (windowInfoProto.has_session_window())
+        {
+            /// A session closes on the event time of its key's records, so a session window is always on event time
+            auto field = FieldAccessLogicalFunction(windowInfoProto.time_characteristic().field());
+            auto multiplier = windowInfoProto.time_characteristic().multiplier();
+            auto timeChar = Windowing::TimeCharacteristic::createEventTime(field, Windowing::TimeUnit(multiplier));
+            timeChar.setAllowedLateness(windowInfoProto.time_characteristic().allowed_lateness_ms());
+            windowType
+                = std::make_shared<Windowing::SessionWindow>(timeChar, Windowing::TimeMeasure(windowInfoProto.session_window().gap()));
         }
     }
     if (!windowType)

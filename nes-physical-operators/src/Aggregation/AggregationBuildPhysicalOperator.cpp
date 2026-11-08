@@ -13,8 +13,10 @@
 */
 #include <Aggregation/AggregationBuildPhysicalOperator.hpp>
 
+#include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <ranges>
 #include <utility>
@@ -22,6 +24,9 @@
 #include <Aggregation/AggregationOperatorHandler.hpp>
 #include <Aggregation/AggregationSlice.hpp>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
+#include <Aggregation/Function/SessionBoundsAggregationPhysicalFunction.hpp>
+#include <Aggregation/SessionAggregationOperatorHandler.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Nautilus/Interface/HashMap/ChainedHashMap/ChainedHashMapRef.hpp>
 #include <Nautilus/Interface/HashMap/HashMap.hpp>
@@ -40,6 +45,157 @@
 
 namespace NES
 {
+
+namespace
+{
+using AggregationFunctions = std::vector<std::shared_ptr<AggregationPhysicalFunction>>;
+
+/// Combines the states of an entry into the entry of the same key in another hash map, creating it reset when absent
+void combineEntryInto(
+    Interface::ChainedHashMapRef& target,
+    const nautilus::val<Interface::HashMap*>& targetPtr,
+    const Interface::ChainedHashMapRef::ChainedEntryRef& sourceEntry,
+    const HashMapOptions& options,
+    const AggregationFunctions& functions,
+    PipelineMemoryProvider& memoryProvider)
+{
+    const auto combineStates = [&](const nautilus::val<Interface::AbstractHashMapEntry*>& targetEntry, const bool resetFirst)
+    {
+        const Interface::ChainedHashMapRef::ChainedEntryRef targetEntryRef(targetEntry, targetPtr, options.fieldKeys, options.fieldValues);
+        auto targetState = static_cast<nautilus::val<AggregationState*>>(targetEntryRef.getValueMemArea());
+        auto sourceState = static_cast<nautilus::val<AggregationState*>>(sourceEntry.getValueMemArea());
+        for (const auto& function : nautilus::static_iterable(functions))
+        {
+            if (resetFirst)
+            {
+                function->reset(targetState, memoryProvider);
+            }
+            function->combine(targetState, sourceState, memoryProvider);
+            targetState = targetState + function->getSizeOfStateInBytes();
+            sourceState = sourceState + function->getSizeOfStateInBytes();
+        }
+    };
+    target.insertOrUpdateEntry(
+        sourceEntry.entryRef,
+        [&](const nautilus::val<Interface::AbstractHashMapEntry*>& entry) { combineStates(entry, false); },
+        [&](const nautilus::val<Interface::AbstractHashMapEntry*>& entry) { combineStates(entry, true); },
+        memoryProvider.bufferProvider);
+}
+
+/// The offset of the session bounds, the state of the last aggregation function
+size_t sessionBoundsOffset(const AggregationFunctions& functions)
+{
+    size_t offset = 0;
+    for (size_t i = 0; i + 1 < functions.size(); ++i)
+    {
+        offset += functions[i]->getSizeOfStateInBytes();
+    }
+    return offset;
+}
+
+/// Registers the merge and chain functions of a session window, see SessionAggregationOperatorHandler
+/// NOLINTBEGIN(performance-unnecessary-value-param)
+void registerSessionFunctions(
+    SessionAggregationOperatorHandler& handler,
+    const CompilationContext& compilationContext,
+    const HashMapOptions& hashMapOptions,
+    const AggregationFunctions& functions,
+    const uint64_t gapInMilliseconds)
+{
+    handler.mergeNautilusFunction = std::make_shared<SessionAggregationOperatorHandler::MergeExec>(
+        compilationContext.registerFunction(std::function(
+            [options = hashMapOptions, functions](
+                nautilus::val<Interface::HashMap*> target,
+                nautilus::val<Interface::HashMap*> source,
+                nautilus::val<AbstractBufferProvider*> bufferProvider,
+                nautilus::val<Arena*> arena)
+            {
+                PipelineMemoryProvider memoryProvider(arena, bufferProvider);
+                Interface::ChainedHashMapRef targetRef(target, options.fieldKeys, options.fieldValues, options.entriesPerPage, options.entrySize);
+                const Interface::ChainedHashMapRef sourceRef(
+                    source, options.fieldKeys, options.fieldValues, options.entriesPerPage, options.entrySize);
+                for (const auto entry : sourceRef)
+                {
+                    const Interface::ChainedHashMapRef::ChainedEntryRef sourceEntry(entry, source, options.fieldKeys, options.fieldValues);
+                    combineEntryInto(targetRef, target, sourceEntry, options, functions, memoryProvider);
+                }
+            })));
+
+    handler.chainNautilusFunction = std::make_shared<SessionAggregationOperatorHandler::ChainExec>(
+        compilationContext.registerFunction(std::function(
+            [options = hashMapOptions, functions, boundsOffset = sessionBoundsOffset(functions), gapInMilliseconds](
+                nautilus::val<Interface::HashMap*> open,
+                nautilus::val<Interface::HashMap*> slice,
+                nautilus::val<Interface::HashMap*> goingOn,
+                nautilus::val<Interface::HashMap*> ended,
+                nautilus::val<AbstractBufferProvider*> bufferProvider,
+                nautilus::val<Arena*> arena) -> nautilus::val<uint64_t>
+            {
+                PipelineMemoryProvider memoryProvider(arena, bufferProvider);
+                Interface::ChainedHashMapRef openRef(open, options.fieldKeys, options.fieldValues, options.entriesPerPage, options.entrySize);
+                const Interface::ChainedHashMapRef sliceRef(
+                    slice, options.fieldKeys, options.fieldValues, options.entriesPerPage, options.entrySize);
+                Interface::ChainedHashMapRef goingOnRef(
+                    goingOn, options.fieldKeys, options.fieldValues, options.entriesPerPage, options.entrySize);
+                Interface::ChainedHashMapRef endedRef(ended, options.fieldKeys, options.fieldValues, options.entriesPerPage, options.entrySize);
+                const auto bounds = [&](const Interface::ChainedHashMapRef::ChainedEntryRef& entryRef)
+                { return static_cast<nautilus::val<AggregationState*>>(entryRef.getValueMemArea()) + nautilus::val<uint64_t>(boundsOffset); };
+
+                /// A key of the slice goes on with its open session when its first record follows the session's last one
+                /// by at most the gap, as Flink merges two session windows that touch; otherwise it starts a session
+                for (const auto entry : sliceRef)
+                {
+                    const Interface::ChainedHashMapRef::ChainedEntryRef sliceEntry(entry, slice, options.fieldKeys, options.fieldValues);
+                    if (auto openEntry = openRef.findEntry(sliceEntry.entryRef))
+                    {
+                        const Interface::ChainedHashMapRef::ChainedEntryRef openEntryRef(
+                            openEntry, open, options.fieldKeys, options.fieldValues);
+                        if (SessionBoundsAggregationPhysicalFunction::readFirst(bounds(sliceEntry))
+                            <= SessionBoundsAggregationPhysicalFunction::readLast(bounds(openEntryRef)) + nautilus::val<uint64_t>(gapInMilliseconds))
+                        {
+                            combineEntryInto(goingOnRef, goingOn, openEntryRef, options, functions, memoryProvider);
+                        }
+                    }
+                    combineEntryInto(goingOnRef, goingOn, sliceEntry, options, functions, memoryProvider);
+                }
+
+                /// An open session that did not go on has ended: the key's session in goingOn, if any, starts later
+                for (const auto entry : openRef)
+                {
+                    const Interface::ChainedHashMapRef::ChainedEntryRef openEntry(entry, open, options.fieldKeys, options.fieldValues);
+                    nautilus::val<bool> hasEnded(true);
+                    if (auto goingOnEntry = goingOnRef.findEntry(openEntry.entryRef))
+                    {
+                        const Interface::ChainedHashMapRef::ChainedEntryRef goingOnEntryRef(
+                            goingOnEntry, goingOn, options.fieldKeys, options.fieldValues);
+                        if (SessionBoundsAggregationPhysicalFunction::readFirst(bounds(goingOnEntryRef))
+                            == SessionBoundsAggregationPhysicalFunction::readFirst(bounds(openEntry)))
+                        {
+                            hasEnded = false;
+                        }
+                    }
+                    if (hasEnded)
+                    {
+                        combineEntryInto(endedRef, ended, openEntry, options, functions, memoryProvider);
+                    }
+                }
+
+                nautilus::val<uint64_t> firstOpenEventTime(std::numeric_limits<uint64_t>::max());
+                for (const auto entry : goingOnRef)
+                {
+                    const Interface::ChainedHashMapRef::ChainedEntryRef goingOnEntry(entry, goingOn, options.fieldKeys, options.fieldValues);
+                    const auto first = SessionBoundsAggregationPhysicalFunction::readFirst(bounds(goingOnEntry));
+                    if (first < firstOpenEventTime)
+                    {
+                        firstOpenEventTime = first;
+                    }
+                }
+                return firstOpenEventTime;
+            })));
+}
+/// NOLINTEND(performance-unnecessary-value-param)
+}
+
 Interface::HashMap* getAggHashMapProxy(
     const AggregationOperatorHandler* operatorHandler,
     const Timestamp timestamp,
@@ -112,6 +268,11 @@ void AggregationBuildPhysicalOperator::setup(ExecutionContext& executionCtx, Com
                         }
                     }
                 })));
+        if (auto* sessionHandler = dynamic_cast<SessionAggregationOperatorHandler*>(operatorHandler))
+        {
+            registerSessionFunctions(
+                *sessionHandler, compilationContext, hashMapOptions, aggregationPhysicalFunctions, sessionHandler->getGapInMilliseconds());
+        }
     }
 
 

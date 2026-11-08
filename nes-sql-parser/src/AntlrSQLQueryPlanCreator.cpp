@@ -79,6 +79,7 @@
 #include <Util/Strings.hpp>
 #include <WindowTypes/Measures/TimeCharacteristic.hpp>
 #include <WindowTypes/Measures/TimeMeasure.hpp>
+#include <WindowTypes/Types/SessionWindow.hpp>
 #include <WindowTypes/Types/SlidingWindow.hpp>
 #include <WindowTypes/Types/TumblingWindow.hpp>
 #include <fmt/format.h>
@@ -685,6 +686,16 @@ void AntlrSQLQueryPlanCreator::exitAdvancebyParameter(AntlrSQLParser::AdvancebyP
     AntlrSQLBaseListener::exitAdvancebyParameter(context);
 }
 
+void AntlrSQLQueryPlanCreator::exitGapParameter(AntlrSQLParser::GapParameterContext* context)
+{
+    if (context->children.size() < 3)
+    {
+        throw InvalidQuerySyntax("GapParameter must have 'GAP', a number, and a time unit.");
+    }
+    helpers.top().size = std::stoi(context->children.at(1)->getText());
+    AntlrSQLBaseListener::exitGapParameter(context);
+}
+
 void AntlrSQLQueryPlanCreator::exitTimestampParameter(AntlrSQLParser::TimestampParameterContext* context)
 {
     helpers.top().timestamp = bindIdentifier(context->name);
@@ -746,6 +757,19 @@ void AntlrSQLQueryPlanCreator::exitSlidingWindow(AntlrSQLParser::SlidingWindowCo
             slidingLength);
     }
     AntlrSQLBaseListener::exitSlidingWindow(context);
+}
+
+void AntlrSQLQueryPlanCreator::exitSessionWindow(AntlrSQLParser::SessionWindowContext* context)
+{
+    /// The grammar requires the timestamp field: a session closes on the event time of its key's records
+    const auto gap = buildTimeMeasure(helpers.top().size, helpers.top().timeUnit);
+    if (gap.getTime() == 0)
+    {
+        throw InvalidQuerySyntax("The gap of a session window must be positive.");
+    }
+    helpers.top().windowType = std::make_shared<Windowing::SessionWindow>(
+        Windowing::TimeCharacteristic::createEventTime(FieldAccessLogicalFunction(helpers.top().timestamp)), gap);
+    AntlrSQLBaseListener::exitSessionWindow(context);
 }
 
 void AntlrSQLQueryPlanCreator::exitNamedExpression(AntlrSQLParser::NamedExpressionContext* context)
@@ -899,6 +923,10 @@ void AntlrSQLQueryPlanCreator::exitJoinRelation(AntlrSQLParser::JoinRelationCont
     if (!helpers.top().windowType)
     {
         throw InvalidQuerySyntax("windowType is required but empty at {}", context->getText());
+    }
+    if (std::dynamic_pointer_cast<Windowing::SessionWindow>(helpers.top().windowType))
+    {
+        throw InvalidQuerySyntax("A join cannot use a session window, only a tumbling or a sliding one, at {}", context->getText());
     }
     const auto queryPlan = LogicalPlanBuilder::addJoin(
         leftQueryPlan, rightQueryPlan, helpers.top().joinKeyRelationHelper.at(0), helpers.top().windowType, helpers.top().joinType);

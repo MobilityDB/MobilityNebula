@@ -21,6 +21,7 @@ add_plugin(Array_Agg AggregationPhysicalFunction nes-physical-operators ArrayAgg
 
 add_source_files(nes-physical-operators
         AggregationPhysicalFunction.cpp
+        SessionBoundsAggregationPhysicalFunction.cpp
 )
 
 add_subdirectory(Meos)

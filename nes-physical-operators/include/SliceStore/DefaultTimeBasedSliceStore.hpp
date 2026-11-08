@@ -61,6 +61,11 @@ public:
     void incrementNumberOfInputPipelines() override;
     uint64_t getWindowSize() const override;
 
+    /// The sequence number the next triggered window receives: every window before it has been handed to an operator handler
+    [[nodiscard]] SequenceNumber getNextSequenceNumber() const;
+    /// The input pipelines that have not terminated yet
+    [[nodiscard]] uint64_t getNumberOfActiveInputPipelines() const;
+
 private:
     /// We need to store the windows and slices in two separate maps. This is necessary as we need to access the slices during the join build phase,
     /// while we need to access windows during the triggering of windows.

@@ -17,6 +17,7 @@
 #include <cstdint>
 #include <memory>
 #include <numeric>
+#include <optional>
 #include <ranges>
 #include <utility>
 #include <vector>
@@ -24,6 +25,9 @@
 #include <Aggregation/AggregationBuildPhysicalOperator.hpp>
 #include <Aggregation/AggregationOperatorHandler.hpp>
 #include <Aggregation/AggregationProbePhysicalOperator.hpp>
+#include <Aggregation/Function/SessionBoundsAggregationPhysicalFunction.hpp>
+#include <Aggregation/SessionAggregationOperatorHandler.hpp>
+#include <Aggregation/SessionAggregationProbePhysicalOperator.hpp>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
 #include <DataTypes/Schema.hpp>
@@ -45,6 +49,7 @@
 #include <Traits/TraitSet.hpp>
 #include <Watermark/TimeFunction.hpp>
 #include <WindowTypes/Measures/TimeCharacteristic.hpp>
+#include <WindowTypes/Types/SessionWindow.hpp>
 #include <WindowTypes/Types/TimeBasedWindowType.hpp>
 #include <magic_enum/magic_enum.hpp>
 #include <AggregationPhysicalFunctionRegistry.hpp>
@@ -310,6 +315,18 @@ RewriteRuleResultSubgraph LowerToPhysicalWindowedAggregation::apply(LogicalOpera
     auto windowType = std::dynamic_pointer_cast<Windowing::TimeBasedWindowType>(aggregation->getWindowType());
     INVARIANT(windowType != nullptr, "Window type must be a time-based window type");
     auto aggregationPhysicalFunctions = getAggregationPhysicalFunctions(*aggregation, conf);
+    const auto sessionWindow = std::dynamic_pointer_cast<Windowing::SessionWindow>(windowType);
+    if (sessionWindow)
+    {
+        /// A session's bounds are the first and the last event time of its key's records, kept after the query's aggregations
+        const auto& timeCharacteristic = sessionWindow->getTimeCharacteristic();
+        if (timeCharacteristic.getType() != Windowing::TimeCharacteristic::Type::EventTime)
+        {
+            throw UnknownWindowType("A session window closes on event time, so it needs a timestamp field");
+        }
+        aggregationPhysicalFunctions.emplace_back(std::make_shared<SessionBoundsAggregationPhysicalFunction>(
+            FieldAccessPhysicalFunction(timeCharacteristic.field.name), timeCharacteristic.getTimeUnit().getMillisecondsConversionMultiplier()));
+    }
 
     const auto valueSize = std::accumulate(
         aggregationPhysicalFunctions.begin(),
@@ -357,16 +374,28 @@ RewriteRuleResultSubgraph LowerToPhysicalWindowedAggregation::apply(LogicalOpera
 
     auto sliceAndWindowStore
         = std::make_unique<DefaultTimeBasedSliceStore>(windowType->getSize().getTime(), windowType->getSlide().getTime());
-    auto handler = std::make_shared<AggregationOperatorHandler>(
-        inputOriginIds | std::ranges::to<std::vector>(), outputOriginId, std::move(sliceAndWindowStore), conf.maxNumberOfBuckets);
+    std::shared_ptr<AggregationOperatorHandler> handler;
+    std::optional<PhysicalOperator> probe;
+    if (sessionWindow)
+    {
+        const auto gap = sessionWindow->getGap().getTime();
+        handler = std::make_shared<SessionAggregationOperatorHandler>(
+            inputOriginIds | std::ranges::to<std::vector>(), outputOriginId, std::move(sliceAndWindowStore), conf.maxNumberOfBuckets, gap);
+        probe = SessionAggregationProbePhysicalOperator(hashMapOptions, aggregationPhysicalFunctions, handlerId, windowMetaData, gap);
+    }
+    else
+    {
+        handler = std::make_shared<AggregationOperatorHandler>(
+            inputOriginIds | std::ranges::to<std::vector>(), outputOriginId, std::move(sliceAndWindowStore), conf.maxNumberOfBuckets);
+        probe = AggregationProbePhysicalOperator(hashMapOptions, aggregationPhysicalFunctions, handlerId, windowMetaData);
+    }
     auto build = AggregationBuildPhysicalOperator(handlerId, std::move(timeFunction), aggregationPhysicalFunctions, hashMapOptions);
-    auto probe = AggregationProbePhysicalOperator(hashMapOptions, aggregationPhysicalFunctions, handlerId, windowMetaData);
 
     auto buildWrapper = std::make_shared<PhysicalOperatorWrapper>(
         build, newInputSchema, outputSchema, handlerId, handler, PhysicalOperatorWrapper::PipelineLocation::EMIT);
 
     auto probeWrapper = std::make_shared<PhysicalOperatorWrapper>(
-        probe,
+        probe.value(),
         newInputSchema,
         outputSchema,
         handlerId,

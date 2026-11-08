@@ -38,10 +38,15 @@ message WindowInfos {
         uint64 slide = 2;
     }
 
+    message SessionWindow {
+        uint64 gap = 1;
+    }
+
     TimeCharacteristic time_characteristic = 1;
     oneof window_type {
         TumblingWindow tumbling_window = 2;
         SlidingWindow sliding_window = 3;
+        SessionWindow session_window = 4;
     }
 }
 

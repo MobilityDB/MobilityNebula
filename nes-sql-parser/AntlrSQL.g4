@@ -270,6 +270,7 @@ windowSpec:
 timeWindow
     : TUMBLING '(' (timestampParameter ',')?  sizeParameter ')'                       #tumblingWindow
     | SLIDING '(' (timestampParameter ',')? sizeParameter ',' advancebyParameter ')' #slidingWindow
+    | SESSION '(' timestampParameter ',' gapParameter ')'                             #sessionWindow
     ;
 
 countWindow:
@@ -286,6 +287,8 @@ thresholdMinSizeParameter: INTEGER_VALUE;
 sizeParameter: SIZE INTEGER_VALUE timeUnit;
 
 advancebyParameter: ADVANCE BY INTEGER_VALUE timeUnit;
+
+gapParameter: GAP INTEGER_VALUE timeUnit;
 
 timeUnit: MS
         | SEC
@@ -467,6 +470,8 @@ WITH: 'WITH';
 SET: 'SET';
 TUMBLING: 'TUMBLING' | 'tumbling';
 SLIDING: 'SLIDING' | 'sliding';
+SESSION: 'SESSION' | 'session';
+GAP: 'GAP' | 'gap';
 THRESHOLD : 'THRESHOLD'|'threshold';
 SIZE: 'SIZE' | 'size';
 ADVANCE: 'ADVANCE' | 'advance';

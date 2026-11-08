@@ -58,7 +58,7 @@ struct EmittedAggregationWindow
     Nautilus::Interface::HashMap** hashMaps; /// Pointer to the stored pointers of all hash maps that the probe should combine
 };
 
-class AggregationOperatorHandler final : public WindowBasedOperatorHandler
+class AggregationOperatorHandler : public WindowBasedOperatorHandler
 {
 public:
     AggregationOperatorHandler(

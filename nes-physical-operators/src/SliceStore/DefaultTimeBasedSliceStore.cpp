@@ -277,4 +277,14 @@ uint64_t DefaultTimeBasedSliceStore::getWindowSize() const
 {
     return sliceAssigner.getWindowSize();
 }
+
+SequenceNumber DefaultTimeBasedSliceStore::getNextSequenceNumber() const
+{
+    return SequenceNumber(sequenceNumber.load());
+}
+
+uint64_t DefaultTimeBasedSliceStore::getNumberOfActiveInputPipelines() const
+{
+    return numberOfActiveInputPipelines.load();
+}
 }

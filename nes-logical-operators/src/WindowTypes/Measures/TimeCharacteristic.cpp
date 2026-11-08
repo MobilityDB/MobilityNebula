@@ -66,6 +66,16 @@ void TimeCharacteristic::setTimeUnit(const TimeUnit& newUnit)
     this->unit = newUnit;
 }
 
+uint64_t TimeCharacteristic::getAllowedLateness() const
+{
+    return allowedLateness;
+}
+
+void TimeCharacteristic::setAllowedLateness(const uint64_t milliseconds)
+{
+    this->allowedLateness = milliseconds;
+}
+
 std::string TimeCharacteristic::getTypeAsString() const
 {
     switch (type)

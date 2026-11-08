@@ -63,11 +63,17 @@ public:
 
     void setTimeUnit(const TimeUnit& unit);
 
+    /// The lateness the watermark allows, in milliseconds: the watermark trails the largest event time read by it,
+    /// as WATERMARK(field, n unit) states it; 0 where the query states none
+    [[nodiscard]] uint64_t getAllowedLateness() const;
+    void setAllowedLateness(uint64_t milliseconds);
+
     Schema::Field field;
 
 private:
     Type type;
     TimeUnit unit;
+    uint64_t allowedLateness = 0;
 };
 }
 

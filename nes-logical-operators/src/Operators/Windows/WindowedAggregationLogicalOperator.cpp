@@ -306,6 +306,7 @@ void WindowedAggregationLogicalOperator::serialize(SerializableOperator& seriali
         timeCharProto.set_type(WindowInfos_TimeCharacteristic_Type_Event_time);
         timeCharProto.set_field(timeChar.field.name);
         timeCharProto.set_multiplier(timeChar.getTimeUnit().getMillisecondsConversionMultiplier());
+        timeCharProto.set_allowed_lateness_ms(timeChar.getAllowedLateness());
         windowInfo.mutable_time_characteristic()->CopyFrom(timeCharProto);
         if (auto tumblingWindow = std::dynamic_pointer_cast<Windowing::TumblingWindow>(windowType))
         {
@@ -378,6 +379,7 @@ LogicalOperatorGeneratedRegistrar::RegisterWindowedAggregationLogicalOperator(Lo
                 auto field = FieldAccessLogicalFunction(windowInfoProto.time_characteristic().field());
                 auto multiplier = windowInfoProto.time_characteristic().multiplier();
                 auto timeChar = Windowing::TimeCharacteristic::createEventTime(field, Windowing::TimeUnit(multiplier));
+                timeChar.setAllowedLateness(windowInfoProto.time_characteristic().allowed_lateness_ms());
                 windowType = std::make_shared<Windowing::TumblingWindow>(
                     timeChar, Windowing::TimeMeasure(windowInfoProto.tumbling_window().size()));
             }
@@ -397,6 +399,7 @@ LogicalOperatorGeneratedRegistrar::RegisterWindowedAggregationLogicalOperator(Lo
                 auto field = FieldAccessLogicalFunction(windowInfoProto.time_characteristic().field());
                 auto multiplier = windowInfoProto.time_characteristic().multiplier();
                 auto timeChar = Windowing::TimeCharacteristic::createEventTime(field, Windowing::TimeUnit(multiplier));
+                timeChar.setAllowedLateness(windowInfoProto.time_characteristic().allowed_lateness_ms());
                 windowType = Windowing::SlidingWindow::of(
                     timeChar,
                     Windowing::TimeMeasure(windowInfoProto.sliding_window().size()),

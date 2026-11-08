@@ -86,6 +86,7 @@ public:
     void exitTimestampParameter(AntlrSQLParser::TimestampParameterContext* context) override;
     void exitTumblingWindow(AntlrSQLParser::TumblingWindowContext* context) override;
     void exitSlidingWindow(AntlrSQLParser::SlidingWindowContext* context) override;
+    void exitWatermarkParameters(AntlrSQLParser::WatermarkParametersContext* context) override;
     void exitNamedExpression(AntlrSQLParser::NamedExpressionContext* context) override;
     void exitArithmeticUnary(AntlrSQLParser::ArithmeticUnaryContext* context) override;
     void exitArithmeticBinary(AntlrSQLParser::ArithmeticBinaryContext* context) override;

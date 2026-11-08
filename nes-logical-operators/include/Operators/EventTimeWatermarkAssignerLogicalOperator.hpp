@@ -38,10 +38,12 @@ namespace NES
 class EventTimeWatermarkAssignerLogicalOperator
 {
 public:
-    EventTimeWatermarkAssignerLogicalOperator(LogicalFunction onField, const Windowing::TimeUnit& unit);
+    /// The watermark trails the largest event time read by the allowed lateness, in milliseconds
+    EventTimeWatermarkAssignerLogicalOperator(LogicalFunction onField, const Windowing::TimeUnit& unit, uint64_t allowedLateness = 0);
 
     LogicalFunction onField;
     Windowing::TimeUnit unit;
+    uint64_t allowedLateness;
 
     [[nodiscard]] bool operator==(const EventTimeWatermarkAssignerLogicalOperator& rhs) const;
     void serialize(SerializableOperator&) const;
@@ -71,8 +73,13 @@ public:
             std::nullopt,
             [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(FUNCTION, config); }};
 
+        static inline const DescriptorConfig::ConfigParameter<uint64_t> ALLOWED_LATENESS_MS{
+            "AllowedLatenessMs",
+            0,
+            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(ALLOWED_LATENESS_MS, config); }};
+
         static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
-            = DescriptorConfig::createConfigParameterContainerMap(TIME_MS, FUNCTION);
+            = DescriptorConfig::createConfigParameterContainerMap(TIME_MS, FUNCTION, ALLOWED_LATENESS_MS);
     };
 
 private:

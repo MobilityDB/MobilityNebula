@@ -13,6 +13,8 @@
 */
 #pragma once
 
+#include <memory>
+#include <optional>
 #include <stack>
 #include <string>
 #include <utility>
@@ -38,6 +40,10 @@ class AntlrSQLQueryPlanCreator final : public AntlrSQLBaseListener
     [[nodiscard]] std::vector<LogicalFunction> callArguments(AntlrSQLParser::FunctionCallContext* context) const;
     /// The call's arguments removed from the function and constant builders
     void takeCallArguments(AntlrSQLParser::FunctionCallContext* context);
+    /// The aggregation registered under the name over the field of the call's first argument and the literals of
+    /// the others, none for a call of another shape
+    [[nodiscard]] std::optional<std::shared_ptr<WindowAggregationLogicalFunction>>
+    aggregationOverField(AntlrSQLParser::FunctionCallContext* context, const std::string& name) const;
 
 public:
     [[nodiscard]] LogicalPlan getQueryPlan() const;

@@ -169,6 +169,24 @@ std::vector<LogicalFunction> AntlrSQLQueryPlanCreator::callArguments(AntlrSQLPar
     return arguments;
 }
 
+std::optional<std::shared_ptr<WindowAggregationLogicalFunction>>
+AntlrSQLQueryPlanCreator::aggregationOverField(AntlrSQLParser::FunctionCallContext* context, const std::string& name) const
+{
+    /// The aggregation named over the field of the first argument, the others being literals
+    const auto& helper = helpers.top();
+    const auto& arguments = context->argument;
+    if (arguments.empty() or isLiteral(arguments.front())
+        or not std::all_of(arguments.begin() + 1, arguments.end(), isLiteral)
+        or helper.functionBuilder.empty() or not helper.functionBuilder.back().tryGet<FieldAccessLogicalFunction>()
+        or helper.constantBuilder.size() < arguments.size() - 1)
+    {
+        return std::nullopt;
+    }
+    const std::vector<std::string> literals(
+        helper.constantBuilder.end() - static_cast<std::ptrdiff_t>(arguments.size() - 1), helper.constantBuilder.end());
+    return AggregationLogicalFunctionProvider::tryProvide(name, helper.functionBuilder.back().get<FieldAccessLogicalFunction>(), literals);
+}
+
 void AntlrSQLQueryPlanCreator::takeCallArguments(AntlrSQLParser::FunctionCallContext* context)
 {
     auto& helper = helpers.top();
@@ -1564,13 +1582,11 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 helpers.top().functionBuilder.pop_back();
                 helpers.top().windowAggs.push_back(CrossDistanceAggregationLogicalFunction::create(lon, lat, ts, vid, vidA, vidB));
             }
-            else if (auto aggregation = context->argument.size() == 1 and not helpers.top().functionBuilder.empty()
-                         and helpers.top().functionBuilder.back().tryGet<FieldAccessLogicalFunction>()
-                     ? AggregationLogicalFunctionProvider::tryProvide(
-                           funcName, helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>())
-                     : std::nullopt)
+            else if (auto aggregation = aggregationOverField(context, funcName))
             {
-                /// An aggregation over one field, as COUNT is; the field is left for the result's name
+                /// An aggregation over one field, as COUNT is, and the literals following it; the field is left for
+                /// the result's name
+                helpers.top().constantBuilder.resize(helpers.top().constantBuilder.size() - (context->argument.size() - 1));
                 helpers.top().windowAggs.push_back(*aggregation);
             }
             else if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, callArguments(context)))

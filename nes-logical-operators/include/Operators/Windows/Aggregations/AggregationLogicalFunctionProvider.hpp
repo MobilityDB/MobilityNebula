@@ -16,12 +16,14 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 
 namespace NES::AggregationLogicalFunctionProvider
 {
-/// The aggregation registered under the name over the field, as LogicalFunctionProvider::tryProvide provides a function
+/// The aggregation registered under the name over the field and the query-literal constants that follow it, as
+/// LogicalFunctionProvider::tryProvide provides a function
 std::optional<std::shared_ptr<WindowAggregationLogicalFunction>>
-tryProvide(const std::string& aggregationName, const FieldAccessLogicalFunction& onField);
+tryProvide(const std::string& aggregationName, const FieldAccessLogicalFunction& onField, std::vector<std::string> literals);
 }

@@ -96,6 +96,7 @@ deserializeWindowAggregationFunction(const SerializableAggregationFunction& seri
         {
             AggregationLogicalFunctionRegistryArguments args;
             args.fields = {fieldAccess.value(), asFieldAccess.value()};
+            args.literals = {serializedFunction.literals().begin(), serializedFunction.literals().end()};
 
             if (auto function = AggregationLogicalFunctionRegistry::instance().create(type, args))
             {

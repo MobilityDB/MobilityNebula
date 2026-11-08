@@ -17,6 +17,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <DataTypes/DataType.hpp>
 #include <Functions/PhysicalFunction.hpp>
@@ -36,6 +37,8 @@ struct AggregationPhysicalFunctionRegistryArguments
     PhysicalFunction inputFunction;
     Record::RecordFieldIdentifier resultFieldIdentifier;
     std::optional<std::shared_ptr<Interface::BufferRef::TupleBufferRef>> bufferRefPagedVector;
+    /// Query-literal constants of a parameterized aggregation, as its logical function states them
+    std::vector<std::string> literals;
 };
 
 class AggregationPhysicalFunctionRegistry : public BaseRegistry<

@@ -2229,6 +2229,1298 @@ std::vector<std::byte> TtextFromText(std::string_view text)
 
 constexpr ExtensionType TtextType{.name = "TTEXT", .toText = TtextToText, .fromText = TtextFromText};
 
+/* bigintspan[]: an array of bigintspan, carried as its number of elements, then each element's memory image after its length */
+std::string BigintspanArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += BigintspanToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> BigintspanArrayFromText(std::string_view text)
+{
+    cannotRead("bigintspan[]", text);
+}
+
+constexpr ExtensionType BigintspanArrayType{.name = "BIGINTSPAN_ARRAY", .toText = BigintspanArrayToText, .fromText = BigintspanArrayFromText};
+
+/* cbuffer[]: an array of cbuffer, carried as its number of elements, then each element's memory image after its length */
+std::string CbufferArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += CbufferToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> CbufferArrayFromText(std::string_view text)
+{
+    cannotRead("cbuffer[]", text);
+}
+
+constexpr ExtensionType CbufferArrayType{.name = "CBUFFER_ARRAY", .toText = CbufferArrayToText, .fromText = CbufferArrayFromText};
+
+/* datespan[]: an array of datespan, carried as its number of elements, then each element's memory image after its length */
+std::string DatespanArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += DatespanToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> DatespanArrayFromText(std::string_view text)
+{
+    cannotRead("datespan[]", text);
+}
+
+constexpr ExtensionType DatespanArrayType{.name = "DATESPAN_ARRAY", .toText = DatespanArrayToText, .fromText = DatespanArrayFromText};
+
+/* floatspan[]: an array of floatspan, carried as its number of elements, then each element's memory image after its length */
+std::string FloatspanArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += FloatspanToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> FloatspanArrayFromText(std::string_view text)
+{
+    cannotRead("floatspan[]", text);
+}
+
+constexpr ExtensionType FloatspanArrayType{.name = "FLOATSPAN_ARRAY", .toText = FloatspanArrayToText, .fromText = FloatspanArrayFromText};
+
+/* geography[]: an array of geography, carried as its number of elements, then each element's memory image after its length */
+std::string GeographyArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += GeographyToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> GeographyArrayFromText(std::string_view text)
+{
+    cannotRead("geography[]", text);
+}
+
+constexpr ExtensionType GeographyArrayType{.name = "GEOGRAPHY_ARRAY", .toText = GeographyArrayToText, .fromText = GeographyArrayFromText};
+
+/* geometry[]: an array of geometry, carried as its number of elements, then each element's memory image after its length */
+std::string GeometryArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += GeometryToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> GeometryArrayFromText(std::string_view text)
+{
+    cannotRead("geometry[]", text);
+}
+
+constexpr ExtensionType GeometryArrayType{.name = "GEOMETRY_ARRAY", .toText = GeometryArrayToText, .fromText = GeometryArrayFromText};
+
+/* intspan[]: an array of intspan, carried as its number of elements, then each element's memory image after its length */
+std::string IntspanArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += IntspanToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> IntspanArrayFromText(std::string_view text)
+{
+    cannotRead("intspan[]", text);
+}
+
+constexpr ExtensionType IntspanArrayType{.name = "INTSPAN_ARRAY", .toText = IntspanArrayToText, .fromText = IntspanArrayFromText};
+
+/* jsonb[]: an array of jsonb, carried as its number of elements, then each element's memory image after its length */
+std::string JsonbArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += JsonbToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> JsonbArrayFromText(std::string_view text)
+{
+    cannotRead("jsonb[]", text);
+}
+
+constexpr ExtensionType JsonbArrayType{.name = "JSONB_ARRAY", .toText = JsonbArrayToText, .fromText = JsonbArrayFromText};
+
+/* npoint[]: an array of npoint, carried as its number of elements, then each element's memory image after its length */
+std::string NpointArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += NpointToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> NpointArrayFromText(std::string_view text)
+{
+    cannotRead("npoint[]", text);
+}
+
+constexpr ExtensionType NpointArrayType{.name = "NPOINT_ARRAY", .toText = NpointArrayToText, .fromText = NpointArrayFromText};
+
+/* nsegment[]: an array of nsegment, carried as its number of elements, then each element's memory image after its length */
+std::string NsegmentArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += NsegmentToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> NsegmentArrayFromText(std::string_view text)
+{
+    cannotRead("nsegment[]", text);
+}
+
+constexpr ExtensionType NsegmentArrayType{.name = "NSEGMENT_ARRAY", .toText = NsegmentArrayToText, .fromText = NsegmentArrayFromText};
+
+/* pcpatch[]: an array of pcpatch, carried as its number of elements, then each element's memory image after its length */
+std::string PcpatchArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += PcpatchToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> PcpatchArrayFromText(std::string_view text)
+{
+    cannotRead("pcpatch[]", text);
+}
+
+constexpr ExtensionType PcpatchArrayType{.name = "PCPATCH_ARRAY", .toText = PcpatchArrayToText, .fromText = PcpatchArrayFromText};
+
+/* pcpoint[]: an array of pcpoint, carried as its number of elements, then each element's memory image after its length */
+std::string PcpointArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += PcpointToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> PcpointArrayFromText(std::string_view text)
+{
+    cannotRead("pcpoint[]", text);
+}
+
+constexpr ExtensionType PcpointArrayType{.name = "PCPOINT_ARRAY", .toText = PcpointArrayToText, .fromText = PcpointArrayFromText};
+
+/* pose[]: an array of pose, carried as its number of elements, then each element's memory image after its length */
+std::string PoseArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += PoseToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> PoseArrayFromText(std::string_view text)
+{
+    cannotRead("pose[]", text);
+}
+
+constexpr ExtensionType PoseArrayType{.name = "POSE_ARRAY", .toText = PoseArrayToText, .fromText = PoseArrayFromText};
+
+/* posechain[]: an array of posechain, carried as its number of elements, then each element's memory image after its length */
+std::string PosechainArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += PosechainToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> PosechainArrayFromText(std::string_view text)
+{
+    cannotRead("posechain[]", text);
+}
+
+constexpr ExtensionType PosechainArrayType{.name = "POSECHAIN_ARRAY", .toText = PosechainArrayToText, .fromText = PosechainArrayFromText};
+
+/* raquet[]: an array of raquet, carried as its number of elements, then each element's memory image after its length */
+std::string RaquetArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += RaquetToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> RaquetArrayFromText(std::string_view text)
+{
+    cannotRead("raquet[]", text);
+}
+
+constexpr ExtensionType RaquetArrayType{.name = "RAQUET_ARRAY", .toText = RaquetArrayToText, .fromText = RaquetArrayFromText};
+
+/* stbox[]: an array of stbox, carried as its number of elements, then each element's memory image after its length */
+std::string StboxArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += StboxToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> StboxArrayFromText(std::string_view text)
+{
+    cannotRead("stbox[]", text);
+}
+
+constexpr ExtensionType StboxArrayType{.name = "STBOX_ARRAY", .toText = StboxArrayToText, .fromText = StboxArrayFromText};
+
+/* tbigint[]: an array of tbigint, carried as its number of elements, then each element's memory image after its length */
+std::string TbigintArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TbigintToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TbigintArrayFromText(std::string_view text)
+{
+    cannotRead("tbigint[]", text);
+}
+
+constexpr ExtensionType TbigintArrayType{.name = "TBIGINT_ARRAY", .toText = TbigintArrayToText, .fromText = TbigintArrayFromText};
+
+/* tbool[]: an array of tbool, carried as its number of elements, then each element's memory image after its length */
+std::string TboolArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TboolToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TboolArrayFromText(std::string_view text)
+{
+    cannotRead("tbool[]", text);
+}
+
+constexpr ExtensionType TboolArrayType{.name = "TBOOL_ARRAY", .toText = TboolArrayToText, .fromText = TboolArrayFromText};
+
+/* tbox[]: an array of tbox, carried as its number of elements, then each element's memory image after its length */
+std::string TboxArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TboxToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TboxArrayFromText(std::string_view text)
+{
+    cannotRead("tbox[]", text);
+}
+
+constexpr ExtensionType TboxArrayType{.name = "TBOX_ARRAY", .toText = TboxArrayToText, .fromText = TboxArrayFromText};
+
+/* tcbuffer[]: an array of tcbuffer, carried as its number of elements, then each element's memory image after its length */
+std::string TcbufferArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TcbufferToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TcbufferArrayFromText(std::string_view text)
+{
+    cannotRead("tcbuffer[]", text);
+}
+
+constexpr ExtensionType TcbufferArrayType{.name = "TCBUFFER_ARRAY", .toText = TcbufferArrayToText, .fromText = TcbufferArrayFromText};
+
+/* tfloat[]: an array of tfloat, carried as its number of elements, then each element's memory image after its length */
+std::string TfloatArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TfloatToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TfloatArrayFromText(std::string_view text)
+{
+    cannotRead("tfloat[]", text);
+}
+
+constexpr ExtensionType TfloatArrayType{.name = "TFLOAT_ARRAY", .toText = TfloatArrayToText, .fromText = TfloatArrayFromText};
+
+/* tgeogpoint[]: an array of tgeogpoint, carried as its number of elements, then each element's memory image after its length */
+std::string TgeogpointArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TgeogpointToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TgeogpointArrayFromText(std::string_view text)
+{
+    cannotRead("tgeogpoint[]", text);
+}
+
+constexpr ExtensionType TgeogpointArrayType{.name = "TGEOGPOINT_ARRAY", .toText = TgeogpointArrayToText, .fromText = TgeogpointArrayFromText};
+
+/* tgeography[]: an array of tgeography, carried as its number of elements, then each element's memory image after its length */
+std::string TgeographyArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TgeographyToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TgeographyArrayFromText(std::string_view text)
+{
+    cannotRead("tgeography[]", text);
+}
+
+constexpr ExtensionType TgeographyArrayType{.name = "TGEOGRAPHY_ARRAY", .toText = TgeographyArrayToText, .fromText = TgeographyArrayFromText};
+
+/* tgeometry[]: an array of tgeometry, carried as its number of elements, then each element's memory image after its length */
+std::string TgeometryArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TgeometryToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TgeometryArrayFromText(std::string_view text)
+{
+    cannotRead("tgeometry[]", text);
+}
+
+constexpr ExtensionType TgeometryArrayType{.name = "TGEOMETRY_ARRAY", .toText = TgeometryArrayToText, .fromText = TgeometryArrayFromText};
+
+/* tgeompoint[]: an array of tgeompoint, carried as its number of elements, then each element's memory image after its length */
+std::string TgeompointArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TgeompointToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TgeompointArrayFromText(std::string_view text)
+{
+    cannotRead("tgeompoint[]", text);
+}
+
+constexpr ExtensionType TgeompointArrayType{.name = "TGEOMPOINT_ARRAY", .toText = TgeompointArrayToText, .fromText = TgeompointArrayFromText};
+
+/* th3index[]: an array of th3index, carried as its number of elements, then each element's memory image after its length */
+std::string Th3indexArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += Th3indexToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> Th3indexArrayFromText(std::string_view text)
+{
+    cannotRead("th3index[]", text);
+}
+
+constexpr ExtensionType Th3indexArrayType{.name = "TH3INDEX_ARRAY", .toText = Th3indexArrayToText, .fromText = Th3indexArrayFromText};
+
+/* tint[]: an array of tint, carried as its number of elements, then each element's memory image after its length */
+std::string TintArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TintToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TintArrayFromText(std::string_view text)
+{
+    cannotRead("tint[]", text);
+}
+
+constexpr ExtensionType TintArrayType{.name = "TINT_ARRAY", .toText = TintArrayToText, .fromText = TintArrayFromText};
+
+/* tjsonb[]: an array of tjsonb, carried as its number of elements, then each element's memory image after its length */
+std::string TjsonbArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TjsonbToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TjsonbArrayFromText(std::string_view text)
+{
+    cannotRead("tjsonb[]", text);
+}
+
+constexpr ExtensionType TjsonbArrayType{.name = "TJSONB_ARRAY", .toText = TjsonbArrayToText, .fromText = TjsonbArrayFromText};
+
+/* tnpoint[]: an array of tnpoint, carried as its number of elements, then each element's memory image after its length */
+std::string TnpointArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TnpointToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TnpointArrayFromText(std::string_view text)
+{
+    cannotRead("tnpoint[]", text);
+}
+
+constexpr ExtensionType TnpointArrayType{.name = "TNPOINT_ARRAY", .toText = TnpointArrayToText, .fromText = TnpointArrayFromText};
+
+/* tpcpatch[]: an array of tpcpatch, carried as its number of elements, then each element's memory image after its length */
+std::string TpcpatchArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TpcpatchToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TpcpatchArrayFromText(std::string_view text)
+{
+    cannotRead("tpcpatch[]", text);
+}
+
+constexpr ExtensionType TpcpatchArrayType{.name = "TPCPATCH_ARRAY", .toText = TpcpatchArrayToText, .fromText = TpcpatchArrayFromText};
+
+/* tpcpoint[]: an array of tpcpoint, carried as its number of elements, then each element's memory image after its length */
+std::string TpcpointArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TpcpointToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TpcpointArrayFromText(std::string_view text)
+{
+    cannotRead("tpcpoint[]", text);
+}
+
+constexpr ExtensionType TpcpointArrayType{.name = "TPCPOINT_ARRAY", .toText = TpcpointArrayToText, .fromText = TpcpointArrayFromText};
+
+/* tpose[]: an array of tpose, carried as its number of elements, then each element's memory image after its length */
+std::string TposeArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TposeToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TposeArrayFromText(std::string_view text)
+{
+    cannotRead("tpose[]", text);
+}
+
+constexpr ExtensionType TposeArrayType{.name = "TPOSE_ARRAY", .toText = TposeArrayToText, .fromText = TposeArrayFromText};
+
+/* tposechain[]: an array of tposechain, carried as its number of elements, then each element's memory image after its length */
+std::string TposechainArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TposechainToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TposechainArrayFromText(std::string_view text)
+{
+    cannotRead("tposechain[]", text);
+}
+
+constexpr ExtensionType TposechainArrayType{.name = "TPOSECHAIN_ARRAY", .toText = TposechainArrayToText, .fromText = TposechainArrayFromText};
+
+/* tquadbin[]: an array of tquadbin, carried as its number of elements, then each element's memory image after its length */
+std::string TquadbinArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TquadbinToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TquadbinArrayFromText(std::string_view text)
+{
+    cannotRead("tquadbin[]", text);
+}
+
+constexpr ExtensionType TquadbinArrayType{.name = "TQUADBIN_ARRAY", .toText = TquadbinArrayToText, .fromText = TquadbinArrayFromText};
+
+/* trgeometry[]: an array of trgeometry, carried as its number of elements, then each element's memory image after its length */
+std::string TrgeometryArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TrgeometryToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TrgeometryArrayFromText(std::string_view text)
+{
+    cannotRead("trgeometry[]", text);
+}
+
+constexpr ExtensionType TrgeometryArrayType{.name = "TRGEOMETRY_ARRAY", .toText = TrgeometryArrayToText, .fromText = TrgeometryArrayFromText};
+
+/* ts2cell[]: an array of ts2cell, carried as its number of elements, then each element's memory image after its length */
+std::string Ts2cellArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += Ts2cellToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> Ts2cellArrayFromText(std::string_view text)
+{
+    cannotRead("ts2cell[]", text);
+}
+
+constexpr ExtensionType Ts2cellArrayType{.name = "TS2CELL_ARRAY", .toText = Ts2cellArrayToText, .fromText = Ts2cellArrayFromText};
+
+/* tstzspan[]: an array of tstzspan, carried as its number of elements, then each element's memory image after its length */
+std::string TstzspanArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TstzspanToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TstzspanArrayFromText(std::string_view text)
+{
+    cannotRead("tstzspan[]", text);
+}
+
+constexpr ExtensionType TstzspanArrayType{.name = "TSTZSPAN_ARRAY", .toText = TstzspanArrayToText, .fromText = TstzspanArrayFromText};
+
+/* ttext[]: an array of ttext, carried as its number of elements, then each element's memory image after its length */
+std::string TtextArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TtextToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TtextArrayFromText(std::string_view text)
+{
+    cannotRead("ttext[]", text);
+}
+
+constexpr ExtensionType TtextArrayType{.name = "TTEXT_ARRAY", .toText = TtextArrayToText, .fromText = TtextArrayFromText};
+
 }
 
 namespace NES
@@ -2577,6 +3869,196 @@ DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTSTZSPANSETDataTy
 DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTTEXTDataType(DataTypeRegistryArguments)
 {
     return DataType{.type = DataType::Type::VARSIZED, .extension = &TtextType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterBIGINTSPAN_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &BigintspanArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterCBUFFER_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &CbufferArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterDATESPAN_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &DatespanArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterFLOATSPAN_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &FloatspanArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterGEOGRAPHY_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &GeographyArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterGEOMETRY_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &GeometryArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterINTSPAN_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &IntspanArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterJSONB_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &JsonbArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterNPOINT_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &NpointArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterNSEGMENT_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &NsegmentArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPCPATCH_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &PcpatchArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPCPOINT_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &PcpointArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPOSE_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &PoseArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPOSECHAIN_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &PosechainArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterRAQUET_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &RaquetArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterSTBOX_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &StboxArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTBIGINT_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TbigintArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTBOOL_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TboolArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTBOX_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TboxArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTCBUFFER_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TcbufferArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTFLOAT_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TfloatArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOGPOINT_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeogpointArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOGRAPHY_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeographyArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOMETRY_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeometryArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOMPOINT_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeompointArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTH3INDEX_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &Th3indexArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTINT_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TintArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTJSONB_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TjsonbArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTNPOINT_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TnpointArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPCPATCH_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TpcpatchArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPCPOINT_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TpcpointArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPOSE_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TposeArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPOSECHAIN_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TposechainArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTQUADBIN_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TquadbinArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTRGEOMETRY_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TrgeometryArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTS2CELL_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &Ts2cellArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTSTZSPAN_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TstzspanArrayType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTTEXT_ARRAYDataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &TtextArrayType};
 }
 
 }

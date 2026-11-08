@@ -120,7 +120,7 @@ int8_t* Meos_jsonbset_object_field_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t*
     const std::string s1 = MeosRuntime::text(a1);
     text* t1 = cstring_to_text(s1.c_str());
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = jsonbset_object_field(static_cast<Set*>(v0.get()), t1, null_handle_type_from_string(s2.c_str()));
+    auto r = jsonbset_object_field(static_cast<Set*>(v0.get()), t1, nullhandletype_from_string(s2.c_str()));
     std::free(t1);
     if (r == nullptr)
     {
@@ -140,7 +140,7 @@ int8_t* Meos_jsonbset_object_field_0_2(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     text* t1 = cstring_to_text(s1.c_str());
-    auto r = jsonbset_object_field(static_cast<Set*>(v0.get()), t1, null_handle_type_from_string("use_json_null"));
+    auto r = jsonbset_object_field(static_cast<Set*>(v0.get()), t1, nullhandletype_from_string("use_json_null"));
     std::free(t1);
     if (r == nullptr)
     {
@@ -161,7 +161,7 @@ int8_t* Meos_jsonbset_object_field_text_0(int8_t* a0, int8_t* a1, int8_t* a2, in
     const std::string s1 = MeosRuntime::text(a1);
     text* t1 = cstring_to_text(s1.c_str());
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = jsonbset_object_field_text(static_cast<Set*>(v0.get()), t1, null_handle_type_from_string(s2.c_str()));
+    auto r = jsonbset_object_field_text(static_cast<Set*>(v0.get()), t1, nullhandletype_from_string(s2.c_str()));
     std::free(t1);
     if (r == nullptr)
     {
@@ -181,7 +181,7 @@ int8_t* Meos_jsonbset_object_field_text_0_2(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     text* t1 = cstring_to_text(s1.c_str());
-    auto r = jsonbset_object_field_text(static_cast<Set*>(v0.get()), t1, null_handle_type_from_string("use_json_null"));
+    auto r = jsonbset_object_field_text(static_cast<Set*>(v0.get()), t1, nullhandletype_from_string("use_json_null"));
     std::free(t1);
     if (r == nullptr)
     {
@@ -200,7 +200,7 @@ int8_t* Meos_jsonbset_array_element_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t
         return MeosRuntime::none();
     }
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = jsonbset_array_element(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), null_handle_type_from_string(s2.c_str()));
+    auto r = jsonbset_array_element(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -217,7 +217,7 @@ int8_t* Meos_jsonbset_array_element_0_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
-    auto r = jsonbset_array_element(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), null_handle_type_from_string("use_json_null"));
+    auto r = jsonbset_array_element(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), nullhandletype_from_string("use_json_null"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -235,7 +235,7 @@ int8_t* Meos_jsonbset_array_element_text_0(int8_t* a0, int8_t* a1, int8_t* a2, i
         return MeosRuntime::none();
     }
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = jsonbset_array_element_text(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), null_handle_type_from_string(s2.c_str()));
+    auto r = jsonbset_array_element_text(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -252,7 +252,7 @@ int8_t* Meos_jsonbset_array_element_text_0_2(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::none();
     }
-    auto r = jsonbset_array_element_text(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), null_handle_type_from_string("use_json_null"));
+    auto r = jsonbset_array_element_text(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), nullhandletype_from_string("use_json_null"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -308,7 +308,7 @@ int8_t* Meos_jsonbset_to_intset_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* ou
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = jsonbset_to_intset(static_cast<Set*>(v0.get()), s1.c_str(), null_handle_type_from_string(s2.c_str()));
+    auto r = jsonbset_to_intset(static_cast<Set*>(v0.get()), s1.c_str(), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -326,7 +326,7 @@ int8_t* Meos_jsonbset_to_intset_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = jsonbset_to_intset(static_cast<Set*>(v0.get()), s1.c_str(), null_handle_type_from_string("raise_exception"));
+    auto r = jsonbset_to_intset(static_cast<Set*>(v0.get()), s1.c_str(), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -345,7 +345,7 @@ int8_t* Meos_jsonbset_to_bigintset_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t*
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = jsonbset_to_bigintset(static_cast<Set*>(v0.get()), s1.c_str(), null_handle_type_from_string(s2.c_str()));
+    auto r = jsonbset_to_bigintset(static_cast<Set*>(v0.get()), s1.c_str(), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -363,7 +363,7 @@ int8_t* Meos_jsonbset_to_bigintset_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = jsonbset_to_bigintset(static_cast<Set*>(v0.get()), s1.c_str(), null_handle_type_from_string("raise_exception"));
+    auto r = jsonbset_to_bigintset(static_cast<Set*>(v0.get()), s1.c_str(), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -382,7 +382,7 @@ int8_t* Meos_jsonbset_to_floatset_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* 
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = jsonbset_to_floatset(static_cast<Set*>(v0.get()), s1.c_str(), null_handle_type_from_string(s2.c_str()));
+    auto r = jsonbset_to_floatset(static_cast<Set*>(v0.get()), s1.c_str(), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -400,7 +400,7 @@ int8_t* Meos_jsonbset_to_floatset_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = jsonbset_to_floatset(static_cast<Set*>(v0.get()), s1.c_str(), null_handle_type_from_string("raise_exception"));
+    auto r = jsonbset_to_floatset(static_cast<Set*>(v0.get()), s1.c_str(), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -419,7 +419,7 @@ int8_t* Meos_jsonbset_to_textset_key_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = jsonbset_to_textset_key(static_cast<Set*>(v0.get()), s1.c_str(), null_handle_type_from_string(s2.c_str()));
+    auto r = jsonbset_to_textset_key(static_cast<Set*>(v0.get()), s1.c_str(), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -437,7 +437,7 @@ int8_t* Meos_jsonbset_to_textset_key_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = jsonbset_to_textset_key(static_cast<Set*>(v0.get()), s1.c_str(), null_handle_type_from_string("raise_exception"));
+    auto r = jsonbset_to_textset_key(static_cast<Set*>(v0.get()), s1.c_str(), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -1277,7 +1277,7 @@ int8_t* Meos_tjson_array_element_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* o
         return MeosRuntime::none();
     }
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjson_array_element(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), null_handle_type_from_string(s2.c_str()));
+    auto r = tjson_array_element(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -1294,7 +1294,7 @@ int8_t* Meos_tjson_array_element_0_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
-    auto r = tjson_array_element(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), null_handle_type_from_string("use_json_null"));
+    auto r = tjson_array_element(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), nullhandletype_from_string("use_json_null"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -1331,7 +1331,7 @@ int8_t* Meos_tjson_object_field_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* ou
     const std::string s1 = MeosRuntime::text(a1);
     text* t1 = cstring_to_text(s1.c_str());
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjson_object_field(static_cast<Temporal*>(v0.get()), t1, null_handle_type_from_string(s2.c_str()));
+    auto r = tjson_object_field(static_cast<Temporal*>(v0.get()), t1, nullhandletype_from_string(s2.c_str()));
     std::free(t1);
     if (r == nullptr)
     {
@@ -1351,7 +1351,7 @@ int8_t* Meos_tjson_object_field_0_2(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     text* t1 = cstring_to_text(s1.c_str());
-    auto r = tjson_object_field(static_cast<Temporal*>(v0.get()), t1, null_handle_type_from_string("use_json_null"));
+    auto r = tjson_object_field(static_cast<Temporal*>(v0.get()), t1, nullhandletype_from_string("use_json_null"));
     std::free(t1);
     if (r == nullptr)
     {
@@ -1404,7 +1404,7 @@ int8_t* Meos_tjsonb_array_element_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* 
         return MeosRuntime::none();
     }
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_array_element(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), null_handle_type_from_string(s2.c_str()));
+    auto r = tjsonb_array_element(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -1421,7 +1421,7 @@ int8_t* Meos_tjsonb_array_element_0_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
-    auto r = tjsonb_array_element(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), null_handle_type_from_string("use_json_null"));
+    auto r = tjsonb_array_element(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), nullhandletype_from_string("use_json_null"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -1439,7 +1439,7 @@ int8_t* Meos_tjsonb_array_element_text_0(int8_t* a0, int8_t* a1, int8_t* a2, int
         return MeosRuntime::none();
     }
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_array_element_text(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), null_handle_type_from_string(s2.c_str()));
+    auto r = tjsonb_array_element_text(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -1456,7 +1456,7 @@ int8_t* Meos_tjsonb_array_element_text_0_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
-    auto r = tjsonb_array_element_text(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), null_handle_type_from_string("use_json_null"));
+    auto r = tjsonb_array_element_text(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), nullhandletype_from_string("use_json_null"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -1550,7 +1550,7 @@ int8_t* Meos_tjsonb_object_field_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* o
     const std::string s1 = MeosRuntime::text(a1);
     text* t1 = cstring_to_text(s1.c_str());
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_object_field(static_cast<Temporal*>(v0.get()), t1, null_handle_type_from_string(s2.c_str()));
+    auto r = tjsonb_object_field(static_cast<Temporal*>(v0.get()), t1, nullhandletype_from_string(s2.c_str()));
     std::free(t1);
     if (r == nullptr)
     {
@@ -1570,7 +1570,7 @@ int8_t* Meos_tjsonb_object_field_0_2(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     text* t1 = cstring_to_text(s1.c_str());
-    auto r = tjsonb_object_field(static_cast<Temporal*>(v0.get()), t1, null_handle_type_from_string("use_json_null"));
+    auto r = tjsonb_object_field(static_cast<Temporal*>(v0.get()), t1, nullhandletype_from_string("use_json_null"));
     std::free(t1);
     if (r == nullptr)
     {
@@ -1591,7 +1591,7 @@ int8_t* Meos_tjsonb_object_field_text_0(int8_t* a0, int8_t* a1, int8_t* a2, int8
     const std::string s1 = MeosRuntime::text(a1);
     text* t1 = cstring_to_text(s1.c_str());
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_object_field_text(static_cast<Temporal*>(v0.get()), t1, null_handle_type_from_string(s2.c_str()));
+    auto r = tjsonb_object_field_text(static_cast<Temporal*>(v0.get()), t1, nullhandletype_from_string(s2.c_str()));
     std::free(t1);
     if (r == nullptr)
     {
@@ -1611,7 +1611,7 @@ int8_t* Meos_tjsonb_object_field_text_0_2(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     text* t1 = cstring_to_text(s1.c_str());
-    auto r = tjsonb_object_field_text(static_cast<Temporal*>(v0.get()), t1, null_handle_type_from_string("use_json_null"));
+    auto r = tjsonb_object_field_text(static_cast<Temporal*>(v0.get()), t1, nullhandletype_from_string("use_json_null"));
     std::free(t1);
     if (r == nullptr)
     {
@@ -2114,7 +2114,7 @@ int8_t* Meos_tjsonb_to_tbigint_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_to_tbigint(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string(s2.c_str()));
+    auto r = tjsonb_to_tbigint(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2132,7 +2132,7 @@ int8_t* Meos_tjsonb_to_tbigint_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = tjsonb_to_tbigint(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_tbigint(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2151,7 +2151,7 @@ int8_t* Meos_tjsonb_to_tbool_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_to_tbool(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string(s2.c_str()));
+    auto r = tjsonb_to_tbool(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2169,7 +2169,7 @@ int8_t* Meos_tjsonb_to_tbool_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = tjsonb_to_tbool(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_tbool(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2189,7 +2189,7 @@ int8_t* Meos_tjsonb_to_tfloat_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, 
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
     const std::string s3 = MeosRuntime::text(a3);
-    auto r = tjsonb_to_tfloat(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), null_handle_type_from_string(s3.c_str()));
+    auto r = tjsonb_to_tfloat(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), nullhandletype_from_string(s3.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2208,7 +2208,7 @@ int8_t* Meos_tjsonb_to_tfloat_0_3(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* ou
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_to_tfloat(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_tfloat(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2226,7 +2226,7 @@ int8_t* Meos_tjsonb_to_tfloat_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = tjsonb_to_tfloat(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string("linear"), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_tfloat(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string("linear"), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2246,7 +2246,7 @@ int8_t* Meos_tjsonb_to_tgeogpoint_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* 
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
     const std::string s3 = MeosRuntime::text(a3);
-    auto r = tjsonb_to_tgeogpoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), null_handle_type_from_string(s3.c_str()));
+    auto r = tjsonb_to_tgeogpoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), nullhandletype_from_string(s3.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2265,7 +2265,7 @@ int8_t* Meos_tjsonb_to_tgeogpoint_0_3(int8_t* a0, int8_t* a1, int8_t* a2, int8_t
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_to_tgeogpoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_tgeogpoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2283,7 +2283,7 @@ int8_t* Meos_tjsonb_to_tgeogpoint_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = tjsonb_to_tgeogpoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string("linear"), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_tgeogpoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string("linear"), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2302,7 +2302,7 @@ int8_t* Meos_tjsonb_to_tgeography_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* 
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_to_tgeography(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string(s2.c_str()));
+    auto r = tjsonb_to_tgeography(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2320,7 +2320,7 @@ int8_t* Meos_tjsonb_to_tgeography_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = tjsonb_to_tgeography(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_tgeography(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2339,7 +2339,7 @@ int8_t* Meos_tjsonb_to_tgeometry_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* o
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_to_tgeometry(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string(s2.c_str()));
+    auto r = tjsonb_to_tgeometry(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2357,7 +2357,7 @@ int8_t* Meos_tjsonb_to_tgeometry_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = tjsonb_to_tgeometry(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_tgeometry(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2377,7 +2377,7 @@ int8_t* Meos_tjsonb_to_tgeompoint_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* 
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
     const std::string s3 = MeosRuntime::text(a3);
-    auto r = tjsonb_to_tgeompoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), null_handle_type_from_string(s3.c_str()));
+    auto r = tjsonb_to_tgeompoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), nullhandletype_from_string(s3.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2396,7 +2396,7 @@ int8_t* Meos_tjsonb_to_tgeompoint_0_3(int8_t* a0, int8_t* a1, int8_t* a2, int8_t
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_to_tgeompoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_tgeompoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string(s2.c_str()), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2414,7 +2414,7 @@ int8_t* Meos_tjsonb_to_tgeompoint_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = tjsonb_to_tgeompoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string("linear"), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_tgeompoint(static_cast<Temporal*>(v0.get()), s1.c_str(), interptype_from_string("linear"), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2433,7 +2433,7 @@ int8_t* Meos_tjsonb_to_tint_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_to_tint(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string(s2.c_str()));
+    auto r = tjsonb_to_tint(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2451,7 +2451,7 @@ int8_t* Meos_tjsonb_to_tint_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = tjsonb_to_tint(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_tint(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2470,7 +2470,7 @@ int8_t* Meos_tjsonb_to_ttext_key_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* o
     }
     const std::string s1 = MeosRuntime::text(a1);
     const std::string s2 = MeosRuntime::text(a2);
-    auto r = tjsonb_to_ttext_key(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string(s2.c_str()));
+    auto r = tjsonb_to_ttext_key(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string(s2.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -2488,7 +2488,7 @@ int8_t* Meos_tjsonb_to_ttext_key_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = tjsonb_to_ttext_key(static_cast<Temporal*>(v0.get()), s1.c_str(), null_handle_type_from_string("raise_exception"));
+    auto r = tjsonb_to_ttext_key(static_cast<Temporal*>(v0.get()), s1.c_str(), nullhandletype_from_string("raise_exception"));
     if (r == nullptr)
     {
         return MeosRuntime::none();

@@ -687,32 +687,52 @@ class AggregateLayer:
     def leave(self, why):
         self.left[why] = self.left.get(why, 0) + 1
 
-    def input(self, p, sql):
-        """How the SQL argument of type `sql` reaches the C parameter p, as #_agg_input: (field, decode, call,
-        free) with the argument at a0 and the row at row, or None"""
+    def input(self, p, sql, k):
+        """How SQL argument k, of type `sql`, reaches the C parameter p, as #_agg_input: (field, decode, call,
+        free, literal type) with the row at row. The first argument is the one a MeosAggregationPhysicalFunction
+        hands over, at a0; each other one is a query literal of the block (MeosRuntime::literal), of the
+        literal type, the NebulaStream type it is written in. None where no rule passes it"""
         ctype = c_spelling(p['canonical'])
         base = ctype.replace('const ', '').replace('struct ', '').rstrip('*').strip()
+        src = 'a0' if k == 0 else f'MeosRuntime::literal(block, {k - 1})'
+        at = f'row.a{k}'
+        # a value the call reads none of skips the row, releasing what the row's earlier arguments hold
+        skip = f'\n        if ({at} == nullptr)\n        {{\n@RELEASE@            return false;\n        }}'
         if sql in self.m.codec:
             kind, dec = self.m.codec[sql][:2]
             if not ctype.endswith('*'):
                 return None
             if sql in self.m.image:
-                decode = 'row.a0 = MeosRuntime::laid(a0);'
+                decode = f'{at} = MeosRuntime::laid({src});'
             elif kind != 'bytes':
                 # carried as the codec's string, decoded for the call
                 self.t.fn(dec)
-                decode = f'row.a0 = {dec}(MeosRuntime::text(a0).c_str());'
+                decode = f'{at} = {dec}(MeosRuntime::text({src}).c_str());'
             else:
                 return None
-            return ('void* a0;', decode + '\n        if (row.a0 == nullptr)\n        {\n            return false;\n        }',
-                    f'static_cast<{base}*>(row.a0)', 'std::free(row.a0);')
-        if sql == 'text' and ctype in ('text*', 'const text*'):
-            self.t.fn('cstring_to_text')
-            return ('text* a0;', 'row.a0 = cstring_to_text(MeosRuntime::text(a0).c_str());', 'row.a0',
-                    'std::free(row.a0);')
+            return (f'void* a{k};', decode + skip, f'static_cast<{base}*>({at})', f'std::free({at});', 'VARSIZED')
+        if sql == 'text':
+            if ctype in ('text*', 'const text*'):
+                self.t.fn('cstring_to_text')
+                return (f'text* a{k};', f'{at} = cstring_to_text(MeosRuntime::text({src}).c_str());', at,
+                        f'std::free({at});', 'VARSIZED')
+            if ctype == 'const char*':
+                return (f'char* a{k};', f'{at} = strdup(MeosRuntime::text({src}).c_str());', at, f'std::free({at});',
+                        'VARSIZED')
+            if ctype in self.m.enum_parser:
+                parser = self.t.fn(self.m.enum_parser[ctype])['name']
+                return (f'{ctype} a{k};', f'{at} = {parser}(MeosRuntime::text({src}).c_str());', at, '', 'VARSIZED')
+            return None
         if sql in SQL_SCALAR and ctype in C_NUMBER:
-            return (f'{ctype} a0;', f'row.a0 = static_cast<{ctype}>(MeosRuntime::number<{SQL_SCALAR[sql][1]}>(a0));',
-                    'row.a0', '')
+            return (f'{ctype} a{k};', f'{at} = static_cast<{ctype}>(MeosRuntime::number<{SQL_SCALAR[sql][1]}>({src}));',
+                    at, '', SQL_SCALAR[sql][0])
+        # a literal of a C type the catalog reads from text (typeEncodings[C].in: an interval), read by it
+        enc = (self.f.cat.get('typeEncodings') or {}).get(base) or {}
+        if k > 0 and ctype.endswith('*') and 'text' in (enc.get('decoders') or {}):
+            reader = self.t.fn(enc['decoders']['text'])['name']
+            aux = ''.join(f', {literal(x)}' for x in (enc.get('decoderAux') or {}).get('text') or [])
+            return (f'{base}* a{k};', f'{at} = {reader}(MeosRuntime::text({src}).c_str(){aux});' + skip, at,
+                    f'std::free({at});', 'VARSIZED')
         return None
 
     def entry(self, a):
@@ -723,12 +743,11 @@ class AggregateLayer:
         name = a.get('altSqlName') or a['sqlName']
         if not args:
             return 'no argument'
-        if len(args) > 1:
-            return f'arity {len(args)}'
-        types = [self.f.nes_type(t) for t in args]
+        # the first argument is the aggregated field, of a NebulaStream type; the others are query literals
+        first = self.f.nes_type(args[0])
         rtype = self.f.nes_type(ret)
-        if None in types or rtype is None:
-            return f'type {next(t for t, n in zip(args + [ret], types + [rtype]) if n is None)}'
+        if first is None or rtype is None:
+            return f'type {args[0] if first is None else ret}'
         if any(r and r not in self.by_name for r in roles.values()):
             return 'role not in the catalog'
         tf = self.by_name[roles['transition']]
@@ -741,6 +760,11 @@ class AggregateLayer:
         bound = {**((tf.get('shape') or {}).get('boundArgs') or {}), **(sig.get('boundArgs') or {})}
         bound = {n: v for n, v in bound.items() if n in {p['name'] for p in vis}}
         walk = [i for i, p in enumerate(vis) if p['name'] not in bound]
+        order = sig.get('sqlArgParams') or (tf.get('shape') or {}).get('sqlArgParams')
+        if order:
+            at = {p['name']: i for i, p in enumerate(vis)}
+            if set(order) <= set(at) and sorted(at[n] for n in order) == walk:
+                walk = [at[n] for n in order]
         if len(walk) != len(args):
             return 'arity'
         call = [None] * len(vis)
@@ -749,11 +773,19 @@ class AggregateLayer:
                 call[i] = self.f.bound_literal(bound[p['name']], c_spelling(p['canonical']))
                 if call[i] is None:
                     return f'bound {bound[p["name"]]}'
-        got = self.input(vis[walk[0]], args[0])
-        if got is None:
-            return f'argument {args[0]}/{c_spelling(vis[walk[0]]["canonical"])}'
-        field, decode, call[walk[0]], free = got
-        if gathers and field != 'void* a0;':
+        fields, decodes, frees, literal_types = [], [], [], []
+        for k, (i, sql) in enumerate(zip(walk, args)):
+            got = self.input(vis[i], sql, k)
+            if got is None:
+                return f'argument {sql}/{c_spelling(vis[i]["canonical"])}'
+            field, decode, call[i], free, ltype = got
+            fields.append(field)
+            decodes.append(decode.replace('@RELEASE@', ''.join(f'            {f}\n' for f in frees)))
+            if free:
+                frees.append(free)
+            if k > 0:
+                literal_types.append(ltype)
+        if gathers and fields[0] != 'void* a0;':
             return 'no combine over a value of no temporal type'
         ff = self.by_name.get(roles['final']) if roles['final'] else None
         keeps = bool(ff and ff.get('params') and ff['params'][0]['canonical'].startswith('const '))
@@ -770,15 +802,17 @@ class AggregateLayer:
         for fn in (tf, self.by_name.get(roles['combine']), ff):
             if fn:
                 self.t.fn(fn['name'])
-        L = [f'struct {key}Ops', '{', '    struct Row', '    {', f'        {field}', '    };',
+        L = [f'struct {key}Ops', '{', '    struct Row', '    {', *(f'        {f}' for f in fields), '    };',
              f'    static constexpr bool GATHERS = {"true" if gathers else "false"};',
              f'    static constexpr bool HAS_FINAL = {"true" if ff else "false"};',
              f'    static constexpr bool KEEPS = {"true" if keeps else "false"};',
-             '    static bool Read(Row& row, int8_t* a0)', '    {', f'        {decode}', '        return true;', '    }',
+             '    static bool Read(Row& row, int8_t* a0, int8_t* block)', '    {',
+             *([] if len(args) > 1 else ['        static_cast<void>(block);']),
+             *(f'        {d}' for d in decodes), '        return true;', '    }',
              '    static void* Transition(void* s, Row& row)', '    {',
              f'        return {tf["name"]}({cast(tf, 0)}(s){"".join(", " + c for c in call)});', '    }',
-             '    static void Free(Row& row)', '    {', f'        {free}' if free else '        static_cast<void>(row);',
-             '    }']
+             '    static void Free(Row& row)', '    {',
+             *((f'        {f}' for f in frees) if frees else ['        static_cast<void>(row);']), '    }']
         if roles['combine']:
             cf = self.by_name[roles['combine']]
             L += ['    static void* Combine(void* a, void* b)', '    {',
@@ -803,8 +837,8 @@ class AggregateLayer:
         else:
             L += ['    static int64_t Order(const Row&)', '    {', '        return 0;', '    }']
         L += ['};', '']
-        self.ops.append((key, '\n'.join(L), types[0][1]))
-        self.overloads.setdefault(name, []).append((types[0][0], rtype[0], key))
+        self.ops.append((key, '\n'.join(L), first[1], tuple(literal_types)))
+        self.overloads.setdefault(name, []).append((first[0], tuple(literal_types), rtype[0], key))
         return None
 
     def build(self, functions):
@@ -829,12 +863,17 @@ class AggregateLayer:
     def logical_source(self):
         out = [LICENSE, '/* AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
                ' * Every MEOS aggregate by its name, each with the overloads the catalog states for it. */', '',
-               '#include <array>', '#include <memory>', '#include <Functions/FieldAccessLogicalFunction.hpp>',
+               '#include <array>', '#include <memory>', '#include <string_view>', '#include <utility>',
+               '#include <Functions/FieldAccessLogicalFunction.hpp>',
                '#include <Operators/Windows/Aggregations/Meos/MeosAggregationLogicalFunction.hpp>',
                '#include <AggregationLogicalFunctionRegistry.hpp>', '#include <ErrorHandling.hpp>', '',
                'namespace NES', '{', '', 'namespace', '{']
         for n, (name, overloads) in enumerate(sorted(self.overloads.items())):
-            rows = ', '.join(f'MeosAggregateOverload{{"{a}", "{r}", "{k}"}}' for a, r, k in overloads)
+            for o, (_, lits, _, _) in enumerate(overloads):
+                quoted = ', '.join(f'"{t}"' for t in lits)
+                out.append(f'constexpr std::array<std::string_view, {len(lits)}> literals{n}_{o}{{{quoted}}};')
+            rows = ', '.join(f'MeosAggregateOverload{{"{a}", literals{n}_{o}, "{r}", "{k}"}}'
+                             for o, (a, _, r, k) in enumerate(overloads))
             out.append(f'constexpr std::array<MeosAggregateOverload, {len(overloads)}> overloads{n}{{{rows}}};')
         out += ['}', '']
         for n, (name, _) in enumerate(sorted(self.overloads.items())):
@@ -844,29 +883,30 @@ class AggregateLayer:
                     f'        throw CannotDeserialize("{name} takes an on and an as field, but got {{}}", arguments.fields.size());',
                     '    }',
                     f'    return std::make_shared<MeosAggregationLogicalFunction>("{name}", overloads{n}, arguments.fields[0], '
-                    'arguments.fields[1]);', '}', '']
+                    'arguments.fields[1], std::move(arguments.literals));', '}', '']
         out.append('}')
         return '\n'.join(out) + '\n'
 
     def kernel_source(self, headers):
         out = [LICENSE, '/* AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
                ' * The operations of the MEOS aggregates, one per overload, and their physical aggregations. */', '',
-               '#include <cstdint>', '#include <cstdlib>', '#include <cstring>', '#include <memory>', '#include <string>',
-               '#include <utility>', '', 'extern "C" {', headers, '}', '',
+               '#include <array>', '#include <cstdint>', '#include <cstdlib>', '#include <cstring>', '#include <memory>',
+               '#include <string>', '#include <utility>', '', 'extern "C" {', headers, '}', '',
                '#include <Aggregation/Function/Meos/MeosAggregationPhysicalFunction.hpp>', '#include <DataTypes/DataType.hpp>',
                '#include <MeosAggregateRuntime.hpp>', '#include <MeosKernelRuntime.hpp>',
                '#include <AggregationPhysicalFunctionRegistry.hpp>', '', 'namespace NES', '{', '', 'namespace', '{']
-        for key, src, _ in self.ops:
-            out += [src, f'using {key} = MeosRuntime::MeosAggregate<{key}Ops>;',
+        for key, src, _, lits in self.ops:
+            types = ', '.join(f'DataType::Type::{t}' for t in lits)
+            out += [src, f'constexpr std::array<DataType::Type, {len(lits)}> {key}Literals{{{types}}};', f'using {key} = MeosRuntime::MeosAggregate<{key}Ops>;',
                     f'constexpr MeosAggregateKernels {key}Kernels{{&{key}::Initialize, &{key}::Update, &{key}::Combine, '
                     f'&{key}::Finish, &{key}::Destroy, {key}::StateSize}};', '']
         out += ['}', '']
-        for key, _, ptype in self.ops:
+        for key, _, ptype, _ in self.ops:
             out += [f'AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::'
                     f'Register{key}AggregationPhysicalFunction(AggregationPhysicalFunctionRegistryArguments arguments)',
                     '{', '    return std::make_shared<MeosAggregationPhysicalFunction>(std::move(arguments.inputType), '
                     'std::move(arguments.resultType), std::move(arguments.inputFunction), std::move(arguments.resultFieldIdentifier), '
-                    f'DataType::Type::{ptype}, {key}Kernels);', '}', '']
+                    f'DataType::Type::{ptype}, {key}Literals, arguments.literals, {key}Kernels);', '}', '']
         out.append('}')
         return '\n'.join(out) + '\n'
 

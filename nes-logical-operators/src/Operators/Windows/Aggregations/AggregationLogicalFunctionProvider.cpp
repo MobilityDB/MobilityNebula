@@ -17,6 +17,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
+#include <vector>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <AggregationLogicalFunctionRegistry.hpp>
@@ -24,10 +26,10 @@
 namespace NES::AggregationLogicalFunctionProvider
 {
 std::optional<std::shared_ptr<WindowAggregationLogicalFunction>>
-tryProvide(const std::string& aggregationName, const FieldAccessLogicalFunction& onField)
+tryProvide(const std::string& aggregationName, const FieldAccessLogicalFunction& onField, std::vector<std::string> literals)
 {
     /// The as field is the on field until the query names the result
     return AggregationLogicalFunctionRegistry::instance().create(
-        aggregationName, AggregationLogicalFunctionRegistryArguments{.fields = {onField, onField}, .literals = {}});
+        aggregationName, AggregationLogicalFunctionRegistryArguments{.fields = {onField, onField}, .literals = std::move(literals)});
 }
 }

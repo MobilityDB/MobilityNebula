@@ -34,8 +34,8 @@
 ///   GATHERS                true when the aggregate states no combine
 ///   HAS_FINAL, KEEPS       whether it states a final, and whether that final takes its state const,
 ///                          keeping it
-///   Read(row, a0)          decode the argument a MeosAggregationPhysicalFunction hands over into row;
-///                          false when it holds no value
+///   Read(row, a0, block)   decode the argument a MeosAggregationPhysicalFunction hands over and the query
+///                          literals of its block (#literal) into row; false when the argument holds no value
 ///   Transition(state, row) the state with the row folded in
 ///   Free(row)              release what Read decoded
 ///   Combine(a, b)          the two partial states joined
@@ -141,11 +141,11 @@ struct MeosAggregate
         s.rows = nullptr;
     }
 
-    static void Update(int8_t* slot, int8_t* a0)
+    static void Update(int8_t* slot, int8_t* a0, int8_t* block)
     {
         initialized();
         Row row{};
-        if (not OPS::Read(row, a0))
+        if (not OPS::Read(row, a0, block))
         {
             return;
         }
@@ -242,6 +242,15 @@ struct MeosAggregate
         store(slot, s);
     }
 };
+
+/// The query literal k of the block a MeosAggregationPhysicalFunction hands over, in the form a kernel takes
+/// an argument of its type
+inline int8_t* literal(int8_t* block, const size_t k)
+{
+    uint32_t offset = 0;
+    std::memcpy(&offset, block + k * sizeof(uint32_t), sizeof(offset));
+    return block + offset;
+}
 
 /// The memory image of the variable-sized argument at the reference, laid in memory malloc allocates, as
 /// MEOS allocates, which aligns it for any type; none for an empty value

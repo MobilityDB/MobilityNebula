@@ -14,30 +14,67 @@
 
 #include <Operators/Windows/Aggregations/Meos/MeosAggregationLogicalFunction.hpp>
 
+#include <charconv>
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <span>
 #include <string>
 #include <string_view>
+#include <system_error>
+#include <utility>
+#include <vector>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
 #include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Util/Strings.hpp>
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <ErrorHandling.hpp>
 #include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
+namespace
+{
+/// Whether the text of a query literal reads as a value of the type: any text as a variable-sized value,
+/// a number as a float, an integer as an integer, true or false as a boolean
+bool readsAs(const std::string_view type, const std::string& text)
+{
+    if (type == "VARSIZED")
+    {
+        return true;
+    }
+    if (type == "BOOLEAN")
+    {
+        return Util::toUpperCase(text) == "TRUE" or Util::toUpperCase(text) == "FALSE";
+    }
+    const char* end = text.data() + text.size();
+    if (type == "FLOAT64")
+    {
+        double value = 0;
+        const auto [at, error] = std::from_chars(text.data(), end, value);
+        return error == std::errc{} and at == end;
+    }
+    int64_t value = 0;
+    const auto [at, error] = std::from_chars(text.data(), end, value);
+    return error == std::errc{} and at == end;
+}
+}
+
 MeosAggregationLogicalFunction::MeosAggregationLogicalFunction(
     const std::string_view name,
     const std::span<const MeosAggregateOverload> overloads,
     const FieldAccessLogicalFunction& onField,
-    const FieldAccessLogicalFunction& asField)
+    const FieldAccessLogicalFunction& asField,
+    std::vector<std::string> literals)
     : WindowAggregationLogicalFunction(onField.getDataType(), onField.getDataType(), onField.getDataType(), onField, asField)
     , name(name)
     , overloads(overloads)
+    , literals(std::move(literals))
 {
     /// A deserialized aggregate's field carries its inferred type already
     chosen = chooseOverload();
@@ -55,18 +92,39 @@ std::optional<size_t> MeosAggregationLogicalFunction::chooseOverload() const
     {
         return std::nullopt;
     }
+    const auto literalsRead = [this](const MeosAggregateOverload& overload)
+    {
+        if (overload.literals.size() != literals.size())
+        {
+            return false;
+        }
+        for (size_t i = 0; i < literals.size(); ++i)
+        {
+            if (not readsAs(overload.literals[i], literals[i]))
+            {
+                return false;
+            }
+        }
+        return true;
+    };
     for (const bool castNumbers : {false, true})
     {
         for (size_t i = 0; i < overloads.size(); ++i)
         {
             const auto argumentType = DataTypeProvider::provideDataType(std::string(overloads[i].argument));
-            if (fieldType == argumentType or (castNumbers and fieldType.isNumeric() and argumentType.isNumeric()))
+            if ((fieldType == argumentType or (castNumbers and fieldType.isNumeric() and argumentType.isNumeric()))
+                and literalsRead(overloads[i]))
             {
                 return i;
             }
         }
     }
     return std::nullopt;
+}
+
+std::vector<std::string> MeosAggregationLogicalFunction::getLiterals() const
+{
+    return literals;
 }
 
 std::string_view MeosAggregationLogicalFunction::getName() const noexcept
@@ -85,7 +143,8 @@ void MeosAggregationLogicalFunction::inferStamp(const Schema& schema)
     chosen = chooseOverload();
     if (not chosen)
     {
-        throw CannotInferStamp("{} takes no argument of type {}", name, onField.getDataType());
+        throw CannotInferStamp(
+            "{} takes no argument of type {} followed by the literals ({})", name, onField.getDataType(), fmt::join(literals, ", "));
     }
 
     /// The as field qualified as the on field is, as every aggregation qualifies it
@@ -113,6 +172,10 @@ SerializableAggregationFunction MeosAggregationLogicalFunction::serialize() cons
     serializedAggregationFunction.set_type(std::string(name));
     serializedAggregationFunction.mutable_on_field()->CopyFrom(onField.serialize());
     serializedAggregationFunction.mutable_as_field()->CopyFrom(asField.serialize());
+    for (const auto& literal : literals)
+    {
+        serializedAggregationFunction.add_literals(literal);
+    }
     return serializedAggregationFunction;
 }
 

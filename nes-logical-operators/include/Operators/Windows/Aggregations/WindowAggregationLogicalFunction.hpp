@@ -16,6 +16,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include <string_view>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/Schema.hpp>
@@ -47,6 +48,9 @@ public:
     /// The name its physical aggregation is registered under: its name, unless it is one name over
     /// several overloads lowered each by its own
     [[nodiscard]] virtual std::string_view getPhysicalName() const noexcept { return getName(); }
+
+    /// The query-literal constants of a parameterized aggregation, none for an aggregation over its field alone
+    [[nodiscard]] virtual std::vector<std::string> getLiterals() const { return {}; }
 
     DataType inputStamp, partialAggregateStamp, finalAggregateStamp;
     FieldAccessLogicalFunction onField, asField;

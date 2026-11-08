@@ -273,7 +273,8 @@ getAggregationPhysicalFunctions(const WindowedAggregationLogicalOperator& logica
             std::move(physicalFinalType),
             std::move(aggregationInputFunction),
             resultFieldIdentifier,
-            columnBufferRef);
+            columnBufferRef,
+            descriptor->getLiterals());
         if (auto aggregationPhysicalFunction = AggregationPhysicalFunctionRegistry::instance().create(
                 std::string(descriptor->getPhysicalName()), std::move(aggregationArguments)))
         {

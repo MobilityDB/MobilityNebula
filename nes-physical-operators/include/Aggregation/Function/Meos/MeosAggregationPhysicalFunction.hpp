@@ -16,6 +16,10 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
+#include <span>
+#include <string>
+#include <vector>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <DataTypes/DataType.hpp>
 #include <Functions/PhysicalFunction.hpp>
@@ -29,13 +33,15 @@ namespace NES
 /// The C++ functions running one overload of a MEOS aggregate over its state, generated from the MEOS
 /// catalog by tools/codegen/codegen_nebula_sql.py as the entry points of the MeosAggregate template of
 /// nes-plugins/MEOS/include/MeosAggregateRuntime.hpp. Each takes the slot of the state; the argument is
-/// handed over as a MEOS kernel takes it, and the result answered as a MEOS kernel answers it.
+/// handed over as a MEOS kernel takes it, and the result answered as a MEOS kernel answers it. The query
+/// literals following the argument are handed over as one block: the offset of each literal from the
+/// block's start, a 4-byte integer each, then each literal as a MEOS kernel takes an argument of its type.
 struct MeosAggregateKernels
 {
     /// The empty state laid in the slot
     void (*initialize)(int8_t* slot);
-    /// The argument of one row folded into the state
-    void (*update)(int8_t* slot, int8_t* argument);
+    /// The argument of one row and the literals folded into the state
+    void (*update)(int8_t* slot, int8_t* argument, int8_t* literals);
     /// The state of the source slot joined into the target's, the source left empty
     void (*combine)(int8_t* target, int8_t* source);
     /// The answer of the result over the state, which is left empty
@@ -58,6 +64,8 @@ public:
         PhysicalFunction inputFunction,
         Nautilus::Record::RecordFieldIdentifier resultFieldIdentifier,
         DataType::Type argumentType,
+        std::span<const DataType::Type> literalTypes,
+        const std::vector<std::string>& literals,
         const MeosAggregateKernels& kernels);
 
     void lift(
@@ -76,6 +84,8 @@ public:
 
 private:
     DataType::Type argumentType;
+    /// The block of the query literals, shared by the copies of the function the compiled query points into
+    std::shared_ptr<std::vector<int8_t>> literals;
     MeosAggregateKernels kernels;
 };
 

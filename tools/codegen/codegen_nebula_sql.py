@@ -427,6 +427,9 @@ class FunctionLayer:
             return 'VARSIZED', 'VARSIZED'
         if sql in SQL_SCALAR:
             return SQL_SCALAR[sql][0], SQL_SCALAR[sql][0]
+        if sql == 'timestamptz':
+            # NebulaStream's timestamp, milliseconds from the Unix epoch (MeosRuntime::timestamptz)
+            return 'UINT64', 'UINT64'
         return None
 
     def bound_literal(self, value, ctype):
@@ -489,6 +492,8 @@ class FunctionLayer:
             return None
         if sql in SQL_SCALAR and ctype in C_NUMBER:
             return f'static_cast<{ctype}>(MeosRuntime::number<{SQL_SCALAR[sql][1]}>({a}))'
+        if sql == 'timestamptz' and ctype == 'TimestampTz':
+            return f'MeosRuntime::timestamptz(MeosRuntime::number<uint64_t>({a}))'
         return None
 
     def array_argument(self, k, sql, p, pre):
@@ -552,6 +557,9 @@ class FunctionLayer:
                 return ['    if (r == nullptr)\n' + no_value(none), '    size_t size = 0;',
                         '    char* w = text_out(r, &size);', '    std::free(r);', '    return MeosRuntime::string(w);'], none
             return None
+        if sql == 'timestamptz' and rc == 'TimestampTz':
+            return ['    return MeosRuntime::number<uint64_t>(out, MeosRuntime::milliseconds(r));'], \
+                'MeosRuntime::number<uint64_t>(out, uint64_t{})'
         if sql in SQL_SCALAR and rc in C_NUMBER:
             slot = SQL_SCALAR[sql][1]
             # a predicate MEOS answers as an int answers true for 1 alone, its error being -1
@@ -801,6 +809,10 @@ class AggregateLayer:
         if sql in SQL_SCALAR and ctype in C_NUMBER:
             return (f'{ctype} a{k};', f'{at} = static_cast<{ctype}>(MeosRuntime::number<{SQL_SCALAR[sql][1]}>({src}));',
                     at, '', SQL_SCALAR[sql][0])
+        if sql == 'timestamptz' and ctype == 'TimestampTz':
+            # NebulaStream's timestamp, milliseconds from the Unix epoch, as FunctionLayer.argument reads it
+            return (f'TimestampTz a{k};', f'{at} = MeosRuntime::timestamptz(MeosRuntime::number<uint64_t>({src}));',
+                    at, '', 'UINT64')
         # a literal of a C type the catalog reads from text (typeEncodings[C].in: an interval), read by it
         enc = (self.f.cat.get('typeEncodings') or {}).get(base) or {}
         if k > 0 and ctype.endswith('*') and 'text' in (enc.get('decoders') or {}):

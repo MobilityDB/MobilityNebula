@@ -1,0 +1,28 @@
+# name: MEOS_Timestamps
+# description: A MEOS timestamptz carried as NebulaStream's timestamp, milliseconds from the Unix epoch. startTimestamp and endTimestamp read the first and last instants of the trips mergeAgg merges over the pings of meos_arrays.test, whose times are 2021-01-01 00:00:05 to 00:00:30 UTC, 1609459205000 to 1609459230000 ms. atTime reads a timestamp back into MEOS: the trip restricted to its end timestamp starts at that timestamp. The aggregates extent and setUnionAgg read the times of the pings, as timestamps, into a span and a set, whose bounds and number of values are those times.
+# groups: [Aggregation, MEOS, SpatioTemporal]
+CREATE LOGICAL SOURCE pings(id UINT64, pos TGEOMPOINT, ts UINT64);
+CREATE PHYSICAL SOURCE FOR pings TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|012E0041E610000001010000006666666666661140CDCCCCCCCC6C494080364631CA5A0200|10000
+2|012E0041E610000001010000000000000000001240000000000080494040EBF930CA5A0200|5000
+1|012E0041E610000001010000009A99999999991140333333333373494080637732CA5A0200|30000
+2|012E0041E6100000010100000033333333333312406666666666864940C0819231CA5A0200|15000
+1|012E0041E6100000010100000085EB51B81E851140713D0AD7A370494000CDDE31CA5A0200|20000
+
+CREATE SINK times(pings.start UINT64, pings.end UINT64, pings.id UINT64, first UINT64, last UINT64, back UINT64) TYPE File;
+SELECT start, end, id, startTimestamp(merged) AS first, endTimestamp(merged) AS last,
+  startTimestamp(atTime(merged, endTimestamp(merged))) AS back
+FROM (SELECT start, end, id, mergeAgg(pos) AS merged FROM pings GROUP BY id WINDOW TUMBLING(ts, size 1 minute))
+INTO times;
+----
+0,60000,1,1609459210000,1609459230000,1609459230000
+0,60000,2,1609459205000,1609459215000,1609459215000
+
+CREATE SINK spans(pings.start UINT64, pings.end UINT64, pings.id UINT64, first UINT64, last UINT64, times INT32) TYPE File;
+SELECT start, end, id, spanLower(span) AS first, spanUpper(span) AS last, numValues(times) AS times
+FROM (SELECT start, end, id, extent(ts) AS span, setUnionAgg(ts) AS times FROM pings GROUP BY id WINDOW TUMBLING(ts, size 1 minute))
+INTO spans;
+----
+0,60000,1,10000,30000,3
+0,60000,2,5000,15000,2

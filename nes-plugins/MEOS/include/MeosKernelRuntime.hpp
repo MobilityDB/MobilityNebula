@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <limits>
 #include <string>
 #include <vector>
 #include <MEOSWrapper.hpp>
@@ -213,6 +214,29 @@ int8_t* array(void** values, const int count, Size size)
     }
     std::free(values);
     return bytes(carried.data(), carried.size());
+}
+
+/// NebulaStream's timestamp is a count of milliseconds from the Unix epoch, as its event times and window bounds are;
+/// MEOS computes in TimestampTz. MEOS converts a TimestampTz to and from the microseconds from the Unix epoch
+/// (timestamptz_to_unix_us, unix_us_to_timestamptz), as it does for every binding, so the boundary only scales
+/// microseconds to milliseconds and every computation stays in TimestampTz.
+
+/// The TimestampTz of a NebulaStream timestamp. A count whose microseconds exceed a 64-bit integer reaches MEOS as
+/// the largest one, which MEOS refuses as out of range, rather than wrapped into a timestamp it would accept
+inline TimestampTz timestamptz(const uint64_t milliseconds)
+{
+    constexpr auto most = static_cast<uint64_t>(std::numeric_limits<int64_t>::max() / 1000);
+    const int64_t us = milliseconds > most ? std::numeric_limits<int64_t>::max() : static_cast<int64_t>(milliseconds) * 1000;
+    return unix_us_to_timestamptz(us);
+}
+
+/// The NebulaStream timestamp of a TimestampTz, the microseconds below a millisecond dropped toward the past;
+/// a TimestampTz before the Unix epoch has none and answers 0, as a number answering no value does
+inline uint64_t milliseconds(const TimestampTz t)
+{
+    const int64_t us = timestamptz_to_unix_us(t);
+    const int64_t floored = us / 1000 - ((us % 1000) < 0 ? 1 : 0);
+    return floored < 0 ? 0 : static_cast<uint64_t>(floored);
 }
 
 }

@@ -47,6 +47,322 @@ namespace NES
 
 namespace
 {
+int8_t* Meos_tne_geo_trgeometry_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::none();
+    }
+    auto r = tne_geo_trgeometry(static_cast<GSERIALIZED*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    if (r == nullptr)
+    {
+        return MeosRuntime::none();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tne_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::none();
+    }
+    auto r = tne_trgeometry_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    if (r == nullptr)
+    {
+        return MeosRuntime::none();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_econtains_geo_trgeometry_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = econtains_geo_trgeometry(static_cast<GSERIALIZED*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_acontains_geo_trgeometry_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = acontains_geo_trgeometry(static_cast<GSERIALIZED*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_ecovers_geo_trgeometry_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = ecovers_geo_trgeometry(static_cast<GSERIALIZED*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_acovers_geo_trgeometry_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = acovers_geo_trgeometry(static_cast<GSERIALIZED*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_ecovers_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = ecovers_trgeometry_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_acovers_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = acovers_trgeometry_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_edisjoint_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = edisjoint_trgeometry_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_adisjoint_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = adisjoint_trgeometry_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_eintersects_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = eintersects_trgeometry_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_aintersects_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = aintersects_trgeometry_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_etouches_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = etouches_trgeometry_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_atouches_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = atouches_trgeometry_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_edwithin_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = edwithin_trgeometry_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()), static_cast<double>(MeosRuntime::number<double>(a2)));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_edwithin_trgeometry_geo_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = edwithin_trgeometry_geo(static_cast<Temporal*>(v1.get()), static_cast<GSERIALIZED*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a2)));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_adwithin_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = adwithin_trgeometry_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()), static_cast<double>(MeosRuntime::number<double>(a2)));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_adwithin_trgeometry_geo_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = adwithin_trgeometry_geo(static_cast<Temporal*>(v1.get()), static_cast<GSERIALIZED*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a2)));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
 int8_t* Meos_edisjoint_trgeometry_trgeometry_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
@@ -1726,6 +2042,96 @@ int8_t* Meos_ts2cell_grid_distance_0(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
 
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_tne_geo_trgeometry_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_tne_geo_trgeometry_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_tne_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_tne_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_econtains_geo_trgeometry_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_econtains_geo_trgeometry_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_acontains_geo_trgeometry_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_acontains_geo_trgeometry_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_ecovers_geo_trgeometry_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_ecovers_geo_trgeometry_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_acovers_geo_trgeometry_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_acovers_geo_trgeometry_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_ecovers_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_ecovers_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_acovers_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_acovers_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_edisjoint_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_edisjoint_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adisjoint_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_adisjoint_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_eintersects_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_eintersects_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_aintersects_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_aintersects_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_etouches_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_etouches_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_atouches_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_atouches_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_edwithin_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_edwithin_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_edwithin_trgeometry_geo_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_edwithin_trgeometry_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adwithin_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_adwithin_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adwithin_trgeometry_geo_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_adwithin_trgeometry_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
 PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_edisjoint_trgeometry_trgeometry_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)

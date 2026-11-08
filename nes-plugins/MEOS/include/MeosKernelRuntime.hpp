@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <vector>
 #include <MEOSWrapper.hpp>
 
 /// What the generated MEOS kernels share: reading an argument a MeosPhysicalFunction hands over, and
@@ -138,6 +139,80 @@ int8_t* number(int8_t* out, const T value)
 {
     std::memcpy(out, &value, sizeof(T));
     return none();
+}
+
+/// An array of MEOS values, as MobilityFlink's ARRAY of a value class carries it: the number of elements, then
+/// each element's memory image after its length. Each element is laid in memory malloc allocates, as a Value
+/// lays its value, and the C array of their addresses is the one MEOS takes beside its length.
+class Array
+{
+public:
+    explicit Array(const int8_t* reference) : length(lengthOf(reference))
+    {
+        if (length == 0)
+        {
+            return;
+        }
+        const int8_t* at = reference + sizeof(uint32_t);
+        uint32_t count = 0;
+        std::memcpy(&count, at, sizeof(count));
+        at += sizeof(count);
+        elements.reserve(count);
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            uint32_t size = 0;
+            std::memcpy(&size, at, sizeof(size));
+            at += sizeof(size);
+            void* laid = std::malloc(size);
+            std::memcpy(laid, at, size);
+            at += size;
+            elements.push_back(laid);
+        }
+    }
+    Array(const Array&) = delete;
+    Array& operator=(const Array&) = delete;
+    ~Array()
+    {
+        for (void* element : elements)
+        {
+            std::free(element);
+        }
+    }
+
+    /// An array carried in no bytes is no value; an array of no element is a value
+    [[nodiscard]] bool empty() const { return length == 0; }
+    /// The C array of the elements, as MEOS takes it
+    [[nodiscard]] void** get() { return elements.data(); }
+    [[nodiscard]] int count() const { return static_cast<int>(elements.size()); }
+
+private:
+    uint32_t length;
+    std::vector<void*> elements;
+};
+
+/// The answer of the array of count values MEOS allocated, each written as the memory image of its size, then
+/// freed with the array itself
+template <typename Size>
+int8_t* array(void** values, const int count, Size size)
+{
+    if (values == nullptr)
+    {
+        return none();
+    }
+    std::vector<std::byte> carried(sizeof(uint32_t));
+    const auto n = static_cast<uint32_t>(count);
+    std::memcpy(carried.data(), &n, sizeof(n));
+    for (int i = 0; i < count; ++i)
+    {
+        const auto length = static_cast<uint32_t>(size(values[i]));
+        const auto at = carried.size();
+        carried.resize(at + sizeof(length) + length);
+        std::memcpy(carried.data() + at, &length, sizeof(length));
+        std::memcpy(carried.data() + at + sizeof(length), values[i], length);
+        std::free(values[i]);
+    }
+    std::free(values);
+    return bytes(carried.data(), carried.size());
 }
 
 }

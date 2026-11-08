@@ -214,12 +214,38 @@ class TypeLayer:
                 '']
         return '\n'.join(out)
 
-    def registrar(self, sqls):
+    def array_source(self, sql):
+        """The C++ of the extension type of an array of `sql`, as MobilityFlink's ARRAY of the value class
+        carries it: the number of elements, then each element's memory image after its length, written as
+        the text of its elements in braces. An array passes between functions and is read from no text."""
+        name = ident(sql)
+        return '\n'.join([
+            f'/* {sql}[]: an array of {sql}, carried as its number of elements, then each element\'s memory image after its length */',
+            f'std::string {name}ArrayToText(std::span<const std::byte> bytes)', '{',
+            '    if (bytes.empty())', '    {', '        return {};', '    }',
+            '    uint32_t count = 0;', '    std::memcpy(&count, bytes.data(), sizeof(count));',
+            '    size_t at = sizeof(count);', '    std::string text{"{"};',
+            '    for (uint32_t i = 0; i < count; ++i)', '    {',
+            '        uint32_t size = 0;', '        std::memcpy(&size, bytes.data() + at, sizeof(size));', '        at += sizeof(size);',
+            '        if (i > 0)', '        {', '            text += ", ";', '        }',
+            f'        text += {name}ToText(bytes.subspan(at, size));', '        at += size;', '    }',
+            '    text += "}";', '    return text;', '}', '',
+            f'std::vector<std::byte> {name}ArrayFromText(std::string_view text)', '{',
+            f'    cannotRead("{sql}[]", text);', '}', '',
+            f'constexpr ExtensionType {name}ArrayType{{.name = "{sql.upper()}_ARRAY", .toText = {name}ArrayToText, '
+            f'.fromText = {name}ArrayFromText}};', ''])
+
+    def registrar(self, sqls, arrays=()):
         out = ['}', '', 'namespace NES', '{', '']
         for sql in sqls:
             out += [f'DataTypeRegistryReturnType DataTypeGeneratedRegistrar::Register{sql.upper()}DataType(DataTypeRegistryArguments)',
                     '{',
                     f'    return DataType{{.type = DataType::Type::VARSIZED, .extension = &{ident(sql)}Type}};',
+                    '}', '']
+        for sql in arrays:
+            out += [f'DataTypeRegistryReturnType DataTypeGeneratedRegistrar::Register{sql.upper()}_ARRAYDataType(DataTypeRegistryArguments)',
+                    '{',
+                    f'    return DataType{{.type = DataType::Type::VARSIZED, .extension = &{ident(sql)}ArrayType}};',
                     '}', '']
         out.append('}')
         return out
@@ -384,12 +410,17 @@ class FunctionLayer:
         self.overloads = {}   # SQL name -> [(NebulaStream argument types, result type, key)]
         self.kernels = []     # (key, C++ source, physical argument types, physical result type)
         self.left = {}        # reason -> count
+        self.arrays = set()   # the SQL types an array of which some signature carries
 
     def leave(self, why):
         self.left[why] = self.left.get(why, 0) + 1
 
     def nes_type(self, sql):
-        """The NebulaStream data type a SQL type is carried in, and the physical type of its value"""
+        """The NebulaStream data type a SQL type is carried in, and the physical type of its value; an array of
+        values carried as their memory image is a type of its own (TypeLayer.array_source)"""
+        if sql.endswith('[]') and sql[:-2] in self.m.image:
+            self.arrays.add(sql[:-2])
+            return f'{sql[:-2].upper()}_ARRAY', 'VARSIZED'
         if sql in self.m.codec:
             return sql.upper(), 'VARSIZED'
         if sql == 'text':
@@ -460,11 +491,33 @@ class FunctionLayer:
             return f'static_cast<{ctype}>(MeosRuntime::number<{SQL_SCALAR[sql][1]}>({a}))'
         return None
 
-    def answer(self, sql, f):
+    def array_argument(self, k, sql, p, pre):
+        """The C array of the values an array argument k carries, as #_array_arg passes MEOS the array of
+        the values a Flink ARRAY decodes to; MEOS reads its length off the parameter beside it"""
+        ctype = c_spelling(p['canonical'])
+        if sql[:-2] not in self.m.image or not ctype.endswith('**'):
+            return None
+        pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
+        pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
+        # through void*, since C++ refuses to cast void** to a const-qualified T**
+        return f'static_cast<{ctype}>(static_cast<void*>(v{k}.get()))'
+
+    def answer(self, sql, f, length=None):
         """The statements answering the result `r` of SQL type `sql`, and the answer of no value; None
-        where no rule answers it"""
+        where no rule answers it. An array answer (shape.arrayReturn) holds `length` values."""
         rc = c_spelling(f['returnType']['canonical'])
         none = 'MeosRuntime::none()'
+        if sql.endswith('[]'):
+            image = self.m.image.get(sql[:-2])
+            if not image or not rc.endswith('**') or length is None:
+                return None
+            if image.get('size'):
+                sf = self.t.fn(image['size'])
+                pt = c_spelling(sf['params'][0]['canonical'])
+                size = f'[](const void* e) {{ return static_cast<size_t>({sf["name"]}(static_cast<{pt}>(e))); }}'
+            else:
+                size = f'[](const void*) {{ return size_t{{{image["sizeBytes"]}}}; }}'
+            return [f'    return MeosRuntime::array(reinterpret_cast<void**>(r), static_cast<int>({length}), {size});'], none
         if sql in self.m.codec:
             kind, dec, enc, in_aux, out_aux = self.m.codec[sql]
             image = self.m.image.get(sql)
@@ -530,11 +583,21 @@ class FunctionLayer:
         shorter call its trailing defaults allow, as JMEOS's #_default_variants derives them, its arguments
         paired with the C parameters as #_inputs pairs them; or the reason the signature is left out"""
         vis, outs = self.m.visible(f)
-        # an out parameter answering the length of the result is passed a length the call ignores
-        if [p for p in outs if c_spelling(p['canonical']) != 'size_t*']:
+        shape = f.get('shape') or {}
+        # an out parameter answering the length of the result is passed a length the call ignores, but for
+        # the length of an array answer (shape.arrayReturn), which the answer reads
+        returned = ((shape.get('arrayReturn') or {}).get('lengthFrom') or {}).get('name') \
+            if ret and ret.endswith('[]') else None
+        if [p for p in outs if c_spelling(p['canonical']) != 'size_t*' and p['name'] != returned]:
             return 'out parameters'
-        if (f.get('shape') or {}).get('inputArrays'):
-            return 'array arguments'
+        # the length of an input array (shape.inputArrays) is read off the array, as #_inputs reads it
+        arrays = {a['param']: a for a in shape.get('inputArrays') or []}
+        counts = {}
+        for a in arrays.values():
+            lf = a.get('lengthFrom') or {}
+            if lf.get('kind') != 'param' or lf.get('name') not in {p['name'] for p in vis}:
+                return 'array arguments'
+            counts[lf['name']] = a['param']
         types = [self.nes_type(a) for a in args]
         rtype = self.nes_type(ret) if ret else None
         if None in types or rtype is None:
@@ -545,7 +608,7 @@ class FunctionLayer:
         if name.upper() in self.taken:
             return f'name {name} is a NebulaStream function'
         bound = {k: v for k, v in (bound or {}).items() if k in {p['name'] for p in vis}}
-        walk = [i for i, p in enumerate(vis) if p['name'] not in bound]
+        walk = [i for i, p in enumerate(vis) if p['name'] not in bound and p['name'] not in counts]
         order = sig.get('sqlArgParams') or (f.get('shape') or {}).get('sqlArgParams')
         if order:
             at = {p['name']: i for i, p in enumerate(vis)}
@@ -556,10 +619,11 @@ class FunctionLayer:
         why = None
         for variant in self.cj._default_variants(args, defaults, len(args)):
             left = len(variant) if variant else 0
-            why = self.emit(f, idx, name, args, types, rtype, ret, vis, outs, bound, walk, variant or [], left) or why
+            why = self.emit(f, idx, name, args, types, rtype, ret, vis, outs, bound, walk, variant or [], left,
+                            arrays, counts) or why
         return why
 
-    def emit(self, f, idx, name, args, types, rtype, ret, vis, outs, bound, walk, variant, left):
+    def emit(self, f, idx, name, args, types, rtype, ret, vis, outs, bound, walk, variant, left, arrays, counts):
         """The overload and kernel of the call of signature `idx` of f leaving its last `left` arguments to
         the defaults `variant`, as JMEOS's #_sql_overloads emits one eval per call; or the reason it is
         left out"""
@@ -574,18 +638,29 @@ class FunctionLayer:
                 if call[i] is None:
                     return 'bound literal'
         pre, post = [], []
+        passed = {}
         for k, (i, sql) in enumerate(zip(walk, args)):
-            if k < stated:
+            if sql.endswith('[]') != (vis[i]['name'] in arrays):
+                return f'array argument {sql} as {c_spelling(vis[i]["canonical"])}'
+            if vis[i]['name'] in arrays:
+                e = self.array_argument(k, sql, vis[i], pre) if k < stated else None
+            elif k < stated:
                 e = self.argument(k, sql, vis[i], pre, post)
             else:
                 e = self.default_argument(k, sql, vis[i], variant[k - stated], pre, post)
             if e is None:
                 return f'argument {sql} as {c_spelling(vis[i]["canonical"])}'
             call[i] = e
+            passed[vis[i]['name']] = k
+        for i, p in enumerate(vis):
+            if p['name'] in counts:
+                if counts[p['name']] not in passed:
+                    return f'array {counts[p["name"]]} not passed'
+                call[i] = f'v{passed[counts[p["name"]]]}.count()'
         for j, p in enumerate(outs):
-            pre.append(f'    size_t length{j} = 0;')
+            pre.append(f'    {c_spelling(p["canonical"])[:-1]} length{j} = 0;')
             call.append(f'&length{j}')
-        got = self.answer(ret, f)
+        got = self.answer(ret, f, 'length0' if outs else None)
         if got is None:
             return f'result {ret} as {c_spelling(f["returnType"]["canonical"])}'
         answer, none = got
@@ -939,26 +1014,32 @@ def run(args):
     layer = TypeLayer(cj, cat)
     sqls = sorted(layer.m.codec)
     bodies = [layer.source(sql) for sql in sqls]
-    headers = '\n'.join(f'#include <{h}>' for h in sorted(layer.headers))
-    src = (LICENSE + PREAMBLE.replace('@HEADERS@', headers) + '\n'.join(bodies) + '\n'
-           + '\n'.join(layer.registrar(sqls)) + '\n')
+    type_headers = '\n'.join(f'#include <{h}>' for h in sorted(layer.headers))
+
+    # The functions, whose kernels include the headers of the functions they call; the types written after
+    # them carry an array of each type some signature passes or answers an array of
+    layer.headers = set()
+    functions = FunctionLayer(layer, cat, nebula_function_names(args.output_root), cj)
+    functions.build()
+    arrays = sorted(functions.arrays)
+    src = (LICENSE + PREAMBLE.replace('@HEADERS@', type_headers) + '\n'.join(bodies) + '\n'
+           + '\n'.join(layer.array_source(sql) for sql in arrays) + '\n'
+           + '\n'.join(layer.registrar(sqls, arrays)) + '\n')
     out = Path(args.output_root) / 'nes-plugins' / 'MEOS' / 'DataTypes'
     out.mkdir(parents=True, exist_ok=True)
     write_if_changed(out / 'MeosDataTypes.cpp', src)
     cmake = [CMAKE_LICENSE,
              '# AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
-             '# Each MEOS SQL type is a data type of its own, registered under its name in upper case.', '']
+             '# Each MEOS SQL type is a data type of its own, registered under its name in upper case, and so is',
+             '# an array of it that a function passes or answers, under its name followed by _ARRAY.', '']
     cmake += [f'add_plugin({sql.upper()} DataType nes-data-types MeosDataTypes.cpp)' for sql in sqls]
+    cmake += [f'add_plugin({sql.upper()}_ARRAY DataType nes-data-types MeosDataTypes.cpp)' for sql in arrays]
     cmake += ['', "# The types call libmeos and initialize MEOS through the plugin's wrapper.",
               'target_link_libraries(nes-data-types PUBLIC nes-meos)', '']
     write_if_changed(out / 'CMakeLists.txt', '\n'.join(cmake))
     print(f'codegen_nebula_sql: {len(sqls)} MEOS data types '
-          f'({sum(1 for s in sqls if s in layer.m.image)} carried as their memory image) into {out}')
-
-    # The functions, whose kernels include the headers of the functions they call
-    layer.headers = set()
-    functions = FunctionLayer(layer, cat, nebula_function_names(args.output_root), cj)
-    functions.build()
+          f'({sum(1 for s in sqls if s in layer.m.image)} carried as their memory image) and {len(arrays)} arrays '
+          f'into {out}')
     out = Path(args.output_root) / 'nes-plugins' / 'MEOS' / 'Functions'
     out.mkdir(parents=True, exist_ok=True)
     for old in out.glob('MeosKernels*.cpp'):

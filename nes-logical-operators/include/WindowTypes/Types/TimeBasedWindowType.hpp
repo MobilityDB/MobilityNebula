@@ -33,6 +33,9 @@ public:
 
     [[nodiscard]] TimeCharacteristic getTimeCharacteristic() const;
 
+    /// The lateness the watermark of the window's event time allows, in milliseconds
+    void setAllowedLateness(uint64_t milliseconds);
+
     /// @brief method to get the window size
     /// @return size of window
     virtual TimeMeasure getSize() = 0;

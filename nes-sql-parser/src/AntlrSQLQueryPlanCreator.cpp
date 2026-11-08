@@ -707,6 +707,28 @@ void AntlrSQLQueryPlanCreator::exitTumblingWindow(AntlrSQLParser::TumblingWindow
     AntlrSQLBaseListener::exitTumblingWindow(context);
 }
 
+void AntlrSQLQueryPlanCreator::exitWatermarkParameters(AntlrSQLParser::WatermarkParametersContext* context)
+{
+    /// WATERMARK(field, n unit) after the window: the watermark of the window's event time trails the largest event
+    /// time read by n units, as Flink's WATERMARK FOR field AS field - INTERVAL 'n' unit does
+    auto* timeWindow = dynamic_cast<Windowing::TimeBasedWindowType*>(helpers.top().windowType.get());
+    if (timeWindow == nullptr
+        or timeWindow->getTimeCharacteristic().getType() != Windowing::TimeCharacteristic::Type::EventTime)
+    {
+        throw InvalidQuerySyntax("A watermark needs a window over an event time at {}", context->getText());
+    }
+    const auto field = bindIdentifier(context->watermarkIdentifier);
+    if (field != helpers.top().timestamp)
+    {
+        throw InvalidQuerySyntax(
+            "The watermark is on {}, the window on the event time {}, at {}", field, helpers.top().timestamp, context->getText());
+    }
+    const auto lateness
+        = buildTimeMeasure(std::stoi(context->watermark->getText()), context->watermarkTimeUnit->getStop()->getType());
+    timeWindow->setAllowedLateness(lateness.getTime());
+    AntlrSQLBaseListener::exitWatermarkParameters(context);
+}
+
 void AntlrSQLQueryPlanCreator::exitSlidingWindow(AntlrSQLParser::SlidingWindowContext* context)
 {
     const auto timeMeasure = buildTimeMeasure(helpers.top().size, helpers.top().timeUnit);

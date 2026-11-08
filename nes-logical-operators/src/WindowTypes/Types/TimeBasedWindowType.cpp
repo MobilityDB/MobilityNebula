@@ -55,4 +55,9 @@ TimeCharacteristic TimeBasedWindowType::getTimeCharacteristic() const
     return timeCharacteristic;
 }
 
+void TimeBasedWindowType::setAllowedLateness(const uint64_t milliseconds)
+{
+    timeCharacteristic.setAllowedLateness(milliseconds);
+}
+
 }

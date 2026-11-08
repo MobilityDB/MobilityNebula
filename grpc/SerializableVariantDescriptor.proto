@@ -25,6 +25,8 @@ message WindowInfos {
         Type type = 1;
         optional string field = 2;
         uint64 multiplier = 3;
+        // The lateness the watermark of the event time allows, in milliseconds
+        uint64 allowed_lateness_ms = 4;
     }
 
     message TumblingWindow {

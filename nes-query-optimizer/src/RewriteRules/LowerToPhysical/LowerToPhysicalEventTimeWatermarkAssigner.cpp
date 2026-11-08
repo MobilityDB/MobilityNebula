@@ -32,7 +32,8 @@ RewriteRuleResultSubgraph LowerToPhysicalEventTimeWatermarkAssigner::apply(Logic
     PRECONDITION(logicalOperator.tryGetAs<EventTimeWatermarkAssignerLogicalOperator>(), "Expected a EventTimeWatermarkAssigner");
     auto assigner = logicalOperator.getAs<EventTimeWatermarkAssignerLogicalOperator>();
     auto physicalFunction = QueryCompilation::FunctionProvider::lowerFunction(assigner->onField);
-    auto physicalOperator = EventTimeWatermarkAssignerPhysicalOperator(EventTimeFunction(physicalFunction, assigner->unit));
+    auto physicalOperator
+        = EventTimeWatermarkAssignerPhysicalOperator(EventTimeFunction(physicalFunction, assigner->unit), assigner->allowedLateness);
     auto wrapper = std::make_shared<PhysicalOperatorWrapper>(
         physicalOperator, logicalOperator.getInputSchemas()[0], logicalOperator.getOutputSchema());
 

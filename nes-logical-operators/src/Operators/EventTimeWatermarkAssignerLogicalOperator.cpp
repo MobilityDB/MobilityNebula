@@ -43,8 +43,8 @@ namespace NES
 {
 
 EventTimeWatermarkAssignerLogicalOperator::EventTimeWatermarkAssignerLogicalOperator(
-    LogicalFunction onField, const Windowing::TimeUnit& unit)
-    : onField(std::move(onField)), unit(unit)
+    LogicalFunction onField, const Windowing::TimeUnit& unit, const uint64_t allowedLateness)
+    : onField(std::move(onField)), unit(unit), allowedLateness(allowedLateness)
 {
 }
 
@@ -58,10 +58,11 @@ std::string EventTimeWatermarkAssignerLogicalOperator::explain(ExplainVerbosity 
     if (verbosity == ExplainVerbosity::Debug)
     {
         return fmt::format(
-            "EVENT_TIME_WATERMARK_ASSIGNER(opId: {}, onField: {}, unit: {}, inputSchema: {}, traitSet: {})",
+            "EVENT_TIME_WATERMARK_ASSIGNER(opId: {}, onField: {}, unit: {}, allowedLatenessMs: {}, inputSchema: {}, traitSet: {})",
             id,
             onField.explain(verbosity),
             unit.getMillisecondsConversionMultiplier(),
+            allowedLateness,
             inputSchema,
             traitSet.explain(verbosity));
     }
@@ -70,7 +71,7 @@ std::string EventTimeWatermarkAssignerLogicalOperator::explain(ExplainVerbosity 
 
 bool EventTimeWatermarkAssignerLogicalOperator::operator==(const EventTimeWatermarkAssignerLogicalOperator& rhs) const
 {
-    return onField == rhs.onField && unit == rhs.unit && getOutputSchema() == rhs.getOutputSchema()
+    return onField == rhs.onField && unit == rhs.unit && allowedLateness == rhs.allowedLateness && getOutputSchema() == rhs.getOutputSchema()
         && getInputSchemas() == rhs.getInputSchemas() && getTraitSet() == rhs.getTraitSet();
 }
 
@@ -152,6 +153,9 @@ void EventTimeWatermarkAssignerLogicalOperator::serialize(SerializableOperator& 
     const DescriptorConfig::ConfigType timeVariant = unit.getMillisecondsConversionMultiplier();
     (*serializableOperator.mutable_config())[ConfigParameters::TIME_MS] = descriptorConfigTypeToProto(timeVariant);
 
+    const DescriptorConfig::ConfigType latenessVariant = allowedLateness;
+    (*serializableOperator.mutable_config())[ConfigParameters::ALLOWED_LATENESS_MS] = descriptorConfigTypeToProto(latenessVariant);
+
     serializableOperator.mutable_operator_()->CopyFrom(proto);
 }
 
@@ -172,7 +176,11 @@ LogicalOperatorGeneratedRegistrar::RegisterEventTimeWatermarkAssignerLogicalOper
         }
         auto function = FunctionSerializationUtil::deserializeFunction(functions[0]);
 
-        auto logicalOperator = EventTimeWatermarkAssignerLogicalOperator(function, time);
+        /// a plan serialized with no lateness reads none
+        const auto lateness = arguments.config.find(EventTimeWatermarkAssignerLogicalOperator::ConfigParameters::ALLOWED_LATENESS_MS);
+        const uint64_t allowedLateness
+            = lateness != arguments.config.end() and std::holds_alternative<uint64_t>(lateness->second) ? std::get<uint64_t>(lateness->second) : 0;
+        auto logicalOperator = EventTimeWatermarkAssignerLogicalOperator(function, time, allowedLateness);
         return logicalOperator.withInferredSchema(arguments.inputSchemas);
     }
     throw UnknownLogicalOperator();

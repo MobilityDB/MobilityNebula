@@ -36,8 +36,9 @@ struct WatermarkState final : OperatorState
     nautilus::val<Timestamp> currentWatermark{Timestamp(Timestamp::INITIAL_VALUE)};
 };
 
-EventTimeWatermarkAssignerPhysicalOperator::EventTimeWatermarkAssignerPhysicalOperator(EventTimeFunction timeFunction)
-    : timeFunction(std::move(std::move(timeFunction))) { };
+EventTimeWatermarkAssignerPhysicalOperator::EventTimeWatermarkAssignerPhysicalOperator(
+    EventTimeFunction timeFunction, const uint64_t allowedLateness)
+    : timeFunction(std::move(std::move(timeFunction))), allowedLateness(allowedLateness) { };
 
 void EventTimeWatermarkAssignerPhysicalOperator::open(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const
 {
@@ -64,7 +65,15 @@ void EventTimeWatermarkAssignerPhysicalOperator::close(ExecutionContext& executi
         NES::Util::instanceOf<const WatermarkState>(*executionCtx.getLocalState(id)), /// TODO #1035
         "Expects the local state to be of type WatermarkState");
     auto* const state = dynamic_cast<WatermarkState*>(executionCtx.getLocalState(id));
-    executionCtx.watermarkTs = state->currentWatermark;
+    /// The largest event time read less the lateness the query allows, none before the first instant
+    const nautilus::val<uint64_t> largest = state->currentWatermark.convertToValue();
+    const nautilus::val<uint64_t> lateness = allowedLateness;
+    nautilus::val<uint64_t> watermark = Timestamp::INITIAL_VALUE;
+    if (largest > lateness)
+    {
+        watermark = largest - lateness;
+    }
+    executionCtx.watermarkTs = nautilus::val<Timestamp>(watermark);
     PhysicalOperatorConcept::close(executionCtx, recordBuffer);
 }
 

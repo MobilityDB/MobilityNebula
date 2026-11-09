@@ -47,6 +47,57 @@ namespace NES
 
 namespace
 {
+int8_t* Meos_quadbin_cell_to_geompoint_0(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    auto r = quadbin_cell_to_geompoint(quadbin_from_wkb(v0.bytes(), v0.size()));
+    if (r == nullptr)
+    {
+        return MeosRuntime::none();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_quadbin_cell_to_geom_0(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    auto r = quadbin_cell_to_geom(quadbin_from_wkb(v0.bytes(), v0.size()));
+    if (r == nullptr)
+    {
+        return MeosRuntime::none();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_ever_eq_quadbinset_tquadbin_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = ever_eq_quadbinset_tquadbin(static_cast<Set*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
 int8_t* Meos_ever_eq_tquadbin_quadbinset_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
@@ -4181,7 +4232,7 @@ int8_t* Meos_trgeometry_as_tsequence_0(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = trgeometry_as_tsequence(static_cast<Temporal*>(v0.get()), s1.c_str());
+    auto r = trgeometry_as_tsequence(static_cast<Temporal*>(v0.get()), interptype_from_string(s1.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -4199,7 +4250,7 @@ int8_t* Meos_trgeometry_as_tsequenceset_0(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
-    auto r = trgeometry_as_tsequenceset(static_cast<Temporal*>(v0.get()), s1.c_str());
+    auto r = trgeometry_as_tsequenceset(static_cast<Temporal*>(v0.get()), interptype_from_string(s1.c_str()));
     if (r == nullptr)
     {
         return MeosRuntime::none();
@@ -4510,57 +4561,21 @@ int8_t* Meos_nad_trgeometry_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
-int8_t* Meos_nad_trgeometry_geo_1(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<double>(out, double{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<double>(out, double{});
-    }
-    auto r = nad_trgeometry_geo(static_cast<Temporal*>(v1.get()), static_cast<GSERIALIZED*>(v0.get()));
-    return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
-int8_t* Meos_nad_trgeometry_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_quadbin_cell_to_geompoint_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<double>(out, double{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<double>(out, double{});
-    }
-    auto r = nad_trgeometry_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    return MeosRuntime::number<double>(out, static_cast<double>(r));
+    return MeosPhysicalFunction(MeosKernel{&Meos_quadbin_cell_to_geompoint_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
 }
 
-int8_t* Meos_nad_trgeometry_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_quadbin_cell_to_geom_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<double>(out, double{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<double>(out, double{});
-    }
-    auto r = nad_trgeometry_stbox(static_cast<Temporal*>(v1.get()), static_cast<STBox*>(v0.get()));
-    return MeosRuntime::number<double>(out, static_cast<double>(r));
+    return MeosPhysicalFunction(MeosKernel{&Meos_quadbin_cell_to_geom_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
 }
 
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_ever_eq_quadbinset_tquadbin_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_ever_eq_quadbinset_tquadbin_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
 PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_ever_eq_tquadbin_quadbinset_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
@@ -5796,21 +5811,6 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterM
 PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_nad_trgeometry_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
     return MeosPhysicalFunction(MeosKernel{&Meos_nad_trgeometry_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_nad_trgeometry_geo_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_nad_trgeometry_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_nad_trgeometry_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_nad_trgeometry_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_nad_trgeometry_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_nad_trgeometry_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions));
 }
 
 }

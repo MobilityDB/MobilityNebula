@@ -132,6 +132,57 @@ int8_t* Meos_temporal_ext_kalman_filter_1_4(int8_t* a0, int8_t* a1, int8_t* a2, 
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
 
+int8_t* Meos_temporal_reachability_filter_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    auto r = temporal_reachability_filter(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    if (r == nullptr)
+    {
+        return MeosRuntime::none();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_temporal_reachability_filter_1(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    auto r = temporal_reachability_filter(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    if (r == nullptr)
+    {
+        return MeosRuntime::none();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_temporal_reachability_filter_2(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    auto r = temporal_reachability_filter(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    if (r == nullptr)
+    {
+        return MeosRuntime::none();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
 int8_t* Meos_tbox_get_value_tile_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
 {
     MeosRuntime::initialized();
@@ -4054,57 +4105,6 @@ int8_t* Meos_spatialset_to_stbox_0(int8_t* a0, int8_t* out)
     return MeosRuntime::image(r, size_t{80});
 }
 
-int8_t* Meos_spatialset_to_stbox_1(int8_t* a0, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = spatialset_to_stbox(static_cast<Set*>(v0.get()));
-    if (r == nullptr)
-    {
-        return MeosRuntime::none();
-    }
-    return MeosRuntime::image(r, size_t{80});
-}
-
-int8_t* Meos_spatialset_to_stbox_2(int8_t* a0, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = spatialset_to_stbox(static_cast<Set*>(v0.get()));
-    if (r == nullptr)
-    {
-        return MeosRuntime::none();
-    }
-    return MeosRuntime::image(r, size_t{80});
-}
-
-int8_t* Meos_spatialset_to_stbox_3(int8_t* a0, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = spatialset_to_stbox(static_cast<Set*>(v0.get()));
-    if (r == nullptr)
-    {
-        return MeosRuntime::none();
-    }
-    return MeosRuntime::image(r, size_t{80});
-}
-
 }
 
 PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_temporal_lcss_distance_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
@@ -4130,6 +4130,21 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterM
 PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_temporal_ext_kalman_filter_1_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
     return MeosPhysicalFunction(MeosKernel{&Meos_temporal_ext_kalman_filter_1_4}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_temporal_reachability_filter_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_temporal_reachability_filter_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_temporal_reachability_filter_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_temporal_reachability_filter_1}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+}
+
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_temporal_reachability_filter_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_temporal_reachability_filter_2}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
 }
 
 PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_tbox_get_value_tile_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
@@ -5340,21 +5355,6 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterM
 PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_spatialset_to_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
     return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_spatialset_to_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_spatialset_to_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_spatialset_to_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_3}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
 }
 
 }

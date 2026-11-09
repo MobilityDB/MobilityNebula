@@ -2780,6 +2780,118 @@ constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_4Literal
 using MeosAggregate_appendSequenceAgg_4 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_4Ops>;
 constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_4Kernels{&MeosAggregate_appendSequenceAgg_4::Initialize, &MeosAggregate_appendSequenceAgg_4::Update, &MeosAggregate_appendSequenceAgg_4::Combine, &MeosAggregate_appendSequenceAgg_4::Finish, &MeosAggregate_appendSequenceAgg_4::Destroy, MeosAggregate_appendSequenceAgg_4::StateSize};
 
+struct MeosAggregate_reachabilityFilterAgg_0Ops
+{
+    struct Row
+    {
+        void* a0;
+        double a1;
+    };
+    static constexpr bool GATHERS = true;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        row.a0 = MeosRuntime::laid(a0);
+        if (row.a0 == nullptr)
+        {
+            return false;
+        }
+        row.a1 = static_cast<double>(MeosRuntime::number<double>(MeosRuntime::literal(block, 0)));
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return temporal_reachability_filter_transfn(static_cast<struct ReachabilityState*>(s), static_cast<TInstant*>(row.a0), row.a1);
+    }
+    static void Free(Row& row)
+    {
+        std::free(row.a0);
+    }
+    static void* Combine(void*, void*)
+    {
+        return nullptr;
+    }
+    static void* Final(void* s)
+    {
+        return temporal_reachability_filter_finalfn(static_cast<struct ReachabilityState*>(s));
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<Temporal*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    }
+    static int64_t Order(const Row& row)
+    {
+        return temporal_start_timestamptz(static_cast<const Temporal*>(row.a0));
+    }
+};
+
+constexpr std::array<DataType::Type, 1> MeosAggregate_reachabilityFilterAgg_0Literals{DataType::Type::FLOAT64};
+using MeosAggregate_reachabilityFilterAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_reachabilityFilterAgg_0Ops>;
+constexpr MeosAggregateKernels MeosAggregate_reachabilityFilterAgg_0Kernels{&MeosAggregate_reachabilityFilterAgg_0::Initialize, &MeosAggregate_reachabilityFilterAgg_0::Update, &MeosAggregate_reachabilityFilterAgg_0::Combine, &MeosAggregate_reachabilityFilterAgg_0::Finish, &MeosAggregate_reachabilityFilterAgg_0::Destroy, MeosAggregate_reachabilityFilterAgg_0::StateSize};
+
+struct MeosAggregate_reachabilityFilterAgg_1Ops
+{
+    struct Row
+    {
+        void* a0;
+        double a1;
+    };
+    static constexpr bool GATHERS = true;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        row.a0 = MeosRuntime::laid(a0);
+        if (row.a0 == nullptr)
+        {
+            return false;
+        }
+        row.a1 = static_cast<double>(MeosRuntime::number<double>(MeosRuntime::literal(block, 0)));
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return temporal_reachability_filter_transfn(static_cast<struct ReachabilityState*>(s), static_cast<TInstant*>(row.a0), row.a1);
+    }
+    static void Free(Row& row)
+    {
+        std::free(row.a0);
+    }
+    static void* Combine(void*, void*)
+    {
+        return nullptr;
+    }
+    static void* Final(void* s)
+    {
+        return temporal_reachability_filter_finalfn(static_cast<struct ReachabilityState*>(s));
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<Temporal*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    }
+    static int64_t Order(const Row& row)
+    {
+        return temporal_start_timestamptz(static_cast<const Temporal*>(row.a0));
+    }
+};
+
+constexpr std::array<DataType::Type, 1> MeosAggregate_reachabilityFilterAgg_1Literals{DataType::Type::FLOAT64};
+using MeosAggregate_reachabilityFilterAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_reachabilityFilterAgg_1Ops>;
+constexpr MeosAggregateKernels MeosAggregate_reachabilityFilterAgg_1Kernels{&MeosAggregate_reachabilityFilterAgg_1::Initialize, &MeosAggregate_reachabilityFilterAgg_1::Update, &MeosAggregate_reachabilityFilterAgg_1::Combine, &MeosAggregate_reachabilityFilterAgg_1::Finish, &MeosAggregate_reachabilityFilterAgg_1::Destroy, MeosAggregate_reachabilityFilterAgg_1::StateSize};
+
 struct MeosAggregate_setUnionAgg_6Ops
 {
     struct Row
@@ -14920,6 +15032,62 @@ constexpr std::array<DataType::Type, 1> MeosAggregate_wAvgAgg_2Literals{DataType
 using MeosAggregate_wAvgAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_wAvgAgg_2Ops>;
 constexpr MeosAggregateKernels MeosAggregate_wAvgAgg_2Kernels{&MeosAggregate_wAvgAgg_2::Initialize, &MeosAggregate_wAvgAgg_2::Update, &MeosAggregate_wAvgAgg_2::Combine, &MeosAggregate_wAvgAgg_2::Finish, &MeosAggregate_wAvgAgg_2::Destroy, MeosAggregate_wAvgAgg_2::StateSize};
 
+struct MeosAggregate_reachabilityFilterAgg_2Ops
+{
+    struct Row
+    {
+        void* a0;
+        double a1;
+    };
+    static constexpr bool GATHERS = true;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        row.a0 = MeosRuntime::laid(a0);
+        if (row.a0 == nullptr)
+        {
+            return false;
+        }
+        row.a1 = static_cast<double>(MeosRuntime::number<double>(MeosRuntime::literal(block, 0)));
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return temporal_reachability_filter_transfn(static_cast<struct ReachabilityState*>(s), static_cast<TInstant*>(row.a0), row.a1);
+    }
+    static void Free(Row& row)
+    {
+        std::free(row.a0);
+    }
+    static void* Combine(void*, void*)
+    {
+        return nullptr;
+    }
+    static void* Final(void* s)
+    {
+        return temporal_reachability_filter_finalfn(static_cast<struct ReachabilityState*>(s));
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<Temporal*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    }
+    static int64_t Order(const Row& row)
+    {
+        return temporal_start_timestamptz(static_cast<const Temporal*>(row.a0));
+    }
+};
+
+constexpr std::array<DataType::Type, 1> MeosAggregate_reachabilityFilterAgg_2Literals{DataType::Type::FLOAT64};
+using MeosAggregate_reachabilityFilterAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_reachabilityFilterAgg_2Ops>;
+constexpr MeosAggregateKernels MeosAggregate_reachabilityFilterAgg_2Kernels{&MeosAggregate_reachabilityFilterAgg_2::Initialize, &MeosAggregate_reachabilityFilterAgg_2::Update, &MeosAggregate_reachabilityFilterAgg_2::Combine, &MeosAggregate_reachabilityFilterAgg_2::Finish, &MeosAggregate_reachabilityFilterAgg_2::Destroy, MeosAggregate_reachabilityFilterAgg_2::StateSize};
+
 }
 
 AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::RegisterMeosAggregate_setUnionAgg_0AggregationPhysicalFunction(AggregationPhysicalFunctionRegistryArguments arguments)
@@ -15160,6 +15328,16 @@ AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGenerat
 AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::RegisterMeosAggregate_appendSequenceAgg_4AggregationPhysicalFunction(AggregationPhysicalFunctionRegistryArguments arguments)
 {
     return std::make_shared<MeosAggregationPhysicalFunction>(std::move(arguments.inputType), std::move(arguments.resultType), std::move(arguments.inputFunction), std::move(arguments.resultFieldIdentifier), DataType::Type::VARSIZED, MeosAggregate_appendSequenceAgg_4Literals, arguments.literals, MeosAggregate_appendSequenceAgg_4Kernels);
+}
+
+AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::RegisterMeosAggregate_reachabilityFilterAgg_0AggregationPhysicalFunction(AggregationPhysicalFunctionRegistryArguments arguments)
+{
+    return std::make_shared<MeosAggregationPhysicalFunction>(std::move(arguments.inputType), std::move(arguments.resultType), std::move(arguments.inputFunction), std::move(arguments.resultFieldIdentifier), DataType::Type::VARSIZED, MeosAggregate_reachabilityFilterAgg_0Literals, arguments.literals, MeosAggregate_reachabilityFilterAgg_0Kernels);
+}
+
+AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::RegisterMeosAggregate_reachabilityFilterAgg_1AggregationPhysicalFunction(AggregationPhysicalFunctionRegistryArguments arguments)
+{
+    return std::make_shared<MeosAggregationPhysicalFunction>(std::move(arguments.inputType), std::move(arguments.resultType), std::move(arguments.inputFunction), std::move(arguments.resultFieldIdentifier), DataType::Type::VARSIZED, MeosAggregate_reachabilityFilterAgg_1Literals, arguments.literals, MeosAggregate_reachabilityFilterAgg_1Kernels);
 }
 
 AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::RegisterMeosAggregate_setUnionAgg_6AggregationPhysicalFunction(AggregationPhysicalFunctionRegistryArguments arguments)
@@ -16235,6 +16413,11 @@ AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGenerat
 AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::RegisterMeosAggregate_wAvgAgg_2AggregationPhysicalFunction(AggregationPhysicalFunctionRegistryArguments arguments)
 {
     return std::make_shared<MeosAggregationPhysicalFunction>(std::move(arguments.inputType), std::move(arguments.resultType), std::move(arguments.inputFunction), std::move(arguments.resultFieldIdentifier), DataType::Type::VARSIZED, MeosAggregate_wAvgAgg_2Literals, arguments.literals, MeosAggregate_wAvgAgg_2Kernels);
+}
+
+AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::RegisterMeosAggregate_reachabilityFilterAgg_2AggregationPhysicalFunction(AggregationPhysicalFunctionRegistryArguments arguments)
+{
+    return std::make_shared<MeosAggregationPhysicalFunction>(std::move(arguments.inputType), std::move(arguments.resultType), std::move(arguments.inputFunction), std::move(arguments.resultFieldIdentifier), DataType::Type::VARSIZED, MeosAggregate_reachabilityFilterAgg_2Literals, arguments.literals, MeosAggregate_reachabilityFilterAgg_2Kernels);
 }
 
 }

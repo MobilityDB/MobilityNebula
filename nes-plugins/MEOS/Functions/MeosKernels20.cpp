@@ -47,7 +47,7 @@ namespace NES
 
 namespace
 {
-int8_t* Meos_overabove_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tspatial_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -60,11 +60,11 @@ int8_t* Meos_overabove_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tspatial_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -77,11 +77,11 @@ int8_t* Meos_overabove_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -94,11 +94,11 @@ int8_t* Meos_overabove_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -111,11 +111,11 @@ int8_t* Meos_overabove_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -128,11 +128,11 @@ int8_t* Meos_overabove_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -145,11 +145,11 @@ int8_t* Meos_overabove_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -162,11 +162,11 @@ int8_t* Meos_overabove_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -179,11 +179,11 @@ int8_t* Meos_overabove_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -196,11 +196,11 @@ int8_t* Meos_overabove_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -213,11 +213,11 @@ int8_t* Meos_overabove_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -230,11 +230,11 @@ int8_t* Meos_overabove_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -247,11 +247,11 @@ int8_t* Meos_overabove_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -264,11 +264,11 @@ int8_t* Meos_overabove_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_stbox_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -281,11 +281,11 @@ int8_t* Meos_overabove_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = contains_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -298,11 +298,11 @@ int8_t* Meos_overabove_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -315,11 +315,11 @@ int8_t* Meos_overabove_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -332,11 +332,11 @@ int8_t* Meos_overabove_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -349,11 +349,11 @@ int8_t* Meos_overabove_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -366,11 +366,11 @@ int8_t* Meos_overabove_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -383,11 +383,11 @@ int8_t* Meos_overabove_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -400,11 +400,11 @@ int8_t* Meos_overabove_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -417,11 +417,11 @@ int8_t* Meos_overabove_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -434,11 +434,11 @@ int8_t* Meos_overabove_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -451,11 +451,11 @@ int8_t* Meos_overabove_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -468,11 +468,11 @@ int8_t* Meos_overabove_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overabove_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_stbox_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -485,11 +485,11 @@ int8_t* Meos_overabove_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overabove_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -502,11 +502,11 @@ int8_t* Meos_overafter_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -519,11 +519,11 @@ int8_t* Meos_overafter_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -536,11 +536,11 @@ int8_t* Meos_overafter_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -553,11 +553,11 @@ int8_t* Meos_overafter_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -570,11 +570,11 @@ int8_t* Meos_overafter_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -587,11 +587,11 @@ int8_t* Meos_overafter_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -604,11 +604,11 @@ int8_t* Meos_overafter_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -621,11 +621,11 @@ int8_t* Meos_overafter_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -638,11 +638,11 @@ int8_t* Meos_overafter_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -655,11 +655,11 @@ int8_t* Meos_overafter_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -672,11 +672,11 @@ int8_t* Meos_overafter_stbox_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_stbox_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tspatial_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -689,11 +689,11 @@ int8_t* Meos_overafter_stbox_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -706,11 +706,11 @@ int8_t* Meos_overafter_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -723,11 +723,11 @@ int8_t* Meos_overafter_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -740,11 +740,11 @@ int8_t* Meos_overafter_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -757,11 +757,11 @@ int8_t* Meos_overafter_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -774,11 +774,11 @@ int8_t* Meos_overafter_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -791,11 +791,11 @@ int8_t* Meos_overafter_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -808,11 +808,11 @@ int8_t* Meos_overafter_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -825,11 +825,11 @@ int8_t* Meos_overafter_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -842,11 +842,11 @@ int8_t* Meos_overafter_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -859,11 +859,11 @@ int8_t* Meos_overafter_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -876,11 +876,11 @@ int8_t* Meos_overafter_tspatial_stbox_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_stbox_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_stbox_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -893,11 +893,11 @@ int8_t* Meos_overafter_tspatial_stbox_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -910,11 +910,11 @@ int8_t* Meos_overafter_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -927,11 +927,11 @@ int8_t* Meos_overafter_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -944,11 +944,11 @@ int8_t* Meos_overafter_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -961,11 +961,11 @@ int8_t* Meos_overafter_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -978,11 +978,11 @@ int8_t* Meos_overafter_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -995,11 +995,11 @@ int8_t* Meos_overafter_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1012,11 +1012,11 @@ int8_t* Meos_overafter_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1029,11 +1029,11 @@ int8_t* Meos_overafter_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1046,11 +1046,11 @@ int8_t* Meos_overafter_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1063,11 +1063,11 @@ int8_t* Meos_overafter_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1080,11 +1080,11 @@ int8_t* Meos_overafter_tspatial_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tspatial_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_stbox_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1097,11 +1097,11 @@ int8_t* Meos_overafter_tspatial_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1114,11 +1114,11 @@ int8_t* Meos_overback_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1131,11 +1131,11 @@ int8_t* Meos_overback_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1148,11 +1148,11 @@ int8_t* Meos_overback_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1165,11 +1165,11 @@ int8_t* Meos_overback_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1182,11 +1182,11 @@ int8_t* Meos_overback_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1199,11 +1199,11 @@ int8_t* Meos_overback_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1216,11 +1216,11 @@ int8_t* Meos_overback_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1233,11 +1233,11 @@ int8_t* Meos_overback_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1250,11 +1250,11 @@ int8_t* Meos_overback_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1267,11 +1267,11 @@ int8_t* Meos_overback_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1284,11 +1284,11 @@ int8_t* Meos_overback_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tspatial_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1301,11 +1301,11 @@ int8_t* Meos_overback_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1318,11 +1318,11 @@ int8_t* Meos_overback_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1335,11 +1335,11 @@ int8_t* Meos_overback_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overback_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1352,11 +1352,11 @@ int8_t* Meos_overback_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overback_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1369,11 +1369,11 @@ int8_t* Meos_overbefore_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1386,11 +1386,11 @@ int8_t* Meos_overbefore_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1403,11 +1403,11 @@ int8_t* Meos_overbefore_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1420,11 +1420,11 @@ int8_t* Meos_overbefore_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1437,11 +1437,11 @@ int8_t* Meos_overbefore_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1454,11 +1454,11 @@ int8_t* Meos_overbefore_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1471,11 +1471,11 @@ int8_t* Meos_overbefore_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1488,11 +1488,11 @@ int8_t* Meos_overbefore_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_stbox_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1505,11 +1505,11 @@ int8_t* Meos_overbefore_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1522,11 +1522,11 @@ int8_t* Meos_overbefore_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1539,11 +1539,11 @@ int8_t* Meos_overbefore_stbox_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_stbox_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1556,11 +1556,11 @@ int8_t* Meos_overbefore_stbox_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1573,11 +1573,11 @@ int8_t* Meos_overbefore_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1590,11 +1590,11 @@ int8_t* Meos_overbefore_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1607,11 +1607,11 @@ int8_t* Meos_overbefore_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1624,11 +1624,11 @@ int8_t* Meos_overbefore_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1641,11 +1641,11 @@ int8_t* Meos_overbefore_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1658,11 +1658,11 @@ int8_t* Meos_overbefore_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1675,11 +1675,11 @@ int8_t* Meos_overbefore_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1692,11 +1692,11 @@ int8_t* Meos_overbefore_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_stbox_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1709,11 +1709,11 @@ int8_t* Meos_overbefore_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1726,11 +1726,11 @@ int8_t* Meos_overbefore_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1743,11 +1743,11 @@ int8_t* Meos_overbefore_tspatial_stbox_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_stbox_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1760,11 +1760,11 @@ int8_t* Meos_overbefore_tspatial_stbox_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1777,11 +1777,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1794,11 +1794,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1811,11 +1811,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1828,11 +1828,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1845,11 +1845,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1862,11 +1862,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1879,11 +1879,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1896,11 +1896,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tspatial_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1913,11 +1913,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1930,11 +1930,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1947,11 +1947,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tspatial_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1964,11 +1964,11 @@ int8_t* Meos_overbefore_tspatial_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1981,11 +1981,11 @@ int8_t* Meos_overbelow_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1998,11 +1998,11 @@ int8_t* Meos_overbelow_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2015,11 +2015,11 @@ int8_t* Meos_overbelow_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2032,11 +2032,11 @@ int8_t* Meos_overbelow_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2049,11 +2049,11 @@ int8_t* Meos_overbelow_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2066,11 +2066,11 @@ int8_t* Meos_overbelow_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2083,11 +2083,11 @@ int8_t* Meos_overbelow_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2100,11 +2100,11 @@ int8_t* Meos_overbelow_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2117,11 +2117,11 @@ int8_t* Meos_overbelow_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2134,11 +2134,11 @@ int8_t* Meos_overbelow_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2151,11 +2151,11 @@ int8_t* Meos_overbelow_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = above_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2168,11 +2168,11 @@ int8_t* Meos_overbelow_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = above_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2185,11 +2185,11 @@ int8_t* Meos_overbelow_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = above_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2202,11 +2202,11 @@ int8_t* Meos_overbelow_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = above_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2219,11 +2219,11 @@ int8_t* Meos_overbelow_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = above_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2236,11 +2236,11 @@ int8_t* Meos_overbelow_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = above_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2253,11 +2253,11 @@ int8_t* Meos_overbelow_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = above_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2270,11 +2270,11 @@ int8_t* Meos_overbelow_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = above_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2287,11 +2287,11 @@ int8_t* Meos_overbelow_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = above_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2304,11 +2304,11 @@ int8_t* Meos_overbelow_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = above_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2321,11 +2321,11 @@ int8_t* Meos_overbelow_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2338,11 +2338,11 @@ int8_t* Meos_overbelow_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2355,11 +2355,11 @@ int8_t* Meos_overbelow_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2372,11 +2372,11 @@ int8_t* Meos_overbelow_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2389,11 +2389,11 @@ int8_t* Meos_overbelow_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2406,11 +2406,11 @@ int8_t* Meos_overbelow_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_above_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2423,11 +2423,11 @@ int8_t* Meos_overbelow_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = above_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2440,11 +2440,11 @@ int8_t* Meos_overbelow_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2457,11 +2457,11 @@ int8_t* Meos_overbelow_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbelow_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2474,11 +2474,11 @@ int8_t* Meos_overbelow_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbelow_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2491,11 +2491,11 @@ int8_t* Meos_overfront_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2508,11 +2508,11 @@ int8_t* Meos_overfront_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2525,11 +2525,11 @@ int8_t* Meos_overfront_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2542,11 +2542,11 @@ int8_t* Meos_overfront_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2559,11 +2559,11 @@ int8_t* Meos_overfront_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2576,11 +2576,11 @@ int8_t* Meos_overfront_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2593,11 +2593,11 @@ int8_t* Meos_overfront_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2610,11 +2610,11 @@ int8_t* Meos_overfront_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_stbox_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2627,11 +2627,11 @@ int8_t* Meos_overfront_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2644,11 +2644,11 @@ int8_t* Meos_overfront_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2661,11 +2661,11 @@ int8_t* Meos_overfront_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2678,11 +2678,11 @@ int8_t* Meos_overfront_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2695,11 +2695,11 @@ int8_t* Meos_overfront_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2712,11 +2712,11 @@ int8_t* Meos_overfront_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overfront_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2729,11 +2729,11 @@ int8_t* Meos_overfront_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overfront_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2746,11 +2746,11 @@ int8_t* Meos_overleft_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2763,11 +2763,11 @@ int8_t* Meos_overleft_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2780,11 +2780,11 @@ int8_t* Meos_overleft_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2797,11 +2797,11 @@ int8_t* Meos_overleft_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2814,11 +2814,11 @@ int8_t* Meos_overleft_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_stbox_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2831,11 +2831,11 @@ int8_t* Meos_overleft_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2848,11 +2848,11 @@ int8_t* Meos_overleft_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2865,11 +2865,11 @@ int8_t* Meos_overleft_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2882,11 +2882,11 @@ int8_t* Meos_overleft_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2899,11 +2899,11 @@ int8_t* Meos_overleft_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2916,11 +2916,11 @@ int8_t* Meos_overleft_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2933,11 +2933,11 @@ int8_t* Meos_overleft_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2950,11 +2950,11 @@ int8_t* Meos_overleft_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2967,11 +2967,11 @@ int8_t* Meos_overleft_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2984,11 +2984,11 @@ int8_t* Meos_overleft_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3001,11 +3001,11 @@ int8_t* Meos_overleft_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3018,11 +3018,11 @@ int8_t* Meos_overleft_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_after_tspatial_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3035,11 +3035,11 @@ int8_t* Meos_overleft_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = after_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3052,11 +3052,11 @@ int8_t* Meos_overleft_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = back_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3069,11 +3069,11 @@ int8_t* Meos_overleft_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = back_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3086,11 +3086,11 @@ int8_t* Meos_overleft_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3103,11 +3103,11 @@ int8_t* Meos_overleft_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3120,11 +3120,11 @@ int8_t* Meos_overleft_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3137,11 +3137,11 @@ int8_t* Meos_overleft_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3154,11 +3154,11 @@ int8_t* Meos_overleft_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3171,11 +3171,11 @@ int8_t* Meos_overleft_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3188,11 +3188,11 @@ int8_t* Meos_overleft_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3205,11 +3205,11 @@ int8_t* Meos_overleft_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3222,11 +3222,11 @@ int8_t* Meos_overleft_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3239,11 +3239,11 @@ int8_t* Meos_overleft_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3256,11 +3256,11 @@ int8_t* Meos_overright_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3273,11 +3273,11 @@ int8_t* Meos_overright_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_back_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3290,11 +3290,11 @@ int8_t* Meos_overright_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = back_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3307,11 +3307,11 @@ int8_t* Meos_overright_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3324,11 +3324,11 @@ int8_t* Meos_overright_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3341,11 +3341,11 @@ int8_t* Meos_overright_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3358,11 +3358,11 @@ int8_t* Meos_overright_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3375,11 +3375,11 @@ int8_t* Meos_overright_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3392,11 +3392,11 @@ int8_t* Meos_overright_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3409,11 +3409,11 @@ int8_t* Meos_overright_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3426,11 +3426,11 @@ int8_t* Meos_overright_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3443,11 +3443,11 @@ int8_t* Meos_overright_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3460,11 +3460,11 @@ int8_t* Meos_overright_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3477,11 +3477,11 @@ int8_t* Meos_overright_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_stbox_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3494,11 +3494,11 @@ int8_t* Meos_overright_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = before_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3511,11 +3511,11 @@ int8_t* Meos_overright_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3528,11 +3528,11 @@ int8_t* Meos_overright_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3545,11 +3545,11 @@ int8_t* Meos_overright_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3562,11 +3562,11 @@ int8_t* Meos_overright_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3579,11 +3579,11 @@ int8_t* Meos_overright_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3596,11 +3596,11 @@ int8_t* Meos_overright_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3613,11 +3613,11 @@ int8_t* Meos_overright_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3630,11 +3630,11 @@ int8_t* Meos_overright_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3647,11 +3647,11 @@ int8_t* Meos_overright_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3664,11 +3664,11 @@ int8_t* Meos_overright_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3681,11 +3681,11 @@ int8_t* Meos_overright_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_stbox_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3698,11 +3698,11 @@ int8_t* Meos_overright_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3715,11 +3715,11 @@ int8_t* Meos_overright_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3732,11 +3732,11 @@ int8_t* Meos_overright_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3749,11 +3749,11 @@ int8_t* Meos_overright_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3766,11 +3766,11 @@ int8_t* Meos_right_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3783,11 +3783,11 @@ int8_t* Meos_right_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3800,11 +3800,11 @@ int8_t* Meos_right_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3817,11 +3817,11 @@ int8_t* Meos_right_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3834,11 +3834,11 @@ int8_t* Meos_right_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3851,11 +3851,11 @@ int8_t* Meos_right_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3868,11 +3868,11 @@ int8_t* Meos_right_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3885,11 +3885,11 @@ int8_t* Meos_right_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_before_tspatial_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3902,11 +3902,11 @@ int8_t* Meos_right_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = before_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3919,11 +3919,11 @@ int8_t* Meos_right_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = below_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3936,11 +3936,11 @@ int8_t* Meos_right_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = below_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3953,11 +3953,11 @@ int8_t* Meos_right_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = below_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3970,11 +3970,11 @@ int8_t* Meos_right_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = below_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3987,11 +3987,11 @@ int8_t* Meos_right_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = below_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4004,11 +4004,11 @@ int8_t* Meos_right_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = below_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4021,11 +4021,11 @@ int8_t* Meos_right_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = below_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4038,11 +4038,11 @@ int8_t* Meos_right_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = below_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4055,11 +4055,11 @@ int8_t* Meos_right_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = below_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4072,11 +4072,11 @@ int8_t* Meos_right_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = below_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4089,11 +4089,11 @@ int8_t* Meos_right_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
+    auto r = below_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4106,11 +4106,11 @@ int8_t* Meos_right_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = below_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4123,11 +4123,11 @@ int8_t* Meos_right_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = below_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4140,11 +4140,11 @@ int8_t* Meos_right_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = below_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4157,11 +4157,11 @@ int8_t* Meos_right_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = below_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4174,11 +4174,11 @@ int8_t* Meos_right_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = below_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4191,11 +4191,11 @@ int8_t* Meos_right_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = below_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4208,11 +4208,11 @@ int8_t* Meos_right_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = below_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4225,11 +4225,11 @@ int8_t* Meos_right_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = below_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4242,11 +4242,11 @@ int8_t* Meos_right_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = below_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4259,11 +4259,11 @@ int8_t* Meos_right_tspatial_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = below_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_acontains_geo_tgeo_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4276,11 +4276,11 @@ int8_t* Meos_acontains_geo_tgeo_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = acontains_geo_tgeo(static_cast<GSERIALIZED*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    return MeosRuntime::number<bool>(out, r == 1);
+    auto r = below_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_acontains_geo_tgeo_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_below_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -4293,1260 +4293,1260 @@ int8_t* Meos_acontains_geo_tgeo_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = acontains_geo_tgeo(static_cast<GSERIALIZED*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    return MeosRuntime::number<bool>(out, r == 1);
+    auto r = below_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tspatial_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tspatial_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tspatial_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tspatial_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_stbox_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overabove_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_stbox_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overabove_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_stbox_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_stbox_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tspatial_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tspatial_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_stbox_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_stbox_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_stbox_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tspatial_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_stbox_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tspatial_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_stbox_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tspatial_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tspatial_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overback_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overback_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_stbox_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_stbox_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_stbox_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_stbox_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_stbox_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_stbox_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tspatial_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tspatial_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tspatial_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tspatial_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_above_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_above_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbelow_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_stbox_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overfront_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overfront_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_stbox_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_stbox_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tspatial_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_after_tspatial_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_back_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_back_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_stbox_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_stbox_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_stbox_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tspatial_tspatial_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_before_tspatial_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_stbox_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_stbox_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_stbox_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_stbox_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_stbox_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_stbox_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_stbox_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_stbox_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_stbox_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_stbox_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_stbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_stbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_stbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_stbox_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_tspatial_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_stbox_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_tspatial_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_stbox_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_tspatial_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_stbox_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_tspatial_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_stbox_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_tspatial_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_stbox_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_tspatial_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_stbox_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tspatial_tspatial_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_tspatial_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tspatial_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_acontains_geo_tgeo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_tspatial_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_acontains_geo_tgeo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_acontains_geo_tgeo_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_below_tspatial_tspatial_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_acontains_geo_tgeo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_below_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
 }

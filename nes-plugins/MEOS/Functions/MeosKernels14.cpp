@@ -47,7 +47,7 @@ namespace NES
 
 namespace
 {
-int8_t* Meos_after_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -60,11 +60,11 @@ int8_t* Meos_after_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = after_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_after_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -77,11 +77,11 @@ int8_t* Meos_after_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = after_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_after_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -94,11 +94,11 @@ int8_t* Meos_after_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = after_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_after_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -111,11 +111,11 @@ int8_t* Meos_after_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = after_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -128,11 +128,11 @@ int8_t* Meos_before_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -145,11 +145,11 @@ int8_t* Meos_before_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -162,11 +162,11 @@ int8_t* Meos_before_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -179,11 +179,11 @@ int8_t* Meos_before_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -196,11 +196,11 @@ int8_t* Meos_before_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -213,11 +213,11 @@ int8_t* Meos_before_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -230,11 +230,11 @@ int8_t* Meos_before_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -247,11 +247,11 @@ int8_t* Meos_before_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -264,11 +264,11 @@ int8_t* Meos_before_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -281,11 +281,11 @@ int8_t* Meos_before_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -298,11 +298,11 @@ int8_t* Meos_before_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -315,11 +315,11 @@ int8_t* Meos_before_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -332,11 +332,11 @@ int8_t* Meos_before_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -349,11 +349,11 @@ int8_t* Meos_before_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_adjacent_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -366,11 +366,11 @@ int8_t* Meos_before_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -383,11 +383,11 @@ int8_t* Meos_before_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -400,11 +400,11 @@ int8_t* Meos_before_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -417,11 +417,11 @@ int8_t* Meos_before_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -434,11 +434,11 @@ int8_t* Meos_before_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -451,11 +451,11 @@ int8_t* Meos_before_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -468,11 +468,11 @@ int8_t* Meos_before_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -485,11 +485,11 @@ int8_t* Meos_before_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -502,11 +502,11 @@ int8_t* Meos_before_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -519,11 +519,11 @@ int8_t* Meos_before_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -536,11 +536,11 @@ int8_t* Meos_before_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -553,11 +553,11 @@ int8_t* Meos_before_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -570,11 +570,11 @@ int8_t* Meos_before_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -587,11 +587,11 @@ int8_t* Meos_before_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -604,11 +604,11 @@ int8_t* Meos_before_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -621,11 +621,11 @@ int8_t* Meos_before_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -638,11 +638,11 @@ int8_t* Meos_before_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -655,11 +655,11 @@ int8_t* Meos_before_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -672,11 +672,11 @@ int8_t* Meos_before_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -689,11 +689,11 @@ int8_t* Meos_before_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -706,11 +706,11 @@ int8_t* Meos_before_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -723,11 +723,11 @@ int8_t* Meos_before_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -740,11 +740,11 @@ int8_t* Meos_before_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -757,11 +757,11 @@ int8_t* Meos_before_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -774,11 +774,11 @@ int8_t* Meos_before_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -791,11 +791,11 @@ int8_t* Meos_before_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -808,11 +808,11 @@ int8_t* Meos_before_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -825,11 +825,11 @@ int8_t* Meos_before_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -842,11 +842,11 @@ int8_t* Meos_before_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -859,11 +859,11 @@ int8_t* Meos_before_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -876,11 +876,11 @@ int8_t* Meos_before_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -893,11 +893,11 @@ int8_t* Meos_before_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -910,11 +910,11 @@ int8_t* Meos_before_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -927,11 +927,11 @@ int8_t* Meos_before_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -944,11 +944,11 @@ int8_t* Meos_before_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -961,11 +961,11 @@ int8_t* Meos_before_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -978,11 +978,11 @@ int8_t* Meos_before_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_before_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -995,11 +995,11 @@ int8_t* Meos_before_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = before_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1012,11 +1012,11 @@ int8_t* Meos_left_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1029,11 +1029,11 @@ int8_t* Meos_left_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1046,11 +1046,11 @@ int8_t* Meos_left_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1063,11 +1063,11 @@ int8_t* Meos_left_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1080,11 +1080,11 @@ int8_t* Meos_left_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1097,11 +1097,11 @@ int8_t* Meos_left_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1114,11 +1114,11 @@ int8_t* Meos_left_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1131,11 +1131,11 @@ int8_t* Meos_left_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1148,11 +1148,11 @@ int8_t* Meos_left_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1165,11 +1165,11 @@ int8_t* Meos_left_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1182,11 +1182,11 @@ int8_t* Meos_left_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1199,11 +1199,11 @@ int8_t* Meos_left_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1216,11 +1216,11 @@ int8_t* Meos_left_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1233,11 +1233,11 @@ int8_t* Meos_left_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_left_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1250,11 +1250,11 @@ int8_t* Meos_left_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = left_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1267,11 +1267,11 @@ int8_t* Meos_overafter_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1284,11 +1284,11 @@ int8_t* Meos_overafter_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1301,11 +1301,11 @@ int8_t* Meos_overafter_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1318,11 +1318,11 @@ int8_t* Meos_overafter_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1335,11 +1335,11 @@ int8_t* Meos_overafter_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contained_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1352,11 +1352,11 @@ int8_t* Meos_overafter_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1369,11 +1369,11 @@ int8_t* Meos_overafter_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1386,11 +1386,11 @@ int8_t* Meos_overafter_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1403,11 +1403,11 @@ int8_t* Meos_overafter_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1420,11 +1420,11 @@ int8_t* Meos_overafter_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1437,11 +1437,11 @@ int8_t* Meos_overafter_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1454,11 +1454,11 @@ int8_t* Meos_overafter_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1471,11 +1471,11 @@ int8_t* Meos_overafter_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1488,11 +1488,11 @@ int8_t* Meos_overafter_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1505,11 +1505,11 @@ int8_t* Meos_overafter_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1522,11 +1522,11 @@ int8_t* Meos_overafter_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1539,11 +1539,11 @@ int8_t* Meos_overafter_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1556,11 +1556,11 @@ int8_t* Meos_overafter_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1573,11 +1573,11 @@ int8_t* Meos_overafter_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1590,11 +1590,11 @@ int8_t* Meos_overafter_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1607,11 +1607,11 @@ int8_t* Meos_overafter_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1624,11 +1624,11 @@ int8_t* Meos_overafter_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1641,11 +1641,11 @@ int8_t* Meos_overafter_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1658,11 +1658,11 @@ int8_t* Meos_overafter_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1675,11 +1675,11 @@ int8_t* Meos_overafter_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1692,11 +1692,11 @@ int8_t* Meos_overafter_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1709,11 +1709,11 @@ int8_t* Meos_overafter_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1726,11 +1726,11 @@ int8_t* Meos_overafter_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1743,11 +1743,11 @@ int8_t* Meos_overafter_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1760,11 +1760,11 @@ int8_t* Meos_overafter_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1777,11 +1777,11 @@ int8_t* Meos_overafter_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1794,11 +1794,11 @@ int8_t* Meos_overafter_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1811,11 +1811,11 @@ int8_t* Meos_overafter_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1828,11 +1828,11 @@ int8_t* Meos_overafter_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1845,11 +1845,11 @@ int8_t* Meos_overafter_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1862,11 +1862,11 @@ int8_t* Meos_overafter_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1879,11 +1879,11 @@ int8_t* Meos_overafter_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1896,11 +1896,11 @@ int8_t* Meos_overafter_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1913,11 +1913,11 @@ int8_t* Meos_overafter_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1930,11 +1930,11 @@ int8_t* Meos_overafter_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1947,11 +1947,11 @@ int8_t* Meos_overafter_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1964,11 +1964,11 @@ int8_t* Meos_overafter_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1981,11 +1981,11 @@ int8_t* Meos_overafter_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -1998,11 +1998,11 @@ int8_t* Meos_overafter_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2015,11 +2015,11 @@ int8_t* Meos_overafter_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2032,11 +2032,11 @@ int8_t* Meos_overafter_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2049,11 +2049,11 @@ int8_t* Meos_overafter_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2066,11 +2066,11 @@ int8_t* Meos_overafter_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2083,11 +2083,11 @@ int8_t* Meos_overafter_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2100,11 +2100,11 @@ int8_t* Meos_overafter_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2117,11 +2117,11 @@ int8_t* Meos_overafter_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overafter_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2134,11 +2134,11 @@ int8_t* Meos_overafter_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overafter_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2151,11 +2151,11 @@ int8_t* Meos_overbefore_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2168,11 +2168,11 @@ int8_t* Meos_overbefore_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2185,11 +2185,11 @@ int8_t* Meos_overbefore_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2202,11 +2202,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2219,11 +2219,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2236,11 +2236,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2253,11 +2253,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2270,11 +2270,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2287,11 +2287,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2304,11 +2304,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2321,11 +2321,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_contains_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2338,11 +2338,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2355,11 +2355,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2372,11 +2372,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2389,11 +2389,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2406,11 +2406,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2423,11 +2423,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2440,11 +2440,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2457,11 +2457,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2474,11 +2474,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2491,11 +2491,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2508,11 +2508,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2525,11 +2525,11 @@ int8_t* Meos_overbefore_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2542,11 +2542,11 @@ int8_t* Meos_overbefore_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2559,11 +2559,11 @@ int8_t* Meos_overbefore_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2576,11 +2576,11 @@ int8_t* Meos_overbefore_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2593,11 +2593,11 @@ int8_t* Meos_overbefore_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2610,11 +2610,11 @@ int8_t* Meos_overbefore_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2627,11 +2627,11 @@ int8_t* Meos_overbefore_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2644,11 +2644,11 @@ int8_t* Meos_overbefore_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2661,11 +2661,11 @@ int8_t* Meos_overbefore_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2678,11 +2678,11 @@ int8_t* Meos_overbefore_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2695,11 +2695,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2712,11 +2712,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2729,11 +2729,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2746,11 +2746,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2763,11 +2763,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2780,11 +2780,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2797,11 +2797,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2814,11 +2814,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2831,11 +2831,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2848,11 +2848,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2865,11 +2865,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2882,11 +2882,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2899,11 +2899,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2916,11 +2916,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2933,11 +2933,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2950,11 +2950,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2967,11 +2967,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -2984,11 +2984,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3001,11 +3001,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overbefore_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3018,11 +3018,11 @@ int8_t* Meos_overbefore_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overbefore_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3035,11 +3035,11 @@ int8_t* Meos_overleft_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3052,11 +3052,11 @@ int8_t* Meos_overleft_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3069,11 +3069,11 @@ int8_t* Meos_overleft_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3086,11 +3086,11 @@ int8_t* Meos_overleft_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3103,11 +3103,11 @@ int8_t* Meos_overleft_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3120,11 +3120,11 @@ int8_t* Meos_overleft_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3137,11 +3137,11 @@ int8_t* Meos_overleft_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3154,11 +3154,11 @@ int8_t* Meos_overleft_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3171,11 +3171,11 @@ int8_t* Meos_overleft_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3188,11 +3188,11 @@ int8_t* Meos_overleft_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3205,11 +3205,11 @@ int8_t* Meos_overleft_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3222,11 +3222,11 @@ int8_t* Meos_overleft_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3239,11 +3239,11 @@ int8_t* Meos_overleft_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3256,11 +3256,11 @@ int8_t* Meos_overleft_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overleft_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3273,11 +3273,11 @@ int8_t* Meos_overleft_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overleft_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3290,11 +3290,11 @@ int8_t* Meos_overright_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3307,11 +3307,11 @@ int8_t* Meos_overright_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_overlaps_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3324,11 +3324,11 @@ int8_t* Meos_overright_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3341,11 +3341,11 @@ int8_t* Meos_overright_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3358,11 +3358,11 @@ int8_t* Meos_overright_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3375,11 +3375,11 @@ int8_t* Meos_overright_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3392,11 +3392,11 @@ int8_t* Meos_overright_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = same_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3409,11 +3409,11 @@ int8_t* Meos_overright_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = same_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3426,11 +3426,11 @@ int8_t* Meos_overright_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = same_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3443,11 +3443,11 @@ int8_t* Meos_overright_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = same_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3460,11 +3460,11 @@ int8_t* Meos_overright_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = same_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3477,11 +3477,11 @@ int8_t* Meos_overright_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = same_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3494,11 +3494,11 @@ int8_t* Meos_overright_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3511,11 +3511,11 @@ int8_t* Meos_overright_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_overright_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3528,11 +3528,11 @@ int8_t* Meos_overright_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = overright_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3545,11 +3545,11 @@ int8_t* Meos_right_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3562,11 +3562,11 @@ int8_t* Meos_right_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3579,11 +3579,11 @@ int8_t* Meos_right_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3596,11 +3596,11 @@ int8_t* Meos_right_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3613,11 +3613,11 @@ int8_t* Meos_right_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3630,11 +3630,11 @@ int8_t* Meos_right_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3647,11 +3647,11 @@ int8_t* Meos_right_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3664,11 +3664,11 @@ int8_t* Meos_right_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3681,11 +3681,11 @@ int8_t* Meos_right_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3698,11 +3698,11 @@ int8_t* Meos_right_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3715,11 +3715,11 @@ int8_t* Meos_right_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3732,11 +3732,11 @@ int8_t* Meos_right_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3749,11 +3749,11 @@ int8_t* Meos_right_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3766,11 +3766,11 @@ int8_t* Meos_right_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_right_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     const MeosRuntime::Value v0{a0};
@@ -3783,1810 +3783,1770 @@ int8_t* Meos_right_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = right_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_tand_bool_tbool_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = tand_bool_tbool(static_cast<bool>(MeosRuntime::number<bool>(a0)), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_tand_tbool_bool_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = tand_tbool_bool(static_cast<Temporal*>(v0.get()), static_cast<bool>(MeosRuntime::number<bool>(a1)));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_tand_tbool_tbool_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
     const MeosRuntime::Value v1{a1};
     if (v1.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = tand_tbool_tbool(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_tbool_when_true_0(int8_t* a0, int8_t* out)
+int8_t* Meos_same_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = tbool_when_true(static_cast<Temporal*>(v0.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(spanset_mem_size(static_cast<const SpanSet*>(static_cast<const void*>(r)))));
+    auto r = same_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_tnot_tbool_0(int8_t* a0, int8_t* out)
+int8_t* Meos_same_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = tnot_tbool(static_cast<Temporal*>(v0.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_tor_bool_tbool_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = tor_bool_tbool(static_cast<bool>(MeosRuntime::number<bool>(a0)), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_tor_tbool_bool_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = tor_tbool_bool(static_cast<Temporal*>(v0.get()), static_cast<bool>(MeosRuntime::number<bool>(a1)));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_tor_tbool_tbool_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
     const MeosRuntime::Value v1{a1};
     if (v1.empty())
     {
-        return MeosRuntime::none();
-    }
-    auto r = tor_tbool_tbool(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
-    {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_add_float_tfloat_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = add_float_tfloat(static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_add_int_tint_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = add_int_tint(static_cast<int>(MeosRuntime::number<int32_t>(a0)), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_add_tfloat_float_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = add_tfloat_float(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_add_tint_int_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = add_tint_int(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_add_bigint_tbigint_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = add_bigint_tbigint(static_cast<int64_t>(MeosRuntime::number<int64_t>(a0)), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_add_tbigint_bigint_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = add_tbigint_bigint(static_cast<Temporal*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_add_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
     const MeosRuntime::Value v1{a1};
     if (v1.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = add_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_add_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
     const MeosRuntime::Value v1{a1};
     if (v1.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = add_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_add_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
     const MeosRuntime::Value v1{a1};
     if (v1.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = add_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_div_float_tfloat_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = div_float_tfloat(static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_div_int_tint_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = div_int_tint(static_cast<int>(MeosRuntime::number<int32_t>(a0)), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_div_tfloat_float_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = div_tfloat_float(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_div_tint_int_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = div_tint_int(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_div_bigint_tbigint_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = div_bigint_tbigint(static_cast<int64_t>(MeosRuntime::number<int64_t>(a0)), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_div_tbigint_bigint_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = div_tbigint_bigint(static_cast<Temporal*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_div_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
     const MeosRuntime::Value v1{a1};
     if (v1.empty())
     {
-        return MeosRuntime::none();
-    }
-    auto r = div_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
-    {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_div_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
     const MeosRuntime::Value v1{a1};
     if (v1.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = div_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_div_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
     const MeosRuntime::Value v1{a1};
     if (v1.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = div_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_mul_float_tfloat_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = mul_float_tfloat(static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_mul_int_tint_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = mul_int_tint(static_cast<int>(MeosRuntime::number<int32_t>(a0)), static_cast<Temporal*>(v1.get()));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_mul_tfloat_float_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = mul_tfloat_float(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
-int8_t* Meos_mul_tint_int_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_same_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
-    static_cast<void>(out);
     const MeosRuntime::Value v0{a0};
     if (v0.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    auto r = mul_tint_int(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)));
-    if (r == nullptr)
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
     {
-        return MeosRuntime::none();
+        return MeosRuntime::number<bool>(out, bool{});
     }
-    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+    auto r = same_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tstzspan_temporal_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_after_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tstzspan_temporal_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_after_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tstzspan_temporal_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_after_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_after_tstzspan_temporal_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_after_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tbox_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tbox_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tbox_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adjacent_tstzspan_temporal_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_numspan_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_numspan_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_numspan_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tbox_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tbox_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tbox_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_tstzspan_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_temporal_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tnumber_tbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tnumber_tbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tnumber_tbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_temporal_tstzspan_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tnumber_numspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tnumber_numspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tnumber_numspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tnumber_tbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tnumber_tbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tnumber_tbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_before_tstzspan_temporal_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_before_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tbox_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tbox_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tbox_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_numspan_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_numspan_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_numspan_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tnumber_numspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tnumber_numspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tnumber_numspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tnumber_tbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tnumber_tbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tnumber_tbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_left_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_left_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tbox_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tbox_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tbox_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contained_tstzspan_temporal_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_numspan_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_numspan_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_numspan_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tbox_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tbox_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tbox_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_tstzspan_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_temporal_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tnumber_tbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tnumber_tbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tnumber_tbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_tstzspan_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_temporal_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tnumber_numspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tnumber_numspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tnumber_numspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tnumber_tbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tnumber_tbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tnumber_tbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overafter_tstzspan_temporal_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overafter_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tbox_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tbox_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tbox_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_contains_tstzspan_temporal_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_numspan_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_numspan_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_numspan_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tbox_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tbox_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tbox_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_tstzspan_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_temporal_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tnumber_tbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tnumber_tbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tnumber_tbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_temporal_tstzspan_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tnumber_numspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tnumber_numspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tnumber_numspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tnumber_tbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tnumber_tbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tnumber_tbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overbefore_tstzspan_temporal_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_numspan_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_numspan_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_numspan_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tbox_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tbox_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tbox_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tnumber_numspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tnumber_numspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tnumber_numspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tnumber_tbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tnumber_tbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tnumber_tbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overleft_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overleft_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_numspan_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_numspan_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_numspan_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overlaps_tstzspan_temporal_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tbox_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_numspan_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tbox_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_numspan_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tbox_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_numspan_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tnumber_numspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tbox_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tnumber_numspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tbox_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tnumber_numspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tbox_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tnumber_tbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tnumber_tbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tnumber_tbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_overright_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_overright_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_numspan_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_numspan_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_numspan_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tbox_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tbox_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tbox_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tnumber_numspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tnumber_numspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tnumber_numspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tnumber_tbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tnumber_tbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tnumber_tbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_right_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_right_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_tand_bool_tbool_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_tand_bool_tbool_0}, {DataType::Type::BOOLEAN, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_tand_tbool_bool_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_temporal_tstzspan_19PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_tand_tbool_bool_0}, {DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_tand_tbool_tbool_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tnumber_numspan_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_tand_tbool_tbool_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_tbool_when_true_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tnumber_numspan_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_tbool_when_true_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_tnot_tbool_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tnumber_numspan_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_tnot_tbool_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_tor_bool_tbool_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tnumber_tbox_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_tor_bool_tbool_0}, {DataType::Type::BOOLEAN, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_tor_tbool_bool_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tnumber_tbox_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_tor_tbool_bool_0}, {DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_tor_tbool_tbool_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tnumber_tbox_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_tor_tbool_tbool_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_add_float_tfloat_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_add_float_tfloat_0}, {DataType::Type::FLOAT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_add_int_tint_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_add_int_tint_0}, {DataType::Type::INT32, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_add_tfloat_float_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_add_tfloat_float_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_add_tint_int_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_add_tint_int_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_add_bigint_tbigint_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_add_bigint_tbigint_0}, {DataType::Type::INT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_add_tbigint_bigint_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_add_tbigint_bigint_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_add_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_3PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_add_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_add_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_4PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_add_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_add_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_5PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_add_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_div_float_tfloat_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_6PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_div_float_tfloat_0}, {DataType::Type::FLOAT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_div_int_tint_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_7PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_div_int_tint_0}, {DataType::Type::INT32, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_div_tfloat_float_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_8PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_div_tfloat_float_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_div_tint_int_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_9PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_div_tint_int_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_div_bigint_tbigint_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_10PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_div_bigint_tbigint_0}, {DataType::Type::INT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_div_tbigint_bigint_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_11PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_div_tbigint_bigint_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_div_tnumber_tnumber_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_12PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_div_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_div_tnumber_tnumber_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_13PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_div_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_div_tnumber_tnumber_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_14PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_div_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_mul_float_tfloat_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_15PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_mul_float_tfloat_0}, {DataType::Type::FLOAT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_mul_int_tint_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_16PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_mul_int_tint_0}, {DataType::Type::INT32, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_mul_tfloat_float_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_17PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_mul_tfloat_float_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_mul_tint_int_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_same_tstzspan_temporal_18PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    return MeosPhysicalFunction(MeosKernel{&Meos_mul_tint_int_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
+    return MeosPhysicalFunction(MeosKernel{&Meos_same_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
 }

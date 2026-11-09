@@ -47,6 +47,57 @@ namespace NES
 
 namespace
 {
+int8_t* Meos_nad_stbox_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<double>(out, double{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<double>(out, double{});
+    }
+    auto r = nad_stbox_geo(static_cast<STBox*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()), true);
+    return MeosRuntime::number<double>(out, static_cast<double>(r));
+}
+
+int8_t* Meos_nad_stbox_geo_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<double>(out, double{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<double>(out, double{});
+    }
+    auto r = nad_stbox_geo(static_cast<STBox*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()), static_cast<bool>(MeosRuntime::number<bool>(a2)));
+    return MeosRuntime::number<double>(out, static_cast<double>(r));
+}
+
+int8_t* Meos_nad_stbox_geo_1_2(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<double>(out, double{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<double>(out, double{});
+    }
+    auto r = nad_stbox_geo(static_cast<STBox*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()), static_cast<bool>(true));
+    return MeosRuntime::number<double>(out, static_cast<double>(r));
+}
+
 int8_t* Meos_nad_stbox_geo_2(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
@@ -4629,57 +4680,21 @@ int8_t* Meos_adisjoint_cbuffer_tcbuffer_0(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::number<bool>(out, r == 1);
 }
 
-int8_t* Meos_adisjoint_geo_tcbuffer_0(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    auto r = adisjoint_geo_tcbuffer(static_cast<GSERIALIZED*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    return MeosRuntime::number<bool>(out, r == 1);
 }
 
-int8_t* Meos_adisjoint_tcbuffer_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_nad_stbox_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    auto r = adisjoint_tcbuffer_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
-    return MeosRuntime::number<bool>(out, r == 1);
+    return MeosPhysicalFunction(MeosKernel{&Meos_nad_stbox_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions));
 }
 
-int8_t* Meos_adisjoint_tcbuffer_cbuffer_0(int8_t* a0, int8_t* a1, int8_t* out)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_nad_stbox_geo_1PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    auto r = adisjoint_tcbuffer_cbuffer(static_cast<Temporal*>(v0.get()), static_cast<Cbuffer*>(v1.get()));
-    return MeosRuntime::number<bool>(out, r == 1);
+    return MeosPhysicalFunction(MeosKernel{&Meos_nad_stbox_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::FLOAT64, std::move(arguments.childFunctions));
 }
 
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_nad_stbox_geo_1_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_nad_stbox_geo_1_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions));
 }
 
 PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_nad_stbox_geo_2PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
@@ -5915,21 +5930,6 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterM
 PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adisjoint_cbuffer_tcbuffer_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
     return MeosPhysicalFunction(MeosKernel{&Meos_adisjoint_cbuffer_tcbuffer_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adisjoint_geo_tcbuffer_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_adisjoint_geo_tcbuffer_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adisjoint_tcbuffer_geo_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_adisjoint_tcbuffer_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_adisjoint_tcbuffer_cbuffer_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_adisjoint_tcbuffer_cbuffer_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
 }

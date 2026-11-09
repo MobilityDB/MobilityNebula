@@ -47,6 +47,57 @@ namespace NES
 
 namespace
 {
+int8_t* Meos_always_eq_tpcpatch_tpcpatch_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = always_eq_tpcpatch_tpcpatch(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_always_ne_pcpatch_tpcpatch_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = always_ne_pcpatch_tpcpatch(static_cast<Pcpatch*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
+int8_t* Meos_always_ne_tpcpatch_pcpatch_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::number<bool>(out, bool{});
+    }
+    auto r = always_ne_tpcpatch_pcpatch(static_cast<Temporal*>(v0.get()), static_cast<Pcpatch*>(v1.get()));
+    return MeosRuntime::number<bool>(out, r == 1);
+}
+
 int8_t* Meos_always_ne_tpcpatch_tpcpatch_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
@@ -4198,72 +4249,21 @@ int8_t* Meos_minus_pose_set_0(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
 
-int8_t* Meos_minus_set_pose_0(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = minus_set_pose(static_cast<Set*>(v0.get()), static_cast<Pose*>(v1.get()));
-    if (r == nullptr)
-    {
-        return MeosRuntime::none();
-    }
-    return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
 
-int8_t* Meos_union_pose_set_0(int8_t* a0, int8_t* a1, int8_t* out)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_always_eq_tpcpatch_tpcpatch_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = union_pose_set(static_cast<Pose*>(v0.get()), static_cast<Set*>(v1.get()));
-    if (r == nullptr)
-    {
-        return MeosRuntime::none();
-    }
-    return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
+    return MeosPhysicalFunction(MeosKernel{&Meos_always_eq_tpcpatch_tpcpatch_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
-int8_t* Meos_union_set_pose_0(int8_t* a0, int8_t* a1, int8_t* out)
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_always_ne_pcpatch_tpcpatch_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::none();
-    }
-    auto r = union_set_pose(static_cast<Set*>(v0.get()), static_cast<Pose*>(v1.get()));
-    if (r == nullptr)
-    {
-        return MeosRuntime::none();
-    }
-    return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
+    return MeosPhysicalFunction(MeosKernel{&Meos_always_ne_pcpatch_tpcpatch_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
+PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_always_ne_tpcpatch_pcpatch_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
+{
+    return MeosPhysicalFunction(MeosKernel{&Meos_always_ne_tpcpatch_pcpatch_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions));
 }
 
 PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_always_ne_tpcpatch_tpcpatch_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
@@ -5499,21 +5499,6 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterM
 PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_minus_pose_set_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
 {
     return MeosPhysicalFunction(MeosKernel{&Meos_minus_pose_set_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_minus_set_pose_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_minus_set_pose_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_union_pose_set_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_union_pose_set_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
-}
-
-PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::RegisterMeos_union_set_pose_0PhysicalFunction(PhysicalFunctionRegistryArguments arguments)
-{
-    return MeosPhysicalFunction(MeosKernel{&Meos_union_set_pose_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions));
 }
 
 }

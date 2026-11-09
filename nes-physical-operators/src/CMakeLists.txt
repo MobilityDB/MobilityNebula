@@ -14,6 +14,7 @@ add_source_files(nes-physical-operators
         PhysicalPlan.cpp
         MapPhysicalOperator.cpp
         SelectionPhysicalOperator.cpp
+        UnnestPhysicalOperator.cpp
         UnionPhysicalOperator.cpp
         UnionRenamePhysicalOperator.cpp
         PhysicalOperator.cpp

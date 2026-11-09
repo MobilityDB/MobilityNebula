@@ -40,6 +40,9 @@ struct ExtensionType
     std::string (*toText)(std::span<const std::byte> bytes);
     /// The bytes of the value the text states. Throws if the text states no value of the type.
     std::vector<std::byte> (*fromText)(std::string_view text);
+    /// The type of the elements of an array type, whose values are the number of their elements, then each element as
+    /// a variable-sized value; null for a type of no array.
+    const ExtensionType* element{nullptr};
 };
 
 }

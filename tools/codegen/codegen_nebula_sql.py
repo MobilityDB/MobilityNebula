@@ -233,7 +233,7 @@ class TypeLayer:
             f'std::vector<std::byte> {name}ArrayFromText(std::string_view text)', '{',
             f'    cannotRead("{sql}[]", text);', '}', '',
             f'constexpr ExtensionType {name}ArrayType{{.name = "{sql.upper()}_ARRAY", .toText = {name}ArrayToText, '
-            f'.fromText = {name}ArrayFromText}};', ''])
+            f'.fromText = {name}ArrayFromText, .element = &{name}Type}};', ''])
 
     def registrar(self, sqls, arrays=()):
         out = ['}', '', 'namespace NES', '{', '']

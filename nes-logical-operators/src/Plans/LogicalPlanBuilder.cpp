@@ -34,6 +34,7 @@
 #include <Operators/IngestionTimeWatermarkAssignerLogicalOperator.hpp>
 #include <Operators/ProjectionLogicalOperator.hpp>
 #include <Operators/SelectionLogicalOperator.hpp>
+#include <Operators/UnnestLogicalOperator.hpp>
 #include <Operators/Sinks/InlineSinkLogicalOperator.hpp>
 #include <Operators/Sinks/SinkLogicalOperator.hpp>
 #include <Operators/Sources/InlineSourceLogicalOperator.hpp>
@@ -84,6 +85,12 @@ LogicalPlan LogicalPlanBuilder::addSelection(LogicalFunction selectionFunction, 
         throw UnsupportedQuery("Selection predicate cannot have a FieldRenameFunction");
     }
     return promoteOperatorToRoot(queryPlan, SelectionLogicalOperator(std::move(selectionFunction)));
+}
+
+LogicalPlan LogicalPlanBuilder::addUnnest(LogicalFunction arrayFunction, std::string elementFieldName, const LogicalPlan& queryPlan)
+{
+    NES_TRACE("LogicalPlanBuilder: add unnest operator to query plan");
+    return promoteOperatorToRoot(queryPlan, UnnestLogicalOperator(std::move(arrayFunction), std::move(elementFieldName)));
 }
 
 LogicalPlan LogicalPlanBuilder::addWindowAggregation(

@@ -56,6 +56,8 @@ public:
     bool isWindow = false;
     bool isArithmeticBinary = false;
     bool isJoinRelation = false;
+    /// Inside CROSS JOIN UNNEST(array) AS u(x), whose identifiers name no source
+    bool isUnnest = false;
     bool isSimpleCondition = true;
     bool isTimeBasedWindow = true;
     bool isSetOperation = false;
@@ -74,6 +76,8 @@ public:
     std::vector<SinkDescriptor> sinkDescriptor;
     std::vector<std::string> constantBuilder;
     std::vector<LogicalFunction> functionBuilder;
+    /// The array of CROSS JOIN UNNEST and the qualified name of the field of its elements
+    std::optional<std::pair<LogicalFunction, std::string>> unnest;
     std::vector<FieldAccessLogicalFunction> groupByFields;
     std::vector<std::string> joinSources;
     std::vector<LogicalFunction> joinKeyRelationHelper;

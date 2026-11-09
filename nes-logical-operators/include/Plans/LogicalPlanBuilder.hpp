@@ -59,6 +59,10 @@ public:
     /// @return the updated queryPlan
     static LogicalPlan addSelection(LogicalFunction selectionFunction, const LogicalPlan& queryPlan);
 
+    /// @brief: this call adds the unnest operator to the queryPlan; the operator passes each record on once per element of
+    /// the array the function answers for it, the element in the field named elementFieldName.
+    static LogicalPlan addUnnest(LogicalFunction arrayFunction, std::string elementFieldName, const LogicalPlan& queryPlan);
+
     static LogicalPlan addWindowAggregation(
         LogicalPlan queryPlan,
         const std::shared_ptr<Windowing::WindowType>& windowType,

@@ -63,6 +63,11 @@ public:
     /// the array the function answers for it, the element in the field named elementFieldName.
     static LogicalPlan addUnnest(LogicalFunction arrayFunction, std::string elementFieldName, const LogicalPlan& queryPlan);
 
+    /// @brief: this call adds the cross join with an inline table to the queryPlan; the operator passes each record on once
+    /// per row of the table, the values of the row (row after row, one per field) in the fields named fieldNames.
+    static LogicalPlan
+    addInlineTableJoin(std::vector<LogicalFunction> values, std::vector<std::string> fieldNames, const LogicalPlan& queryPlan);
+
     static LogicalPlan addWindowAggregation(
         LogicalPlan queryPlan,
         const std::shared_ptr<Windowing::WindowType>& windowType,

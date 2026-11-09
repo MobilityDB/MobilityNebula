@@ -116,6 +116,31 @@ bool isLiteral(AntlrSQLParser::ExpressionContext* argument)
     return literalOf(argument) != nullptr;
 }
 
+/// The values of a row of an inline table: the expressions of a row constructor (a, b), or the row itself when it
+/// holds one value, as literalOf walks down to the constant an argument is
+std::vector<AntlrSQLParser::ExpressionContext*> rowValues(AntlrSQLParser::ExpressionContext* row)
+{
+    antlr4::tree::ParseTree* node = row;
+    while (node != nullptr)
+    {
+        if (auto* constructor = dynamic_cast<AntlrSQLParser::RowConstructorContext*>(node))
+        {
+            std::vector<AntlrSQLParser::ExpressionContext*> values;
+            for (auto* named : constructor->namedExpression())
+            {
+                values.push_back(named->expression());
+            }
+            return values;
+        }
+        if (node->children.size() != 1)
+        {
+            break;
+        }
+        node = node->children.front();
+    }
+    return {row};
+}
+
 /// The constant a literal argument states: a string VARSIZED, a boolean BOOLEAN, a number with a fraction
 /// FLOAT64, an integer INT32 where it fits and INT64 otherwise
 LogicalFunction literalConstant(AntlrSQLParser::ExpressionContext* argument, std::string value)
@@ -417,6 +442,69 @@ void AntlrSQLQueryPlanCreator::exitUnnestRelation(AntlrSQLParser::UnnestRelation
     AntlrSQLBaseListener::exitUnnestRelation(context);
 }
 
+/// The values of the inline table of a cross join are expressions read as a WHERE clause reads its predicate; a literal
+/// value stays in the constant builder and takes the type literalConstant gives it, and every other value is a function
+/// of the function builder. The alias f(x, y) names the fields of the values, f$x and f$y
+void AntlrSQLQueryPlanCreator::enterInlineTableRelation(AntlrSQLParser::InlineTableRelationContext* context)
+{
+    if (helpers.top().inlineTable.has_value() or helpers.top().unnest.has_value())
+    {
+        throw InvalidQuerySyntax("A query takes one cross join with an inline table or UNNEST, but got another at {}", context->getText());
+    }
+    helpers.top().isInlineTable = true;
+    helpers.top().isWhereOrHaving = true;
+    AntlrSQLBaseListener::enterInlineTableRelation(context);
+}
+
+void AntlrSQLQueryPlanCreator::exitInlineTableRelation(AntlrSQLParser::InlineTableRelationContext* context)
+{
+    auto& helper = helpers.top();
+    helper.isWhereOrHaving = false;
+    helper.isInlineTable = false;
+    const auto alias = bindIdentifier(context->alias);
+    std::vector<std::string> fields;
+    for (auto* column : context->columns)
+    {
+        fields.push_back(alias + Schema::ATTRIBUTE_NAME_SEPARATOR + bindIdentifier(column));
+    }
+    std::vector<AntlrSQLParser::ExpressionContext*> cells;
+    for (auto* row : context->rows)
+    {
+        const auto values = rowValues(row);
+        if (values.size() != fields.size())
+        {
+            throw InvalidQuerySyntax("A row of {} holds {} values, but {} names {}", alias, values.size(), alias, fields.size());
+        }
+        cells.insert(cells.end(), values.begin(), values.end());
+    }
+    /// The builders hold the values in the order of the cells, the literals in one and the functions in the other
+    std::vector<LogicalFunction> values(cells.size());
+    for (auto cell = cells.size(); cell-- > 0;)
+    {
+        if (isLiteral(cells[cell]))
+        {
+            if (helper.constantBuilder.empty())
+            {
+                throw InvalidQuerySyntax("A literal of {} is missing at {}", alias, context->getText());
+            }
+            values[cell] = literalConstant(cells[cell], std::move(helper.constantBuilder.back()));
+            helper.constantBuilder.pop_back();
+        }
+        else
+        {
+            if (helper.functionBuilder.empty())
+            {
+                throw InvalidQuerySyntax("A value of {} is missing at {}", alias, context->getText());
+            }
+            values[cell] = std::move(helper.functionBuilder.back());
+            helper.functionBuilder.pop_back();
+        }
+    }
+    helper.inlineTable.emplace(std::move(values), std::move(fields));
+    helper.hasUnnamedAggregation = false;
+    AntlrSQLBaseListener::exitInlineTableRelation(context);
+}
+
 void AntlrSQLQueryPlanCreator::enterComparisonOperator(AntlrSQLParser::ComparisonOperatorContext* context)
 {
     auto opTokenType = context->getStart()->getType();
@@ -507,7 +595,7 @@ void AntlrSQLQueryPlanCreator::enterUnquotedIdentifier(AntlrSQLParser::UnquotedI
     /// Get Index of Parent Rule to check type of parent rule in conditions
     const auto parentContext = dynamic_cast<antlr4::ParserRuleContext*>(context->parent);
     const bool isParentRuleTableAlias = (parentContext != nullptr) && parentContext->getRuleIndex() == AntlrSQLParser::RuleTableAlias;
-    if (helpers.top().isFrom && !helpers.top().isJoinRelation && !helpers.top().isUnnest)
+    if (helpers.top().isFrom && !helpers.top().isJoinRelation && !helpers.top().isUnnest && !helpers.top().isInlineTable)
     {
         helpers.top().newSourceName = context->getText();
     }
@@ -537,7 +625,7 @@ void AntlrSQLQueryPlanCreator::enterIdentifier(AntlrSQLParser::IdentifierContext
         helpers.top().functionBuilder.emplace_back(FieldAccessLogicalFunction(bindIdentifier(context)));
     }
     else if (
-        helpers.top().isFrom and not helpers.top().isJoinRelation and not helpers.top().isUnnest
+        helpers.top().isFrom and not helpers.top().isJoinRelation and not helpers.top().isUnnest and not helpers.top().isInlineTable
         and AntlrSQLParser::RuleErrorCapturingIdentifier == parentRuleIndex)
     {
         /// get main source name
@@ -633,6 +721,11 @@ void AntlrSQLQueryPlanCreator::exitPrimaryQuery(AntlrSQLParser::PrimaryQueryCont
     {
         auto [array, elementField] = std::move(*helpers.top().unnest);
         queryPlan = LogicalPlanBuilder::addUnnest(std::move(array), std::move(elementField), queryPlan);
+    }
+    if (helpers.top().inlineTable.has_value())
+    {
+        auto [values, fields] = std::move(*helpers.top().inlineTable);
+        queryPlan = LogicalPlanBuilder::addInlineTableJoin(std::move(values), std::move(fields), queryPlan);
     }
 
     for (auto whereExpr = helpers.top().getWhereClauses().rbegin(); whereExpr != helpers.top().getWhereClauses().rend(); ++whereExpr)
@@ -811,6 +904,12 @@ void AntlrSQLQueryPlanCreator::exitSessionWindow(AntlrSQLParser::SessionWindowCo
 void AntlrSQLQueryPlanCreator::exitNamedExpression(AntlrSQLParser::NamedExpressionContext* context)
 {
     AntlrSQLHelper& helper = helpers.top();
+    /// A value of a row of an inline table is neither projected nor aggregated: exitInlineTableRelation reads it
+    if (helper.isInlineTable)
+    {
+        AntlrSQLBaseListener::exitNamedExpression(context);
+        return;
+    }
     if (context->name == nullptr and helper.functionBuilder.size() == 1
         and helper.functionBuilder.back().tryGet<FieldAccessLogicalFunction>() and not helpers.top().hasUnnamedAggregation)
     {

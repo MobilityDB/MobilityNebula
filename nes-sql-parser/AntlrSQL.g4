@@ -122,7 +122,14 @@ querySpecification: selectClause fromClause whereClause? windowedAggregationClau
 fromClause: FROM relation (',' relation)*;
 
 relation
-    : relationPrimary unnestRelation? joinRelation*
+    : relationPrimary (unnestRelation | inlineTableRelation)? joinRelation*
+    ;
+
+/// Each row of the relation before, once per row of a table its values state, the values of the row in the fields
+/// the alias names, as SQL writes the cross join: FROM t, (VALUES (a, b), (c, d)) AS f(x, y), or CROSS JOIN
+inlineTableRelation
+    : (',' | CROSS JOIN) '(' VALUES rows+=expression (',' rows+=expression)* ')'
+      AS? alias=identifier '(' columns+=identifier (',' columns+=identifier)* ')'
     ;
 
 /// Each row of the relation before, once per element of the array the expression answers for it, as
@@ -470,7 +477,7 @@ UNION: 'UNION' | 'union';
 UNKNOWN: 'UNKNOWN';
 USE: 'USE';
 USING: 'USING';
-VALUES: 'VALUES';
+VALUES: 'VALUES' | 'values';
 WHEN: 'WHEN';
 WHERE: 'WHERE' | 'where';
 WINDOW: 'WINDOW' | 'window';

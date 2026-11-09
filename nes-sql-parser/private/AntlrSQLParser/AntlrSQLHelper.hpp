@@ -58,6 +58,8 @@ public:
     bool isJoinRelation = false;
     /// Inside CROSS JOIN UNNEST(array) AS u(x), whose identifiers name no source
     bool isUnnest = false;
+    /// Inside the inline table of a cross join, (VALUES ...) AS f(x, y), whose identifiers name no source
+    bool isInlineTable = false;
     bool isSimpleCondition = true;
     bool isTimeBasedWindow = true;
     bool isSetOperation = false;
@@ -78,6 +80,8 @@ public:
     std::vector<LogicalFunction> functionBuilder;
     /// The array of CROSS JOIN UNNEST and the qualified name of the field of its elements
     std::optional<std::pair<LogicalFunction, std::string>> unnest;
+    /// The values of the inline table of a cross join, row after row, and the qualified names of its fields
+    std::optional<std::pair<std::vector<LogicalFunction>, std::vector<std::string>>> inlineTable;
     std::vector<FieldAccessLogicalFunction> groupByFields;
     std::vector<std::string> joinSources;
     std::vector<LogicalFunction> joinKeyRelationHelper;

@@ -56,7 +56,7 @@ LogicalFunction NegateLogicalFunction::withInferredDataType(const Schema& schema
     auto newChild = child.withInferredDataType(schema);
     if (not newChild.getDataType().isType(DataType::Type::BOOLEAN))
     {
-        throw CannotInferSchema("Negate Function Node: the dataType of child must be boolean, but was: {}", child.getDataType());
+        throw CannotInferSchema("Negate Function Node: the dataType of child must be boolean, but was: {}", newChild.getDataType());
     }
     return withChildren({newChild});
 }

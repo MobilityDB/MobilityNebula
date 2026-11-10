@@ -93,13 +93,15 @@ LogicalFunction OrLogicalFunction::withInferredDataType(const Schema& schema) co
     {
         children.push_back(node.withInferredDataType(schema));
     }
-    /// check if children dataType is correct
-    INVARIANT(
-        left.getDataType().isType(DataType::Type::BOOLEAN), "the dataType of left child must be boolean, but was: {}", left.getDataType());
-    INVARIANT(
-        right.getDataType().isType(DataType::Type::BOOLEAN),
-        "the dataType of right child must be boolean, but was: {}",
-        right.getDataType());
+    /// check the dataType of each child as inferred: a function's dataType is known only once inferred
+    if (not children[0].getDataType().isType(DataType::Type::BOOLEAN))
+    {
+        throw CannotInferSchema("the dataType of left child must be boolean, but was: {}", children[0].getDataType());
+    }
+    if (not children[1].getDataType().isType(DataType::Type::BOOLEAN))
+    {
+        throw CannotInferSchema("the dataType of right child must be boolean, but was: {}", children[1].getDataType());
+    }
     return this->withChildren(children);
 }
 

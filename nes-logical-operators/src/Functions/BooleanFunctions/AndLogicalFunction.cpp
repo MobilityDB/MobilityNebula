@@ -93,14 +93,14 @@ LogicalFunction AndLogicalFunction::withInferredDataType(const Schema& schema) c
     {
         newChildren.push_back(node.withInferredDataType(schema));
     }
-    /// check if children dataType is correct
-    if (not left.getDataType().isType(DataType::Type::BOOLEAN))
+    /// check the dataType of each child as inferred: a function's dataType is known only once inferred
+    if (not newChildren[0].getDataType().isType(DataType::Type::BOOLEAN))
     {
-        throw CannotDeserialize("the dataType of left child must be boolean, but was: {}", left.getDataType());
+        throw CannotInferSchema("the dataType of left child must be boolean, but was: {}", newChildren[0].getDataType());
     }
-    if (not left.getDataType().isType(DataType::Type::BOOLEAN))
+    if (not newChildren[1].getDataType().isType(DataType::Type::BOOLEAN))
     {
-        throw CannotDeserialize("the dataType of right child must be boolean, but was: {}", right.getDataType());
+        throw CannotInferSchema("the dataType of right child must be boolean, but was: {}", newChildren[1].getDataType());
     }
     return this->withChildren(newChildren);
 }

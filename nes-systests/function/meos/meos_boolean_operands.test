@@ -1,0 +1,32 @@
+# name: MEOS_Boolean_Operands
+# description: A MEOS predicate as an operand of AND, OR and NOT: its data type is known once inferred, so each operand is checked as inferred. eDwithin answers whether each point comes within 1,000 m of the origin: points 1 (at the origin) and 3 (500 m away) do, point 2 (5,000 m away) does not, as libmeos answers.
+# groups: [MEOS, SpatioTemporal]
+CREATE LOGICAL SOURCE points(id UINT64, pos TGEOMPOINT);
+CREATE PHYSICAL SOURCE FOR points TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+ATTACH INLINE
+1|012E0041DB0B00000101000000000000000000000000000000000000000040EBA9C21C0000
+2|012E0041DB0B00000101000000000000000088B34000000000000000000040EBA9C21C0000
+3|012E0041DB0B000001010000000000000000C0724000000000000079400040EBA9C21C0000
+
+CREATE SINK nearAndFirst(points.id UINT64) TYPE File;
+SELECT id FROM points
+WHERE eDwithin(pos, geometryFromHexEWKB('0101000020DB0B000000000000000000000000000000000000'), 1000.0) AND id < UINT64(3)
+INTO nearAndFirst;
+----
+1
+
+CREATE SINK nearOrSecond(points.id UINT64) TYPE File;
+SELECT id FROM points
+WHERE eDwithin(pos, geometryFromHexEWKB('0101000020DB0B000000000000000000000000000000000000'), 1000.0) OR id = UINT64(2)
+INTO nearOrSecond;
+----
+1
+2
+3
+
+CREATE SINK far(points.id UINT64) TYPE File;
+SELECT id FROM points
+WHERE NOT eDwithin(pos, geometryFromHexEWKB('0101000020DB0B000000000000000000000000000000000000'), 1000.0)
+INTO far;
+----
+2

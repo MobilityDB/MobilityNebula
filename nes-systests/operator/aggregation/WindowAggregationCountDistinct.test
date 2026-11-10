@@ -1,0 +1,49 @@
+# name: window/WindowAggregationCountDistinct.test
+# description: COUNT(DISTINCT x) counts each value of x once in a window, beside COUNT(x), over a tumbling window, per key, over a sliding window and over a variable-sized field, as the traffic per hour of chapter 9 counts the distinct aircraft. The window [0, 100) holds the values 10, 10 and 20, two distinct, and the window [100, 200) the value 30 three times, one distinct.
+# groups: [Aggregation, WindowOperators]
+
+CREATE LOGICAL SOURCE stream(value INT32, ts UINT64, id INT32, icao VARSIZED);
+CREATE PHYSICAL SOURCE FOR stream TYPE File;
+ATTACH INLINE
+10,10,1,4b1814
+10,20,2,4b1814
+20,60,1,3c6444
+30,110,2,4b1814
+30,120,2,4b1814
+30,160,1,3c6444
+
+CREATE SINK sinkDistinct(stream.start UINT64, stream.end UINT64, stream.valueCount UINT64, stream.distinctCount UINT64) TYPE File;
+SELECT start, end, COUNT(value) AS valueCount, COUNT(DISTINCT value) AS distinctCount
+FROM stream WINDOW TUMBLING(ts, size 100 ms)
+INTO sinkDistinct;
+----
+0,100,3,2
+100,200,3,1
+
+CREATE SINK sinkDistinctKeyed(stream.start UINT64, stream.end UINT64, stream.id INT32, stream.distinctCount UINT64) TYPE File;
+SELECT start, end, id, COUNT(DISTINCT value) AS distinctCount
+FROM stream GROUP BY (id) WINDOW TUMBLING(ts, size 100 ms)
+INTO sinkDistinctKeyed;
+----
+0,100,1,2
+0,100,2,1
+100,200,1,1
+100,200,2,1
+
+CREATE SINK sinkDistinctSliding(stream.start UINT64, stream.end UINT64, stream.valueCount UINT64, stream.distinctCount UINT64) TYPE File;
+SELECT start, end, COUNT(value) AS valueCount, COUNT(DISTINCT value) AS distinctCount
+FROM stream WINDOW SLIDING(ts, size 100 ms, advance by 50 ms)
+INTO sinkDistinctSliding;
+----
+0,100,3,2
+50,150,3,2
+100,200,3,1
+150,250,1,1
+
+CREATE SINK sinkDistinctAircraft(stream.start UINT64, stream.end UINT64, stream.aircraft UINT64) TYPE File;
+SELECT start, end, COUNT(DISTINCT icao) AS aircraft
+FROM stream WINDOW TUMBLING(ts, size 100 ms)
+INTO sinkDistinctAircraft;
+----
+0,100,2
+100,200,2

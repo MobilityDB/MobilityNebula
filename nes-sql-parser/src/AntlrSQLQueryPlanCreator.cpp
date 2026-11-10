@@ -56,6 +56,7 @@
 #include <Operators/Windows/Aggregations/ArrayAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/AvgAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/CountAggregationLogicalFunction.hpp>
+#include <Operators/Windows/Aggregations/CountDistinctAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/MaxAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/MedianAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/Meos/VarAggregationLogicalFunction.hpp>
@@ -1153,6 +1154,11 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
         return context->getStart()->getType();
     }();
 
+    /// Only COUNT takes DISTINCT
+    if (context->setQuantifier != nullptr and tokenType != AntlrSQLLexer::COUNT)
+    {
+        throw InvalidQuerySyntax("DISTINCT applies to COUNT only, but got {}", context->getText());
+    }
     helpers.top().hasUnnamedAggregation = true;
     switch (tokenType) /// TODO #619: improve this switch case
     {
@@ -1161,8 +1167,17 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
             {
                 throw InvalidQuerySyntax("Aggregation requires argument at {}", context->getText());
             }
-            helpers.top().windowAggs.push_back(
-                std::make_shared<CountAggregationLogicalFunction>(helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
+            /// COUNT(DISTINCT x) counts the distinct values of x, as SQL states it
+            if (context->setQuantifier != nullptr)
+            {
+                helpers.top().windowAggs.push_back(std::make_shared<CountDistinctAggregationLogicalFunction>(
+                    helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
+            }
+            else
+            {
+                helpers.top().windowAggs.push_back(
+                    std::make_shared<CountAggregationLogicalFunction>(helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
+            }
             break;
         case AntlrSQLLexer::AVG:
             if (helpers.top().functionBuilder.empty())

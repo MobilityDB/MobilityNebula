@@ -348,7 +348,7 @@ predicate
 
 
 valueExpression
-    : (functionName | typeDefinition) '(' (argument+=expression (',' argument+=expression)*)? ')'                 #functionCall
+    : (functionName | typeDefinition) '(' (setQuantifier=DISTINCT? argument+=expression (',' argument+=expression)*)? ')'                 #functionCall
     | op=(MINUS | PLUS | TILDE) valueExpression                                        #arithmeticUnary
     | left=valueExpression op=(ASTERISK | SLASH | PERCENT | DIV) right=valueExpression #arithmeticBinary
     | left=valueExpression op=(PLUS | MINUS | CONCAT_PIPE) right=valueExpression       #arithmeticBinary
@@ -421,7 +421,7 @@ COMMENT: 'COMMENT';
 CUBE: 'CUBE';
 DELETE: 'DELETE';
 DESC: 'DESC' | 'desc';
-DISTINCT: 'DISTINCT';
+DISTINCT: 'DISTINCT' | 'distinct';
 DIV: 'DIV';
 DROP: 'DROP';
 ELSE: 'ELSE';

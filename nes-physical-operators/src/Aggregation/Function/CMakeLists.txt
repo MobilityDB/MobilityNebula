@@ -15,6 +15,7 @@ add_plugin(Count AggregationPhysicalFunction nes-physical-operators CountAggrega
 add_plugin(Max AggregationPhysicalFunction nes-physical-operators MaxAggregationPhysicalFunction.cpp)
 add_plugin(Min AggregationPhysicalFunction nes-physical-operators MinAggregationPhysicalFunction.cpp)
 add_plugin(Median AggregationPhysicalFunction nes-physical-operators MedianAggregationPhysicalFunction.cpp)
+add_plugin(CountDistinct AggregationPhysicalFunction nes-physical-operators CountDistinctAggregationPhysicalFunction.cpp)
 add_plugin(Sum AggregationPhysicalFunction nes-physical-operators SumAggregationPhysicalFunction.cpp)
 add_plugin(Array_Agg AggregationPhysicalFunction nes-physical-operators ArrayAggregationPhysicalFunction.cpp)
 

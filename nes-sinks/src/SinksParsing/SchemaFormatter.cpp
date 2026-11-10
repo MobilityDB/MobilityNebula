@@ -39,11 +39,14 @@ std::string SchemaFormatter::getFormattedSchema()
                         /// The ResultChecker component of the systests (QueryResult) currently splits the output of this function on ',' to gain the identifier-datatype pairs.
                         /// Without quotes, the ResultChecker has no way to differentiate between the delimiting ',' and ',' that might appear within the quoted field identifier.
                         /// Therefore, we reapply the quotes of case-sensitive identifiers here.
+                        /// A field of a type a plugin adds is named by the type, which the ResultChecker resolves through the
+                        /// DataTypeRegistry.
+                        const auto& dataType = field.getDataType();
                         return fmt::format(
                             "{}:{}:{}",
                             identifier.isCaseSensitive() ? fmt::format(R"("{}")", identifier.asCanonicalString())
                                                          : identifier.asCanonicalString(),
-                            magic_enum::enum_name(field.getDataType().type),
+                            dataType.extension != nullptr ? dataType.extension->name : magic_enum::enum_name(dataType.type),
                             magic_enum::enum_name(
                                 field.getDataType().nullable ? DataType::NULLABLE::IS_NULLABLE : DataType::NULLABLE::NOT_NULLABLE));
                     }),

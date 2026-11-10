@@ -61,6 +61,12 @@ std::expected<UnqualifiedUnboundField, std::string> parseField(const std::string
     const auto type = magic_enum::enum_cast<DataType::Type>(parts.at(1));
     if (not type and toLowerCase(parts.at(1)) != "varsized")
     {
+        /// A type a plugin adds is named by itself and resolved through the DataTypeRegistry
+        if (const auto extensionType = DataTypeProvider::tryProvideDataType(std::string(parts.at(1)), *nullable);
+            extensionType.has_value() and extensionType->extension != nullptr)
+        {
+            return UnqualifiedUnboundField{Identifier::parse(std::string(parts.at(0))), *extensionType};
+        }
         return std::unexpected(fmt::format("field '{}' has an unknown type '{}'", field, parts.at(1)));
     }
 

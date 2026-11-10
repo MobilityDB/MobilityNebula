@@ -21,6 +21,7 @@
 #include <ostream>
 #include <string>
 #include <type_traits>
+#include <DataTypes/ExtensionType.hpp>
 #include <Util/Logger/Formatter.hpp>
 #include <Util/ReflectionFwd.hpp>
 
@@ -130,9 +131,13 @@ struct DataType final
     [[nodiscard]] bool isSignedInteger() const;
     [[nodiscard]] bool isFloat() const;
     [[nodiscard]] bool isNumeric() const;
+    /// Whether the values are those of a type a plugin adds over VARSIZED (@struct ExtensionType).
+    [[nodiscard]] bool isExtension() const { return extension != nullptr; }
 
     Type type;
     bool nullable;
+    /// The type a plugin adds, for a VARSIZED field carrying one; null for every other field.
+    const ExtensionType* extension{nullptr};
 };
 
 template <>
@@ -154,7 +159,8 @@ struct std::hash<NES::DataType>
 {
     size_t operator()(const NES::DataType& dataType) const noexcept
     {
-        return (static_cast<uint16_t>(dataType.type) << 8) | static_cast<uint8_t>(dataType.nullable);
+        return ((static_cast<uint16_t>(dataType.type) << 8) | static_cast<uint8_t>(dataType.nullable))
+            ^ (std::hash<const void*>{}(dataType.extension) << 1U);
     }
 };
 

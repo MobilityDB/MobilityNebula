@@ -211,8 +211,14 @@ std::optional<DataType> DataType::join(const DataType& otherDataType) const
     }
     if (this->type == Type::VARSIZED)
     {
-        return (otherDataType.isType(Type::VARSIZED)) ? std::optional{DataTypeProvider::provideDataType(Type::VARSIZED, isNullableResult)}
-                                                      : std::nullopt;
+        /// A type a plugin adds joins only with itself, and the join keeps it
+        if (not otherDataType.isType(Type::VARSIZED) or this->extension != otherDataType.extension)
+        {
+            return std::nullopt;
+        }
+        auto joined = DataTypeProvider::provideDataType(Type::VARSIZED, isNullableResult);
+        joined.extension = this->extension;
+        return joined;
     }
 
     if (this->isNumeric())
@@ -257,19 +263,42 @@ std::optional<DataType> DataType::join(const DataType& otherDataType) const
     return std::nullopt;
 }
 
+/// A field of a type a plugin adds carries its name, empty for every other field, and is read back as the type the
+/// DataTypeRegistry holds under that name
 Reflected Reflector<DataType>::operator()(const DataType& field, const ReflectionContext& context) const
 {
-    return context.reflect(std::make_pair(field.type, field.nullable));
+    return context.reflect(std::make_pair(
+        std::make_pair(field.type, field.nullable),
+        field.extension != nullptr ? std::string{field.extension->name} : std::string{}));
 }
 
 DataType Unreflector<DataType>::operator()(const Reflected& rfl, const ReflectionContext& context) const
 {
-    const auto [type, nullable] = context.unreflect<std::pair<DataType::Type, bool>>(rfl);
-    return DataTypeProvider::provideDataType(type, nullable ? DataType::NULLABLE::IS_NULLABLE : DataType::NULLABLE::NOT_NULLABLE);
+    const auto [typeAndNullable, extension] = context.unreflect<std::pair<std::pair<DataType::Type, bool>, std::string>>(rfl);
+    const auto [type, nullable] = typeAndNullable;
+    const auto isNullable = nullable ? DataType::NULLABLE::IS_NULLABLE : DataType::NULLABLE::NOT_NULLABLE;
+    if (!extension.empty())
+    {
+        const auto extensionType = DataTypeProvider::tryProvideDataType(extension, isNullable);
+        if (!extensionType || extensionType->extension == nullptr || extensionType->type != type)
+        {
+            throw CannotDeserialize("Unknown extension type {} over {}", extension, magic_enum::enum_name(type));
+        }
+        return *extensionType;
+    }
+    return DataTypeProvider::provideDataType(type, isNullable);
 }
 
 std::ostream& operator<<(std::ostream& os, const DataType& dataType)
 {
+    if (dataType.extension != nullptr)
+    {
+        return os << fmt::format(
+                   "DataType(type: {} extension: {} nullable: {})",
+                   magic_enum::enum_name(dataType.type),
+                   dataType.extension->name,
+                   dataType.nullable);
+    }
     return os << fmt::format("DataType(type: {} nullable: {})", magic_enum::enum_name(dataType.type), dataType.nullable);
 }
 

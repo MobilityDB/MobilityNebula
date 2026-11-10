@@ -378,6 +378,10 @@ std::vector<std::byte> image(const void* value, const size_t size)
 # reading the arguments a MeosPhysicalFunction hands it, calling MEOS and answering in the form it reads
 # back (MeosKernelRuntime.hpp). The name is the signature's altSqlName where the catalog states one,
 # else its sqlName, else the function's sqlfn, as SqlModel.signatures reads it for Flink and Spark.
+# Every composition the catalog states (its top-level `compositions`: a SQL function MobilityDB writes as
+# casts of its arguments and a call of another function, `expandSpace(tgeompoint, float)` being
+# `expandSpace($1::stbox, $2)`) becomes one overload as well, its kernel calling the casts and then the
+# call, as codegen_jvm._composition_overload builds its eval for Flink and Spark.
 
 # The NebulaStream data type of each SQL scalar type, and the C type of the slot it is written in
 SQL_SCALAR = {
@@ -687,10 +691,119 @@ class FunctionLayer:
         self.overloads.setdefault(name, []).append((nes_args, rtype[0], key))
         return None
 
+    def composition(self, n, comp):
+        """The overloads and kernels of composition n of the catalog (its top-level `compositions`), as
+        codegen_jvm._composition_overload builds its eval: each argument operand read for the first function
+        it reaches and passed through the MEOS functions of its `casts` in order, a `value` operand passed
+        as the literal it binds, the function `call` called on them and its answer read as a signature's
+        answer; a composition without `call` answers the last cast of its one operand. A composition
+        answering rows, or restoring its answer to the type of an argument, is left out, its reason
+        counted; or the reason the composition is left out"""
+        if comp.get('retSet') or comp['ret'].endswith('[]'):
+            return 'composition answering rows'
+        if comp.get('restore'):
+            return 'composition restoring its answer'
+        operands = comp['operands']
+        if 'call' not in comp:
+            chain = list((operands[0] if len(operands) == 1 else {}).get('casts') or ())
+            last = self.m.by_name.get(chain[-1]) if chain else None
+            if last is None:
+                return 'composition without a call'
+            comp = dict(comp, call=chain[-1], operands=[dict(operands[0], casts=chain[:-1],
+                                                              param=self.m.visible(last)[0][0]['name'])])
+            operands = comp['operands']
+        f = self.m.by_name.get(comp['call'])
+        if f is None or f.get('api') == 'internal':
+            return f'composition calling {comp["call"]}'
+        args, name = comp['args'], comp['sqlName']
+        types = [self.nes_type(a) for a in args]
+        rtype = self.nes_type(comp['ret'])
+        if None in types or rtype is None:
+            missing = next(t for t, x in zip(list(args) + [comp['ret']], types + [rtype]) if x is None)
+            return f'type {missing}'
+        if len(args) > MAX_ARITY:
+            return 'arity'
+        if name.upper() in self.taken:
+            return f'name {name} is a NebulaStream function'
+        vis, outs = self.m.visible(f)
+        if [p for p in outs if c_spelling(p['canonical']) != 'size_t*']:
+            return 'out parameters'
+        if (f.get('shape') or {}).get('inputArrays'):
+            return 'array arguments'
+        by_param = {o.get('param'): o for o in operands}
+        why = None
+        for variant in self.cj._default_variants(args, comp.get('argDefaults') or [], len(args)):
+            left = len(variant) if variant else 0
+            why = self.emit_composition(n, comp, f, name, args, types, rtype, vis, outs, by_param,
+                                        variant or [], left) or why
+        return why
+
+    def emit_composition(self, n, comp, f, name, args, types, rtype, vis, outs, by_param, variant, left):
+        """The overload and kernel of the call of composition n leaving its last `left` arguments to the
+        defaults `variant`; or the reason it is left out. The answer of each cast is freed after the call,
+        and before any later step answers no value."""
+        stated = len(args) - left
+        nes_args = tuple(t for t, _ in types[:stated])
+        if any(o[0] == nes_args for o in self.overloads.get(name, [])):
+            return 'same argument types as an earlier signature'
+        pre, post, call, casted = [], [], [], []
+        for p in vis:
+            o = by_param.get(p['name'])
+            e = None
+            if o is not None and 'value' in o:
+                e = self.bound_literal(str(o['value']).strip("'"), c_spelling(p['canonical']))
+            elif o is not None and 'arg' in o and o['arg'] < len(args):
+                k, chain = o['arg'], [self.m.by_name.get(c) for c in o.get('casts') or ()]
+                if None in chain or any(len(self.m.visible(c)[0]) != 1 or self.m.visible(c)[1] for c in chain):
+                    return f'composition cast of {p["name"]}'
+                # the argument is read for the first function it reaches
+                q = self.m.visible(chain[0])[0][0] if chain else p
+                start = len(pre)
+                e = (self.argument(k, args[k], q, pre, post) if k < stated
+                     else self.default_argument(k, args[k], q, variant[k - stated], pre, post))
+                for j, c in enumerate(chain if e is not None else ()):
+                    self.t.fn(c['name'])
+                    t = f'c{k}_{j}'
+                    pre.append(f'    auto* {t} = {c["name"]}({e});')
+                    casted.append(t)
+                    pre.append(f'    if ({t} == nullptr)\n' + no_value('@NONE@'))
+                    post.insert(0, f'    std::free({t});')
+                    e = t
+                # a step reading this argument answers no value after freeing the earlier casts
+                held = casted[:len(casted) - len(chain)] if e is not None else casted
+                for i in range(start, len(pre)):
+                    if held:
+                        frees = ''.join(f'        std::free({c});\n' for c in reversed(held))
+                        pre[i] = pre[i].replace('        return @NONE@;', frees + '        return @NONE@;')
+            if e is None:
+                return f'composition operand {p["name"]}'
+            call.append(e)
+        for j, p in enumerate(outs):
+            pre.append(f'    {c_spelling(p["canonical"])[:-1]} length{j} = 0;')
+            call.append(f'&length{j}')
+        got = self.answer(comp['ret'], f, 'length0' if outs else None)
+        if got is None:
+            return f'result {comp["ret"]} as {c_spelling(f["returnType"]["canonical"])}'
+        answer, none = got
+        self.t.fn(f['name'])
+        key = f'Meos_composition{n}' + (f'_{stated}' if left else '')
+        params = ', '.join(f'int8_t* a{k}' for k in range(stated))
+        body = [f'int8_t* {key}({params + ", " if params else ""}int8_t* out)', '{', '    MeosRuntime::initialized();']
+        if 'MeosRuntime::number<' not in ''.join(answer) + none:
+            body.append('    static_cast<void>(out);')
+        body += [line.replace('@NONE@', none) for line in pre]
+        body.append(f'    auto r = {f["name"]}({", ".join(call)});')
+        body += post
+        body += answer
+        body.append('}')
+        self.kernels.append((key, '\n'.join(body), [pt for _, pt in types[:stated]], rtype[1]))
+        self.overloads.setdefault(name, []).append((nes_args, rtype[0], key))
+        return None
+
     def build(self):
-        """Every SQL signature of the catalog's public functions, as JMEOS's #_sql_overloads walks them; an
-        entry the catalog flags vendored left out as every binding leaves it out (the PostgreSQL and H3
-        code MobilityDB carries)"""
+        """Every SQL signature of the catalog's public functions, as JMEOS's #_sql_overloads walks them, then
+        every composition the catalog states, as it walks them after; an entry the catalog flags vendored
+        left out as every binding leaves it out (the PostgreSQL and H3 code MobilityDB carries)"""
         keep = lambda f: (f.get('sqlfn') and not f.get('sqlfnBackingOnly') and f.get('api') != 'internal'  # noqa: E731
                           and not f.get('vendored'))
         for f in self.cat['functions']:
@@ -701,6 +814,10 @@ class FunctionLayer:
                 why = self.signature(f, idx, name, args, ret, bound, sig, defaults)
                 if why:
                     self.leave(why)
+        for n, comp in enumerate(self.cat.get('compositions') or []):
+            why = self.composition(n, comp)
+            if why:
+                self.leave(why)
 
     def logical_source(self):
         out = [LICENSE, '/* AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',

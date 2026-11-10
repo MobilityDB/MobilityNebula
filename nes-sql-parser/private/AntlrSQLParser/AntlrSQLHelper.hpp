@@ -56,6 +56,10 @@ public:
     bool isWindow = false;
     bool isArithmeticBinary = false;
     bool isJoinRelation = false;
+    /// Inside the ON condition of a join, built as a WHERE condition is built, in functionBuilder from
+    /// joinCriteriaStart on
+    bool isJoinCriteria = false;
+    size_t joinCriteriaStart = 0;
     /// Inside CROSS JOIN UNNEST(array) AS u(x), whose identifiers name no source
     bool isUnnest = false;
     /// Inside the inline table of a cross join, (VALUES ...) AS f(x, y), whose identifiers name no source

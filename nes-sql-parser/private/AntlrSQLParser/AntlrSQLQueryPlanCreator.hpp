@@ -74,6 +74,7 @@ public:
     void enterGroupByClause(AntlrSQLParser::GroupByClauseContext* context) override;
     void exitGroupByClause(AntlrSQLParser::GroupByClauseContext* context) override;
     void enterJoinCriteria(AntlrSQLParser::JoinCriteriaContext* context) override;
+    void exitJoinCriteria(AntlrSQLParser::JoinCriteriaContext* context) override;
     void enterJoinType(AntlrSQLParser::JoinTypeContext* context) override;
     void exitJoinType(AntlrSQLParser::JoinTypeContext* context) override;
     void enterSetOperation(AntlrSQLParser::SetOperationContext* context) override;

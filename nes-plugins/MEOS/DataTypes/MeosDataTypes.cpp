@@ -2229,6 +2229,24 @@ std::vector<std::byte> TtextFromText(std::string_view text)
 
 constexpr ExtensionType TtextType{.name = "TTEXT", .toText = TtextToText, .fromText = TtextFromText};
 
+/* bytea: the bytes of a WKB, carried as they are, read and written as their hex */
+std::string ByteaToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    return hex(bytes);
+}
+
+std::vector<std::byte> ByteaFromText(std::string_view text)
+{
+    const auto wkb = unhex(text);
+    return bytesOf(std::span{wkb});
+}
+
+constexpr ExtensionType ByteaType{.name = "BYTEA", .toText = ByteaToText, .fromText = ByteaFromText};
+
 /* bigintspan[]: an array of bigintspan, carried as its number of elements, then each element's memory image after its length */
 std::string BigintspanArrayToText(std::span<const std::byte> bytes)
 {
@@ -3869,6 +3887,11 @@ DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTSTZSPANSETDataTy
 DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTTEXTDataType(DataTypeRegistryArguments)
 {
     return DataType{.type = DataType::Type::VARSIZED, .extension = &TtextType};
+}
+
+DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterBYTEADataType(DataTypeRegistryArguments)
+{
+    return DataType{.type = DataType::Type::VARSIZED, .extension = &ByteaType};
 }
 
 DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterBIGINTSPAN_ARRAYDataType(DataTypeRegistryArguments)

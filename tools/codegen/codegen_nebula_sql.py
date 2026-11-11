@@ -214,6 +214,19 @@ class TypeLayer:
                 '']
         return '\n'.join(out)
 
+    def bytea_source(self):
+        """The C++ of the extension type of `bytea`, the WKB a reader takes and a writer answers, as JMEOS's
+        #_arg and #_ret carry a bytea as a byte[]: its bytes carried as they are, read and written as their
+        upper-case hex, as #source writes the bytes of a byte codec"""
+        return '\n'.join([
+            '/* bytea: the bytes of a WKB, carried as they are, read and written as their hex */',
+            'std::string ByteaToText(std::span<const std::byte> bytes)', '{',
+            '    if (bytes.empty())', '    {', '        return {};', '    }',
+            '    return hex(bytes);', '}', '',
+            'std::vector<std::byte> ByteaFromText(std::string_view text)', '{',
+            '    const auto wkb = unhex(text);', '    return bytesOf(std::span{wkb});', '}', '',
+            'constexpr ExtensionType ByteaType{.name = "BYTEA", .toText = ByteaToText, .fromText = ByteaFromText};', ''])
+
     def array_source(self, sql):
         """The C++ of the extension type of an array of `sql`, as MobilityFlink's ARRAY of the value class
         carries it: the number of elements, then each element's memory image after its length, written as
@@ -429,6 +442,8 @@ class FunctionLayer:
             return sql.upper(), 'VARSIZED'
         if sql == 'text':
             return 'VARSIZED', 'VARSIZED'
+        if sql == 'bytea':
+            return 'BYTEA', 'VARSIZED'
         if sql in SQL_SCALAR:
             return SQL_SCALAR[sql][0], SQL_SCALAR[sql][0]
         if sql == 'timestamptz':
@@ -494,6 +509,12 @@ class FunctionLayer:
                 parser = self.t.fn(self.m.enum_parser[ctype])['name']
                 return f'{parser}(s{k}.c_str())'
             return None
+        if sql == 'bytea' and base == 'uint8_t' and ctype.endswith('*'):
+            # the WKB a reader takes, whose length SqlModel.visible folds into it (#_byte_arrays): the bytes
+            # and their length fill the buffer and the length parameter
+            pre.append(f'    const MeosRuntime::Value v{k}{{{a}}};')
+            pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
+            return f'v{k}.bytes(), v{k}.size()'
         if sql in SQL_SCALAR and ctype in C_NUMBER:
             return f'static_cast<{ctype}>(MeosRuntime::number<{SQL_SCALAR[sql][1]}>({a}))'
         if sql == 'timestamptz' and ctype == 'TimestampTz':
@@ -550,6 +571,10 @@ class FunctionLayer:
                 return ['    if (r == nullptr)\n' + no_value(none), '    size_t size = 0;', f'    char* w = {call};',
                         '    std::free(r);', '    return MeosRuntime::string(w);'], none
             return None
+        if sql == 'bytea' and rc == 'uint8_t*' and length is not None:
+            # the WKB a writer answers, its length in its size out-parameter, as JMEOS's #_ret reads it
+            return ['    if (r == nullptr)\n' + no_value(none), f'    auto* answer = MeosRuntime::bytes(r, {length});',
+                    '    std::free(r);', '    return answer;'], none
         if sql == 'text':
             if rc == 'char*':
                 return ['    return MeosRuntime::string(r);'], none
@@ -594,6 +619,11 @@ class FunctionLayer:
         """The overloads and kernels of one SQL signature of f: the call stating every argument and each
         shorter call its trailing defaults allow, as JMEOS's #_default_variants derives them, its arguments
         paired with the C parameters as #_inputs pairs them; or the reason the signature is left out"""
+        # a function a type's CREATE TYPE binds, which the dialect never names (the signature's typeSupport,
+        # rule 3 of MobilityDB's doc/contributing/io/00-INDEX.md), as JMEOS's codegen_spark_udfs.type_support
+        # leaves it out: its type's portable reader and writer are other signatures
+        if sig.get('typeSupport'):
+            return 'type support'
         vis, outs = self.m.visible(f)
         shape = f.get('shape') or {}
         # an out parameter answering the length of the result is passed a length the call ignores, but for
@@ -603,7 +633,9 @@ class FunctionLayer:
         if [p for p in outs if c_spelling(p['canonical']) != 'size_t*' and p['name'] != returned]:
             return 'out parameters'
         # the length of an input array (shape.inputArrays) is read off the array, as #_inputs reads it
-        arrays = {a['param']: a for a in shape.get('inputArrays') or []}
+        # but the WKB a reader takes, which SqlModel.visible folds with its length into one value (#_byte_arrays)
+        folded = self.cj._byte_arrays(f)
+        arrays = {a['param']: a for a in shape.get('inputArrays') or [] if a['param'] not in folded}
         counts = {}
         for a in arrays.values():
             lf = a.get('lengthFrom') or {}
@@ -1142,7 +1174,8 @@ def run(args):
     cj = load_jvm_generator()
     layer = TypeLayer(cj, cat)
     sqls = sorted(layer.m.codec)
-    bodies = [layer.source(sql) for sql in sqls]
+    # the MEOS types and `bytea`, the WKB a reader takes and a writer answers (TypeLayer.bytea_source)
+    bodies = [layer.source(sql) for sql in sqls] + [layer.bytea_source()]
     type_headers = '\n'.join(f'#include <{h}>' for h in sorted(layer.headers))
 
     # The functions, whose kernels include the headers of the functions they call; the types written after
@@ -1153,7 +1186,7 @@ def run(args):
     arrays = sorted(functions.arrays)
     src = (LICENSE + PREAMBLE.replace('@HEADERS@', type_headers) + '\n'.join(bodies) + '\n'
            + '\n'.join(layer.array_source(sql) for sql in arrays) + '\n'
-           + '\n'.join(layer.registrar(sqls, arrays)) + '\n')
+           + '\n'.join(layer.registrar(sqls + ['bytea'], arrays)) + '\n')
     out = Path(args.output_root) / 'nes-plugins' / 'MEOS' / 'DataTypes'
     out.mkdir(parents=True, exist_ok=True)
     write_if_changed(out / 'MeosDataTypes.cpp', src)
@@ -1161,7 +1194,7 @@ def run(args):
              '# AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
              '# Each MEOS SQL type is a data type of its own, registered under its name in upper case, and so is',
              '# an array of it that a function passes or answers, under its name followed by _ARRAY.', '']
-    cmake += [f'add_plugin({sql.upper()} DataType nes-data-types MeosDataTypes.cpp)' for sql in sqls]
+    cmake += [f'add_plugin({sql.upper()} DataType nes-data-types MeosDataTypes.cpp)' for sql in sqls + ['bytea']]
     cmake += [f'add_plugin({sql.upper()}_ARRAY DataType nes-data-types MeosDataTypes.cpp)' for sql in arrays]
     cmake += ['', "# The types call libmeos and initialize MEOS through the plugin's wrapper.",
               'target_link_libraries(nes-data-types PUBLIC nes-meos)', '']

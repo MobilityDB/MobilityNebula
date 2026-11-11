@@ -1,6 +1,12 @@
 name: Nix Build
 
+# Builds in the flake's devShell and runs the unit tests and the system tests, on a GitHub-hosted
+# runner. Without the S3 credentials of the remote compiler cache, sccache keeps a local cache, which
+# this workflow carries from run to run: a pull request restores the newest cache of its own head or
+# of the branch it targets, and every push to next saves the cache the next pull requests start from.
 on:
+  push:
+    branches: [ next ]
   workflow_call:
     inputs:
       head_sha:
@@ -30,7 +36,8 @@ permissions:
 jobs:
   nix-build:
     name: "Nix Build"
-    timeout-minutes: 90
+    # A build that restores no cache compiles every source
+    timeout-minutes: 300
     runs-on: [ ubuntu-latest ]
     steps:
       - name: Checkout repository
@@ -52,6 +59,14 @@ jobs:
           endpoint: ${{ secrets.SCCACHE_CACHE_ENDPOINT }}
           access_key: ${{ secrets.SCCACHE_CACHE_ACCESS_KEY }}
           secret_key: ${{ secrets.SCCACHE_CACHE_SECRET_KEY }}
+          local_cache_dir: ${{ runner.temp }}/sccache
+
+      - name: Restore the local compiler cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/sccache
+          key: sccache-nix-${{ inputs.head_sha || github.sha }}
+          restore-keys: sccache-nix-
 
       - name: Install sccache
         shell: bash
@@ -91,6 +106,15 @@ jobs:
         run: |
           source .github/.env/test-none.env
           ./.nix/nix-run.sh ctest --test-dir cmake-build-nix --no-tests=error -j -L Systest --output-on-failure --output-junit cmake-build-nix/junit-systest.xml --timeout 4800 ${ADDITIONAL_CTEST_ARGS}
+
+      # Saved after a passing or a failing build, since a failing build is the one a developer reruns
+      # and an implicit post-job save would skip it; a cancelled run holds a partial cache and saves none.
+      - name: Save the local compiler cache
+        if: ${{ !cancelled() }}
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/sccache
+          key: sccache-nix-${{ inputs.head_sha || github.sha }}
 
       - name: Upload build artifacts on failure
         if: failure()

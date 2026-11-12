@@ -1,0 +1,14 @@
+# name: MEOS_EDwithin_TGeo_Geo
+# description: eDwithin of a temporal point and a point within 0.2 degrees, the temporal point read by tgeompointFromText and the point by geometryFromHexEWKB, the readers the catalog states.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, EDWithin]
+CREATE LOGICAL SOURCE edw(id UINT32, trip VARSIZED);
+CREATE PHYSICAL SOURCE FOR edw TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|SRID=4326;POINT(4.3658 50.6456)@2021-01-01 00:00:00+00
+2|SRID=4326;POINT(4.1 50.8)@2021-01-01 00:00:00+00
+
+CREATE SINK edw_out(id UINT32, within BOOLEAN) TYPE File;
+SELECT id, eDwithin(tgeompointFromText(trip), geometryFromHexEWKB(VARSIZED('0101000020E6100000D88173469476114018265305A3524940')), FLOAT64(0.2)) AS within FROM edw INTO edw_out;
+----
+1,1
+2,0

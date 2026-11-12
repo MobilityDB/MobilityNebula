@@ -1,0 +1,208 @@
+# name: MEOS_IO
+# description: A value of each MEOS family read from its text and written back through each format MobilityDB names, asText, asHexWKB, asBinary, the E forms of a type with an SRID and asMFJSON of a temporal type, and read back by the reader of that format; a row is kept where the text is the one libmeos writes and every format gives the value back.
+# groups: [Function, MEOS]
+
+CREATE LOGICAL SOURCE intsetValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR intsetValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|{1, 2, 3}
+
+CREATE SINK intsetRoundTrips(id UINT32) TYPE File;
+SELECT id FROM intsetValues
+WHERE asText(intsetFromText(val)) == VARSIZED('{1, 2, 3}')
+  AND asText(intsetFromHexWKB(asHexWKB(intsetFromText(val)))) == asText(intsetFromText(val))
+  AND asText(intsetFromBinary(asBinary(intsetFromText(val)))) == asText(intsetFromText(val))
+INTO intsetRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE floatspanValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR floatspanValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|[1.5, 2.5)
+
+CREATE SINK floatspanRoundTrips(id UINT32) TYPE File;
+SELECT id FROM floatspanValues
+WHERE asText(floatspanFromText(val)) == VARSIZED('[1.5, 2.5)')
+  AND asText(floatspanFromHexWKB(asHexWKB(floatspanFromText(val)))) == asText(floatspanFromText(val))
+  AND asText(floatspanFromBinary(asBinary(floatspanFromText(val)))) == asText(floatspanFromText(val))
+INTO floatspanRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE tstzspansetValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR tstzspansetValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|{[2001-01-01, 2001-01-02], [2001-01-03, 2001-01-04]}
+
+CREATE SINK tstzspansetRoundTrips(id UINT32) TYPE File;
+SELECT id FROM tstzspansetValues
+WHERE asText(tstzspansetFromText(val)) == VARSIZED('{[2001-01-01 00:00:00+00, 2001-01-02 00:00:00+00], [2001-01-03 00:00:00+00, 2001-01-04 00:00:00+00]}')
+  AND asText(tstzspansetFromHexWKB(asHexWKB(tstzspansetFromText(val)))) == asText(tstzspansetFromText(val))
+  AND asText(tstzspansetFromBinary(asBinary(tstzspansetFromText(val)))) == asText(tstzspansetFromText(val))
+INTO tstzspansetRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE tboxValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR tboxValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|TBOXFLOAT XT([1, 2],[2001-01-01, 2001-01-02])
+
+CREATE SINK tboxRoundTrips(id UINT32) TYPE File;
+SELECT id FROM tboxValues
+WHERE asText(tboxFromText(val)) == VARSIZED('TBOXFLOAT XT([1, 2],[2001-01-01 00:00:00+00, 2001-01-02 00:00:00+00])')
+  AND asText(tboxFromHexWKB(asHexWKB(tboxFromText(val)))) == asText(tboxFromText(val))
+  AND asText(tboxFromBinary(asBinary(tboxFromText(val)))) == asText(tboxFromText(val))
+INTO tboxRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE stboxValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR stboxValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|SRID=4326;STBOX XT(((1,1),(2,2)),[2001-01-01, 2001-01-02])
+
+CREATE SINK stboxRoundTrips(id UINT32) TYPE File;
+SELECT id FROM stboxValues
+WHERE asText(stboxFromText(val)) == VARSIZED('STBOX XT(((1,1),(2,2)),[2001-01-01 00:00:00+00, 2001-01-02 00:00:00+00])')
+  AND asText(stboxFromHexWKB(asHexWKB(stboxFromText(val)))) == asText(stboxFromText(val))
+  AND asText(stboxFromBinary(asBinary(stboxFromText(val)))) == asText(stboxFromText(val))
+  AND asText(stboxFromEWKT(asEWKT(stboxFromText(val)))) == asText(stboxFromText(val))
+  AND asText(stboxFromHexEWKB(asHexEWKB(stboxFromText(val)))) == asText(stboxFromText(val))
+  AND asText(stboxFromEWKB(asEWKB(stboxFromText(val)))) == asText(stboxFromText(val))
+INTO stboxRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE tintValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR tintValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|[1@2001-01-01, 2@2001-01-02]
+
+CREATE SINK tintRoundTrips(id UINT32) TYPE File;
+SELECT id FROM tintValues
+WHERE asText(tintFromText(val)) == VARSIZED('[1@2001-01-01 00:00:00+00, 2@2001-01-02 00:00:00+00]')
+  AND asText(tintFromHexWKB(asHexWKB(tintFromText(val)))) == asText(tintFromText(val))
+  AND asText(tintFromBinary(asBinary(tintFromText(val)))) == asText(tintFromText(val))
+  AND asText(tintFromMFJSON(asMFJSON(tintFromText(val)))) == asText(tintFromText(val))
+INTO tintRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE tbigintValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR tbigintValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|[1@2001-01-01, 2@2001-01-02]
+
+CREATE SINK tbigintRoundTrips(id UINT32) TYPE File;
+SELECT id FROM tbigintValues
+WHERE asText(tbigintFromText(val)) == VARSIZED('[1@2001-01-01 00:00:00+00, 2@2001-01-02 00:00:00+00]')
+  AND asText(tbigintFromHexWKB(asHexWKB(tbigintFromText(val)))) == asText(tbigintFromText(val))
+  AND asText(tbigintFromBinary(asBinary(tbigintFromText(val)))) == asText(tbigintFromText(val))
+  AND asText(tbigintFromMFJSON(asMFJSON(tbigintFromText(val)))) == asText(tbigintFromText(val))
+INTO tbigintRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE tfloatValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR tfloatValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|[1.5@2001-01-01, 2.5@2001-01-02]
+
+CREATE SINK tfloatRoundTrips(id UINT32) TYPE File;
+SELECT id FROM tfloatValues
+WHERE asText(tfloatFromText(val)) == VARSIZED('[1.5@2001-01-01 00:00:00+00, 2.5@2001-01-02 00:00:00+00]')
+  AND asText(tfloatFromHexWKB(asHexWKB(tfloatFromText(val)))) == asText(tfloatFromText(val))
+  AND asText(tfloatFromBinary(asBinary(tfloatFromText(val)))) == asText(tfloatFromText(val))
+  AND asText(tfloatFromMFJSON(asMFJSON(tfloatFromText(val)))) == asText(tfloatFromText(val))
+INTO tfloatRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE tgeompointValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR tgeompointValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|SRID=4326;[POINT(1 1)@2001-01-01, POINT(2 2)@2001-01-02]
+
+CREATE SINK tgeompointRoundTrips(id UINT32) TYPE File;
+SELECT id FROM tgeompointValues
+WHERE asText(tgeompointFromText(val)) == VARSIZED('[POINT(1 1)@2001-01-01 00:00:00+00, POINT(2 2)@2001-01-02 00:00:00+00]')
+  AND asText(tgeompointFromHexWKB(asHexWKB(tgeompointFromText(val)))) == asText(tgeompointFromText(val))
+  AND asText(tgeompointFromBinary(asBinary(tgeompointFromText(val)))) == asText(tgeompointFromText(val))
+  AND asText(tgeompointFromEWKT(asEWKT(tgeompointFromText(val)))) == asText(tgeompointFromText(val))
+  AND asText(tgeompointFromHexEWKB(asHexEWKB(tgeompointFromText(val)))) == asText(tgeompointFromText(val))
+  AND asText(tgeompointFromEWKB(asEWKB(tgeompointFromText(val)))) == asText(tgeompointFromText(val))
+  AND asText(tgeompointFromMFJSON(asMFJSON(tgeompointFromText(val)))) == asText(tgeompointFromText(val))
+INTO tgeompointRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE cbufferValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR cbufferValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|Cbuffer(Point(1 1),0.5)
+
+CREATE SINK cbufferRoundTrips(id UINT32) TYPE File;
+SELECT id FROM cbufferValues
+WHERE asText(cbufferFromText(val)) == VARSIZED('Cbuffer(POINT(1 1),0.5)')
+  AND asText(cbufferFromHexWKB(asHexWKB(cbufferFromText(val)))) == asText(cbufferFromText(val))
+  AND asText(cbufferFromBinary(asBinary(cbufferFromText(val)))) == asText(cbufferFromText(val))
+  AND asText(cbufferFromEWKT(asEWKT(cbufferFromText(val)))) == asText(cbufferFromText(val))
+  AND asText(cbufferFromHexEWKB(asHexEWKB(cbufferFromText(val)))) == asText(cbufferFromText(val))
+  AND asText(cbufferFromEWKB(asEWKB(cbufferFromText(val)))) == asText(cbufferFromText(val))
+INTO cbufferRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE tcbufferValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR tcbufferValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|[Cbuffer(Point(1 1),0.5)@2001-01-01, Cbuffer(Point(2 2),0.5)@2001-01-02]
+
+CREATE SINK tcbufferRoundTrips(id UINT32) TYPE File;
+SELECT id FROM tcbufferValues
+WHERE asText(tcbufferFromText(val)) == VARSIZED('[Cbuffer(POINT(1 1),0.5)@2001-01-01 00:00:00+00, Cbuffer(POINT(2 2),0.5)@2001-01-02 00:00:00+00]')
+  AND asText(tcbufferFromHexWKB(asHexWKB(tcbufferFromText(val)))) == asText(tcbufferFromText(val))
+  AND asText(tcbufferFromBinary(asBinary(tcbufferFromText(val)))) == asText(tcbufferFromText(val))
+  AND asText(tcbufferFromEWKT(asEWKT(tcbufferFromText(val)))) == asText(tcbufferFromText(val))
+  AND asText(tcbufferFromHexEWKB(asHexEWKB(tcbufferFromText(val)))) == asText(tcbufferFromText(val))
+  AND asText(tcbufferFromEWKB(asEWKB(tcbufferFromText(val)))) == asText(tcbufferFromText(val))
+  AND asText(tcbufferFromMFJSON(asMFJSON(tcbufferFromText(val)))) == asText(tcbufferFromText(val))
+INTO tcbufferRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE npointValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR npointValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|NPoint(1,0.5)
+
+CREATE SINK npointRoundTrips(id UINT32) TYPE File;
+SELECT id FROM npointValues
+WHERE asText(npointFromText(val)) == VARSIZED('NPoint(1,0.5)')
+  AND asText(npointFromHexWKB(asHexWKB(npointFromText(val)))) == asText(npointFromText(val))
+  AND asText(npointFromBinary(asBinary(npointFromText(val)))) == asText(npointFromText(val))
+  AND asText(npointFromEWKT(asEWKT(npointFromText(val)))) == asText(npointFromText(val))
+  AND asText(npointFromHexEWKB(asHexEWKB(npointFromText(val)))) == asText(npointFromText(val))
+  AND asText(npointFromEWKB(asEWKB(npointFromText(val)))) == asText(npointFromText(val))
+INTO npointRoundTrips;
+----
+1
+
+CREATE LOGICAL SOURCE poseValues(id UINT32, val VARSIZED);
+CREATE PHYSICAL SOURCE FOR poseValues TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|Pose(Point(1 1),0.5)
+
+CREATE SINK poseRoundTrips(id UINT32) TYPE File;
+SELECT id FROM poseValues
+WHERE asText(poseFromText(val)) == VARSIZED('Pose(POINT(1 1),0.5)')
+  AND asText(poseFromHexWKB(asHexWKB(poseFromText(val)))) == asText(poseFromText(val))
+  AND asText(poseFromBinary(asBinary(poseFromText(val)))) == asText(poseFromText(val))
+  AND asText(poseFromEWKT(asEWKT(poseFromText(val)))) == asText(poseFromText(val))
+  AND asText(poseFromHexEWKB(asHexEWKB(poseFromText(val)))) == asText(poseFromText(val))
+  AND asText(poseFromEWKB(asEWKB(poseFromText(val)))) == asText(poseFromText(val))
+INTO poseRoundTrips;
+----
+1

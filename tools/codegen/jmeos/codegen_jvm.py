@@ -1,0 +1,4397 @@
+#!/usr/bin/env python3
+#
+# This MobilityDB code is provided under The PostgreSQL License.
+# Copyright (c) 2020-2026, Université libre de Bruxelles and MobilityDB
+# contributors
+#
+# Permission to use, copy, modify, and distribute this software and its
+# documentation for any purpose, without fee, and without a written
+# agreement is hereby granted, provided that the above copyright notice and
+# this paragraph and the following two paragraphs appear in all copies.
+#
+# IN NO EVENT SHALL UNIVERSITE LIBRE DE BRUXELLES BE LIABLE TO ANY PARTY FOR
+# DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+# LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+# EVEN IF UNIVERSITE LIBRE DE BRUXELLES HAS BEEN ADVISED OF THE POSSIBILITY
+# OF SUCH DAMAGE.
+#
+# UNIVERSITE LIBRE DE BRUXELLES SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+# AN "AS IS" BASIS, AND UNIVERSITE LIBRE DE BRUXELLES HAS NO OBLIGATIONS TO
+# PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#
+
+"""Unified MEOS-surface code generator for the MobilityDB JVM bindings.
+
+ONE generator, its engines selected by ``--engine``. Every
+JVM binding (MobilitySpark, MobilityFlink, MobilityKafka) vendors this identical
+file plus its ``codegen_spark_udfs.py`` sibling, so the generated surface can never
+drift between engines — the North Star that MEOS is the single source of truth and
+all bindings are GENERATED from it.
+
+  * ``spark``        -> the MobilitySpark SQL-UDF surface. This path delegates
+                        VERBATIM to the sibling ``codegen_spark_udfs.py``: the same
+                        code runs, so the emitted files are byte-identical to what
+                        that generator produces on its own.
+  * ``flink|kafka``  -> the thin ``MeosOps*`` Java static-forwarder facades.
+                        Covers the FULL jar surface (every
+                        functions.GeneratedFunctions symbol), grouped by the
+                        MEOS-API catalog object model: one class per object-model
+                        class plus one per source header for the free functions,
+                        plus the shared MeosOpsRuntime. flink and kafka differ ONLY
+                        by the ``-Dmobility<engine>.meos.enabled`` toggle string.
+  * ``flink-sql``    -> the Flink SQL surface: one Flink function per MobilityDB
+                        SQL name the catalog states, each overload an eval method,
+                        and one RAW type per MEOS value type the signatures use,
+                        carrying the value's memory image where the catalog states
+                        one for its C type, else the form its catalog codec writes.
+  * ``spark-sql``    -> the typed Spark SQL surface, from the same overloads as
+                        flink-sql: one Spark UserDefinedType per MEOS value type over
+                        the same carried form, and one registration per SQL name
+                        whose builder chooses the overload and its result type from
+                        the argument types while Spark plans the call.
+
+Shared front-end (facade back-end only): load the catalog, list the jar symbols,
+and derive each function's object-model class / role / header directly from the
+catalog's ``objectModel``. The spark back-end owns its own catalog+jar front-end
+(it needs jar arities the facade parse does not), so nothing about it changes.
+
+Usage:
+  codegen_jvm.py --engine spark --catalog meos-idl.json --jar JMEOS.jar --out DIR
+  codegen_jvm.py --engine flink --catalog meos-idl.json --jar JMEOS.jar --out DIR
+  codegen_jvm.py --engine kafka --catalog meos-idl.json --jar JMEOS.jar --out DIR
+  codegen_jvm.py --engine flink-sql --catalog meos-idl.json --jar JMEOS.jar --out DIR
+  codegen_jvm.py --engine spark-sql --catalog meos-idl.json --jar JMEOS.jar --out DIR
+"""
+import argparse
+import importlib.util
+import json
+import re
+import subprocess
+import sys
+from collections import defaultdict
+from pathlib import Path
+
+
+# ───────────────────────── shared front-end ─────────────────────────
+
+def load_catalog(path):
+    with open(path) as f:
+        return json.load(f)
+
+
+SIG_RE = re.compile(
+    r'^\s*public\s+static\s+(?P<ret>[\w\.<>\[\]]+)\s+(?P<name>\w+)\((?P<args>[^)]*)\)')
+
+
+def parse_jmeos_signatures(jar):
+    """javap functions.GeneratedFunctions -> {name: {ret, arg_types}} (jar SoT).
+
+    The jar is the ground truth of what the bundled JMEOS actually exposes, so the
+    facade surface is exactly the jar surface."""
+    out = subprocess.run(
+        ['javap', '-cp', str(jar), 'functions.GeneratedFunctions'],
+        check=True, capture_output=True, text=True).stdout
+    jmeos = {}
+    for line in out.splitlines():
+        m = SIG_RE.match(line.rstrip(';'))
+        if m:
+            raw = m.group('args').strip()
+            jmeos[m.group('name')] = {
+                'ret': m.group('ret'),
+                'arg_types': [a.strip() for a in raw.split(',')] if raw else [],
+            }
+    return jmeos
+
+
+_SEQ_RE = re.compile(r'\bTSequence\b')
+
+
+def seq_typed(canonical):
+    """Sequence-typed return: materializes a whole TSequence / *SeqSet, so the
+    function is inherently non-streamable (drives the sequence-only guard). Purely
+    catalog-derived from returnType.canonical — no name heuristics."""
+    s = canonical or ''
+    return bool(_SEQ_RE.search(s)) or 'SeqSet' in s
+
+
+def object_model_index(cat):
+    """Catalog-derived class / role / header / sequence index for the facades.
+
+    Returns (fn_class, fn_role, fn_header, fn_seq):
+      fn_class[name]  -> the object-model class name (e.g. 'TGeo', 'FloatSpan')
+                         or None if the function is a free/plumbing function.
+      fn_role[name]   -> the object-model role (constructor/accessor/... ) or None.
+      fn_header[name] -> the source header the catalog attributes the function to.
+      fn_seq[name]    -> True iff its return type is sequence-typed.
+
+    class/role come from objectModel.classes[*].methods[*] (each function appears
+    under exactly ONE class, agreeing with objectModel.functionToClass). The header
+    is the per-function 'file' field. The spark back-end does not use this — it
+    groups by doxygen @ingroup."""
+    om = cat['objectModel']
+    fn_class, fn_role, fn_header, fn_seq = {}, {}, {}, {}
+    for cls_name, cls in om['classes'].items():
+        for m in cls.get('methods', []):
+            fn = m['function']
+            fn_class.setdefault(fn, cls_name)
+            fn_role.setdefault(fn, m.get('role'))
+    for f in cat['functions']:
+        n = f['name']
+        fn_header[n] = f['file']
+        fn_seq[n] = seq_typed(f['returnType'].get('canonical',
+                                                   f['returnType'].get('c', '')))
+    return fn_class, fn_role, fn_header, fn_seq
+
+
+# ───────────────────────── spark back-end ─────────────────────────
+
+def _spark_module():
+    """The sibling codegen_spark_udfs.py as a module, loaded as #run_spark loaded it. Every
+    binding vendors it next to this file, so the import target is always the sibling."""
+    spark_path = Path(__file__).resolve().parent / 'codegen_spark_udfs.py'
+    spec = importlib.util.spec_from_file_location('codegen_spark_udfs', spark_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def run_spark(args):
+    """Delegate to the sibling codegen_spark_udfs.py so output is byte-identical.
+
+    The reference generator owns the whole catalog+jar front-end and the SQL-UDF
+    emit; running its own code (rather than a re-implementation) is what makes the
+    output provably identical to today's. The module comes from #_spark_module."""
+    mod = _spark_module()
+    argv = ['codegen_spark_udfs',
+            '--catalog', args.catalog,
+            '--out', args.out,
+            '--jar', args.jar]
+    if args.report:
+        argv.append('--report')
+    if args.gaps:
+        argv += ['--gaps', args.gaps]
+    if args.rebaseline:
+        argv.append('--rebaseline')
+    saved = sys.argv
+    try:
+        sys.argv = argv
+        mod.main()
+    finally:
+        sys.argv = saved
+
+
+# ───────────────────────── facade back-end ─────────────────────────
+
+def short_type(t):
+    if t.startswith('java.lang.'):
+        return t[len('java.lang.'):]
+    return t.split('.')[-1] if '.' in t else t
+
+
+def header_to_class(h):
+    """Free-function class name from the source header, split on '_' AND '.' so a
+    dotted internal header (e.g. postgres_ext_defs.in.h) yields a valid class."""
+    base = h.replace('.h', '').replace('meos_', '').replace('meos', 'core')
+    if base in ('', 'core'):
+        return 'MeosOpsFreeCore'
+    return 'MeosOpsFree' + ''.join(p.capitalize()
+                                   for p in re.split(r'[_.]', base) if p)
+
+
+def collect_imports(rows):
+    imports = {'functions.GeneratedFunctions'}
+    for r in rows:
+        for t in [r['java_ret']] + [a[0] for a in r['java_params']]:
+            if '.' in t and not t.startswith('java.lang.'):
+                imports.add(t.replace('[]', ''))
+    return sorted(i for i in imports if '.' in i)
+
+
+def folded_nxn(r):
+    """The folded form of an NxN kernel, or None.
+
+    The catalog says everything needed: ``arrayReturn.groupSize`` marks the flattened
+    index-pair return, ``outParams`` names the count (and, for the temporal
+    relationships, the parallel span-set array), and the ``(TYPE **, int)`` argument
+    pairs are the arrays.  Nothing here re-derives what the catalog already states.
+    """
+    f = r.get('cat')
+    if not f:
+        return None
+    ar = (f.get('shape') or {}).get('arrayReturn') or {}
+    if ar.get('groupSize') != 2:
+        return None
+    outs = set((f.get('shape') or {}).get('outParams') or [])
+    params, arrays, scalars, count, periods = f.get('params', []), [], [], None, None
+    i = 0
+    while i < len(params):
+        c = (params[i].get('cType') or '').replace(' ', '')
+        nm = params[i].get('name')
+        if c.endswith('**') and c.count('*') == 2 and i + 1 < len(params) \
+                and (params[i + 1].get('cType') or '').replace(' ', '') == 'int':
+            arrays.append(nm); i += 2; continue
+        if nm in outs:
+            if c == 'int*':
+                count = nm
+            else:
+                periods = nm
+            i += 1; continue
+        if c in ('double', 'int', 'bool'):
+            scalars.append((nm, {'double': 'double', 'int': 'int', 'bool': 'boolean'}[c]))
+            i += 1; continue
+        return None
+    if not arrays or count is None:
+        return None
+    # The folded form is the canonical dialect of this kernel, so it is named by the
+    # catalog's @sqlfn (eDwithinPairs, aDisjointPairs, ...) — the name the SQL surface
+    # answers to — never the C symbol.  No @sqlfn, no folded form: the name is the
+    # catalog's to state, not this generator's to invent.
+    if not f.get('sqlfn'):
+        return None
+    return {'arrays': arrays, 'scalars': scalars, 'count': count,
+            'periods': periods, 'group': ar['groupSize'], 'sqlfn': f['sqlfn']}
+
+
+def emit_folded(r, fold, prop):
+    """Emit the folded overload beside the 1:1 forwarder — the canonical dialect keeps
+    its C shape, this is the kept idiomatic sugar, never a replacement."""
+    fname = fold['sqlfn']
+    args = ', '.join(['Pointer[] %s' % a for a in fold['arrays']]
+                     + ['%s %s' % (t, n) for (n, t) in fold['scalars']])
+    ret = 'PairsAndPeriods' if fold['periods'] else 'int[][]'
+    L = ['    /**',
+         f'     * MEOS {{@code {r["name"]}}} under its canonical name, over Java arrays.',
+         '     * <p>The count and the written-back out-parameters are supplied and read',
+         '     * here; the answer is the index pairs into the argument arrays.</p>',
+         '     */',
+         f'    public static {ret} {fname}({args}) {{',
+         '        if (!MEOS_AVAILABLE) {',
+         '            throw new UnsupportedOperationException(',
+         f'                "{fname} requires libmeos — set -D{prop}=true");',
+         '        }']
+    guard = ' || '.join('%s == null' % a for a in fold['arrays'])
+    empty = 'new PairsAndPeriods(new int[0][], new byte[0][])' if fold['periods'] \
+        else 'new int[0][]'
+    L += [f'        if ({guard}) {{',
+          f'            return {empty};',
+          '        }',
+          '        jnr.ffi.Runtime _rt = jnr.ffi.Runtime.getSystemRuntime();']
+    call = []
+    for a in fold['arrays']:
+        L.append(f'        Pointer _n{a} = MeosOpsRuntime.nativeArray({a}, _rt);')
+        call += [f'_n{a}', f'{a}.length']
+    for (n, _t) in fold['scalars']:
+        call.append(n)
+    L.append('        Pointer _count = jnr.ffi.Memory.allocateDirect(_rt, 4);')
+    call.append('_count')
+    if fold['periods']:
+        L.append('        Pointer _periods = jnr.ffi.Memory.allocateDirect(_rt, 8);')
+        call.append('_periods')
+    L.append('        try {')
+    L.append('            Pointer _res = GeneratedFunctions.%s(%s);'
+             % (r['name'], ', '.join(call)))
+    L.append('            int _c = _count.getInt(0L);')
+    if fold['periods']:
+        L.append('            return new PairsAndPeriods(')
+        L.append('                    MeosOpsRuntime.readGroups(_res, _c, %d),'
+                 % fold['group'])
+        L.append('                    MeosOpsRuntime.readPeriods(_periods.getPointer(0L), _c));')
+    else:
+        L.append('            return MeosOpsRuntime.readGroups(_res, _c, %d);'
+                 % fold['group'])
+    L.append('        } finally {')
+    for a in fold['arrays']:
+        # the native buffer must outlive the call (feedback_jnr_array_reachability_fence)
+        L.append(f'            java.lang.ref.Reference.reachabilityFence(_n{a});')
+    L += ['        }', '    }', '']
+    return L
+
+
+PAIRS_HOLDER = [
+    '    /** Index pairs and, for the temporal relationships, when each pair holds. */',
+    '    public static final class PairsAndPeriods {',
+    '        public final int[][] pairs;',
+    '        public final byte[][] periodsWkb;',
+    '',
+    '        PairsAndPeriods(int[][] pairs, byte[][] periodsWkb) {',
+    '            this.pairs = pairs;',
+    '            this.periodsWkb = periodsWkb;',
+    '        }',
+    '    }',
+    '',
+]
+
+
+def emit_method(r, prop):
+    fname = r['name']
+    args = ', '.join(f'{short_type(t)} {n}' for (t, n) in r['java_params'])
+    call_args = ', '.join(n for (t, n) in r['java_params'])
+    ret = short_type(r['java_ret'])
+    L = ['    /**',
+         f'     * MEOS {{@code {fname}}}.']
+    if r.get('oo_class'):
+        L.append(f'     * <p>Object-model class: {{@code {r["oo_class"]}}}'
+                 + (f', role {{@code {r["role"]}}}' if r.get('role') else '')
+                 + '.</p>')
+    elif r.get('role'):
+        L.append(f'     * <p>Object-model role: {{@code {r["role"]}}}.</p>')
+    if r['seq']:
+        L.append('     * <p>Sequence-only: builds a whole sequence — '
+                 'not supported in a streaming context.</p>')
+    L.append('     */')
+    if r['seq']:
+        # sequence-only guard
+        L += [f'    public static {ret} {fname}({args}) {{',
+              '        throw new UnsupportedOperationException(',
+              f'            "{fname} is sequence-only — not supported in a '
+              'streaming context");',
+              '    }', '']
+    else:
+        # runtime MEOS_AVAILABLE guard
+        ret_stmt = '' if ret == 'void' else 'return '
+        L += [f'    public static {ret} {fname}({args}) {{',
+              '        if (!MEOS_AVAILABLE) {',
+              '            throw new UnsupportedOperationException(',
+              f'                "{fname} requires libmeos — set -D{prop}=true");',
+              '        }',
+              f'        {ret_stmt}GeneratedFunctions.{fname}({call_args});',
+              '    }', '']
+    fold = folded_nxn(r)
+    if fold:
+        L += emit_folded(r, fold, prop)
+    return L
+
+
+def emit_class(cls, rows, pkg, prop, banner):
+    seq_cnt = sum(1 for r in rows if r['seq'])
+    L = [f'package {pkg};', '',
+         '/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.',
+         f' * {banner}',
+         f' * Methods emitted: {len(rows)} (full jar surface'
+         + (f'; {seq_cnt} sequence-only)' if seq_cnt else ')'),
+         ' * Source: the bundled JMEOS functions.GeneratedFunctions surface,',
+         ' *         grouped by the MEOS-API catalog object model.',
+         ' */', '']
+    L += [f'import {i};' for i in collect_imports(rows)]
+    L += ['',
+          f'public final class {cls} {{', '',
+          '    public static final boolean MEOS_AVAILABLE = '
+          'MeosOpsRuntime.MEOS_AVAILABLE;',
+          '',
+          f'    private {cls}() {{ /* utility */ }}', '']
+    if any((folded_nxn(r) or {}).get('periods') for r in rows):
+        L += PAIRS_HOLDER
+    for r in sorted(rows, key=lambda r: r['name']):
+        L += emit_method(r, prop)
+    L.append('}')
+    return '\n'.join(L) + '\n'
+
+
+def runtime_src(pkg, prop):
+    """Shared MEOS_AVAILABLE probe."""
+    return f'''package {pkg};
+
+import functions.GeneratedFunctions;
+
+/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
+ * Shared runtime helper: owns the single MEOS_AVAILABLE static-init across all
+ * generated MeosOps* facades, so libmeos is probed exactly once per JVM. */
+public final class MeosOpsRuntime {{
+
+    public static final boolean MEOS_AVAILABLE;
+
+    static {{
+        boolean enabled = Boolean.parseBoolean(
+                System.getProperty("{prop}", "true"));
+        boolean ok = false;
+        if (enabled) {{
+            try {{
+                GeneratedFunctions.meos_initialize();
+                ok = true;
+            }} catch (Throwable t) {{
+                ok = false;
+            }}
+        }}
+        MEOS_AVAILABLE = ok;
+    }}
+
+    /* ── native memory ─────────────────────────────────────────────────────────
+     * MEOS standalone allocates through the hook installed by
+     * meos_initialize_allocator, whose default is libc malloc, so a returned
+     * pointer is a libc-heap pointer that the system free accepts.  A JNR Pointer
+     * is a raw address the Java GC does not track, so every owned return is freed
+     * explicitly.  jffi's MemoryIO.freeMemory calls that system free; jffi is the
+     * native layer jnr-ffi runs on, so it shares the classloader of every MEOS call
+     * inside the engines and needs no internal JDK API. */
+    private static final com.kenai.jffi.MemoryIO IO = com.kenai.jffi.MemoryIO.getInstance();
+
+    /** Free a native pointer owned by the caller.  Null-safe. */
+    public static void free(jnr.ffi.Pointer p) {{
+        if (p != null) {{
+            IO.freeMemory(p.address());
+        }}
+    }}
+
+    /* ── NxN array marshalling ─────────────────────────────────────────────────
+     * The NxN kernels take (TYPE **arr, int n) argument pairs and run the whole
+     * cross product inside C.  The elements are already parsed, so an argument
+     * array is copied into a native buffer of pointers; the buffer must stay
+     * reachable across the call, which reachabilityFence at the call site does. */
+    public static jnr.ffi.Pointer nativeArray(jnr.ffi.Pointer[] xs,
+            jnr.ffi.Runtime rt) {{
+        jnr.ffi.Pointer buf = jnr.ffi.Memory.allocateDirect(
+                rt, Math.max(1, xs.length) * 8);
+        for (int i = 0; i < xs.length; i++) {{
+            buf.putPointer((long) i * 8L, xs[i]);
+        }}
+        return buf;
+    }}
+
+    /* A pairs-returning kernel answers a flat int array of groupSize * count ints,
+     * `[i0, j0, i1, j1, ...]`, which the caller frees.  The indices are the 0-based
+     * C offsets into the argument arrays — it is the PostgreSQL SETOF wrapper, not
+     * the kernel, that renders them 1-based — so they are read as they stand. */
+    public static int[][] readGroups(jnr.ffi.Pointer res, int count, int group) {{
+        if (res == null || count <= 0) {{
+            return new int[0][];
+        }}
+        int[][] out = new int[count][group];
+        for (int k = 0; k < count; k++) {{
+            for (int g = 0; g < group; g++) {{
+                out[k][g] = res.getInt((long) (group * k + g) * 4L);
+            }}
+        }}
+        free(res);
+        return out;
+    }}
+
+    /* The temporal relationships also answer, through a parallel SpanSet ** out-array,
+     * the times when each resulting pair holds; each is rendered as its WKB.  Frees the
+     * pairs, the span-set array and every span set in it. */
+    public static byte[][] readPeriods(jnr.ffi.Pointer ssArr, int count) {{
+        byte[][] out = new byte[Math.max(0, count)][];
+        for (int k = 0; k < out.length; k++) {{
+            jnr.ffi.Pointer ss = ssArr == null
+                    ? null : ssArr.getPointer((long) k * 8L);
+            out[k] = ss == null
+                    ? null : GeneratedFunctions.spanset_as_wkb(ss, (byte) {WKB_VARIANT});
+            free(ss);
+        }}
+        free(ssArr);
+        return out;
+    }}
+
+    private MeosOpsRuntime() {{ /* utility */ }}
+}}
+'''
+
+
+def run_facades(args):
+    prop = f'mobility{args.engine}.meos.enabled'
+    out_dir = Path(args.out) / 'src/main/java' / args.package.replace('.', '/')
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    cat = load_catalog(args.catalog)
+    jmeos = parse_jmeos_signatures(args.jar)
+    fn_class, fn_role, fn_header, fn_seq = object_model_index(cat)
+    fn_cat = {f['name']: f for f in cat.get('functions', [])}
+
+    # FULL surface: one row per jar symbol (the jar is the ground truth of what the
+    # bundled JMEOS actually exposes). A jar symbol absent from the catalog has no
+    # class/header, so it falls back to the core free class and the return-type
+    # sequence check.
+    rows = []
+    for name, sig in jmeos.items():
+        rows.append({
+            'name': name,
+            'java_ret': sig['ret'],
+            'java_params': [(t, f'arg{i}') for i, t in enumerate(sig['arg_types'])],
+            'oo_class': fn_class.get(name),
+            'role': fn_role.get(name),
+            'header': fn_header.get(name, 'meos.h'),
+            'seq': fn_seq.get(name, seq_typed(sig['ret'])),
+            'cat': fn_cat.get(name),
+        })
+
+    # Regenerate from scratch: drop stale MeosOps*.java.  The NxN kernels that used
+    # to need a hand-written caller are emitted folded beside their forwarder, so this
+    # package holds generated code only.
+    for f in out_dir.glob('MeosOps*.java'):
+        f.unlink()
+    (out_dir / 'MeosOpsRuntime.java').write_text(runtime_src(args.package, prop))
+
+    # Group by the FINAL class name, not the raw grouping key: several distinct
+    # headers collapse to the same free class (e.g. cbuffer.h and meos_cbuffer.h
+    # both -> MeosOpsFreeCbuffer), so key on the class name and MERGE their rows —
+    # else the second write_text would clobber the first and silently drop methods.
+    by_class = defaultdict(list)      # class name -> rows
+    class_headers = defaultdict(set)  # free class name -> contributing headers
+    for r in rows:
+        if r['oo_class']:
+            by_class[f'MeosOps{r["oo_class"]}'].append(r)
+        else:
+            cls = header_to_class(r['header'])
+            by_class[cls].append(r)
+            class_headers[cls].add(r['header'])
+
+    for cls, crows in sorted(by_class.items()):
+        if cls in class_headers:
+            banner = 'Free functions from ' + ', '.join(sorted(class_headers[cls]))
+        else:
+            banner = 'MEOS object-model class: ' + cls[len('MeosOps'):]
+        (out_dir / f'{cls}.java').write_text(
+            emit_class(cls, crows, args.package, prop, banner))
+
+    n_seq = sum(1 for r in rows if r['seq'])
+    n_oo = sum(1 for c in by_class if c not in class_headers)
+    n_free = len(class_headers)
+    print(f'{args.engine}: emitted {1 + len(by_class)} facade classes into {out_dir} '
+          f'({n_oo} object-model + {n_free} free + MeosOpsRuntime), '
+          f'{len(rows)} methods ({n_seq} sequence-only guarded)')
+
+
+# ───────────────────────── flink-sql back-end ─────────────────────────
+#
+# A MEOS value crosses Flink as bytes, never as a native pointer: Flink copies,
+# serializes, checkpoints and groups values, and a pointer is an address in one process.
+# The bytes are the value's memory image where the catalog states one for its C type
+# (#_value_methods), which holds the machine's byte order and the layout of the MEOS
+# version that wrote it, else the form its catalog codec writes.  Each eval decodes its MEOS arguments, calls
+# the GeneratedFunctions wrapper, encodes the result and frees what MEOS allocated.
+
+SQL_PKG = 'org.mobilitydb.flink.sql'
+
+# The Flink-side Java class of each SQL scalar type the signatures use.
+SQL_SCALAR = {
+    'boolean': 'Boolean', 'integer': 'Integer', 'smallint': 'Short', 'bigint': 'Long',
+    'float': 'Double', 'double precision': 'Double', 'text': 'String', 'cstring': 'String',
+    'timestamptz': 'java.time.Instant', 'date': 'java.time.LocalDate',
+    'interval': 'java.time.Duration', 'bytea': 'byte[]',
+}
+
+# The Flink SQL type of each Flink-side scalar class; a MEOS value class carries its own TYPE.
+SQL_DATATYPE = {
+    'Boolean': 'DataTypes.BOOLEAN()', 'Integer': 'DataTypes.INT()',
+    'Short': 'DataTypes.SMALLINT()', 'Long': 'DataTypes.BIGINT()',
+    'Double': 'DataTypes.DOUBLE()', 'String': 'DataTypes.STRING()',
+    'java.time.Instant': 'DataTypes.TIMESTAMP_LTZ(6)', 'java.time.LocalDate': 'DataTypes.DATE()',
+    'java.time.Duration': 'DataTypes.INTERVAL(DataTypes.SECOND(3))',
+    'byte[]': 'DataTypes.BYTES()',
+}
+
+# The WKB variant the WKB writers take: the extended form, which keeps the SRID.
+WKB_VARIANT = 4
+# The catalog encodings that carry a value as its hex WKB, in the order a codec takes them: the
+# plain form where the C type states it, else the extended one (geometry and geography state
+# only `hexewkb`). The catalog's `wkb` and `ewkb` are the binary forms.
+HEX_WKB_ENCODINGS = ('hexwkb', 'hexewkb')
+
+# A SQL array MEOS reads as a contiguous C array of scalars, keyed by the SQL element type
+# and the C element type together: the Flink-side element class and the MeosSqlRuntime
+# helper writing the C array.
+SQL_ARRAY_SCALAR = {
+    ('integer', 'int'): ('Integer', 'ints'),
+    ('bigint', 'int64'): ('Long', 'longs'), ('bigint', 'int64_t'): ('Long', 'longs'),
+    ('float', 'double'): ('Double', 'doubles'),
+    ('double precision', 'double'): ('Double', 'doubles'),
+    ('date', 'DateADT'): ('java.time.LocalDate', 'dates'),
+    ('timestamptz', 'TimestampTz'): ('java.time.Instant', 'timestamps'),
+}
+
+# The by-value C types a SQL scalar carries (#_arg passes each from its Java value), which a
+# public reader from a string, bool_in or int32_in, does not make a text argument: the C
+# elements SQL_ARRAY_SCALAR names, the boolean, the 32-bit integer and the cell index.
+_SQL_SCALAR_C = {c for _, c in SQL_ARRAY_SCALAR} | {'bool', 'int32_t', 'uint64_t'}
+
+
+# The engine type of each structure the surface carries as a row (#SqlModel._struct_rows), keyed
+# by the class string #_flink_class names for it: the engine's row class, tagged with the SQL type
+# after a '#', since one Java class carries rows of every structure.
+_ROW_DATATYPE = {}
+
+
+def _jclass(cls):
+    """The Java class of a class string, without the SQL type a row of a structure is tagged with."""
+    return cls.split('#')[0]
+
+
+def _datatype(cls):
+    if cls in _ROW_DATATYPE:
+        return _ROW_DATATYPE[cls]
+    # A class the table names (byte[], a bytea) before an array of its element, as
+    # #_spark_datatype reads SPARK_DATATYPE first.
+    if cls in SQL_DATATYPE:
+        return SQL_DATATYPE[cls]
+    if cls.endswith('[]'):
+        return f'DataTypes.ARRAY({_datatype(cls[:-2])})'
+    return SQL_DATATYPE.get(cls, f'{cls}.TYPE')
+
+
+def _norm(t):
+    return (t or '').replace('const ', '').replace('struct ', '').strip()
+
+
+def _base(t):
+    return _norm(t).replace('*', '').strip()
+
+
+def _single_pointer(t):
+    n = _norm(t)
+    return n.endswith('*') and n.count('*') == 1
+
+
+def _deployed_type(t):
+    """The SQL type `t` as PostgreSQL deploys a function over it: CREATE FUNCTION discards a
+    parenthesized type modifier, so geometry(Point) is geometry and geography(Point)[] is
+    geography[].  As #_norm reads a C type the way the jar sees it, this reads a SQL type
+    the way the engine sees it."""
+    return re.sub(r'^(\w+)\([\w ,]*\)((?:\[\])*)$', r'\1\2', t)
+
+
+def _jshort(t):
+    return {'jnr.ffi.Pointer': 'Pointer', 'java.lang.String': 'String',
+            'java.time.OffsetDateTime': 'OffsetDateTime'}.get(t, t)
+
+
+def _javaid(name):
+    ident = re.sub(r'\W', '_', name)
+    return ident[0].upper() + ident[1:]
+
+
+class SqlModel:
+    """What the catalog and the jar state about the SQL surface, indexed once."""
+
+    def __init__(self, cat, jmeos, pkg=SQL_PKG, engine='flink'):
+        self.cat = cat
+        # The Java package of the generated surface, where its value types live, and the engine
+        # whose spellings of a SQL type, an array type and a row the overloads take.
+        self.pkg = pkg
+        self.engine = engine
+        self.jmeos = jmeos
+        self.fns = cat['functions']
+        self.by_name = {f['name']: f for f in self.fns}
+        # The catalog struct layouts, under #struct_layout of codegen_spark_udfs.py, the rule the
+        # Spark arm sizes them by: the rows of a set-returning signature and a contiguous array
+        # of structs (#_array_arg) read them, on both engines.
+        spark = _spark_module()
+        spark.STRUCTS.update({s['name']: s for s in cat.get('structs') or []})
+        self.layout = lambda name: (spark.struct_layout(name)  # noqa: E731
+                                    if name in spark.STRUCTS else None)
+        self.enc = cat.get('typeEncodings', {})
+        self.enums = {e['name'] for e in cat.get('enums', [])}
+        # The value of each macro and enum member a wrapper binds by name.
+        self.consts = {x['name']: x['value'] for x in cat.get('macros', [])
+                       if isinstance(x.get('value'), (int, float))}
+        self.consts.update({v['name']: v['value'] for e in cat.get('enums', [])
+                            for v in e.get('values') or []
+                            if isinstance(v, dict) and isinstance(v.get('value'), int)})
+        # The subtypes the object model's subtype axis lists (TInstant, TSequence, TSequenceSet),
+        # each a Temporal, as #derive_codecs of codegen_spark_udfs.py reads them.
+        axis = ((cat.get('objectModel') or {}).get('axes') or {}).get('subtype') or {}
+        self.subtype_of = {v['class']: 'Temporal' for v in axis.get('values') or []
+                           if v.get('class') and v['class'] != 'Temporal'}
+        self._align()
+        self._codecs()
+        self._enum_parsers()
+        self._struct_rows()
+
+    def datatype(self, cls):
+        """The engine's SQL type expression for the Java class `cls`."""
+        return _spark_datatype(self, cls) if self.engine == 'spark' else _datatype(cls)
+
+    def array_type(self, elem):
+        """The engine's SQL type expression for an array of the type expression `elem`."""
+        return (f'DataTypes.createArrayType({elem})' if self.engine == 'spark'
+                else f'DataTypes.ARRAY({elem})')
+
+    def row_type(self, fields):
+        """The engine's SQL type expression for a row of the named type expressions."""
+        if self.engine == 'spark':
+            return ('DataTypes.createStructType(new org.apache.spark.sql.types.StructField[] {'
+                    + ', '.join(f'DataTypes.createStructField("{n}", {t}, true)' for n, t in fields)
+                    + '})')
+        return 'DataTypes.ROW(' + ', '.join(f'DataTypes.FIELD("{n}", {t})' for n, t in fields) + ')'
+
+    def _struct_rows(self):
+        """The SQL types the surface carries as a row of the fields of a structure, as
+        #_agg_result answers an aggregate's: a SQL type standing for a structure of the catalog's
+        `structs` that states no encoding and whose fields are all scalars (_STRUCT_FIELD), as
+        PostGIS's summarystats is the row of the BandStats a raster summary answers.
+        {SQL type: [(field, engine class, read off `p`, offset in bytes, C type)]}, each type's
+        engine row type entered in _ROW_DATATYPE under its #_flink_class string."""
+        structs = {s['name']: s for s in self.cat.get('structs') or []}
+        self.struct_row = {}
+        for sql, cb in self.sql_cbase.items():
+            st = structs.get(cb)
+            if sql in self.codec or cb in self.enc or not st or not st.get('fields') \
+                    or any(f.get('cType') not in _STRUCT_FIELD for f in st['fields']):
+                continue
+            self.struct_row[sql] = [(f['name'],) + _STRUCT_FIELD[f['cType']]
+                                    + (f['offset_bits'] // 8, f['cType']) for f in st['fields']]
+            _ROW_DATATYPE[f'{self.row_class}#{sql}'] = self.row_type(
+                [(n, self.datatype(c)) for n, c, *_ in self.struct_row[sql]])
+
+    def row_field(self, row, i):
+        """The engine's Java read of field i of the row `row`."""
+        return f'{row}.get({i})' if self.engine == 'spark' else f'{row}.getField({i})'
+
+    @property
+    def row_class(self):
+        """The engine's Java class of a row."""
+        return 'org.apache.spark.sql.Row' if self.engine == 'spark' else 'org.apache.flink.types.Row'
+
+    @property
+    def row_of(self):
+        """The engine's Java factory of a row from its fields."""
+        return ('org.apache.spark.sql.RowFactory.create' if self.engine == 'spark'
+                else 'org.apache.flink.types.Row.of')
+
+    def visible(self, f):
+        """(the C parameters a SQL argument or a bound literal stands for, the out-parameters).
+        The length of a byte array (shape.inputArrays over uint8_t) is neither: the jar folds
+        the array and its length into one byte[] (span_from_wkb(byte[])), which a SQL bytea
+        stands for, as #_inputs passes the count of any other input array itself."""
+        outs = set((f.get('shape') or {}).get('outParams') or [])
+        folded = set(_byte_arrays(f).values())
+        return [p for p in f['params'] if p['name'] not in outs and p['name'] not in folded], \
+               [p for p in f['params'] if p['name'] in outs]
+
+    def signatures(self, f):
+        """(name, args, ret, argDefaults, boundArgs) for every SQL signature of f, where
+        boundArgs are the literals the wrapper passes for the C parameters the signature
+        does not state: those of the whole function and those of the signature. The name is
+        the signature's altSqlName where the catalog states one, the name Spark and Flink
+        publish where the engine owns the PostgreSQL one (`floatRound` for `round(tfloat,
+        integer)`), else its sqlName, else the function's sqlfn: the name the catalog states
+        for these engines wins over the bare one, as #_catalog_aggregates takes the catalog's
+        own `Agg` name of an aggregate. A type carries no modifier: CREATE FUNCTION discards
+        it, so `startValue(tgeompoint)`, declared to return geometry(Point), returns a
+        geometry (#_deployed_type). The parameter stating that an argument is given takes
+        the value the catalog's presentBinds states for it, `has_nodata` true beside the
+        nodata value `reclass` passes, so the argument pairs with its value alone; the call
+        leaving the argument out binds both as #_null_default_signatures reads them."""
+        fbound = (f.get('shape') or {}).get('boundArgs') or {}
+        for s in f.get('sqlSignatures') or []:
+            ret = s.get('ret')
+            present = {p: v for binds in (s.get('presentBinds') or {}).values()
+                       for p, v in binds.items()}
+            yield (s.get('altSqlName') or s.get('sqlName') or f['sqlfn'],
+                   [_deployed_type(a) for a in s.get('args') or []],
+                   _deployed_type(ret) if ret else ret,
+                   s.get('argDefaults') or [],
+                   {**fbound, **(s.get('boundArgs') or {}), **present})
+
+    def _align(self):
+        """The C base type each SQL type stands for, read off the signatures that
+        pair it with a single C value: a parameter that is one pointer, or the return
+        of a function with no out-parameters.  A pointer to pointers, or a return that
+        an out-parameter counts, is an array, and the SQL type opposite it is an array
+        or a record, not a value.
+
+        The SQL arguments pair with the visible C parameters as #_inputs pairs them:
+        a parameter the signature's wrapper binds, and the count of an input array,
+        stand for no SQL argument, and the catalog's sqlArgParams, where stated, gives
+        the order the wrapper reads them in."""
+        seen = defaultdict(lambda: defaultdict(int))
+        byvalue = set()
+        for f in self.fns:
+            if not f.get('sqlfn'):
+                continue
+            vis, outs = self.visible(f)
+            counts = {(a.get('lengthFrom') or {}).get('name')
+                      for a in (f.get('shape') or {}).get('inputArrays') or []}
+            for (_, args, ret, _, bound), sig in zip(self.signatures(f),
+                                                     f.get('sqlSignatures') or []):
+                walk = [p for p in vis if p['name'] not in bound and p['name'] not in counts]
+                order = sig.get('sqlArgParams') or (f.get('shape') or {}).get('sqlArgParams')
+                at = {p['name']: p for p in walk}
+                if order and set(order) == set(at):
+                    walk = [at[n] for n in order]
+                if len(args) == len(walk):
+                    for a, p in zip(args, walk):
+                        if _single_pointer(p['canonical']):
+                            seen[a][_base(p['canonical'])] += 1
+                        elif p.get('typedef') in self.enc:
+                            seen[a][p['typedef']] += 1
+                            byvalue.add(p['typedef'])
+                rt = f['returnType']
+                rc = rt['canonical']
+                if ret and not outs and _single_pointer(rc) and _norm(rc) != 'char *':
+                    seen[ret][_base(rc)] += 1
+                elif ret and not outs and rt.get('typedef') in self.enc:
+                    seen[ret][rt['typedef']] += 1
+                    byvalue.add(rt['typedef'])
+        self.sql_cbase = {s: max(c, key=c.get) for s, c in seen.items()
+                          if re.fullmatch(r'\w+', s)}
+        # The SQL types whose C value travels by value, a typedef the catalog encodes (the
+        # H3Index, Quadbin and S2CellId cells), which the jar passes as the integer it is.
+        self.sql_byvalue = {s for s, cb in self.sql_cbase.items() if cb in byvalue}
+
+    def _codecs(self):
+        """Value types and the codec each crosses Flink with.
+
+        The WKB bytes where the catalog states the byte codec of the C type, and its
+        hex WKB where it states a WKB decoder and an asHexWKB encoder: a C type has one
+        WKB reader, so one codec serves every SQL type the C type stands for.  The hex
+        WKB of a SQL type where the catalog keys a WKB reader by it among the readers of a
+        C type several SQL types share (geometry: geom_from_hexewkb, geography:
+        geog_from_hexewkb), written by the C type's WKB encoder with the inputs the catalog
+        states for it.  Text otherwise, and only for a C type a single SQL type stands for,
+        since a text decoder cannot tell those SQL types apart.  The Spark generator chooses
+        by the same rule (#derive_codecs in codegen_spark_udfs.py).
+
+        The hex WKB is the catalog's `hexwkb` encoding, or its `hexewkb` where the C type
+        states no `hexwkb` (geometry and geography); its `wkb` is the binary WKB, which a hex
+        string cannot be read with (HEX_WKB_ENCODINGS)."""
+        hexwkb = {}
+        for f in self.fns:
+            if f.get('sqlfn') == 'asHexWKB' and f['params'] and f['name'] in self.jmeos:
+                hexwkb.setdefault(_base(f['params'][0]['canonical']), f['name'])
+        by_cbase = defaultdict(set)
+        for s, cb in self.sql_cbase.items():
+            by_cbase[cb].add(s)
+        self.codec = {}
+        for sql, cb in self.sql_cbase.items():
+            if sql in SQL_SCALAR or sql == 'internal':
+                continue
+            e = self.enc.get(cb) or {}
+            dec = (e.get('decoders') or {})
+            encd = (e.get('encoders') or {})
+            byt = (e.get('bytes') or {})
+            if byt.get('decoder') in self.jmeos and byt.get('encoder') in self.jmeos:
+                self.codec[sql] = ('bytes', byt['decoder'], byt['encoder'], [], [])
+            elif dec.get('hexwkb') in self.jmeos and cb in hexwkb:
+                self.codec[sql] = ('wkb', dec['hexwkb'], hexwkb[cb], [], [])
+            elif (k := next((k for k in HEX_WKB_ENCODINGS
+                             if ((e.get('readers') or {}).get(k) or {}).get(sql) in self.jmeos
+                             and encd.get(k) in self.jmeos), None)):
+                self.codec[sql] = ('wkb', e['readers'][k][sql], encd[k],
+                                   e['readerAux'][k][sql], e['encoderAux'][k])
+            elif len(by_cbase[cb]) == 1 and dec.get('text') in self.jmeos \
+                    and encd.get('text') in self.jmeos:
+                self.codec[sql] = ('text', dec['text'], encd['text'],
+                                   e.get('in_aux') or [], e.get('out_aux') or [])
+        # The memory image a value type carries in the place of its codec's form, where the
+        # catalog states one for its C type (typeEncodings[C].image): the function copying a
+        # value from its image, and the function answering the image's length or, for a
+        # fixed-size structure, the bytes it is laid out in. A cell travels by value and a C
+        # type stating no image keeps its codec, so the codec keeps the user-facing forms.
+        self.image = {}
+        for sql in self.codec:
+            im = (self.enc.get(self.sql_cbase[sql]) or {}).get('image') or {}
+            if sql not in self.sql_byvalue and im.get('copy') in self.jmeos \
+                    and (im.get('size') in self.jmeos or isinstance(im.get('sizeBytes'), int)):
+                self.image[sql] = im
+        om = {k.lower(): k for k in (self.cat.get('objectModel') or {}).get('classes', {})}
+        self.value_class = {}
+        taken = set()
+        for sql in sorted(self.codec):
+            cls = om.get(sql, _javaid(sql))
+            while cls in taken:
+                cls += '_'
+            taken.add(cls)
+            self.value_class[sql] = cls
+
+    def _enum_parsers(self):
+        """For each C enum, the public catalog function reading it from its name, as a binding
+        calls the public API alone; the Spark arm reads the same (ENUM_PARSER in
+        codegen_spark_udfs.py)."""
+        self.enum_parser = {}
+        readers = defaultdict(list)
+        for f in self.fns:
+            rt = _norm(f['returnType']['canonical'])
+            ps = f['params']
+            if len(ps) == 1 and _norm(ps[0]['canonical']) == 'char *' and '*' not in rt \
+                    and f.get('api') == 'public' and f['name'] in self.jmeos:
+                readers[rt].append(f['name'])
+        for rt, names in readers.items():
+            # An enum is read from its name; so is a by-value C type no SQL scalar carries and
+            # one public function reads from a string, which the SQL text stands for: the WKB
+            # variant every writer takes, read from its endian by wkb_variant_from_endian.
+            if rt in self.enums or (len(names) == 1 and rt not in _SQL_SCALAR_C):
+                self.enum_parser[rt] = names[0]
+
+
+def _default_literal(sql, lit):
+    """The Java literal for a SQL default, or None when it is not a plain constant."""
+    if lit is None:
+        return None
+    v = lit.strip()
+    if v.startswith("'") and v.endswith("'"):
+        v = v[1:-1]
+        if sql in ('text', 'cstring'):
+            return json.dumps(v)
+    try:
+        if sql in ('integer', 'smallint'):
+            return str(int(v))
+        if sql == 'bigint':
+            return str(int(v)) + 'L'
+        if sql in ('float', 'double precision'):
+            return repr(float(v))
+    except ValueError:
+        return None
+    if sql == 'boolean' and v.lower() in ('true', 'false'):
+        return v.lower()
+    return None
+
+
+def _arg(m, sql, p, jt, name, temps):
+    """Java expression passing Flink argument `name` to a jar parameter, or None."""
+    c = _norm(p['canonical'])
+    b = _base(p['canonical'])
+    if sql in m.codec and sql in m.sql_byvalue and jt == 'long':
+        # A cell the jar passes as its integer: nothing to free.
+        return f'{name}.decode()'
+    if sql in m.codec and jt == 'jnr.ffi.Pointer':
+        t = f'_p{len(temps)}'
+        temps.append((t, f'{name}.decode()', 'value'))
+        return t
+    if sql == 'interval' and jt == 'jnr.ffi.Pointer' and b == 'Interval':
+        t = f'_p{len(temps)}'
+        temps.append((t, f'MeosSqlRuntime.interval({name})', 'value'))
+        return t
+    if sql in m.struct_row and jt == 'jnr.ffi.Pointer' and b == m.sql_cbase[sql]:
+        # A row of the fields of a structure (#SqlModel._struct_rows), laid out in memory the
+        # garbage collector releases, as MeosSqlRuntime.ints lays out an array of integers.
+        fields = m.struct_row[sql]
+        size = (m.layout(b) or (None,))[0]
+        if not size:
+            return None
+        offs = ', '.join(f'{o}L' for *_, o, _ in fields)
+        kinds = ''.join(_STRUCT_PUT[c] for *_, c in fields)
+        vals = ', '.join(m.row_field(name, i) for i in range(len(fields)))
+        t = f'_p{len(temps)}'
+        temps.append((t, f'MeosSqlRuntime.struct({size}, new long[] {{{offs}}}, "{kinds}", '
+                         f'new Object[] {{{vals}}})', 'buffer'))
+        return t
+    if sql == 'boolean' and jt == 'boolean':
+        return name
+    if sql == 'bytea' and jt == 'byte[]' and b == 'uint8_t':
+        # The WKB a reader takes, which the jar copies with its length (#_byte_arrays).
+        return name
+    if sql in ('integer', 'smallint') and jt in ('int', 'short', 'byte'):
+        return name if jt == 'int' else f'({jt}) (int) {name}'
+    if sql in ('integer', 'bigint') and jt == 'long':
+        return f'(long) {name}'
+    if sql in ('float', 'double precision') and jt == 'double':
+        return name
+    if sql in ('text', 'cstring') and jt == 'java.lang.String' and c == 'char *':
+        return name
+    if sql == 'text' and jt == 'jnr.ffi.Pointer' and c == 'text *' and 'text_in' in m.jmeos:
+        # A text MEOS reads, built by text_in and freed after the call, as a text it returns
+        # is read by text_out (#_ret).
+        t = f'_p{len(temps)}'
+        temps.append((t, f'GeneratedFunctions.text_in({name})', 'value'))
+        return t
+    if sql in ('text', 'cstring') and jt in ('int', 'byte') and c in m.enum_parser:
+        return f'GeneratedFunctions.{m.enum_parser[c]}({name})'
+    if sql == 'timestamptz' and jt == 'java.time.OffsetDateTime':
+        return f'{name}.atOffset(java.time.ZoneOffset.UTC)'
+    if sql == 'date' and jt == 'int' and c == 'DateADT':
+        return f'MeosSqlRuntime.dateAdt({name})'
+    return None
+
+
+# The by-value guards a PG wrapper returns NULL on, as the catalog states them
+# (`shape.nullableResult`, read from the wrapper's `if (<guard>) PG_RETURN_NULL();`), each as the
+# Java test of `_r`. No JMEOS generator read the field before; this is the map MobilityDuck's
+# generator keeps as SCALAR_NULL_GUARD, beside the three-valued branch of #_ret. The distance
+# sentinel of distance_sentinel is the maximum of the type the C function answers in.
+_SENTINEL_GUARD = {'if (result == DBL_MAX)': 'max',
+                   'if (datum_eq(result, distance_sentinel(basetype), basetype))': 'max',
+                   'if (result < 0)': 'neg'}
+_JAVA_MAX = {'int': 'Integer.MAX_VALUE', 'long': 'Long.MAX_VALUE', 'double': 'Double.MAX_VALUE'}
+
+
+def _null_guard(f, jt):
+    """The statement returning NULL where the PG wrapper does for a by-value result, or None; the
+    statements are those #_ret returns."""
+    kind = _SENTINEL_GUARD.get((f.get('shape') or {}).get('nullableResult'))
+    if kind == 'max' and jt in _JAVA_MAX:
+        return [f'if (_r == {_JAVA_MAX[jt]}) return null;']
+    if kind == 'neg' and jt in ('int', 'long', 'short'):
+        return ['if (_r < 0) return null;']
+    return None
+
+
+def _ret(m, sql, f, jt, outs):
+    """(Flink return class, statements turning `_r` into the result), or None."""
+    rc = _norm(f['returnType']['canonical'])
+    vc = m.value_class.get(sql)
+    if outs:
+        # A bool+result wrapper hands back the buffer the out-parameter was written to,
+        # or null when MEOS wrote nothing.
+        if len(outs) != 1 or rc != 'bool' or jt != 'jnr.ffi.Pointer':
+            return None
+        oc = _norm(outs[0]['canonical'])
+        if vc and oc == f'{m.sql_cbase.get(sql)} **':
+            # A value out-parameter: the jar dereferences the buffer and returns the value
+            # MEOS allocated (geoset_value_n copies the element), carried as a returned value is.
+            return (f'{m.pkg}.types.{vc}',
+                    ['if (_r == null) return null;',
+                     f'try {{ return {m.pkg}.types.{vc}.encode(_r); }}',
+                     'finally { MeosSqlRuntime.freeResult(_r, _in); }'])
+        if sql == 'text' and oc == 'text **' and 'text_out' in m.jmeos:
+            # A text out-parameter: the jar dereferences the buffer and returns the text MEOS
+            # allocated, read into a String through text_out as a returned text is.
+            return ('String',
+                    ['if (_r == null) return null;',
+                     'try { return GeneratedFunctions.text_out(_r); }',
+                     'finally { MeosSqlRuntime.freeResult(_r, _in); }'])
+        read = {('integer', 'int *'): ('Integer', '_r.getInt(0)'),
+                ('float', 'double *'): ('Double', '_r.getDouble(0)'),
+                ('bigint', 'int64 *'): ('Long', '_r.getLongLong(0)'),
+                ('bigint', 'int64_t *'): ('Long', '_r.getLongLong(0)'),
+                ('boolean', 'bool *'): ('Boolean', '_r.getByte(0) != 0'),
+                ('timestamptz', 'TimestampTz *'):
+                    ('java.time.Instant', 'MeosSqlRuntime.timestamptz(_r.getLongLong(0))'),
+                ('date', 'DateADT *'): ('java.time.LocalDate', 'MeosSqlRuntime.date(_r.getInt(0))')}
+        r = read.get((sql, oc))
+        if not r and vc and sql in m.sql_byvalue and oc == 'uint64_t *':
+            # A cell written through its out-parameter, carried as a returned cell is.
+            r = (f'{m.pkg}.types.{vc}', f'{m.pkg}.types.{vc}.encode(_r.getLongLong(0))')
+        if not r:
+            return None
+        return r[0], [f'return _r == null ? null : {r[1]};']
+    if vc and sql in m.sql_byvalue and jt == 'long':
+        # A cell the jar returns as its integer: nothing to free.
+        return f'{m.pkg}.types.{vc}', [f'return {m.pkg}.types.{vc}.encode(_r);']
+    if vc and jt == 'jnr.ffi.Pointer':
+        return (f'{m.pkg}.types.{vc}',
+                ['if (_r == null) return null;',
+                 f'try {{ return {m.pkg}.types.{vc}.encode(_r); }}',
+                 'finally { MeosSqlRuntime.freeResult(_r, _in); }'])
+    if sql in m.struct_row and jt == 'jnr.ffi.Pointer' and _base(rc) == m.sql_cbase[sql]:
+        # A structure MEOS allocated, read into a row of its fields as #_agg_result reads the
+        # one a final answers, and freed after; none, the row of a structure counting nothing
+        # (#_empty_row).
+        reads = ', '.join(read.format(o=o) for _, _, read, o, _ in m.struct_row[sql])
+        empty = _empty_row(m.row_of, [c for *_, c in m.struct_row[sql]])
+        return (f'{m.row_class}#{sql}',
+                [f'if (_r == null) return {empty or "null"};',
+                 f'try {{ Pointer p = _r; return {m.row_of}({reads}); }}',
+                 'finally { MeosSqlRuntime.freeResult(_r, _in); }'])
+    if sql in ('text', 'cstring') and jt == 'jnr.ffi.Pointer' and rc == 'text *' \
+            and 'text_out' in m.jmeos:
+        # A text MEOS allocates, read into a String through text_out and freed after, as the
+        # Spark arm reads it (#ret_emit in codegen_spark_udfs.py).
+        return ('String',
+                ['if (_r == null) return null;',
+                 'try { return GeneratedFunctions.text_out(_r); }',
+                 'finally { MeosSqlRuntime.freeResult(_r, _in); }'])
+    if sql == 'bytea' and jt == 'byte[]':
+        # The WKB a writer returns, which the jar copies out of the buffer MEOS allocated and
+        # frees, its length read from the size out-parameter.
+        return 'byte[]', ['return _r;']
+    if sql == 'interval' and jt == 'jnr.ffi.Pointer':
+        return ('java.time.Duration',
+                ['if (_r == null) return null;',
+                 'try { return MeosSqlRuntime.duration(_r); }',
+                 'finally { MeosSqlRuntime.freeResult(_r, _in); }'])
+    if sql == 'boolean' and jt == 'boolean':
+        return 'Boolean', ['return _r;']
+    if sql == 'boolean' and jt == 'int':
+        # Three-valued: negative is undefined and reads as NULL.
+        return 'Boolean', ['return _r < 0 ? null : _r != 0;']
+    guard = _null_guard(f, jt) or []
+    if sql in ('integer', 'smallint') and jt in ('int', 'short'):
+        return 'Integer', guard + ['return (int) _r;']
+    if sql == 'bigint' and jt in ('long', 'int'):
+        return 'Long', guard + ['return (long) _r;']
+    if sql in ('float', 'double precision') and jt == 'double':
+        return 'Double', guard + ['return _r;']
+    if sql in ('float', 'double precision') and jt in ('int', 'long'):
+        # A distance MEOS answers in an integer type, which the wrapper returns as the float
+        # its SQL signature states (distance_double).
+        return 'Double', guard + ['return (double) _r;']
+    if sql in ('text', 'cstring') and jt == 'java.lang.String':
+        return 'String', ['return _r;']
+    if sql == 'timestamptz' and jt == 'java.time.OffsetDateTime':
+        return 'java.time.Instant', ['return _r == null ? null : _r.toInstant();']
+    if sql == 'date' and jt == 'int' and rc == 'DateADT':
+        return 'java.time.LocalDate', ['return MeosSqlRuntime.date(_r);']
+    return None
+
+
+def _flink_class(m, sql):
+    # A row of the fields of a structure is the engine's row class, as #_agg_result answers one,
+    # tagged with its SQL type for #_datatype.
+    if sql in m.value_class:
+        return f'{m.pkg}.types.{m.value_class[sql]}'
+    if sql in m.struct_row:
+        return f'{m.row_class}#{sql}'
+    return SQL_SCALAR.get(sql)
+
+
+def _byte_arrays(f):
+    """{byte array parameter: its length parameter} over the shape.inputArrays of `f` whose
+    element is uint8_t, the WKB a reader takes (span_from_wkb(wkb, size)), which the jar folds
+    into one byte[]; every other input array is passed by #_array_arg."""
+    return {a['param']: (a.get('lengthFrom') or {}).get('name')
+            for a in (f.get('shape') or {}).get('inputArrays') or []
+            if _base((a.get('element') or {}).get('canonical')) == 'uint8_t'
+            and (a.get('lengthFrom') or {}).get('kind') == 'param'}
+
+
+def _array_arg(m, elem, a, p, jt, name, temps):
+    """(Flink class, Java expression) passing the SQL array `name` of `elem` to the jar
+    parameter shape.inputArrays pairs it with (entry `a`), or None.
+
+    An array of MEOS values reaches MEOS as a C array of the pointers its elements decode
+    to, released after the call as MobilityDuck's ListToTemporalArr and FreeTemporalArr
+    release them: MEOS copies what it keeps of an array.  An array of scalars reaches it as
+    the contiguous C array it reads."""
+    if jt != 'jnr.ffi.Pointer':
+        return None
+    c = _norm(p['canonical'])
+    el = a['element']
+    t = f'_p{len(temps)}'
+    if elem in m.value_class and c.count('*') == 2 \
+            and m.sql_cbase.get(elem) in (_base(el['canonical']),
+                                          m.subtype_of.get(_base(el['canonical']))):
+        cls = f'{m.pkg}.types.{m.value_class[elem]}'
+        temps.append((t, f'{name}, {cls}::decode', 'values'))
+        return f'{cls}[]', t
+    # A contiguous array of structs (spanset_make reads Span *spans): each element decodes as
+    # above and its bytes are copied into the C array, each the size #struct_layout of
+    # codegen_spark_udfs.py gives the catalog struct.
+    lay = m.layout(_base(el['canonical'])) if c.count('*') == 1 else None
+    if elem in m.value_class and lay is not None \
+            and m.sql_cbase.get(elem) == _base(el['canonical']):
+        cls = f'{m.pkg}.types.{m.value_class[elem]}'
+        temps.append((t, f'{name}, {cls}::decode, {lay[0]}', 'structs'))
+        return f'{cls}[]', t
+    # A text array reaches MEOS as the C array of the text values text_in builds (text **),
+    # each released after the call as a text argument is (#_arg).
+    if elem == 'text' and c == 'text **' and 'text_in' in m.jmeos:
+        temps.append((t, name, 'texts'))
+        return 'String[]', t
+    # A cell travels by value, so an array of cells is the contiguous 64-bit integers MEOS
+    # reads (uint64_t *), each the integer a cell argument passes (#_arg).
+    if elem in m.value_class and elem in m.sql_byvalue and c.count('*') == 1 \
+            and _base(el['canonical']) == 'uint64_t':
+        cls = f'{m.pkg}.types.{m.value_class[elem]}'
+        temps.append((t, f'MeosSqlRuntime.longs(java.util.Arrays.stream({name})'
+                         f'.map(v -> v == null ? null : v.decode()).toArray(Long[]::new))', 'buffer'))
+        return f'{cls}[]', t
+    hit = SQL_ARRAY_SCALAR.get((elem, _base(el['c']))) \
+        or SQL_ARRAY_SCALAR.get((elem, _base(el['canonical'])))
+    if hit and c.count('*') == 1:
+        temps.append((t, f'MeosSqlRuntime.{hit[1]}({name})', 'buffer'))
+        return f'{hit[0]}[]', t
+    return None
+
+
+def _bound_literal(m, v, jt):
+    """The Java literal passing the value a wrapper binds (boundArgs) to a jar parameter of
+    type `jt`, or None.  A macro or enum member name stands for its catalog value, which the
+    catalog states as JSON: NORMALIZE is the boolean true."""
+    v = m.consts.get(v, v)
+    if isinstance(v, bool):
+        v = 'true' if v else 'false'
+    if v in ('true', 'false'):
+        return v if jt == 'boolean' else None
+    if v == 'NULL':
+        # Java takes null for every reference type, a pointer or a string alike, and for
+        # none of its eight primitive types
+        return None if jt in ('boolean', 'byte', 'char', 'short', 'int', 'long', 'float',
+                              'double') else 'null'
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return None
+    if jt == 'double':
+        return repr(x)
+    if x != int(x):
+        return None
+    if jt == 'int':
+        return str(int(x))
+    if jt == 'long':
+        return f'{int(x)}L'
+    if jt in ('short', 'byte'):
+        return f'({jt}) {int(x)}'
+    return None
+
+
+def _overload(m, f, args, ret, jsig, bound=None, order=None):
+    """The eval of one signature returning one value, or (None, reason): the arguments
+    #_inputs passes and the result #_ret reads, as (params, temps, Flink return class, body,
+    Flink return type)."""
+    vis, outs = m.visible(f)
+    outs = [p for p in outs if _norm(p['canonical']) != 'size_t *']
+    if len(jsig['arg_types']) != len(vis):
+        return None, 'arity:jmeos'
+    got, why = _inputs(m, f, args, jsig['arg_types'], bound, order)
+    if got is None:
+        return None, why
+    params, call, temps = got
+    r = _ret(m, ret, f, jsig['ret'], outs)
+    if r is None:
+        return None, f'ret:{ret}/{_norm(f["returnType"]["canonical"])}'
+    rcls, rstmts = r
+    body = [f'{_jshort(jsig["ret"])} _r = GeneratedFunctions.{f["name"]}({", ".join(call)});']
+    return (params, temps, rcls, body + rstmts, m.datatype(rcls)), None
+
+
+def _inputs(m, f, args, jtypes, bound=None, order=None):
+    """((params, call, temps), None) passing the SQL arguments `args` of a signature of `f` to
+    its visible C parameters, whose jar types are `jtypes`, or (None, reason).
+
+    The SQL arguments pair with the visible C parameters in order, except that a SQL array
+    stands for the C array shape.inputArrays names together with the count its lengthFrom
+    names, which the eval passes as the length of the Flink array, and that a parameter
+    the signature's wrapper binds (`bound`, from boundArgs) takes that literal: a count
+    takes it with its array (raster_clip's first signature binds bands to NULL and nbands
+    to 0)."""
+    vis, _ = m.visible(f)
+    jsig = {'arg_types': jtypes}
+    nullable = set((f.get('shape') or {}).get('nullable') or ())
+    folded = _byte_arrays(f)
+    arrays = {a['param']: a for a in (f.get('shape') or {}).get('inputArrays') or []
+              if a['param'] not in folded}
+    counts = {}
+    for a in arrays.values():
+        lf = a.get('lengthFrom') or {}
+        if lf.get('kind') != 'param' or lf.get('name') not in {p['name'] for p in vis}:
+            return None, 'array:length'
+        counts[lf['name']] = a['param']
+    raw = bound or {}
+    bound = {k: v for k, v in raw.items()
+             if k in {p['name'] for p in vis} and (k not in counts or counts[k] in raw)}
+    walk = [i for i, p in enumerate(vis) if p['name'] not in counts and p['name'] not in bound]
+    if order:
+        # The catalog's sqlArgParams: the C parameters in the order the wrapper reads the SQL
+        # arguments for them, where that is not their C order (tsequence_make takes the
+        # interpolation last, tgeogpointSeq reads it second).
+        at = {p['name']: i for i, p in enumerate(vis)}
+        if set(order) <= set(at) and sorted(at[n] for n in order) == walk:
+            walk = [at[n] for n in order]
+    if len(args) != len(walk):
+        return None, 'arity:sql'
+    params, temps, passed = [], [], {}
+    call = [None] * len(vis)
+    for i, p in enumerate(vis):
+        if p['name'] in bound:
+            call[i] = _bound_literal(m, bound[p['name']], jsig['arg_types'][i])
+            if call[i] is None:
+                return None, f'bound:{bound[p["name"]]}/{jsig["arg_types"][i]}'
+    for k, (i, sql) in enumerate(zip(walk, args)):
+        p, jt, name = vis[i], jsig['arg_types'][i], f'a{k}'
+        if sql.endswith('[]') != (p['name'] in arrays):
+            return None, f'array:{sql}/{_norm(p["canonical"])}'
+        if p['name'] in arrays:
+            r = _array_arg(m, sql[:-2], arrays[p['name']], p, jt, name, temps)
+            if r is None:
+                return None, f'arrayarg:{sql}/{_norm(p["canonical"])}'
+            fc, e = r
+        else:
+            fc = _flink_class(m, sql)
+            if fc is None:
+                return None, f'sqltype:{sql}'
+            e = _arg(m, sql, p, jt, name, temps)
+            if e is None:
+                return None, f'arg:{sql}/{_norm(p["canonical"])}'
+            # A parameter MEOS takes NULL for (`shape.nullable`) is passed NULL for a NULL
+            # argument, as the wrapper passes it (jsonbSetLax's value), rather than answering
+            # NULL: its temp is of kind `nullable:<argument>`, read as a value by #_emit_eval
+            if (p['name'] in nullable and temps and temps[-1][0] == e
+                    and temps[-1][2] == 'value'):
+                temps[-1] = (e, f'{name} == null ? null : {temps[-1][1]}', f'nullable:{name}')
+        params.append((fc, name))
+        call[i] = e
+        passed[p['name']] = name
+    for i, p in enumerate(vis):
+        if p['name'] in counts and p['name'] not in bound:
+            if jsig['arg_types'][i] not in ('int', 'long'):
+                return None, f'arraycount:{jsig["arg_types"][i]}'
+            call[i] = f'{passed[counts[p["name"]]]}.length'
+    return (params, call, temps), None
+
+
+def _emit_eval(ov, defaults=None):
+    """The Java eval of an overload, #_overload's or #_setret_overload's: the inputs #_inputs
+    decodes, released after the body runs, the body itself and the Flink return class."""
+    params, temps, rcls, body, _ = ov
+    shown = params if defaults is None else params[:len(params) - len(defaults)]
+    L = [f'    public {_jclass(rcls)} eval({", ".join(f"{_jclass(t)} {n}" for t, n in shown)}) {{']
+    # A NULL argument answers NULL, but for one MEOS takes NULL for (#_inputs)
+    # and the C array of an argument MEOS takes NULL for, of kind `nullablebuffer:<argument>`
+    # (#_input_shape_overload), is held as a buffer
+    nulls = {kind.split(':', 1)[1] for _, _, kind in temps
+             if kind.startswith(('nullable:', 'nullablebuffer:'))}
+    temps = [(t, e, 'value' if kind.startswith('nullable:') else
+              'buffer' if kind.startswith('nullablebuffer:') else kind) for t, e, kind in temps]
+    guard = [n for _, n in shown if n not in nulls]
+    if guard:
+        L.append(f'        if ({" || ".join(f"{n} == null" for n in guard)}) return null;')
+    # An argument left to its SQL default is that default, converted like any other.
+    for (t, n), lit in zip(params[len(shown):], defaults or []):
+        L.append(f'        {_jclass(t)} {n} = {lit};')
+    if all(kind == 'value' for _, _, kind in temps):
+        for t, e, _ in temps:
+            L.append(f'        Pointer {t} = {e};')
+        L.append(f'        Pointer[] _in = {{{", ".join(t for t, _, _ in temps)}}};')
+        L.append('        try {')
+        L += [f'            {s}' for s in body]
+        L.append('        } finally {')
+        L.append('            MeosSqlRuntime.free(_in);')
+    else:
+        # An array decodes element by element and a null element raises, so what the call
+        # takes is gathered as it is built, inside the try that releases it.
+        L.append('        MeosSqlRuntime.Inputs _in = new MeosSqlRuntime.Inputs();')
+        L.append('        try {')
+        for t, e, kind in temps:
+            v = {'value': f'_in.value({e})', 'values': f'_in.values({e})',
+                 'structs': f'_in.structs({e})', 'texts': f'_in.texts({e})',
+                 'buffer': f'_in.hold({e})'}[kind]
+            L.append(f'            Pointer {t} = {v};')
+        L += [f'            {s}' for s in body]
+        L.append('        } finally {')
+        L.append('            _in.free();')
+    L += ['        }', '    }', '']
+    return L
+
+
+# ── set-returning signatures: one Flink array element per SQL row ──
+# A SQL function returning a set of rows is a MEOS C function returning parallel arrays: its
+# result and its out-parameters, the row count in its `int *` count out-parameter. The catalog
+# names the C value behind each column of the row (sqlSignatures[].columns): `from` is
+# "return", an out-parameter or "ordinal" (the row's 1-based ordinality), `field` reads a
+# member of a struct element, and `element` with `offset` reads one member of a group of
+# shape.arrayReturn.groupSize values. The eval returns ARRAY<value> for a single unnamed
+# column and ARRAY<ROW<columns>> otherwise, which CROSS JOIN UNNEST unfolds into the rows, as
+# the Spark arm returns array<value> and array<struct> (#emit_setret in codegen_spark_udfs.py).
+
+# Contiguous scalar elements, keyed by C element type and SQL column type: the Flink class and
+# the Java read of element {i} of the array at {p}.
+SETRET_SCALAR = {
+    ('int', 'integer'): ('Integer', '{p}.getInt((long) {i} * 4L)'),
+    ('int32_t', 'integer'): ('Integer', '{p}.getInt((long) {i} * 4L)'),
+    ('uint32_t', 'integer'): ('Integer', '{p}.getInt((long) {i} * 4L)'),
+    ('int64', 'bigint'): ('Long', '{p}.getLongLong((long) {i} * 8L)'),
+    ('int64_t', 'bigint'): ('Long', '{p}.getLongLong((long) {i} * 8L)'),
+    ('double', 'float'): ('Double', '{p}.getDouble((long) {i} * 8L)'),
+    ('double', 'double precision'): ('Double', '{p}.getDouble((long) {i} * 8L)'),
+    ('bool', 'boolean'): ('Boolean', '({p}.getByte((long) {i}) != 0)'),
+    ('DateADT', 'date'): ('java.time.LocalDate',
+                          'MeosSqlRuntime.date({p}.getInt((long) {i} * 4L))'),
+    ('TimestampTz', 'timestamptz'): ('java.time.Instant',
+                                     'MeosSqlRuntime.timestamptz({p}.getLongLong((long) {i} * 8L))'),
+}
+
+# A field of a struct element read in an integer column beside those of SETRET_SCALAR: an
+# unsigned 32-bit count, which the wrapper returns as a 32-bit integer (the count of a
+# ValueCount). An array of uint32_t is not read so: geo_cluster_dbscan answers UINT32_MAX for a
+# noise point, which its wrapper turns into NULL.
+SETRET_FIELD = {
+    **SETRET_SCALAR,
+    ('uint32_t', 'integer'): ('Integer', '{p}.getInt((long) {i} * 4L)'),
+}
+
+
+def _setret_column(m, f, col, layout):
+    """How to read one column of a returned row, as #row_column in codegen_spark_udfs.py reads
+    it for Spark: (Flink class, source array, Java read of row `_i` from the array `{a}`,
+    whether each element is a MEOS allocation to free), or None when it cannot be read. The
+    last is (stride, offset) for a pointer field of a struct element, each a MEOS allocation
+    the wrapper frees before the array, as geomval_arr_free frees the geom of each GeomVal."""
+    sql, src = col.get('type'), col['from']
+    if src == 'ordinal':
+        return {'integer': ('Integer', None, '(_i + 1)', False),
+                'bigint': ('Long', None, '((long) _i + 1L)', False)}.get(sql)
+    if src == 'return':
+        arr = _norm(f['returnType']['canonical'])
+    else:
+        p = next((p for p in f['params'] if p['name'] == src), None)
+        if p is None or not _norm(p['canonical']).endswith('**'):
+            return None
+        arr = _norm(p['canonical'])[:-1].strip()
+    if not arr.endswith('*'):
+        return None
+    elem = arr[:-1].strip()
+    if 'element' in col:
+        group = ((f.get('shape') or {}).get('arrayReturn') or {}).get('groupSize')
+        hit = SETRET_SCALAR.get((elem, sql))
+        if src != 'return' or not group or not hit:
+            return None
+        read = hit[1].format(p='{a}', i=f'((long) _i * {group} + {col["element"]})')
+        off = col.get('offset') or 0
+        return hit[0], src, f'({read} + {off})' if off else read, False
+    if 'field' in col:
+        lay = layout(elem)
+        if lay is None or col['field'] not in lay[2]:
+            return None
+        off, ctype = lay[2][col['field']]
+        # The field as the catalog declares it, its const the layout normalizes away (the
+        # struct read as the generator reads the struct of a returned value)
+        declared = next((fd.get('cType') or '' for st in m.cat.get('structs') or []
+                         if st.get('name') == elem for fd in st.get('fields') or []
+                         if fd.get('name') == col['field']), '')
+        if _norm(ctype) == 'char *' and 'const' in declared and sql in ('text', 'cstring'):
+            # A constant string the element points at, as the names of geopose_frames' static
+            # table: read as the text it holds, NULL for a null pointer, and freed by nobody
+            return ('String', src, f'MeosSqlRuntime.cstring({{a}}.getPointer((long) _i * '
+                    f'{lay[0]}L + {off}L))', False)
+        if _norm(ctype).endswith('*'):                # a pointer field: a value of its own
+            b, vc = _norm(ctype)[:-1].strip(), m.value_class.get(sql)
+            if not vc or m.sql_cbase.get(sql) not in (b, m.subtype_of.get(b)):
+                return None
+            cls = f'{m.pkg}.types.{vc}'
+            return (cls, src, f'MeosSqlRuntime.orNull({{a}}.getPointer((long) _i * {lay[0]}L '
+                    f'+ {off}L), {cls}::encode)', (lay[0], off))
+        hit = SETRET_FIELD.get((ctype, sql))
+        if not hit:
+            return None
+        return hit[0], src, hit[1].format(p=f'{{a}}.slice((long) _i * {lay[0]}L + {off}L)',
+                                          i='0'), False
+    vc = m.value_class.get(sql)
+    if elem.endswith('*'):                            # an array of pointers
+        b = elem[:-1].strip()
+        if vc and m.sql_cbase.get(sql) in (b, m.subtype_of.get(b)):
+            return (f'{m.pkg}.types.{vc}', src,
+                    f'{m.pkg}.types.{vc}.encode(MeosSqlRuntime.at({{a}}, _i))', True)
+        if b == 'text' and sql == 'text' and 'text_out' in m.jmeos:
+            return ('String', src, 'GeneratedFunctions.text_out(MeosSqlRuntime.at({a}, _i))', True)
+        return None
+    hit = SETRET_SCALAR.get((elem, sql))
+    if hit:
+        return hit[0], src, hit[1].format(p='{a}', i='_i'), False
+    if vc and sql in m.sql_byvalue and elem == 'uint64_t':
+        # A cell travels by value: an array of cells is contiguous 64-bit integers, each
+        # carried as a returned cell is (#_ret).
+        return (f'{m.pkg}.types.{vc}', src,
+                f'{m.pkg}.types.{vc}.encode({{a}}.getLongLong((long) _i * 8L))', False)
+    lay = layout(elem) if vc and m.sql_cbase.get(sql) == elem else None
+    if lay is not None:                               # contiguous structs: STBox, TBox
+        return (f'{m.pkg}.types.{vc}', src,
+                f'{m.pkg}.types.{vc}.encode({{a}}.slice((long) _i * {lay[0]}L))', False)
+    return None
+
+
+def _free_each(r, cells):
+    """The Java freeing, once the rows are read, the MEOS allocation behind each of the _c rows
+    of the column reader `r` (#_setret_column): each pointer of an array of pointers, or the
+    pointer field of each struct element. `cells` names the out-parameter cell of each array."""
+    src = '_r' if r[1] == 'return' else f'{cells[r[1]]}.getPointer(0L)'
+    if r[3] is True:
+        return f'    MeosSqlRuntime.freeEach({src}, _c);'
+    return f'    MeosSqlRuntime.freeField({src}, _c, {r[3][0]}L, {r[3][1]}L);'
+
+
+def _signature_overload(m, f, sig, args, ret, jsig, bound, layout):
+    """(eval or None, reason, whether it answers an array of rows) for one signature of `f`.
+
+    A set-returning signature reads its rows (#_setret_overload). A signature returning one
+    value reads it (#_overload), and a signature returning a SQL array `X[]` that #_overload
+    refuses reads the elements as a set-returning signature of `X` reads its rows: the C
+    function answers the same array and writes its length through `int *count`, so
+    instants(ttype), declared to return ttypeInst[], answers the instants as an array."""
+    if sig.get('retSet'):
+        ov, why = _setret_overload(m, f, sig, jsig, bound, layout)
+        return ov, why, ov is not None
+    if sig.get('arrayShape') and ret and ret.endswith('[]'):
+        ov, why = _array_shape_overload(m, f, sig, jsig, bound)
+        return ov, why, False
+    if sig.get('inputShape'):
+        ov, why = _input_shape_overload(m, f, sig, ret, jsig, bound)
+        return ov, why, False
+    if sig.get('columns') and not (ret or '').endswith('[]'):
+        ov, why = _row_overload(m, f, sig, jsig, bound)
+        return ov, why, False
+    order =sig.get('sqlArgParams') or (f.get('shape') or {}).get('sqlArgParams')
+    ov, why = _overload(m, f, args, ret, jsig, bound, order)
+    if ov is None and ret and ret.endswith('[]'):
+        arr, awhy = _setret_overload(m, f, dict(sig, ret=ret[:-2]), jsig, bound, layout)
+        if arr is not None:
+            return arr, awhy, False
+    return ov, why, False
+
+
+def _default_variants(sargs, sdef, nparams, arity=None):
+    """The defaults each shorter call of a signature passes, as #_emit_eval takes them: None
+    for the call stating every argument, then the Java literals of the trailing SQL defaults
+    a call leaves out, one more each time, while each is a plain constant (#_default_literal).
+    An overload a NULL default derives (#_null_default_signatures) answers the call of
+    ``arity`` arguments alone, the prefix of the signature PostgreSQL accepts."""
+    defaults = (list(sdef) + [None] * len(sargs))[:len(sargs)]
+    variants = [None]
+    for k in range(1, len(sargs) + 1):
+        lits = [_default_literal(sargs[len(sargs) - k + j], defaults[len(sargs) - k + j])
+                for j in range(k)]
+        if any(x is None for x in lits):
+            break
+        variants.append(lits)
+    if arity is None:
+        return variants
+    return [dv for dv in variants if nparams - (len(dv) if dv else 0) == arity]
+
+
+def _null_default_signatures(sig, sargs, sdef, sbound):
+    """(arity, signature, args, defaults, boundArgs) for each shorter call of ``sig`` that
+    leaves an argument to a NULL default: that argument is no SQL argument of the call, and
+    the parameters it feeds take what the wrapper passes for it, the catalog's
+    ``nullDefaultBinds``. A call of ``arity`` arguments leaves every later argument to its
+    default; a literal one keeps its place, so #_default_variants passes it as it passes
+    any other, and a NULL one the catalog states no value for ends the shorter calls."""
+    nd = sig.get('nullDefaultBinds') or {}
+    defaults = (list(sdef) + [None] * len(sargs))[:len(sargs)]
+    order = sig.get('sqlArgParams')
+    out = []
+    for arity in range(len(sargs) - 1, -1, -1):
+        tail = range(arity, len(sargs))
+        if any(defaults[j] is None for j in tail):
+            break
+        nulls = [j for j in tail if defaults[j].strip().upper() == 'NULL']
+        if any(str(j) not in nd for j in nulls):
+            break
+        if not nulls:
+            continue
+        keep = [j for j in range(len(sargs)) if j not in nulls]
+        bound = dict(sbound)
+        for j in nulls:
+            bound.update(nd[str(j)])
+        dsig = dict(sig, args=[(sig.get('args') or sargs)[j] for j in keep],
+                    argDefaults=[defaults[j] for j in keep])
+        if order:
+            dsig['sqlArgParams'] = [order[j] for j in keep if j < len(order)]
+        out.append((arity, dsig, [sargs[j] for j in keep], [defaults[j] for j in keep],
+                    bound))
+    return out
+
+
+def _sql_overloads(m, cat, jmeos, layout, skipped, keep):
+    """Every overload a typed SQL surface registers, as (SQL name, SQL argument types,
+    argument defaults, eval or None, reason, whether it answers an array of rows): one per
+    signature of each catalog function `keep` admits (#_signature_overload), then one per
+    composition the catalog states (#_composition_overload), so both engines walk the same
+    list. A function absent from the jar is tallied in `skipped` as `not in jar`."""
+    for f in m.fns:
+        if not keep(f):
+            continue
+        jsig = jmeos.get(f['name'])
+        if jsig is None:
+            skipped['not in jar'] += 1
+            continue
+        for (sqlname, sargs, sret, sdef, sbound), sig in zip(m.signatures(f),
+                                                             f.get('sqlSignatures') or []):
+            ov, why, isset = _signature_overload(m, f, sig, sargs, sret, jsig, sbound, layout)
+            yield sqlname, sargs, sdef, ov, why, isset, None
+            # The shorter calls drop the left-out arguments from the order the SQL arguments
+            # take, which the catalog states for the signature or for the whole function
+            # (`raster(pixels, width, ...)` reads its pixels first)
+            order = sig.get('sqlArgParams') or (f.get('shape') or {}).get('sqlArgParams')
+            for arity, dsig, dargs, ddef, dbound in _null_default_signatures(
+                    dict(sig, sqlArgParams=order) if order else sig, sargs, sdef, sbound):
+                dov, _, disset = _signature_overload(m, f, dsig, dargs, sret, jsig, dbound,
+                                                     layout)
+                if dov is not None:
+                    yield sqlname, dargs, ddef, dov, None, disset, arity
+    for comp in cat.get('compositions') or []:
+        ov, why = _composition_overload(m, comp, jmeos, layout)
+        yield (comp['sqlName'], comp['args'], comp.get('argDefaults') or [], ov, why,
+               ov is not None and bool(comp.get('retSet')), None)
+
+
+def _composition_inputs(m, comp, jmeos, f):
+    """(params, the Java expression of each visible parameter of `f`, temps, raw), or
+    (None, reason): each argument operand of `comp` decoded as #_arg decodes an argument for
+    the first function it reaches and passed through the MEOS functions of its `casts` in
+    order, a `value` operand passed as the literal #_bound_literal reads, a `gather` operand
+    passed as the C array of the arguments it lists, each in the order of the C parameters it
+    names (`param`). An operand of another kind is refused. `raw` maps an argument to its
+    decoded value before any cast, the value a restore restricts."""
+    args, temps, raw, params = comp['args'], [], {}, []
+    for k, sql in enumerate(args):
+        fc = _flink_class(m, sql)
+        if fc is None:
+            return None, f'sqltype:{sql}'
+        params.append((fc, f'a{k}'))
+    arrays = {a['param']: a for a in (f.get('shape') or {}).get('inputArrays') or []}
+
+    def gathered(o, p, jt):
+        # The arguments a wrapper gathers into the C array of `p` (pcpoint(pcid, x, y) fills
+        # the values of pcpoint_make), laid out as #_array_arg lays out a SQL array of the
+        # scalars SQL_ARRAY_SCALAR names, all of the one type of the array's element
+        ks, a = list(o['gather']), arrays.get(p['name'])
+        if a is None or jt != 'jnr.ffi.Pointer' or not ks or _norm(p['canonical']).count('*') != 1:
+            return None
+        sqls = {args[k] for k in ks}
+        el = a['element']
+        hit = len(sqls) == 1 and (SQL_ARRAY_SCALAR.get((args[ks[0]], _base(el['c'])))
+                                  or SQL_ARRAY_SCALAR.get((args[ks[0]], _base(el['canonical']))))
+        if not hit:
+            return None
+        t = f'_p{len(temps)}'
+        temps.append((t, f'MeosSqlRuntime.{hit[1]}(new {hit[0]}[] '
+                         f'{{{", ".join(f"a{k}" for k in ks)}}})', 'buffer'))
+        return t
+
+    def operand(o, p, jt):
+        if 'value' in o:
+            return _bound_literal(m, str(o['value']).strip("'"), jt)
+        if 'gather' in o:
+            return gathered(o, p, jt)
+        if 'arg' not in o:
+            return None
+        k, chain = o['arg'], list(o.get('casts') or ())
+        if not chain:
+            e = _arg(m, args[k], p, jt, f'a{k}', temps)
+            if e is not None:
+                raw.setdefault(k, e)
+            return e
+        first = m.by_name.get(chain[0])
+        if first is None or any(c not in jmeos or jmeos[c]['ret'] != 'jnr.ffi.Pointer'
+                                for c in chain):
+            return None
+        fvis, _ = m.visible(first)
+        e = _arg(m, args[k], fvis[0], jmeos[chain[0]]['arg_types'][0], f'a{k}', temps)
+        if e is None:
+            return None
+        raw.setdefault(k, e)
+        for cast in chain:
+            t = f'_p{len(temps)}'
+            temps.append((t, f'GeneratedFunctions.{cast}({e})', 'value'))
+            e = t
+        return e
+
+    jtypes = jmeos[f['name']]['arg_types']
+    vis, _ = m.visible(f)
+    # The jar takes every C parameter where the call writes through an out-parameter (the
+    # row count of a set-returning function, as #_setret_overload reads it) and the visible
+    # ones otherwise (#_overload).
+    if len(jtypes) == len(f['params']):
+        jt_of = dict(zip((p['name'] for p in f['params']), jtypes))
+    elif len(jtypes) == len(vis):
+        jt_of = dict(zip((p['name'] for p in vis), jtypes))
+    else:
+        return None, 'arity:jmeos'
+    by_param = {o.get('param'): o for o in comp['operands']}
+    call = []
+    for p in vis:
+        jt = jt_of[p['name']]
+        o = by_param.get(p['name'])
+        e = operand(o, p, jt) if o is not None else None
+        if e is None:
+            return None, f'composition:operand/{p["name"]}'
+        call.append(e)
+    return (params, call, temps, raw), None
+
+
+def _composition_overload(m, comp, jmeos, layout):
+    """The eval of one composition the catalog states (its top-level `compositions`), or
+    (None, reason), as #_overload builds the eval of a signature: the operands
+    #_composition_inputs passes, the function `call` called on them, and the answer read by
+    #_ret. A composition without `call` answers the last cast of its one operand (`centroid
+    (tpcpoint)`); `restore` answers the argument `of` at the time `time` reads from the
+    call's answer, through `at` (`nearestApproachInstant(tpcpoint, geometry)`); a
+    set-returning composition reads its rows as #_composition_setret reads them."""
+    if comp.get('retSet'):
+        return _composition_setret(m, comp, jmeos, layout)
+    if comp['ret'].endswith('[]') and not comp.get('restore'):
+        return _composition_setret(m, comp, jmeos, layout)
+    if 'call' not in comp:
+        o = comp['operands'][0] if len(comp['operands']) == 1 else {}
+        chain = list(o.get('casts') or ())
+        last = m.by_name.get(chain[-1]) if chain else None
+        if last is None or chain[-1] not in jmeos:
+            return None, 'composition:operands'
+        head = dict(comp, call=chain[-1], operands=[dict(o, casts=chain[:-1],
+                                                           param=m.visible(last)[0][0]['name'])])
+        got, why = _composition_inputs(m, head, jmeos, last)
+        if got is None:
+            return None, why
+        params, call, temps, _ = got
+        r = _ret(m, comp['ret'], last, 'jnr.ffi.Pointer', [])
+        if r is None:
+            return None, f'ret:{comp["ret"]}'
+        body = [f'Pointer _r = GeneratedFunctions.{chain[-1]}({", ".join(call)});']
+        return (params, temps, r[0], body + r[1], m.datatype(r[0])), None
+    f = m.by_name.get(comp['call'])
+    jsig = jmeos.get(comp['call'])
+    if f is None or jsig is None:
+        return None, 'not in jar'
+    got, why = _composition_inputs(m, comp, jmeos, f)
+    if got is None:
+        return None, why
+    params, call, temps, raw = got
+    _, outs = m.visible(f)
+    outs = [p for p in outs if _norm(p['canonical']) != 'size_t *']
+    restore = comp.get('restore')
+    if restore is None:
+        r = _ret(m, comp['ret'], f, jsig['ret'], outs)
+        if r is None:
+            return None, f'ret:{comp["ret"]}/{_norm(f["returnType"]["canonical"])}'
+        body = [f'{_jshort(jsig["ret"])} _r = GeneratedFunctions.{f["name"]}({", ".join(call)});']
+        return (params, temps, r[0], body + r[1], m.datatype(r[0])), None
+    # The call's answer is over the cast type: read its time and restrict argument `of`.
+    af = m.by_name.get(restore['at'])
+    if (af is None or restore['of'] not in raw or restore['at'] not in jmeos
+            or restore['time'] not in jmeos or jsig['ret'] != 'jnr.ffi.Pointer'):
+        return None, 'composition:restore'
+    q = f'_p{len(temps)}'
+    temps.append((q, f'GeneratedFunctions.{f["name"]}({", ".join(call)})', 'value'))
+    when = f'GeneratedFunctions.{restore["time"]}({q})'
+    if jmeos[restore['time']]['ret'] == 'jnr.ffi.Pointer':
+        t = f'_p{len(temps)}'
+        temps.append((t, when, 'value'))
+        when = t
+    _, aouts = m.visible(af)
+    r = _ret(m, comp['ret'], af, jmeos[restore['at']]['ret'], aouts)
+    if r is None:
+        return None, f'ret:{comp["ret"]}'
+    body = [f'{_jshort(jmeos[restore["at"]]["ret"])} _r = GeneratedFunctions.{restore["at"]}('
+            f'{raw[restore["of"]]}, {when});']
+    return (params, temps, r[0], body + r[1], m.datatype(r[0])), None
+
+
+def _composition_setret(m, comp, jmeos, layout):
+    """The eval of one set-returning composition, or (None, reason), as #_setret_overload
+    builds the eval of a set-returning signature: the operands #_composition_inputs passes
+    to the function `call`, and its rows read through the columns of the call's own
+    set-returning signature (`spaceSplit(tgeompoint, ...)` for `spaceSplit(tpose, ...)`).
+    With `restore`, the column `from` of each row is the argument `of` at the time `time`
+    reads from it, through `at`, carried as the composition's column `column`."""
+    f, jsig = m.by_name.get(comp.get('call')), jmeos.get(comp.get('call'))
+    if f is None or jsig is None:
+        return None, 'not in jar'
+    if jsig['ret'] != 'jnr.ffi.Pointer':
+        return None, 'setret:ret'
+    vis, outs = m.visible(f)
+    counts = [p for p in outs if _norm(p['canonical']) == 'int *'
+              and 'const' not in p['canonical']]
+    if len(counts) != 1:
+        return None, 'setret:count'
+    restore = comp.get('restore')
+    single = not comp.get('columns')
+    want = [c['name'] for c in comp.get('columns') or ()]
+    if restore:
+        want = [restore['from'] if n == restore['column'] else n for n in want]
+    if single:
+        # A composition returning a SQL array `X[]` answers the elements the call writes,
+        # as #_signature_overload reads an array return through its count out-parameter.
+        ccols = [{'name': None, 'from': 'return', 'type': comp['ret'][:-2]}]
+    else:
+        ccols = next((s['columns'] for s in f.get('sqlSignatures') or ()
+                      if s.get('retSet') and [c['name'] for c in s.get('columns') or ()]
+                      == want), None)
+    if ccols is None:
+        return None, 'composition:columns'
+    ccols = [dict(c, type=_deployed_type(c['type'])) if c.get('type') else c for c in ccols]
+    readers = []
+    for col in ccols:
+        r = _setret_column(m, f, col, layout)
+        if r is None:
+            return None, f'setret:column/{col["from"]}:{col.get("type")}'
+        readers.append((col['name'], r))
+    got, why = _composition_inputs(m, comp, jmeos, f)
+    if got is None:
+        return None, why
+    params, call_vis, temps, raw = got
+    vcall = dict(zip([p['name'] for p in vis], call_vis))
+    cells = {p['name']: f'_o{k}' for k, p in enumerate(o for o in outs if o is not counts[0])}
+    call = [vcall.get(p['name']) or cells.get(p['name']) or '_cnt' for p in f['params']]
+    arr = {'return': '_r', **{n: f'_a{k}' for n, k in ((n, cells[n][2:]) for n in cells)}}
+    names = [c['name'] for c in comp.get('columns') or ccols]
+    classes = [r[0] for _, r in readers]
+    reads = [r[2] if r[1] is None else r[2].replace('{a}', arr[r[1]]) for _, r in readers]
+    pre = []
+    if restore:
+        k = want.index(restore['from'])
+        ctype = next(c['type'] for c in comp['columns'] if c['name'] == restore['column'])
+        vc = m.value_class.get(_deployed_type(ctype))
+        src = readers[k][1][1]
+        if (vc is None or src is None or restore['of'] not in raw
+                or restore['time'] not in jmeos or restore['at'] not in jmeos
+                or jmeos[restore['time']]['ret'] != 'jnr.ffi.Pointer'):
+            return None, 'composition:restore'
+        cls = f'{m.pkg}.types.{vc}'
+        pre = [f'Pointer _t = GeneratedFunctions.{restore["time"]}('
+               f'MeosSqlRuntime.at({arr[src]}, _i));',
+               f'Pointer _u = GeneratedFunctions.{restore["at"]}({raw[restore["of"]]}, _t);',
+               'MeosSqlRuntime.free(_t);',
+               f'{cls} _v = _u == null ? null : {cls}.encode(_u);',
+               'MeosSqlRuntime.free(_u);']
+        classes[k], reads[k] = cls, '_v'
+    if single:
+        ecls, etype = classes[0], m.datatype(classes[0])
+    else:
+        ecls = m.row_class
+        etype = m.row_type([(n, m.datatype(c)) for n, c in zip(names, classes)])
+    body = ['Pointer _cnt = MeosSqlRuntime.cell(4);']
+    body += [f'Pointer {c} = MeosSqlRuntime.cell(8);' for c in cells.values()]
+    body += ['Pointer _r = null;', 'int _c = 0;', 'try {',
+             f'    _r = GeneratedFunctions.{f["name"]}({", ".join(call)});',
+             '    if (_r == null) return null;',
+             '    _c = _cnt.getInt(0L);']
+    body += [f'    Pointer _a{c[2:]} = {c}.getPointer(0L);' for c in cells.values()]
+    body += [f'    {ecls}[] _rows = new {ecls}[_c];',
+             '    for (int _i = 0; _i < _c; _i++) {']
+    body += [f'        {s}' for s in pre]
+    body += [f'        _rows[_i] = {reads[0] if single else m.row_of + "(" + ", ".join(reads) + ")"};',
+             '    }',
+             '    return _rows;',
+             '} finally {']
+    for (_, r) in readers:
+        if r[3]:
+            body.append(_free_each(r, cells))
+    body += [f'    MeosSqlRuntime.free({c}.getPointer(0L));' for c in cells.values()]
+    # A constant array is MEOS's own, as the static table geopose_frames answers: never freed
+    if not f['returnType']['canonical'].lstrip().startswith('const '):
+        body.append('    MeosSqlRuntime.free(_r);')
+    body.append('}')
+    return (params, temps, f'{ecls}[]', body, m.array_type(etype)), None
+
+
+def _setret_overload(m, f, sig, jsig, bound, layout):
+    """The eval of one set-returning signature, or (None, reason), as #_overload builds the eval
+    of a signature returning one value: the arguments #_inputs passes, a zeroed cell for the row
+    count and for each array out-parameter, and the rows read column by column
+    (#_setret_column). The jar takes the out-parameters, which MEOS writes through."""
+    vis, outs = m.visible(f)
+    if len(jsig['arg_types']) != len(f['params']):
+        return None, 'setret:arity'
+    if jsig['ret'] != 'jnr.ffi.Pointer':
+        return None, 'setret:ret'
+    jt = {p['name']: t for p, t in zip(f['params'], jsig['arg_types'])}
+    counts = [p for p in outs if _norm(p['canonical']) == 'int *'
+              and 'const' not in p['canonical']]
+    # An array as long as an input array (temparr_round answers one value per value it reads):
+    # the catalog states the input count as the length of both, which the eval passes as the
+    # length of the input array, so the rows number that count.
+    shape = f.get('shape') or {}
+    lf = (shape.get('arrayReturn') or {}).get('lengthFrom') or {}
+    incount = lf.get('name') if lf.get('kind') == 'param' and not counts \
+        and any((a.get('lengthFrom') or {}).get('name') == lf.get('name')
+                for a in shape.get('inputArrays') or []) else None
+    if len(counts) != 1 and incount is None:
+        return None, 'setret:count'
+    cols = sig.get('columns') or [{'name': None, 'from': 'return', 'type': sig.get('ret')}]
+    cols = [dict(c, type=_deployed_type(c['type'])) if c.get('type') else c for c in cols]
+    readers = []
+    for col in cols:
+        r = _setret_column(m, f, col, layout)
+        if r is None:
+            return None, f'setret:column/{col["from"]}:{col.get("type")}'
+        readers.append((col['name'], r))
+    sources = {r[1] for _, r in readers} - {None, 'return'}
+    if any((not counts or p is not counts[0]) and p['name'] not in sources for p in outs):
+        return None, 'setret:out'
+    got, why = _inputs(m, f, [_deployed_type(a) for a in sig.get('args') or []],
+                       [jt[p['name']] for p in vis], bound,
+                       sig.get('sqlArgParams') or (f.get('shape') or {}).get('sqlArgParams'))
+    if got is None:
+        return None, why
+    params, call_vis, temps = got
+    vcall = dict(zip([p['name'] for p in vis], call_vis))
+    cells = {p['name']: f'_o{k}' for k, p in enumerate(o for o in outs
+                                                        if not counts or o is not counts[0])}
+    call = [vcall.get(p['name']) or cells.get(p['name']) or '_cnt' for p in f['params']]
+    single = len(readers) == 1 and readers[0][0] is None
+    if single:
+        ecls = readers[0][1][0]
+        etype = m.datatype(ecls)
+    else:
+        ecls = m.row_class
+        etype = m.row_type([(n, m.datatype(r[0])) for n, r in readers])
+    arr = {'return': '_r', **{n: f'_a{k}' for n, k in
+                              ((n, cells[n][2:]) for n in cells)}}
+    reads = [r[2] if r[1] is None else r[2].replace('{a}', arr[r[1]]) for _, r in readers]
+    body = [] if incount else ['Pointer _cnt = MeosSqlRuntime.cell(4);']
+    body += [f'Pointer {c} = MeosSqlRuntime.cell(8);' for c in cells.values()]
+    body += ['Pointer _r = null;', 'int _c = 0;', 'try {',
+             f'    _r = GeneratedFunctions.{f["name"]}({", ".join(call)});',
+             '    if (_r == null) return null;',
+             f'    _c = {vcall[incount]};' if incount else '    _c = _cnt.getInt(0L);']
+    body += [f'    Pointer _a{c[2:]} = {c}.getPointer(0L);' for c in cells.values()]
+    body += [f'    {ecls}[] _rows = new {ecls}[_c];',
+             '    for (int _i = 0; _i < _c; _i++) {',
+             '        _rows[_i] = ' + (reads[0] if single else
+                                       f'{m.row_of}({", ".join(reads)})') + ';',
+             '    }',
+             '    return _rows;',
+             '} finally {']
+    for (_, r) in readers:
+        if r[3]:
+            body.append(_free_each(r, cells))
+    body += [f'    MeosSqlRuntime.free({c}.getPointer(0L));' for c in cells.values()]
+    # A constant array is MEOS's own, as the static table geopose_frames answers: never freed
+    if not f['returnType']['canonical'].lstrip().startswith('const '):
+        body.append('    MeosSqlRuntime.free(_r);')
+    body.append('}')
+    return (params, temps, f'{ecls}[]', body, m.array_type(etype)), None
+
+
+# ── signatures returning one row: one Flink row per call ──
+# A SQL function returning one value of a composite type is a MEOS C function writing the
+# members of that row: the elements of the C array it returns (pose_quaternion answers the
+# W, X, Y and Z of a quaternion), or the values it writes through its out-parameters
+# (tpoint_as_mvtgeom writes a geometry and the array of its times, as long as its `int *`
+# count). The catalog names the C value behind each member (sqlSignatures[].columns), as it
+# names those of a set-returning row: `from` is "return" with the `element` of the C array, or
+# an out-parameter, an array of the count when shape.outputArrays lists it.
+
+def _row_column(m, f, col, cell):
+    """How to read one member of a returned row: (Flink class, statements computing it, Java
+    read of it), or None when it cannot be read. `cell` is the Java cell of the out-parameter
+    the member comes from; the value MEOS wrote there is read through `_a<k>`, its name."""
+    sql, src = col.get('type'), col['from']
+    if src == 'return':
+        arr = _norm(f['returnType']['canonical'])
+        hit = SETRET_SCALAR.get((arr[:-1].strip(), sql)) if arr.endswith('*') else None
+        if 'element' not in col or not hit:
+            return None
+        return hit[0], [], hit[1].format(p='_r', i=col['element'])
+    p = next((p for p in f['params'] if p['name'] == src), None)
+    if p is None or cell is None or not _norm(p['canonical']).endswith('**'):
+        return None
+    val = _norm(p['canonical'])[:-1].strip()
+    a = f'_a{cell[2:]}'
+    if src in {o['param'] for o in (f.get('shape') or {}).get('outputArrays') or []}:
+        # An array of the count MEOS writes beside it, read element by element
+        hit = SETRET_SCALAR.get((val[:-1].strip(), (sql or '')[:-2])) \
+            if (sql or '').endswith('[]') else None
+        if not hit:
+            return None
+        v = f'_v{cell[2:]}'
+        return (f'{hit[0]}[]',
+                [f'{hit[0]}[] {v} = new {hit[0]}[_c];',
+                 f'for (int _i = 0; _i < _c; _i++) {v}[_i] = {hit[1].format(p=a, i="_i")};'],
+                v)
+    vc = m.value_class.get(sql)
+    if not vc or m.sql_cbase.get(sql) not in (_base(val), m.subtype_of.get(_base(val))):
+        return None
+    cls = f'{m.pkg}.types.{vc}'
+    return cls, [], f'MeosSqlRuntime.orNull({a}, {cls}::encode)'
+
+
+def _row_overload(m, f, sig, jsig, bound):
+    """The eval of one signature returning one row, or (None, reason), as #_setret_overload
+    builds the eval of a set-returning signature: the arguments #_inputs passes, a zeroed cell
+    for the count and for each out-parameter, and the members read one by one
+    (#_row_column). A NULL C array, or a false answer of a C function writing the row through
+    its out-parameters, is NULL, as the wrapper returns it."""
+    vis, outs = m.visible(f)
+    if len(jsig['arg_types']) != len(f['params']):
+        return None, 'row:arity'
+    cols = [dict(c, type=_deployed_type(c['type'])) if c.get('type') else c
+            for c in sig['columns']]
+    found = jsig['ret'] == 'boolean' and _norm(f['returnType']['canonical']) == 'bool'
+    if jsig['ret'] != 'jnr.ffi.Pointer' and not found:
+        return None, 'row:ret'
+    if found and any(c['from'] == 'return' for c in cols):
+        return None, 'row:ret'
+    counts = [p for p in outs if _norm(p['canonical']) == 'int *'
+              and 'const' not in p['canonical']]
+    if len(counts) > 1:
+        return None, 'row:count'
+    cells = {p['name']: f'_o{k}' for k, p in enumerate(o for o in outs if o not in counts)}
+    readers = []
+    for col in cols:
+        r = _row_column(m, f, col, cells.get(col['from']))
+        if r is None:
+            return None, f'row:column/{col["from"]}:{col.get("type")}'
+        readers.append((col['name'], r))
+    if set(cells) - {c['from'] for c in cols}:
+        return None, 'row:out'
+    jt = {p['name']: t for p, t in zip(f['params'], jsig['arg_types'])}
+    got, why = _inputs(m, f, [_deployed_type(a) for a in sig.get('args') or []],
+                       [jt[p['name']] for p in vis], bound,
+                       sig.get('sqlArgParams') or (f.get('shape') or {}).get('sqlArgParams'))
+    if got is None:
+        return None, why
+    params, call_vis, temps = got
+    vcall = dict(zip([p['name'] for p in vis], call_vis))
+    call = [vcall.get(p['name']) or cells.get(p['name']) or '_cnt' for p in f['params']]
+    body = ['Pointer _cnt = MeosSqlRuntime.cell(4);'] if counts else []
+    body += [f'Pointer {c} = MeosSqlRuntime.cell(8);' for c in cells.values()]
+    body += [] if found else ['Pointer _r = null;']
+    body += ['try {']
+    if found:
+        body += [f'    if (!GeneratedFunctions.{f["name"]}({", ".join(call)})) return null;']
+    else:
+        body += [f'    _r = GeneratedFunctions.{f["name"]}({", ".join(call)});',
+                 '    if (_r == null) return null;']
+    body += ['    int _c = _cnt.getInt(0L);'] if counts and any(r[1] for _, r in readers) else []
+    body += [f'    Pointer _a{c[2:]} = {c}.getPointer(0L);' for c in cells.values()]
+    for _, r in readers:
+        body += [f'    {s}' for s in r[1]]
+    body += [f'    return {m.row_of}({", ".join(r[2] for _, r in readers)});', '} finally {']
+    body += [f'    MeosSqlRuntime.free({c}.getPointer(0L));' for c in cells.values()]
+    body += [] if found else ['    MeosSqlRuntime.free(_r);']
+    body += ['}']
+    etype = m.row_type([(n, m.datatype(r[0])) for n, r in readers])
+    return (params, temps, m.row_class, body, etype), None
+
+
+# The element of a two-dimensional SQL array the surfaces take (#_input_shape_overload): its
+# Java class and the MeosSqlRuntime function laying out its elements row by row.
+_GRID_SCALAR = {'float': ('Double', 'gridDoubles'),
+                'double precision': ('Double', 'gridDoubles'),
+                'boolean': ('Boolean', 'gridBools')}
+
+
+def _input_shape_overload(m, f, sig, ret, jsig, bound):
+    """The eval of a signature taking two-dimensional arrays whose layout its wrapper reads
+    beyond the C arrays (the catalog's inputShape), or (None, reason), as
+    #_array_shape_overload builds the eval of a signature returning one: each such argument
+    is an array of arrays, as PostgreSQL's two-dimensional array, each row as long as the
+    first; its elements reach the C array `values` row by row, its rows and columns the
+    parameters `rows` and `columns`, the number of its elements `count`, and its NULL
+    elements the C array `nulls`, true for them, or the value `nullElement`. A C array MEOS
+    takes NULL for (`shape.nullable`) is NULL for a NULL argument, its size 0. The other
+    arguments reach the other parameters as #_inputs passes them, and the eval takes every
+    argument in the order of the signature: setValues(raster, integer, integer, integer,
+    float[], boolean[], boolean) passes its values and its flags to raster_set_values, each
+    a block of its own size."""
+    args = [_deployed_type(a) for a in sig.get('args') or []]
+    vis, outs = m.visible(f)
+    if len(jsig['arg_types']) != len(vis):
+        return None, 'arity:jmeos'
+    jt = dict(zip((p['name'] for p in vis), jsig['arg_types']))
+    nullable = set((f.get('shape') or {}).get('nullable') or ())
+    bound = bound or {}
+    shape = {}
+    for k, st in ((int(k), st) for k, st in sig['inputShape'].items()):
+        if k < len(args) and args[k].endswith('[]'):
+            shape[k] = st
+        elif not all(st[x] in bound for x in ('values', 'rows', 'columns')):
+            # An array a shorter call leaves to its default is passed as the wrapper binds it
+            return None, 'inputShape:args'
+    filled, temps, grid, call = set(), [], {}, {}
+    for k, st in sorted(shape.items()):
+        hit = _GRID_SCALAR.get(args[k][:-2])
+        names = [st[x] for x in ('values', 'rows', 'columns', 'count', 'nulls') if st.get(x)]
+        if hit is None or any(n not in jt for n in names) \
+                or any(jt[st[x]] != 'jnr.ffi.Pointer' for x in ('values', 'nulls') if st.get(x)) \
+                or any(jt[st[x]] != 'int' for x in ('rows', 'columns', 'count') if st.get(x)):
+            return None, f'inputShape:{args[k]}'
+        # The array arguments are named apart from the ones #_inputs names (a0, a1, ...)
+        g = f'g{k}'
+        if hit[0] == 'Boolean' and st.get('nullElement') in ('true', 'false') \
+                and not st.get('nulls'):
+            values = f'MeosSqlRuntime.{hit[1]}({g}, {st["nullElement"]})'
+        elif hit[0] == 'Double' and st.get('nulls'):
+            values = f'MeosSqlRuntime.{hit[1]}({g})'
+        else:
+            return None, f'inputShape:null/{args[k]}'
+        absent = st['values'] in nullable
+        kind = f'nullablebuffer:{g}' if absent else 'buffer'
+        for param, expr in [(st['values'], values)] + (
+                [(st['nulls'], f'MeosSqlRuntime.gridNulls({g})')] if st.get('nulls') else []):
+            t = f'_g{len(temps)}'
+            temps.append((t, f'{g} == null ? null : {expr}' if absent else expr, kind))
+            call[param] = t
+        rows, cols = f'{g}.length', f'MeosSqlRuntime.columns({g})'
+        if absent:
+            rows, cols = f'({g} == null ? 0 : {rows})', f'({g} == null ? 0 : {cols})'
+        call[st['rows']], call[st['columns']] = rows, cols
+        if st.get('count'):
+            call[st['count']] = f'{rows} * {cols}'
+        grid[k] = (f'{hit[0]}[][]', g)
+        filled |= set(names)
+    # The other arguments, passed by #_inputs to the parameters left
+    fshape = dict(f.get('shape') or {})
+    fshape['inputArrays'] = [x for x in fshape.get('inputArrays') or ()
+                             if x['param'] not in filled]
+    rest = dict(f, params=[p for p in f['params'] if p['name'] not in filled], shape=fshape)
+    rvis = [p for p in vis if p['name'] not in filled]
+    order = sig.get('sqlArgParams') or fshape.get('sqlArgParams')
+    order = [n for n in order if n not in filled] if order else None
+    got, why = _inputs(m, rest, [x for k, x in enumerate(args) if k not in shape],
+                       [jt[p['name']] for p in rvis], bound, order)
+    if got is None:
+        return None, why
+    rparams, rcall, rtemps = got
+    call.update(zip((p['name'] for p in rvis), rcall))
+    others = iter(rparams)
+    params = [grid[k] if k in shape else next(others) for k in range(len(args))]
+    outs = [p for p in outs if _norm(p['canonical']) != 'size_t *']
+    r = _ret(m, ret, f, jsig['ret'], outs)
+    if r is None:
+        return None, f'ret:{ret}/{_norm(f["returnType"]["canonical"])}'
+    rcls, rstmts = r
+    body = [f'{_jshort(jsig["ret"])} _r = GeneratedFunctions.{f["name"]}('
+            f'{", ".join(call[p["name"]] for p in vis)});']
+    return (params, rtemps + temps, rcls, body + rstmts, m.datatype(rcls)), None
+
+
+def _array_shape_overload(m, f, sig, jsig, bound):
+    """The eval of a signature returning a SQL array whose layout its wrapper gives beyond the
+    C array (the catalog's arrayShape), or (None, reason), as #_setret_overload builds the eval
+    of a set-returning signature: the C array read element by element, NULL where the output
+    array `nulls` is true, and, with `rowLength`, cut into rows of the length the public
+    function it names answers for the parameters it names, an array of arrays as PostgreSQL's
+    two-dimensional array: dumpValues(raster, integer, boolean) answers a row of values per
+    row of the raster, raster_width of it long, NULL for a nodata pixel."""
+    shape = sig['arrayShape']
+    vis, outs = m.visible(f)
+    if len(jsig['arg_types']) != len(f['params']):
+        return None, 'arrayShape:arity'
+    if jsig['ret'] != 'jnr.ffi.Pointer':
+        return None, 'arrayShape:ret'
+    counts = [p for p in outs if _norm(p['canonical']) == 'int *'
+              and 'const' not in p['canonical']]
+    nulls = shape.get('nulls')
+    if len(counts) != 1 or any(p is not counts[0] and p['name'] != nulls for p in outs):
+        return None, 'arrayShape:out'
+    elem = _norm(f['returnType']['canonical'])[:-1].strip()
+    hit = SETRET_SCALAR.get((elem, _deployed_type(sig['ret'][:-2])))
+    if not hit:
+        return None, f'arrayShape:element/{elem}'
+    rl = shape.get('rowLength')
+    if rl and ((m.jmeos.get(rl['call']) or {}).get('ret') != 'int'
+               or any(a not in [p['name'] for p in vis] for a in rl['args'])):
+        return None, 'arrayShape:rowLength'
+    jt = {p['name']: t for p, t in zip(f['params'], jsig['arg_types'])}
+    got, why = _inputs(m, f, [_deployed_type(a) for a in sig.get('args') or []],
+                       [jt[p['name']] for p in vis], bound,
+                       sig.get('sqlArgParams') or (f.get('shape') or {}).get('sqlArgParams'))
+    if got is None:
+        return None, why
+    params, call_vis, temps = got
+    vcall = dict(zip([p['name'] for p in vis], call_vis))
+    call = [vcall.get(p['name']) or ('_n' if p['name'] == nulls else '_cnt') for p in f['params']]
+    ecls = hit[0]
+    read = hit[1].format(p='_r', i='_i')
+    if nulls:
+        read = f'(_m.getByte((long) _i) != 0 ? null : {read})'
+    body = ['Pointer _cnt = MeosSqlRuntime.cell(4);']
+    body += ['Pointer _n = MeosSqlRuntime.cell(8);'] if nulls else []
+    body += ['Pointer _r = null;', 'Pointer _m = null;', 'try {',
+             f'    _r = GeneratedFunctions.{f["name"]}({", ".join(call)});',
+             '    if (_r == null) return null;',
+             '    int _c = _cnt.getInt(0L);']
+    body += ['    _m = _n.getPointer(0L);'] if nulls else []
+    if rl:
+        args = ', '.join(vcall[a] for a in rl['args'])
+        body += [f'    int _w = GeneratedFunctions.{rl["call"]}({args});',
+                 '    if (_w <= 0) return null;',
+                 f'    {ecls}[][] _rows = new {ecls}[_c / _w][];',
+                 '    for (int _y = 0; _y < _rows.length; _y++) {',
+                 f'        _rows[_y] = new {ecls}[_w];',
+                 '        for (int _x = 0; _x < _w; _x++) {',
+                 '            int _i = _y * _w + _x;',
+                 f'            _rows[_y][_x] = {read};',
+                 '        }',
+                 '    }']
+        cls, etype = f'{ecls}[][]', m.array_type(m.array_type(m.datatype(ecls)))
+    else:
+        body += [f'    {ecls}[] _rows = new {ecls}[_c];',
+                 '    for (int _i = 0; _i < _c; _i++) {',
+                 f'        _rows[_i] = {read};',
+                 '    }']
+        cls, etype = f'{ecls}[]', m.array_type(m.datatype(ecls))
+    body += ['    return _rows;', '} finally {', '    MeosSqlRuntime.free(_m);',
+             '    MeosSqlRuntime.free(_r);', '}']
+    return (params, temps, cls, body, etype), None
+
+
+def _aux_literal(a):
+    """The Java literal of the value the catalog states for a trailing input: a number as
+    written, a string quoted, and null where it states none (geo_as_hexewkb's endian, which
+    MEOS reads as the machine's byte order). #_default_literal renders a SQL default, the
+    text a signature carries; this renders the value a codec's aux carries."""
+    v = a.get('default', 0)
+    if v is None:
+        return 'null'
+    return json.dumps(v) if isinstance(v, str) else str(v)
+
+
+def _codec_aux(m, sql):
+    """(kind, decoder, encoder, the decoder's trailing arguments, the encoder's) of the codec
+    of `sql`, the arguments as Java text: the inputs the catalog states for the codec, else the
+    extended WKB variant a WKB or byte writer takes. The Flink value (#_value_class_src) and
+    the Spark one (#_spark_value_class_src) call the same codec, so both read it here."""
+    kind, dec, enc, in_aux, out_aux = m.codec[sql]
+    daux = ''.join(', ' + _aux_literal(a) for a in in_aux)
+    # The variant goes to a writer whose jar signature takes it beside the value: a writer of
+    # pgPointCloud's own WKB (pcpoint_as_hexwkb) takes the value alone.
+    takes_variant = len((m.jmeos.get(enc) or {}).get('arg_types') or []) > 1
+    eaux = f', (byte) {WKB_VARIANT}' if kind in ('wkb', 'bytes') and not out_aux \
+        and takes_variant else ''.join(', ' + _aux_literal(a) for a in out_aux)
+    return kind, dec, enc, daux, eaux
+
+
+def _value_methods(m, sql):
+    """(the Java type a value decodes to, the docs of decode and encode, the bodies of decode,
+    encode and toString, the form named in the class comment, the import of the run-time class
+    an image-carried value uses) of the value class of `sql`,
+    which the Flink value (#_value_class_src) and the Spark one (#_spark_value_class_src) share.
+
+    A value whose C type states its memory image (SqlModel.image) carries that image: decode
+    copies the bytes into memory malloc allocates, as MEOS allocates, and hands them to the
+    copy function the catalog names, and encode reads the image's length, from the size
+    function or the structure's stated bytes, and copies that many bytes out. toString renders
+    the value in the form its codec writes, through the codec's encoder. Any other value carries
+    its codec's form, bytes whatever the codec: the WKB itself, or the UTF-8 of a string form."""
+    cls = m.value_class[sql]
+    kind, dec, enc, daux, eaux = _codec_aux(m, sql)
+    # A cell travels by value: the jar passes and returns the integer it is.
+    jtype = 'long' if sql in m.sql_byvalue else 'Pointer'
+    ddoc = ('The cell this one carries' if jtype == 'long' else
+            'The MEOS value this one carries, allocated by MEOS for the caller to free')
+    edoc = 'The cell p' if jtype == 'long' else 'The value MEOS holds at p'
+    im = m.image.get(sql)
+    if im:
+        size = (f'GeneratedFunctions.{im["size"]}(p)' if im.get('size')
+                else str(im['sizeBytes']))
+        decode = f'return MeosSqlRuntime.fromImage(form, GeneratedFunctions::{im["copy"]});'
+        encode = f'return new {cls}(MeosSqlRuntime.image(p, {size}));'
+        text = (f'byte[] b = GeneratedFunctions.{enc}(p{eaux});\n'
+                f'            return b == null ? null : MeosValue.hex(b);' if kind == 'bytes'
+                else f'return GeneratedFunctions.{enc}(p{eaux});')
+        render = (f'Pointer p = decode();\n'
+                  f'        try {{\n'
+                  f'            {text}\n'
+                  f'        }} finally {{\n'
+                  f'            MeosSqlRuntime.free(p);\n'
+                  f'        }}')
+        form = (f'memory image ({im["copy"]} / {im["size"]})' if im.get('size')
+                else f'memory image ({im["copy"]} / {im["sizeBytes"]} bytes)')
+    elif kind == 'bytes':
+        decode = f'return GeneratedFunctions.{dec}(form);'
+        encode = (f'byte[] b = GeneratedFunctions.{enc}(p{eaux});\n'
+                  f'        return b == null ? null : new {cls}(b);')
+        render = 'return MeosValue.hex(form);'
+        form = f'{kind} form ({dec} / {enc})'
+    else:
+        decode = (f'return GeneratedFunctions.{dec}('
+                  f'new String(form, StandardCharsets.UTF_8){daux});')
+        encode = (f'String s = GeneratedFunctions.{enc}(p{eaux});\n'
+                  f'        return s == null ? null : '
+                  f'new {cls}(s.getBytes(StandardCharsets.UTF_8));')
+        render = 'return new String(form, StandardCharsets.UTF_8);'
+        form = f'{kind} form ({dec} / {enc})'
+    # The run-time class an image-carried value copies and frees through.
+    runtime = f'import {m.pkg}.MeosSqlRuntime;\n' if im else ''
+    return jtype, ddoc, edoc, decode, encode, render, form, runtime
+
+
+def _value_class_src(m, sql):
+    cls = m.value_class[sql]
+    jtype, ddoc, edoc, decode, encode, render, form, runtime = _value_methods(m, sql)
+    return f'''package {SQL_PKG}.types;
+
+import functions.GeneratedFunctions;
+import java.nio.charset.StandardCharsets;
+import jnr.ffi.Pointer;
+import org.apache.flink.api.common.typeutils.SimpleTypeSerializerSnapshot;
+import org.apache.flink.api.common.typeutils.TypeSerializerSnapshot;
+import org.apache.flink.table.annotation.DataTypeHint;
+import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.types.DataType;
+{runtime}import {SQL_PKG}.MeosValue;
+import {SQL_PKG}.MeosValueSerializer;
+
+/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
+ * The SQL type {sql}, carried as its {form}. */
+@DataTypeHint(value = "RAW", bridgedTo = {cls}.class, rawSerializer = {cls}.Serializer.class)
+public final class {cls} extends MeosValue {{
+
+    /** The Flink SQL type of this value. */
+    public static final DataType TYPE = DataTypes.RAW({cls}.class, new Serializer());
+
+    public {cls}(byte[] form) {{
+        super(form);
+    }}
+
+    /** {ddoc}. */
+    public {jtype} decode() {{
+        {decode}
+    }}
+
+    /** {edoc}, in the form this type carries. */
+    public static {cls} encode({jtype} p) {{
+        {encode}
+    }}
+
+    @Override
+    public String toString() {{
+        {render}
+    }}
+
+    public static final class Serializer extends MeosValueSerializer<{cls}> {{
+        @Override
+        protected {cls} make(byte[] form) {{
+            return new {cls}(form);
+        }}
+
+        @Override
+        public TypeSerializerSnapshot<{cls}> snapshotConfiguration() {{
+            return new Snapshot();
+        }}
+    }}
+
+    public static final class Snapshot extends SimpleTypeSerializerSnapshot<{cls}> {{
+        public Snapshot() {{
+            super(Serializer::new);
+        }}
+    }}
+}}
+'''
+
+
+# ── the run-time class both JVM SQL engines share ──
+# A generated SQL surface carries a MeosSqlRuntime: its package, imports and heading comment, the
+# engine's own planning hook (Flink's type inference, Spark's overload resolution) and the
+# conversions between the engine's SQL values and MEOS's and the release of what MEOS allocates,
+# which are the same for both engines.
+_FLINK_RUNTIME_IMPORTS = '''import functions.GeneratedFunctions;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import jnr.ffi.Memory;
+import jnr.ffi.Pointer;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.inference.ArgumentTypeStrategy;
+import org.apache.flink.table.types.inference.InputTypeStrategies;
+import org.apache.flink.table.types.inference.InputTypeStrategy;
+import org.apache.flink.table.types.inference.TypeInference;
+import org.apache.flink.table.types.inference.TypeStrategies;
+import org.apache.flink.table.types.inference.TypeStrategy;
+
+'''
+_FLINK_RUNTIME_DOC = '''/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
+ * Conversions between Flink's SQL values and the ones MEOS takes, and the release of
+ * what MEOS allocates.  MEOS counts days and microseconds from the PostgreSQL epoch. */
+'''
+_RUNTIME_FIELDS = '''    private static final long PG_EPOCH_DAY = 10957L;
+    private static final long PG_EPOCH_SECOND = 946684800L;
+
+    private static final jnr.ffi.Runtime RUNTIME = jnr.ffi.Runtime.getSystemRuntime();
+    private static final String NULL_ELEMENT = "null array element not allowed in this context";
+
+    /** jffi's MemoryIO frees through the system free, which MEOS allocates with; jffi is the
+     * native layer jnr-ffi runs on and needs no internal JDK API. */
+    private static final com.kenai.jffi.MemoryIO IO = com.kenai.jffi.MemoryIO.getInstance();
+
+    private static final ThreadLocal<Boolean> ISO_INTERVALS = ThreadLocal.withInitial(() -> {
+        GeneratedFunctions.meos_set_intervalstyle("iso_8601", 0);
+        return Boolean.TRUE;
+    });
+
+    private MeosSqlRuntime() { }
+
+'''
+_FLINK_INFERENCE = '''    /** The overloads of one function as a single flat alternative of argument types, each
+     * mapped to its result type, so planning a call is linear in the number of overloads. */
+    public static TypeInference inference(DataType[][] args, DataType[] rets) {
+        InputTypeStrategy[] seqs = new InputTypeStrategy[args.length];
+        Map<InputTypeStrategy, TypeStrategy> results = new LinkedHashMap<>();
+        for (int i = 0; i < args.length; i++) {
+            ArgumentTypeStrategy[] a = new ArgumentTypeStrategy[args[i].length];
+            for (int j = 0; j < a.length; j++) {
+                a[j] = InputTypeStrategies.explicit(args[i][j]);
+            }
+            seqs[i] = InputTypeStrategies.sequence(a);
+            results.put(seqs[i], TypeStrategies.explicit(rets[i]));
+        }
+        return TypeInference.newBuilder()
+                .inputTypeStrategy(seqs.length == 1 ? seqs[0] : InputTypeStrategies.or(seqs))
+                .outputTypeStrategy(TypeStrategies.mapping(results))
+                .build();
+    }
+
+    /** The inference of #inference for an aggregate, whose accumulator is of the type acc. */
+    public static TypeInference aggregateInference(DataType[][] args, DataType[] rets, DataType acc) {
+        TypeInference t = inference(args, rets);
+        return TypeInference.newBuilder()
+                .inputTypeStrategy(t.getInputTypeStrategy())
+                .outputTypeStrategy(t.getOutputTypeStrategy())
+                .accumulatorTypeStrategy(TypeStrategies.explicit(acc))
+                .build();
+    }
+
+'''
+_RUNTIME_CORE = '''    /** Free each value MEOS allocated.  Null-safe. */
+    public static void free(Pointer[] ps) {
+        for (Pointer p : ps) {
+            if (p != null) {
+                IO.freeMemory(p.address());
+            }
+        }
+    }
+
+    /** Free a value MEOS allocated.  Null-safe. */
+    public static void free(Pointer p) {
+        if (p != null) {
+            IO.freeMemory(p.address());
+        }
+    }
+
+    /** The value whose memory image b holds, as copy duplicates it from the image laid in
+     * memory malloc allocates, as MEOS allocates: a value MEOS allocated for the caller to
+     * free. The image is released once copied. */
+    public static Pointer fromImage(byte[] b, java.util.function.UnaryOperator<Pointer> copy) {
+        long a = IO.allocateMemory(b.length, false);
+        try {
+            IO.putByteArray(a, b, 0, b.length);
+            return copy.apply(Pointer.wrap(RUNTIME, a));
+        } finally {
+            IO.freeMemory(a);
+        }
+    }
+
+    /** The memory image of the value at p, the n bytes it is laid in. */
+    public static byte[] image(Pointer p, long n) {
+        byte[] b = new byte[Math.toIntExact(n)];
+        p.get(0L, b, 0, b.length);
+        return b;
+    }
+
+    /** Free each of the n values MEOS allocated whose pointers the C array a holds.  Null-safe. */
+    public static void freeEach(Pointer a, int n) {
+        if (a != null) {
+            for (int i = 0; i < n; i++) {
+                free(at(a, i));
+            }
+        }
+    }
+
+    /** Free the value MEOS allocated whose pointer each of the n structs of the C array a holds
+     * at offset off, the structs size bytes apart, as freeEach frees an array of pointers.
+     * Null-safe. */
+    public static void freeField(Pointer a, int n, long size, long off) {
+        if (a != null) {
+            for (int i = 0; i < n; i++) {
+                free(a.getPointer((long) i * size + off));
+            }
+        }
+    }
+
+    /** The value read from p, or null for a null pointer. */
+    public static <T> T orNull(Pointer p, java.util.function.Function<Pointer, T> read) {
+        return p == null ? null : read.apply(p);
+    }
+
+    /** Element i of the C array of pointers a. */
+    public static Pointer at(Pointer a, int i) {
+        return a.getPointer((long) i * RUNTIME.addressSize());
+    }
+
+    /** Zeroed memory for one value of the given width that MEOS writes as an out-parameter,
+     * which the garbage collector releases. */
+    public static Pointer cell(int width) {
+        return Memory.allocateDirect(RUNTIME, width, true);
+    }
+
+    /** Free a result unless it is one of the inputs, which the caller frees. */
+    public static void freeResult(Pointer r, Pointer[] in) {
+        for (Pointer p : in) {
+            if (p != null && p.address() == r.address()) {
+                return;
+            }
+        }
+        IO.freeMemory(r.address());
+    }
+
+    /** Free a result unless it is one of the inputs, which the caller frees. */
+    public static void freeResult(Pointer r, Inputs in) {
+        if (!in.holds(r)) {
+            IO.freeMemory(r.address());
+        }
+    }
+
+    /** What an eval taking an array hands MEOS, gathered as it is built: the values MEOS
+     * allocated, released by {@link #free}, and the C arrays, kept reachable until then. */
+    public static final class Inputs {
+
+        private Pointer[] owned = new Pointer[8];
+        private int n;
+        private final java.util.ArrayList<Pointer> held = new java.util.ArrayList<>();
+
+        /** Keep p for release and pass it on. */
+        public Pointer value(Pointer p) {
+            if (n == owned.length) {
+                owned = java.util.Arrays.copyOf(owned, 2 * n);
+            }
+            owned[n++] = p;
+            return p;
+        }
+
+        /** Keep the C array b reachable until the call returns and pass it on. */
+        public Pointer hold(Pointer b) {
+            held.add(b);
+            return b;
+        }
+
+        /** The values decoded one by one by dec into the C array of pointers MEOS reads.  A
+         * null element raises, as it does in PostgreSQL. */
+        /** The texts of a SQL text[] as the C array of the text values text_in builds, each
+         * kept for release as {@link #values} keeps the values it decodes.  A null element
+         * raises, as it does in PostgreSQL. */
+        public Pointer texts(String[] ts) {
+            int w = RUNTIME.addressSize();
+            Pointer b = hold(buffer(ts.length, w));
+            for (int i = 0; i < ts.length; i++) {
+                b.putPointer((long) i * w, value(GeneratedFunctions.text_in(element(ts, i))));
+            }
+            return b;
+        }
+
+        public <V extends MeosValue> Pointer values(V[] vs,
+                java.util.function.Function<V, Pointer> dec) {
+            int w = RUNTIME.addressSize();
+            Pointer b = hold(buffer(vs.length, w));
+            for (int i = 0; i < vs.length; i++) {
+                Pointer p = value(dec.apply(element(vs, i)));
+                if (p == null) {
+                    throw new IllegalArgumentException("an array element does not decode");
+                }
+                b.putPointer((long) i * w, p);
+            }
+            return b;
+        }
+
+        /** The values decoded one by one by dec into the contiguous C array of structs of
+         * the given size MEOS reads, as {@link #values} decodes them into an array of
+         * pointers: each decoded value is kept for release and its bytes are copied in. */
+        public <V extends MeosValue> Pointer structs(V[] vs,
+                java.util.function.Function<V, Pointer> dec, int size) {
+            Pointer b = hold(buffer(vs.length, size));
+            for (int i = 0; i < vs.length; i++) {
+                Pointer p = value(dec.apply(element(vs, i)));
+                if (p == null) {
+                    throw new IllegalArgumentException("an array element does not decode");
+                }
+                p.transferTo(0, b, (long) i * size, size);
+            }
+            return b;
+        }
+
+        boolean holds(Pointer r) {
+            for (int i = 0; i < n; i++) {
+                if (owned[i] != null && owned[i].address() == r.address()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /** Free each value kept. */
+        public void free() {
+            for (int i = 0; i < n; i++) {
+                if (owned[i] != null) {
+                    IO.freeMemory(owned[i].address());
+                }
+            }
+            n = 0;
+            held.clear();
+        }
+    }
+
+    private static <T> T element(T[] xs, int i) {
+        if (xs[i] == null) {
+            throw new IllegalArgumentException(NULL_ELEMENT);
+        }
+        return xs[i];
+    }
+
+    /** Memory for n elements of the given width, which the garbage collector releases. */
+    private static Pointer buffer(int n, int width) {
+        return Memory.allocateDirect(RUNTIME, Math.max(1, n) * width);
+    }
+
+    /** The C structure of the given size whose fields are written at their offsets, each as
+     * its letter in types states (i a 32-bit integer, l a 64-bit one, d a double, b a bool), as
+     * #ints lays out an array, in memory the garbage collector releases.  A null field reads as
+     * 0, as MobilityDB's record_bandstats reads a summarystats record: the row of a structure
+     * counting nothing states its count 0 and no other field. */
+    public static Pointer struct(int size, long[] offsets, String types, Object[] fields) {
+        Pointer b = buffer(1, size);
+        for (int i = 0; i < fields.length; i++) {
+            Number v = fields[i] == null ? Integer.valueOf(0) : (Number) fields[i];
+            switch (types.charAt(i)) {
+                case 'i': b.putInt(offsets[i], (int) v.longValue()); break;
+                case 'l': b.putLongLong(offsets[i], v.longValue()); break;
+                case 'd': b.putDouble(offsets[i], v.doubleValue()); break;
+                default: b.putByte(offsets[i], (byte) (v.longValue() != 0 ? 1 : 0)); break;
+            }
+        }
+        return b;
+    }
+
+    public static Pointer ints(Integer[] xs) {
+        Pointer b = buffer(xs.length, 4);
+        for (int i = 0; i < xs.length; i++) {
+            b.putInt(4L * i, element(xs, i));
+        }
+        return b;
+    }
+
+    public static Pointer longs(Long[] xs) {
+        Pointer b = buffer(xs.length, 8);
+        for (int i = 0; i < xs.length; i++) {
+            b.putLongLong(8L * i, element(xs, i));
+        }
+        return b;
+    }
+
+    /** The number of columns of a two-dimensional array, each row as long as the first, as
+     * the rows of PostgreSQL's arrays are: a ragged array, or a missing row, raises. */
+    public static int columns(Object[][] g) {
+        int w = g.length == 0 ? 0 : (g[0] == null ? -1 : g[0].length);
+        for (Object[] row : g) {
+            if (row == null || row.length != w) {
+                throw new IllegalArgumentException("the rows of an array differ in length");
+            }
+        }
+        return w;
+    }
+
+    /** The elements of a two-dimensional array row by row, as #doubles lays out an array, a
+     * NULL element 0, which #gridNulls states. */
+    public static Pointer gridDoubles(Double[][] g) {
+        int w = columns(g);
+        Pointer b = buffer(g.length * w, 8);
+        for (int j = 0; j < g.length; j++) {
+            for (int i = 0; i < w; i++) {
+                b.putDouble(8L * (j * w + i), g[j][i] == null ? 0.0 : g[j][i]);
+            }
+        }
+        return b;
+    }
+
+    /** True for each NULL element of a two-dimensional array, row by row, a C bool each. */
+    public static Pointer gridNulls(Object[][] g) {
+        int w = columns(g);
+        Pointer b = buffer(g.length * w, 1);
+        for (int j = 0; j < g.length; j++) {
+            for (int i = 0; i < w; i++) {
+                b.putByte(j * w + i, (byte) (g[j][i] == null ? 1 : 0));
+            }
+        }
+        return b;
+    }
+
+    /** The text a C string holds, null for a null pointer, the string left to its owner. */
+    public static String cstring(Pointer p) {
+        return p == null ? null : p.getString(0L);
+    }
+
+    /** The booleans of a two-dimensional array row by row, a C bool each, a NULL element
+     * taking nullAs. */
+    public static Pointer gridBools(Boolean[][] g, boolean nullAs) {
+        int w = columns(g);
+        Pointer b = buffer(g.length * w, 1);
+        for (int j = 0; j < g.length; j++) {
+            for (int i = 0; i < w; i++) {
+                boolean v = g[j][i] == null ? nullAs : g[j][i];
+                b.putByte(j * w + i, (byte) (v ? 1 : 0));
+            }
+        }
+        return b;
+    }
+
+    public static Pointer doubles(Double[] xs) {
+        Pointer b = buffer(xs.length, 8);
+        for (int i = 0; i < xs.length; i++) {
+            b.putDouble(8L * i, element(xs, i));
+        }
+        return b;
+    }
+
+    public static Pointer dates(java.time.LocalDate[] xs) {
+        Pointer b = buffer(xs.length, 4);
+        for (int i = 0; i < xs.length; i++) {
+            b.putInt(4L * i, dateAdt(element(xs, i)));
+        }
+        return b;
+    }
+
+    public static Pointer timestamps(java.time.Instant[] xs) {
+        Pointer b = buffer(xs.length, 8);
+        for (int i = 0; i < xs.length; i++) {
+            b.putLongLong(8L * i, micros(element(xs, i)));
+        }
+        return b;
+    }
+
+    /** Microseconds from the PostgreSQL epoch, the TimestampTz MEOS reads. */
+    public static long micros(java.time.Instant t) {
+        return Math.addExact(Math.multiplyExact(t.getEpochSecond() - PG_EPOCH_SECOND, 1000000L),
+                t.getNano() / 1000);
+    }
+
+    public static int dateAdt(java.time.LocalDate d) {
+        return (int) (d.toEpochDay() - PG_EPOCH_DAY);
+    }
+
+    public static java.time.LocalDate date(int d) {
+        return java.time.LocalDate.ofEpochDay(d + PG_EPOCH_DAY);
+    }
+
+    public static java.time.Instant timestamptz(long micros) {
+        return java.time.Instant.ofEpochSecond(PG_EPOCH_SECOND + Math.floorDiv(micros, 1000000L),
+                Math.floorMod(micros, 1000000L) * 1000L);
+    }
+
+    public static Pointer interval(java.time.Duration d) {
+        return GeneratedFunctions.interval_in(d.toString(), -1);
+    }
+
+    public static java.time.Duration duration(Pointer p) {
+        ISO_INTERVALS.get();
+        return java.time.Duration.parse(GeneratedFunctions.interval_out(p));
+    }
+}
+'''
+
+
+def _runtime_src(pkg, imports, doc, planning):
+    """The MeosSqlRuntime class of the surface in `pkg`: its imports and heading comment, the
+    engine's planning hook, and the conversions and releases both engines share."""
+    return (f'package {pkg};\n\n' + imports + doc + 'public final class MeosSqlRuntime {\n\n'
+            + _RUNTIME_FIELDS + planning + _RUNTIME_CORE)
+
+
+SQL_SUPPORT = {
+    'MeosValue': f'''package {SQL_PKG};
+
+import java.util.Arrays;
+import jnr.ffi.Pointer;
+
+/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
+ * A MEOS value as Flink holds it, as bytes: its memory image where the catalog states one for
+ * its C type, else the form its catalog codec writes, the WKB itself or the UTF-8 of a string
+ * form. It is Serializable, as the Spark one is, so an
+ * accumulator gathering rows (MeosAggState) writes them. */
+public abstract class MeosValue implements java.io.Serializable {{
+
+    public final byte[] form;
+
+    protected MeosValue(byte[] form) {{
+        this.form = form;
+    }}
+
+    /** The hex text of bytes, the readable form of a WKB. */
+    public static String hex(byte[] b) {{
+        StringBuilder s = new StringBuilder(2 * b.length);
+        for (byte x : b) {{
+            s.append(Character.forDigit((x >> 4) & 0xF, 16)).append(Character.forDigit(x & 0xF, 16));
+        }}
+        return s.toString().toUpperCase();
+    }}
+
+    @Override
+    public boolean equals(Object o) {{
+        return o != null && o.getClass() == getClass() && Arrays.equals(form, ((MeosValue) o).form);
+    }}
+
+    @Override
+    public int hashCode() {{
+        return Arrays.hashCode(form);
+    }}
+}}
+''',
+    'MeosValueSerializer': f'''package {SQL_PKG};
+
+import java.io.IOException;
+import org.apache.flink.api.common.typeutils.base.TypeSerializerSingleton;
+import org.apache.flink.core.memory.DataInputView;
+import org.apache.flink.core.memory.DataOutputView;
+
+/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
+ * Writes a MEOS value as the length of its form and the form's bytes, so a value of any size
+ * crosses; the value is immutable. */
+public abstract class MeosValueSerializer<T extends MeosValue> extends TypeSerializerSingleton<T> {{
+
+    protected abstract T make(byte[] form);
+
+    @Override public boolean isImmutableType() {{ return true; }}
+    @Override public T createInstance() {{ return make(new byte[0]); }}
+    @Override public T copy(T from) {{ return from; }}
+    @Override public T copy(T from, T reuse) {{ return from; }}
+    @Override public int getLength() {{ return -1; }}
+
+    @Override
+    public void serialize(T value, DataOutputView out) throws IOException {{
+        out.writeInt(value.form.length);
+        out.write(value.form);
+    }}
+
+    @Override
+    public T deserialize(DataInputView in) throws IOException {{
+        byte[] b = new byte[in.readInt()];
+        in.readFully(b);
+        return make(b);
+    }}
+
+    @Override
+    public T deserialize(T reuse, DataInputView in) throws IOException {{
+        return deserialize(in);
+    }}
+
+    @Override
+    public void copy(DataInputView in, DataOutputView out) throws IOException {{
+        int n = in.readInt();
+        out.writeInt(n);
+        out.write(in, n);
+    }}
+}}
+''',
+    'MeosSqlRuntime': _runtime_src(SQL_PKG, _FLINK_RUNTIME_IMPORTS, _FLINK_RUNTIME_DOC,
+                                   _FLINK_INFERENCE),
+}
+
+
+def run_flink_sql(args):
+    cat = load_catalog(args.catalog)
+    jmeos = parse_jmeos_signatures(args.jar)
+    m = SqlModel(cat, jmeos)
+    root = Path(args.out) / 'src/main/java' / SQL_PKG.replace('.', '/')
+    for sub in ('', 'types', 'functions'):
+        d = root / sub
+        d.mkdir(parents=True, exist_ok=True)
+        for old in d.glob('*.java'):
+            old.unlink()
+    for name, src in SQL_SUPPORT.items():
+        (root / f'{name}.java').write_text(src)
+    for sql in m.value_class:
+        (root / 'types' / f'{m.value_class[sql]}.java').write_text(_value_class_src(m, sql))
+
+    layout = m.layout
+
+    names = defaultdict(list)          # SQL name -> eval methods
+    seen = defaultdict(set)
+    skipped = defaultdict(int)
+    nset = 0
+    keep = lambda f: (f.get('sqlfn') and not f.get('sqlfnBackingOnly')  # noqa: E731
+                      and f.get('api') != 'internal')
+    for sqlname, sargs, sdef, ov, why, isset, arity in _sql_overloads(m, cat, jmeos, layout,
+                                                                skipped, keep):
+        nset += isset
+        if ov is None:
+            skipped[why.split('/')[0]] += 1
+            continue
+        for dv in _default_variants(sargs, sdef, len(ov[0]), arity):
+            shown = ov[0] if dv is None else ov[0][:len(ov[0]) - len(dv)]
+            key = tuple(t for t, _ in shown)
+            if key in seen[sqlname]:
+                continue
+            seen[sqlname].add(key)
+            names[sqlname].append((_emit_eval(ov, dv), list(key), ov[4]))
+
+    classes = {}
+    taken = set()
+    for sqlname in sorted(names):
+        cls = _javaid(sqlname)
+        while cls.lower() in taken:
+            cls += '_'
+        taken.add(cls.lower())
+        classes[sqlname] = cls
+        sigs = names[sqlname]
+        body = [f'package {SQL_PKG}.functions;', '',
+                'import functions.GeneratedFunctions;',
+                'import java.time.OffsetDateTime;',
+                'import jnr.ffi.Pointer;',
+                'import org.apache.flink.table.api.DataTypes;',
+                'import org.apache.flink.table.catalog.DataTypeFactory;',
+                'import org.apache.flink.table.functions.ScalarFunction;',
+                'import org.apache.flink.table.types.DataType;',
+                'import org.apache.flink.table.types.inference.TypeInference;',
+                f'import {SQL_PKG}.MeosSqlRuntime;', '',
+                '/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.',
+                f' * The MobilityDB SQL function {sqlname}: {len(sigs)} overload(s). */',
+                f'public final class {cls} extends ScalarFunction {{', '']
+        for ev, _, _ in sigs:
+            body += ev
+        body += ['    @Override',
+                 '    public TypeInference getTypeInference(DataTypeFactory typeFactory) {',
+                 '        return MeosSqlRuntime.inference(new DataType[][] {']
+        body += ['            {' + ', '.join(_datatype(a) for a in args) + '},'
+                 for _, args, _ in sigs]
+        body += ['        }, new DataType[] {']
+        body += [f'            {r},' for _, _, r in sigs]
+        body += ['        });', '    }']
+        body.append('}')
+        (root / 'functions' / f'{cls}.java').write_text('\n'.join(body) + '\n')
+
+    aggs, agg_left = _catalog_aggregates(m, cat, jmeos)
+    (root / 'MeosAggregate.java').write_text(_AGGREGATE_ROLES.format(pkg=SQL_PKG))
+    (root / 'MeosAggState.java').write_text(_FLINK_AGG_STATE)
+    for sqlname in sorted(aggs):
+        cls = _javaid(sqlname)
+        while cls.lower() in taken:
+            cls += '_'
+        taken.add(cls.lower())
+        classes[sqlname] = cls
+        (root / 'functions' / f'{cls}.java').write_text(
+            _flink_aggregate_src(sqlname, cls, aggs[sqlname]))
+
+    reg = [f'package {SQL_PKG};', '',
+           'import org.apache.flink.table.api.TableEnvironment;', '',
+           '/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.',
+           ' * Registers every generated function under its MobilityDB SQL name as a catalog',
+           ' * function, which never shadows a Flink built-in of the same name. */',
+           'public final class MobilityFlinkSql {', '',
+           '    private MobilityFlinkSql() { }', '']
+    items = sorted(classes.items())
+    chunks = [items[i:i + 200] for i in range(0, len(items), 200)]
+    reg.append('    public static void registerAll(TableEnvironment tEnv) {')
+    reg += [f'        register{i}(tEnv);' for i in range(len(chunks))]
+    reg += ['    }', '']
+    for i, chunk in enumerate(chunks):
+        reg.append(f'    private static void register{i}(TableEnvironment tEnv) {{')
+        reg += [f'        tEnv.createTemporaryFunction("{n}", {SQL_PKG}.functions.{c}.class);'
+                for n, c in chunk]
+        reg += ['    }', '']
+    reg.append('}')
+    (root / 'MobilityFlinkSql.java').write_text('\n'.join(reg) + '\n')
+
+    n_ov = sum(len(v) for v in names.values())
+    print(f'flink-sql: {len(names)} SQL functions ({n_ov} overloads, {nset} of them '
+          f'set-returning signatures), {len(m.value_class)} value types into {root}')
+    for why, n in sorted(skipped.items(), key=lambda x: -x[1]):
+        print(f'  skipped {n:5d}  {why}')
+    print(f'flink-sql: {len(aggs)} aggregates '
+          f'({sum(len(v) for v in aggs.values())} overloads)')
+    for why, n in sorted(agg_left.items()):
+        print(f'  aggregate left out {n:3d}  {why}')
+
+
+# ───────────────────────── spark-sql: the typed Spark SQL surface ─────────────────────────
+# The Spark twin of the flink-sql engine, on the same SqlModel (rule 8 of the portable naming
+# notes): a MEOS value carries its SQL type, one Spark UserDefinedType per SQL type over the
+# form the value carries (#_value_methods), as Flink holds one RAW type per SQL type
+# (#_value_class_src); and each SQL name is one registration whose builder chooses the overload
+# and its result type from the argument types while Spark plans the call, as Flink's type
+# inference does
+# (#_FLINK_INFERENCE). The overloads are the flink-sql engine's own (#_overload, #_emit_eval),
+# so a capability one engine gains the other gains with it.
+
+SPARK_SQL_PKG = 'org.mobilitydb.spark.sql'
+
+# The Spark SQL type of each Java class an overload takes or returns.
+SPARK_DATATYPE = {
+    'Boolean': 'DataTypes.BooleanType', 'Integer': 'DataTypes.IntegerType',
+    'Short': 'DataTypes.ShortType', 'Long': 'DataTypes.LongType',
+    'Double': 'DataTypes.DoubleType', 'String': 'DataTypes.StringType',
+    'java.time.Instant': 'DataTypes.TimestampType', 'java.time.LocalDate': 'DataTypes.DateType',
+    'java.time.Duration': 'MeosSqlRuntime.DURATION', 'byte[]': 'DataTypes.BinaryType',
+}
+
+
+def _spark_datatype(m, cls):
+    """The Spark DataType expression of a Java class #_overload names, or None."""
+    if cls in _ROW_DATATYPE:
+        return _ROW_DATATYPE[cls]
+    if cls in SPARK_DATATYPE:
+        return SPARK_DATATYPE[cls]
+    if cls.endswith('[]'):
+        inner = _spark_datatype(m, cls[:-2])
+        return inner and f'DataTypes.createArrayType({inner})'
+    if cls.startswith(f'{m.pkg}.types.'):
+        return f'{cls}.TYPE'
+    return SPARK_DATATYPE.get(cls)
+
+
+def _spark_arg(cls, i):
+    """The Java expression reading argument i, as Spark hands it, into the class `cls`."""
+    a = f'a[{i}]'
+    if cls == 'java.time.Instant':
+        return f'MeosSqlRuntime.instant({a})'
+    if cls == 'java.time.LocalDate':
+        return f'MeosSqlRuntime.localDate({a})'
+    if cls == 'java.time.Instant[]':
+        return f'MeosSqlRuntime.instants({a})'
+    if cls == 'java.time.LocalDate[]':
+        return f'MeosSqlRuntime.localDates({a})'
+    if cls == 'byte[]':
+        return f'(byte[]) {a}'
+    if cls.endswith('[][]'):
+        return f'MeosSqlRuntime.grid({a}, new {cls[:-4]}[0])'
+    if cls.endswith('[]'):
+        return f'MeosSqlRuntime.array({a}, new {cls[:-2]}[0])'
+    return f'({_jclass(cls)}) {a}'
+
+
+_SPARK_RUNTIME_IMPORTS = '''import functions.GeneratedFunctions;
+import java.util.ArrayList;
+import java.util.List;
+import jnr.ffi.Memory;
+import jnr.ffi.Pointer;
+import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.catalyst.FunctionIdentifier;
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder;
+import org.apache.spark.sql.catalyst.expressions.Cast;
+import org.apache.spark.sql.catalyst.expressions.EvalMode;
+import org.apache.spark.sql.catalyst.expressions.Expression;
+import org.apache.spark.sql.catalyst.expressions.ScalaUDF;
+import org.apache.spark.sql.internal.SQLConf;
+import org.apache.spark.sql.types.ArrayType;
+import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.DayTimeIntervalType;
+import org.apache.spark.sql.types.DecimalType;
+import org.apache.spark.sql.types.NullType;
+import scala.Function1;
+import scala.Option;
+import scala.collection.immutable.Seq;
+import scala.jdk.javaapi.CollectionConverters;
+import scala.runtime.AbstractFunction1;
+
+'''
+
+_SPARK_RUNTIME_DOC = '''/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
+ * Conversions between Spark's SQL values and the ones MEOS takes, the release of what MEOS
+ * allocates, and the registration of each SQL name with the builder that resolves its
+ * overloads.  MEOS counts days and microseconds from the PostgreSQL epoch. */
+'''
+
+
+def _spark_planning(arity):
+    """The Spark planning hook of MeosSqlRuntime, the twin of #_FLINK_INFERENCE: one registration
+    per name whose builder resolves the overload from the argument types, and the function
+    classes a resolved call runs, up to `arity` arguments."""
+    fns = []
+    for n in range(arity + 1):
+        ps = ', '.join(f'Object a{i}' for i in range(n))
+        gen = ', '.join(['Object'] * (n + 1))
+        args = ', '.join(f'a{i}' for i in range(n))
+        fns.append(f'''    private static final class F{n} extends scala.runtime.AbstractFunction{n}<{gen}>
+            implements java.io.Serializable {{
+        private final Body b;
+
+        F{n}(Body b) {{
+            this.b = b;
+        }}
+
+        @Override
+        public Object apply({ps}) {{
+            return b.apply(new Object[] {{{args}}});
+        }}
+    }}
+''')
+    cases = ''.join(f'            case {n}: return new F{n}(b);\n' for n in range(arity + 1))
+    return '''    /** The Spark type of an interval, from days to seconds, the one java.time.Duration maps to. */
+    public static final DataType DURATION = DataTypes.createDayTimeIntervalType();
+
+    /** One overload of a SQL name: the Spark types of its arguments in order, its result type
+     * and the body computing it. */
+    public static final class Overload implements java.io.Serializable {
+
+        final DataType[] args;
+        final DataType ret;
+        final Body body;
+
+        public Overload(DataType[] args, DataType ret, Body body) {
+            this.args = args;
+            this.ret = ret;
+            this.body = body;
+        }
+    }
+
+    /** The body of an overload over the arguments Spark hands it. */
+    public interface Body extends java.io.Serializable {
+        Object apply(Object[] a);
+    }
+
+    /** Register name once: its builder chooses among the overloads from the argument types while
+     * Spark plans the call, as PostgreSQL resolves an overloaded function, and hands a call no
+     * overload takes to the function Spark held under that name before, so a Spark built-in of
+     * the same name keeps answering its own arguments. */
+    public static void register(SparkSession spark, String name, Overload... overloads) {
+        FunctionIdentifier id = FunctionIdentifier.apply(name);
+        Option<Function1<Seq<Expression>, Expression>> before =
+            spark.sessionState().functionRegistry().lookupFunctionBuilder(id);
+        boolean builtin = org.apache.spark.sql.catalyst.analysis.FunctionRegistry.builtin().functionExists(id);
+        spark.sessionState().functionRegistry().createOrReplaceTempFunction(name,
+            new AbstractFunction1<Seq<Expression>, Expression>() {
+                @Override
+                public Expression apply(Seq<Expression> args) {
+                    return resolve(name, overloads, args, before, builtin);
+                }
+            }, "scala_udf");
+    }
+
+    /** The call of the overload whose argument types the arguments have, else of the first one
+     * they reach by widening a number, as PostgreSQL's implicit casts reach it. A name Spark
+     * itself answers keeps a call no overload takes exactly as it stands for that built-in:
+     * round(2.5) stays Spark's own, as PostgreSQL resolves it to its numeric round, not to
+     * MEOS's. A function held before that is not Spark's own, such as the one the UDF surface
+     * registers under the same name, comes after the widening: eDwithin(t1, t2, 300) over two
+     * tgeompoint values reaches the overload taking a double distance. */
+    static Expression resolve(String name, Overload[] overloads, Seq<Expression> args,
+            Option<Function1<Seq<Expression>, Expression>> before, boolean builtin) {
+        List<Expression> given = CollectionConverters.asJava(args);
+        for (boolean widen : builtin ? new boolean[] {false} : new boolean[] {false, true}) {
+            for (Overload o : overloads) {
+                List<Expression> in = fit(o, given, widen);
+                if (in != null) {
+                    return call(name, o, in);
+                }
+            }
+        }
+        if (before.isDefined()) {
+            return before.get().apply(args);
+        }
+        StringBuilder types = new StringBuilder();
+        for (Expression e : given) {
+            types.append(types.length() == 0 ? "" : ", ").append(e.dataType().simpleString());
+        }
+        throw new IllegalArgumentException("function " + name + "(" + types + ") does not exist");
+    }
+
+    private static List<Expression> fit(Overload o, List<Expression> given, boolean widen) {
+        return fit(o.args, given, widen);
+    }
+
+    /** The arguments given as the types want takes them, cast where a type differs only in what
+     * Spark notes of it or, with widen, where a number widens; null where they do not fit. */
+    public static List<Expression> fit(DataType[] want, List<Expression> given, boolean widen) {
+        if (want.length != given.size()) {
+            return null;
+        }
+        List<Expression> in = new ArrayList<>();
+        for (int i = 0; i < want.length; i++) {
+            Expression e = given.get(i);
+            DataType have = e.dataType();
+            if (have.equals(want[i])) {
+                in.add(e);
+            } else if (have instanceof NullType || sameKind(have, want[i])
+                    || (widen && widens(have, want[i]))) {
+                in.add(new Cast(e, want[i], Option.<String>empty(), EvalMode.fromSQLConf(SQLConf.get())));
+            } else {
+                return null;
+            }
+        }
+        return in;
+    }
+
+    /** Whether two types hold the same Java values and differ only in what Spark notes of them:
+     * the fields an interval states (INTERVAL '1' DAY is an interval day, the overload's an
+     * interval day to second, one java.time.Duration), or whether an array may hold a null
+     * (array(3, 1, 2) cannot, an overload's array may, one Java array). */
+    private static boolean sameKind(DataType have, DataType want) {
+        if (have instanceof DayTimeIntervalType && want instanceof DayTimeIntervalType) {
+            return true;
+        }
+        return have instanceof ArrayType && want instanceof ArrayType
+            && ((ArrayType) have).elementType().equals(((ArrayType) want).elementType());
+    }
+
+    /** Whether a number of type have reaches type want without loss, as PostgreSQL's implicit
+     * numeric casts do: a smaller integer to a larger one, any number to a double. */
+    private static boolean widens(DataType have, DataType want) {
+        boolean integral = have.equals(DataTypes.ByteType) || have.equals(DataTypes.ShortType)
+            || have.equals(DataTypes.IntegerType);
+        if (want.equals(DataTypes.LongType)) {
+            return integral;
+        }
+        if (want.equals(DataTypes.IntegerType)) {
+            return have.equals(DataTypes.ByteType) || have.equals(DataTypes.ShortType);
+        }
+        if (want.equals(DataTypes.DoubleType)) {
+            return integral || have.equals(DataTypes.LongType) || have.equals(DataTypes.FloatType)
+                || have instanceof DecimalType;
+        }
+        return false;
+    }
+
+    private static Expression call(String name, Overload o, List<Expression> in) {
+        List<Option<ExpressionEncoder<?>>> enc = new ArrayList<>();
+        for (int i = 0; i < in.size(); i++) {
+            enc.add(Option.empty());
+        }
+        return new ScalaUDF(function(o.body, in.size()), o.ret, CollectionConverters.asScala(in).toList(),
+            CollectionConverters.asScala(enc).toList(), Option.empty(), Option.apply(name), true, true);
+    }
+
+    private static Object function(Body b, int n) {
+        switch (n) {
+''' + cases + '''            default: throw new IllegalArgumentException("too many arguments: " + n);
+        }
+    }
+
+''' + '\n'.join(fns) + '''
+    /** A timestamp as Spark hands it, java.sql.Timestamp or java.time.Instant. */
+    public static java.time.Instant instant(Object o) {
+        return o instanceof java.sql.Timestamp ? ((java.sql.Timestamp) o).toInstant() : (java.time.Instant) o;
+    }
+
+    /** A date as Spark hands it, java.sql.Date or java.time.LocalDate. */
+    public static java.time.LocalDate localDate(Object o) {
+        return o instanceof java.sql.Date ? ((java.sql.Date) o).toLocalDate() : (java.time.LocalDate) o;
+    }
+
+    /** An array of timestamps as Spark hands it, each element read as #instant reads one. */
+    public static java.time.Instant[] instants(Object o) {
+        Object[] xs = array(o, new Object[0]);
+        java.time.Instant[] r = new java.time.Instant[xs.length];
+        for (int i = 0; i < xs.length; i++) {
+            r[i] = xs[i] == null ? null : instant(xs[i]);
+        }
+        return r;
+    }
+
+    /** An array of dates as Spark hands it, each element read as #localDate reads one. */
+    public static java.time.LocalDate[] localDates(Object o) {
+        Object[] xs = array(o, new Object[0]);
+        java.time.LocalDate[] r = new java.time.LocalDate[xs.length];
+        for (int i = 0; i < xs.length; i++) {
+            r[i] = xs[i] == null ? null : localDate(xs[i]);
+        }
+        return r;
+    }
+
+    /** An array as Spark hands it, a Scala sequence, as the Java array of its elements. */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] array(Object o, T[] empty) {
+        if (o instanceof scala.collection.Seq) {
+            return CollectionConverters.asJava((scala.collection.Seq<T>) o).toArray(empty);
+        }
+        return java.util.Arrays.copyOf((Object[]) o, ((Object[]) o).length,
+            (Class<T[]>) empty.getClass());
+    }
+
+    /** A two-dimensional array as Spark hands it, a sequence of sequences, as the Java array
+     * of its rows, each read as #array reads an array. */
+    @SuppressWarnings("unchecked")
+    public static <T> T[][] grid(Object o, T[] row) {
+        Object[] rows = array(o, new Object[0]);
+        T[][] g = (T[][]) java.lang.reflect.Array.newInstance(row.getClass(), rows.length);
+        for (int i = 0; i < rows.length; i++) {
+            g[i] = rows[i] == null ? null : array(rows[i], row);
+        }
+        return g;
+    }
+
+'''
+
+
+# ── aggregates: the catalog's `aggregates` over the typed values of both surfaces ──
+# An aggregate of the catalog (A9) states, per CREATE AGGREGATE, its argument and result types,
+# the type of its state, and the public MEOS function of each role it defines: transition,
+# combine, final, serialize and deserialize. Both engines run it from those roles alone: the
+# transition folds a value into the state, the combine joins two partial states, the final
+# answers the result, and a partial state travels as the bytes the serialize function writes and
+# the deserialize function reads, or, for a state of a SQL type (the box of `extent`), as the form
+# a value of that type carries. #MeosAggregate holds the roles and both engines share it; Spark keeps
+# the state between two values and writes it only when a partial aggregate leaves the executor,
+# while Flink holds only the bytes, a native state never being a field of a Flink accumulator.
+#
+# An aggregate stating no combine is the constructor of a temporal value fed one row at a time:
+# appendInstantAgg builds a sequence from instants, as tsequence_make does from an array, and
+# appendSequenceAgg a sequence set from sequences, as tsequenceset_make does. Its transition
+# accepts a value only after those already folded in time (ensure_tinstant_increasing_time), as
+# the constructor accepts an array only in that order (ensure_increasing_timestamps), so the one
+# order that answers is time. Neither engine hands the rows of a group in an order, and each
+# joins partial aggregates, so both gather the rows of a group, a partial joining another by
+# taking its rows, and fold them at the end ordered by the start timestamp of their first
+# argument: the answer PostgreSQL gives over the same rows ordered by time.
+
+# The roles of one aggregate overload over a MEOS state, shared by both surfaces. A combine
+# answers in the place of its first state, returning it or freeing it for a larger one
+# (set_union_combinefn), except that a skip-list combine answers its second state when the first
+# is empty (temporal_tagg_combinefn): the state it does not answer is released. A final function
+# consumes its state (set_union_finalfn, temporal_tagg_finalfn), so a state is released by
+# releasing what its final answers, except a final taking its state const, which keeps it
+# (temporal_append_finalfn answers a compact copy): that state is released after its final.
+_AGGREGATE_ROLES = '''package {pkg};
+
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.List;
+import jnr.ffi.Pointer;
+
+/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
+ * The roles of one aggregate of the catalog over its MEOS state: the transition folding a value
+ * into the state, the combine joining two partial states, the final answering the result, and the
+ * writing of a state as bytes and its reading back. An aggregate with no combine gathers its rows
+ * and folds them in the order of the start timestamp of their first argument. */
+public final class MeosAggregate implements Serializable {{
+
+    /** The transition: the state with the arguments of one row folded in, each of the class
+     * the overload states for it. */
+    public interface Transition extends Serializable {{
+        Pointer apply(Pointer state, Object[] values);
+    }}
+
+    /** The combine: the two partial states joined. */
+    public interface Combine extends Serializable {{
+        Pointer apply(Pointer a, Pointer b);
+    }}
+
+    /** The final: the result over a state, which it consumes; a pointer to a value or a
+     * structure, or a boolean. */
+    public interface Final extends Serializable {{
+        Object apply(Pointer state);
+    }}
+
+    /** The bytes of a state, which is kept. */
+    public interface Write extends Serializable {{
+        byte[] apply(Pointer state);
+    }}
+
+    /** The state the bytes hold. */
+    public interface Read extends Serializable {{
+        Pointer apply(byte[] form);
+    }}
+
+    /** The engine's value of what the final answers: a value of the result type, a boolean, or
+     * a row of the fields of a structure. */
+    public interface Make extends Serializable {{
+        Object apply(Object result);
+    }}
+
+    /** The start timestamp of the first argument of a row, the order the rows of an aggregate
+     * with no combine are folded in. */
+    public interface Order extends Serializable {{
+        OffsetDateTime apply(Object[] values);
+    }}
+
+    private final Transition transition;
+    private final Combine combine;
+    private final Final fin;
+    private final boolean keeps;
+    private final Write write;
+    private final Read read;
+    private final Make make;
+    private final Order order;
+
+    /** fin is null when the aggregate states no final function: its result is its state; keeps
+     * is true when the final keeps its state. combine is null when the aggregate states none, and
+     * order then gives the order its gathered rows are folded in. */
+    public MeosAggregate(Transition transition, Combine combine, Final fin, boolean keeps,
+            Write write, Read read, Make make, Order order) {{
+        this.transition = transition;
+        this.combine = combine;
+        this.fin = fin;
+        this.keeps = keeps;
+        this.write = write;
+        this.read = read;
+        this.make = make;
+        this.order = order;
+    }}
+
+    /** The state with the arguments of one row folded in; the state given is the transition's to
+     * keep or free. */
+    public Pointer step(Pointer state, Object... values) {{
+        return transition.apply(state, values);
+    }}
+
+    /** True when the aggregate states no combine: an engine gathers its rows, a partial joining
+     * another by taking its rows, and folds them at the end (#fold). */
+    public boolean gathers() {{
+        return combine == null;
+    }}
+
+    /** The state with the gathered rows folded in, in the order of the start timestamp of their
+     * first argument; rows with the same timestamp keep the order they were gathered in. */
+    public Pointer fold(List<Object[]> rows) {{
+        int n = rows.size();
+        OffsetDateTime[] keys = new OffsetDateTime[n];
+        Integer[] at = new Integer[n];
+        for (int i = 0; i < n; i++) {{
+            keys[i] = order.apply(rows.get(i));
+            at[i] = i;
+        }}
+        Arrays.sort(at, (x, y) -> keys[x].toInstant().compareTo(keys[y].toInstant()));
+        Pointer state = null;
+        try {{
+            for (Integer i : at) {{
+                state = step(state, rows.get(i));
+            }}
+        }} catch (RuntimeException e) {{
+            release(state);
+            throw e;
+        }}
+        return state;
+    }}
+
+    /** The two partial states joined; both are consumed. */
+    public Pointer combine(Pointer a, Pointer b) {{
+        if (a == null) {{
+            return b;
+        }}
+        if (b == null) {{
+            return a;
+        }}
+        Pointer r = combine.apply(a, b);
+        if (r != null && r.address() == b.address()) {{
+            release(a);
+        }} else {{
+            release(b);
+        }}
+        return r;
+    }}
+
+    /** Release a state. */
+    public void release(Pointer state) {{
+        if (state == null) {{
+            return;
+        }}
+        if (fin == null || keeps) {{
+            MeosSqlRuntime.free(state);
+            return;
+        }}
+        Object r = fin.apply(state);
+        if (r instanceof Pointer) {{
+            MeosSqlRuntime.free((Pointer) r);
+        }}
+    }}
+
+    /** The result over a state, which is consumed. A pointer the final answers is freed once
+     * read; a boolean holds nothing to free. */
+    public Object finish(Pointer state) {{
+        if (state == null) {{
+            return null;
+        }}
+        Object r = fin == null ? state : fin.apply(state);
+        Pointer p = r instanceof Pointer ? (Pointer) r : null;
+        try {{
+            return r == null ? null : make.apply(r);
+        }} finally {{
+            MeosSqlRuntime.free(p);
+            if (keeps && (p == null || p.address() != state.address())) {{
+                MeosSqlRuntime.free(state);
+            }}
+        }}
+    }}
+
+    /** The bytes of a state, which is kept. */
+    public byte[] write(Pointer state) {{
+        return state == null ? null : write.apply(state);
+    }}
+
+    /** The state the bytes of #write hold. */
+    public Pointer read(byte[] form) {{
+        return form == null ? null : read.apply(form);
+    }}
+}}
+'''
+
+
+# The class of an aggregate argument after the first, beside the value types: the interval of the
+# window aggregates and of the gaps of appendInstantAgg, its interpolation and its distance, and
+# the band and the nodata exclusion of the raster aggregates, which both engines encode.
+_AGG_ARGUMENT = {'java.time.Duration', 'String', 'Double', 'Integer', 'Boolean'}
+
+# The class of the first argument of an aggregate over a base value, beside the value types: the
+# integers, floats, texts, dates and timestamps setUnion, extent and tCount fold.
+_AGG_BASE = {'Integer', 'Long', 'Double', 'String', 'java.time.LocalDate', 'java.time.Instant'}
+
+# The MEOS function answering the start timestamp of a temporal value, the order an aggregate with
+# no combine folds its rows in: the instant of a temporal instant, the lower bound of a sequence.
+_ORDER_KEY = 'temporal_start_timestamptz'
+
+
+# The engine class and the read off a pointer of each scalar C type a field of a structure the
+# final of an aggregate answers may have, at offset {o} (#_agg_result): an unsigned 32-bit count
+# is read into a long, as PostgreSQL keeps it in a bigint.
+_STRUCT_FIELD = {'int': ('Integer', 'p.getInt({o}L)'), 'int32_t': ('Integer', 'p.getInt({o}L)'),
+                 'uint32_t': ('Long', 'Integer.toUnsignedLong(p.getInt({o}L))'),
+                 'int64': ('Long', 'p.getLongLong({o}L)'), 'int64_t': ('Long', 'p.getLongLong({o}L)'),
+                 'double': ('Double', 'p.getDouble({o}L)'), 'bool': ('Boolean', 'p.getByte({o}L) != 0')}
+
+# How MeosSqlRuntime.struct writes each of those C types from a row (#_arg): i a 32-bit integer,
+# l a 64-bit one, d a double, b a bool.
+_STRUCT_PUT = {'int': 'i', 'int32_t': 'i', 'uint32_t': 'i', 'int64': 'l', 'int64_t': 'l',
+               'double': 'd', 'bool': 'b'}
+
+
+def _empty_row(row_of, ctypes):
+    """The Java row of a structure that counts nothing, of the C types `ctypes` of its fields, or
+    None for a structure with no count field. The structure readers have no routine for an absent
+    structure, so this is built beside #_STRUCT_FIELD, whose reads give the row of one MEOS
+    answers: where MEOS answers no structure, having raised no error, the values read counted
+    nothing (raster_summary_stats over a band whose every pixel is nodata,
+    raster_summary_stats_finalfn over rows of such bands), and the row is the one MobilityDB's
+    bandstats_record writes for it, as PostGIS's ST_SummaryStats answers it: each unsigned 32-bit
+    count 0, every other field NULL."""
+    if 'uint32_t' not in ctypes:
+        return None
+    return f'{row_of}({", ".join("0L" if c == "uint32_t" else "null" for c in ctypes)})'
+
+
+def _agg_result(m, ret, final):
+    """((class, make, type, encoder, empty), None) of the result of an aggregate of SQL result
+    type `ret` whose final function is `final`, or (None, reason): the class of the engine's
+    value, the Java making it of what the final answers (MeosAggregate.Make), its type in the
+    engine, its Spark encoder, and the row the final answers in place of no structure, or None. A
+    value of a type the surface holds is encoded as a function's result is; a final answering a C
+    bool gives a boolean; a final answering a pointer to a structure of the catalog's `structs`
+    whose fields are all scalars (_STRUCT_FIELD) gives a row of those fields under their names,
+    as PostGIS's summarystats is the row of the BandStats a raster summary answers, and where it
+    answers none over a state, the row of a structure counting nothing (#_empty_row), which Make
+    passes as it is; an aggregate that read no row keeps no state and answers NULL. An aggregate
+    stating no final answers its state, of the value type it is."""
+    if ret in m.value_class:
+        cls = f'{m.pkg}.types.{m.value_class[ret]}'
+        return (cls, f'r -> {cls}.encode((Pointer) r)', m.datatype(cls),
+                f'Encoders.bean({cls}.class)', None), None
+    rt = _norm(((final or {}).get('returnType') or {}).get('canonical'))
+    if ret == 'boolean' and rt == 'bool':
+        return ('Boolean', 'r -> r', m.datatype('Boolean'), 'Encoders.BOOLEAN()', None), None
+    if _single_pointer(rt):
+        st = next((x for x in m.cat.get('structs') or [] if x.get('name') == _base(rt)), None)
+        fields = [(f['name'],) + _STRUCT_FIELD[f['cType']] for f in (st or {}).get('fields') or []
+                  if f.get('cType') in _STRUCT_FIELD]
+        if st and fields and len(fields) == len(st['fields']):
+            reads = ', '.join(read.format(o=f['offset_bits'] // 8)
+                              for (_, _, read), f in zip(fields, st['fields']))
+            rtype = m.row_type([(n, m.datatype(c)) for n, c, _ in fields])
+            empty = _empty_row(m.row_of, [f['cType'] for f in st['fields']])
+            make = (f'r -> {{ if (!(r instanceof Pointer)) return r; '
+                    f'Pointer p = (Pointer) r; return {m.row_of}({reads}); }}' if empty else
+                    f'r -> {{ Pointer p = (Pointer) r; return {m.row_of}({reads}); }}')
+            return (m.row_class, make, rtype, f'Encoders.row({rtype})', empty), None
+    return None, f'result {ret} of no value type'
+
+
+def _catalog_aggregates(m, cat, jmeos):
+    """The aggregates of the catalog's `aggregates` section both typed surfaces carry:
+    {SQL name: [overload]} and {reason: count} for what is left out. An overload is a dict of its
+    argument and result classes, the transition's inputs as #_inputs passes them, and the Java of
+    its roles. An aggregate is carried when it takes a value of a type the surface holds or a base
+    value (an integer, a float, a text, a date or a timestamp: setUnion, extent, tCount), each
+    further argument a value, an interval (the window of wCount), a text (the interpolation of
+    appendInstantAgg) or a float that the transition takes as the signature of the transition
+    the aggregate names reads it (its boundArgs and sqlArgParams), states a transition, and its
+    state is either internal with a serialize and a deserialize function or of a SQL type the
+    surface holds, each role a MEOS function of the jar. An aggregate stating no combine folds
+    its gathered rows in the order of the start timestamp of its first argument
+    (temporal_start_timestamptz), which the jar then carries. A final taking its state const
+    keeps it. Each engine holds one function per name regardless of case, so an aggregate whose
+    name a function also holds is carried under the name the catalog states for it,
+    `altSqlName` (mergeAgg, tMinAgg, tAndAgg), every other one under its own."""
+    aggs, left, seen = defaultdict(list), defaultdict(int), set()
+    for a in cat.get('aggregates') or []:
+        meos = lambda k: (a.get(k) or {}).get('meos')  # noqa: E731
+        args = [_deployed_type(t) for t in a.get('args') or []]
+        # The name an engine holding one function per name calls the aggregate by, where a
+        # function also holds its MobilityDB name, is the catalog's `altSqlName` (mergeAgg).
+        name = a.get('altSqlName') or a['sqlName']
+        if not args:
+            continue
+        if not meos('combine') and (jmeos.get(_ORDER_KEY) or {}).get('ret') != 'java.time.OffsetDateTime':
+            left[f'no combine and no {_ORDER_KEY} in jar'] += 1
+            continue
+        stype, ret = _deployed_type(a['stype']), _deployed_type(a['ret'])
+        if stype == 'internal':
+            if not (meos('serialize') and meos('deserialize')):
+                left['internal state without serialize'] += 1
+                continue
+        elif stype not in m.value_class:
+            left[f'state {stype}'] += 1
+            continue
+        result, why = _agg_result(m, ret, m.by_name.get(meos('final')))
+        if result is None:
+            left[why] += 1
+            continue
+        roles = [meos(k) for k in ('transition', 'combine', 'final', 'serialize', 'deserialize')]
+        if any(r and r not in jmeos for r in roles):
+            left['not in jar'] += 1
+            continue
+        f = m.by_name.get(meos('transition'))
+        jt = jmeos[meos('transition')]['arg_types']
+        sig = next((s for s in f.get('sqlSignatures') or []
+                    if [_deployed_type(t) for t in s.get('args') or []] == [stype] + args), {})
+        bound = {**((f.get('shape') or {}).get('boundArgs') or {}), **(sig.get('boundArgs') or {})}
+        order = sig.get('sqlArgParams') or (f.get('shape') or {}).get('sqlArgParams')
+        got, why = _inputs(m, dict(f, params=f['params'][1:]), args, jt[1:], bound, order)
+        if got is None or any(kind != 'value' and not kind.startswith('nullable:')
+                              for _, _, kind in got[2]):
+            left[f'transition input {why or "of no value"}'] += 1
+            continue
+        classes = [fc for fc, _ in got[0]]
+        if classes[0] not in _AGG_BASE and not classes[0].startswith(f'{m.pkg}.types.'):
+            left[f'argument {args[0]} of no value or base type'] += 1
+            continue
+        if any(c not in _AGG_ARGUMENT and not c.startswith(f'{m.pkg}.types.') for c in classes[1:]):
+            left['argument of no value type or interval'] += 1
+            continue
+        if (name.lower(), tuple(args)) in seen:
+            continue
+        seen.add((name.lower(), tuple(args)))
+        cls = lambda sql: f'{m.pkg}.types.{m.value_class[sql]}'  # noqa: E731
+        if stype == 'internal':
+            write = f'GeneratedFunctions::{meos("serialize")}'
+            read = f'GeneratedFunctions::{meos("deserialize")}'
+        else:
+            write = f'p -> {cls(stype)}.encode(p).form'
+            read = f'b -> new {cls(stype)}(b).decode()'
+        rcls, make, rtype, renc, empty = result
+        fin = f'GeneratedFunctions::{meos("final")}' if meos('final') else 'null'
+        if meos('final') and empty:
+            fin = (f's -> {{ Pointer r = GeneratedFunctions.{meos("final")}(s); '
+                   f'return r != null ? r : {empty}; }}')
+        ff = m.by_name.get(meos('final')) or {}
+        keeps = bool(ff.get('params')) and ff['params'][0]['cType'].startswith('const ')
+        comb = f'GeneratedFunctions::{meos("combine")}' if meos('combine') else 'null'
+        aggs[name].append({'args': classes, 'ret': rcls, 'retType': rtype, 'retEnc': renc,
+                           'transition': meos('transition'), 'inputs': got,
+                           'gathers': not meos('combine'),
+                           'roles': (comb, fin, 'true' if keeps else 'false', write, read,
+                                     make)})
+    return aggs, left
+
+
+def _transition_src(k, ov):
+    """The static transition of overload k of an aggregate: the arguments of one row decoded as
+    #_inputs decodes those of a function, folded into the state, and released after the call."""
+    params, call, temps = ov['inputs']
+    L = [f'    static Pointer t{k}(Pointer state, Object[] values) {{']
+    L += [f'        {fc} {name} = ({fc}) values[{i}];' for i, (fc, name) in enumerate(params)]
+    L += [f'        Pointer {t} = {e};' for t, e, _ in temps]
+    L.append(f'        Pointer[] _in = {{{", ".join(t for t, _, _ in temps)}}};')
+    L += ['        try {',
+          f'            return GeneratedFunctions.{ov["transition"]}(state, {", ".join(call)});',
+          '        } finally {', '            MeosSqlRuntime.free(_in);', '        }', '    }', '']
+    if ov['gathers']:
+        fc, _ = params[0]
+        L += [f'    static java.time.OffsetDateTime o{k}(Object[] values) {{',
+              f'        Pointer p = (({fc}) values[0]).decode();',
+              '        try {',
+              f'            return GeneratedFunctions.{_ORDER_KEY}(p);',
+              '        } finally {', '            MeosSqlRuntime.free(p);', '        }', '    }', '']
+    return L
+
+
+def _roles_src(cls, k, ov, indent='        '):
+    """The MeosAggregate of overload k of the aggregate class cls, over the transition and the
+    order key #_transition_src writes."""
+    comb, fin, keeps, write, read, make = ov['roles']
+    order = f'{cls}::o{k}' if ov['gathers'] else 'null'
+    return (f'{indent}new MeosAggregate({cls}::t{k}, {comb}, {fin}, {keeps},\n'
+            f'{indent}    {write}, {read}, {make}, {order})')
+
+
+# The Flink accumulator of every aggregate: the bytes of its state and the overload that wrote
+# them, carried as a RAW type, so Flink copies and checkpoints it as bytes. Each value is folded
+# into the state the bytes hold, which is then written back and released.
+_FLINK_AGG_STATE = f'''package {SQL_PKG};
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import jnr.ffi.Pointer;
+import org.apache.flink.api.common.typeutils.SimpleTypeSerializerSnapshot;
+import org.apache.flink.api.common.typeutils.TypeSerializerSnapshot;
+import org.apache.flink.api.common.typeutils.base.TypeSerializerSingleton;
+import org.apache.flink.core.memory.DataInputView;
+import org.apache.flink.core.memory.DataOutputView;
+import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.types.DataType;
+
+/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
+ * The accumulator of an aggregate: the bytes of its MEOS state, as MeosAggregate#write writes
+ * them, and the overload that wrote them; Flink holds no native state between two calls. An
+ * aggregate with no combine holds the rows it gathers instead (MeosAggregate#gathers). */
+public final class MeosAggState {{
+
+    /** The Flink SQL type of an accumulator. */
+    public static final DataType TYPE = DataTypes.RAW(MeosAggState.class, new Serializer());
+
+    byte[] state;
+    int overload = -1;
+    ArrayList<Object[]> rows;
+
+    /** Fold the arguments of one row into the state, by the roles of overload k, or gather them
+     * when the aggregate has no combine; a row with a null argument is skipped. */
+    public void add(MeosAggregate[] roles, int k, Object... values) {{
+        for (Object v : values) {{
+            if (v == null) {{
+                return;
+            }}
+        }}
+        MeosAggregate r = roles[k];
+        overload = k;
+        if (r.gathers()) {{
+            if (rows == null) {{
+                rows = new ArrayList<>();
+            }}
+            rows.add(values.clone());
+            return;
+        }}
+        Pointer s = r.step(r.read(state), values);
+        try {{
+            state = r.write(s);
+        }} finally {{
+            r.release(s);
+        }}
+    }}
+
+    /** Join the partial states of others into this one; gathered rows join by being taken. */
+    public void merge(MeosAggregate[] roles, Iterable<MeosAggState> others) {{
+        for (MeosAggState o : others) {{
+            if (o.rows != null) {{
+                if (rows == null) {{
+                    rows = new ArrayList<>();
+                }}
+                rows.addAll(o.rows);
+                overload = o.overload;
+                continue;
+            }}
+            if (o.state == null) {{
+                continue;
+            }}
+            if (state == null) {{
+                state = o.state.clone();
+                overload = o.overload;
+                continue;
+            }}
+            MeosAggregate r = roles[overload];
+            Pointer s = r.combine(r.read(state), r.read(o.state));
+            try {{
+                state = r.write(s);
+            }} finally {{
+                r.release(s);
+            }}
+        }}
+    }}
+
+    /** The result over the state, or over the gathered rows folded in order, null over no
+     * value. */
+    public Object value(MeosAggregate[] roles) {{
+        if (rows != null) {{
+            return roles[overload].finish(roles[overload].fold(rows));
+        }}
+        return state == null ? null : roles[overload].finish(roles[overload].read(state));
+    }}
+
+    public static final class Serializer extends TypeSerializerSingleton<MeosAggState> {{
+        @Override public boolean isImmutableType() {{ return false; }}
+        @Override public MeosAggState createInstance() {{ return new MeosAggState(); }}
+        @Override public int getLength() {{ return -1; }}
+
+        @Override
+        public MeosAggState copy(MeosAggState from) {{
+            MeosAggState c = new MeosAggState();
+            c.state = from.state == null ? null : from.state.clone();
+            c.overload = from.overload;
+            c.rows = from.rows == null ? null : new ArrayList<>(from.rows);
+            return c;
+        }}
+
+        @Override
+        public MeosAggState copy(MeosAggState from, MeosAggState reuse) {{
+            return copy(from);
+        }}
+
+        @Override
+        public void serialize(MeosAggState v, DataOutputView out) throws IOException {{
+            out.writeInt(v.overload);
+            out.writeInt(v.state == null ? -1 : v.state.length);
+            if (v.state != null) {{
+                out.write(v.state);
+            }}
+            byte[] r = null;
+            if (v.rows != null) {{
+                ByteArrayOutputStream b = new ByteArrayOutputStream();
+                try (ObjectOutputStream o = new ObjectOutputStream(b)) {{
+                    o.writeObject(v.rows);
+                }}
+                r = b.toByteArray();
+            }}
+            out.writeInt(r == null ? -1 : r.length);
+            if (r != null) {{
+                out.write(r);
+            }}
+        }}
+
+        @Override
+        public MeosAggState deserialize(DataInputView in) throws IOException {{
+            MeosAggState v = new MeosAggState();
+            v.overload = in.readInt();
+            int n = in.readInt();
+            if (n >= 0) {{
+                v.state = new byte[n];
+                in.readFully(v.state);
+            }}
+            int m = in.readInt();
+            if (m >= 0) {{
+                byte[] r = new byte[m];
+                in.readFully(r);
+                try (ObjectInputStream o = new ObjectInputStream(new ByteArrayInputStream(r))) {{
+                    @SuppressWarnings("unchecked")
+                    ArrayList<Object[]> rows = (ArrayList<Object[]>) o.readObject();
+                    v.rows = rows;
+                }} catch (ClassNotFoundException e) {{
+                    throw new IOException(e);
+                }}
+            }}
+            return v;
+        }}
+
+        @Override
+        public MeosAggState deserialize(MeosAggState reuse, DataInputView in) throws IOException {{
+            return deserialize(in);
+        }}
+
+        @Override
+        public void copy(DataInputView in, DataOutputView out) throws IOException {{
+            serialize(deserialize(in), out);
+        }}
+
+        @Override
+        public TypeSerializerSnapshot<MeosAggState> snapshotConfiguration() {{
+            return new Snapshot();
+        }}
+    }}
+
+    public static final class Snapshot extends SimpleTypeSerializerSnapshot<MeosAggState> {{
+        public Snapshot() {{
+            super(Serializer::new);
+        }}
+    }}
+}}
+'''
+
+
+def _flink_aggregate_src(sqlname, cls, ovs):
+    """The Flink AggregateFunction of the SQL aggregate sqlname: one accumulate per overload,
+    which Flink chooses from the class of the argument, the roles of each, and the type inference
+    over them. The result class is MeosValue where every overload answers a value of a type the
+    surface holds, else the one class its overloads answer (#_agg_result)."""
+    rets = {ov['ret'] for ov in ovs}
+    rcls = 'MeosValue' if all(r.startswith(f'{SQL_PKG}.types.') for r in rets) else \
+        (rets.pop() if len(rets) == 1 else 'Object')
+    body = [f'package {SQL_PKG}.functions;', '',
+            'import functions.GeneratedFunctions;',
+            'import jnr.ffi.Pointer;',
+            'import org.apache.flink.table.api.DataTypes;',
+            'import org.apache.flink.table.catalog.DataTypeFactory;',
+            'import org.apache.flink.table.functions.AggregateFunction;',
+            'import org.apache.flink.table.types.DataType;',
+            'import org.apache.flink.table.types.inference.TypeInference;',
+            f'import {SQL_PKG}.MeosAggState;',
+            f'import {SQL_PKG}.MeosAggregate;',
+            f'import {SQL_PKG}.MeosSqlRuntime;',
+            f'import {SQL_PKG}.MeosValue;', '',
+            '/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.',
+            f' * The MobilityDB SQL aggregate {sqlname}: {len(ovs)} overload(s). */',
+            f'public final class {cls} extends AggregateFunction<{rcls}, MeosAggState> {{', '',
+            '    private static final MeosAggregate[] ROLES = {',
+            ',\n'.join(_roles_src(cls, k, ov) for k, ov in enumerate(ovs)),
+            '    };', '']
+    for k, ov in enumerate(ovs):
+        body += _transition_src(k, ov)
+    body += ['    @Override', '    public MeosAggState createAccumulator() {',
+             '        return new MeosAggState();', '    }', '']
+    for k, ov in enumerate(ovs):
+        ps = ', '.join(f'{c} a{i}' for i, c in enumerate(ov['args']))
+        body += [f'    public void accumulate(MeosAggState acc, {ps}) {{',
+                 f'        acc.add(ROLES, {k}, {", ".join(f"a{i}" for i in range(len(ov["args"])))});',
+                 '    }', '']
+    body += ['    public void merge(MeosAggState acc, Iterable<MeosAggState> others) {',
+             '        acc.merge(ROLES, others);', '    }', '',
+             '    @Override', f'    public {rcls} getValue(MeosAggState acc) {{',
+             f'        return ({rcls}) acc.value(ROLES);', '    }', '',
+             '    @Override',
+             '    public TypeInference getTypeInference(DataTypeFactory typeFactory) {',
+             '        return MeosSqlRuntime.aggregateInference(new DataType[][] {']
+    body += [f'            {{{", ".join(_datatype(c) for c in ov["args"])}}},' for ov in ovs]
+    body += ['        }, new DataType[] {']
+    body += [f'            {ov["retType"]},' for ov in ovs]
+    body += ['        }, MeosAggState.TYPE);', '    }', '}']
+    return '\n'.join(body) + '\n'
+
+
+# The aggregates of the typed Spark surface: each SQL name registered once with the builder that
+# chooses its overload from the type of its argument, as #_spark_planning's register chooses a
+# function's, a call over any other argument going to the function held before under the name,
+# the aggregate of the UDF surface over binary values.
+_SPARK_AGGREGATES = '''package {pkg};
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import jnr.ffi.Pointer;
+import org.apache.spark.sql.Encoder;
+import org.apache.spark.sql.Encoders;
+import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.catalyst.FunctionIdentifier;
+import org.apache.spark.sql.catalyst.encoders.package$;
+import org.apache.spark.sql.catalyst.expressions.Expression;
+import org.apache.spark.sql.execution.aggregate.ScalaAggregator;
+import org.apache.spark.sql.expressions.Aggregator;
+import org.apache.spark.sql.types.DataType;
+import scala.Function1;
+import scala.Option;
+import scala.collection.immutable.Seq;
+import scala.runtime.AbstractFunction1;
+
+/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
+ * The aggregates of the catalog over the typed values of this surface, each run from the roles
+ * it states (MeosAggregate) and each SQL name registered once with the builder that chooses its
+ * overload from the type of its argument. A partition keeps its MEOS state between two values,
+ * and the state travels between executors as the bytes MeosAggregate#write writes. A call over
+ * any other argument goes to the function held before under the name, the aggregate of the UDF
+ * surface over binary values. */
+public final class MeosAggregates {{
+
+    private MeosAggregates() {{ }}
+
+    /** One overload: the SQL types it takes, the encoder of its arguments, the encoder of its
+     * result (a value's bean, a boolean, or a row), and its roles. */
+    public static final class Overload implements Serializable {{
+        final DataType[] args;
+        final Encoder<?> in;
+        final Encoder<?> out;
+        final MeosAggregate roles;
+
+        public Overload(DataType[] args, Encoder<?> in, Encoder<?> out,
+                MeosAggregate roles) {{
+            this.args = args;
+            this.in = in;
+            this.out = out;
+            this.roles = roles;
+        }}
+    }}
+
+    /** The state of a partition, written as the bytes of its roles when it leaves the executor,
+     * or the rows it gathers when the aggregate has no combine (MeosAggregate#gathers). */
+    public static final class Buffer implements Serializable {{
+        final MeosAggregate roles;
+        transient Pointer state;
+        final java.util.ArrayList<Object[]> rows = new java.util.ArrayList<>();
+
+        Buffer(MeosAggregate roles) {{
+            this.roles = roles;
+        }}
+
+        private void writeObject(ObjectOutputStream out) throws IOException {{
+            out.defaultWriteObject();
+            out.writeObject(roles.write(state));
+        }}
+
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {{
+            in.defaultReadObject();
+            state = roles.read((byte[]) in.readObject());
+        }}
+    }}
+
+    public static void registerAll(SparkSession spark) {{
+{registrations}    }}
+
+    private static void register(SparkSession spark, String name, Overload... overloads) {{
+        FunctionIdentifier id = FunctionIdentifier.apply(name);
+        Option<Function1<Seq<Expression>, Expression>> before =
+            spark.sessionState().functionRegistry().lookupFunctionBuilder(id);
+        spark.sessionState().functionRegistry().createOrReplaceTempFunction(name,
+            new AbstractFunction1<Seq<Expression>, Expression>() {{
+                @Override
+                @SuppressWarnings({{"unchecked", "rawtypes"}})
+                public Expression apply(Seq<Expression> args) {{
+                    java.util.List<Expression> given = scala.jdk.javaapi.CollectionConverters.asJava(args);
+                    // An exact fit first, then one widening a number, as MeosSqlRuntime
+                    // resolves a function: the distance 1.5 of appendInstantAgg is a decimal.
+                    for (boolean widen : new boolean[] {{false, true}}) {{
+                        for (Overload o : overloads) {{
+                            java.util.List<Expression> in = MeosSqlRuntime.fit(o.args, given, widen);
+                            if (in != null) {{
+                                Aggregator typed = new Typed(o, o.out);
+                                return new ScalaAggregator(
+                                    scala.jdk.javaapi.CollectionConverters.asScala(in).toList(), typed,
+                                    package$.MODULE$.encoderFor(o.in),
+                                    package$.MODULE$.encoderFor(typed.bufferEncoder()),
+                                    true, true, 0, 0, Option.<String>empty())
+                                    .toAggregateExpression();
+                            }}
+                        }}
+                    }}
+                    if (before.isDefined()) {{
+                        return before.get().apply(args);
+                    }}
+                    StringBuilder types = new StringBuilder();
+                    for (Expression e : scala.jdk.javaapi.CollectionConverters.asJava(args)) {{
+                        types.append(types.length() == 0 ? "" : ", ").append(e.dataType().simpleString());
+                    }}
+                    throw new IllegalArgumentException("aggregate " + name + "(" + types + ") does not exist");
+                }}
+            }}, "scala_udf");
+    }}
+
+    /** An aggregate over typed values, run by the roles of its overload; the arguments of a row
+     * of several arrive as the tuple their encoder reads. */
+    static final class Typed extends Aggregator<Object, Buffer, Object> {{
+        private final MeosAggregate r;
+        private final Encoder<Object> outEnc;
+
+        @SuppressWarnings("unchecked")
+        Typed(Overload o, Encoder<?> outEnc) {{
+            this.r = o.roles;
+            this.outEnc = (Encoder<Object>) outEnc;
+        }}
+
+        @Override public Buffer zero() {{ return new Buffer(r); }}
+
+        @Override public Buffer reduce(Buffer b, Object row) {{
+            Object[] values;
+            if (row instanceof scala.Product && !(row instanceof MeosValue)) {{
+                scala.Product p = (scala.Product) row;
+                values = new Object[p.productArity()];
+                for (int i = 0; i < values.length; i++) {{
+                    values[i] = p.productElement(i);
+                }}
+            }} else {{
+                values = new Object[] {{row}};
+            }}
+            for (Object v : values) {{
+                if (v == null) {{
+                    return b;
+                }}
+            }}
+            if (r.gathers()) {{
+                b.rows.add(values);
+            }} else {{
+                b.state = r.step(b.state, values);
+            }}
+            return b;
+        }}
+
+        @Override public Buffer merge(Buffer b1, Buffer b2) {{
+            if (r.gathers()) {{
+                b1.rows.addAll(b2.rows);
+                b2.rows.clear();
+                return b1;
+            }}
+            b1.state = r.combine(b1.state, b2.state);
+            b2.state = null;
+            return b1;
+        }}
+
+        @Override public Object finish(Buffer b) {{
+            if (r.gathers()) {{
+                Pointer s = r.fold(b.rows);
+                b.rows.clear();
+                return r.finish(s);
+            }}
+            Pointer s = b.state;
+            b.state = null;
+            return r.finish(s);
+        }}
+
+        @Override public Encoder<Buffer> bufferEncoder() {{ return Encoders.javaSerialization(Buffer.class); }}
+        @Override public Encoder<Object> outputEncoder() {{ return outEnc; }}
+    }}
+}}
+'''
+
+
+def _spark_encoder(classes):
+    """The Spark encoder of the arguments of an aggregate overload: a value's bean encoder, the
+    Duration encoder of an interval, the encoder of each base value (a text, a float, an integer,
+    a date, a timestamp), and the tuple of them for several arguments."""
+    scalar = {'java.time.Duration': 'Encoders.DURATION()', 'String': 'Encoders.STRING()',
+              'Boolean': 'Encoders.BOOLEAN()',
+              'Double': 'Encoders.DOUBLE()', 'Integer': 'Encoders.INT()',
+              'Long': 'Encoders.LONG()', 'java.time.LocalDate': 'Encoders.LOCALDATE()',
+              'java.time.Instant': 'Encoders.INSTANT()'}
+    one = lambda c: scalar.get(c) or f'Encoders.bean({c}.class)'  # noqa: E731
+    if len(classes) == 1:
+        return one(classes[0])
+    return f'Encoders.tuple({", ".join(one(c) for c in classes)})'
+
+
+def _spark_aggregate_src(m, sqlname, cls, ovs):
+    """The class of the Spark aggregate sqlname: the transition of each overload and the
+    overloads MeosAggregates registers, the twin of #_flink_aggregate_src."""
+    body = [f'package {SPARK_SQL_PKG}.functions;', '',
+            'import functions.GeneratedFunctions;',
+            'import jnr.ffi.Pointer;',
+            'import org.apache.spark.sql.Encoders;',
+            'import org.apache.spark.sql.types.DataType;',
+            'import org.apache.spark.sql.types.DataTypes;',
+            f'import {SPARK_SQL_PKG}.MeosAggregate;',
+            f'import {SPARK_SQL_PKG}.MeosAggregates;',
+            f'import {SPARK_SQL_PKG}.MeosSqlRuntime;', '',
+            '/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.',
+            f' * The MobilityDB SQL aggregate {sqlname}: {len(ovs)} overload(s). */',
+            f'public final class {cls} {{', '',
+            f'    private {cls}() {{ }}', '']
+    for k, ov in enumerate(ovs):
+        body += _transition_src(k, ov)
+    body += ['    /** The overloads of this aggregate, in the order the builder tries them. */',
+             '    public static MeosAggregates.Overload[] overloads() {',
+             '        return new MeosAggregates.Overload[] {',
+             ',\n'.join(f'            new MeosAggregates.Overload(new DataType[] {{'
+                        f'{", ".join(_spark_datatype(m, c) for c in ov["args"])}}},\n'
+                        f'                {_spark_encoder(ov["args"])}, {ov["retEnc"]},\n'
+                        + _roles_src(cls, k, ov, '                ') + ')'
+                        for k, ov in enumerate(ovs)),
+             '        };', '    }', '}']
+    return '\n'.join(body) + '\n'
+
+
+def _spark_value_class_src(m, sql):
+    """The Spark value of the SQL type `sql`: the class holding the form the value carries
+    (#_value_methods), as #_value_class_src writes the Flink one, and the UserDefinedType Spark
+    carries it as."""
+    cls = m.value_class[sql]
+    jtype, ddoc, edoc, decode, encode, render, form, runtime = _value_methods(m, sql)
+    return f'''package {m.pkg}.types;
+
+import functions.GeneratedFunctions;
+import java.nio.charset.StandardCharsets;
+import jnr.ffi.Pointer;
+import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.SQLUserDefinedType;
+import org.apache.spark.sql.types.UserDefinedType;
+{runtime}import {m.pkg}.MeosValue;
+
+/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
+ * The SQL type {sql}, carried as its {form}. */
+@SQLUserDefinedType(udt = {cls}.UDT.class)
+public final class {cls} extends MeosValue {{
+
+    /** The Spark SQL type of this value. */
+    public static final DataType TYPE = new UDT();
+
+    public {cls}(byte[] form) {{
+        super(form);
+    }}
+
+    /** {ddoc}. */
+    public {jtype} decode() {{
+        {decode}
+    }}
+
+    /** {edoc}, in the form this type carries. */
+    public static {cls} encode({jtype} p) {{
+        {encode}
+    }}
+
+    @Override
+    public String toString() {{
+        {render}
+    }}
+
+    /** The SQL type {sql} as Spark carries it: the bytes of the form. */
+    public static final class UDT extends UserDefinedType<{cls}> {{
+        @Override
+        public DataType sqlType() {{
+            return DataTypes.BinaryType;
+        }}
+
+        @Override
+        public Object serialize({cls} v) {{
+            return v.form;
+        }}
+
+        @Override
+        public {cls} deserialize(Object d) {{
+            return new {cls}((byte[]) d);
+        }}
+
+        @Override
+        public Class<{cls}> userClass() {{
+            return {cls}.class;
+        }}
+
+        @Override
+        public String typeName() {{
+            return "{sql}";
+        }}
+    }}
+}}
+'''
+
+
+_SPARK_MEOS_VALUE = '''package {pkg};
+
+import java.util.Arrays;
+import jnr.ffi.Pointer;
+
+/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
+ * A MEOS value as Spark holds it, as bytes: its memory image where the catalog states one for
+ * its C type, else the form its catalog codec writes, the WKB itself or the UTF-8 of a string
+ * form. */
+public abstract class MeosValue implements java.io.Serializable {
+
+    public final byte[] form;
+
+    protected MeosValue(byte[] form) {
+        this.form = form;
+    }
+
+    /** The hex text of bytes, the readable form of a WKB. */
+    public static String hex(byte[] b) {
+        StringBuilder s = new StringBuilder(2 * b.length);
+        for (byte x : b) {
+            s.append(Character.forDigit((x >> 4) & 0xF, 16)).append(Character.forDigit(x & 0xF, 16));
+        }
+        return s.toString().toUpperCase();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o != null && o.getClass() == getClass() && Arrays.equals(form, ((MeosValue) o).form);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(form);
+    }
+}
+'''
+
+
+def run_spark_sql(args):
+    """The typed Spark SQL surface: the flink-sql engine's overloads, registered once per SQL name
+    through #_spark_planning's builder, over a UserDefinedType per SQL value type."""
+    cat = load_catalog(args.catalog)
+    jmeos = parse_jmeos_signatures(args.jar)
+    m = SqlModel(cat, jmeos, SPARK_SQL_PKG, 'spark')
+    root = Path(args.out) / 'src/main/java' / SPARK_SQL_PKG.replace('.', '/')
+    for sub in ('', 'types', 'functions'):
+        d = root / sub
+        d.mkdir(parents=True, exist_ok=True)
+        for old in d.glob('*.java'):
+            old.unlink()
+    for sql in m.value_class:
+        (root / 'types' / f'{m.value_class[sql]}.java').write_text(_spark_value_class_src(m, sql))
+
+    layout = m.layout
+
+    names = defaultdict(list)          # SQL name -> (eval lines, Spark arg types, ret, classes)
+    seen = defaultdict(set)
+    skipped = defaultdict(int)
+    nset = 0
+    keep = lambda f: (f.get('sqlfn') and not f.get('sqlfnBackingOnly')  # noqa: E731
+                      and f.get('api') == 'public')
+    for sqlname, sargs, sdef, ov, why, isset, arity in _sql_overloads(m, cat, jmeos, layout,
+                                                                skipped, keep):
+        nset += isset
+        if ov is None:
+            skipped[why.split('/')[0]] += 1
+            continue
+        ret = ov[4]
+        if ret is None:
+            skipped['spark:ret'] += 1
+            continue
+        for dv in _default_variants(sargs, sdef, len(ov[0]), arity):
+            shown = ov[0] if dv is None else ov[0][:len(ov[0]) - len(dv)]
+            key = tuple(t for t, _ in shown)
+            if key in seen[sqlname]:
+                continue
+            types = [_spark_datatype(m, t) for t in key]
+            if None in types:
+                skipped['spark:arg'] += 1
+                continue
+            seen[sqlname].add(key)
+            names[sqlname].append((_emit_eval(ov, dv), types, ret, list(key)))
+
+    arity = max((len(t) for sigs in names.values() for _, t, _, _ in sigs), default=0)
+    (root / 'MeosValue.java').write_text(_SPARK_MEOS_VALUE.replace('{pkg}', SPARK_SQL_PKG))
+    (root / 'MeosSqlRuntime.java').write_text(
+        _runtime_src(SPARK_SQL_PKG, _SPARK_RUNTIME_IMPORTS, _SPARK_RUNTIME_DOC,
+                     _spark_planning(arity)))
+
+    classes = {}
+    taken = set()
+    for sqlname in sorted(names):
+        cls = _javaid(sqlname)
+        while cls.lower() in taken:
+            cls += '_'
+        taken.add(cls.lower())
+        classes[sqlname] = cls
+        sigs = names[sqlname]
+        body = [f'package {SPARK_SQL_PKG}.functions;', '',
+                'import functions.GeneratedFunctions;',
+                'import java.time.OffsetDateTime;',
+                'import jnr.ffi.Pointer;',
+                'import org.apache.spark.sql.types.DataType;',
+                'import org.apache.spark.sql.types.DataTypes;',
+                f'import {SPARK_SQL_PKG}.MeosSqlRuntime;', '',
+                '/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.',
+                f' * The MobilityDB SQL function {sqlname}: {len(sigs)} overload(s). */',
+                f'public final class {cls} {{', '',
+                f'    private {cls}() {{ }}', '']
+        for k, (ev, _, _, _) in enumerate(sigs):
+            body += [ev[0].replace('    public ', '    static ', 1).replace(' eval(', f' e{k}(', 1)] \
+                + ev[1:]
+        body += ['    /** The overloads of this name, in the order the builder tries them. */',
+                 '    public static MeosSqlRuntime.Overload[] overloads() {',
+                 '        return new MeosSqlRuntime.Overload[] {']
+        for k, (_, types, ret, jcls) in enumerate(sigs):
+            call = ', '.join(_spark_arg(c, i) for i, c in enumerate(jcls))
+            body.append(f'            new MeosSqlRuntime.Overload(new DataType[] {{{", ".join(types)}}}, '
+                        f'{ret}, a -> e{k}({call})),')
+        body += ['        };', '    }', '}']
+        (root / 'functions' / f'{cls}.java').write_text('\n'.join(body) + '\n')
+
+    aggs, agg_left = _catalog_aggregates(m, cat, jmeos)
+    (root / 'MeosAggregate.java').write_text(_AGGREGATE_ROLES.format(pkg=SPARK_SQL_PKG))
+    regs = []
+    for sqlname in sorted(aggs):
+        cls = _javaid(sqlname)
+        while cls.lower() in taken:
+            cls += '_'
+        taken.add(cls.lower())
+        (root / 'functions' / f'{cls}.java').write_text(
+            _spark_aggregate_src(m, sqlname, cls, aggs[sqlname]))
+        regs.append(f'        register(spark, "{sqlname}", {SPARK_SQL_PKG}.functions.{cls}.overloads());\n')
+    (root / 'MeosAggregates.java').write_text(
+        _SPARK_AGGREGATES.format(pkg=SPARK_SQL_PKG, registrations=''.join(regs)))
+
+    reg = [f'package {SPARK_SQL_PKG};', '',
+           'import org.apache.spark.sql.SparkSession;', '',
+           '/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.',
+           ' * Registers every generated function under its MobilityDB SQL name, each name once with',
+           ' * the builder that resolves its overloads from the argument types. */',
+           'public final class MobilitySparkSql {', '',
+           '    private MobilitySparkSql() { }', '']
+    items = sorted(classes.items())
+    chunks = [items[i:i + 200] for i in range(0, len(items), 200)]
+    reg.append('    public static void registerAll(SparkSession spark) {')
+    reg += [f'        register{i}(spark);' for i in range(len(chunks))]
+    reg.append('        MeosAggregates.registerAll(spark);')
+    reg += ['    }', '']
+    for i, chunk in enumerate(chunks):
+        reg.append(f'    private static void register{i}(SparkSession spark) {{')
+        reg += [f'        MeosSqlRuntime.register(spark, "{n}", {SPARK_SQL_PKG}.functions.{c}.overloads());'
+                for n, c in chunk]
+        reg += ['    }', '']
+    reg.append('}')
+    (root / 'MobilitySparkSql.java').write_text('\n'.join(reg) + '\n')
+
+    n_ov = sum(len(v) for v in names.values())
+    print(f'spark-sql: {len(classes)} SQL functions ({n_ov} overloads, {nset} of them '
+          f'set-returning signatures), {len(m.value_class)} value types into {root}')
+    for why, n in sorted(skipped.items(), key=lambda x: -x[1]):
+        print(f'  skipped {n:5d}  {why}')
+    print(f'spark-sql: {len(aggs)} aggregates '
+          f'({sum(len(v) for v in aggs.values())} overloads)')
+    for why, n in sorted(agg_left.items()):
+        print(f'  aggregate left out {n:3d}  {why}')
+
+
+# ───────────────────────── entry point ─────────────────────────
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument('--engine', required=True, choices=['spark', 'flink', 'kafka', 'flink-sql', 'spark-sql'])
+    ap.add_argument('--catalog', required=True, help='MEOS-API meos-idl.json')
+    ap.add_argument('--jar', required=True,
+                    help='JMEOS jar with functions.GeneratedFunctions')
+    ap.add_argument('--out', required=True, help='output directory')
+    ap.add_argument('--package', default='org.mobilitydb.meos',
+                    help='facade package (flink/kafka only)')
+    ap.add_argument('--report', action='store_true', help='spark only')
+    ap.add_argument('--gaps', help='spark only: the ledger of unreached public functions')
+    ap.add_argument('--rebaseline', action='store_true', help='spark only: rewrite --gaps')
+    args = ap.parse_args()
+
+    if args.engine == 'spark':
+        run_spark(args)
+    elif args.engine == 'flink-sql':
+        run_flink_sql(args)
+    elif args.engine == 'spark-sql':
+        run_spark_sql(args)
+    else:
+        run_facades(args)
+
+
+if __name__ == '__main__':
+    main()

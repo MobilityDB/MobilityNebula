@@ -1,0 +1,123 @@
+name: Container Build
+
+# Builds in NebulaStream's prebuilt CI image and runs the unit tests and the system tests, on a
+# GitHub-hosted runner. The image carries every dependency, so no dependency is built here: its tag is
+# the hash of the dependency files (scripts/hash_dependencies.sh), the tag NebulaStream publishes on
+# Docker Hub, and a dependency change no published image matches fails the job instead of building one.
+# Without the S3 credentials of the remote compiler cache, sccache keeps a local cache in the
+# workspace, which the container mounts. This workflow carries it from run to run: a pull request
+# restores the newest cache of its own head or of the branch it targets, and every push to next saves
+# the cache the next pull requests start from.
+on:
+  push:
+    branches: [ next ]
+  workflow_call:
+    inputs:
+      head_sha:
+        type: string
+        required: true
+        description: "ref of the branch"
+  workflow_dispatch:
+    inputs:
+      head_sha:
+        type: string
+        required: false
+        description: "ref of the branch"
+
+permissions:
+  contents: read
+
+jobs:
+  dev-image:
+    name: "Find the CI image"
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.lookup.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.head_sha || github.sha }}
+      - name: Look the image of the dependency hash up on Docker Hub
+        id: lookup
+        run: |
+          HASH=$(scripts/hash_dependencies.sh)
+          echo "tag=$HASH" >> "$GITHUB_OUTPUT"
+          code=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            "https://hub.docker.com/v2/namespaces/nebulastream/repositories/nes-ci/tags/$HASH-libstdcxx-none")
+          if [ "$code" != 200 ]; then
+            echo "::error::nebulastream/nes-ci:$HASH-libstdcxx-none is not on Docker Hub (HTTP $code): the dependency files differ from every image NebulaStream published"
+            exit 1
+          fi
+          echo "Using nebulastream/nes-ci:$HASH-libstdcxx-none"
+
+  container-build:
+    name: "Container Build"
+    needs: [ dev-image ]
+    # A build that restores no cache compiles every source
+    timeout-minutes: 180
+    runs-on: ubuntu-24.04
+    env:
+      IMAGE: nebulastream/nes-ci:${{ needs.dev-image.outputs.tag }}-libstdcxx-none
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.head_sha || github.sha }}
+
+      - name: Restore the local compiler cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .sccache
+          key: sccache-ci-${{ needs.dev-image.outputs.tag }}-${{ inputs.head_sha || github.sha }}
+          restore-keys: sccache-ci-${{ needs.dev-image.outputs.tag }}-
+
+      - uses: ./.github/steps/prepare-github
+        name: Preparing Github Runners
+        with:
+          images: ${{ env.IMAGE }}
+
+      - uses: ./.github/steps/run-in-container
+        name: CMake Build
+        with:
+          image_name: ${{ env.IMAGE }}
+          run: |
+            export SCCACHE_DIR="$PWD/.sccache" SCCACHE_CACHE_SIZE=5G
+            sccache --start-server
+            sccache --show-stats
+            cmake -GNinja -B build -DCMAKE_BUILD_TYPE=Debug -DNES_SPLIT_TEST_BINARIES=OFF
+            cmake --build build -j -- -k 0
+            sccache --show-stats
+            sccache --stop-server
+
+      - uses: ./.github/steps/run-in-container
+        name: Run Unit Tests
+        with:
+          image_name: ${{ env.IMAGE }}
+          run: |
+            source .github/.env/test-none.env
+            ctest --test-dir build --no-tests=error -j -LE "Systest|DockerCompose" --output-on-failure --output-junit build/junit-unit.xml --timeout 2400 ${ADDITIONAL_CTEST_ARGS}
+
+      - uses: ./.github/steps/run-in-container
+        name: Run System Tests
+        with:
+          image_name: ${{ env.IMAGE }}
+          run: |
+            source .github/.env/test-none.env
+            ctest --test-dir build --no-tests=error -j -L Systest --output-on-failure --output-junit build/junit-systest.xml --timeout 4800 ${ADDITIONAL_CTEST_ARGS}
+
+      # Saved after a passing or a failing build, since a failing build is the one a developer reruns
+      # and an implicit post-job save would skip it; a cancelled run holds a partial cache and saves none.
+      - name: Save the local compiler cache
+        if: ${{ !cancelled() }}
+        uses: actions/cache/save@v4
+        with:
+          path: .sccache
+          key: sccache-ci-${{ needs.dev-image.outputs.tag }}-${{ inputs.head_sha || github.sha }}
+
+      - name: Upload test logs on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: container-build-logs
+          path: |
+            build/**/*.log
+          retention-days: 7

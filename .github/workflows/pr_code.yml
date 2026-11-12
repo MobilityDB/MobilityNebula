@@ -2,7 +2,8 @@ name: NES PR Code CI
 description: |
   Reusable code pipeline for pull requests. Called by pr.yml (via `uses:`) only when the classify
   gate detects non-documentation changes, so no job here re-checks for code changes. It builds the
-  PR and runs its unit tests and system tests in the flake's devShell, on a GitHub-hosted runner.
+  PR and runs its unit tests and system tests in NebulaStream's prebuilt CI image, on a GitHub-hosted
+  runner.
   The "Code CI Done" required-status gate lives in pr.yml, not here.
   If this is run with act, it has to be used with a custom event.json and called via `act -e event.json`.
   Otherwise, we are not running the job, as mentioned: https://github.com/nektos/act/issues/720
@@ -10,9 +11,8 @@ on:
   workflow_call:
 
 jobs:
-  nix-build:
-    name: "Run Nix Build"
-    uses: ./.github/workflows/nix-build.yml
-    secrets: inherit
+  container-build:
+    name: "Run Container Build"
+    uses: ./.github/workflows/container-build.yml
     with:
       head_sha: ${{ github.event.pull_request.head.sha || github.sha }}

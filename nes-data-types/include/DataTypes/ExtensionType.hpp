@@ -14,7 +14,9 @@
 
 #pragma once
 
+#include <cstddef>
 #include <string_view>
+#include <vector>
 
 namespace NES
 {
@@ -23,7 +25,9 @@ namespace NES
 /// MEOS temporal point is the memory image of its value. A field of such a type is VARSIZED to every
 /// operator, so it is stored, copied, hashed and shipped as any other variable-sized value; it is read
 /// from text by the ValueDeserializer and written to text by the ValueSerializer the plugin registers
-/// under the name of the type, and only the functions naming the type read its bytes.
+/// under the name of the type, and only the functions naming the type read its bytes. A typed constant
+/// of the type in a query, as `TGEOMPOINT('...')`, is read once, when the query is compiled, by the
+/// type's fromText.
 ///
 /// Each extension type is one object of static storage registered in the DataType registry under
 /// its name, and a DataType refers to it by address, so two fields have the same extension type
@@ -32,6 +36,9 @@ struct ExtensionType
 {
     /// The name the type is declared by in a schema and registered under, as `TGEOMPOINT`.
     std::string_view name;
+    /// The bytes of the value a text states, which a typed constant of the type holds; a type without it
+    /// has no typed constants.
+    std::vector<std::byte> (*fromText)(std::string_view text) = nullptr;
 };
 
 }

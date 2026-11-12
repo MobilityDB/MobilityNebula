@@ -24,6 +24,7 @@
 
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
+#include <DataTypes/ExtensionType.hpp>
 #include <DataTypes/UnboundField.hpp>
 #include <Identifiers/Identifier.hpp>
 #include <Identifiers/Identifiers.hpp>
@@ -49,6 +50,7 @@
 #include <fmt/format.h>
 #include <gtest/gtest.h>
 #include <BaseUnitTest.hpp>
+#include <DataTypeRegistry.hpp>
 #include <ErrorHandling.hpp>
 #include <ModelCatalog.hpp>
 #include <QueryId.hpp>
@@ -357,6 +359,37 @@ TEST_F(StatementBinderTest, Nullable)
             DataTypeProvider::provideDataType(DataType::Type::VARSIZED, DataType::NULLABLE::NOT_NULLABLE)}};
     ASSERT_EQ(actualSource.getLogicalSourceName(), Identifier::parse("\"testSource\""));
     ASSERT_EQ(*actualSource.getSchema(), expectedSchema);
+}
+
+/// A column is declared by the name of a type a plugin adds, regardless of case, and a name no type is registered under is
+/// refused; built as #Nullable binds its columns, the type registered as ExtensionTypeTest registers its own
+TEST_F(StatementBinderTest, ColumnOfAnExtensionType)
+{
+    static constexpr ExtensionType Point{.name = "TESTPOINT"};
+    /// A second registration of the same name, by a rerun of the suite in one process, keeps the first
+    [[maybe_unused]] const bool added = DataTypeRegistry::instance().addEntry(
+        std::string{Point.name},
+        [](const DataTypeRegistryArguments arguments)
+        {
+            DataType dataType{DataType::Type::VARSIZED, arguments.nullable};
+            dataType.extension = &Point;
+            return dataType;
+        });
+
+    const auto statement = binder->parseAndBindSingle(R"(CREATE LOGICAL SOURCE "pointSource" ("id" UINT32, "pos" TestPoint NOT NULL))");
+    ASSERT_TRUE(statement.has_value());
+    const auto createdSource = sourceStatementHandler->apply(std::get<CreateLogicalSourceStatement>(*statement));
+    ASSERT_TRUE(createdSource.has_value());
+    const auto [source] = createdSource.value();
+    const auto expectedSchema = Schema<UnqualifiedUnboundField, Ordered>{
+        UnqualifiedUnboundField{
+            Identifier::parse("\"id\""), DataTypeProvider::provideDataType(DataType::Type::UINT32, DataType::NULLABLE::IS_NULLABLE)},
+        UnqualifiedUnboundField{
+            Identifier::parse("\"pos\""), DataTypeProvider::provideDataType("TESTPOINT", DataType::NULLABLE::NOT_NULLABLE)}};
+    ASSERT_EQ(*source.getSchema(), expectedSchema);
+    EXPECT_EQ(DataTypeProvider::provideDataType("TESTPOINT").extension, &Point);
+
+    EXPECT_FALSE(binder->parseAndBindSingle(R"(CREATE LOGICAL SOURCE "unknownSource" ("pos" NoSuchType))").has_value());
 }
 
 TEST_F(StatementBinderTest, AnonymousSinkQuery)

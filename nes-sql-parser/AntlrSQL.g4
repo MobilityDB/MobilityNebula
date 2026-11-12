@@ -87,7 +87,7 @@ modelOutputField: identifier typeDefinition;
 schemaDefinition: '(' columnDefinition (',' columnDefinition)* ')';
 columnDefinition: strictIdentifier typeDefinition nullableDefinition?;
 
-typeDefinition: DATA_TYPE;
+typeDefinition: DATA_TYPE | IDENTIFIER;
 nullableDefinition: NOT NULLTOKEN;
 
 fromQuery: AS query;

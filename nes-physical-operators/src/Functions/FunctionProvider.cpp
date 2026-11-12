@@ -20,6 +20,7 @@
 #include <vector>
 
 #include <DataTypes/DataType.hpp>
+#include <DataTypes/ExtensionType.hpp>
 #include <Functions/CastToTypeLogicalFunction.hpp>
 #include <Functions/ConstantValueLogicalFunction.hpp>
 #include <Functions/ConstantValuePhysicalFunction.hpp>
@@ -113,6 +114,16 @@ PhysicalFunction FunctionProvider::lowerConstantFunction(const ConstantValueLogi
         case DataType::Type::CHAR:
             return ConstantCharValueFunction(parseConstantValue<char>(stringValue));
         case DataType::Type::VARSIZED: {
+            /// A constant of a type a plugin adds holds the bytes of the value its text states, read once here
+            if (const auto* extension = constantFunction.getDataType().extension)
+            {
+                if (extension->fromText == nullptr)
+                {
+                    throw QueryCompilerError("{} has no typed constants: \"{}\" cannot be read as one", extension->name, stringValue);
+                }
+                const auto bytes = extension->fromText(stringValue);
+                return ConstantValueVariableSizePhysicalFunction(reinterpret_cast<const int8_t*>(bytes.data()), bytes.size());
+            }
             return ConstantValueVariableSizePhysicalFunction(reinterpret_cast<const int8_t*>(stringValue.c_str()), stringValue.size());
         };
         case DataType::Type::UNDEFINED: {

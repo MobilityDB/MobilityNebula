@@ -1,13 +1,19 @@
 name: Container Build
 
-# Builds in NebulaStream's prebuilt CI image and runs the unit tests and the system tests, on a
-# GitHub-hosted runner. The image carries every dependency, so no dependency is built here: its tag is
-# the hash of the dependency files (scripts/hash_dependencies.sh), the tag NebulaStream publishes on
-# Docker Hub, and a dependency change no published image matches fails the job instead of building one.
-# Without the S3 credentials of the remote compiler cache, sccache keeps a local cache in the
-# workspace, which the container mounts. This workflow carries it from run to run: a pull request
-# restores the newest cache of its own head or of the branch it targets, and every push to next saves
-# the cache the next pull requests start from.
+# Builds in NebulaStream's prebuilt CI image and runs the unit tests and the system tests. The image carries
+# every dependency, so no dependency is built here: its tag is the hash of the dependency files
+# (scripts/hash_dependencies.sh), the tag NebulaStream publishes on Docker Hub, and a dependency change no
+# published image matches fails the job instead of building one.
+#
+# The build of a push, and of a pull request an owner, a member or a collaborator of the repository opens,
+# runs on the self-hosted runner labelled `nebula`; the build of any other pull request runs on a
+# GitHub-hosted runner. (A pull request from a fork is given no repository variable, so the author decides.)
+# The self-hosted runner is a container of that image, so the job compiles in it directly, keeps its
+# compiler cache in the runner's volume, and refuses a branch whose dependency hash is not the one the
+# runner's image is built from (/etc/nes-ci-hash). A GitHub-hosted runner runs
+# the image in Docker; without the S3 credentials of the remote compiler cache, sccache keeps a local cache
+# in the workspace, carried from run to run: a pull request restores the newest cache of its own head or of
+# the branch it targets, and every push to next saves the cache the next pull requests start from.
 on:
   push:
     branches: [ next ]
@@ -55,15 +61,49 @@ jobs:
     needs: [ dev-image ]
     # A build that restores no cache compiles every source
     timeout-minutes: 180
-    runs-on: ubuntu-24.04
+    runs-on: ${{ (github.event_name != 'pull_request' || contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)) && fromJSON('["self-hosted", "nebula"]') || 'ubuntu-24.04' }}
     env:
       IMAGE: nebulastream/nes-ci:${{ needs.dev-image.outputs.tag }}-libstdcxx-none
+      CONFIGURE: cmake -GNinja -B build -DCMAKE_BUILD_TYPE=Debug -DNES_SPLIT_TEST_BINARIES=OFF
     steps:
       - uses: actions/checkout@v5
         with:
           ref: ${{ inputs.head_sha || github.sha }}
 
+      # On the self-hosted runner: in the runner's own container, the image the dependency hash names
+      - name: Check the runner's image against the dependency hash
+        if: ${{ runner.environment == 'self-hosted' }}
+        run: |
+          if [ "$(cat /etc/nes-ci-hash)" != "${{ needs.dev-image.outputs.tag }}" ]; then
+            echo "::error::the runner is built from nes-ci $(cat /etc/nes-ci-hash), this branch needs ${{ needs.dev-image.outputs.tag }}: rebuild the runner's image"
+            exit 1
+          fi
+
+      - name: CMake Build (self-hosted)
+        if: ${{ runner.environment == 'self-hosted' }}
+        run: |
+          export SCCACHE_DIR="$RUNNER_WORKSPACE/../../sccache" SCCACHE_CACHE_SIZE=20G
+          sccache --start-server
+          $CONFIGURE
+          cmake --build build -j -- -k 0
+          sccache --show-stats
+          sccache --stop-server
+
+      - name: Run Unit Tests (self-hosted)
+        if: ${{ runner.environment == 'self-hosted' }}
+        run: |
+          source .github/.env/test-none.env
+          ctest --test-dir build --no-tests=error -j -LE "Systest|DockerCompose" --output-on-failure --output-junit build/junit-unit.xml --timeout 2400 ${ADDITIONAL_CTEST_ARGS}
+
+      - name: Run System Tests (self-hosted)
+        if: ${{ runner.environment == 'self-hosted' }}
+        run: |
+          source .github/.env/test-none.env
+          ctest --test-dir build --no-tests=error -j -L Systest --output-on-failure --output-junit build/junit-systest.xml --timeout 4800 ${ADDITIONAL_CTEST_ARGS}
+
+      # On a GitHub-hosted runner: the image run in Docker, the compiler cache carried in the Actions cache
       - name: Restore the local compiler cache
+        if: ${{ runner.environment == 'github-hosted' }}
         uses: actions/cache/restore@v4
         with:
           path: .sccache
@@ -71,11 +111,13 @@ jobs:
           restore-keys: sccache-ci-${{ needs.dev-image.outputs.tag }}-
 
       - uses: ./.github/steps/prepare-github
+        if: ${{ runner.environment == 'github-hosted' }}
         name: Preparing Github Runners
         with:
           images: ${{ env.IMAGE }}
 
       - uses: ./.github/steps/run-in-container
+        if: ${{ runner.environment == 'github-hosted' }}
         name: CMake Build
         with:
           image_name: ${{ env.IMAGE }}
@@ -89,6 +131,7 @@ jobs:
             sccache --stop-server
 
       - uses: ./.github/steps/run-in-container
+        if: ${{ runner.environment == 'github-hosted' }}
         name: Run Unit Tests
         with:
           image_name: ${{ env.IMAGE }}
@@ -97,6 +140,7 @@ jobs:
             ctest --test-dir build --no-tests=error -j -LE "Systest|DockerCompose" --output-on-failure --output-junit build/junit-unit.xml --timeout 2400 ${ADDITIONAL_CTEST_ARGS}
 
       - uses: ./.github/steps/run-in-container
+        if: ${{ runner.environment == 'github-hosted' }}
         name: Run System Tests
         with:
           image_name: ${{ env.IMAGE }}
@@ -107,7 +151,7 @@ jobs:
       # Saved after a passing or a failing build, since a failing build is the one a developer reruns
       # and an implicit post-job save would skip it; a cancelled run holds a partial cache and saves none.
       - name: Save the local compiler cache
-        if: ${{ !cancelled() }}
+        if: ${{ runner.environment == 'github-hosted' && !cancelled() }}
         uses: actions/cache/save@v4
         with:
           path: .sccache

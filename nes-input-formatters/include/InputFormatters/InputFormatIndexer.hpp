@@ -48,6 +48,17 @@ public:
     [[nodiscard]] virtual std::string_view getFieldDelimitingBytes() const = 0;
     [[nodiscard]] virtual const std::vector<std::string>& getNullValues() const = 0;
 
+    /// Get the deserializer type for a specific field of the given data type. A field of a type a plugin adds over VARSIZED is
+    /// read by the deserializer the plugin registers under the name of the type, unless the user overrides it for this field.
+    [[nodiscard]] std::string getDeserializerType(const Record::RecordFieldIdentifier& fieldName, const DataType& dataType) const
+    {
+        if (dataType.extension != nullptr and not fieldDeserializerTypes.contains(fieldName))
+        {
+            return std::string{dataType.extension->name};
+        }
+        return getDeserializerType(fieldName, dataType.type);
+    }
+
     /// Get the deserializer type for a specific field. The datatype of the field determines the default, which the user may
     /// override for this particular field.
     [[nodiscard]] const std::string&

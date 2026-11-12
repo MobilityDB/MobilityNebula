@@ -168,7 +168,7 @@ nautilus::val<uint64_t> JSONOutputFormatter::writeFormattedValue(
                 bufferProvider,
                 written,
                 currentRemainingSize,
-                getSerializerType(fieldNames.at(fieldIndex), fieldType.type));
+                getSerializerType(fieldNames.at(fieldIndex), fieldType));
         }
     }
     else
@@ -180,7 +180,7 @@ nautilus::val<uint64_t> JSONOutputFormatter::writeFormattedValue(
             bufferProvider,
             written,
             currentRemainingSize,
-            getSerializerType(fieldNames.at(fieldIndex), fieldType.type));
+            getSerializerType(fieldNames.at(fieldIndex), fieldType));
     }
 
     /// Either write a , or a }\n depending on if this is the last value of the record

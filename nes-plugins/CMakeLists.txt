@@ -30,6 +30,12 @@ add_plugin("Functions/Conditional")
 add_plugin("OutputFormatters/JSONOutputFormatter/Serializers")
 add_plugin("InputFormatters/JSONInputFormatter/Deserializers")
 
+# The MEOS types and functions over libmeos, found under MEOS_ROOT (cmake/Findmeos.cmake)
+option(NES_ENABLE_MEOS "Build the MEOS plugin over libmeos" ON)
+if (NES_ENABLE_MEOS)
+  add_plugin("MEOS")
+endif()
+
 if (NES_ENABLES_TESTS)
   # ChecksumSink depends on Checksum.cpp from systest which is only added when tests are enabled.
   add_plugin("Sinks/ChecksumSink")

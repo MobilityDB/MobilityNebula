@@ -1,0 +1,26 @@
+# name: MEOS_AIntersects_Simple
+# description: aIntersects of two temporal points, and of a temporal point and a point, the temporal points read by tgeompointFromText and the point by geometryFromHexEWKB, the readers the catalog states.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, AIntersects]
+CREATE LOGICAL SOURCE ai_tt(test_id UINT32, a VARSIZED, b VARSIZED);
+CREATE PHYSICAL SOURCE FOR ai_tt TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|SRID=4326;POINT(-73.9857 40.7484)@2021-01-01 00:00:00+00|SRID=4326;POINT(-73.9857 40.7484)@2021-01-01 00:00:00+00
+2|SRID=4326;POINT(-73.9857 40.7484)@2021-01-01 00:00:00+00|SRID=4326;POINT(-73.98 40.745)@2021-01-01 00:00:00+00
+
+CREATE SINK ai_tt_out(test_id UINT32, aintersects BOOLEAN) TYPE File;
+SELECT test_id, aIntersects(tgeompointFromText(a), tgeompointFromText(b)) AS aintersects FROM ai_tt INTO ai_tt_out;
+----
+1,1
+2,0
+
+CREATE LOGICAL SOURCE ai_ts(test_id UINT32, trip VARSIZED);
+CREATE PHYSICAL SOURCE FOR ai_ts TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|SRID=4326;POINT(-73.9855 40.7485)@2021-01-01 00:00:00+00
+2|SRID=4326;POINT(-73.98 40.745)@2021-01-01 00:00:00+00
+
+CREATE SINK ai_ts_out(test_id UINT32, aintersects BOOLEAN) TYPE File;
+SELECT test_id, aIntersects(tgeompointFromText(trip), geometryFromHexEWKB(VARSIZED('0101000020E6100000508D976E127F52C02B8716D9CE5F4440'))) AS aintersects FROM ai_ts INTO ai_ts_out;
+----
+1,1
+2,0

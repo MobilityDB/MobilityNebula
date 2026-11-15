@@ -353,26 +353,13 @@ void negateTopFunction(std::stack<AntlrSQLHelper>& helpers, const std::string& e
         throw InvalidQuerySyntax("Parser is confused at {}", expressionText);
     }
 
-    if (helpers.top().isJoinRelation)
+    if (helpers.top().functionBuilder.empty())
     {
-        if (helpers.top().joinKeyRelationHelper.empty())
-        {
-            throw InvalidQuerySyntax("Negate requires child op at {}", expressionText);
-        }
-        auto innerFunction = std::move(helpers.top().joinKeyRelationHelper.back());
-        helpers.top().joinKeyRelationHelper.pop_back();
-        helpers.top().joinKeyRelationHelper.emplace_back(NegateLogicalFunction(std::move(innerFunction)));
+        throw InvalidQuerySyntax("Negate requires child op at {}", expressionText);
     }
-    else
-    {
-        if (helpers.top().functionBuilder.empty())
-        {
-            throw InvalidQuerySyntax("Negate requires child op at {}", expressionText);
-        }
-        auto innerFunction = std::move(helpers.top().functionBuilder.back());
-        helpers.top().functionBuilder.pop_back();
-        helpers.top().functionBuilder.emplace_back(NegateLogicalFunction(std::move(innerFunction)));
-    }
+    auto innerFunction = std::move(helpers.top().functionBuilder.back());
+    helpers.top().functionBuilder.pop_back();
+    helpers.top().functionBuilder.emplace_back(NegateLogicalFunction(std::move(innerFunction)));
 }
 
 }
@@ -416,14 +403,14 @@ void AntlrSQLQueryPlanCreator::enterSinkClause(AntlrSQLParser::SinkClauseContext
 
 void AntlrSQLQueryPlanCreator::exitOrPredicate(AntlrSQLParser::OrPredicateContext* context)
 {
-    auto& functions = helpers.top().isJoinRelation ? helpers.top().joinKeyRelationHelper : helpers.top().functionBuilder;
+    auto& functions = helpers.top().functionBuilder;
     combineLogicalFunctions(functions, context->andPredicate().size(), AntlrSQLLexer::OR, context->getText());
     AntlrSQLBaseListener::exitOrPredicate(context);
 }
 
 void AntlrSQLQueryPlanCreator::exitAndPredicate(AntlrSQLParser::AndPredicateContext* context)
 {
-    auto& functions = helpers.top().isJoinRelation ? helpers.top().joinKeyRelationHelper : helpers.top().functionBuilder;
+    auto& functions = helpers.top().functionBuilder;
     combineLogicalFunctions(functions, context->notPredicate().size(), AntlrSQLLexer::AND, context->getText());
     AntlrSQLBaseListener::exitAndPredicate(context);
 }
@@ -437,7 +424,7 @@ void AntlrSQLQueryPlanCreator::exitBoolComparison(AntlrSQLParser::BoolComparison
         return;
     }
 
-    auto& functions = helpers.top().isJoinRelation ? helpers.top().joinKeyRelationHelper : helpers.top().functionBuilder;
+    auto& functions = helpers.top().functionBuilder;
     const auto popFunction = [&functions, comparison]()
     {
         if (functions.empty())
@@ -648,7 +635,7 @@ void AntlrSQLQueryPlanCreator::exitArithmeticUnary(AntlrSQLParser::ArithmeticUna
         }
     }
 
-    auto& functions = helpers.top().isJoinRelation ? helpers.top().joinKeyRelationHelper : helpers.top().functionBuilder;
+    auto& functions = helpers.top().functionBuilder;
     if (functions.empty())
     {
         throw InvalidQuerySyntax("Expected unary operator, got nothing: {}", context->getText());
@@ -722,7 +709,7 @@ void AntlrSQLQueryPlanCreator::enterIdentifier(AntlrSQLParser::IdentifierContext
         helpers.top().groupByFields.emplace_back(bindIdentifier(context));
     }
     else if (
-        (helpers.top().isWhereOrHaving || helpers.top().isSelect || helpers.top().isWindow)
+        (helpers.top().isWhereOrHaving || helpers.top().isSelect || helpers.top().isWindow || helpers.top().isJoinCriteria)
         && AntlrSQLParser::RulePrimaryExpression == parentRuleIndex)
     {
         helpers.top().functionBuilder.emplace_back(UnboundFieldAccessLogicalFunction(bindIdentifier(context)));
@@ -770,10 +757,6 @@ void AntlrSQLQueryPlanCreator::enterIdentifier(AntlrSQLParser::IdentifierContext
             helpers.top().addProjection(bindIdentifier(context), expression);
         }
         helpers.top().hasUnnamedAggregation = false;
-    }
-    else if (helpers.top().isJoinRelation and AntlrSQLParser::RulePrimaryExpression == parentRuleIndex)
-    {
-        helpers.top().joinKeyRelationHelper.emplace_back(UnboundFieldAccessLogicalFunction(bindIdentifier(context)));
     }
     else if (helpers.top().isJoinRelation and AntlrSQLParser::RuleErrorCapturingIdentifier == parentRuleIndex)
     {
@@ -1103,34 +1086,17 @@ void AntlrSQLQueryPlanCreator::exitHavingClause(AntlrSQLParser::HavingClauseCont
 
 void AntlrSQLQueryPlanCreator::exitComparison(AntlrSQLParser::ComparisonContext* context)
 {
-    if (helpers.top().isJoinRelation)
+    if (helpers.top().functionBuilder.size() < 2)
     {
-        if (helpers.top().joinKeyRelationHelper.size() < 2)
-        {
-            throw InvalidQuerySyntax(
-                "Requires two functions but got {} at {}", helpers.top().joinKeyRelationHelper.size(), context->getText());
-        }
-        const auto rightFunction = helpers.top().joinKeyRelationHelper.back();
-        helpers.top().joinKeyRelationHelper.pop_back();
-        const auto leftFunction = helpers.top().joinKeyRelationHelper.back();
-        helpers.top().joinKeyRelationHelper.pop_back();
-        const auto function = createFunctionFromOpBoolean(leftFunction, rightFunction, helpers.top().opBoolean);
-        helpers.top().joinKeyRelationHelper.push_back(function);
+        throw InvalidQuerySyntax("Comparison requires two parameters, got {}", context->getText());
     }
-    else
-    {
-        if (helpers.top().functionBuilder.size() < 2)
-        {
-            throw InvalidQuerySyntax("Comparison requires two parameters, got {}", context->getText());
-        }
-        const auto rightFunction = helpers.top().functionBuilder.back();
-        helpers.top().functionBuilder.pop_back();
-        const auto leftFunction = helpers.top().functionBuilder.back();
-        helpers.top().functionBuilder.pop_back();
+    const auto rightFunction = helpers.top().functionBuilder.back();
+    helpers.top().functionBuilder.pop_back();
+    const auto leftFunction = helpers.top().functionBuilder.back();
+    helpers.top().functionBuilder.pop_back();
 
-        const auto function = createFunctionFromOpBoolean(leftFunction, rightFunction, helpers.top().opBoolean);
-        helpers.top().functionBuilder.push_back(function);
-    }
+    const auto function = createFunctionFromOpBoolean(leftFunction, rightFunction, helpers.top().opBoolean);
+    helpers.top().functionBuilder.push_back(function);
     AntlrSQLBaseListener::exitComparison(context);
 }
 
@@ -1141,10 +1107,30 @@ void AntlrSQLQueryPlanCreator::enterJoinRelation(AntlrSQLParser::JoinRelationCon
     AntlrSQLBaseListener::enterJoinRelation(context);
 }
 
+/// The ON condition of a join is built as a WHERE condition is, in functionBuilder, so it holds every function a WHERE
+/// condition holds, a call of a function included; the one function it builds is the join function
 void AntlrSQLQueryPlanCreator::enterJoinCriteria(AntlrSQLParser::JoinCriteriaContext* context)
 {
     INVARIANT(helpers.top().isJoinRelation, "Join criteria must be inside a join relation.");
+    helpers.top().isJoinCriteria = true;
+    helpers.top().joinCriteriaStart = helpers.top().functionBuilder.size();
     AntlrSQLBaseListener::enterJoinCriteria(context);
+}
+
+void AntlrSQLQueryPlanCreator::exitJoinCriteria(AntlrSQLParser::JoinCriteriaContext* context)
+{
+    auto& helper = helpers.top();
+    helper.isJoinCriteria = false;
+    if (helper.functionBuilder.size() != helper.joinCriteriaStart + 1)
+    {
+        throw InvalidQuerySyntax(
+            "The join condition must be one function, but got {} at {}",
+            helper.functionBuilder.size() - helper.joinCriteriaStart,
+            context->getText());
+    }
+    helper.joinKeyRelationHelper.push_back(helper.functionBuilder.back());
+    helper.functionBuilder.pop_back();
+    AntlrSQLBaseListener::exitJoinCriteria(context);
 }
 
 void AntlrSQLQueryPlanCreator::enterJoinType(AntlrSQLParser::JoinTypeContext* context)
@@ -1253,7 +1239,7 @@ void AntlrSQLQueryPlanCreator::exitConstantDefault(AntlrSQLParser::ConstantDefau
     const auto insideDataTypeConstructorArgument = isInsideDataTypeConstructorArgument(context);
     if (dynamic_cast<AntlrSQLParser::NumericLiteralContext*>(context->constant()) != nullptr and !insideDataTypeConstructorArgument)
     {
-        auto& functionBuilder = helpers.top().isJoinRelation ? helpers.top().joinKeyRelationHelper : helpers.top().functionBuilder;
+        auto& functionBuilder = helpers.top().functionBuilder;
         functionBuilder.emplace_back(createRawLiteralFunction(context->getText()));
         return;
     }
@@ -1267,7 +1253,7 @@ void AntlrSQLQueryPlanCreator::exitConstantDefault(AntlrSQLParser::ConstantDefau
         }
         if (!insideDataTypeConstructorArgument)
         {
-            auto& functionBuilder = helpers.top().isJoinRelation ? helpers.top().joinKeyRelationHelper : helpers.top().functionBuilder;
+            auto& functionBuilder = helpers.top().functionBuilder;
             functionBuilder.emplace_back(createRawLiteralFunction(context->getText()));
             return;
         }
@@ -1275,7 +1261,7 @@ void AntlrSQLQueryPlanCreator::exitConstantDefault(AntlrSQLParser::ConstantDefau
     }
     else if (dynamic_cast<AntlrSQLParser::BooleanLiteralContext*>(context->constant()) != nullptr and !insideDataTypeConstructorArgument)
     {
-        auto& functionBuilder = helpers.top().isJoinRelation ? helpers.top().joinKeyRelationHelper : helpers.top().functionBuilder;
+        auto& functionBuilder = helpers.top().functionBuilder;
         functionBuilder.emplace_back(createRawLiteralFunction(context->getText()));
     }
     else

@@ -65,6 +65,10 @@ public:
     bool isWindow = false;
     bool isArithmeticBinary = false;
     bool isJoinRelation = false;
+    /// Inside the ON condition of a join, built as a WHERE condition is built, in functionBuilder from
+    /// joinCriteriaStart on
+    bool isJoinCriteria = false;
+    size_t joinCriteriaStart = 0;
     bool isSimpleCondition = true;
     bool isTimeBasedWindow = true;
     bool isSetOperation = false;

@@ -302,7 +302,7 @@
         ];
 
         ccacheShellHook = ''
-          export CCACHE_DIR="$PWD/.ccache"
+          export CCACHE_DIR="''${CCACHE_DIR:-$PWD/.ccache}"
           export CCACHE_BASEDIR="$PWD"
           mkdir -p "$CCACHE_DIR"
           export CMAKE_C_COMPILER_LAUNCHER=ccache
@@ -374,24 +374,47 @@
           ++ sanitizedDeps
           ++ [ sanitizedNautilus ];
 
+        # The libraries libmeos links when MobilityDB builds it with every family (-DALL=ON), which
+        # cmake/Findmeos.cmake finds through pkg-config and the MEOS headers include: PROJ and json-c
+        # always, h3 for the H3 family, GDAL for raster. GDAL is the minimal build: the full one links
+        # TileDB, which carries its own spdlog over fmt 10 into a process whose spdlog uses fmt 11. They
+        # reach the search paths alone (mkCmakeContext), never the shell's buildInputs: each input there
+        # adds its -isystem to NIX_CFLAGS_COMPILE, which the compiler wrapper passes as one string, and
+        # these push it past the kernel's limit of one string ("mktemp: Argument list too long").
+        meosDeps = with pkgs; [
+          proj
+          proj.dev
+          json_c
+          json_c.dev
+          h3_4
+          h3_4.dev
+          gdalMinimal
+          # proj.pc names sqlite3, libtiff-4 and libcurl in Requires.private, which pkg-config
+          # resolves on every lookup of proj, and libtiff-4.pc names Lerc.
+          sqlite.dev
+          libtiff.dev
+          curl.dev
+          lerc.dev
+        ];
+
         mkCmakeContext = combo:
           let
             sanitizer = combo.sanitizer;
             stdlib = combo.stdlib;
             mlirBinary = combo.mlirBinary;
             thirdPartyDeps = mkThirdPartyDeps combo;
-            cmakeInputs = [ mlirBinary libdwarfModule ] ++ thirdPartyDeps;
+            cmakeInputs = [ mlirBinary libdwarfModule ] ++ thirdPartyDeps ++ meosDeps;
             cmakePrefixPath = lib.makeSearchPath "" cmakeInputs;
             pkgConfigPath = lib.concatStringsSep ":" (
-              map (dir: lib.makeSearchPath dir thirdPartyDeps) [
+              map (dir: lib.makeSearchPath dir (thirdPartyDeps ++ meosDeps)) [
                 "lib/pkgconfig"
                 "share/pkgconfig"
               ]
             );
-            includeRoots = lib.unique (map (dep: "${dep}/include") (thirdPartyDeps ++ sanitizer.extraPackages ++ stdlib.extraPackages ++ [ mlirBinary ]));
+            includeRoots = lib.unique (map (dep: "${dep}/include") (thirdPartyDeps ++ meosDeps ++ sanitizer.extraPackages ++ stdlib.extraPackages ++ [ mlirBinary ]));
             includePath = lib.concatStringsSep ":" includeRoots;
             includePathCMake = lib.concatStringsSep ";" includeRoots;
-            libraryRoots = lib.unique (map (dep: "${dep}/lib") (thirdPartyDeps ++ sanitizer.extraPackages ++ stdlib.extraPackages ++ [ mlirBinary ]));
+            libraryRoots = lib.unique (map (dep: "${dep}/lib") (thirdPartyDeps ++ meosDeps ++ sanitizer.extraPackages ++ stdlib.extraPackages ++ [ mlirBinary ]));
             libraryPath = lib.concatStringsSep ":" libraryRoots;
             includeFlags = lib.concatStringsSep " " (map (path: "-isystem ${path}") includeRoots);
             libcxxLinkerFlags = lib.optionals (stdlib.name == "libcxx") [
@@ -883,9 +906,9 @@
               pkgs.openssl.out
               pkgs.libuuid.lib
             ];
-            runtimeLibraryPath = lib.makeLibraryPath (allBuildInputs ++ transitiveRuntimeDeps);
+            runtimeLibraryPath = lib.makeLibraryPath (allBuildInputs ++ transitiveRuntimeDeps ++ meosDeps);
             runtimeLibraryPathCMake = lib.concatStringsSep ";" (
-              lib.unique (map (dep: "${lib.getLib dep}/lib") (allBuildInputs ++ transitiveRuntimeDeps))
+              lib.unique (map (dep: "${lib.getLib dep}/lib") (allBuildInputs ++ transitiveRuntimeDeps ++ meosDeps))
             );
             envVars =
               sanitizer.extraEnv

@@ -23,6 +23,7 @@
 #include <Functions/PhysicalFunction.hpp>
 #include <Interface/PagedVector/PagedVectorRef.hpp>
 #include <Interface/Record.hpp>
+#include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <Util/RuntimeRegistry.hpp>
 
 namespace NES
@@ -38,6 +39,9 @@ struct AggregationPhysicalFunctionRegistryArguments
     Record::RecordFieldIdentifier resultFieldIdentifier;
     std::optional<std::shared_ptr<PagedVectorTupleLayout>> tupleLayout;
     bool includeNullValues;
+    /// The logical aggregation lowered, from which an aggregation a plugin adds reads what its logical function
+    /// holds, as the constants of its query
+    std::optional<WindowAggregationLogicalFunction> logicalFunction{};
 };
 
 using AggregationPhysicalFunctionFn

@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <Functions/FieldAccessLogicalFunction.hpp>
+#include <Functions/LogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <Util/Reflection.hpp>
 #include <Util/RuntimeRegistry.hpp>
@@ -32,6 +33,9 @@ struct AggregationLogicalFunctionRegistryArguments
 {
     std::vector<AggregationFieldAccess> on;
     bool includeNullValues;
+    /// The constants a query passes after the aggregated field, as in `aggregation(field, constant, ...)`; none
+    /// for an aggregation over its field alone
+    std::vector<LogicalFunction> literals{};
 };
 
 using AggregationLogicalFunctionFn

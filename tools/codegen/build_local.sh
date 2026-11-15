@@ -20,9 +20,11 @@
 #   NES_CCACHE_MAXSIZE   its size limit (default: 20G)
 #   BUILD_DIR            the build directory in the repository (default: cmake-build-local)
 #   JOBS                 parallel compile jobs (default: the cores of the machine)
+#   TESTS                the tests run after a build of every target, as container-build.yml's steps
+#                        run them: "all" (default) runs the unit tests (-LE "Systest|DockerCompose"),
+#                        then the system tests (-L Systest); "unit" the first alone; "none" neither
 #   SYSTESTS             a ctest regular expression over the system-test runs, each running every
-#                        .test file in one mode (systest_compiler_sliceCache_true, ...); "." runs all
-#                        of them, as CI's "Run System Tests" step does (default: none run)
+#                        .test file in one mode (systest_compiler_sliceCache_true, ...) (default: all)
 #
 set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
@@ -75,9 +77,20 @@ else
 fi
 ./.nix/nix-run.sh ccache --show-stats | grep -E 'Hits|Misses|Cache size'
 echo "### BUILD EXIT=$rc"
-if [ "$rc" -eq 0 ] && [ -n "${SYSTESTS:-}" ]; then
+# A pull request is pushed on both of CI's test steps, not on a subset of them: a build of named targets
+# runs none, since the tests need every target.
+TESTS="${TESTS:-all}"
+if [ $# -gt 0 ]; then
+  TESTS=none
+fi
+if [ "$rc" -eq 0 ] && [ "$TESTS" != "none" ]; then
   ./.nix/nix-run.sh bash -c "source .github/.env/test-none.env; ctest --test-dir '$BUILD_DIR' --no-tests=error \
-    -j'$JOBS' -L Systest -R '$SYSTESTS' --output-on-failure --timeout 4800" || rc=$?
+    -j'$JOBS' -LE 'Systest|DockerCompose' --output-on-failure --timeout 2400" || rc=$?
+  echo "### UNIT EXIT=$rc"
+fi
+if [ "$rc" -eq 0 ] && [ "$TESTS" = "all" ]; then
+  ./.nix/nix-run.sh bash -c "source .github/.env/test-none.env; ctest --test-dir '$BUILD_DIR' --no-tests=error \
+    -j4 -L Systest -R '${SYSTESTS:-.}' --output-on-failure --timeout 4800" || rc=$?
   echo "### SYSTEST EXIT=$rc"
 fi
 exit "$rc"

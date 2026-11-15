@@ -229,13 +229,38 @@ class TypeLayer:
             '    const auto wkb = unhex(text);', '    return bytesOf(std::span{wkb});', '}', '',
             'constexpr ExtensionType ByteaType{.name = "BYTEA", .fromText = ByteaFromText};', ''])
 
-    def table(self, sqls):
+    def array_source(self, sql):
+        """The C++ of the extension type of an array of `sql`, as #bytea_source writes the type of `bytea` and
+        MobilityFlink's ARRAY of the value class carries it: the number of elements, then each element's
+        memory image after its length, written as the text of its elements in braces. An array passes between
+        functions and is read from no text."""
+        name = ident(sql)
+        return '\n'.join([
+            f'/* {sql}[]: an array of {sql}, carried as its number of elements, then each element\'s memory image after its length */',
+            f'std::string {name}ArrayToText(std::span<const std::byte> bytes)', '{',
+            '    if (bytes.empty())', '    {', '        return {};', '    }',
+            '    uint32_t count = 0;', '    std::memcpy(&count, bytes.data(), sizeof(count));',
+            '    size_t at = sizeof(count);', '    std::string text{"{"};',
+            '    for (uint32_t i = 0; i < count; ++i)', '    {',
+            '        uint32_t size = 0;', '        std::memcpy(&size, bytes.data() + at, sizeof(size));', '        at += sizeof(size);',
+            '        if (i > 0)', '        {', '            text += ", ";', '        }',
+            f'        text += {name}ToText(bytes.subspan(at, size));', '        at += size;', '    }',
+            '    text += "}";', '    return text;', '}', '',
+            f'std::vector<std::byte> {name}ArrayFromText(std::string_view text)', '{',
+            f'    cannotRead("{sql}[]", text);', '}', '',
+            f'constexpr ExtensionType {name}ArrayType{{.name = "{sql.upper()}_ARRAY", .fromText = {name}ArrayFromText}};', ''])
+
+    def table(self, sqls, arrays=()):
         """The table of the types, each with the functions writing and reading its text, which the plugin
-        registers (nes-plugins/MEOS/MeosLogicalRegistration.cpp, MeosPhysicalRegistration.cpp)"""
-        rows = ',\n'.join(f'    MeosType{{&{ident(sql)}Type, {ident(sql)}ToText}}' for sql in sqls)
+        registers (nes-plugins/MEOS/MeosLogicalRegistration.cpp, MeosPhysicalRegistration.cpp), the arrays
+        #array_source writes among them"""
+        rows = [f'    MeosType{{&{ident(sql)}Type, {ident(sql)}ToText}}' for sql in sqls]
+        rows += [f'    MeosType{{&{ident(sql)}ArrayType, {ident(sql)}ArrayToText}}' for sql in arrays]
+        count = len(rows)
+        rows = ',\n'.join(rows)
         return ['}', '', 'namespace NES', '{', '',
                 f'std::span<const MeosType> meosTypes()', '{',
-                f'    static constexpr std::array<MeosType, {len(sqls)}> types{{{{', rows, '    }};',
+                f'    static constexpr std::array<MeosType, {count}> types{{{{', rows, '    }};',
                 '    return types;', '}', '', '}']
 
 
@@ -410,6 +435,9 @@ class FunctionLayer:
     def nes_type(self, sql):
         """The NebulaStream data type a SQL type is carried in, and the physical type of its value; an array of
         values carried as their memory image is a type of its own (TypeLayer.array_source)"""
+        if sql.endswith('[]') and sql[:-2] in self.m.image:
+            self.arrays.add(sql[:-2])
+            return f'{sql[:-2].upper()}_ARRAY', 'VARSIZED'
         if sql in self.m.codec:
             return sql.upper(), 'VARSIZED'
         if sql == 'text':
@@ -914,7 +942,8 @@ def run(args):
     functions = FunctionLayer(layer, cat, nebula_function_names(args.output_root), cj)
     functions.build()
     src = (LICENSE + PREAMBLE.replace('@HEADERS@', type_headers) + '\n'.join(bodies) + '\n'
-           + '\n'.join(layer.table(sqls + ['bytea'])) + '\n')
+           + '\n'.join(layer.array_source(sql) for sql in sorted(functions.arrays)) + '\n'
+           + '\n'.join(layer.table(sqls + ['bytea'], sorted(functions.arrays))) + '\n')
     out = Path(args.output_root) / 'nes-plugins' / 'MEOS' / 'DataTypes'
     out.mkdir(parents=True, exist_ok=True)
     write_if_changed(out / 'MeosDataTypes.cpp', src)

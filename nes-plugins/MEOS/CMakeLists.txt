@@ -37,14 +37,17 @@ endif ()
 # linked whole, as the glue of a registry is, so that the initializers describing the entries to the plugin
 # loader are kept, and sees its owner compile-only, as the glue does, so that the cycle between the two
 # static libraries does not link it twice (cmake/RuntimeRegistrationUtil.cmake).
-add_library(nes-meos-logical STATIC MeosLogicalRegistration.cpp Functions/MeosLogicalFunction.cpp)
+add_library(nes-meos-logical STATIC MeosLogicalRegistration.cpp Functions/MeosLogicalFunction.cpp
+        Aggregations/MeosAggregationLogicalFunction.cpp)
 target_link_libraries(nes-meos-logical PUBLIC nes-meos PRIVATE $<COMPILE_ONLY:nes-logical-operators> reflectcpp::reflectcpp)
 link_plugin_library(nes-logical-operators "$<LINK_LIBRARY:WHOLE_ARCHIVE,nes-meos-logical>")
 
-add_library(nes-meos-physical STATIC MeosPhysicalRegistration.cpp Functions/MeosPhysicalFunction.cpp)
+add_library(nes-meos-physical STATIC MeosPhysicalRegistration.cpp Functions/MeosPhysicalFunction.cpp
+        Aggregations/MeosAggregationPhysicalFunction.cpp)
 target_link_libraries(nes-meos-physical PUBLIC nes-meos
         PRIVATE $<COMPILE_ONLY:nes-physical-operators> $<COMPILE_ONLY:nes-input-formatters>)
 link_plugin_library(nes-physical-operators "$<LINK_LIBRARY:WHOLE_ARCHIVE,nes-meos-physical>")
 
 add_subdirectory(DataTypes)
 add_subdirectory(Functions)
+add_subdirectory(Aggregations)

@@ -78,6 +78,7 @@
 #include <WindowTypes/Types/TumblingWindow.hpp>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <AggregationLogicalFunctionRegistry.hpp>
 #include <CommonParserFunctions.hpp>
 #include <ErrorHandling.hpp>
 #include <ParserUtil.hpp>
@@ -1398,10 +1399,29 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 }
                 auto argsBegin = helpers.top().functionBuilder.end() - static_cast<std::ptrdiff_t>(numArgs);
                 std::vector<LogicalFunction> funcArgs(argsBegin, helpers.top().functionBuilder.end());
-                if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, std::move(funcArgs)))
+                if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, funcArgs))
                 {
                     helpers.top().functionBuilder.resize(helpers.top().functionBuilder.size() - numArgs);
                     helpers.top().functionBuilder.push_back(*logicalFunction);
+                }
+                else if (const auto aggregation = AggregationLogicalFunctionRegistry::instance().find(funcName);
+                         aggregation.has_value() and numArgs >= 1 and funcArgs.front().tryGetAs<UnboundFieldAccessLogicalFunction>()
+                         and std::ranges::all_of(
+                             funcArgs | std::views::drop(1),
+                             [](const LogicalFunction& argument)
+                             { return argument.tryGetAs<ConstantValueLogicalFunction>().has_value(); }))
+                {
+                    /// An aggregation a plugin registers, over the field of its first argument and the constants after it,
+                    /// as COUNT is over its field; the field stays for the name of the result
+                    std::vector<LogicalFunction> literals(funcArgs.begin() + 1, funcArgs.end());
+                    helpers.top().functionBuilder.resize(helpers.top().functionBuilder.size() - (numArgs - 1));
+                    helpers.top().windowAggs.emplace_back(
+                        (*aggregation)(AggregationLogicalFunctionRegistryArguments{
+                            .on = {helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>()},
+                            .includeNullValues = false,
+                            .literals = std::move(literals)}),
+                        std::nullopt);
+                    isAggregation = true;
                 }
                 else
                 {

@@ -32,6 +32,7 @@
 #include <DataTypes/VariableSizedData.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Functions/MeosLogicalFunction.hpp>
+#include <Aggregations/MeosAggregationLogicalFunction.hpp>
 #include <Interface/RecordBuffer.hpp>
 #include <OutputFormatters/OutputFormatterUtil.hpp>
 #include <OutputFormatters/ValueSerializer.hpp>
@@ -40,7 +41,10 @@
 #include <Runtime/AbstractBufferProvider.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Util/Reflection.hpp>
+#include <AggregationLogicalFunctionRegistry.hpp>
+#include <AggregationLogicalFunctionUnreflectionRegistry.hpp>
 #include <DataTypeRegistry.hpp>
+#include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
 #include <LogicalFunctionUnreflectionRegistry.hpp>
 #include <MeosRegistration.hpp>
@@ -159,6 +163,38 @@ void describe(PluginDescriptor& descriptor)
                 .registryClassName = "LogicalFunctionUnreflectionRegistry",
                 .key = std::string{key},
                 .entry = std::any{LogicalFunctionUnreflectionRegistry::EntryType{unreflect}}});
+        }
+    }
+    const auto unreflectAggregation = [](const Reflected& data, const ReflectionContext& context) -> WindowAggregationLogicalFunction
+    { return context.unreflect<MeosAggregationLogicalFunction>(data); };
+    for (const auto& aggregate : meosAggregates())
+    {
+        descriptor.entries.push_back(EntryProvision{
+            .registryClassName = "AggregationLogicalFunctionRegistry",
+            .key = std::string{aggregate.name},
+            .entry = std::any{AggregationLogicalFunctionRegistry::EntryType{
+                [aggregate](AggregationLogicalFunctionRegistryArguments arguments) -> AggregationLogicalFunctionRegistryReturnType
+                {
+                    if (arguments.on.size() != 1)
+                    {
+                        throw CannotDeserialize("{} takes one field, but got {}", aggregate.name, arguments.on.size());
+                    }
+                    return MeosAggregationLogicalFunction{
+                        aggregate.name, aggregate.overloads, arguments.on.at(0), std::move(arguments.literals)};
+                }}}});
+        /// An aggregation is reflected as its name until its overload is chosen, then as the overload's physical
+        /// aggregation, as a function is
+        std::set<std::string_view> reflectedAs{aggregate.name};
+        for (const auto& overload : aggregate.overloads)
+        {
+            reflectedAs.insert(overload.physicalAggregation);
+        }
+        for (const auto key : reflectedAs)
+        {
+            descriptor.entries.push_back(EntryProvision{
+                .registryClassName = "AggregationLogicalFunctionUnreflectionRegistry",
+                .key = std::string{key},
+                .entry = std::any{AggregationLogicalFunctionUnreflectionRegistry::EntryType{unreflectAggregation}}});
         }
     }
 }

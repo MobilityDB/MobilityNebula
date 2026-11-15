@@ -374,7 +374,9 @@
             ];
             shellHook = ''
               unset NES_PREBUILT_VCPKG_ROOT
-              export CCACHE_DIR="$PWD/.ccache"
+              # A cache the caller names (one shared by every worktree) is kept; CCACHE_BASEDIR
+              # makes its entries relative to the worktree, so they serve every worktree alike.
+              export CCACHE_DIR="''${CCACHE_DIR:-$PWD/.ccache}"
               export CCACHE_BASEDIR="$PWD"
               mkdir -p "$CCACHE_DIR"
               export CMAKE_C_COMPILER_LAUNCHER=ccache

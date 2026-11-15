@@ -45,6 +45,12 @@ namespace NES
 namespace
 {
 
+/// The aggregations NebulaStream defines (nes-logical-operators/src/Operators/Windows/Aggregations), the
+/// ones these tests state the input of; a plugin adds aggregations over its own types, which neither
+/// test states.
+constexpr std::array OwnAggregations{
+    std::string_view{"AVG"}, std::string_view{"COUNT"}, std::string_view{"MAX"},
+    std::string_view{"MEDIAN"}, std::string_view{"MIN"}, std::string_view{"SUM"}};
 constexpr std::array NonNumericAggregations{std::string_view{"COUNT"}};
 
 class AggregationInputTypeTest : public ::testing::Test
@@ -81,7 +87,7 @@ TEST_F(AggregationInputTypeTest, RejectsNonNumericInput)
 {
     const auto schema = makeSource()->getOutputSchema();
 
-    for (const auto& name : AggregationLogicalFunctionRegistry::instance().getRegisteredNames())
+    for (const auto name : OwnAggregations)
     {
         if (std::ranges::contains(NonNumericAggregations, name))
         {
@@ -90,7 +96,7 @@ TEST_F(AggregationInputTypeTest, RejectsNonNumericInput)
         SCOPED_TRACE(name);
         try
         {
-            std::ignore = createAggregation(name, Identifier::parse("key")).withInferredType(schema);
+            std::ignore = createAggregation(std::string(name), Identifier::parse("key")).withInferredType(schema);
             ADD_FAILURE() << "Expected an UnsupportedQuery exception";
         }
         catch (const Exception& exception)
@@ -105,10 +111,10 @@ TEST_F(AggregationInputTypeTest, AcceptsNumericInput)
 {
     const auto schema = makeSource()->getOutputSchema();
 
-    for (const auto& name : AggregationLogicalFunctionRegistry::instance().getRegisteredNames())
+    for (const auto name : OwnAggregations)
     {
         SCOPED_TRACE(name);
-        EXPECT_NO_THROW(std::ignore = createAggregation(name, Identifier::parse("i8")).withInferredType(schema));
+        EXPECT_NO_THROW(std::ignore = createAggregation(std::string(name), Identifier::parse("i8")).withInferredType(schema));
     }
 }
 }

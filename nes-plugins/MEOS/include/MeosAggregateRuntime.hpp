@@ -63,6 +63,11 @@
 namespace NES::MeosRuntime
 {
 
+/// The slot of the answer of a result: a number of 8 bytes, then the null flag Finish sets when the aggregate
+/// folded no value
+inline constexpr size_t AnswerNullAt = sizeof(int64_t);
+inline constexpr size_t AnswerSize = AnswerNullAt + sizeof(int64_t);
+
 template <class OPS>
 struct MeosAggregate
 {
@@ -207,7 +212,9 @@ struct MeosAggregate
         store(source, b);
     }
 
-    /// The answer of the result over a state, which is left empty; a number is answered in `out`
+    /// The answer of the result over a state, which is left empty: a variable-sized value as a kernel answers
+    /// it, a number in `out`, and in either case the null flag at AnswerNullAt of `out`, set when the aggregate
+    /// folded no value, as an aggregate over no row answers null in MobilityDB
     static int8_t* Finish(int8_t* slot, int8_t* out)
     {
         initialized();
@@ -224,9 +231,10 @@ struct MeosAggregate
         {
             std::free(state);
         }
+        std::memset(out, 0, AnswerSize);
         if (r == nullptr)
         {
-            std::memset(out, 0, sizeof(int64_t));
+            out[AnswerNullAt] = 1;
             return none();
         }
         return OPS::Write(r, out);
@@ -262,7 +270,7 @@ inline void* laid(const int8_t* reference)
         return nullptr;
     }
     void* value = std::malloc(length);
-    std::memcpy(value, reference + sizeof(uint32_t), length);
+    std::memcpy(value, contentOf(reference), length);
     return value;
 }
 

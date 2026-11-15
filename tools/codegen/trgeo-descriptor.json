@@ -1,0 +1,311 @@
+{
+  "_comment": "codegen descriptor; shapes=trgeometry_geo_predicate,geo_trgeometry_predicate,trgeometry_geo_dwithin,trgeometry_trgeometry_predicate,trgeometry_trgeometry_dwithin,trgeometry_nad",
+  "operators": [
+    {
+      "nebula_name": "AcontainsGeoTrgeometry",
+      "sql_token": "ACONTAINS_GEO_TRGEOMETRY",
+      "meos_call": "acontains_geo_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_geo_trgeometry": true,
+      "comment_one_liner": "Returns 1 if the geometry acontains the trgeometry instant."
+    },
+    {
+      "nebula_name": "AcoversGeoTrgeometry",
+      "sql_token": "ACOVERS_GEO_TRGEOMETRY",
+      "meos_call": "acovers_geo_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_geo_trgeometry": true,
+      "comment_one_liner": "Returns 1 if the geometry acovers the trgeometry instant."
+    },
+    {
+      "nebula_name": "AcoversTrgeometryGeo",
+      "sql_token": "ACOVERS_TRGEOMETRY_GEO",
+      "meos_call": "acovers_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo": true,
+      "comment_one_liner": "Returns 1 if the trgeometry instant acovers the geometry."
+    },
+    {
+      "nebula_name": "AdisjointTrgeometryGeo",
+      "sql_token": "ADISJOINT_TRGEOMETRY_GEO",
+      "meos_call": "adisjoint_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo": true,
+      "comment_one_liner": "Returns 1 if the trgeometry instant adisjoint the geometry."
+    },
+    {
+      "nebula_name": "AdisjointTrgeometryTrgeometry",
+      "sql_token": "ADISJOINT_TRGEOMETRY_TRGEOMETRY",
+      "meos_call": "adisjoint_trgeometry_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_trgeometry": true,
+      "comment_one_liner": "Returns 1 if the two trgeometry instants adisjoint."
+    },
+    {
+      "nebula_name": "AdwithinTrgeometryGeo",
+      "sql_token": "ADWITHIN_TRGEOMETRY_GEO",
+      "meos_call": "adwithin_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo_with_dist": true,
+      "comment_one_liner": "Returns 1 if the trgeometry instant is within dist of the geometry (adwithin)."
+    },
+    {
+      "nebula_name": "AdwithinTrgeometryTrgeometry",
+      "sql_token": "ADWITHIN_TRGEOMETRY_TRGEOMETRY",
+      "meos_call": "adwithin_trgeometry_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_trgeometry_with_dist": true,
+      "comment_one_liner": "Returns 1 if the two trgeometry instants are within dist (adwithin)."
+    },
+    {
+      "nebula_name": "AintersectsTrgeometryGeo",
+      "sql_token": "AINTERSECTS_TRGEOMETRY_GEO",
+      "meos_call": "aintersects_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo": true,
+      "comment_one_liner": "Returns 1 if the trgeometry instant aintersects the geometry."
+    },
+    {
+      "nebula_name": "AintersectsTrgeometryTrgeometry",
+      "sql_token": "AINTERSECTS_TRGEOMETRY_TRGEOMETRY",
+      "meos_call": "aintersects_trgeometry_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_trgeometry": true,
+      "comment_one_liner": "Returns 1 if the two trgeometry instants aintersects."
+    },
+    {
+      "nebula_name": "AlwaysEqGeoTrgeometry",
+      "sql_token": "ALWAYS_EQ_GEO_TRGEOMETRY",
+      "meos_call": "always_eq_geo_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_geo_trgeometry_eq": true,
+      "comment_one_liner": "Returns 1.0 if the static geometry is always equal to the 2D trgeometry instant."
+    },
+    {
+      "nebula_name": "AlwaysEqTrgeometryGeo",
+      "sql_token": "ALWAYS_EQ_TRGEOMETRY_GEO",
+      "meos_call": "always_eq_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo_nad": true,
+      "comment_one_liner": "Returns 1.0 if the 2D trgeometry instant is always equal to the static geometry."
+    },
+    {
+      "nebula_name": "AlwaysEqTrgeometryTrgeometry",
+      "sql_token": "ALWAYS_EQ_TRGEOMETRY_TRGEOMETRY",
+      "meos_call": "always_eq_trgeometry_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_trgeometry_nad": true,
+      "comment_one_liner": "Returns 1.0 if the two 2D trgeometry instants are always equal."
+    },
+    {
+      "nebula_name": "AlwaysNeGeoTrgeometry",
+      "sql_token": "ALWAYS_NE_GEO_TRGEOMETRY",
+      "meos_call": "always_ne_geo_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_geo_trgeometry_eq": true,
+      "comment_one_liner": "Returns 1.0 if the static geometry is always not equal to the 2D trgeometry instant."
+    },
+    {
+      "nebula_name": "AlwaysNeTrgeometryGeo",
+      "sql_token": "ALWAYS_NE_TRGEOMETRY_GEO",
+      "meos_call": "always_ne_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo_nad": true,
+      "comment_one_liner": "Returns 1.0 if the 2D trgeometry instant is always not equal to the static geometry."
+    },
+    {
+      "nebula_name": "AlwaysNeTrgeometryTrgeometry",
+      "sql_token": "ALWAYS_NE_TRGEOMETRY_TRGEOMETRY",
+      "meos_call": "always_ne_trgeometry_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_trgeometry_nad": true,
+      "comment_one_liner": "Returns 1.0 if the two 2D trgeometry instants are always not equal."
+    },
+    {
+      "nebula_name": "AtouchesTrgeometryGeo",
+      "sql_token": "ATOUCHES_TRGEOMETRY_GEO",
+      "meos_call": "atouches_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo": true,
+      "comment_one_liner": "Returns 1 if the trgeometry instant atouches the geometry."
+    },
+    {
+      "nebula_name": "EcontainsGeoTrgeometry",
+      "sql_token": "ECONTAINS_GEO_TRGEOMETRY",
+      "meos_call": "econtains_geo_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_geo_trgeometry": true,
+      "comment_one_liner": "Returns 1 if the geometry econtains the trgeometry instant."
+    },
+    {
+      "nebula_name": "EcoversGeoTrgeometry",
+      "sql_token": "ECOVERS_GEO_TRGEOMETRY",
+      "meos_call": "ecovers_geo_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_geo_trgeometry": true,
+      "comment_one_liner": "Returns 1 if the geometry ecovers the trgeometry instant."
+    },
+    {
+      "nebula_name": "EcoversTrgeometryGeo",
+      "sql_token": "ECOVERS_TRGEOMETRY_GEO",
+      "meos_call": "ecovers_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo": true,
+      "comment_one_liner": "Returns 1 if the trgeometry instant ecovers the geometry."
+    },
+    {
+      "nebula_name": "EdisjointTrgeometryGeo",
+      "sql_token": "EDISJOINT_TRGEOMETRY_GEO",
+      "meos_call": "edisjoint_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo": true,
+      "comment_one_liner": "Returns 1 if the trgeometry instant edisjoint the geometry."
+    },
+    {
+      "nebula_name": "EdisjointTrgeometryTrgeometry",
+      "sql_token": "EDISJOINT_TRGEOMETRY_TRGEOMETRY",
+      "meos_call": "edisjoint_trgeometry_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_trgeometry": true,
+      "comment_one_liner": "Returns 1 if the two trgeometry instants edisjoint."
+    },
+    {
+      "nebula_name": "EdwithinTrgeometryGeo",
+      "sql_token": "EDWITHIN_TRGEOMETRY_GEO",
+      "meos_call": "edwithin_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo_with_dist": true,
+      "comment_one_liner": "Returns 1 if the trgeometry instant is within dist of the geometry (edwithin)."
+    },
+    {
+      "nebula_name": "EdwithinTrgeometryTrgeometry",
+      "sql_token": "EDWITHIN_TRGEOMETRY_TRGEOMETRY",
+      "meos_call": "edwithin_trgeometry_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_trgeometry_with_dist": true,
+      "comment_one_liner": "Returns 1 if the two trgeometry instants are within dist (edwithin)."
+    },
+    {
+      "nebula_name": "EintersectsTrgeometryGeo",
+      "sql_token": "EINTERSECTS_TRGEOMETRY_GEO",
+      "meos_call": "eintersects_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo": true,
+      "comment_one_liner": "Returns 1 if the trgeometry instant eintersects the geometry."
+    },
+    {
+      "nebula_name": "EintersectsTrgeometryTrgeometry",
+      "sql_token": "EINTERSECTS_TRGEOMETRY_TRGEOMETRY",
+      "meos_call": "eintersects_trgeometry_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_trgeometry": true,
+      "comment_one_liner": "Returns 1 if the two trgeometry instants eintersects."
+    },
+    {
+      "nebula_name": "EtouchesTrgeometryGeo",
+      "sql_token": "ETOUCHES_TRGEOMETRY_GEO",
+      "meos_call": "etouches_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo": true,
+      "comment_one_liner": "Returns 1 if the trgeometry instant etouches the geometry."
+    },
+    {
+      "nebula_name": "EverEqGeoTrgeometry",
+      "sql_token": "EVER_EQ_GEO_TRGEOMETRY",
+      "meos_call": "ever_eq_geo_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_geo_trgeometry_eq": true,
+      "comment_one_liner": "Returns 1.0 if the static geometry is ever equal to the 2D trgeometry instant."
+    },
+    {
+      "nebula_name": "EverEqTrgeometryGeo",
+      "sql_token": "EVER_EQ_TRGEOMETRY_GEO",
+      "meos_call": "ever_eq_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo_nad": true,
+      "comment_one_liner": "Returns 1.0 if the 2D trgeometry instant is ever equal to the static geometry."
+    },
+    {
+      "nebula_name": "EverEqTrgeometryTrgeometry",
+      "sql_token": "EVER_EQ_TRGEOMETRY_TRGEOMETRY",
+      "meos_call": "ever_eq_trgeometry_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_trgeometry_nad": true,
+      "comment_one_liner": "Returns 1.0 if the two 2D trgeometry instants are ever equal."
+    },
+    {
+      "nebula_name": "EverNeGeoTrgeometry",
+      "sql_token": "EVER_NE_GEO_TRGEOMETRY",
+      "meos_call": "ever_ne_geo_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_geo_trgeometry_eq": true,
+      "comment_one_liner": "Returns 1.0 if the static geometry is ever not equal to the 2D trgeometry instant."
+    },
+    {
+      "nebula_name": "EverNeTrgeometryGeo",
+      "sql_token": "EVER_NE_TRGEOMETRY_GEO",
+      "meos_call": "ever_ne_trgeometry_geo",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_geo_nad": true,
+      "comment_one_liner": "Returns 1.0 if the 2D trgeometry instant is ever not equal to the static geometry."
+    },
+    {
+      "nebula_name": "EverNeTrgeometryTrgeometry",
+      "sql_token": "EVER_NE_TRGEOMETRY_TRGEOMETRY",
+      "meos_call": "ever_ne_trgeometry_trgeometry",
+      "return_type": "int",
+      "nautilus_return": "INT32",
+      "build_trgeometry_trgeometry_nad": true,
+      "comment_one_liner": "Returns 1.0 if the two 2D trgeometry instants are ever not equal."
+    },
+    {
+      "nebula_name": "NadTrgeometryGeo",
+      "sql_token": "NAD_TRGEOMETRY_GEO",
+      "meos_call": "nad_trgeometry_geo",
+      "return_type": "double",
+      "nautilus_return": "FLOAT64",
+      "build_nad_trgeometry_geo": true,
+      "comment_one_liner": "Returns the nearest approach distance between a 2D trgeometry instant and a static geometry."
+    },
+    {
+      "nebula_name": "NadTrgeometryTrgeometry",
+      "sql_token": "NAD_TRGEOMETRY_TRGEOMETRY",
+      "meos_call": "nad_trgeometry_trgeometry",
+      "return_type": "double",
+      "nautilus_return": "FLOAT64",
+      "build_nad_trgeometry_trgeometry": true,
+      "comment_one_liner": "Returns the nearest approach distance between two 2D trgeometry instants."
+    }
+  ]
+}

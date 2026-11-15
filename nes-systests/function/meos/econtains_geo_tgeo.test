@@ -1,0 +1,14 @@
+# name: MEOS_EContains_Geo_TGeo
+# description: eContains of a point and a temporal point, as the catalog states it for a temporal point, the container first: a point contains another point iff they are equal. The temporal point is read by tgeompointFromText and the point by geometryFromHexEWKB.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, EContains]
+CREATE LOGICAL SOURCE ec2(id UINT32, trip VARSIZED);
+CREATE PHYSICAL SOURCE FOR ec2 TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|SRID=4326;POINT(4.3658 50.6456)@2021-01-01 00:00:00+00
+2|SRID=4326;POINT(4.4 50.7)@2021-01-01 00:00:00+00
+
+CREATE SINK ec2_out(id UINT32, contains BOOLEAN) TYPE File;
+SELECT id, eContains(geometryFromHexEWKB(VARSIZED('0101000020E6100000D88173469476114018265305A3524940')), tgeompointFromText(trip)) AS contains FROM ec2 INTO ec2_out;
+----
+1,1
+2,0

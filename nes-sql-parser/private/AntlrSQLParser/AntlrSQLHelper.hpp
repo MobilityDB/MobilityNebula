@@ -128,6 +128,17 @@ public:
     };
     std::optional<Unnest> unnest;
 
+    /// Flag set while parsing the inline table of a cross join, (VALUES ...) AS f(x, y), whose identifiers name no source
+    bool isInlineTable = false;
+    /// The values of the inline table of a cross join, row after row, and the fields x, y its alias f names
+    struct InlineTable
+    {
+        std::vector<LogicalFunction> values;
+        Identifier alias;
+        std::vector<Identifier> fields;
+    };
+    std::optional<InlineTable> inlineTable;
+
     [[nodiscard]] std::vector<LogicalFunction>& getWhereClauses();
     [[nodiscard]] std::vector<LogicalFunction>& getHavingClauses();
     [[nodiscard]] std::vector<Projection>& getProjections();

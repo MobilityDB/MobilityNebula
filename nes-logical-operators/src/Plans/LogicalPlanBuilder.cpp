@@ -36,6 +36,7 @@
 #include <Operators/LogicalOperatorFwd.hpp>
 #include <Operators/ProjectionLogicalOperator.hpp>
 #include <Operators/SelectionLogicalOperator.hpp>
+#include <Operators/UnnestLogicalOperator.hpp>
 #include <Operators/Sinks/AnonymousSinkLogicalOperator.hpp>
 #include <Operators/Sinks/SinkLogicalOperator.hpp>
 #include <Operators/Sources/AnonymousSourceLogicalOperator.hpp>
@@ -96,6 +97,12 @@ LogicalPlan LogicalPlanBuilder::addSelection(LogicalFunction selectionFunction, 
 {
     NES_TRACE("LogicalPlanBuilder: add selection operator to query plan");
     return promoteOperatorToRoot(queryPlan, SelectionLogicalOperator::create(std::move(selectionFunction)));
+}
+
+LogicalPlan LogicalPlanBuilder::addUnnest(LogicalFunction array, Identifier alias, Identifier element, const LogicalPlan& queryPlan)
+{
+    NES_TRACE("LogicalPlanBuilder: add unnest operator to query plan");
+    return promoteOperatorToRoot(queryPlan, UnnestLogicalOperator::create(std::move(array), std::move(alias), std::move(element)));
 }
 
 LogicalPlan LogicalPlanBuilder::addWindowAggregation(

@@ -117,6 +117,17 @@ public:
     /// Flag set while parsing a MODEL_INFERENCE TVF source to suppress identifier capture as FROM source
     bool isModelInference = false;
 
+    /// Flag set while parsing CROSS JOIN UNNEST(array) AS u(x), whose identifiers name no source
+    bool isUnnest = false;
+    /// The array of CROSS JOIN UNNEST, the alias u and the field x of its elements
+    struct Unnest
+    {
+        LogicalFunction array;
+        Identifier alias;
+        Identifier element;
+    };
+    std::optional<Unnest> unnest;
+
     [[nodiscard]] std::vector<LogicalFunction>& getWhereClauses();
     [[nodiscard]] std::vector<LogicalFunction>& getHavingClauses();
     [[nodiscard]] std::vector<Projection>& getProjections();

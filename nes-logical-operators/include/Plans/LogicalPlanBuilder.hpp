@@ -67,6 +67,9 @@ public:
     /// @return the updated queryPlan
     static LogicalPlan addSelection(LogicalFunction selectionFunction, const LogicalPlan& queryPlan);
 
+    /// CROSS JOIN UNNEST(array) AS alias(element): each record of the plan once per element of its array
+    static LogicalPlan addUnnest(LogicalFunction array, Identifier alias, Identifier element, const LogicalPlan& queryPlan);
+
     static LogicalPlan addWindowAggregation(
         LogicalPlan queryPlan,
         const Windowing::TimeBasedWindowType& windowType,

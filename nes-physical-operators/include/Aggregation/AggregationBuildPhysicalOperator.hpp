@@ -14,9 +14,11 @@
 
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <vector>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
+#include <Aggregation/SessionAggregationOperatorHandler.hpp>
 #include <Functions/PhysicalFunction.hpp>
 #include <Interface/HashMap/ChainedHashMap/ChainedHashMapConfig.hpp>
 #include <SliceStore/SliceStoreRef.hpp>
@@ -36,7 +38,9 @@ public:
         std::unique_ptr<SliceStoreRef> sliceStoreRef,
         std::vector<std::shared_ptr<AggregationPhysicalFunction>> aggregationFunctions,
         ChainedHashMapConfig hashMapConfig,
-        std::vector<PhysicalFunction> keyFunctions);
+        std::vector<PhysicalFunction> keyFunctions,
+        std::shared_ptr<SessionFunctions> sessionFunctions = nullptr,
+        uint64_t sessionGapInMilliseconds = 0);
     void setup(ExecutionContext& executionCtx, CompilationContext& compilationContext) const override;
     void execute(ExecutionContext& ctx, Record& record) const override;
 
@@ -46,6 +50,9 @@ private:
     ChainedHashMapConfig hashMapConfig;
     /// Extracts the key fields out of an incoming record. Operator logic, not hash map metadata, hence not in the config.
     std::vector<PhysicalFunction> keyFunctions;
+    /// Set for a session window: the setup registers the functions its SessionAggregationOperatorHandler calls
+    std::shared_ptr<SessionFunctions> sessionFunctions;
+    uint64_t sessionGapInMilliseconds;
 };
 
 }

@@ -30,6 +30,8 @@
 #include <Aggregation/AggregationProbePhysicalOperator.hpp>
 #include <Aggregation/AggregationSlice.hpp>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
+#include <Aggregation/Function/SessionBoundsAggregationPhysicalFunction.hpp>
+#include <Aggregation/SessionAggregationOperatorHandler.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
 #include <Functions/FieldAccessPhysicalFunction.hpp>
 #include <Functions/FunctionProvider.hpp>
@@ -57,6 +59,7 @@
 #include <Util/SchemaFactory.hpp>
 #include <Watermark/TimeFunction.hpp>
 #include <WindowTypes/Measures/TimeCharacteristic.hpp>
+#include <WindowTypes/Types/SessionWindow.hpp>
 #include <WindowTypes/Types/TimeBasedWindowType.hpp>
 #include <magic_enum/magic_enum.hpp>
 
@@ -148,6 +151,19 @@ LoweringRuleResultSubgraph LowerToPhysicalWindowedAggregation::apply(LogicalOper
     auto timeFunction = TimeFunction::create(std::get<Windowing::BoundTimeCharacteristic>(aggregation->getCharacteristic()));
     auto windowType = aggregation->getWindowType();
     auto aggregationPhysicalFunctions = getAggregationPhysicalFunctions(*aggregation, conf);
+    const auto* const sessionWindow = std::get_if<Windowing::SessionWindow>(&windowType.getUnderlying());
+    if (sessionWindow != nullptr)
+    {
+        /// A session's bounds are the first and the last event time of its key's records, kept after the query's aggregations
+        const auto characteristic = std::get<Windowing::BoundTimeCharacteristic>(aggregation->getCharacteristic());
+        const auto* const eventTime = std::get_if<Windowing::BoundEventTimeCharacteristic>(&characteristic);
+        if (eventTime == nullptr)
+        {
+            throw UnknownWindowType("A session window closes on event time, so it needs a timestamp field");
+        }
+        aggregationPhysicalFunctions.emplace_back(std::make_shared<SessionBoundsAggregationPhysicalFunction>(
+            FieldAccessPhysicalFunction{eventTime->field->getField().getLastName()}, eventTime->unit.getMillisecondsConversionMultiplier()));
+    }
 
     const auto physicalInputSchema = createPhysicalOutputSchema(childTraitSet);
     const auto physicalOutputSchema = createPhysicalOutputSchema(traitSet);
@@ -214,12 +230,31 @@ LoweringRuleResultSubgraph LowerToPhysicalWindowedAggregation::apply(LogicalOper
             const CreateNewHashMapSliceArgs hashMapSliceArgs{hashMapConfig, bufferProvider};
             return handler.getCreateNewSlicesFunction(hashMapSliceArgs);
         });
+    /// A session window's handler calls the functions the build's setup registers into this holder
+    const auto sessionFunctions = sessionWindow != nullptr ? std::make_shared<SessionFunctions>() : nullptr;
+    const auto sessionGap = sessionWindow != nullptr ? std::optional(sessionWindow->getGap().getTime()) : std::nullopt;
     const AggregationBuildPhysicalOperator build{
-        handlerId, std::move(timeFunction), std::move(sliceStoreRef), aggregationPhysicalFunctions, hashMapConfig, keyFunctions};
-    const AggregationProbePhysicalOperator probe{hashMapConfig, aggregationPhysicalFunctions, handlerId, windowMetaData};
+        handlerId,
+        std::move(timeFunction),
+        std::move(sliceStoreRef),
+        aggregationPhysicalFunctions,
+        hashMapConfig,
+        keyFunctions,
+        sessionFunctions,
+        sessionGap.value_or(0)};
+    const AggregationProbePhysicalOperator probe{hashMapConfig, aggregationPhysicalFunctions, handlerId, windowMetaData, sessionGap};
 
-    auto handler = std::make_shared<AggregationOperatorHandler>(
-        *inputOriginIds | std::ranges::to<std::vector>(), outputOriginId, std::move(sliceAndWindowStore));
+    std::shared_ptr<AggregationOperatorHandler> handler;
+    if (sessionWindow != nullptr)
+    {
+        handler = std::make_shared<SessionAggregationOperatorHandler>(
+            *inputOriginIds | std::ranges::to<std::vector>(), outputOriginId, std::move(sliceAndWindowStore), hashMapConfig, sessionFunctions);
+    }
+    else
+    {
+        handler = std::make_shared<AggregationOperatorHandler>(
+            *inputOriginIds | std::ranges::to<std::vector>(), outputOriginId, std::move(sliceAndWindowStore));
+    }
     auto buildWrapper = std::make_shared<PhysicalOperatorWrapper>(
         build,
         physicalInputSchema,

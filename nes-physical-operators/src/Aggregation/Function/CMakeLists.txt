@@ -19,6 +19,7 @@ add_source_files(nes-physical-operators
         MaxAggregationPhysicalFunction.cpp
         MinAggregationPhysicalFunction.cpp
         MedianAggregationPhysicalFunction.cpp
+        SessionBoundsAggregationPhysicalFunction.cpp
         SumAggregationPhysicalFunction.cpp
 )
 

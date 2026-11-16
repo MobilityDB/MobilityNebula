@@ -20,6 +20,7 @@
 #include <vector>
 #include <Aggregation/AggregationOperatorHandler.hpp>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
+#include <Aggregation/Function/SessionBoundsAggregationPhysicalFunction.hpp>
 #include <DataTypes/DataTypesUtil.hpp>
 #include <Interface/HashMap/ChainedHashMap/ChainedHashMap.hpp>
 #include <Interface/HashMap/ChainedHashMap/ChainedHashMapRef.hpp>
@@ -175,8 +176,21 @@ void AggregationProbePhysicalOperator::probeWindow(ExecutionContext& executionCt
 
         /// Adding the window start and end to the output record and then passing the record to the child
         outputRecord.reassignFields(recordKey);
-        outputRecord.write(windowMetaData.startField.getFullyQualifiedName(), windowStart.convertToValue());
-        outputRecord.write(windowMetaData.endField.getFullyQualifiedName(), windowEnd.convertToValue());
+        if (sessionGapInMilliseconds.has_value())
+        {
+            const auto bounds = static_cast<nautilus::val<AggregationState*>>(entryRef.getValueMemArea())
+                + nautilus::val<uint64_t>(SessionBoundsAggregationPhysicalFunction::stateOffset(aggregationPhysicalFunctions));
+            outputRecord.write(
+                windowMetaData.startField.getFullyQualifiedName(), SessionBoundsAggregationPhysicalFunction::readFirst(bounds));
+            outputRecord.write(
+                windowMetaData.endField.getFullyQualifiedName(),
+                SessionBoundsAggregationPhysicalFunction::readLast(bounds) + nautilus::val<uint64_t>(*sessionGapInMilliseconds));
+        }
+        else
+        {
+            outputRecord.write(windowMetaData.startField.getFullyQualifiedName(), windowStart.convertToValue());
+            outputRecord.write(windowMetaData.endField.getFullyQualifiedName(), windowEnd.convertToValue());
+        }
         executeChild(executionCtx, outputRecord);
 
         for (auto finalStatePtr = static_cast<nautilus::val<AggregationState*>>(entryRef.getValueMemArea());
@@ -204,10 +218,12 @@ AggregationProbePhysicalOperator::AggregationProbePhysicalOperator(
     ChainedHashMapConfig hashMapConfig,
     std::vector<std::shared_ptr<AggregationPhysicalFunction>> aggregationPhysicalFunctions,
     const OperatorHandlerId operatorHandlerId,
-    WindowMetaData windowMetaData)
+    WindowMetaData windowMetaData,
+    const std::optional<uint64_t> sessionGapInMilliseconds)
     : WindowProbePhysicalOperator(operatorHandlerId, std::move(windowMetaData))
     , aggregationPhysicalFunctions(std::move(aggregationPhysicalFunctions))
     , hashMapConfig(std::move(hashMapConfig))
+    , sessionGapInMilliseconds(sessionGapInMilliseconds)
 {
 }
 }

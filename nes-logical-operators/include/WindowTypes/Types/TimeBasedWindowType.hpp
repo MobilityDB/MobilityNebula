@@ -24,16 +24,17 @@
 #include <WindowTypes/Measures/TimeMeasure.hpp>
 
 #include <Util/Logger/Formatter.hpp>
+#include <WindowTypes/Types/SessionWindow.hpp>
 #include <WindowTypes/Types/SlidingWindow.hpp>
 #include <WindowTypes/Types/TumblingWindow.hpp>
 
 namespace NES::Windowing
 {
 
-/// A wrapper around a variant of tumbling and sliding time-based windows for convenience
+/// A wrapper around a variant of tumbling, sliding and session time-based windows for convenience
 struct TimeBasedWindowType
 {
-    explicit TimeBasedWindowType(std::variant<TumblingWindow, SlidingWindow> underlying);
+    explicit TimeBasedWindowType(std::variant<TumblingWindow, SlidingWindow, SessionWindow> underlying);
     /// @brief method to get the window size
     /// @return size of window
     [[nodiscard]] TimeMeasure getSize() const;
@@ -43,10 +44,10 @@ struct TimeBasedWindowType
     [[nodiscard]] TimeMeasure getSlide() const;
     bool operator==(const TimeBasedWindowType& otherWindowType) const;
     friend std::ostream& operator<<(std::ostream& os, const TimeBasedWindowType& windowType);
-    [[nodiscard]] const std::variant<TumblingWindow, SlidingWindow>& getUnderlying() const;
+    [[nodiscard]] const std::variant<TumblingWindow, SlidingWindow, SessionWindow>& getUnderlying() const;
 
 private:
-    std::variant<TumblingWindow, SlidingWindow> underlying;
+    std::variant<TumblingWindow, SlidingWindow, SessionWindow> underlying;
 };
 }
 

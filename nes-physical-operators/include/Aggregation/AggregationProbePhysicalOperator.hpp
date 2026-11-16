@@ -14,7 +14,9 @@
 
 #pragma once
 
+#include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <Interface/HashMap/ChainedHashMap/ChainedHashMapConfig.hpp>
@@ -33,7 +35,8 @@ public:
         ChainedHashMapConfig hashMapConfig,
         std::vector<std::shared_ptr<AggregationPhysicalFunction>> aggregationPhysicalFunctions,
         OperatorHandlerId operatorHandlerId,
-        WindowMetaData windowMetaData);
+        WindowMetaData windowMetaData,
+        std::optional<uint64_t> sessionGapInMilliseconds = std::nullopt);
 
 protected:
     void probeWindow(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const override;
@@ -41,6 +44,9 @@ protected:
 private:
     std::vector<std::shared_ptr<AggregationPhysicalFunction>> aggregationPhysicalFunctions;
     ChainedHashMapConfig hashMapConfig;
+    /// Set for a session window: each entry is a session whose window is [first event time, last event time + gap),
+    /// read from the state of its SessionBoundsAggregationPhysicalFunction, the last aggregation function
+    std::optional<uint64_t> sessionGapInMilliseconds;
 };
 
 }

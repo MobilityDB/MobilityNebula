@@ -15,6 +15,7 @@ add_source_files(nes-physical-operators
         MapPhysicalOperator.cpp
         SelectionPhysicalOperator.cpp
         UnnestPhysicalOperator.cpp
+        InlineTableJoinPhysicalOperator.cpp
         UnionPhysicalOperator.cpp
         UnionRenamePhysicalOperator.cpp
         PhysicalOperator.cpp

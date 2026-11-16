@@ -70,6 +70,10 @@ public:
     /// CROSS JOIN UNNEST(array) AS alias(element): each record of the plan once per element of its array
     static LogicalPlan addUnnest(LogicalFunction array, Identifier alias, Identifier element, const LogicalPlan& queryPlan);
 
+    /// FROM t, (VALUES ...) AS alias(fields): each record of the plan once per row of the table, its values row after row
+    static LogicalPlan
+    addInlineTableJoin(std::vector<LogicalFunction> values, Identifier alias, std::vector<Identifier> fields, const LogicalPlan& queryPlan);
+
     static LogicalPlan addWindowAggregation(
         LogicalPlan queryPlan,
         const Windowing::TimeBasedWindowType& windowType,

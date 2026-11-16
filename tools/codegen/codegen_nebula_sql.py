@@ -248,7 +248,8 @@ class TypeLayer:
             '    text += "}";', '    return text;', '}', '',
             f'std::vector<std::byte> {name}ArrayFromText(std::string_view text)', '{',
             f'    cannotRead("{sql}[]", text);', '}', '',
-            f'constexpr ExtensionType {name}ArrayType{{.name = "{sql.upper()}_ARRAY", .fromText = {name}ArrayFromText}};', ''])
+            f'constexpr ExtensionType {name}ArrayType{{.name = "{sql.upper()}_ARRAY", .fromText = {name}ArrayFromText, '
+            f'.element = &{name}Type}};', ''])
 
     def table(self, sqls, arrays=()):
         """The table of the types, each with the functions writing and reading its text, which the plugin

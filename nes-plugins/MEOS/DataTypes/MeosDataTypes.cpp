@@ -2279,7 +2279,7 @@ std::vector<std::byte> BigintspanArrayFromText(std::string_view text)
     cannotRead("bigintspan[]", text);
 }
 
-constexpr ExtensionType BigintspanArrayType{.name = "BIGINTSPAN_ARRAY", .fromText = BigintspanArrayFromText};
+constexpr ExtensionType BigintspanArrayType{.name = "BIGINTSPAN_ARRAY", .fromText = BigintspanArrayFromText, .element = &BigintspanType};
 
 /* cbuffer[]: an array of cbuffer, carried as its number of elements, then each element's memory image after its length */
 std::string CbufferArrayToText(std::span<const std::byte> bytes)
@@ -2313,7 +2313,7 @@ std::vector<std::byte> CbufferArrayFromText(std::string_view text)
     cannotRead("cbuffer[]", text);
 }
 
-constexpr ExtensionType CbufferArrayType{.name = "CBUFFER_ARRAY", .fromText = CbufferArrayFromText};
+constexpr ExtensionType CbufferArrayType{.name = "CBUFFER_ARRAY", .fromText = CbufferArrayFromText, .element = &CbufferType};
 
 /* datespan[]: an array of datespan, carried as its number of elements, then each element's memory image after its length */
 std::string DatespanArrayToText(std::span<const std::byte> bytes)
@@ -2347,7 +2347,7 @@ std::vector<std::byte> DatespanArrayFromText(std::string_view text)
     cannotRead("datespan[]", text);
 }
 
-constexpr ExtensionType DatespanArrayType{.name = "DATESPAN_ARRAY", .fromText = DatespanArrayFromText};
+constexpr ExtensionType DatespanArrayType{.name = "DATESPAN_ARRAY", .fromText = DatespanArrayFromText, .element = &DatespanType};
 
 /* floatspan[]: an array of floatspan, carried as its number of elements, then each element's memory image after its length */
 std::string FloatspanArrayToText(std::span<const std::byte> bytes)
@@ -2381,7 +2381,7 @@ std::vector<std::byte> FloatspanArrayFromText(std::string_view text)
     cannotRead("floatspan[]", text);
 }
 
-constexpr ExtensionType FloatspanArrayType{.name = "FLOATSPAN_ARRAY", .fromText = FloatspanArrayFromText};
+constexpr ExtensionType FloatspanArrayType{.name = "FLOATSPAN_ARRAY", .fromText = FloatspanArrayFromText, .element = &FloatspanType};
 
 /* geography[]: an array of geography, carried as its number of elements, then each element's memory image after its length */
 std::string GeographyArrayToText(std::span<const std::byte> bytes)
@@ -2415,7 +2415,7 @@ std::vector<std::byte> GeographyArrayFromText(std::string_view text)
     cannotRead("geography[]", text);
 }
 
-constexpr ExtensionType GeographyArrayType{.name = "GEOGRAPHY_ARRAY", .fromText = GeographyArrayFromText};
+constexpr ExtensionType GeographyArrayType{.name = "GEOGRAPHY_ARRAY", .fromText = GeographyArrayFromText, .element = &GeographyType};
 
 /* geometry[]: an array of geometry, carried as its number of elements, then each element's memory image after its length */
 std::string GeometryArrayToText(std::span<const std::byte> bytes)
@@ -2449,7 +2449,7 @@ std::vector<std::byte> GeometryArrayFromText(std::string_view text)
     cannotRead("geometry[]", text);
 }
 
-constexpr ExtensionType GeometryArrayType{.name = "GEOMETRY_ARRAY", .fromText = GeometryArrayFromText};
+constexpr ExtensionType GeometryArrayType{.name = "GEOMETRY_ARRAY", .fromText = GeometryArrayFromText, .element = &GeometryType};
 
 /* intspan[]: an array of intspan, carried as its number of elements, then each element's memory image after its length */
 std::string IntspanArrayToText(std::span<const std::byte> bytes)
@@ -2483,7 +2483,7 @@ std::vector<std::byte> IntspanArrayFromText(std::string_view text)
     cannotRead("intspan[]", text);
 }
 
-constexpr ExtensionType IntspanArrayType{.name = "INTSPAN_ARRAY", .fromText = IntspanArrayFromText};
+constexpr ExtensionType IntspanArrayType{.name = "INTSPAN_ARRAY", .fromText = IntspanArrayFromText, .element = &IntspanType};
 
 /* jsonb[]: an array of jsonb, carried as its number of elements, then each element's memory image after its length */
 std::string JsonbArrayToText(std::span<const std::byte> bytes)
@@ -2517,7 +2517,7 @@ std::vector<std::byte> JsonbArrayFromText(std::string_view text)
     cannotRead("jsonb[]", text);
 }
 
-constexpr ExtensionType JsonbArrayType{.name = "JSONB_ARRAY", .fromText = JsonbArrayFromText};
+constexpr ExtensionType JsonbArrayType{.name = "JSONB_ARRAY", .fromText = JsonbArrayFromText, .element = &JsonbType};
 
 /* npoint[]: an array of npoint, carried as its number of elements, then each element's memory image after its length */
 std::string NpointArrayToText(std::span<const std::byte> bytes)
@@ -2551,7 +2551,7 @@ std::vector<std::byte> NpointArrayFromText(std::string_view text)
     cannotRead("npoint[]", text);
 }
 
-constexpr ExtensionType NpointArrayType{.name = "NPOINT_ARRAY", .fromText = NpointArrayFromText};
+constexpr ExtensionType NpointArrayType{.name = "NPOINT_ARRAY", .fromText = NpointArrayFromText, .element = &NpointType};
 
 /* nsegment[]: an array of nsegment, carried as its number of elements, then each element's memory image after its length */
 std::string NsegmentArrayToText(std::span<const std::byte> bytes)
@@ -2585,7 +2585,7 @@ std::vector<std::byte> NsegmentArrayFromText(std::string_view text)
     cannotRead("nsegment[]", text);
 }
 
-constexpr ExtensionType NsegmentArrayType{.name = "NSEGMENT_ARRAY", .fromText = NsegmentArrayFromText};
+constexpr ExtensionType NsegmentArrayType{.name = "NSEGMENT_ARRAY", .fromText = NsegmentArrayFromText, .element = &NsegmentType};
 
 /* pcpatch[]: an array of pcpatch, carried as its number of elements, then each element's memory image after its length */
 std::string PcpatchArrayToText(std::span<const std::byte> bytes)
@@ -2619,7 +2619,7 @@ std::vector<std::byte> PcpatchArrayFromText(std::string_view text)
     cannotRead("pcpatch[]", text);
 }
 
-constexpr ExtensionType PcpatchArrayType{.name = "PCPATCH_ARRAY", .fromText = PcpatchArrayFromText};
+constexpr ExtensionType PcpatchArrayType{.name = "PCPATCH_ARRAY", .fromText = PcpatchArrayFromText, .element = &PcpatchType};
 
 /* pcpoint[]: an array of pcpoint, carried as its number of elements, then each element's memory image after its length */
 std::string PcpointArrayToText(std::span<const std::byte> bytes)
@@ -2653,7 +2653,7 @@ std::vector<std::byte> PcpointArrayFromText(std::string_view text)
     cannotRead("pcpoint[]", text);
 }
 
-constexpr ExtensionType PcpointArrayType{.name = "PCPOINT_ARRAY", .fromText = PcpointArrayFromText};
+constexpr ExtensionType PcpointArrayType{.name = "PCPOINT_ARRAY", .fromText = PcpointArrayFromText, .element = &PcpointType};
 
 /* pose[]: an array of pose, carried as its number of elements, then each element's memory image after its length */
 std::string PoseArrayToText(std::span<const std::byte> bytes)
@@ -2687,7 +2687,7 @@ std::vector<std::byte> PoseArrayFromText(std::string_view text)
     cannotRead("pose[]", text);
 }
 
-constexpr ExtensionType PoseArrayType{.name = "POSE_ARRAY", .fromText = PoseArrayFromText};
+constexpr ExtensionType PoseArrayType{.name = "POSE_ARRAY", .fromText = PoseArrayFromText, .element = &PoseType};
 
 /* posechain[]: an array of posechain, carried as its number of elements, then each element's memory image after its length */
 std::string PosechainArrayToText(std::span<const std::byte> bytes)
@@ -2721,7 +2721,7 @@ std::vector<std::byte> PosechainArrayFromText(std::string_view text)
     cannotRead("posechain[]", text);
 }
 
-constexpr ExtensionType PosechainArrayType{.name = "POSECHAIN_ARRAY", .fromText = PosechainArrayFromText};
+constexpr ExtensionType PosechainArrayType{.name = "POSECHAIN_ARRAY", .fromText = PosechainArrayFromText, .element = &PosechainType};
 
 /* raquet[]: an array of raquet, carried as its number of elements, then each element's memory image after its length */
 std::string RaquetArrayToText(std::span<const std::byte> bytes)
@@ -2755,7 +2755,7 @@ std::vector<std::byte> RaquetArrayFromText(std::string_view text)
     cannotRead("raquet[]", text);
 }
 
-constexpr ExtensionType RaquetArrayType{.name = "RAQUET_ARRAY", .fromText = RaquetArrayFromText};
+constexpr ExtensionType RaquetArrayType{.name = "RAQUET_ARRAY", .fromText = RaquetArrayFromText, .element = &RaquetType};
 
 /* stbox[]: an array of stbox, carried as its number of elements, then each element's memory image after its length */
 std::string StboxArrayToText(std::span<const std::byte> bytes)
@@ -2789,7 +2789,7 @@ std::vector<std::byte> StboxArrayFromText(std::string_view text)
     cannotRead("stbox[]", text);
 }
 
-constexpr ExtensionType StboxArrayType{.name = "STBOX_ARRAY", .fromText = StboxArrayFromText};
+constexpr ExtensionType StboxArrayType{.name = "STBOX_ARRAY", .fromText = StboxArrayFromText, .element = &StboxType};
 
 /* tbigint[]: an array of tbigint, carried as its number of elements, then each element's memory image after its length */
 std::string TbigintArrayToText(std::span<const std::byte> bytes)
@@ -2823,7 +2823,7 @@ std::vector<std::byte> TbigintArrayFromText(std::string_view text)
     cannotRead("tbigint[]", text);
 }
 
-constexpr ExtensionType TbigintArrayType{.name = "TBIGINT_ARRAY", .fromText = TbigintArrayFromText};
+constexpr ExtensionType TbigintArrayType{.name = "TBIGINT_ARRAY", .fromText = TbigintArrayFromText, .element = &TbigintType};
 
 /* tbool[]: an array of tbool, carried as its number of elements, then each element's memory image after its length */
 std::string TboolArrayToText(std::span<const std::byte> bytes)
@@ -2857,7 +2857,7 @@ std::vector<std::byte> TboolArrayFromText(std::string_view text)
     cannotRead("tbool[]", text);
 }
 
-constexpr ExtensionType TboolArrayType{.name = "TBOOL_ARRAY", .fromText = TboolArrayFromText};
+constexpr ExtensionType TboolArrayType{.name = "TBOOL_ARRAY", .fromText = TboolArrayFromText, .element = &TboolType};
 
 /* tbox[]: an array of tbox, carried as its number of elements, then each element's memory image after its length */
 std::string TboxArrayToText(std::span<const std::byte> bytes)
@@ -2891,7 +2891,7 @@ std::vector<std::byte> TboxArrayFromText(std::string_view text)
     cannotRead("tbox[]", text);
 }
 
-constexpr ExtensionType TboxArrayType{.name = "TBOX_ARRAY", .fromText = TboxArrayFromText};
+constexpr ExtensionType TboxArrayType{.name = "TBOX_ARRAY", .fromText = TboxArrayFromText, .element = &TboxType};
 
 /* tcbuffer[]: an array of tcbuffer, carried as its number of elements, then each element's memory image after its length */
 std::string TcbufferArrayToText(std::span<const std::byte> bytes)
@@ -2925,7 +2925,7 @@ std::vector<std::byte> TcbufferArrayFromText(std::string_view text)
     cannotRead("tcbuffer[]", text);
 }
 
-constexpr ExtensionType TcbufferArrayType{.name = "TCBUFFER_ARRAY", .fromText = TcbufferArrayFromText};
+constexpr ExtensionType TcbufferArrayType{.name = "TCBUFFER_ARRAY", .fromText = TcbufferArrayFromText, .element = &TcbufferType};
 
 /* tfloat[]: an array of tfloat, carried as its number of elements, then each element's memory image after its length */
 std::string TfloatArrayToText(std::span<const std::byte> bytes)
@@ -2959,7 +2959,7 @@ std::vector<std::byte> TfloatArrayFromText(std::string_view text)
     cannotRead("tfloat[]", text);
 }
 
-constexpr ExtensionType TfloatArrayType{.name = "TFLOAT_ARRAY", .fromText = TfloatArrayFromText};
+constexpr ExtensionType TfloatArrayType{.name = "TFLOAT_ARRAY", .fromText = TfloatArrayFromText, .element = &TfloatType};
 
 /* tgeogpoint[]: an array of tgeogpoint, carried as its number of elements, then each element's memory image after its length */
 std::string TgeogpointArrayToText(std::span<const std::byte> bytes)
@@ -2993,7 +2993,7 @@ std::vector<std::byte> TgeogpointArrayFromText(std::string_view text)
     cannotRead("tgeogpoint[]", text);
 }
 
-constexpr ExtensionType TgeogpointArrayType{.name = "TGEOGPOINT_ARRAY", .fromText = TgeogpointArrayFromText};
+constexpr ExtensionType TgeogpointArrayType{.name = "TGEOGPOINT_ARRAY", .fromText = TgeogpointArrayFromText, .element = &TgeogpointType};
 
 /* tgeography[]: an array of tgeography, carried as its number of elements, then each element's memory image after its length */
 std::string TgeographyArrayToText(std::span<const std::byte> bytes)
@@ -3027,7 +3027,7 @@ std::vector<std::byte> TgeographyArrayFromText(std::string_view text)
     cannotRead("tgeography[]", text);
 }
 
-constexpr ExtensionType TgeographyArrayType{.name = "TGEOGRAPHY_ARRAY", .fromText = TgeographyArrayFromText};
+constexpr ExtensionType TgeographyArrayType{.name = "TGEOGRAPHY_ARRAY", .fromText = TgeographyArrayFromText, .element = &TgeographyType};
 
 /* tgeometry[]: an array of tgeometry, carried as its number of elements, then each element's memory image after its length */
 std::string TgeometryArrayToText(std::span<const std::byte> bytes)
@@ -3061,7 +3061,7 @@ std::vector<std::byte> TgeometryArrayFromText(std::string_view text)
     cannotRead("tgeometry[]", text);
 }
 
-constexpr ExtensionType TgeometryArrayType{.name = "TGEOMETRY_ARRAY", .fromText = TgeometryArrayFromText};
+constexpr ExtensionType TgeometryArrayType{.name = "TGEOMETRY_ARRAY", .fromText = TgeometryArrayFromText, .element = &TgeometryType};
 
 /* tgeompoint[]: an array of tgeompoint, carried as its number of elements, then each element's memory image after its length */
 std::string TgeompointArrayToText(std::span<const std::byte> bytes)
@@ -3095,7 +3095,7 @@ std::vector<std::byte> TgeompointArrayFromText(std::string_view text)
     cannotRead("tgeompoint[]", text);
 }
 
-constexpr ExtensionType TgeompointArrayType{.name = "TGEOMPOINT_ARRAY", .fromText = TgeompointArrayFromText};
+constexpr ExtensionType TgeompointArrayType{.name = "TGEOMPOINT_ARRAY", .fromText = TgeompointArrayFromText, .element = &TgeompointType};
 
 /* th3index[]: an array of th3index, carried as its number of elements, then each element's memory image after its length */
 std::string Th3indexArrayToText(std::span<const std::byte> bytes)
@@ -3129,7 +3129,7 @@ std::vector<std::byte> Th3indexArrayFromText(std::string_view text)
     cannotRead("th3index[]", text);
 }
 
-constexpr ExtensionType Th3indexArrayType{.name = "TH3INDEX_ARRAY", .fromText = Th3indexArrayFromText};
+constexpr ExtensionType Th3indexArrayType{.name = "TH3INDEX_ARRAY", .fromText = Th3indexArrayFromText, .element = &Th3indexType};
 
 /* tint[]: an array of tint, carried as its number of elements, then each element's memory image after its length */
 std::string TintArrayToText(std::span<const std::byte> bytes)
@@ -3163,7 +3163,7 @@ std::vector<std::byte> TintArrayFromText(std::string_view text)
     cannotRead("tint[]", text);
 }
 
-constexpr ExtensionType TintArrayType{.name = "TINT_ARRAY", .fromText = TintArrayFromText};
+constexpr ExtensionType TintArrayType{.name = "TINT_ARRAY", .fromText = TintArrayFromText, .element = &TintType};
 
 /* tjsonb[]: an array of tjsonb, carried as its number of elements, then each element's memory image after its length */
 std::string TjsonbArrayToText(std::span<const std::byte> bytes)
@@ -3197,7 +3197,7 @@ std::vector<std::byte> TjsonbArrayFromText(std::string_view text)
     cannotRead("tjsonb[]", text);
 }
 
-constexpr ExtensionType TjsonbArrayType{.name = "TJSONB_ARRAY", .fromText = TjsonbArrayFromText};
+constexpr ExtensionType TjsonbArrayType{.name = "TJSONB_ARRAY", .fromText = TjsonbArrayFromText, .element = &TjsonbType};
 
 /* tnpoint[]: an array of tnpoint, carried as its number of elements, then each element's memory image after its length */
 std::string TnpointArrayToText(std::span<const std::byte> bytes)
@@ -3231,7 +3231,7 @@ std::vector<std::byte> TnpointArrayFromText(std::string_view text)
     cannotRead("tnpoint[]", text);
 }
 
-constexpr ExtensionType TnpointArrayType{.name = "TNPOINT_ARRAY", .fromText = TnpointArrayFromText};
+constexpr ExtensionType TnpointArrayType{.name = "TNPOINT_ARRAY", .fromText = TnpointArrayFromText, .element = &TnpointType};
 
 /* tpcpatch[]: an array of tpcpatch, carried as its number of elements, then each element's memory image after its length */
 std::string TpcpatchArrayToText(std::span<const std::byte> bytes)
@@ -3265,7 +3265,7 @@ std::vector<std::byte> TpcpatchArrayFromText(std::string_view text)
     cannotRead("tpcpatch[]", text);
 }
 
-constexpr ExtensionType TpcpatchArrayType{.name = "TPCPATCH_ARRAY", .fromText = TpcpatchArrayFromText};
+constexpr ExtensionType TpcpatchArrayType{.name = "TPCPATCH_ARRAY", .fromText = TpcpatchArrayFromText, .element = &TpcpatchType};
 
 /* tpcpoint[]: an array of tpcpoint, carried as its number of elements, then each element's memory image after its length */
 std::string TpcpointArrayToText(std::span<const std::byte> bytes)
@@ -3299,7 +3299,7 @@ std::vector<std::byte> TpcpointArrayFromText(std::string_view text)
     cannotRead("tpcpoint[]", text);
 }
 
-constexpr ExtensionType TpcpointArrayType{.name = "TPCPOINT_ARRAY", .fromText = TpcpointArrayFromText};
+constexpr ExtensionType TpcpointArrayType{.name = "TPCPOINT_ARRAY", .fromText = TpcpointArrayFromText, .element = &TpcpointType};
 
 /* tpose[]: an array of tpose, carried as its number of elements, then each element's memory image after its length */
 std::string TposeArrayToText(std::span<const std::byte> bytes)
@@ -3333,7 +3333,7 @@ std::vector<std::byte> TposeArrayFromText(std::string_view text)
     cannotRead("tpose[]", text);
 }
 
-constexpr ExtensionType TposeArrayType{.name = "TPOSE_ARRAY", .fromText = TposeArrayFromText};
+constexpr ExtensionType TposeArrayType{.name = "TPOSE_ARRAY", .fromText = TposeArrayFromText, .element = &TposeType};
 
 /* tposechain[]: an array of tposechain, carried as its number of elements, then each element's memory image after its length */
 std::string TposechainArrayToText(std::span<const std::byte> bytes)
@@ -3367,7 +3367,7 @@ std::vector<std::byte> TposechainArrayFromText(std::string_view text)
     cannotRead("tposechain[]", text);
 }
 
-constexpr ExtensionType TposechainArrayType{.name = "TPOSECHAIN_ARRAY", .fromText = TposechainArrayFromText};
+constexpr ExtensionType TposechainArrayType{.name = "TPOSECHAIN_ARRAY", .fromText = TposechainArrayFromText, .element = &TposechainType};
 
 /* tquadbin[]: an array of tquadbin, carried as its number of elements, then each element's memory image after its length */
 std::string TquadbinArrayToText(std::span<const std::byte> bytes)
@@ -3401,7 +3401,7 @@ std::vector<std::byte> TquadbinArrayFromText(std::string_view text)
     cannotRead("tquadbin[]", text);
 }
 
-constexpr ExtensionType TquadbinArrayType{.name = "TQUADBIN_ARRAY", .fromText = TquadbinArrayFromText};
+constexpr ExtensionType TquadbinArrayType{.name = "TQUADBIN_ARRAY", .fromText = TquadbinArrayFromText, .element = &TquadbinType};
 
 /* trgeometry[]: an array of trgeometry, carried as its number of elements, then each element's memory image after its length */
 std::string TrgeometryArrayToText(std::span<const std::byte> bytes)
@@ -3435,7 +3435,7 @@ std::vector<std::byte> TrgeometryArrayFromText(std::string_view text)
     cannotRead("trgeometry[]", text);
 }
 
-constexpr ExtensionType TrgeometryArrayType{.name = "TRGEOMETRY_ARRAY", .fromText = TrgeometryArrayFromText};
+constexpr ExtensionType TrgeometryArrayType{.name = "TRGEOMETRY_ARRAY", .fromText = TrgeometryArrayFromText, .element = &TrgeometryType};
 
 /* ts2cell[]: an array of ts2cell, carried as its number of elements, then each element's memory image after its length */
 std::string Ts2cellArrayToText(std::span<const std::byte> bytes)
@@ -3469,7 +3469,7 @@ std::vector<std::byte> Ts2cellArrayFromText(std::string_view text)
     cannotRead("ts2cell[]", text);
 }
 
-constexpr ExtensionType Ts2cellArrayType{.name = "TS2CELL_ARRAY", .fromText = Ts2cellArrayFromText};
+constexpr ExtensionType Ts2cellArrayType{.name = "TS2CELL_ARRAY", .fromText = Ts2cellArrayFromText, .element = &Ts2cellType};
 
 /* tstzspan[]: an array of tstzspan, carried as its number of elements, then each element's memory image after its length */
 std::string TstzspanArrayToText(std::span<const std::byte> bytes)
@@ -3503,7 +3503,7 @@ std::vector<std::byte> TstzspanArrayFromText(std::string_view text)
     cannotRead("tstzspan[]", text);
 }
 
-constexpr ExtensionType TstzspanArrayType{.name = "TSTZSPAN_ARRAY", .fromText = TstzspanArrayFromText};
+constexpr ExtensionType TstzspanArrayType{.name = "TSTZSPAN_ARRAY", .fromText = TstzspanArrayFromText, .element = &TstzspanType};
 
 /* ttext[]: an array of ttext, carried as its number of elements, then each element's memory image after its length */
 std::string TtextArrayToText(std::span<const std::byte> bytes)
@@ -3537,7 +3537,7 @@ std::vector<std::byte> TtextArrayFromText(std::string_view text)
     cannotRead("ttext[]", text);
 }
 
-constexpr ExtensionType TtextArrayType{.name = "TTEXT_ARRAY", .fromText = TtextArrayFromText};
+constexpr ExtensionType TtextArrayType{.name = "TTEXT_ARRAY", .fromText = TtextArrayFromText, .element = &TtextType};
 
 }
 

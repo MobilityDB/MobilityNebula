@@ -68,7 +68,9 @@ jobs:
     needs: [ dev-image ]
     # A build that restores no cache compiles every source
     timeout-minutes: 180
-    runs-on: ${{ (github.event_name != 'pull_request' || contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)) && fromJSON('["self-hosted", "nebula"]') || 'ubuntu-24.04' }}
+    # The repository variable NEXT_RUNNER=self-hosted sends the builds of the repository's own members to the self-hosted
+    # runner; any other value, or none, sends every build to a GitHub-hosted runner, as when the self-hosted one is offline
+    runs-on: ${{ (vars.NEXT_RUNNER == 'self-hosted' && (github.event_name != 'pull_request' || contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association))) && fromJSON('["self-hosted", "nebula"]') || 'ubuntu-24.04' }}
     env:
       IMAGE: nebulastream/nes-ci:${{ needs.dev-image.outputs.tag }}-libstdcxx-none
       MEOS_COMMIT: ${{ needs.dev-image.outputs.meos }}

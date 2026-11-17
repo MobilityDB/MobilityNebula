@@ -47,6 +47,8 @@ public:
     void exitNamedSource(AntlrSQLParser::NamedSourceContext* context) override;
     void enterWhereClause(AntlrSQLParser::WhereClauseContext* context) override;
     void exitWhereClause(AntlrSQLParser::WhereClauseContext* context) override;
+    void enterUnnestRelation(AntlrSQLParser::UnnestRelationContext* context) override;
+    void exitUnnestRelation(AntlrSQLParser::UnnestRelationContext* context) override;
     void enterComparisonOperator(AntlrSQLParser::ComparisonOperatorContext* context) override;
     void exitComparison(AntlrSQLParser::ComparisonContext* context) override;
     void enterFunctionCall(AntlrSQLParser::FunctionCallContext* context) override;

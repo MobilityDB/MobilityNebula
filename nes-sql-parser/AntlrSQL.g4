@@ -142,7 +142,13 @@ querySpecification: selectClause fromClause whereClause? windowedAggregationClau
 fromClause: FROM relation (',' relation)*;
 
 relation
-    : relationPrimary joinRelation*
+    : relationPrimary unnestRelation? joinRelation*
+    ;
+
+/// Each row of the relation before, once per element of the array the expression answers for it, as
+/// SQL:2003 writes it and PostgreSQL, DuckDB and Flink read it: FROM t CROSS JOIN UNNEST(t.a) AS u(x)
+unnestRelation
+    : CROSS JOIN UNNEST '(' expression ')' AS? alias=identifier '(' element=identifier ')'
     ;
 
 joinRelation
@@ -491,6 +497,8 @@ INSERT: 'INSERT' | 'insert';
 INTO: 'INTO' | 'into';
 IS: 'IS' | 'is';
 JOIN: 'JOIN' | 'join';
+CROSS: 'CROSS' | 'cross';
+UNNEST: 'UNNEST' | 'unnest';
 LAST: 'LAST';
 LEFT: 'LEFT' | 'left';
 LIKE: 'LIKE';

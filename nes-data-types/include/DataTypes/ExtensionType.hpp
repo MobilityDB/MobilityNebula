@@ -39,6 +39,9 @@ struct ExtensionType
     /// The bytes of the value a text states, which a typed constant of the type holds; a type without it
     /// has no typed constants.
     std::vector<std::byte> (*fromText)(std::string_view text) = nullptr;
+    /// The type of the elements of an array type, whose values are the number of their elements, then each element after
+    /// its length; null for a type of no array.
+    const ExtensionType* element = nullptr;
 };
 
 }

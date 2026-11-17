@@ -549,6 +549,33 @@ void AntlrSQLQueryPlanCreator::exitWhereClause(AntlrSQLParser::WhereClauseContex
     AntlrSQLBaseListener::exitWhereClause(context);
 }
 
+/// The array of CROSS JOIN UNNEST is an expression over the fields of the relation before, read as a WHERE clause reads
+/// its predicate; its alias u(x) names the field of the elements
+void AntlrSQLQueryPlanCreator::enterUnnestRelation(AntlrSQLParser::UnnestRelationContext* context)
+{
+    if (helpers.top().unnest.has_value())
+    {
+        throw InvalidQuerySyntax("A query takes one CROSS JOIN UNNEST, but got another at {}", context->getText());
+    }
+    helpers.top().isUnnest = true;
+    helpers.top().isWhereOrHaving = true;
+    AntlrSQLBaseListener::enterUnnestRelation(context);
+}
+
+void AntlrSQLQueryPlanCreator::exitUnnestRelation(AntlrSQLParser::UnnestRelationContext* context)
+{
+    helpers.top().isWhereOrHaving = false;
+    helpers.top().isUnnest = false;
+    if (helpers.top().functionBuilder.size() != 1)
+    {
+        throw InvalidQuerySyntax("UNNEST takes one array, but got {} at {}", helpers.top().functionBuilder.size(), context->getText());
+    }
+    helpers.top().unnest.emplace(AntlrSQLHelper::Unnest{
+        .array = helpers.top().functionBuilder.back(), .alias = bindIdentifier(context->alias), .element = bindIdentifier(context->element)});
+    helpers.top().functionBuilder.clear();
+    AntlrSQLBaseListener::exitUnnestRelation(context);
+}
+
 void AntlrSQLQueryPlanCreator::enterComparisonOperator(AntlrSQLParser::ComparisonOperatorContext* context)
 {
     auto opTokenType = context->getStart()->getType();
@@ -716,7 +743,7 @@ void AntlrSQLQueryPlanCreator::enterIdentifier(AntlrSQLParser::IdentifierContext
         helpers.top().functionBuilder.emplace_back(UnboundFieldAccessLogicalFunction(bindIdentifier(context)));
     }
     else if (
-        helpers.top().isFrom and not helpers.top().isJoinRelation and not helpers.top().isModelInference
+        helpers.top().isFrom and not helpers.top().isJoinRelation and not helpers.top().isModelInference and not helpers.top().isUnnest
         and AntlrSQLParser::RuleErrorCapturingIdentifier == parentRuleIndex)
     {
         /// get main source name
@@ -806,6 +833,12 @@ void AntlrSQLQueryPlanCreator::exitPrimaryQuery(AntlrSQLParser::PrimaryQueryCont
         }
         return LogicalPlanBuilder::createLogicalPlan(helpers.top().getSource().value());
     }();
+
+    if (helpers.top().unnest.has_value())
+    {
+        auto [array, alias, element] = std::move(*helpers.top().unnest);
+        queryPlan = LogicalPlanBuilder::addUnnest(std::move(array), std::move(alias), std::move(element), queryPlan);
+    }
 
     for (auto whereExpr = helpers.top().getWhereClauses().rbegin(); whereExpr != helpers.top().getWhereClauses().rend(); ++whereExpr)
     {

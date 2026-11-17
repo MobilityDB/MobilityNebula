@@ -47,28 +47,29 @@ namespace NES
 {
 
 EventTimeWatermarkAssignerLogicalOperator::EventTimeWatermarkAssignerLogicalOperator(
-    WeakLogicalOperator self, LogicalFunction onField, const Windowing::TimeUnit& unit)
-    : ManagedByOperator(std::move(self)), unit(unit), onField(std::move(onField))
+    WeakLogicalOperator self, LogicalFunction onField, const Windowing::TimeUnit& unit, const uint64_t allowedLateness)
+    : ManagedByOperator(std::move(self)), unit(unit), onField(std::move(onField)), allowedLateness(allowedLateness)
 {
 }
 
 EventTimeWatermarkAssignerLogicalOperator::EventTimeWatermarkAssignerLogicalOperator(
-    WeakLogicalOperator self, LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit)
-    : ManagedByOperator(std::move(self)), unit(unit), onField(std::move(onField)), child(std::move(child))
+    WeakLogicalOperator self, LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit, const uint64_t allowedLateness)
+    : ManagedByOperator(std::move(self)), unit(unit), onField(std::move(onField)), allowedLateness(allowedLateness), child(std::move(child))
 {
     inferLocalSchema();
 }
 
 TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>
-EventTimeWatermarkAssignerLogicalOperator::create(LogicalFunction onField, const Windowing::TimeUnit& unit)
+EventTimeWatermarkAssignerLogicalOperator::create(LogicalFunction onField, const Windowing::TimeUnit& unit, const uint64_t allowedLateness)
 {
-    return TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>{std::move(onField), unit};
+    return TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>{std::move(onField), unit, allowedLateness};
 }
 
 TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>
-EventTimeWatermarkAssignerLogicalOperator::create(LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit)
+EventTimeWatermarkAssignerLogicalOperator::create(
+    LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit, const uint64_t allowedLateness)
 {
-    return TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>{std::move(child), std::move(onField), unit};
+    return TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>{std::move(child), std::move(onField), unit, allowedLateness};
 }
 
 std::string_view EventTimeWatermarkAssignerLogicalOperator::getName() const noexcept
@@ -81,10 +82,11 @@ std::string EventTimeWatermarkAssignerLogicalOperator::explain(ExplainVerbosity 
     if (verbosity == ExplainVerbosity::Debug)
     {
         return fmt::format(
-            "EVENT_TIME_WATERMARK_ASSIGNER(opId: {}, onField: {}, unit: {}, traitSet: {})",
+            "EVENT_TIME_WATERMARK_ASSIGNER(opId: {}, onField: {}, unit: {}, allowedLateness: {}, traitSet: {})",
             id,
             onField.explain(verbosity),
             unit.getMillisecondsConversionMultiplier(),
+            allowedLateness,
             traitSet.explain(verbosity));
     }
     return "WATERMARK_ASSIGNER(Event time)";
@@ -92,7 +94,8 @@ std::string EventTimeWatermarkAssignerLogicalOperator::explain(ExplainVerbosity 
 
 bool EventTimeWatermarkAssignerLogicalOperator::operator==(const EventTimeWatermarkAssignerLogicalOperator& rhs) const
 {
-    return onField == rhs.onField && unit == rhs.unit && outputSchema == rhs.outputSchema && traitSet == rhs.traitSet;
+    return onField == rhs.onField && unit == rhs.unit && allowedLateness == rhs.allowedLateness && outputSchema == rhs.outputSchema
+        && traitSet == rhs.traitSet;
 }
 
 void EventTimeWatermarkAssignerLogicalOperator::inferLocalSchema()
@@ -168,12 +171,17 @@ Windowing::TimeUnit EventTimeWatermarkAssignerLogicalOperator::getUnit() const
     return unit;
 }
 
+uint64_t EventTimeWatermarkAssignerLogicalOperator::getAllowedLateness() const
+{
+    return allowedLateness;
+}
+
 Reflected Reflector<TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>>::operator()(
     const TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>& op, const ReflectionContext& context) const
 {
     return context.reflect(
         detail::ReflectedEventTimeWatermarkAssignerLogicalOperator{
-            .operatorId = op.getId(), .onField = op->getOnField(), .timeUnit = op->getUnit()});
+            .operatorId = op.getId(), .onField = op->getOnField(), .timeUnit = op->getUnit(), .allowedLateness = op->getAllowedLateness()});
 }
 
 Unreflector<TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>>::Unreflector(ContextType operatorMapping)
@@ -185,13 +193,13 @@ TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>
 Unreflector<TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>>::operator()(
     const Reflected& reflected, const ReflectionContext& context) const
 {
-    auto [id, onField, timeUnit] = context.unreflect<detail::ReflectedEventTimeWatermarkAssignerLogicalOperator>(reflected);
+    auto [id, onField, timeUnit, allowedLateness] = context.unreflect<detail::ReflectedEventTimeWatermarkAssignerLogicalOperator>(reflected);
     auto children = plan->getChildrenFor(id, context);
     if (children.size() != 1)
     {
         throw CannotDeserialize("EventTimeWatermarkAssignerLogicalOperator requires exactly one child, but got {}", children.size());
     }
-    return EventTimeWatermarkAssignerLogicalOperator::create(children.at(0), onField, timeUnit);
+    return EventTimeWatermarkAssignerLogicalOperator::create(children.at(0), onField, timeUnit, allowedLateness);
 }
 
 LogicalOperator EventTimeWatermarkAssignerLogicalOperator::getChild() const
@@ -204,5 +212,6 @@ LogicalOperator EventTimeWatermarkAssignerLogicalOperator::getChild() const
 uint64_t std::hash<NES::EventTimeWatermarkAssignerLogicalOperator>::operator()(
     const NES::EventTimeWatermarkAssignerLogicalOperator& eventTimeWatermarkAssignerOperator) const noexcept
 {
-    return folly::hash::hash_combine(eventTimeWatermarkAssignerOperator.unit, eventTimeWatermarkAssignerOperator.onField);
+    return folly::hash::hash_combine(
+        eventTimeWatermarkAssignerOperator.unit, eventTimeWatermarkAssignerOperator.onField, eventTimeWatermarkAssignerOperator.allowedLateness);
 }

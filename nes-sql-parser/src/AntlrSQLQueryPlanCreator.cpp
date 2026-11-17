@@ -1126,6 +1126,29 @@ void AntlrSQLQueryPlanCreator::exitSessionWindow(AntlrSQLParser::SessionWindowCo
     AntlrSQLBaseListener::exitSessionWindow(context);
 }
 
+void AntlrSQLQueryPlanCreator::exitWatermarkParameters(AntlrSQLParser::WatermarkParametersContext* context)
+{
+    /// WATERMARK(field, n unit) after the window: the watermark of the window's event time trails the largest event time read
+    /// by n units, as Flink's WATERMARK FOR field AS field - INTERVAL 'n' unit does
+    auto& windowTimestamp = helpers.top().windowTimestamp;
+    auto* const characteristic
+        = windowTimestamp.has_value() ? std::get_if<Windowing::UnboundTimeCharacteristic>(&windowTimestamp.value()) : nullptr;
+    auto* const eventTime = characteristic != nullptr ? std::get_if<Windowing::UnboundEventTimeCharacteristic>(characteristic) : nullptr;
+    if (eventTime == nullptr)
+    {
+        throw InvalidQuerySyntax("A watermark needs a window over an event time at {}", context->getText());
+    }
+    const auto field = bindIdentifier(context->watermarkIdentifier);
+    if (field != eventTime->field->getFieldName())
+    {
+        throw InvalidQuerySyntax(
+            "The watermark is on {}, the window on the event time {}, at {}", field, eventTime->field->getFieldName(), context->getText());
+    }
+    const auto lateness = buildTimeMeasure(std::stoi(context->watermark->getText()), context->watermarkTimeUnit->getStop()->getType());
+    eventTime->allowedLateness = lateness.getTime();
+    AntlrSQLBaseListener::exitWatermarkParameters(context);
+}
+
 void AntlrSQLQueryPlanCreator::exitNamedExpression(AntlrSQLParser::NamedExpressionContext* context)
 {
     AntlrSQLHelper& helper = helpers.top();

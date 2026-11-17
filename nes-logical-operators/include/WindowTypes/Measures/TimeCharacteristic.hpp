@@ -45,6 +45,9 @@ struct UnboundEventTimeCharacteristic
 {
     TypedLogicalFunction<UnboundFieldAccessLogicalFunction> field;
     TimeUnit unit{1};
+    /// The lateness the watermark of this event time allows, in milliseconds: the watermark trails the largest event time
+    /// read by it, as WATERMARK(field, n unit) states it; 0 where the query states none
+    uint64_t allowedLateness{0};
     [[nodiscard]] bool operator==(const UnboundEventTimeCharacteristic& other) const = default;
     friend std::ostream& operator<<(std::ostream& os, const UnboundEventTimeCharacteristic& timeCharacteristic);
 };
@@ -53,6 +56,9 @@ struct BoundEventTimeCharacteristic
 {
     TypedLogicalFunction<FieldAccessLogicalFunction> field;
     TimeUnit unit{1};
+    /// The lateness the watermark of this event time allows, in milliseconds: the watermark trails the largest event time
+    /// read by it, as WATERMARK(field, n unit) states it; 0 where the query states none
+    uint64_t allowedLateness{0};
     [[nodiscard]] bool operator==(const BoundEventTimeCharacteristic& other) const = default;
     friend std::ostream& operator<<(std::ostream& os, const BoundEventTimeCharacteristic& timeCharacteristic);
 };

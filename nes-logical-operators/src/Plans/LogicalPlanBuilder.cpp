@@ -213,7 +213,7 @@ LogicalPlan LogicalPlanBuilder::checkAndAddWatermarkAssigner(LogicalPlan queryPl
                         [&queryPlan](const auto& eventTime)
                         {
                             return promoteOperatorToRoot(
-                                queryPlan, EventTimeWatermarkAssignerLogicalOperator::create(eventTime.field, eventTime.unit));
+                                queryPlan, EventTimeWatermarkAssignerLogicalOperator::create(eventTime.field, eventTime.unit, eventTime.allowedLateness));
                         },
                     },
                     unboundBound);

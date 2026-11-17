@@ -45,13 +45,16 @@ namespace NES
 class EventTimeWatermarkAssignerLogicalOperator : public ManagedByOperator
 {
 public:
-    EventTimeWatermarkAssignerLogicalOperator(WeakLogicalOperator self, LogicalFunction onField, const Windowing::TimeUnit& unit);
+    /// The watermark trails the largest event time read by the allowed lateness, in milliseconds
     EventTimeWatermarkAssignerLogicalOperator(
-        WeakLogicalOperator self, LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit);
+        WeakLogicalOperator self, LogicalFunction onField, const Windowing::TimeUnit& unit, uint64_t allowedLateness = 0);
+    EventTimeWatermarkAssignerLogicalOperator(
+        WeakLogicalOperator self, LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit, uint64_t allowedLateness = 0);
 
-    static TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator> create(LogicalFunction onField, const Windowing::TimeUnit& unit);
     static TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>
-    create(LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit);
+    create(LogicalFunction onField, const Windowing::TimeUnit& unit, uint64_t allowedLateness = 0);
+    static TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>
+    create(LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit, uint64_t allowedLateness = 0);
 
 
     [[nodiscard]] bool operator==(const EventTimeWatermarkAssignerLogicalOperator& rhs) const;
@@ -72,12 +75,14 @@ public:
     [[nodiscard]] EventTimeWatermarkAssignerLogicalOperator withInferredSchema() const;
     [[nodiscard]] LogicalFunction getOnField() const;
     [[nodiscard]] Windowing::TimeUnit getUnit() const;
+    [[nodiscard]] uint64_t getAllowedLateness() const;
 
 private:
     static constexpr std::string_view NAME = "EventTimeWatermarkAssigner";
 
     Windowing::TimeUnit unit;
     LogicalFunction onField;
+    uint64_t allowedLateness;
 
     std::optional<LogicalOperator> child;
 
@@ -99,6 +104,7 @@ struct ReflectedEventTimeWatermarkAssignerLogicalOperator
     OperatorId operatorId{OperatorId::INVALID};
     LogicalFunction onField;
     Windowing::TimeUnit timeUnit;
+    uint64_t allowedLateness{0};
 };
 }
 

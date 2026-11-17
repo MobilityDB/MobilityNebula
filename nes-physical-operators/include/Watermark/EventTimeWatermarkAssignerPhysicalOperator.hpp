@@ -26,7 +26,8 @@ class TimeFunction;
 class EventTimeWatermarkAssignerPhysicalOperator : public PhysicalOperatorConcept
 {
 public:
-    explicit EventTimeWatermarkAssignerPhysicalOperator(EventTimeFunction timeFunction);
+    /// The watermark trails the largest event time read by the allowed lateness, in milliseconds
+    explicit EventTimeWatermarkAssignerPhysicalOperator(EventTimeFunction timeFunction, uint64_t allowedLateness = 0);
     void open(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const override;
     void execute(ExecutionContext& ctx, Record& record) const override;
     void close(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const override;
@@ -35,6 +36,7 @@ public:
 
 private:
     EventTimeFunction timeFunction;
+    uint64_t allowedLateness;
     std::optional<PhysicalOperator> child;
 };
 

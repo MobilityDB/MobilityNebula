@@ -45,7 +45,8 @@ LoweringRuleResultSubgraph LowerToPhysicalEventTimeWatermarkAssigner::apply(Logi
 
     const auto physicalFunction = QueryCompilation::FunctionProvider::lowerFunction(
         assignerOp->getOnField(), *assignerOp->getChild()->getTraitSet().get<FieldMappingTrait>());
-    auto physicalOperator = EventTimeWatermarkAssignerPhysicalOperator(EventTimeFunction(physicalFunction, assignerOp->getUnit()));
+    auto physicalOperator = EventTimeWatermarkAssignerPhysicalOperator(
+        EventTimeFunction(physicalFunction, assignerOp->getUnit()), assignerOp->getAllowedLateness());
 
     const auto wrapper
         = std::make_shared<PhysicalOperatorWrapper>(physicalOperator, inputSchema, outputSchema, memoryLayoutType, memoryLayoutType);

@@ -14,9 +14,11 @@
 #include <Rules/Static/WatermarkAssignerPushdownRule.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <ranges>
 #include <set>
 #include <string_view>
+#include <tuple>
 #include <typeindex>
 #include <typeinfo>
 #include <unordered_map>
@@ -49,10 +51,13 @@ namespace NES
 namespace
 {
 
+/// An event-time watermark assigner to place: its event time, the unit of it and the lateness its watermark allows
+using EventTimeAssigner = std::tuple<Field, Windowing::TimeUnit, uint64_t>;
+
 struct RequiredWatermarkAssigners
 {
     bool ingestionTime = false;
-    std::vector<std::pair<Field, Windowing::TimeUnit>> eventTime;
+    std::vector<EventTimeAssigner> eventTime;
 };
 
 struct OperatorContext
@@ -76,7 +81,7 @@ RequiredWatermarkAssigners mergeContexts(const std::vector<RequiredWatermarkAssi
 }
 
 LogicalOperator
-addWatermarkAssigners(LogicalOperator op, const bool ingestionTime, std::vector<std::pair<Field, Windowing::TimeUnit>> eventTime)
+addWatermarkAssigners(LogicalOperator op, const bool ingestionTime, std::vector<EventTimeAssigner> eventTime)
 {
     /// adds all required watermark assigners
 
@@ -86,17 +91,17 @@ addWatermarkAssigners(LogicalOperator op, const bool ingestionTime, std::vector<
     }
     while (!eventTime.empty())
     {
-        auto [onField, unit] = eventTime.back();
+        auto [onField, unit, allowedLateness] = eventTime.back();
         auto field = op.getOutputSchema()[onField.getLastName()];
         PRECONDITION(field.has_value(), "the operator must have the event time field");
         eventTime.pop_back();
-        op = TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>{op, FieldAccessLogicalFunction{field.value()}, unit};
+        op = TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>{op, FieldAccessLogicalFunction{field.value()}, unit, allowedLateness};
     }
     return op;
 }
 
-std::vector<std::pair<Field, Windowing::TimeUnit>>
-fieldsWithNewBase(const LogicalOperator& base, std::vector<std::pair<Field, Windowing::TimeUnit>> eventTime)
+std::vector<EventTimeAssigner>
+fieldsWithNewBase(const LogicalOperator& base, std::vector<EventTimeAssigner> eventTime)
 {
     for (auto& field : eventTime | std::views::keys)
     {
@@ -176,19 +181,19 @@ pushBeyondProjection(const TypedLogicalOperator<ProjectionLogicalOperator>& op, 
         }
     }
 
-    std::vector<std::pair<Field, Windowing::TimeUnit>> pushFurther{};
-    std::vector<std::pair<Field, Windowing::TimeUnit>> applyNow{};
+    std::vector<EventTimeAssigner> pushFurther{};
+    std::vector<EventTimeAssigner> applyNow{};
 
-    for (const auto& [onField, unit] : context.eventTime)
+    for (const auto& [onField, unit, allowedLateness] : context.eventTime)
     {
         auto pushable = pushableFields.contains(onField);
         if (pushable)
         {
-            pushFurther.emplace_back(onField, unit);
+            pushFurther.emplace_back(onField, unit, allowedLateness);
         }
         else
         {
-            applyNow.emplace_back(onField, unit);
+            applyNow.emplace_back(onField, unit, allowedLateness);
         }
     }
 
@@ -211,7 +216,7 @@ Visitor::DownResult pushBeyondEventTimeWatermarkAssigner(
     context.eventTime = fieldsWithNewBase(op->getChild(), context.eventTime);
 
     /// NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-    context.eventTime.emplace_back(fieldAccess.value()->getField(), op->getUnit());
+    context.eventTime.emplace_back(fieldAccess.value()->getField(), op->getUnit(), op->getAllowedLateness());
 
     std::unordered_map<LogicalOperator, RequiredWatermarkAssigners> pushed{{op->getChild(), context}};
     OperatorContext operatorContext{.toApply = {}, .pushed = pushed};

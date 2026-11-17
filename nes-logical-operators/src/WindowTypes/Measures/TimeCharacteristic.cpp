@@ -135,7 +135,10 @@ BoundTimeCharacteristic TimeCharacteristicWrapper::withInferredSchema(const Sche
                         const auto fieldAccessOpt = erasedFieldAccess.tryGetAs<FieldAccessLogicalFunction>();
 
                         return BoundTimeCharacteristic{
-                            BoundEventTimeCharacteristic{.field = fieldAccessOpt.value(), .unit = unboundEventTimeCharacteristic.unit}};
+                            BoundEventTimeCharacteristic{
+                                .field = fieldAccessOpt.value(),
+                                .unit = unboundEventTimeCharacteristic.unit,
+                                .allowedLateness = unboundEventTimeCharacteristic.allowedLateness}};
                     },
                     [&](const BoundEventTimeCharacteristic& boundEventTimeCharacteristic)
                     {
@@ -143,7 +146,10 @@ BoundTimeCharacteristic TimeCharacteristicWrapper::withInferredSchema(const Sche
                         const auto fieldAccessOpt = erasedFieldAccess.tryGetAs<FieldAccessLogicalFunction>();
 
                         return BoundTimeCharacteristic{
-                            BoundEventTimeCharacteristic{.field = fieldAccessOpt.value(), .unit = boundEventTimeCharacteristic.unit}};
+                            BoundEventTimeCharacteristic{
+                                .field = fieldAccessOpt.value(),
+                                .unit = boundEventTimeCharacteristic.unit,
+                                .allowedLateness = boundEventTimeCharacteristic.allowedLateness}};
                     },
                 },
                 unboundBound);
@@ -185,11 +191,11 @@ std::hash<NES::Windowing::IngestionTimeCharacteristic>::operator()(const NES::Wi
 std::size_t std::hash<NES::Windowing::UnboundEventTimeCharacteristic>::operator()(
     const NES::Windowing::UnboundEventTimeCharacteristic& timeCharacteristic) const noexcept
 {
-    return folly::hash::hash_combine(timeCharacteristic.field, timeCharacteristic.unit);
+    return folly::hash::hash_combine(timeCharacteristic.field, timeCharacteristic.unit, timeCharacteristic.allowedLateness);
 }
 
 std::size_t std::hash<NES::Windowing::BoundEventTimeCharacteristic>::operator()(
     const NES::Windowing::BoundEventTimeCharacteristic& timeCharacteristic) const noexcept
 {
-    return folly::hash::hash_combine(timeCharacteristic.field, timeCharacteristic.unit);
+    return folly::hash::hash_combine(timeCharacteristic.field, timeCharacteristic.unit, timeCharacteristic.allowedLateness);
 }

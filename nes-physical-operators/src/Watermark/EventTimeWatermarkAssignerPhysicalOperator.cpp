@@ -27,8 +27,9 @@
 namespace NES
 {
 
-EventTimeWatermarkAssignerPhysicalOperator::EventTimeWatermarkAssignerPhysicalOperator(EventTimeFunction timeFunction)
-    : timeFunction(std::move(timeFunction)) { };
+EventTimeWatermarkAssignerPhysicalOperator::EventTimeWatermarkAssignerPhysicalOperator(
+    EventTimeFunction timeFunction, const uint64_t allowedLateness)
+    : timeFunction(std::move(timeFunction)), allowedLateness(allowedLateness) { };
 
 void EventTimeWatermarkAssignerPhysicalOperator::open(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const
 {
@@ -43,10 +44,17 @@ void EventTimeWatermarkAssignerPhysicalOperator::open(ExecutionContext& executio
 
 void EventTimeWatermarkAssignerPhysicalOperator::execute(ExecutionContext& ctx, Record& record) const
 {
-    const auto tsField = timeFunction.getTs(ctx, record);
-    if (tsField > ctx.watermarkTs)
+    /// The watermark is the largest event time read less the lateness the query allows, none before the first instant
+    const nautilus::val<uint64_t> ts = timeFunction.getTs(ctx, record).convertToValue();
+    nautilus::val<uint64_t> trailing = Timestamp::INITIAL_VALUE;
+    if (ts > nautilus::val<uint64_t>(allowedLateness))
     {
-        ctx.watermarkTs = tsField;
+        trailing = ts - nautilus::val<uint64_t>(allowedLateness);
+    }
+    const nautilus::val<Timestamp> candidate{trailing};
+    if (candidate > ctx.watermarkTs)
+    {
+        ctx.watermarkTs = candidate;
     }
     /// call next operator
     executeChild(ctx, record);

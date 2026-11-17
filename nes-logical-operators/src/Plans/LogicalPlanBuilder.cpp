@@ -36,6 +36,7 @@
 #include <Operators/LogicalOperatorFwd.hpp>
 #include <Operators/ProjectionLogicalOperator.hpp>
 #include <Operators/SelectionLogicalOperator.hpp>
+#include <Operators/InlineTableJoinLogicalOperator.hpp>
 #include <Operators/UnnestLogicalOperator.hpp>
 #include <Operators/Sinks/AnonymousSinkLogicalOperator.hpp>
 #include <Operators/Sinks/SinkLogicalOperator.hpp>
@@ -103,6 +104,14 @@ LogicalPlan LogicalPlanBuilder::addUnnest(LogicalFunction array, Identifier alia
 {
     NES_TRACE("LogicalPlanBuilder: add unnest operator to query plan");
     return promoteOperatorToRoot(queryPlan, UnnestLogicalOperator::create(std::move(array), std::move(alias), std::move(element)));
+}
+
+LogicalPlan LogicalPlanBuilder::addInlineTableJoin(
+    std::vector<LogicalFunction> values, Identifier alias, std::vector<Identifier> fields, const LogicalPlan& queryPlan)
+{
+    NES_TRACE("LogicalPlanBuilder: add inline table join operator to query plan");
+    return promoteOperatorToRoot(
+        queryPlan, InlineTableJoinLogicalOperator::create(std::move(values), std::move(alias), std::move(fields)));
 }
 
 LogicalPlan LogicalPlanBuilder::addWindowAggregation(

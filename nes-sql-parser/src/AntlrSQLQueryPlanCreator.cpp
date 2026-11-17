@@ -554,9 +554,9 @@ void AntlrSQLQueryPlanCreator::exitWhereClause(AntlrSQLParser::WhereClauseContex
 /// its predicate; its alias u(x) names the field of the elements
 void AntlrSQLQueryPlanCreator::enterUnnestRelation(AntlrSQLParser::UnnestRelationContext* context)
 {
-    if (helpers.top().unnest.has_value())
+    if (helpers.top().unnest.has_value() or helpers.top().inlineTable.has_value())
     {
-        throw InvalidQuerySyntax("A query takes one CROSS JOIN UNNEST, but got another at {}", context->getText());
+        throw InvalidQuerySyntax("A query takes one cross join with UNNEST or an inline table, but got another at {}", context->getText());
     }
     helpers.top().isUnnest = true;
     helpers.top().isWhereOrHaving = true;
@@ -575,6 +575,73 @@ void AntlrSQLQueryPlanCreator::exitUnnestRelation(AntlrSQLParser::UnnestRelation
         .array = helpers.top().functionBuilder.back(), .alias = bindIdentifier(context->alias), .element = bindIdentifier(context->element)});
     helpers.top().functionBuilder.clear();
     AntlrSQLBaseListener::exitUnnestRelation(context);
+}
+
+namespace
+{
+/// The number of values a row of an inline table holds: those of a row constructor (a, b), or one, as a row of one value
+/// is its value
+size_t numberOfRowValues(AntlrSQLParser::ExpressionContext* row)
+{
+    antlr4::tree::ParseTree* node = row;
+    while (node != nullptr)
+    {
+        if (auto* constructor = dynamic_cast<AntlrSQLParser::RowConstructorContext*>(node))
+        {
+            return constructor->namedExpression().size();
+        }
+        if (node->children.size() != 1)
+        {
+            break;
+        }
+        node = node->children.front();
+    }
+    return 1;
+}
+}
+
+/// The values of the inline table of a cross join are expressions read as a WHERE clause reads its predicate, a literal
+/// among them as any literal of an expression; the alias f(x, y) names the fields of the values
+void AntlrSQLQueryPlanCreator::enterInlineTableRelation(AntlrSQLParser::InlineTableRelationContext* context)
+{
+    if (helpers.top().unnest.has_value() or helpers.top().inlineTable.has_value())
+    {
+        throw InvalidQuerySyntax("A query takes one cross join with UNNEST or an inline table, but got another at {}", context->getText());
+    }
+    helpers.top().isInlineTable = true;
+    helpers.top().isWhereOrHaving = true;
+    AntlrSQLBaseListener::enterInlineTableRelation(context);
+}
+
+void AntlrSQLQueryPlanCreator::exitInlineTableRelation(AntlrSQLParser::InlineTableRelationContext* context)
+{
+    auto& helper = helpers.top();
+    helper.isWhereOrHaving = false;
+    helper.isInlineTable = false;
+    const auto alias = bindIdentifier(context->alias);
+    std::vector<Identifier> fields;
+    for (auto* column : context->columns)
+    {
+        fields.push_back(bindIdentifier(column));
+    }
+    size_t numberOfValues = 0;
+    for (auto* row : context->rows)
+    {
+        const auto rowValues = numberOfRowValues(row);
+        if (rowValues != fields.size())
+        {
+            throw InvalidQuerySyntax("A row of {} holds {} values, but {} names {} fields", alias, rowValues, alias, fields.size());
+        }
+        numberOfValues += rowValues;
+    }
+    /// Each value leaves one function, in the order the rows state them
+    if (helper.functionBuilder.size() != numberOfValues)
+    {
+        throw InvalidQuerySyntax("The inline table {} states {} values, but {} were read at {}", alias, numberOfValues, helper.functionBuilder.size(), context->getText());
+    }
+    helper.inlineTable.emplace(AntlrSQLHelper::InlineTable{.values = std::move(helper.functionBuilder), .alias = alias, .fields = std::move(fields)});
+    helper.functionBuilder.clear();
+    AntlrSQLBaseListener::exitInlineTableRelation(context);
 }
 
 void AntlrSQLQueryPlanCreator::enterComparisonOperator(AntlrSQLParser::ComparisonOperatorContext* context)
@@ -745,6 +812,7 @@ void AntlrSQLQueryPlanCreator::enterIdentifier(AntlrSQLParser::IdentifierContext
     }
     else if (
         helpers.top().isFrom and not helpers.top().isJoinRelation and not helpers.top().isModelInference and not helpers.top().isUnnest
+        and not helpers.top().isInlineTable
         and AntlrSQLParser::RuleErrorCapturingIdentifier == parentRuleIndex)
     {
         /// get main source name
@@ -839,6 +907,11 @@ void AntlrSQLQueryPlanCreator::exitPrimaryQuery(AntlrSQLParser::PrimaryQueryCont
     {
         auto [array, alias, element] = std::move(*helpers.top().unnest);
         queryPlan = LogicalPlanBuilder::addUnnest(std::move(array), std::move(alias), std::move(element), queryPlan);
+    }
+    if (helpers.top().inlineTable.has_value())
+    {
+        auto [values, alias, fields] = std::move(*helpers.top().inlineTable);
+        queryPlan = LogicalPlanBuilder::addInlineTableJoin(std::move(values), std::move(alias), std::move(fields), queryPlan);
     }
 
     for (auto whereExpr = helpers.top().getWhereClauses().rbegin(); whereExpr != helpers.top().getWhereClauses().rend(); ++whereExpr)
@@ -1056,6 +1129,12 @@ void AntlrSQLQueryPlanCreator::exitSessionWindow(AntlrSQLParser::SessionWindowCo
 void AntlrSQLQueryPlanCreator::exitNamedExpression(AntlrSQLParser::NamedExpressionContext* context)
 {
     AntlrSQLHelper& helper = helpers.top();
+    /// A value of a row of an inline table is neither projected nor aggregated: exitInlineTableRelation reads it
+    if (helper.isInlineTable)
+    {
+        AntlrSQLBaseListener::exitNamedExpression(context);
+        return;
+    }
     if (context->name == nullptr and helper.functionBuilder.size() == 1
         and helper.functionBuilder.back().tryGetAs<UnboundFieldAccessLogicalFunction>() and not helpers.top().hasUnnamedAggregation)
     {

@@ -11,8 +11,10 @@ name: Container Build
 # self-hosted runner, in the Actions cache on a GitHub-hosted one.
 #
 # The build of a push, and of a pull request an owner, a member or a collaborator of the repository opens,
-# runs on the self-hosted runner labelled `nebula`; the build of any other pull request runs on a
-# GitHub-hosted runner. (A pull request from a fork is given no repository variable, so the author decides.)
+# runs on the self-hosted runner labelled `nebula` while .github/ci/runner reads self-hosted; the build of any
+# other pull request, and every build while the file reads github-hosted, runs on a GitHub-hosted runner. The
+# choice is a file of the commit built, not a repository variable, since a pull request from a fork is given
+# no repository variable: a pull request that changes the file is built where the file it carries says.
 # The self-hosted runner is a container of that image with the libraries libmeos links, so the job compiles
 # in it directly, keeps its compiler cache in the runner's volume, and refuses a branch whose dependency
 # hash is not the one the runner's image is built from (/etc/nes-ci-hash). A GitHub-hosted runner runs the
@@ -45,6 +47,7 @@ jobs:
     outputs:
       tag: ${{ steps.lookup.outputs.tag }}
       meos: ${{ steps.lookup.outputs.meos }}
+      runner: ${{ steps.lookup.outputs.runner }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -55,6 +58,7 @@ jobs:
           HASH=$(scripts/hash_dependencies.sh)
           echo "tag=$HASH" >> "$GITHUB_OUTPUT"
           echo "meos=$(cat nes-plugins/MEOS/MEOS_COMMIT)" >> "$GITHUB_OUTPUT"
+          echo "runner=$(cat .github/ci/runner)" >> "$GITHUB_OUTPUT"
           code=$(curl --silent --output /dev/null --write-out '%{http_code}' \
             "https://hub.docker.com/v2/namespaces/nebulastream/repositories/nes-ci/tags/$HASH-libstdcxx-none")
           if [ "$code" != 200 ]; then
@@ -68,9 +72,9 @@ jobs:
     needs: [ dev-image ]
     # A build that restores no cache compiles every source
     timeout-minutes: 180
-    # The repository variable NEXT_RUNNER=self-hosted sends the builds of the repository's own members to the self-hosted
-    # runner; any other value, or none, sends every build to a GitHub-hosted runner, as when the self-hosted one is offline
-    runs-on: ${{ (vars.NEXT_RUNNER == 'self-hosted' && (github.event_name != 'pull_request' || contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association))) && fromJSON('["self-hosted", "nebula"]') || 'ubuntu-24.04' }}
+    # .github/ci/runner reading self-hosted sends the builds of the repository's own members to the self-hosted runner;
+    # github-hosted sends every build to a GitHub-hosted runner, as while the self-hosted one is offline
+    runs-on: ${{ (needs.dev-image.outputs.runner == 'self-hosted' && (github.event_name != 'pull_request' || contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association))) && fromJSON('["self-hosted", "nebula"]') || 'ubuntu-24.04' }}
     env:
       IMAGE: nebulastream/nes-ci:${{ needs.dev-image.outputs.tag }}-libstdcxx-none
       MEOS_COMMIT: ${{ needs.dev-image.outputs.meos }}

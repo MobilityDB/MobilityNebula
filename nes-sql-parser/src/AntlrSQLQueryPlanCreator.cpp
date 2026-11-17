@@ -60,6 +60,7 @@
 #include <Operators/ProjectionLogicalOperator.hpp>
 #include <Operators/Windows/Aggregations/AvgAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/CountAggregationLogicalFunction.hpp>
+#include <Operators/Windows/Aggregations/CountDistinctAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/MaxAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/MedianAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/MinAggregationLogicalFunction.hpp>
@@ -1356,6 +1357,12 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
         }
     };
 
+    /// Only COUNT takes DISTINCT
+    if (context->setQuantifier != nullptr and tokenType != AntlrSQLLexer::COUNT)
+    {
+        throw InvalidQuerySyntax("DISTINCT applies to COUNT only, but got {}", context->getText());
+    }
+
     auto isAggregation = false;
     switch (tokenType)
     {
@@ -1370,10 +1377,20 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
             {
                 ensureFieldAccessArgument();
             }
-            helpers.top().windowAggs.emplace_back(
-                CountAggregationLogicalFunction{
-                    helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>(), includeNullValues},
-                std::nullopt);
+            /// COUNT(DISTINCT x) counts the distinct values of x, as SQL states it
+            if (context->setQuantifier != nullptr)
+            {
+                helpers.top().windowAggs.emplace_back(
+                    CountDistinctAggregationLogicalFunction{helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>()},
+                    std::nullopt);
+            }
+            else
+            {
+                helpers.top().windowAggs.emplace_back(
+                    CountAggregationLogicalFunction{
+                        helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>(), includeNullValues},
+                    std::nullopt);
+            }
             isAggregation = true;
             break;
         }

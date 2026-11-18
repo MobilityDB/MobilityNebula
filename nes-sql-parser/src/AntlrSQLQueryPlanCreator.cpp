@@ -1536,10 +1536,12 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
             /// Check if the function is a constructor for a datatype
             if (const auto dataType = DataTypeProvider::tryProvideDataType(funcName); dataType.has_value())
             {
-                if (const auto numArgs = context->argument.size(); numArgs != 1)
+                /// The type constructor takes one literal, which the listener of a constant places in constantBuilder
+                const auto numArgs = context->argument.size();
+                if (numArgs != 1 or helpers.top().constantBuilder.empty())
                 {
                     /// A function a plugin registers under the name of a type, as the MEOS plugin registers
-                    /// tgeompoint(point, time), is called as any function is; the type constructor takes one argument
+                    /// tgeompoint(point, time) and tgeogpoint(tgeompoint), is called as any function is
                     if (numArgs >= 1 and numArgs <= helpers.top().functionBuilder.size())
                     {
                         auto argsBegin = helpers.top().functionBuilder.end() - static_cast<std::ptrdiff_t>(numArgs);
@@ -1551,11 +1553,11 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                             break;
                         }
                     }
-                    throw InvalidQuerySyntax(
-                        "Type constructor {} expects exactly 1 argument, got {} at {}", funcName, numArgs, context->getText());
-                }
-                if (helpers.top().constantBuilder.empty())
-                {
+                    if (numArgs != 1)
+                    {
+                        throw InvalidQuerySyntax(
+                            "Type constructor {} expects exactly 1 argument, got {} at {}", funcName, numArgs, context->getText());
+                    }
                     throw InvalidQuerySyntax("Expected constant, got nothing at {}", context->getText());
                 }
                 helpers.top().hasUnnamedAggregation = false;

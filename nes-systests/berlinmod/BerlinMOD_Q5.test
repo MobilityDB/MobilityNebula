@@ -1,0 +1,79 @@
+# name: berlinmod/BerlinMOD_Q5.test
+# description: BerlinMOD query 5, the pairs of vehicles meeting near the point P, in its three streaming forms: continuous (sliding windows of one second), windowed (tumbling windows of ten seconds) and snapshot (tumbling windows of five seconds), as MobilityFlink's Q5WindowedFunction answers it: in each window, the latest position of each vehicle, endValue of the trajectory appendInstantAgg makes from its geodetic instants, tgeogpoint(tgeompoint(makePoint(gps_lon, gps_lat, 4326), time_utc)); then every pair a < b whose latest positions lie within 2 km of P, POINT(4.3517 50.8503), and within 200 m of each other, distance measuring metres on the spheroid, the dP and dMeet of main's query. The input is the BerlinMOD sample of berlinmod/BerlinMOD_Q1.test with vehicle 300 standing 31 m from vehicle 100 from 06:00:06 on.
+# groups: [BerlinMOD, WindowOperators, Aggregation, Join, MEOS, SpatioTemporal]
+CREATE LOGICAL SOURCE berlinmod(time_utc UINT64 NOT NULL, vehicle_id UINT64 NOT NULL, gps_lon FLOAT64 NOT NULL, gps_lat FLOAT64 NOT NULL);
+CREATE PHYSICAL SOURCE FOR berlinmod TYPE File;
+ATTACH INLINE
+1735711200000,100,4.3517,50.8503
+1735711200000,300,4.2000,50.7500
+1735711201000,200,4.3060,50.8270
+1735711202000,100,4.3517,50.8503
+1735711202000,300,4.2000,50.7500
+1735711203000,200,4.3060,50.8270
+1735711204000,100,4.3517,50.8503
+1735711204000,300,4.2000,50.7500
+1735711205000,200,4.3060,50.8270
+1735711206000,100,4.3517,50.8503
+1735711206000,300,4.3520,50.8505
+1735711207000,200,4.3060,50.8270
+1735711208000,100,4.3517,50.8503
+1735711208000,300,4.3520,50.8505
+1735711209000,200,4.3060,50.8270
+1735711210000,100,4.3517,50.8503
+1735711210000,300,4.3520,50.8505
+1735711211000,200,4.3060,50.8270
+1735711212000,100,4.3517,50.8503
+1735711212000,300,4.3520,50.8505
+1735711213000,200,4.3060,50.8270
+
+CREATE SINK meetings(start UINT64 NOT NULL, a UINT64 NOT NULL, b UINT64 NOT NULL, meet_distance FLOAT64) TYPE File;
+
+# Continuous form
+SELECT start, a, b, distance(geo_a, geo_b) AS meet_distance
+FROM (SELECT start AS start1, vehicle_id AS a, endValue(trip) AS geo_a
+      FROM (SELECT start, end, vehicle_id, appendInstantAgg(pos) AS trip FROM (SELECT time_utc, vehicle_id, tgeogpoint(tgeompoint(makePoint(gps_lon, gps_lat, INT32(4326)), time_utc)) AS pos FROM berlinmod)
+            GROUP BY vehicle_id WINDOW SLIDING(time_utc, SIZE 1 SEC, ADVANCE BY 1 SEC)))
+INNER JOIN (SELECT start AS start2, vehicle_id AS b, endValue(trip) AS geo_b
+      FROM (SELECT start, end, vehicle_id, appendInstantAgg(pos) AS trip FROM (SELECT time_utc, vehicle_id, tgeogpoint(tgeompoint(makePoint(gps_lon, gps_lat, INT32(4326)), time_utc)) AS pos FROM berlinmod)
+            GROUP BY vehicle_id WINDOW SLIDING(time_utc, SIZE 1 SEC, ADVANCE BY 1 SEC)))
+ON a < b
+WINDOW TUMBLING(start1, start2, SIZE 1 SEC)
+WHERE distance(geo_a, geographyFromHexEWKB(VARSIZED('0101000020E61000004703780B24681140F7E461A1D66C4940'))) <= FLOAT64(2000.0) AND distance(geo_b, geographyFromHexEWKB(VARSIZED('0101000020E61000004703780B24681140F7E461A1D66C4940'))) <= FLOAT64(2000.0) AND distance(geo_a, geo_b) <= FLOAT64(200.0)
+INTO meetings;
+----
+1735711206000,100,300,30.681749714843406
+1735711208000,100,300,30.681749714843406
+1735711210000,100,300,30.681749714843406
+1735711212000,100,300,30.681749714843406
+
+# Windowed form
+SELECT start, a, b, distance(geo_a, geo_b) AS meet_distance
+FROM (SELECT start AS start1, vehicle_id AS a, endValue(trip) AS geo_a
+      FROM (SELECT start, end, vehicle_id, appendInstantAgg(pos) AS trip FROM (SELECT time_utc, vehicle_id, tgeogpoint(tgeompoint(makePoint(gps_lon, gps_lat, INT32(4326)), time_utc)) AS pos FROM berlinmod)
+            GROUP BY vehicle_id WINDOW TUMBLING(time_utc, SIZE 10 SEC)))
+INNER JOIN (SELECT start AS start2, vehicle_id AS b, endValue(trip) AS geo_b
+      FROM (SELECT start, end, vehicle_id, appendInstantAgg(pos) AS trip FROM (SELECT time_utc, vehicle_id, tgeogpoint(tgeompoint(makePoint(gps_lon, gps_lat, INT32(4326)), time_utc)) AS pos FROM berlinmod)
+            GROUP BY vehicle_id WINDOW TUMBLING(time_utc, SIZE 10 SEC)))
+ON a < b
+WINDOW TUMBLING(start1, start2, SIZE 10 SEC)
+WHERE distance(geo_a, geographyFromHexEWKB(VARSIZED('0101000020E61000004703780B24681140F7E461A1D66C4940'))) <= FLOAT64(2000.0) AND distance(geo_b, geographyFromHexEWKB(VARSIZED('0101000020E61000004703780B24681140F7E461A1D66C4940'))) <= FLOAT64(2000.0) AND distance(geo_a, geo_b) <= FLOAT64(200.0)
+INTO meetings;
+----
+1735711200000,100,300,30.681749714843406
+1735711210000,100,300,30.681749714843406
+
+# Snapshot form
+SELECT start, a, b, distance(geo_a, geo_b) AS meet_distance
+FROM (SELECT start AS start1, vehicle_id AS a, endValue(trip) AS geo_a
+      FROM (SELECT start, end, vehicle_id, appendInstantAgg(pos) AS trip FROM (SELECT time_utc, vehicle_id, tgeogpoint(tgeompoint(makePoint(gps_lon, gps_lat, INT32(4326)), time_utc)) AS pos FROM berlinmod)
+            GROUP BY vehicle_id WINDOW TUMBLING(time_utc, SIZE 5 SEC)))
+INNER JOIN (SELECT start AS start2, vehicle_id AS b, endValue(trip) AS geo_b
+      FROM (SELECT start, end, vehicle_id, appendInstantAgg(pos) AS trip FROM (SELECT time_utc, vehicle_id, tgeogpoint(tgeompoint(makePoint(gps_lon, gps_lat, INT32(4326)), time_utc)) AS pos FROM berlinmod)
+            GROUP BY vehicle_id WINDOW TUMBLING(time_utc, SIZE 5 SEC)))
+ON a < b
+WINDOW TUMBLING(start1, start2, SIZE 5 SEC)
+WHERE distance(geo_a, geographyFromHexEWKB(VARSIZED('0101000020E61000004703780B24681140F7E461A1D66C4940'))) <= FLOAT64(2000.0) AND distance(geo_b, geographyFromHexEWKB(VARSIZED('0101000020E61000004703780B24681140F7E461A1D66C4940'))) <= FLOAT64(2000.0) AND distance(geo_a, geo_b) <= FLOAT64(200.0)
+INTO meetings;
+----
+1735711205000,100,300,30.681749714843406
+1735711210000,100,300,30.681749714843406

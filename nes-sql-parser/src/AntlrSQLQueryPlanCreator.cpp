@@ -1538,6 +1538,19 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
             {
                 if (const auto numArgs = context->argument.size(); numArgs != 1)
                 {
+                    /// A function a plugin registers under the name of a type, as the MEOS plugin registers
+                    /// tgeompoint(point, time), is called as any function is; the type constructor takes one argument
+                    if (numArgs >= 1 and numArgs <= helpers.top().functionBuilder.size())
+                    {
+                        auto argsBegin = helpers.top().functionBuilder.end() - static_cast<std::ptrdiff_t>(numArgs);
+                        std::vector<LogicalFunction> funcArgs(argsBegin, helpers.top().functionBuilder.end());
+                        if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, funcArgs))
+                        {
+                            helpers.top().functionBuilder.resize(helpers.top().functionBuilder.size() - numArgs);
+                            helpers.top().functionBuilder.push_back(*logicalFunction);
+                            break;
+                        }
+                    }
                     throw InvalidQuerySyntax(
                         "Type constructor {} expects exactly 1 argument, got {} at {}", funcName, numArgs, context->getText());
                 }

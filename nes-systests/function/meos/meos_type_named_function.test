@@ -1,5 +1,5 @@
 # name: MEOS_TypeNamedFunction
-# description: A function the MEOS plugin registers under the name of a type is called as any function is when its call is not that of the type constructor, which takes one argument: tgeompoint(point, time) makes the temporal point instant of a point and a timestamp in milliseconds from the Unix epoch, as MobilityDB and MobilityDuck call tgeompoint(geometry, timestamptz); the point is the one geometryFromHexEWKB reads in edwithin_tgeo_geo.test, SRID=4326;POINT(4.3658 50.6456). A type constructor called with several arguments stays an error where no function has its name (datatype/TypeConstructorMultipleArguments.test).
+# description: A function the MEOS plugin registers under the name of a type is called as any function is when its call is not that of the type constructor, which takes one literal: tgeompoint(point, time) makes the temporal point instant of a point and a timestamp in milliseconds from the Unix epoch, as MobilityDB and MobilityDuck call tgeompoint(geometry, timestamptz), and tgeogpoint(tgeompoint) makes from that instant the geodetic one, as MobilityDB calls tgeogpoint(tgeompoint); the point is the one geometryFromHexEWKB reads in edwithin_tgeo_geo.test, SRID=4326;POINT(4.3658 50.6456). A type constructor called with several arguments, or with one that is no literal, stays an error where no function has its name (datatype/TypeConstructorMultipleArguments.test).
 # groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, Parser]
 CREATE LOGICAL SOURCE events(id UINT64, time_utc UINT64);
 CREATE PHYSICAL SOURCE FOR events TYPE File;
@@ -9,6 +9,12 @@ ATTACH INLINE
 
 CREATE SINK trips(id UINT64, trip VARSIZED) TYPE File;
 SELECT id, asEWKT(tgeompoint(geometryFromHexEWKB(VARSIZED('0101000020E6100000D88173469476114018265305A3524940')), time_utc)) AS trip
+FROM events INTO trips;
+----
+1,SRID=4326;POINT(4.3658 50.6456)@2025-01-01 06:00:00+00
+2,SRID=4326;POINT(4.3658 50.6456)@2025-01-01 06:00:01+00
+
+SELECT id, asEWKT(tgeogpoint(tgeompoint(geometryFromHexEWKB(VARSIZED('0101000020E6100000D88173469476114018265305A3524940')), time_utc))) AS trip
 FROM events INTO trips;
 ----
 1,SRID=4326;POINT(4.3658 50.6456)@2025-01-01 06:00:00+00

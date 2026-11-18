@@ -978,7 +978,7 @@ std::vector<std::byte> NsegmentFromText(std::string_view text)
 
 constexpr ExtensionType NsegmentType{.name = "NSEGMENT", .fromText = NsegmentFromText};
 
-/* pcpatch: C type Pcpatch, carried as its memory image (pcpatch_copy / pcpatch_mem_size), read and written as its wkb string */
+/* pcpatch: C type Pcpatch, carried as its memory image (pcpatch_copy / pcpatch_mem_size), read and written as the hex of its WKB */
 std::string PcpatchToText(std::span<const std::byte> bytes)
 {
     if (bytes.empty())
@@ -988,10 +988,10 @@ std::string PcpatchToText(std::span<const std::byte> bytes)
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<struct Pcpatch*>(fromImage(bytes, [](const void* laid) -> void* { return pcpatch_copy(static_cast<const struct Pcpatch*>(laid)); }));
     size_t size = 0;
-    auto* written = pcpatch_as_hexwkb(value, &size);
+    auto* written = pcpatch_as_wkb(value, 4, &size);
     std::free(value);
     if (written == nullptr) { cannotWrite("pcpatch"); }
-    std::string text{written};
+    auto text = hex(std::as_bytes(std::span{written, size}));
     std::free(written);
     return text;
 }
@@ -999,8 +999,8 @@ std::string PcpatchToText(std::span<const std::byte> bytes)
 std::vector<std::byte> PcpatchFromText(std::string_view text)
 {
     MEOS::Meos::ensureMeosInitialized();
-    const std::string terminated{text};
-    auto value = pcpatch_from_hexwkb(terminated.c_str());
+    const auto wkb = unhex(text);
+    auto value = pcpatch_from_wkb(wkb.data(), wkb.size());
     if (value == nullptr) { cannotRead("pcpatch", text); }
     auto carried = image(value, static_cast<size_t>(pcpatch_mem_size(value)));
     std::free(value);
@@ -1040,7 +1040,7 @@ std::vector<std::byte> PcpatchsetFromText(std::string_view text)
 
 constexpr ExtensionType PcpatchsetType{.name = "PCPATCHSET", .fromText = PcpatchsetFromText};
 
-/* pcpoint: C type Pcpoint, carried as its memory image (pcpoint_copy / pcpoint_mem_size), read and written as its wkb string */
+/* pcpoint: C type Pcpoint, carried as its memory image (pcpoint_copy / pcpoint_mem_size), read and written as the hex of its WKB */
 std::string PcpointToText(std::span<const std::byte> bytes)
 {
     if (bytes.empty())
@@ -1050,10 +1050,10 @@ std::string PcpointToText(std::span<const std::byte> bytes)
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<struct Pcpoint*>(fromImage(bytes, [](const void* laid) -> void* { return pcpoint_copy(static_cast<const struct Pcpoint*>(laid)); }));
     size_t size = 0;
-    auto* written = pcpoint_as_hexwkb(value, &size);
+    auto* written = pcpoint_as_wkb(value, 4, &size);
     std::free(value);
     if (written == nullptr) { cannotWrite("pcpoint"); }
-    std::string text{written};
+    auto text = hex(std::as_bytes(std::span{written, size}));
     std::free(written);
     return text;
 }
@@ -1061,8 +1061,8 @@ std::string PcpointToText(std::span<const std::byte> bytes)
 std::vector<std::byte> PcpointFromText(std::string_view text)
 {
     MEOS::Meos::ensureMeosInitialized();
-    const std::string terminated{text};
-    auto value = pcpoint_from_hexwkb(terminated.c_str());
+    const auto wkb = unhex(text);
+    auto value = pcpoint_from_wkb(wkb.data(), wkb.size());
     if (value == nullptr) { cannotRead("pcpoint", text); }
     auto carried = image(value, static_cast<size_t>(pcpoint_mem_size(value)));
     std::free(value);
@@ -3233,6 +3233,40 @@ std::vector<std::byte> TnpointArrayFromText(std::string_view text)
 
 constexpr ExtensionType TnpointArrayType{.name = "TNPOINT_ARRAY", .fromText = TnpointArrayFromText, .element = &TnpointType};
 
+/* tpcbox[]: an array of tpcbox, carried as its number of elements, then each element's memory image after its length */
+std::string TpcboxArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += TpcboxToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> TpcboxArrayFromText(std::string_view text)
+{
+    cannotRead("tpcbox[]", text);
+}
+
+constexpr ExtensionType TpcboxArrayType{.name = "TPCBOX_ARRAY", .fromText = TpcboxArrayFromText, .element = &TpcboxType};
+
 /* tpcpatch[]: an array of tpcpatch, carried as its number of elements, then each element's memory image after its length */
 std::string TpcpatchArrayToText(std::span<const std::byte> bytes)
 {
@@ -3546,7 +3580,7 @@ namespace NES
 
 std::span<const MeosType> meosTypes()
 {
-    static constexpr std::array<MeosType, 108> types{{
+    static constexpr std::array<MeosType, 109> types{{
     MeosType{&BigintsetType, BigintsetToText},
     MeosType{&BigintspanType, BigintspanToText},
     MeosType{&BigintspansetType, BigintspansetToText},
@@ -3646,6 +3680,7 @@ std::span<const MeosType> meosTypes()
     MeosType{&TintArrayType, TintArrayToText},
     MeosType{&TjsonbArrayType, TjsonbArrayToText},
     MeosType{&TnpointArrayType, TnpointArrayToText},
+    MeosType{&TpcboxArrayType, TpcboxArrayToText},
     MeosType{&TpcpatchArrayType, TpcpatchArrayToText},
     MeosType{&TpcpointArrayType, TpcpointArrayToText},
     MeosType{&TposeArrayType, TposeArrayToText},

@@ -852,4 +852,6 @@ Query compilation traces expression trees at compile time, producing efficient m
 | Count    | `SELECT COUNT(x) FROM s WINDOW SLIDING(ts, SIZE 1 SEC, ADVANCE BY 100 MS) INTO sink` |
 | Average  | `SELECT AVG(x) FROM s WINDOW SLIDING(ts, SIZE 1 MIN, ADVANCE BY 15 SEC) INTO sink`   |
 | Median   | `SELECT MEDIAN(x) FROM s WINDOW TUMBLING(ts, SIZE 1 SEC) INTO sink`                  |
+| ArrayAgg | `SELECT ARRAY_AGG(x) FROM s WINDOW TUMBLING(ts, SIZE 5 SEC) INTO sink`               |
 
+`ARRAY_AGG(x)` answers the non-null values of `x` in a window, in the order the window met them, as the array of the type of `x` a plugin declares (a `TGEOMPOINT` gives a `TGEOMPOINT_ARRAY`), which `CROSS JOIN UNNEST` reads back.

@@ -14,6 +14,7 @@
 add_source_files(nes-physical-operators
         AggregationPhysicalFunctionRegistry.cpp
         AggregationPhysicalFunction.cpp
+        ArrayAggregationPhysicalFunction.cpp
         AvgAggregationPhysicalFunction.cpp
         CountAggregationPhysicalFunction.cpp
         CountDistinctAggregationPhysicalFunction.cpp
@@ -24,6 +25,7 @@ add_source_files(nes-physical-operators
         SumAggregationPhysicalFunction.cpp
 )
 
+add_registry_entry(AggregationPhysicalFunction Array KEY Array_Agg)
 add_registry_entry(AggregationPhysicalFunction Avg)
 add_registry_entry(AggregationPhysicalFunction Count)
 add_registry_entry(AggregationPhysicalFunction CountDistinct)

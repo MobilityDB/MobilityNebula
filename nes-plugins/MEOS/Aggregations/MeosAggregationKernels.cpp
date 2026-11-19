@@ -27,6 +27,7 @@ extern "C" {
 #include <meos.h>
 #include <meos_cbuffer.h>
 #include <meos_geo.h>
+#include <meos_internal.h>
 #include <meos_json.h>
 #include <meos_npoint.h>
 #include <meos_pointcloud.h>
@@ -74,13 +75,13 @@ struct MeosAggregate_setUnionAgg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -100,7 +101,7 @@ struct MeosAggregate_setUnionAgg_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_0Literals{};
 using MeosAggregate_setUnionAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_0Kernels{&MeosAggregate_setUnionAgg_0::Initialize, &MeosAggregate_setUnionAgg_0::Update, &MeosAggregate_setUnionAgg_0::Combine, &MeosAggregate_setUnionAgg_0::Finish, &MeosAggregate_setUnionAgg_0::Destroy, MeosAggregate_setUnionAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_0Kernels{&MeosAggregate_setUnionAgg_0::Initialize, &MeosAggregate_setUnionAgg_0::Update, &MeosAggregate_setUnionAgg_0::Combine, &MeosAggregate_setUnionAgg_0::Finish, MeosAggregate_setUnionAgg_0::StateSize};
 
 struct MeosAggregate_setUnionAgg_1Ops
 {
@@ -129,13 +130,13 @@ struct MeosAggregate_setUnionAgg_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -155,7 +156,7 @@ struct MeosAggregate_setUnionAgg_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_1Literals{};
 using MeosAggregate_setUnionAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_1Kernels{&MeosAggregate_setUnionAgg_1::Initialize, &MeosAggregate_setUnionAgg_1::Update, &MeosAggregate_setUnionAgg_1::Combine, &MeosAggregate_setUnionAgg_1::Finish, &MeosAggregate_setUnionAgg_1::Destroy, MeosAggregate_setUnionAgg_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_1Kernels{&MeosAggregate_setUnionAgg_1::Initialize, &MeosAggregate_setUnionAgg_1::Update, &MeosAggregate_setUnionAgg_1::Combine, &MeosAggregate_setUnionAgg_1::Finish, MeosAggregate_setUnionAgg_1::StateSize};
 
 struct MeosAggregate_extent_0Ops
 {
@@ -184,13 +185,13 @@ struct MeosAggregate_extent_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -210,7 +211,7 @@ struct MeosAggregate_extent_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_0Literals{};
 using MeosAggregate_extent_0 = MeosRuntime::MeosAggregate<MeosAggregate_extent_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_0Kernels{&MeosAggregate_extent_0::Initialize, &MeosAggregate_extent_0::Update, &MeosAggregate_extent_0::Combine, &MeosAggregate_extent_0::Finish, &MeosAggregate_extent_0::Destroy, MeosAggregate_extent_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_0Kernels{&MeosAggregate_extent_0::Initialize, &MeosAggregate_extent_0::Update, &MeosAggregate_extent_0::Combine, &MeosAggregate_extent_0::Finish, MeosAggregate_extent_0::StateSize};
 
 struct MeosAggregate_tCount_0Ops
 {
@@ -239,13 +240,13 @@ struct MeosAggregate_tCount_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -265,7 +266,7 @@ struct MeosAggregate_tCount_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_0Literals{};
 using MeosAggregate_tCount_0 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_0Kernels{&MeosAggregate_tCount_0::Initialize, &MeosAggregate_tCount_0::Update, &MeosAggregate_tCount_0::Combine, &MeosAggregate_tCount_0::Finish, &MeosAggregate_tCount_0::Destroy, MeosAggregate_tCount_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_0Kernels{&MeosAggregate_tCount_0::Initialize, &MeosAggregate_tCount_0::Update, &MeosAggregate_tCount_0::Combine, &MeosAggregate_tCount_0::Finish, MeosAggregate_tCount_0::StateSize};
 
 struct MeosAggregate_wCount_0Ops
 {
@@ -301,13 +302,13 @@ struct MeosAggregate_wCount_0Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -327,7 +328,7 @@ struct MeosAggregate_wCount_0Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_0Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_0 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_0Kernels{&MeosAggregate_wCount_0::Initialize, &MeosAggregate_wCount_0::Update, &MeosAggregate_wCount_0::Combine, &MeosAggregate_wCount_0::Finish, &MeosAggregate_wCount_0::Destroy, MeosAggregate_wCount_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_0Kernels{&MeosAggregate_wCount_0::Initialize, &MeosAggregate_wCount_0::Update, &MeosAggregate_wCount_0::Combine, &MeosAggregate_wCount_0::Finish, MeosAggregate_wCount_0::StateSize};
 
 struct MeosAggregate_mergeAgg_0Ops
 {
@@ -356,13 +357,13 @@ struct MeosAggregate_mergeAgg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -382,7 +383,7 @@ struct MeosAggregate_mergeAgg_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_0Literals{};
 using MeosAggregate_mergeAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_0Kernels{&MeosAggregate_mergeAgg_0::Initialize, &MeosAggregate_mergeAgg_0::Update, &MeosAggregate_mergeAgg_0::Combine, &MeosAggregate_mergeAgg_0::Finish, &MeosAggregate_mergeAgg_0::Destroy, MeosAggregate_mergeAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_0Kernels{&MeosAggregate_mergeAgg_0::Initialize, &MeosAggregate_mergeAgg_0::Update, &MeosAggregate_mergeAgg_0::Combine, &MeosAggregate_mergeAgg_0::Finish, MeosAggregate_mergeAgg_0::StateSize};
 
 struct MeosAggregate_appendInstantAgg_0Ops
 {
@@ -411,13 +412,13 @@ struct MeosAggregate_appendInstantAgg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -437,7 +438,7 @@ struct MeosAggregate_appendInstantAgg_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_0Literals{};
 using MeosAggregate_appendInstantAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_0Kernels{&MeosAggregate_appendInstantAgg_0::Initialize, &MeosAggregate_appendInstantAgg_0::Update, &MeosAggregate_appendInstantAgg_0::Combine, &MeosAggregate_appendInstantAgg_0::Finish, &MeosAggregate_appendInstantAgg_0::Destroy, MeosAggregate_appendInstantAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_0Kernels{&MeosAggregate_appendInstantAgg_0::Initialize, &MeosAggregate_appendInstantAgg_0::Update, &MeosAggregate_appendInstantAgg_0::Combine, &MeosAggregate_appendInstantAgg_0::Finish, MeosAggregate_appendInstantAgg_0::StateSize};
 
 struct MeosAggregate_appendInstantAgg_1Ops
 {
@@ -467,13 +468,13 @@ struct MeosAggregate_appendInstantAgg_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -493,7 +494,7 @@ struct MeosAggregate_appendInstantAgg_1Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_1Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_1Kernels{&MeosAggregate_appendInstantAgg_1::Initialize, &MeosAggregate_appendInstantAgg_1::Update, &MeosAggregate_appendInstantAgg_1::Combine, &MeosAggregate_appendInstantAgg_1::Finish, &MeosAggregate_appendInstantAgg_1::Destroy, MeosAggregate_appendInstantAgg_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_1Kernels{&MeosAggregate_appendInstantAgg_1::Initialize, &MeosAggregate_appendInstantAgg_1::Update, &MeosAggregate_appendInstantAgg_1::Combine, &MeosAggregate_appendInstantAgg_1::Finish, MeosAggregate_appendInstantAgg_1::StateSize};
 
 struct MeosAggregate_appendInstantAgg_2Ops
 {
@@ -533,13 +534,13 @@ struct MeosAggregate_appendInstantAgg_2Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -559,7 +560,7 @@ struct MeosAggregate_appendInstantAgg_2Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_2Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_2Kernels{&MeosAggregate_appendInstantAgg_2::Initialize, &MeosAggregate_appendInstantAgg_2::Update, &MeosAggregate_appendInstantAgg_2::Combine, &MeosAggregate_appendInstantAgg_2::Finish, &MeosAggregate_appendInstantAgg_2::Destroy, MeosAggregate_appendInstantAgg_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_2Kernels{&MeosAggregate_appendInstantAgg_2::Initialize, &MeosAggregate_appendInstantAgg_2::Update, &MeosAggregate_appendInstantAgg_2::Combine, &MeosAggregate_appendInstantAgg_2::Finish, MeosAggregate_appendInstantAgg_2::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_0Ops
 {
@@ -588,13 +589,13 @@ struct MeosAggregate_appendSequenceAgg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -614,7 +615,7 @@ struct MeosAggregate_appendSequenceAgg_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_0Literals{};
 using MeosAggregate_appendSequenceAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_0Kernels{&MeosAggregate_appendSequenceAgg_0::Initialize, &MeosAggregate_appendSequenceAgg_0::Update, &MeosAggregate_appendSequenceAgg_0::Combine, &MeosAggregate_appendSequenceAgg_0::Finish, &MeosAggregate_appendSequenceAgg_0::Destroy, MeosAggregate_appendSequenceAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_0Kernels{&MeosAggregate_appendSequenceAgg_0::Initialize, &MeosAggregate_appendSequenceAgg_0::Update, &MeosAggregate_appendSequenceAgg_0::Combine, &MeosAggregate_appendSequenceAgg_0::Finish, MeosAggregate_appendSequenceAgg_0::StateSize};
 
 struct MeosAggregate_setUnionAgg_2Ops
 {
@@ -643,13 +644,13 @@ struct MeosAggregate_setUnionAgg_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -669,7 +670,7 @@ struct MeosAggregate_setUnionAgg_2Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_2Literals{};
 using MeosAggregate_setUnionAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_2Kernels{&MeosAggregate_setUnionAgg_2::Initialize, &MeosAggregate_setUnionAgg_2::Update, &MeosAggregate_setUnionAgg_2::Combine, &MeosAggregate_setUnionAgg_2::Finish, &MeosAggregate_setUnionAgg_2::Destroy, MeosAggregate_setUnionAgg_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_2Kernels{&MeosAggregate_setUnionAgg_2::Initialize, &MeosAggregate_setUnionAgg_2::Update, &MeosAggregate_setUnionAgg_2::Combine, &MeosAggregate_setUnionAgg_2::Finish, MeosAggregate_setUnionAgg_2::StateSize};
 
 struct MeosAggregate_setUnionAgg_3Ops
 {
@@ -698,13 +699,13 @@ struct MeosAggregate_setUnionAgg_3Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -724,7 +725,7 @@ struct MeosAggregate_setUnionAgg_3Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_3Literals{};
 using MeosAggregate_setUnionAgg_3 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_3Kernels{&MeosAggregate_setUnionAgg_3::Initialize, &MeosAggregate_setUnionAgg_3::Update, &MeosAggregate_setUnionAgg_3::Combine, &MeosAggregate_setUnionAgg_3::Finish, &MeosAggregate_setUnionAgg_3::Destroy, MeosAggregate_setUnionAgg_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_3Kernels{&MeosAggregate_setUnionAgg_3::Initialize, &MeosAggregate_setUnionAgg_3::Update, &MeosAggregate_setUnionAgg_3::Combine, &MeosAggregate_setUnionAgg_3::Finish, MeosAggregate_setUnionAgg_3::StateSize};
 
 struct MeosAggregate_setUnionAgg_4Ops
 {
@@ -753,13 +754,13 @@ struct MeosAggregate_setUnionAgg_4Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -779,7 +780,7 @@ struct MeosAggregate_setUnionAgg_4Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_4Literals{};
 using MeosAggregate_setUnionAgg_4 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_4Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_4Kernels{&MeosAggregate_setUnionAgg_4::Initialize, &MeosAggregate_setUnionAgg_4::Update, &MeosAggregate_setUnionAgg_4::Combine, &MeosAggregate_setUnionAgg_4::Finish, &MeosAggregate_setUnionAgg_4::Destroy, MeosAggregate_setUnionAgg_4::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_4Kernels{&MeosAggregate_setUnionAgg_4::Initialize, &MeosAggregate_setUnionAgg_4::Update, &MeosAggregate_setUnionAgg_4::Combine, &MeosAggregate_setUnionAgg_4::Finish, MeosAggregate_setUnionAgg_4::StateSize};
 
 struct MeosAggregate_setUnionAgg_5Ops
 {
@@ -808,13 +809,13 @@ struct MeosAggregate_setUnionAgg_5Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -834,7 +835,7 @@ struct MeosAggregate_setUnionAgg_5Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_5Literals{};
 using MeosAggregate_setUnionAgg_5 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_5Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_5Kernels{&MeosAggregate_setUnionAgg_5::Initialize, &MeosAggregate_setUnionAgg_5::Update, &MeosAggregate_setUnionAgg_5::Combine, &MeosAggregate_setUnionAgg_5::Finish, &MeosAggregate_setUnionAgg_5::Destroy, MeosAggregate_setUnionAgg_5::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_5Kernels{&MeosAggregate_setUnionAgg_5::Initialize, &MeosAggregate_setUnionAgg_5::Update, &MeosAggregate_setUnionAgg_5::Combine, &MeosAggregate_setUnionAgg_5::Finish, MeosAggregate_setUnionAgg_5::StateSize};
 
 struct MeosAggregate_extent_1Ops
 {
@@ -863,13 +864,13 @@ struct MeosAggregate_extent_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -889,7 +890,7 @@ struct MeosAggregate_extent_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_1Literals{};
 using MeosAggregate_extent_1 = MeosRuntime::MeosAggregate<MeosAggregate_extent_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_1Kernels{&MeosAggregate_extent_1::Initialize, &MeosAggregate_extent_1::Update, &MeosAggregate_extent_1::Combine, &MeosAggregate_extent_1::Finish, &MeosAggregate_extent_1::Destroy, MeosAggregate_extent_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_1Kernels{&MeosAggregate_extent_1::Initialize, &MeosAggregate_extent_1::Update, &MeosAggregate_extent_1::Combine, &MeosAggregate_extent_1::Finish, MeosAggregate_extent_1::StateSize};
 
 struct MeosAggregate_extent_2Ops
 {
@@ -918,13 +919,13 @@ struct MeosAggregate_extent_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -944,7 +945,7 @@ struct MeosAggregate_extent_2Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_2Literals{};
 using MeosAggregate_extent_2 = MeosRuntime::MeosAggregate<MeosAggregate_extent_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_2Kernels{&MeosAggregate_extent_2::Initialize, &MeosAggregate_extent_2::Update, &MeosAggregate_extent_2::Combine, &MeosAggregate_extent_2::Finish, &MeosAggregate_extent_2::Destroy, MeosAggregate_extent_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_2Kernels{&MeosAggregate_extent_2::Initialize, &MeosAggregate_extent_2::Update, &MeosAggregate_extent_2::Combine, &MeosAggregate_extent_2::Finish, MeosAggregate_extent_2::StateSize};
 
 struct MeosAggregate_extent_3Ops
 {
@@ -973,13 +974,13 @@ struct MeosAggregate_extent_3Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -999,7 +1000,7 @@ struct MeosAggregate_extent_3Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_3Literals{};
 using MeosAggregate_extent_3 = MeosRuntime::MeosAggregate<MeosAggregate_extent_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_3Kernels{&MeosAggregate_extent_3::Initialize, &MeosAggregate_extent_3::Update, &MeosAggregate_extent_3::Combine, &MeosAggregate_extent_3::Finish, &MeosAggregate_extent_3::Destroy, MeosAggregate_extent_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_3Kernels{&MeosAggregate_extent_3::Initialize, &MeosAggregate_extent_3::Update, &MeosAggregate_extent_3::Combine, &MeosAggregate_extent_3::Finish, MeosAggregate_extent_3::StateSize};
 
 struct MeosAggregate_tCount_1Ops
 {
@@ -1028,13 +1029,13 @@ struct MeosAggregate_tCount_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1054,7 +1055,7 @@ struct MeosAggregate_tCount_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_1Literals{};
 using MeosAggregate_tCount_1 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_1Kernels{&MeosAggregate_tCount_1::Initialize, &MeosAggregate_tCount_1::Update, &MeosAggregate_tCount_1::Combine, &MeosAggregate_tCount_1::Finish, &MeosAggregate_tCount_1::Destroy, MeosAggregate_tCount_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_1Kernels{&MeosAggregate_tCount_1::Initialize, &MeosAggregate_tCount_1::Update, &MeosAggregate_tCount_1::Combine, &MeosAggregate_tCount_1::Finish, MeosAggregate_tCount_1::StateSize};
 
 struct MeosAggregate_tCount_2Ops
 {
@@ -1083,13 +1084,13 @@ struct MeosAggregate_tCount_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1109,7 +1110,7 @@ struct MeosAggregate_tCount_2Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_2Literals{};
 using MeosAggregate_tCount_2 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_2Kernels{&MeosAggregate_tCount_2::Initialize, &MeosAggregate_tCount_2::Update, &MeosAggregate_tCount_2::Combine, &MeosAggregate_tCount_2::Finish, &MeosAggregate_tCount_2::Destroy, MeosAggregate_tCount_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_2Kernels{&MeosAggregate_tCount_2::Initialize, &MeosAggregate_tCount_2::Update, &MeosAggregate_tCount_2::Combine, &MeosAggregate_tCount_2::Finish, MeosAggregate_tCount_2::StateSize};
 
 struct MeosAggregate_wCount_1Ops
 {
@@ -1145,13 +1146,13 @@ struct MeosAggregate_wCount_1Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1171,7 +1172,7 @@ struct MeosAggregate_wCount_1Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_1Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_1 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_1Kernels{&MeosAggregate_wCount_1::Initialize, &MeosAggregate_wCount_1::Update, &MeosAggregate_wCount_1::Combine, &MeosAggregate_wCount_1::Finish, &MeosAggregate_wCount_1::Destroy, MeosAggregate_wCount_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_1Kernels{&MeosAggregate_wCount_1::Initialize, &MeosAggregate_wCount_1::Update, &MeosAggregate_wCount_1::Combine, &MeosAggregate_wCount_1::Finish, MeosAggregate_wCount_1::StateSize};
 
 struct MeosAggregate_wCount_2Ops
 {
@@ -1207,13 +1208,13 @@ struct MeosAggregate_wCount_2Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1233,7 +1234,7 @@ struct MeosAggregate_wCount_2Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_2Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_2 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_2Kernels{&MeosAggregate_wCount_2::Initialize, &MeosAggregate_wCount_2::Update, &MeosAggregate_wCount_2::Combine, &MeosAggregate_wCount_2::Finish, &MeosAggregate_wCount_2::Destroy, MeosAggregate_wCount_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_2Kernels{&MeosAggregate_wCount_2::Initialize, &MeosAggregate_wCount_2::Update, &MeosAggregate_wCount_2::Combine, &MeosAggregate_wCount_2::Finish, MeosAggregate_wCount_2::StateSize};
 
 struct MeosAggregate_mergeAgg_1Ops
 {
@@ -1262,13 +1263,13 @@ struct MeosAggregate_mergeAgg_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1288,7 +1289,7 @@ struct MeosAggregate_mergeAgg_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_1Literals{};
 using MeosAggregate_mergeAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_1Kernels{&MeosAggregate_mergeAgg_1::Initialize, &MeosAggregate_mergeAgg_1::Update, &MeosAggregate_mergeAgg_1::Combine, &MeosAggregate_mergeAgg_1::Finish, &MeosAggregate_mergeAgg_1::Destroy, MeosAggregate_mergeAgg_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_1Kernels{&MeosAggregate_mergeAgg_1::Initialize, &MeosAggregate_mergeAgg_1::Update, &MeosAggregate_mergeAgg_1::Combine, &MeosAggregate_mergeAgg_1::Finish, MeosAggregate_mergeAgg_1::StateSize};
 
 struct MeosAggregate_mergeAgg_2Ops
 {
@@ -1317,13 +1318,13 @@ struct MeosAggregate_mergeAgg_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1343,7 +1344,7 @@ struct MeosAggregate_mergeAgg_2Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_2Literals{};
 using MeosAggregate_mergeAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_2Kernels{&MeosAggregate_mergeAgg_2::Initialize, &MeosAggregate_mergeAgg_2::Update, &MeosAggregate_mergeAgg_2::Combine, &MeosAggregate_mergeAgg_2::Finish, &MeosAggregate_mergeAgg_2::Destroy, MeosAggregate_mergeAgg_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_2Kernels{&MeosAggregate_mergeAgg_2::Initialize, &MeosAggregate_mergeAgg_2::Update, &MeosAggregate_mergeAgg_2::Combine, &MeosAggregate_mergeAgg_2::Finish, MeosAggregate_mergeAgg_2::StateSize};
 
 struct MeosAggregate_appendInstantAgg_3Ops
 {
@@ -1372,13 +1373,13 @@ struct MeosAggregate_appendInstantAgg_3Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1398,7 +1399,7 @@ struct MeosAggregate_appendInstantAgg_3Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_3Literals{};
 using MeosAggregate_appendInstantAgg_3 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_3Kernels{&MeosAggregate_appendInstantAgg_3::Initialize, &MeosAggregate_appendInstantAgg_3::Update, &MeosAggregate_appendInstantAgg_3::Combine, &MeosAggregate_appendInstantAgg_3::Finish, &MeosAggregate_appendInstantAgg_3::Destroy, MeosAggregate_appendInstantAgg_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_3Kernels{&MeosAggregate_appendInstantAgg_3::Initialize, &MeosAggregate_appendInstantAgg_3::Update, &MeosAggregate_appendInstantAgg_3::Combine, &MeosAggregate_appendInstantAgg_3::Finish, MeosAggregate_appendInstantAgg_3::StateSize};
 
 struct MeosAggregate_appendInstantAgg_4Ops
 {
@@ -1428,13 +1429,13 @@ struct MeosAggregate_appendInstantAgg_4Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1454,7 +1455,7 @@ struct MeosAggregate_appendInstantAgg_4Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_4Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_4 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_4Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_4Kernels{&MeosAggregate_appendInstantAgg_4::Initialize, &MeosAggregate_appendInstantAgg_4::Update, &MeosAggregate_appendInstantAgg_4::Combine, &MeosAggregate_appendInstantAgg_4::Finish, &MeosAggregate_appendInstantAgg_4::Destroy, MeosAggregate_appendInstantAgg_4::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_4Kernels{&MeosAggregate_appendInstantAgg_4::Initialize, &MeosAggregate_appendInstantAgg_4::Update, &MeosAggregate_appendInstantAgg_4::Combine, &MeosAggregate_appendInstantAgg_4::Finish, MeosAggregate_appendInstantAgg_4::StateSize};
 
 struct MeosAggregate_appendInstantAgg_5Ops
 {
@@ -1494,13 +1495,13 @@ struct MeosAggregate_appendInstantAgg_5Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1520,7 +1521,7 @@ struct MeosAggregate_appendInstantAgg_5Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_5Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_5 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_5Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_5Kernels{&MeosAggregate_appendInstantAgg_5::Initialize, &MeosAggregate_appendInstantAgg_5::Update, &MeosAggregate_appendInstantAgg_5::Combine, &MeosAggregate_appendInstantAgg_5::Finish, &MeosAggregate_appendInstantAgg_5::Destroy, MeosAggregate_appendInstantAgg_5::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_5Kernels{&MeosAggregate_appendInstantAgg_5::Initialize, &MeosAggregate_appendInstantAgg_5::Update, &MeosAggregate_appendInstantAgg_5::Combine, &MeosAggregate_appendInstantAgg_5::Finish, MeosAggregate_appendInstantAgg_5::StateSize};
 
 struct MeosAggregate_appendInstantAgg_6Ops
 {
@@ -1549,13 +1550,13 @@ struct MeosAggregate_appendInstantAgg_6Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1575,7 +1576,7 @@ struct MeosAggregate_appendInstantAgg_6Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_6Literals{};
 using MeosAggregate_appendInstantAgg_6 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_6Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_6Kernels{&MeosAggregate_appendInstantAgg_6::Initialize, &MeosAggregate_appendInstantAgg_6::Update, &MeosAggregate_appendInstantAgg_6::Combine, &MeosAggregate_appendInstantAgg_6::Finish, &MeosAggregate_appendInstantAgg_6::Destroy, MeosAggregate_appendInstantAgg_6::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_6Kernels{&MeosAggregate_appendInstantAgg_6::Initialize, &MeosAggregate_appendInstantAgg_6::Update, &MeosAggregate_appendInstantAgg_6::Combine, &MeosAggregate_appendInstantAgg_6::Finish, MeosAggregate_appendInstantAgg_6::StateSize};
 
 struct MeosAggregate_appendInstantAgg_7Ops
 {
@@ -1605,13 +1606,13 @@ struct MeosAggregate_appendInstantAgg_7Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1631,7 +1632,7 @@ struct MeosAggregate_appendInstantAgg_7Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_7Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_7 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_7Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_7Kernels{&MeosAggregate_appendInstantAgg_7::Initialize, &MeosAggregate_appendInstantAgg_7::Update, &MeosAggregate_appendInstantAgg_7::Combine, &MeosAggregate_appendInstantAgg_7::Finish, &MeosAggregate_appendInstantAgg_7::Destroy, MeosAggregate_appendInstantAgg_7::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_7Kernels{&MeosAggregate_appendInstantAgg_7::Initialize, &MeosAggregate_appendInstantAgg_7::Update, &MeosAggregate_appendInstantAgg_7::Combine, &MeosAggregate_appendInstantAgg_7::Finish, MeosAggregate_appendInstantAgg_7::StateSize};
 
 struct MeosAggregate_appendInstantAgg_8Ops
 {
@@ -1671,13 +1672,13 @@ struct MeosAggregate_appendInstantAgg_8Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1697,7 +1698,7 @@ struct MeosAggregate_appendInstantAgg_8Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_8Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_8 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_8Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_8Kernels{&MeosAggregate_appendInstantAgg_8::Initialize, &MeosAggregate_appendInstantAgg_8::Update, &MeosAggregate_appendInstantAgg_8::Combine, &MeosAggregate_appendInstantAgg_8::Finish, &MeosAggregate_appendInstantAgg_8::Destroy, MeosAggregate_appendInstantAgg_8::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_8Kernels{&MeosAggregate_appendInstantAgg_8::Initialize, &MeosAggregate_appendInstantAgg_8::Update, &MeosAggregate_appendInstantAgg_8::Combine, &MeosAggregate_appendInstantAgg_8::Finish, MeosAggregate_appendInstantAgg_8::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_1Ops
 {
@@ -1726,13 +1727,13 @@ struct MeosAggregate_appendSequenceAgg_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1752,7 +1753,7 @@ struct MeosAggregate_appendSequenceAgg_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_1Literals{};
 using MeosAggregate_appendSequenceAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_1Kernels{&MeosAggregate_appendSequenceAgg_1::Initialize, &MeosAggregate_appendSequenceAgg_1::Update, &MeosAggregate_appendSequenceAgg_1::Combine, &MeosAggregate_appendSequenceAgg_1::Finish, &MeosAggregate_appendSequenceAgg_1::Destroy, MeosAggregate_appendSequenceAgg_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_1Kernels{&MeosAggregate_appendSequenceAgg_1::Initialize, &MeosAggregate_appendSequenceAgg_1::Update, &MeosAggregate_appendSequenceAgg_1::Combine, &MeosAggregate_appendSequenceAgg_1::Finish, MeosAggregate_appendSequenceAgg_1::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_2Ops
 {
@@ -1781,13 +1782,13 @@ struct MeosAggregate_appendSequenceAgg_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1807,7 +1808,7 @@ struct MeosAggregate_appendSequenceAgg_2Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_2Literals{};
 using MeosAggregate_appendSequenceAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_2Kernels{&MeosAggregate_appendSequenceAgg_2::Initialize, &MeosAggregate_appendSequenceAgg_2::Update, &MeosAggregate_appendSequenceAgg_2::Combine, &MeosAggregate_appendSequenceAgg_2::Finish, &MeosAggregate_appendSequenceAgg_2::Destroy, MeosAggregate_appendSequenceAgg_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_2Kernels{&MeosAggregate_appendSequenceAgg_2::Initialize, &MeosAggregate_appendSequenceAgg_2::Update, &MeosAggregate_appendSequenceAgg_2::Combine, &MeosAggregate_appendSequenceAgg_2::Finish, MeosAggregate_appendSequenceAgg_2::StateSize};
 
 struct MeosAggregate_extent_4Ops
 {
@@ -1836,13 +1837,13 @@ struct MeosAggregate_extent_4Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1862,7 +1863,7 @@ struct MeosAggregate_extent_4Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_4Literals{};
 using MeosAggregate_extent_4 = MeosRuntime::MeosAggregate<MeosAggregate_extent_4Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_4Kernels{&MeosAggregate_extent_4::Initialize, &MeosAggregate_extent_4::Update, &MeosAggregate_extent_4::Combine, &MeosAggregate_extent_4::Finish, &MeosAggregate_extent_4::Destroy, MeosAggregate_extent_4::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_4Kernels{&MeosAggregate_extent_4::Initialize, &MeosAggregate_extent_4::Update, &MeosAggregate_extent_4::Combine, &MeosAggregate_extent_4::Finish, MeosAggregate_extent_4::StateSize};
 
 struct MeosAggregate_extent_5Ops
 {
@@ -1891,13 +1892,13 @@ struct MeosAggregate_extent_5Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1917,7 +1918,7 @@ struct MeosAggregate_extent_5Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_5Literals{};
 using MeosAggregate_extent_5 = MeosRuntime::MeosAggregate<MeosAggregate_extent_5Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_5Kernels{&MeosAggregate_extent_5::Initialize, &MeosAggregate_extent_5::Update, &MeosAggregate_extent_5::Combine, &MeosAggregate_extent_5::Finish, &MeosAggregate_extent_5::Destroy, MeosAggregate_extent_5::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_5Kernels{&MeosAggregate_extent_5::Initialize, &MeosAggregate_extent_5::Update, &MeosAggregate_extent_5::Combine, &MeosAggregate_extent_5::Finish, MeosAggregate_extent_5::StateSize};
 
 struct MeosAggregate_tCount_3Ops
 {
@@ -1946,13 +1947,13 @@ struct MeosAggregate_tCount_3Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -1972,7 +1973,7 @@ struct MeosAggregate_tCount_3Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_3Literals{};
 using MeosAggregate_tCount_3 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_3Kernels{&MeosAggregate_tCount_3::Initialize, &MeosAggregate_tCount_3::Update, &MeosAggregate_tCount_3::Combine, &MeosAggregate_tCount_3::Finish, &MeosAggregate_tCount_3::Destroy, MeosAggregate_tCount_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_3Kernels{&MeosAggregate_tCount_3::Initialize, &MeosAggregate_tCount_3::Update, &MeosAggregate_tCount_3::Combine, &MeosAggregate_tCount_3::Finish, MeosAggregate_tCount_3::StateSize};
 
 struct MeosAggregate_tCount_4Ops
 {
@@ -2001,13 +2002,13 @@ struct MeosAggregate_tCount_4Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2027,7 +2028,7 @@ struct MeosAggregate_tCount_4Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_4Literals{};
 using MeosAggregate_tCount_4 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_4Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_4Kernels{&MeosAggregate_tCount_4::Initialize, &MeosAggregate_tCount_4::Update, &MeosAggregate_tCount_4::Combine, &MeosAggregate_tCount_4::Finish, &MeosAggregate_tCount_4::Destroy, MeosAggregate_tCount_4::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_4Kernels{&MeosAggregate_tCount_4::Initialize, &MeosAggregate_tCount_4::Update, &MeosAggregate_tCount_4::Combine, &MeosAggregate_tCount_4::Finish, MeosAggregate_tCount_4::StateSize};
 
 struct MeosAggregate_wCount_3Ops
 {
@@ -2063,13 +2064,13 @@ struct MeosAggregate_wCount_3Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2089,7 +2090,7 @@ struct MeosAggregate_wCount_3Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_3Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_3 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_3Kernels{&MeosAggregate_wCount_3::Initialize, &MeosAggregate_wCount_3::Update, &MeosAggregate_wCount_3::Combine, &MeosAggregate_wCount_3::Finish, &MeosAggregate_wCount_3::Destroy, MeosAggregate_wCount_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_3Kernels{&MeosAggregate_wCount_3::Initialize, &MeosAggregate_wCount_3::Update, &MeosAggregate_wCount_3::Combine, &MeosAggregate_wCount_3::Finish, MeosAggregate_wCount_3::StateSize};
 
 struct MeosAggregate_wCount_4Ops
 {
@@ -2125,13 +2126,13 @@ struct MeosAggregate_wCount_4Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2151,7 +2152,7 @@ struct MeosAggregate_wCount_4Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_4Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_4 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_4Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_4Kernels{&MeosAggregate_wCount_4::Initialize, &MeosAggregate_wCount_4::Update, &MeosAggregate_wCount_4::Combine, &MeosAggregate_wCount_4::Finish, &MeosAggregate_wCount_4::Destroy, MeosAggregate_wCount_4::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_4Kernels{&MeosAggregate_wCount_4::Initialize, &MeosAggregate_wCount_4::Update, &MeosAggregate_wCount_4::Combine, &MeosAggregate_wCount_4::Finish, MeosAggregate_wCount_4::StateSize};
 
 struct MeosAggregate_tCentroid_0Ops
 {
@@ -2180,13 +2181,13 @@ struct MeosAggregate_tCentroid_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tpoint_tcentroid_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return tpoint_tcentroid_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2206,7 +2207,7 @@ struct MeosAggregate_tCentroid_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCentroid_0Literals{};
 using MeosAggregate_tCentroid_0 = MeosRuntime::MeosAggregate<MeosAggregate_tCentroid_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCentroid_0Kernels{&MeosAggregate_tCentroid_0::Initialize, &MeosAggregate_tCentroid_0::Update, &MeosAggregate_tCentroid_0::Combine, &MeosAggregate_tCentroid_0::Finish, &MeosAggregate_tCentroid_0::Destroy, MeosAggregate_tCentroid_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCentroid_0Kernels{&MeosAggregate_tCentroid_0::Initialize, &MeosAggregate_tCentroid_0::Update, &MeosAggregate_tCentroid_0::Combine, &MeosAggregate_tCentroid_0::Finish, MeosAggregate_tCentroid_0::StateSize};
 
 struct MeosAggregate_mergeAgg_3Ops
 {
@@ -2235,13 +2236,13 @@ struct MeosAggregate_mergeAgg_3Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2261,7 +2262,7 @@ struct MeosAggregate_mergeAgg_3Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_3Literals{};
 using MeosAggregate_mergeAgg_3 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_3Kernels{&MeosAggregate_mergeAgg_3::Initialize, &MeosAggregate_mergeAgg_3::Update, &MeosAggregate_mergeAgg_3::Combine, &MeosAggregate_mergeAgg_3::Finish, &MeosAggregate_mergeAgg_3::Destroy, MeosAggregate_mergeAgg_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_3Kernels{&MeosAggregate_mergeAgg_3::Initialize, &MeosAggregate_mergeAgg_3::Update, &MeosAggregate_mergeAgg_3::Combine, &MeosAggregate_mergeAgg_3::Finish, MeosAggregate_mergeAgg_3::StateSize};
 
 struct MeosAggregate_mergeAgg_4Ops
 {
@@ -2290,13 +2291,13 @@ struct MeosAggregate_mergeAgg_4Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2316,7 +2317,7 @@ struct MeosAggregate_mergeAgg_4Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_4Literals{};
 using MeosAggregate_mergeAgg_4 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_4Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_4Kernels{&MeosAggregate_mergeAgg_4::Initialize, &MeosAggregate_mergeAgg_4::Update, &MeosAggregate_mergeAgg_4::Combine, &MeosAggregate_mergeAgg_4::Finish, &MeosAggregate_mergeAgg_4::Destroy, MeosAggregate_mergeAgg_4::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_4Kernels{&MeosAggregate_mergeAgg_4::Initialize, &MeosAggregate_mergeAgg_4::Update, &MeosAggregate_mergeAgg_4::Combine, &MeosAggregate_mergeAgg_4::Finish, MeosAggregate_mergeAgg_4::StateSize};
 
 struct MeosAggregate_appendInstantAgg_9Ops
 {
@@ -2345,13 +2346,13 @@ struct MeosAggregate_appendInstantAgg_9Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2371,7 +2372,7 @@ struct MeosAggregate_appendInstantAgg_9Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_9Literals{};
 using MeosAggregate_appendInstantAgg_9 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_9Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_9Kernels{&MeosAggregate_appendInstantAgg_9::Initialize, &MeosAggregate_appendInstantAgg_9::Update, &MeosAggregate_appendInstantAgg_9::Combine, &MeosAggregate_appendInstantAgg_9::Finish, &MeosAggregate_appendInstantAgg_9::Destroy, MeosAggregate_appendInstantAgg_9::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_9Kernels{&MeosAggregate_appendInstantAgg_9::Initialize, &MeosAggregate_appendInstantAgg_9::Update, &MeosAggregate_appendInstantAgg_9::Combine, &MeosAggregate_appendInstantAgg_9::Finish, MeosAggregate_appendInstantAgg_9::StateSize};
 
 struct MeosAggregate_appendInstantAgg_10Ops
 {
@@ -2401,13 +2402,13 @@ struct MeosAggregate_appendInstantAgg_10Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2427,7 +2428,7 @@ struct MeosAggregate_appendInstantAgg_10Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_10Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_10 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_10Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_10Kernels{&MeosAggregate_appendInstantAgg_10::Initialize, &MeosAggregate_appendInstantAgg_10::Update, &MeosAggregate_appendInstantAgg_10::Combine, &MeosAggregate_appendInstantAgg_10::Finish, &MeosAggregate_appendInstantAgg_10::Destroy, MeosAggregate_appendInstantAgg_10::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_10Kernels{&MeosAggregate_appendInstantAgg_10::Initialize, &MeosAggregate_appendInstantAgg_10::Update, &MeosAggregate_appendInstantAgg_10::Combine, &MeosAggregate_appendInstantAgg_10::Finish, MeosAggregate_appendInstantAgg_10::StateSize};
 
 struct MeosAggregate_appendInstantAgg_11Ops
 {
@@ -2467,13 +2468,13 @@ struct MeosAggregate_appendInstantAgg_11Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2493,7 +2494,7 @@ struct MeosAggregate_appendInstantAgg_11Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_11Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_11 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_11Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_11Kernels{&MeosAggregate_appendInstantAgg_11::Initialize, &MeosAggregate_appendInstantAgg_11::Update, &MeosAggregate_appendInstantAgg_11::Combine, &MeosAggregate_appendInstantAgg_11::Finish, &MeosAggregate_appendInstantAgg_11::Destroy, MeosAggregate_appendInstantAgg_11::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_11Kernels{&MeosAggregate_appendInstantAgg_11::Initialize, &MeosAggregate_appendInstantAgg_11::Update, &MeosAggregate_appendInstantAgg_11::Combine, &MeosAggregate_appendInstantAgg_11::Finish, MeosAggregate_appendInstantAgg_11::StateSize};
 
 struct MeosAggregate_appendInstantAgg_12Ops
 {
@@ -2522,13 +2523,13 @@ struct MeosAggregate_appendInstantAgg_12Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2548,7 +2549,7 @@ struct MeosAggregate_appendInstantAgg_12Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_12Literals{};
 using MeosAggregate_appendInstantAgg_12 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_12Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_12Kernels{&MeosAggregate_appendInstantAgg_12::Initialize, &MeosAggregate_appendInstantAgg_12::Update, &MeosAggregate_appendInstantAgg_12::Combine, &MeosAggregate_appendInstantAgg_12::Finish, &MeosAggregate_appendInstantAgg_12::Destroy, MeosAggregate_appendInstantAgg_12::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_12Kernels{&MeosAggregate_appendInstantAgg_12::Initialize, &MeosAggregate_appendInstantAgg_12::Update, &MeosAggregate_appendInstantAgg_12::Combine, &MeosAggregate_appendInstantAgg_12::Finish, MeosAggregate_appendInstantAgg_12::StateSize};
 
 struct MeosAggregate_appendInstantAgg_13Ops
 {
@@ -2578,13 +2579,13 @@ struct MeosAggregate_appendInstantAgg_13Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2604,7 +2605,7 @@ struct MeosAggregate_appendInstantAgg_13Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_13Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_13 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_13Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_13Kernels{&MeosAggregate_appendInstantAgg_13::Initialize, &MeosAggregate_appendInstantAgg_13::Update, &MeosAggregate_appendInstantAgg_13::Combine, &MeosAggregate_appendInstantAgg_13::Finish, &MeosAggregate_appendInstantAgg_13::Destroy, MeosAggregate_appendInstantAgg_13::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_13Kernels{&MeosAggregate_appendInstantAgg_13::Initialize, &MeosAggregate_appendInstantAgg_13::Update, &MeosAggregate_appendInstantAgg_13::Combine, &MeosAggregate_appendInstantAgg_13::Finish, MeosAggregate_appendInstantAgg_13::StateSize};
 
 struct MeosAggregate_appendInstantAgg_14Ops
 {
@@ -2644,13 +2645,13 @@ struct MeosAggregate_appendInstantAgg_14Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2670,7 +2671,7 @@ struct MeosAggregate_appendInstantAgg_14Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_14Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_14 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_14Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_14Kernels{&MeosAggregate_appendInstantAgg_14::Initialize, &MeosAggregate_appendInstantAgg_14::Update, &MeosAggregate_appendInstantAgg_14::Combine, &MeosAggregate_appendInstantAgg_14::Finish, &MeosAggregate_appendInstantAgg_14::Destroy, MeosAggregate_appendInstantAgg_14::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_14Kernels{&MeosAggregate_appendInstantAgg_14::Initialize, &MeosAggregate_appendInstantAgg_14::Update, &MeosAggregate_appendInstantAgg_14::Combine, &MeosAggregate_appendInstantAgg_14::Finish, MeosAggregate_appendInstantAgg_14::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_3Ops
 {
@@ -2699,13 +2700,13 @@ struct MeosAggregate_appendSequenceAgg_3Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2725,7 +2726,7 @@ struct MeosAggregate_appendSequenceAgg_3Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_3Literals{};
 using MeosAggregate_appendSequenceAgg_3 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_3Kernels{&MeosAggregate_appendSequenceAgg_3::Initialize, &MeosAggregate_appendSequenceAgg_3::Update, &MeosAggregate_appendSequenceAgg_3::Combine, &MeosAggregate_appendSequenceAgg_3::Finish, &MeosAggregate_appendSequenceAgg_3::Destroy, MeosAggregate_appendSequenceAgg_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_3Kernels{&MeosAggregate_appendSequenceAgg_3::Initialize, &MeosAggregate_appendSequenceAgg_3::Update, &MeosAggregate_appendSequenceAgg_3::Combine, &MeosAggregate_appendSequenceAgg_3::Finish, MeosAggregate_appendSequenceAgg_3::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_4Ops
 {
@@ -2754,13 +2755,13 @@ struct MeosAggregate_appendSequenceAgg_4Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2780,7 +2781,7 @@ struct MeosAggregate_appendSequenceAgg_4Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_4Literals{};
 using MeosAggregate_appendSequenceAgg_4 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_4Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_4Kernels{&MeosAggregate_appendSequenceAgg_4::Initialize, &MeosAggregate_appendSequenceAgg_4::Update, &MeosAggregate_appendSequenceAgg_4::Combine, &MeosAggregate_appendSequenceAgg_4::Finish, &MeosAggregate_appendSequenceAgg_4::Destroy, MeosAggregate_appendSequenceAgg_4::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_4Kernels{&MeosAggregate_appendSequenceAgg_4::Initialize, &MeosAggregate_appendSequenceAgg_4::Update, &MeosAggregate_appendSequenceAgg_4::Combine, &MeosAggregate_appendSequenceAgg_4::Finish, MeosAggregate_appendSequenceAgg_4::StateSize};
 
 struct MeosAggregate_reachabilityFilterAgg_0Ops
 {
@@ -2810,13 +2811,13 @@ struct MeosAggregate_reachabilityFilterAgg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_reachability_filter_finalfn(static_cast<struct ReachabilityState*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(temporal_reachability_filter_finalfn(static_cast<struct ReachabilityState*>(s)));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2836,7 +2837,7 @@ struct MeosAggregate_reachabilityFilterAgg_0Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_reachabilityFilterAgg_0Literals{DataType::Type::FLOAT64};
 using MeosAggregate_reachabilityFilterAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_reachabilityFilterAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_reachabilityFilterAgg_0Kernels{&MeosAggregate_reachabilityFilterAgg_0::Initialize, &MeosAggregate_reachabilityFilterAgg_0::Update, &MeosAggregate_reachabilityFilterAgg_0::Combine, &MeosAggregate_reachabilityFilterAgg_0::Finish, &MeosAggregate_reachabilityFilterAgg_0::Destroy, MeosAggregate_reachabilityFilterAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_reachabilityFilterAgg_0Kernels{&MeosAggregate_reachabilityFilterAgg_0::Initialize, &MeosAggregate_reachabilityFilterAgg_0::Update, &MeosAggregate_reachabilityFilterAgg_0::Combine, &MeosAggregate_reachabilityFilterAgg_0::Finish, MeosAggregate_reachabilityFilterAgg_0::StateSize};
 
 struct MeosAggregate_reachabilityFilterAgg_1Ops
 {
@@ -2866,13 +2867,13 @@ struct MeosAggregate_reachabilityFilterAgg_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_reachability_filter_finalfn(static_cast<struct ReachabilityState*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(temporal_reachability_filter_finalfn(static_cast<struct ReachabilityState*>(s)));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2892,7 +2893,7 @@ struct MeosAggregate_reachabilityFilterAgg_1Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_reachabilityFilterAgg_1Literals{DataType::Type::FLOAT64};
 using MeosAggregate_reachabilityFilterAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_reachabilityFilterAgg_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_reachabilityFilterAgg_1Kernels{&MeosAggregate_reachabilityFilterAgg_1::Initialize, &MeosAggregate_reachabilityFilterAgg_1::Update, &MeosAggregate_reachabilityFilterAgg_1::Combine, &MeosAggregate_reachabilityFilterAgg_1::Finish, &MeosAggregate_reachabilityFilterAgg_1::Destroy, MeosAggregate_reachabilityFilterAgg_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_reachabilityFilterAgg_1Kernels{&MeosAggregate_reachabilityFilterAgg_1::Initialize, &MeosAggregate_reachabilityFilterAgg_1::Update, &MeosAggregate_reachabilityFilterAgg_1::Combine, &MeosAggregate_reachabilityFilterAgg_1::Finish, MeosAggregate_reachabilityFilterAgg_1::StateSize};
 
 struct MeosAggregate_setUnionAgg_6Ops
 {
@@ -2921,13 +2922,13 @@ struct MeosAggregate_setUnionAgg_6Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -2947,7 +2948,7 @@ struct MeosAggregate_setUnionAgg_6Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_6Literals{};
 using MeosAggregate_setUnionAgg_6 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_6Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_6Kernels{&MeosAggregate_setUnionAgg_6::Initialize, &MeosAggregate_setUnionAgg_6::Update, &MeosAggregate_setUnionAgg_6::Combine, &MeosAggregate_setUnionAgg_6::Finish, &MeosAggregate_setUnionAgg_6::Destroy, MeosAggregate_setUnionAgg_6::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_6Kernels{&MeosAggregate_setUnionAgg_6::Initialize, &MeosAggregate_setUnionAgg_6::Update, &MeosAggregate_setUnionAgg_6::Combine, &MeosAggregate_setUnionAgg_6::Finish, MeosAggregate_setUnionAgg_6::StateSize};
 
 struct MeosAggregate_extent_6Ops
 {
@@ -2976,13 +2977,13 @@ struct MeosAggregate_extent_6Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3002,7 +3003,7 @@ struct MeosAggregate_extent_6Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_6Literals{};
 using MeosAggregate_extent_6 = MeosRuntime::MeosAggregate<MeosAggregate_extent_6Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_6Kernels{&MeosAggregate_extent_6::Initialize, &MeosAggregate_extent_6::Update, &MeosAggregate_extent_6::Combine, &MeosAggregate_extent_6::Finish, &MeosAggregate_extent_6::Destroy, MeosAggregate_extent_6::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_6Kernels{&MeosAggregate_extent_6::Initialize, &MeosAggregate_extent_6::Update, &MeosAggregate_extent_6::Combine, &MeosAggregate_extent_6::Finish, MeosAggregate_extent_6::StateSize};
 
 struct MeosAggregate_tCount_5Ops
 {
@@ -3031,13 +3032,13 @@ struct MeosAggregate_tCount_5Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3057,7 +3058,7 @@ struct MeosAggregate_tCount_5Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_5Literals{};
 using MeosAggregate_tCount_5 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_5Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_5Kernels{&MeosAggregate_tCount_5::Initialize, &MeosAggregate_tCount_5::Update, &MeosAggregate_tCount_5::Combine, &MeosAggregate_tCount_5::Finish, &MeosAggregate_tCount_5::Destroy, MeosAggregate_tCount_5::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_5Kernels{&MeosAggregate_tCount_5::Initialize, &MeosAggregate_tCount_5::Update, &MeosAggregate_tCount_5::Combine, &MeosAggregate_tCount_5::Finish, MeosAggregate_tCount_5::StateSize};
 
 struct MeosAggregate_wCount_5Ops
 {
@@ -3093,13 +3094,13 @@ struct MeosAggregate_wCount_5Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3119,7 +3120,7 @@ struct MeosAggregate_wCount_5Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_5Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_5 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_5Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_5Kernels{&MeosAggregate_wCount_5::Initialize, &MeosAggregate_wCount_5::Update, &MeosAggregate_wCount_5::Combine, &MeosAggregate_wCount_5::Finish, &MeosAggregate_wCount_5::Destroy, MeosAggregate_wCount_5::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_5Kernels{&MeosAggregate_wCount_5::Initialize, &MeosAggregate_wCount_5::Update, &MeosAggregate_wCount_5::Combine, &MeosAggregate_wCount_5::Finish, MeosAggregate_wCount_5::StateSize};
 
 struct MeosAggregate_mergeAgg_5Ops
 {
@@ -3148,13 +3149,13 @@ struct MeosAggregate_mergeAgg_5Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3174,7 +3175,7 @@ struct MeosAggregate_mergeAgg_5Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_5Literals{};
 using MeosAggregate_mergeAgg_5 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_5Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_5Kernels{&MeosAggregate_mergeAgg_5::Initialize, &MeosAggregate_mergeAgg_5::Update, &MeosAggregate_mergeAgg_5::Combine, &MeosAggregate_mergeAgg_5::Finish, &MeosAggregate_mergeAgg_5::Destroy, MeosAggregate_mergeAgg_5::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_5Kernels{&MeosAggregate_mergeAgg_5::Initialize, &MeosAggregate_mergeAgg_5::Update, &MeosAggregate_mergeAgg_5::Combine, &MeosAggregate_mergeAgg_5::Finish, MeosAggregate_mergeAgg_5::StateSize};
 
 struct MeosAggregate_appendInstantAgg_15Ops
 {
@@ -3203,13 +3204,13 @@ struct MeosAggregate_appendInstantAgg_15Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3229,7 +3230,7 @@ struct MeosAggregate_appendInstantAgg_15Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_15Literals{};
 using MeosAggregate_appendInstantAgg_15 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_15Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_15Kernels{&MeosAggregate_appendInstantAgg_15::Initialize, &MeosAggregate_appendInstantAgg_15::Update, &MeosAggregate_appendInstantAgg_15::Combine, &MeosAggregate_appendInstantAgg_15::Finish, &MeosAggregate_appendInstantAgg_15::Destroy, MeosAggregate_appendInstantAgg_15::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_15Kernels{&MeosAggregate_appendInstantAgg_15::Initialize, &MeosAggregate_appendInstantAgg_15::Update, &MeosAggregate_appendInstantAgg_15::Combine, &MeosAggregate_appendInstantAgg_15::Finish, MeosAggregate_appendInstantAgg_15::StateSize};
 
 struct MeosAggregate_appendInstantAgg_16Ops
 {
@@ -3259,13 +3260,13 @@ struct MeosAggregate_appendInstantAgg_16Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3285,7 +3286,7 @@ struct MeosAggregate_appendInstantAgg_16Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_16Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_16 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_16Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_16Kernels{&MeosAggregate_appendInstantAgg_16::Initialize, &MeosAggregate_appendInstantAgg_16::Update, &MeosAggregate_appendInstantAgg_16::Combine, &MeosAggregate_appendInstantAgg_16::Finish, &MeosAggregate_appendInstantAgg_16::Destroy, MeosAggregate_appendInstantAgg_16::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_16Kernels{&MeosAggregate_appendInstantAgg_16::Initialize, &MeosAggregate_appendInstantAgg_16::Update, &MeosAggregate_appendInstantAgg_16::Combine, &MeosAggregate_appendInstantAgg_16::Finish, MeosAggregate_appendInstantAgg_16::StateSize};
 
 struct MeosAggregate_appendInstantAgg_17Ops
 {
@@ -3323,13 +3324,13 @@ struct MeosAggregate_appendInstantAgg_17Ops
         std::free(row.a0);
         std::free(row.a2);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3349,7 +3350,7 @@ struct MeosAggregate_appendInstantAgg_17Ops
 
 constexpr std::array<DataType::Type, 2> MeosAggregate_appendInstantAgg_17Literals{DataType::Type::VARSIZED, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_17 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_17Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_17Kernels{&MeosAggregate_appendInstantAgg_17::Initialize, &MeosAggregate_appendInstantAgg_17::Update, &MeosAggregate_appendInstantAgg_17::Combine, &MeosAggregate_appendInstantAgg_17::Finish, &MeosAggregate_appendInstantAgg_17::Destroy, MeosAggregate_appendInstantAgg_17::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_17Kernels{&MeosAggregate_appendInstantAgg_17::Initialize, &MeosAggregate_appendInstantAgg_17::Update, &MeosAggregate_appendInstantAgg_17::Combine, &MeosAggregate_appendInstantAgg_17::Finish, MeosAggregate_appendInstantAgg_17::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_5Ops
 {
@@ -3378,13 +3379,13 @@ struct MeosAggregate_appendSequenceAgg_5Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3404,7 +3405,7 @@ struct MeosAggregate_appendSequenceAgg_5Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_5Literals{};
 using MeosAggregate_appendSequenceAgg_5 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_5Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_5Kernels{&MeosAggregate_appendSequenceAgg_5::Initialize, &MeosAggregate_appendSequenceAgg_5::Update, &MeosAggregate_appendSequenceAgg_5::Combine, &MeosAggregate_appendSequenceAgg_5::Finish, &MeosAggregate_appendSequenceAgg_5::Destroy, MeosAggregate_appendSequenceAgg_5::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_5Kernels{&MeosAggregate_appendSequenceAgg_5::Initialize, &MeosAggregate_appendSequenceAgg_5::Update, &MeosAggregate_appendSequenceAgg_5::Combine, &MeosAggregate_appendSequenceAgg_5::Finish, MeosAggregate_appendSequenceAgg_5::StateSize};
 
 struct MeosAggregate_setUnionAgg_7Ops
 {
@@ -3433,13 +3434,13 @@ struct MeosAggregate_setUnionAgg_7Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3459,7 +3460,7 @@ struct MeosAggregate_setUnionAgg_7Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_7Literals{};
 using MeosAggregate_setUnionAgg_7 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_7Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_7Kernels{&MeosAggregate_setUnionAgg_7::Initialize, &MeosAggregate_setUnionAgg_7::Update, &MeosAggregate_setUnionAgg_7::Combine, &MeosAggregate_setUnionAgg_7::Finish, &MeosAggregate_setUnionAgg_7::Destroy, MeosAggregate_setUnionAgg_7::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_7Kernels{&MeosAggregate_setUnionAgg_7::Initialize, &MeosAggregate_setUnionAgg_7::Update, &MeosAggregate_setUnionAgg_7::Combine, &MeosAggregate_setUnionAgg_7::Finish, MeosAggregate_setUnionAgg_7::StateSize};
 
 struct MeosAggregate_setUnionAgg_8Ops
 {
@@ -3488,13 +3489,13 @@ struct MeosAggregate_setUnionAgg_8Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3514,7 +3515,7 @@ struct MeosAggregate_setUnionAgg_8Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_8Literals{};
 using MeosAggregate_setUnionAgg_8 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_8Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_8Kernels{&MeosAggregate_setUnionAgg_8::Initialize, &MeosAggregate_setUnionAgg_8::Update, &MeosAggregate_setUnionAgg_8::Combine, &MeosAggregate_setUnionAgg_8::Finish, &MeosAggregate_setUnionAgg_8::Destroy, MeosAggregate_setUnionAgg_8::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_8Kernels{&MeosAggregate_setUnionAgg_8::Initialize, &MeosAggregate_setUnionAgg_8::Update, &MeosAggregate_setUnionAgg_8::Combine, &MeosAggregate_setUnionAgg_8::Finish, MeosAggregate_setUnionAgg_8::StateSize};
 
 struct MeosAggregate_extent_7Ops
 {
@@ -3543,13 +3544,13 @@ struct MeosAggregate_extent_7Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3569,7 +3570,7 @@ struct MeosAggregate_extent_7Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_7Literals{};
 using MeosAggregate_extent_7 = MeosRuntime::MeosAggregate<MeosAggregate_extent_7Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_7Kernels{&MeosAggregate_extent_7::Initialize, &MeosAggregate_extent_7::Update, &MeosAggregate_extent_7::Combine, &MeosAggregate_extent_7::Finish, &MeosAggregate_extent_7::Destroy, MeosAggregate_extent_7::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_7Kernels{&MeosAggregate_extent_7::Initialize, &MeosAggregate_extent_7::Update, &MeosAggregate_extent_7::Combine, &MeosAggregate_extent_7::Finish, MeosAggregate_extent_7::StateSize};
 
 struct MeosAggregate_tCount_6Ops
 {
@@ -3598,13 +3599,13 @@ struct MeosAggregate_tCount_6Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3624,7 +3625,7 @@ struct MeosAggregate_tCount_6Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_6Literals{};
 using MeosAggregate_tCount_6 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_6Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_6Kernels{&MeosAggregate_tCount_6::Initialize, &MeosAggregate_tCount_6::Update, &MeosAggregate_tCount_6::Combine, &MeosAggregate_tCount_6::Finish, &MeosAggregate_tCount_6::Destroy, MeosAggregate_tCount_6::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_6Kernels{&MeosAggregate_tCount_6::Initialize, &MeosAggregate_tCount_6::Update, &MeosAggregate_tCount_6::Combine, &MeosAggregate_tCount_6::Finish, MeosAggregate_tCount_6::StateSize};
 
 struct MeosAggregate_wCount_6Ops
 {
@@ -3660,13 +3661,13 @@ struct MeosAggregate_wCount_6Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3686,7 +3687,7 @@ struct MeosAggregate_wCount_6Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_6Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_6 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_6Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_6Kernels{&MeosAggregate_wCount_6::Initialize, &MeosAggregate_wCount_6::Update, &MeosAggregate_wCount_6::Combine, &MeosAggregate_wCount_6::Finish, &MeosAggregate_wCount_6::Destroy, MeosAggregate_wCount_6::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_6Kernels{&MeosAggregate_wCount_6::Initialize, &MeosAggregate_wCount_6::Update, &MeosAggregate_wCount_6::Combine, &MeosAggregate_wCount_6::Finish, MeosAggregate_wCount_6::StateSize};
 
 struct MeosAggregate_mergeAgg_6Ops
 {
@@ -3715,13 +3716,13 @@ struct MeosAggregate_mergeAgg_6Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3741,7 +3742,7 @@ struct MeosAggregate_mergeAgg_6Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_6Literals{};
 using MeosAggregate_mergeAgg_6 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_6Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_6Kernels{&MeosAggregate_mergeAgg_6::Initialize, &MeosAggregate_mergeAgg_6::Update, &MeosAggregate_mergeAgg_6::Combine, &MeosAggregate_mergeAgg_6::Finish, &MeosAggregate_mergeAgg_6::Destroy, MeosAggregate_mergeAgg_6::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_6Kernels{&MeosAggregate_mergeAgg_6::Initialize, &MeosAggregate_mergeAgg_6::Update, &MeosAggregate_mergeAgg_6::Combine, &MeosAggregate_mergeAgg_6::Finish, MeosAggregate_mergeAgg_6::StateSize};
 
 struct MeosAggregate_appendInstantAgg_18Ops
 {
@@ -3770,13 +3771,13 @@ struct MeosAggregate_appendInstantAgg_18Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3796,7 +3797,7 @@ struct MeosAggregate_appendInstantAgg_18Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_18Literals{};
 using MeosAggregate_appendInstantAgg_18 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_18Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_18Kernels{&MeosAggregate_appendInstantAgg_18::Initialize, &MeosAggregate_appendInstantAgg_18::Update, &MeosAggregate_appendInstantAgg_18::Combine, &MeosAggregate_appendInstantAgg_18::Finish, &MeosAggregate_appendInstantAgg_18::Destroy, MeosAggregate_appendInstantAgg_18::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_18Kernels{&MeosAggregate_appendInstantAgg_18::Initialize, &MeosAggregate_appendInstantAgg_18::Update, &MeosAggregate_appendInstantAgg_18::Combine, &MeosAggregate_appendInstantAgg_18::Finish, MeosAggregate_appendInstantAgg_18::StateSize};
 
 struct MeosAggregate_appendInstantAgg_19Ops
 {
@@ -3826,13 +3827,13 @@ struct MeosAggregate_appendInstantAgg_19Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3852,7 +3853,7 @@ struct MeosAggregate_appendInstantAgg_19Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_19Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_19 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_19Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_19Kernels{&MeosAggregate_appendInstantAgg_19::Initialize, &MeosAggregate_appendInstantAgg_19::Update, &MeosAggregate_appendInstantAgg_19::Combine, &MeosAggregate_appendInstantAgg_19::Finish, &MeosAggregate_appendInstantAgg_19::Destroy, MeosAggregate_appendInstantAgg_19::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_19Kernels{&MeosAggregate_appendInstantAgg_19::Initialize, &MeosAggregate_appendInstantAgg_19::Update, &MeosAggregate_appendInstantAgg_19::Combine, &MeosAggregate_appendInstantAgg_19::Finish, MeosAggregate_appendInstantAgg_19::StateSize};
 
 struct MeosAggregate_appendInstantAgg_20Ops
 {
@@ -3890,13 +3891,13 @@ struct MeosAggregate_appendInstantAgg_20Ops
         std::free(row.a0);
         std::free(row.a2);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3916,7 +3917,7 @@ struct MeosAggregate_appendInstantAgg_20Ops
 
 constexpr std::array<DataType::Type, 2> MeosAggregate_appendInstantAgg_20Literals{DataType::Type::VARSIZED, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_20 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_20Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_20Kernels{&MeosAggregate_appendInstantAgg_20::Initialize, &MeosAggregate_appendInstantAgg_20::Update, &MeosAggregate_appendInstantAgg_20::Combine, &MeosAggregate_appendInstantAgg_20::Finish, &MeosAggregate_appendInstantAgg_20::Destroy, MeosAggregate_appendInstantAgg_20::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_20Kernels{&MeosAggregate_appendInstantAgg_20::Initialize, &MeosAggregate_appendInstantAgg_20::Update, &MeosAggregate_appendInstantAgg_20::Combine, &MeosAggregate_appendInstantAgg_20::Finish, MeosAggregate_appendInstantAgg_20::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_6Ops
 {
@@ -3945,13 +3946,13 @@ struct MeosAggregate_appendSequenceAgg_6Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -3971,7 +3972,7 @@ struct MeosAggregate_appendSequenceAgg_6Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_6Literals{};
 using MeosAggregate_appendSequenceAgg_6 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_6Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_6Kernels{&MeosAggregate_appendSequenceAgg_6::Initialize, &MeosAggregate_appendSequenceAgg_6::Update, &MeosAggregate_appendSequenceAgg_6::Combine, &MeosAggregate_appendSequenceAgg_6::Finish, &MeosAggregate_appendSequenceAgg_6::Destroy, MeosAggregate_appendSequenceAgg_6::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_6Kernels{&MeosAggregate_appendSequenceAgg_6::Initialize, &MeosAggregate_appendSequenceAgg_6::Update, &MeosAggregate_appendSequenceAgg_6::Combine, &MeosAggregate_appendSequenceAgg_6::Finish, MeosAggregate_appendSequenceAgg_6::StateSize};
 
 struct MeosAggregate_setUnionAgg_9Ops
 {
@@ -4000,13 +4001,13 @@ struct MeosAggregate_setUnionAgg_9Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4026,7 +4027,7 @@ struct MeosAggregate_setUnionAgg_9Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_9Literals{};
 using MeosAggregate_setUnionAgg_9 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_9Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_9Kernels{&MeosAggregate_setUnionAgg_9::Initialize, &MeosAggregate_setUnionAgg_9::Update, &MeosAggregate_setUnionAgg_9::Combine, &MeosAggregate_setUnionAgg_9::Finish, &MeosAggregate_setUnionAgg_9::Destroy, MeosAggregate_setUnionAgg_9::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_9Kernels{&MeosAggregate_setUnionAgg_9::Initialize, &MeosAggregate_setUnionAgg_9::Update, &MeosAggregate_setUnionAgg_9::Combine, &MeosAggregate_setUnionAgg_9::Finish, MeosAggregate_setUnionAgg_9::StateSize};
 
 struct MeosAggregate_setUnionAgg_10Ops
 {
@@ -4055,13 +4056,13 @@ struct MeosAggregate_setUnionAgg_10Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4081,7 +4082,7 @@ struct MeosAggregate_setUnionAgg_10Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_10Literals{};
 using MeosAggregate_setUnionAgg_10 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_10Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_10Kernels{&MeosAggregate_setUnionAgg_10::Initialize, &MeosAggregate_setUnionAgg_10::Update, &MeosAggregate_setUnionAgg_10::Combine, &MeosAggregate_setUnionAgg_10::Finish, &MeosAggregate_setUnionAgg_10::Destroy, MeosAggregate_setUnionAgg_10::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_10Kernels{&MeosAggregate_setUnionAgg_10::Initialize, &MeosAggregate_setUnionAgg_10::Update, &MeosAggregate_setUnionAgg_10::Combine, &MeosAggregate_setUnionAgg_10::Finish, MeosAggregate_setUnionAgg_10::StateSize};
 
 struct MeosAggregate_extent_8Ops
 {
@@ -4110,13 +4111,13 @@ struct MeosAggregate_extent_8Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4136,7 +4137,7 @@ struct MeosAggregate_extent_8Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_8Literals{};
 using MeosAggregate_extent_8 = MeosRuntime::MeosAggregate<MeosAggregate_extent_8Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_8Kernels{&MeosAggregate_extent_8::Initialize, &MeosAggregate_extent_8::Update, &MeosAggregate_extent_8::Combine, &MeosAggregate_extent_8::Finish, &MeosAggregate_extent_8::Destroy, MeosAggregate_extent_8::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_8Kernels{&MeosAggregate_extent_8::Initialize, &MeosAggregate_extent_8::Update, &MeosAggregate_extent_8::Combine, &MeosAggregate_extent_8::Finish, MeosAggregate_extent_8::StateSize};
 
 struct MeosAggregate_tCount_7Ops
 {
@@ -4165,13 +4166,13 @@ struct MeosAggregate_tCount_7Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4191,7 +4192,7 @@ struct MeosAggregate_tCount_7Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_7Literals{};
 using MeosAggregate_tCount_7 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_7Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_7Kernels{&MeosAggregate_tCount_7::Initialize, &MeosAggregate_tCount_7::Update, &MeosAggregate_tCount_7::Combine, &MeosAggregate_tCount_7::Finish, &MeosAggregate_tCount_7::Destroy, MeosAggregate_tCount_7::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_7Kernels{&MeosAggregate_tCount_7::Initialize, &MeosAggregate_tCount_7::Update, &MeosAggregate_tCount_7::Combine, &MeosAggregate_tCount_7::Finish, MeosAggregate_tCount_7::StateSize};
 
 struct MeosAggregate_wCount_7Ops
 {
@@ -4227,13 +4228,13 @@ struct MeosAggregate_wCount_7Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4253,7 +4254,7 @@ struct MeosAggregate_wCount_7Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_7Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_7 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_7Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_7Kernels{&MeosAggregate_wCount_7::Initialize, &MeosAggregate_wCount_7::Update, &MeosAggregate_wCount_7::Combine, &MeosAggregate_wCount_7::Finish, &MeosAggregate_wCount_7::Destroy, MeosAggregate_wCount_7::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_7Kernels{&MeosAggregate_wCount_7::Initialize, &MeosAggregate_wCount_7::Update, &MeosAggregate_wCount_7::Combine, &MeosAggregate_wCount_7::Finish, MeosAggregate_wCount_7::StateSize};
 
 struct MeosAggregate_tCentroid_1Ops
 {
@@ -4282,13 +4283,13 @@ struct MeosAggregate_tCentroid_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tpoint_tcentroid_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return tpoint_tcentroid_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4308,7 +4309,7 @@ struct MeosAggregate_tCentroid_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCentroid_1Literals{};
 using MeosAggregate_tCentroid_1 = MeosRuntime::MeosAggregate<MeosAggregate_tCentroid_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCentroid_1Kernels{&MeosAggregate_tCentroid_1::Initialize, &MeosAggregate_tCentroid_1::Update, &MeosAggregate_tCentroid_1::Combine, &MeosAggregate_tCentroid_1::Finish, &MeosAggregate_tCentroid_1::Destroy, MeosAggregate_tCentroid_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCentroid_1Kernels{&MeosAggregate_tCentroid_1::Initialize, &MeosAggregate_tCentroid_1::Update, &MeosAggregate_tCentroid_1::Combine, &MeosAggregate_tCentroid_1::Finish, MeosAggregate_tCentroid_1::StateSize};
 
 struct MeosAggregate_mergeAgg_7Ops
 {
@@ -4337,13 +4338,13 @@ struct MeosAggregate_mergeAgg_7Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4363,7 +4364,7 @@ struct MeosAggregate_mergeAgg_7Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_7Literals{};
 using MeosAggregate_mergeAgg_7 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_7Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_7Kernels{&MeosAggregate_mergeAgg_7::Initialize, &MeosAggregate_mergeAgg_7::Update, &MeosAggregate_mergeAgg_7::Combine, &MeosAggregate_mergeAgg_7::Finish, &MeosAggregate_mergeAgg_7::Destroy, MeosAggregate_mergeAgg_7::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_7Kernels{&MeosAggregate_mergeAgg_7::Initialize, &MeosAggregate_mergeAgg_7::Update, &MeosAggregate_mergeAgg_7::Combine, &MeosAggregate_mergeAgg_7::Finish, MeosAggregate_mergeAgg_7::StateSize};
 
 struct MeosAggregate_appendInstantAgg_21Ops
 {
@@ -4392,13 +4393,13 @@ struct MeosAggregate_appendInstantAgg_21Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4418,7 +4419,7 @@ struct MeosAggregate_appendInstantAgg_21Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_21Literals{};
 using MeosAggregate_appendInstantAgg_21 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_21Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_21Kernels{&MeosAggregate_appendInstantAgg_21::Initialize, &MeosAggregate_appendInstantAgg_21::Update, &MeosAggregate_appendInstantAgg_21::Combine, &MeosAggregate_appendInstantAgg_21::Finish, &MeosAggregate_appendInstantAgg_21::Destroy, MeosAggregate_appendInstantAgg_21::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_21Kernels{&MeosAggregate_appendInstantAgg_21::Initialize, &MeosAggregate_appendInstantAgg_21::Update, &MeosAggregate_appendInstantAgg_21::Combine, &MeosAggregate_appendInstantAgg_21::Finish, MeosAggregate_appendInstantAgg_21::StateSize};
 
 struct MeosAggregate_appendInstantAgg_22Ops
 {
@@ -4448,13 +4449,13 @@ struct MeosAggregate_appendInstantAgg_22Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4474,7 +4475,7 @@ struct MeosAggregate_appendInstantAgg_22Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_22Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_22 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_22Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_22Kernels{&MeosAggregate_appendInstantAgg_22::Initialize, &MeosAggregate_appendInstantAgg_22::Update, &MeosAggregate_appendInstantAgg_22::Combine, &MeosAggregate_appendInstantAgg_22::Finish, &MeosAggregate_appendInstantAgg_22::Destroy, MeosAggregate_appendInstantAgg_22::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_22Kernels{&MeosAggregate_appendInstantAgg_22::Initialize, &MeosAggregate_appendInstantAgg_22::Update, &MeosAggregate_appendInstantAgg_22::Combine, &MeosAggregate_appendInstantAgg_22::Finish, MeosAggregate_appendInstantAgg_22::StateSize};
 
 struct MeosAggregate_appendInstantAgg_23Ops
 {
@@ -4514,13 +4515,13 @@ struct MeosAggregate_appendInstantAgg_23Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4540,7 +4541,7 @@ struct MeosAggregate_appendInstantAgg_23Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_23Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_23 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_23Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_23Kernels{&MeosAggregate_appendInstantAgg_23::Initialize, &MeosAggregate_appendInstantAgg_23::Update, &MeosAggregate_appendInstantAgg_23::Combine, &MeosAggregate_appendInstantAgg_23::Finish, &MeosAggregate_appendInstantAgg_23::Destroy, MeosAggregate_appendInstantAgg_23::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_23Kernels{&MeosAggregate_appendInstantAgg_23::Initialize, &MeosAggregate_appendInstantAgg_23::Update, &MeosAggregate_appendInstantAgg_23::Combine, &MeosAggregate_appendInstantAgg_23::Finish, MeosAggregate_appendInstantAgg_23::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_7Ops
 {
@@ -4569,13 +4570,13 @@ struct MeosAggregate_appendSequenceAgg_7Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4595,7 +4596,7 @@ struct MeosAggregate_appendSequenceAgg_7Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_7Literals{};
 using MeosAggregate_appendSequenceAgg_7 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_7Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_7Kernels{&MeosAggregate_appendSequenceAgg_7::Initialize, &MeosAggregate_appendSequenceAgg_7::Update, &MeosAggregate_appendSequenceAgg_7::Combine, &MeosAggregate_appendSequenceAgg_7::Finish, &MeosAggregate_appendSequenceAgg_7::Destroy, MeosAggregate_appendSequenceAgg_7::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_7Kernels{&MeosAggregate_appendSequenceAgg_7::Initialize, &MeosAggregate_appendSequenceAgg_7::Update, &MeosAggregate_appendSequenceAgg_7::Combine, &MeosAggregate_appendSequenceAgg_7::Finish, MeosAggregate_appendSequenceAgg_7::StateSize};
 
 struct MeosAggregate_setUnionAgg_11Ops
 {
@@ -4624,13 +4625,13 @@ struct MeosAggregate_setUnionAgg_11Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4650,7 +4651,7 @@ struct MeosAggregate_setUnionAgg_11Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_11Literals{};
 using MeosAggregate_setUnionAgg_11 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_11Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_11Kernels{&MeosAggregate_setUnionAgg_11::Initialize, &MeosAggregate_setUnionAgg_11::Update, &MeosAggregate_setUnionAgg_11::Combine, &MeosAggregate_setUnionAgg_11::Finish, &MeosAggregate_setUnionAgg_11::Destroy, MeosAggregate_setUnionAgg_11::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_11Kernels{&MeosAggregate_setUnionAgg_11::Initialize, &MeosAggregate_setUnionAgg_11::Update, &MeosAggregate_setUnionAgg_11::Combine, &MeosAggregate_setUnionAgg_11::Finish, MeosAggregate_setUnionAgg_11::StateSize};
 
 struct MeosAggregate_setUnionAgg_12Ops
 {
@@ -4679,13 +4680,13 @@ struct MeosAggregate_setUnionAgg_12Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4705,7 +4706,7 @@ struct MeosAggregate_setUnionAgg_12Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_12Literals{};
 using MeosAggregate_setUnionAgg_12 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_12Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_12Kernels{&MeosAggregate_setUnionAgg_12::Initialize, &MeosAggregate_setUnionAgg_12::Update, &MeosAggregate_setUnionAgg_12::Combine, &MeosAggregate_setUnionAgg_12::Finish, &MeosAggregate_setUnionAgg_12::Destroy, MeosAggregate_setUnionAgg_12::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_12Kernels{&MeosAggregate_setUnionAgg_12::Initialize, &MeosAggregate_setUnionAgg_12::Update, &MeosAggregate_setUnionAgg_12::Combine, &MeosAggregate_setUnionAgg_12::Finish, MeosAggregate_setUnionAgg_12::StateSize};
 
 struct MeosAggregate_setUnionAgg_13Ops
 {
@@ -4734,13 +4735,13 @@ struct MeosAggregate_setUnionAgg_13Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4760,7 +4761,7 @@ struct MeosAggregate_setUnionAgg_13Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_13Literals{};
 using MeosAggregate_setUnionAgg_13 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_13Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_13Kernels{&MeosAggregate_setUnionAgg_13::Initialize, &MeosAggregate_setUnionAgg_13::Update, &MeosAggregate_setUnionAgg_13::Combine, &MeosAggregate_setUnionAgg_13::Finish, &MeosAggregate_setUnionAgg_13::Destroy, MeosAggregate_setUnionAgg_13::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_13Kernels{&MeosAggregate_setUnionAgg_13::Initialize, &MeosAggregate_setUnionAgg_13::Update, &MeosAggregate_setUnionAgg_13::Combine, &MeosAggregate_setUnionAgg_13::Finish, MeosAggregate_setUnionAgg_13::StateSize};
 
 struct MeosAggregate_setUnionAgg_14Ops
 {
@@ -4789,13 +4790,13 @@ struct MeosAggregate_setUnionAgg_14Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4815,7 +4816,7 @@ struct MeosAggregate_setUnionAgg_14Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_14Literals{};
 using MeosAggregate_setUnionAgg_14 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_14Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_14Kernels{&MeosAggregate_setUnionAgg_14::Initialize, &MeosAggregate_setUnionAgg_14::Update, &MeosAggregate_setUnionAgg_14::Combine, &MeosAggregate_setUnionAgg_14::Finish, &MeosAggregate_setUnionAgg_14::Destroy, MeosAggregate_setUnionAgg_14::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_14Kernels{&MeosAggregate_setUnionAgg_14::Initialize, &MeosAggregate_setUnionAgg_14::Update, &MeosAggregate_setUnionAgg_14::Combine, &MeosAggregate_setUnionAgg_14::Finish, MeosAggregate_setUnionAgg_14::StateSize};
 
 struct MeosAggregate_extent_9Ops
 {
@@ -4844,13 +4845,13 @@ struct MeosAggregate_extent_9Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tpcbox_extent_transfn(static_cast<TPCBox*>(a), static_cast<const TPCBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4870,7 +4871,7 @@ struct MeosAggregate_extent_9Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_9Literals{};
 using MeosAggregate_extent_9 = MeosRuntime::MeosAggregate<MeosAggregate_extent_9Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_9Kernels{&MeosAggregate_extent_9::Initialize, &MeosAggregate_extent_9::Update, &MeosAggregate_extent_9::Combine, &MeosAggregate_extent_9::Finish, &MeosAggregate_extent_9::Destroy, MeosAggregate_extent_9::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_9Kernels{&MeosAggregate_extent_9::Initialize, &MeosAggregate_extent_9::Update, &MeosAggregate_extent_9::Combine, &MeosAggregate_extent_9::Finish, MeosAggregate_extent_9::StateSize};
 
 struct MeosAggregate_extent_10Ops
 {
@@ -4899,13 +4900,13 @@ struct MeosAggregate_extent_10Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tpcbox_extent_transfn(static_cast<TPCBox*>(a), static_cast<const TPCBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4925,7 +4926,7 @@ struct MeosAggregate_extent_10Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_10Literals{};
 using MeosAggregate_extent_10 = MeosRuntime::MeosAggregate<MeosAggregate_extent_10Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_10Kernels{&MeosAggregate_extent_10::Initialize, &MeosAggregate_extent_10::Update, &MeosAggregate_extent_10::Combine, &MeosAggregate_extent_10::Finish, &MeosAggregate_extent_10::Destroy, MeosAggregate_extent_10::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_10Kernels{&MeosAggregate_extent_10::Initialize, &MeosAggregate_extent_10::Update, &MeosAggregate_extent_10::Combine, &MeosAggregate_extent_10::Finish, MeosAggregate_extent_10::StateSize};
 
 struct MeosAggregate_extent_11Ops
 {
@@ -4954,13 +4955,13 @@ struct MeosAggregate_extent_11Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tpcbox_extent_transfn(static_cast<TPCBox*>(a), static_cast<const TPCBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -4980,7 +4981,7 @@ struct MeosAggregate_extent_11Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_11Literals{};
 using MeosAggregate_extent_11 = MeosRuntime::MeosAggregate<MeosAggregate_extent_11Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_11Kernels{&MeosAggregate_extent_11::Initialize, &MeosAggregate_extent_11::Update, &MeosAggregate_extent_11::Combine, &MeosAggregate_extent_11::Finish, &MeosAggregate_extent_11::Destroy, MeosAggregate_extent_11::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_11Kernels{&MeosAggregate_extent_11::Initialize, &MeosAggregate_extent_11::Update, &MeosAggregate_extent_11::Combine, &MeosAggregate_extent_11::Finish, MeosAggregate_extent_11::StateSize};
 
 struct MeosAggregate_tCount_8Ops
 {
@@ -5009,13 +5010,13 @@ struct MeosAggregate_tCount_8Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5035,7 +5036,7 @@ struct MeosAggregate_tCount_8Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_8Literals{};
 using MeosAggregate_tCount_8 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_8Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_8Kernels{&MeosAggregate_tCount_8::Initialize, &MeosAggregate_tCount_8::Update, &MeosAggregate_tCount_8::Combine, &MeosAggregate_tCount_8::Finish, &MeosAggregate_tCount_8::Destroy, MeosAggregate_tCount_8::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_8Kernels{&MeosAggregate_tCount_8::Initialize, &MeosAggregate_tCount_8::Update, &MeosAggregate_tCount_8::Combine, &MeosAggregate_tCount_8::Finish, MeosAggregate_tCount_8::StateSize};
 
 struct MeosAggregate_tCount_9Ops
 {
@@ -5064,13 +5065,13 @@ struct MeosAggregate_tCount_9Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5090,7 +5091,7 @@ struct MeosAggregate_tCount_9Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_9Literals{};
 using MeosAggregate_tCount_9 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_9Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_9Kernels{&MeosAggregate_tCount_9::Initialize, &MeosAggregate_tCount_9::Update, &MeosAggregate_tCount_9::Combine, &MeosAggregate_tCount_9::Finish, &MeosAggregate_tCount_9::Destroy, MeosAggregate_tCount_9::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_9Kernels{&MeosAggregate_tCount_9::Initialize, &MeosAggregate_tCount_9::Update, &MeosAggregate_tCount_9::Combine, &MeosAggregate_tCount_9::Finish, MeosAggregate_tCount_9::StateSize};
 
 struct MeosAggregate_tnpoints_0Ops
 {
@@ -5119,13 +5120,13 @@ struct MeosAggregate_tnpoints_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5145,7 +5146,7 @@ struct MeosAggregate_tnpoints_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tnpoints_0Literals{};
 using MeosAggregate_tnpoints_0 = MeosRuntime::MeosAggregate<MeosAggregate_tnpoints_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tnpoints_0Kernels{&MeosAggregate_tnpoints_0::Initialize, &MeosAggregate_tnpoints_0::Update, &MeosAggregate_tnpoints_0::Combine, &MeosAggregate_tnpoints_0::Finish, &MeosAggregate_tnpoints_0::Destroy, MeosAggregate_tnpoints_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tnpoints_0Kernels{&MeosAggregate_tnpoints_0::Initialize, &MeosAggregate_tnpoints_0::Update, &MeosAggregate_tnpoints_0::Combine, &MeosAggregate_tnpoints_0::Finish, MeosAggregate_tnpoints_0::StateSize};
 
 struct MeosAggregate_tdensity_0Ops
 {
@@ -5174,13 +5175,13 @@ struct MeosAggregate_tdensity_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5200,7 +5201,7 @@ struct MeosAggregate_tdensity_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tdensity_0Literals{};
 using MeosAggregate_tdensity_0 = MeosRuntime::MeosAggregate<MeosAggregate_tdensity_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tdensity_0Kernels{&MeosAggregate_tdensity_0::Initialize, &MeosAggregate_tdensity_0::Update, &MeosAggregate_tdensity_0::Combine, &MeosAggregate_tdensity_0::Finish, &MeosAggregate_tdensity_0::Destroy, MeosAggregate_tdensity_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tdensity_0Kernels{&MeosAggregate_tdensity_0::Initialize, &MeosAggregate_tdensity_0::Update, &MeosAggregate_tdensity_0::Combine, &MeosAggregate_tdensity_0::Finish, MeosAggregate_tdensity_0::StateSize};
 
 struct MeosAggregate_wCount_8Ops
 {
@@ -5236,13 +5237,13 @@ struct MeosAggregate_wCount_8Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5262,7 +5263,7 @@ struct MeosAggregate_wCount_8Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_8Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_8 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_8Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_8Kernels{&MeosAggregate_wCount_8::Initialize, &MeosAggregate_wCount_8::Update, &MeosAggregate_wCount_8::Combine, &MeosAggregate_wCount_8::Finish, &MeosAggregate_wCount_8::Destroy, MeosAggregate_wCount_8::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_8Kernels{&MeosAggregate_wCount_8::Initialize, &MeosAggregate_wCount_8::Update, &MeosAggregate_wCount_8::Combine, &MeosAggregate_wCount_8::Finish, MeosAggregate_wCount_8::StateSize};
 
 struct MeosAggregate_wCount_9Ops
 {
@@ -5298,13 +5299,13 @@ struct MeosAggregate_wCount_9Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5324,7 +5325,7 @@ struct MeosAggregate_wCount_9Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_9Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_9 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_9Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_9Kernels{&MeosAggregate_wCount_9::Initialize, &MeosAggregate_wCount_9::Update, &MeosAggregate_wCount_9::Combine, &MeosAggregate_wCount_9::Finish, &MeosAggregate_wCount_9::Destroy, MeosAggregate_wCount_9::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_9Kernels{&MeosAggregate_wCount_9::Initialize, &MeosAggregate_wCount_9::Update, &MeosAggregate_wCount_9::Combine, &MeosAggregate_wCount_9::Finish, MeosAggregate_wCount_9::StateSize};
 
 struct MeosAggregate_mergeAgg_8Ops
 {
@@ -5353,13 +5354,13 @@ struct MeosAggregate_mergeAgg_8Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5379,7 +5380,7 @@ struct MeosAggregate_mergeAgg_8Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_8Literals{};
 using MeosAggregate_mergeAgg_8 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_8Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_8Kernels{&MeosAggregate_mergeAgg_8::Initialize, &MeosAggregate_mergeAgg_8::Update, &MeosAggregate_mergeAgg_8::Combine, &MeosAggregate_mergeAgg_8::Finish, &MeosAggregate_mergeAgg_8::Destroy, MeosAggregate_mergeAgg_8::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_8Kernels{&MeosAggregate_mergeAgg_8::Initialize, &MeosAggregate_mergeAgg_8::Update, &MeosAggregate_mergeAgg_8::Combine, &MeosAggregate_mergeAgg_8::Finish, MeosAggregate_mergeAgg_8::StateSize};
 
 struct MeosAggregate_mergeAgg_9Ops
 {
@@ -5408,13 +5409,13 @@ struct MeosAggregate_mergeAgg_9Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5434,7 +5435,7 @@ struct MeosAggregate_mergeAgg_9Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_9Literals{};
 using MeosAggregate_mergeAgg_9 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_9Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_9Kernels{&MeosAggregate_mergeAgg_9::Initialize, &MeosAggregate_mergeAgg_9::Update, &MeosAggregate_mergeAgg_9::Combine, &MeosAggregate_mergeAgg_9::Finish, &MeosAggregate_mergeAgg_9::Destroy, MeosAggregate_mergeAgg_9::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_9Kernels{&MeosAggregate_mergeAgg_9::Initialize, &MeosAggregate_mergeAgg_9::Update, &MeosAggregate_mergeAgg_9::Combine, &MeosAggregate_mergeAgg_9::Finish, MeosAggregate_mergeAgg_9::StateSize};
 
 struct MeosAggregate_appendInstantAgg_24Ops
 {
@@ -5463,13 +5464,13 @@ struct MeosAggregate_appendInstantAgg_24Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5489,7 +5490,7 @@ struct MeosAggregate_appendInstantAgg_24Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_24Literals{};
 using MeosAggregate_appendInstantAgg_24 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_24Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_24Kernels{&MeosAggregate_appendInstantAgg_24::Initialize, &MeosAggregate_appendInstantAgg_24::Update, &MeosAggregate_appendInstantAgg_24::Combine, &MeosAggregate_appendInstantAgg_24::Finish, &MeosAggregate_appendInstantAgg_24::Destroy, MeosAggregate_appendInstantAgg_24::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_24Kernels{&MeosAggregate_appendInstantAgg_24::Initialize, &MeosAggregate_appendInstantAgg_24::Update, &MeosAggregate_appendInstantAgg_24::Combine, &MeosAggregate_appendInstantAgg_24::Finish, MeosAggregate_appendInstantAgg_24::StateSize};
 
 struct MeosAggregate_appendInstantAgg_25Ops
 {
@@ -5519,13 +5520,13 @@ struct MeosAggregate_appendInstantAgg_25Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5545,7 +5546,7 @@ struct MeosAggregate_appendInstantAgg_25Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_25Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_25 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_25Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_25Kernels{&MeosAggregate_appendInstantAgg_25::Initialize, &MeosAggregate_appendInstantAgg_25::Update, &MeosAggregate_appendInstantAgg_25::Combine, &MeosAggregate_appendInstantAgg_25::Finish, &MeosAggregate_appendInstantAgg_25::Destroy, MeosAggregate_appendInstantAgg_25::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_25Kernels{&MeosAggregate_appendInstantAgg_25::Initialize, &MeosAggregate_appendInstantAgg_25::Update, &MeosAggregate_appendInstantAgg_25::Combine, &MeosAggregate_appendInstantAgg_25::Finish, MeosAggregate_appendInstantAgg_25::StateSize};
 
 struct MeosAggregate_appendInstantAgg_26Ops
 {
@@ -5583,13 +5584,13 @@ struct MeosAggregate_appendInstantAgg_26Ops
         std::free(row.a0);
         std::free(row.a2);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5609,7 +5610,7 @@ struct MeosAggregate_appendInstantAgg_26Ops
 
 constexpr std::array<DataType::Type, 2> MeosAggregate_appendInstantAgg_26Literals{DataType::Type::VARSIZED, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_26 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_26Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_26Kernels{&MeosAggregate_appendInstantAgg_26::Initialize, &MeosAggregate_appendInstantAgg_26::Update, &MeosAggregate_appendInstantAgg_26::Combine, &MeosAggregate_appendInstantAgg_26::Finish, &MeosAggregate_appendInstantAgg_26::Destroy, MeosAggregate_appendInstantAgg_26::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_26Kernels{&MeosAggregate_appendInstantAgg_26::Initialize, &MeosAggregate_appendInstantAgg_26::Update, &MeosAggregate_appendInstantAgg_26::Combine, &MeosAggregate_appendInstantAgg_26::Finish, MeosAggregate_appendInstantAgg_26::StateSize};
 
 struct MeosAggregate_appendInstantAgg_27Ops
 {
@@ -5638,13 +5639,13 @@ struct MeosAggregate_appendInstantAgg_27Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5664,7 +5665,7 @@ struct MeosAggregate_appendInstantAgg_27Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_27Literals{};
 using MeosAggregate_appendInstantAgg_27 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_27Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_27Kernels{&MeosAggregate_appendInstantAgg_27::Initialize, &MeosAggregate_appendInstantAgg_27::Update, &MeosAggregate_appendInstantAgg_27::Combine, &MeosAggregate_appendInstantAgg_27::Finish, &MeosAggregate_appendInstantAgg_27::Destroy, MeosAggregate_appendInstantAgg_27::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_27Kernels{&MeosAggregate_appendInstantAgg_27::Initialize, &MeosAggregate_appendInstantAgg_27::Update, &MeosAggregate_appendInstantAgg_27::Combine, &MeosAggregate_appendInstantAgg_27::Finish, MeosAggregate_appendInstantAgg_27::StateSize};
 
 struct MeosAggregate_appendInstantAgg_28Ops
 {
@@ -5694,13 +5695,13 @@ struct MeosAggregate_appendInstantAgg_28Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5720,7 +5721,7 @@ struct MeosAggregate_appendInstantAgg_28Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_28Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_28 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_28Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_28Kernels{&MeosAggregate_appendInstantAgg_28::Initialize, &MeosAggregate_appendInstantAgg_28::Update, &MeosAggregate_appendInstantAgg_28::Combine, &MeosAggregate_appendInstantAgg_28::Finish, &MeosAggregate_appendInstantAgg_28::Destroy, MeosAggregate_appendInstantAgg_28::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_28Kernels{&MeosAggregate_appendInstantAgg_28::Initialize, &MeosAggregate_appendInstantAgg_28::Update, &MeosAggregate_appendInstantAgg_28::Combine, &MeosAggregate_appendInstantAgg_28::Finish, MeosAggregate_appendInstantAgg_28::StateSize};
 
 struct MeosAggregate_appendInstantAgg_29Ops
 {
@@ -5758,13 +5759,13 @@ struct MeosAggregate_appendInstantAgg_29Ops
         std::free(row.a0);
         std::free(row.a2);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5784,7 +5785,7 @@ struct MeosAggregate_appendInstantAgg_29Ops
 
 constexpr std::array<DataType::Type, 2> MeosAggregate_appendInstantAgg_29Literals{DataType::Type::VARSIZED, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_29 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_29Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_29Kernels{&MeosAggregate_appendInstantAgg_29::Initialize, &MeosAggregate_appendInstantAgg_29::Update, &MeosAggregate_appendInstantAgg_29::Combine, &MeosAggregate_appendInstantAgg_29::Finish, &MeosAggregate_appendInstantAgg_29::Destroy, MeosAggregate_appendInstantAgg_29::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_29Kernels{&MeosAggregate_appendInstantAgg_29::Initialize, &MeosAggregate_appendInstantAgg_29::Update, &MeosAggregate_appendInstantAgg_29::Combine, &MeosAggregate_appendInstantAgg_29::Finish, MeosAggregate_appendInstantAgg_29::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_8Ops
 {
@@ -5813,13 +5814,13 @@ struct MeosAggregate_appendSequenceAgg_8Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5839,7 +5840,7 @@ struct MeosAggregate_appendSequenceAgg_8Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_8Literals{};
 using MeosAggregate_appendSequenceAgg_8 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_8Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_8Kernels{&MeosAggregate_appendSequenceAgg_8::Initialize, &MeosAggregate_appendSequenceAgg_8::Update, &MeosAggregate_appendSequenceAgg_8::Combine, &MeosAggregate_appendSequenceAgg_8::Finish, &MeosAggregate_appendSequenceAgg_8::Destroy, MeosAggregate_appendSequenceAgg_8::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_8Kernels{&MeosAggregate_appendSequenceAgg_8::Initialize, &MeosAggregate_appendSequenceAgg_8::Update, &MeosAggregate_appendSequenceAgg_8::Combine, &MeosAggregate_appendSequenceAgg_8::Finish, MeosAggregate_appendSequenceAgg_8::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_9Ops
 {
@@ -5868,13 +5869,13 @@ struct MeosAggregate_appendSequenceAgg_9Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5894,7 +5895,7 @@ struct MeosAggregate_appendSequenceAgg_9Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_9Literals{};
 using MeosAggregate_appendSequenceAgg_9 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_9Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_9Kernels{&MeosAggregate_appendSequenceAgg_9::Initialize, &MeosAggregate_appendSequenceAgg_9::Update, &MeosAggregate_appendSequenceAgg_9::Combine, &MeosAggregate_appendSequenceAgg_9::Finish, &MeosAggregate_appendSequenceAgg_9::Destroy, MeosAggregate_appendSequenceAgg_9::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_9Kernels{&MeosAggregate_appendSequenceAgg_9::Initialize, &MeosAggregate_appendSequenceAgg_9::Update, &MeosAggregate_appendSequenceAgg_9::Combine, &MeosAggregate_appendSequenceAgg_9::Finish, MeosAggregate_appendSequenceAgg_9::StateSize};
 
 struct MeosAggregate_setUnionAgg_15Ops
 {
@@ -5923,13 +5924,13 @@ struct MeosAggregate_setUnionAgg_15Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -5949,7 +5950,7 @@ struct MeosAggregate_setUnionAgg_15Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_15Literals{};
 using MeosAggregate_setUnionAgg_15 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_15Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_15Kernels{&MeosAggregate_setUnionAgg_15::Initialize, &MeosAggregate_setUnionAgg_15::Update, &MeosAggregate_setUnionAgg_15::Combine, &MeosAggregate_setUnionAgg_15::Finish, &MeosAggregate_setUnionAgg_15::Destroy, MeosAggregate_setUnionAgg_15::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_15Kernels{&MeosAggregate_setUnionAgg_15::Initialize, &MeosAggregate_setUnionAgg_15::Update, &MeosAggregate_setUnionAgg_15::Combine, &MeosAggregate_setUnionAgg_15::Finish, MeosAggregate_setUnionAgg_15::StateSize};
 
 struct MeosAggregate_setUnionAgg_16Ops
 {
@@ -5978,13 +5979,13 @@ struct MeosAggregate_setUnionAgg_16Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6004,7 +6005,7 @@ struct MeosAggregate_setUnionAgg_16Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_16Literals{};
 using MeosAggregate_setUnionAgg_16 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_16Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_16Kernels{&MeosAggregate_setUnionAgg_16::Initialize, &MeosAggregate_setUnionAgg_16::Update, &MeosAggregate_setUnionAgg_16::Combine, &MeosAggregate_setUnionAgg_16::Finish, &MeosAggregate_setUnionAgg_16::Destroy, MeosAggregate_setUnionAgg_16::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_16Kernels{&MeosAggregate_setUnionAgg_16::Initialize, &MeosAggregate_setUnionAgg_16::Update, &MeosAggregate_setUnionAgg_16::Combine, &MeosAggregate_setUnionAgg_16::Finish, MeosAggregate_setUnionAgg_16::StateSize};
 
 struct MeosAggregate_tCount_10Ops
 {
@@ -6033,13 +6034,13 @@ struct MeosAggregate_tCount_10Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6059,7 +6060,7 @@ struct MeosAggregate_tCount_10Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_10Literals{};
 using MeosAggregate_tCount_10 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_10Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_10Kernels{&MeosAggregate_tCount_10::Initialize, &MeosAggregate_tCount_10::Update, &MeosAggregate_tCount_10::Combine, &MeosAggregate_tCount_10::Finish, &MeosAggregate_tCount_10::Destroy, MeosAggregate_tCount_10::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_10Kernels{&MeosAggregate_tCount_10::Initialize, &MeosAggregate_tCount_10::Update, &MeosAggregate_tCount_10::Combine, &MeosAggregate_tCount_10::Finish, MeosAggregate_tCount_10::StateSize};
 
 struct MeosAggregate_extent_12Ops
 {
@@ -6088,13 +6089,13 @@ struct MeosAggregate_extent_12Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6114,7 +6115,7 @@ struct MeosAggregate_extent_12Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_12Literals{};
 using MeosAggregate_extent_12 = MeosRuntime::MeosAggregate<MeosAggregate_extent_12Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_12Kernels{&MeosAggregate_extent_12::Initialize, &MeosAggregate_extent_12::Update, &MeosAggregate_extent_12::Combine, &MeosAggregate_extent_12::Finish, &MeosAggregate_extent_12::Destroy, MeosAggregate_extent_12::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_12Kernels{&MeosAggregate_extent_12::Initialize, &MeosAggregate_extent_12::Update, &MeosAggregate_extent_12::Combine, &MeosAggregate_extent_12::Finish, MeosAggregate_extent_12::StateSize};
 
 struct MeosAggregate_wCount_10Ops
 {
@@ -6150,13 +6151,13 @@ struct MeosAggregate_wCount_10Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6176,7 +6177,7 @@ struct MeosAggregate_wCount_10Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_10Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_10 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_10Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_10Kernels{&MeosAggregate_wCount_10::Initialize, &MeosAggregate_wCount_10::Update, &MeosAggregate_wCount_10::Combine, &MeosAggregate_wCount_10::Finish, &MeosAggregate_wCount_10::Destroy, MeosAggregate_wCount_10::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_10Kernels{&MeosAggregate_wCount_10::Initialize, &MeosAggregate_wCount_10::Update, &MeosAggregate_wCount_10::Combine, &MeosAggregate_wCount_10::Finish, MeosAggregate_wCount_10::StateSize};
 
 struct MeosAggregate_mergeAgg_10Ops
 {
@@ -6205,13 +6206,13 @@ struct MeosAggregate_mergeAgg_10Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6231,7 +6232,7 @@ struct MeosAggregate_mergeAgg_10Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_10Literals{};
 using MeosAggregate_mergeAgg_10 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_10Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_10Kernels{&MeosAggregate_mergeAgg_10::Initialize, &MeosAggregate_mergeAgg_10::Update, &MeosAggregate_mergeAgg_10::Combine, &MeosAggregate_mergeAgg_10::Finish, &MeosAggregate_mergeAgg_10::Destroy, MeosAggregate_mergeAgg_10::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_10Kernels{&MeosAggregate_mergeAgg_10::Initialize, &MeosAggregate_mergeAgg_10::Update, &MeosAggregate_mergeAgg_10::Combine, &MeosAggregate_mergeAgg_10::Finish, MeosAggregate_mergeAgg_10::StateSize};
 
 struct MeosAggregate_appendInstantAgg_30Ops
 {
@@ -6260,13 +6261,13 @@ struct MeosAggregate_appendInstantAgg_30Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6286,7 +6287,7 @@ struct MeosAggregate_appendInstantAgg_30Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_30Literals{};
 using MeosAggregate_appendInstantAgg_30 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_30Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_30Kernels{&MeosAggregate_appendInstantAgg_30::Initialize, &MeosAggregate_appendInstantAgg_30::Update, &MeosAggregate_appendInstantAgg_30::Combine, &MeosAggregate_appendInstantAgg_30::Finish, &MeosAggregate_appendInstantAgg_30::Destroy, MeosAggregate_appendInstantAgg_30::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_30Kernels{&MeosAggregate_appendInstantAgg_30::Initialize, &MeosAggregate_appendInstantAgg_30::Update, &MeosAggregate_appendInstantAgg_30::Combine, &MeosAggregate_appendInstantAgg_30::Finish, MeosAggregate_appendInstantAgg_30::StateSize};
 
 struct MeosAggregate_appendInstantAgg_31Ops
 {
@@ -6316,13 +6317,13 @@ struct MeosAggregate_appendInstantAgg_31Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6342,7 +6343,7 @@ struct MeosAggregate_appendInstantAgg_31Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_31Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_31 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_31Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_31Kernels{&MeosAggregate_appendInstantAgg_31::Initialize, &MeosAggregate_appendInstantAgg_31::Update, &MeosAggregate_appendInstantAgg_31::Combine, &MeosAggregate_appendInstantAgg_31::Finish, &MeosAggregate_appendInstantAgg_31::Destroy, MeosAggregate_appendInstantAgg_31::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_31Kernels{&MeosAggregate_appendInstantAgg_31::Initialize, &MeosAggregate_appendInstantAgg_31::Update, &MeosAggregate_appendInstantAgg_31::Combine, &MeosAggregate_appendInstantAgg_31::Finish, MeosAggregate_appendInstantAgg_31::StateSize};
 
 struct MeosAggregate_appendInstantAgg_32Ops
 {
@@ -6382,13 +6383,13 @@ struct MeosAggregate_appendInstantAgg_32Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6408,7 +6409,7 @@ struct MeosAggregate_appendInstantAgg_32Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_32Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_32 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_32Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_32Kernels{&MeosAggregate_appendInstantAgg_32::Initialize, &MeosAggregate_appendInstantAgg_32::Update, &MeosAggregate_appendInstantAgg_32::Combine, &MeosAggregate_appendInstantAgg_32::Finish, &MeosAggregate_appendInstantAgg_32::Destroy, MeosAggregate_appendInstantAgg_32::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_32Kernels{&MeosAggregate_appendInstantAgg_32::Initialize, &MeosAggregate_appendInstantAgg_32::Update, &MeosAggregate_appendInstantAgg_32::Combine, &MeosAggregate_appendInstantAgg_32::Finish, MeosAggregate_appendInstantAgg_32::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_10Ops
 {
@@ -6437,13 +6438,13 @@ struct MeosAggregate_appendSequenceAgg_10Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6463,7 +6464,7 @@ struct MeosAggregate_appendSequenceAgg_10Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_10Literals{};
 using MeosAggregate_appendSequenceAgg_10 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_10Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_10Kernels{&MeosAggregate_appendSequenceAgg_10::Initialize, &MeosAggregate_appendSequenceAgg_10::Update, &MeosAggregate_appendSequenceAgg_10::Combine, &MeosAggregate_appendSequenceAgg_10::Finish, &MeosAggregate_appendSequenceAgg_10::Destroy, MeosAggregate_appendSequenceAgg_10::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_10Kernels{&MeosAggregate_appendSequenceAgg_10::Initialize, &MeosAggregate_appendSequenceAgg_10::Update, &MeosAggregate_appendSequenceAgg_10::Combine, &MeosAggregate_appendSequenceAgg_10::Finish, MeosAggregate_appendSequenceAgg_10::StateSize};
 
 struct MeosAggregate_setUnionAgg_17Ops
 {
@@ -6492,13 +6493,13 @@ struct MeosAggregate_setUnionAgg_17Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6518,7 +6519,7 @@ struct MeosAggregate_setUnionAgg_17Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_17Literals{};
 using MeosAggregate_setUnionAgg_17 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_17Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_17Kernels{&MeosAggregate_setUnionAgg_17::Initialize, &MeosAggregate_setUnionAgg_17::Update, &MeosAggregate_setUnionAgg_17::Combine, &MeosAggregate_setUnionAgg_17::Finish, &MeosAggregate_setUnionAgg_17::Destroy, MeosAggregate_setUnionAgg_17::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_17Kernels{&MeosAggregate_setUnionAgg_17::Initialize, &MeosAggregate_setUnionAgg_17::Update, &MeosAggregate_setUnionAgg_17::Combine, &MeosAggregate_setUnionAgg_17::Finish, MeosAggregate_setUnionAgg_17::StateSize};
 
 struct MeosAggregate_setUnionAgg_18Ops
 {
@@ -6547,13 +6548,13 @@ struct MeosAggregate_setUnionAgg_18Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6573,7 +6574,7 @@ struct MeosAggregate_setUnionAgg_18Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_18Literals{};
 using MeosAggregate_setUnionAgg_18 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_18Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_18Kernels{&MeosAggregate_setUnionAgg_18::Initialize, &MeosAggregate_setUnionAgg_18::Update, &MeosAggregate_setUnionAgg_18::Combine, &MeosAggregate_setUnionAgg_18::Finish, &MeosAggregate_setUnionAgg_18::Destroy, MeosAggregate_setUnionAgg_18::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_18Kernels{&MeosAggregate_setUnionAgg_18::Initialize, &MeosAggregate_setUnionAgg_18::Update, &MeosAggregate_setUnionAgg_18::Combine, &MeosAggregate_setUnionAgg_18::Finish, MeosAggregate_setUnionAgg_18::StateSize};
 
 struct MeosAggregate_tCount_11Ops
 {
@@ -6602,13 +6603,13 @@ struct MeosAggregate_tCount_11Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6628,7 +6629,7 @@ struct MeosAggregate_tCount_11Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_11Literals{};
 using MeosAggregate_tCount_11 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_11Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_11Kernels{&MeosAggregate_tCount_11::Initialize, &MeosAggregate_tCount_11::Update, &MeosAggregate_tCount_11::Combine, &MeosAggregate_tCount_11::Finish, &MeosAggregate_tCount_11::Destroy, MeosAggregate_tCount_11::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_11Kernels{&MeosAggregate_tCount_11::Initialize, &MeosAggregate_tCount_11::Update, &MeosAggregate_tCount_11::Combine, &MeosAggregate_tCount_11::Finish, MeosAggregate_tCount_11::StateSize};
 
 struct MeosAggregate_extent_13Ops
 {
@@ -6657,13 +6658,13 @@ struct MeosAggregate_extent_13Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6683,7 +6684,7 @@ struct MeosAggregate_extent_13Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_13Literals{};
 using MeosAggregate_extent_13 = MeosRuntime::MeosAggregate<MeosAggregate_extent_13Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_13Kernels{&MeosAggregate_extent_13::Initialize, &MeosAggregate_extent_13::Update, &MeosAggregate_extent_13::Combine, &MeosAggregate_extent_13::Finish, &MeosAggregate_extent_13::Destroy, MeosAggregate_extent_13::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_13Kernels{&MeosAggregate_extent_13::Initialize, &MeosAggregate_extent_13::Update, &MeosAggregate_extent_13::Combine, &MeosAggregate_extent_13::Finish, MeosAggregate_extent_13::StateSize};
 
 struct MeosAggregate_wCount_11Ops
 {
@@ -6719,13 +6720,13 @@ struct MeosAggregate_wCount_11Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6745,7 +6746,7 @@ struct MeosAggregate_wCount_11Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_11Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_11 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_11Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_11Kernels{&MeosAggregate_wCount_11::Initialize, &MeosAggregate_wCount_11::Update, &MeosAggregate_wCount_11::Combine, &MeosAggregate_wCount_11::Finish, &MeosAggregate_wCount_11::Destroy, MeosAggregate_wCount_11::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_11Kernels{&MeosAggregate_wCount_11::Initialize, &MeosAggregate_wCount_11::Update, &MeosAggregate_wCount_11::Combine, &MeosAggregate_wCount_11::Finish, MeosAggregate_wCount_11::StateSize};
 
 struct MeosAggregate_mergeAgg_11Ops
 {
@@ -6774,13 +6775,13 @@ struct MeosAggregate_mergeAgg_11Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6800,7 +6801,7 @@ struct MeosAggregate_mergeAgg_11Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_11Literals{};
 using MeosAggregate_mergeAgg_11 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_11Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_11Kernels{&MeosAggregate_mergeAgg_11::Initialize, &MeosAggregate_mergeAgg_11::Update, &MeosAggregate_mergeAgg_11::Combine, &MeosAggregate_mergeAgg_11::Finish, &MeosAggregate_mergeAgg_11::Destroy, MeosAggregate_mergeAgg_11::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_11Kernels{&MeosAggregate_mergeAgg_11::Initialize, &MeosAggregate_mergeAgg_11::Update, &MeosAggregate_mergeAgg_11::Combine, &MeosAggregate_mergeAgg_11::Finish, MeosAggregate_mergeAgg_11::StateSize};
 
 struct MeosAggregate_appendInstantAgg_33Ops
 {
@@ -6829,13 +6830,13 @@ struct MeosAggregate_appendInstantAgg_33Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6855,7 +6856,7 @@ struct MeosAggregate_appendInstantAgg_33Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_33Literals{};
 using MeosAggregate_appendInstantAgg_33 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_33Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_33Kernels{&MeosAggregate_appendInstantAgg_33::Initialize, &MeosAggregate_appendInstantAgg_33::Update, &MeosAggregate_appendInstantAgg_33::Combine, &MeosAggregate_appendInstantAgg_33::Finish, &MeosAggregate_appendInstantAgg_33::Destroy, MeosAggregate_appendInstantAgg_33::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_33Kernels{&MeosAggregate_appendInstantAgg_33::Initialize, &MeosAggregate_appendInstantAgg_33::Update, &MeosAggregate_appendInstantAgg_33::Combine, &MeosAggregate_appendInstantAgg_33::Finish, MeosAggregate_appendInstantAgg_33::StateSize};
 
 struct MeosAggregate_appendInstantAgg_34Ops
 {
@@ -6885,13 +6886,13 @@ struct MeosAggregate_appendInstantAgg_34Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6911,7 +6912,7 @@ struct MeosAggregate_appendInstantAgg_34Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_34Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_34 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_34Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_34Kernels{&MeosAggregate_appendInstantAgg_34::Initialize, &MeosAggregate_appendInstantAgg_34::Update, &MeosAggregate_appendInstantAgg_34::Combine, &MeosAggregate_appendInstantAgg_34::Finish, &MeosAggregate_appendInstantAgg_34::Destroy, MeosAggregate_appendInstantAgg_34::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_34Kernels{&MeosAggregate_appendInstantAgg_34::Initialize, &MeosAggregate_appendInstantAgg_34::Update, &MeosAggregate_appendInstantAgg_34::Combine, &MeosAggregate_appendInstantAgg_34::Finish, MeosAggregate_appendInstantAgg_34::StateSize};
 
 struct MeosAggregate_appendInstantAgg_35Ops
 {
@@ -6949,13 +6950,13 @@ struct MeosAggregate_appendInstantAgg_35Ops
         std::free(row.a0);
         std::free(row.a2);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -6975,7 +6976,7 @@ struct MeosAggregate_appendInstantAgg_35Ops
 
 constexpr std::array<DataType::Type, 2> MeosAggregate_appendInstantAgg_35Literals{DataType::Type::VARSIZED, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_35 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_35Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_35Kernels{&MeosAggregate_appendInstantAgg_35::Initialize, &MeosAggregate_appendInstantAgg_35::Update, &MeosAggregate_appendInstantAgg_35::Combine, &MeosAggregate_appendInstantAgg_35::Finish, &MeosAggregate_appendInstantAgg_35::Destroy, MeosAggregate_appendInstantAgg_35::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_35Kernels{&MeosAggregate_appendInstantAgg_35::Initialize, &MeosAggregate_appendInstantAgg_35::Update, &MeosAggregate_appendInstantAgg_35::Combine, &MeosAggregate_appendInstantAgg_35::Finish, MeosAggregate_appendInstantAgg_35::StateSize};
 
 struct MeosAggregate_appendInstantAgg_36Ops
 {
@@ -7015,13 +7016,13 @@ struct MeosAggregate_appendInstantAgg_36Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7041,7 +7042,7 @@ struct MeosAggregate_appendInstantAgg_36Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_36Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_36 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_36Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_36Kernels{&MeosAggregate_appendInstantAgg_36::Initialize, &MeosAggregate_appendInstantAgg_36::Update, &MeosAggregate_appendInstantAgg_36::Combine, &MeosAggregate_appendInstantAgg_36::Finish, &MeosAggregate_appendInstantAgg_36::Destroy, MeosAggregate_appendInstantAgg_36::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_36Kernels{&MeosAggregate_appendInstantAgg_36::Initialize, &MeosAggregate_appendInstantAgg_36::Update, &MeosAggregate_appendInstantAgg_36::Combine, &MeosAggregate_appendInstantAgg_36::Finish, MeosAggregate_appendInstantAgg_36::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_11Ops
 {
@@ -7070,13 +7071,13 @@ struct MeosAggregate_appendSequenceAgg_11Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7096,7 +7097,7 @@ struct MeosAggregate_appendSequenceAgg_11Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_11Literals{};
 using MeosAggregate_appendSequenceAgg_11 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_11Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_11Kernels{&MeosAggregate_appendSequenceAgg_11::Initialize, &MeosAggregate_appendSequenceAgg_11::Update, &MeosAggregate_appendSequenceAgg_11::Combine, &MeosAggregate_appendSequenceAgg_11::Finish, &MeosAggregate_appendSequenceAgg_11::Destroy, MeosAggregate_appendSequenceAgg_11::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_11Kernels{&MeosAggregate_appendSequenceAgg_11::Initialize, &MeosAggregate_appendSequenceAgg_11::Update, &MeosAggregate_appendSequenceAgg_11::Combine, &MeosAggregate_appendSequenceAgg_11::Finish, MeosAggregate_appendSequenceAgg_11::StateSize};
 
 struct MeosAggregate_setUnionAgg_19Ops
 {
@@ -7125,13 +7126,13 @@ struct MeosAggregate_setUnionAgg_19Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7151,7 +7152,7 @@ struct MeosAggregate_setUnionAgg_19Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_19Literals{};
 using MeosAggregate_setUnionAgg_19 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_19Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_19Kernels{&MeosAggregate_setUnionAgg_19::Initialize, &MeosAggregate_setUnionAgg_19::Update, &MeosAggregate_setUnionAgg_19::Combine, &MeosAggregate_setUnionAgg_19::Finish, &MeosAggregate_setUnionAgg_19::Destroy, MeosAggregate_setUnionAgg_19::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_19Kernels{&MeosAggregate_setUnionAgg_19::Initialize, &MeosAggregate_setUnionAgg_19::Update, &MeosAggregate_setUnionAgg_19::Combine, &MeosAggregate_setUnionAgg_19::Finish, MeosAggregate_setUnionAgg_19::StateSize};
 
 struct MeosAggregate_extent_14Ops
 {
@@ -7180,13 +7181,13 @@ struct MeosAggregate_extent_14Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7206,7 +7207,7 @@ struct MeosAggregate_extent_14Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_14Literals{};
 using MeosAggregate_extent_14 = MeosRuntime::MeosAggregate<MeosAggregate_extent_14Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_14Kernels{&MeosAggregate_extent_14::Initialize, &MeosAggregate_extent_14::Update, &MeosAggregate_extent_14::Combine, &MeosAggregate_extent_14::Finish, &MeosAggregate_extent_14::Destroy, MeosAggregate_extent_14::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_14Kernels{&MeosAggregate_extent_14::Initialize, &MeosAggregate_extent_14::Update, &MeosAggregate_extent_14::Combine, &MeosAggregate_extent_14::Finish, MeosAggregate_extent_14::StateSize};
 
 struct MeosAggregate_tCount_12Ops
 {
@@ -7235,13 +7236,13 @@ struct MeosAggregate_tCount_12Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7261,7 +7262,7 @@ struct MeosAggregate_tCount_12Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_12Literals{};
 using MeosAggregate_tCount_12 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_12Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_12Kernels{&MeosAggregate_tCount_12::Initialize, &MeosAggregate_tCount_12::Update, &MeosAggregate_tCount_12::Combine, &MeosAggregate_tCount_12::Finish, &MeosAggregate_tCount_12::Destroy, MeosAggregate_tCount_12::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_12Kernels{&MeosAggregate_tCount_12::Initialize, &MeosAggregate_tCount_12::Update, &MeosAggregate_tCount_12::Combine, &MeosAggregate_tCount_12::Finish, MeosAggregate_tCount_12::StateSize};
 
 struct MeosAggregate_wCount_12Ops
 {
@@ -7297,13 +7298,13 @@ struct MeosAggregate_wCount_12Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7323,7 +7324,7 @@ struct MeosAggregate_wCount_12Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_12Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_12 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_12Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_12Kernels{&MeosAggregate_wCount_12::Initialize, &MeosAggregate_wCount_12::Update, &MeosAggregate_wCount_12::Combine, &MeosAggregate_wCount_12::Finish, &MeosAggregate_wCount_12::Destroy, MeosAggregate_wCount_12::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_12Kernels{&MeosAggregate_wCount_12::Initialize, &MeosAggregate_wCount_12::Update, &MeosAggregate_wCount_12::Combine, &MeosAggregate_wCount_12::Finish, MeosAggregate_wCount_12::StateSize};
 
 struct MeosAggregate_mergeAgg_12Ops
 {
@@ -7352,13 +7353,13 @@ struct MeosAggregate_mergeAgg_12Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7378,7 +7379,7 @@ struct MeosAggregate_mergeAgg_12Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_12Literals{};
 using MeosAggregate_mergeAgg_12 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_12Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_12Kernels{&MeosAggregate_mergeAgg_12::Initialize, &MeosAggregate_mergeAgg_12::Update, &MeosAggregate_mergeAgg_12::Combine, &MeosAggregate_mergeAgg_12::Finish, &MeosAggregate_mergeAgg_12::Destroy, MeosAggregate_mergeAgg_12::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_12Kernels{&MeosAggregate_mergeAgg_12::Initialize, &MeosAggregate_mergeAgg_12::Update, &MeosAggregate_mergeAgg_12::Combine, &MeosAggregate_mergeAgg_12::Finish, MeosAggregate_mergeAgg_12::StateSize};
 
 struct MeosAggregate_appendInstantAgg_37Ops
 {
@@ -7407,13 +7408,13 @@ struct MeosAggregate_appendInstantAgg_37Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7433,7 +7434,7 @@ struct MeosAggregate_appendInstantAgg_37Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_37Literals{};
 using MeosAggregate_appendInstantAgg_37 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_37Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_37Kernels{&MeosAggregate_appendInstantAgg_37::Initialize, &MeosAggregate_appendInstantAgg_37::Update, &MeosAggregate_appendInstantAgg_37::Combine, &MeosAggregate_appendInstantAgg_37::Finish, &MeosAggregate_appendInstantAgg_37::Destroy, MeosAggregate_appendInstantAgg_37::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_37Kernels{&MeosAggregate_appendInstantAgg_37::Initialize, &MeosAggregate_appendInstantAgg_37::Update, &MeosAggregate_appendInstantAgg_37::Combine, &MeosAggregate_appendInstantAgg_37::Finish, MeosAggregate_appendInstantAgg_37::StateSize};
 
 struct MeosAggregate_appendInstantAgg_38Ops
 {
@@ -7463,13 +7464,13 @@ struct MeosAggregate_appendInstantAgg_38Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7489,7 +7490,7 @@ struct MeosAggregate_appendInstantAgg_38Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_38Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_38 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_38Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_38Kernels{&MeosAggregate_appendInstantAgg_38::Initialize, &MeosAggregate_appendInstantAgg_38::Update, &MeosAggregate_appendInstantAgg_38::Combine, &MeosAggregate_appendInstantAgg_38::Finish, &MeosAggregate_appendInstantAgg_38::Destroy, MeosAggregate_appendInstantAgg_38::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_38Kernels{&MeosAggregate_appendInstantAgg_38::Initialize, &MeosAggregate_appendInstantAgg_38::Update, &MeosAggregate_appendInstantAgg_38::Combine, &MeosAggregate_appendInstantAgg_38::Finish, MeosAggregate_appendInstantAgg_38::StateSize};
 
 struct MeosAggregate_appendInstantAgg_39Ops
 {
@@ -7527,13 +7528,13 @@ struct MeosAggregate_appendInstantAgg_39Ops
         std::free(row.a0);
         std::free(row.a2);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7553,7 +7554,7 @@ struct MeosAggregate_appendInstantAgg_39Ops
 
 constexpr std::array<DataType::Type, 2> MeosAggregate_appendInstantAgg_39Literals{DataType::Type::VARSIZED, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_39 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_39Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_39Kernels{&MeosAggregate_appendInstantAgg_39::Initialize, &MeosAggregate_appendInstantAgg_39::Update, &MeosAggregate_appendInstantAgg_39::Combine, &MeosAggregate_appendInstantAgg_39::Finish, &MeosAggregate_appendInstantAgg_39::Destroy, MeosAggregate_appendInstantAgg_39::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_39Kernels{&MeosAggregate_appendInstantAgg_39::Initialize, &MeosAggregate_appendInstantAgg_39::Update, &MeosAggregate_appendInstantAgg_39::Combine, &MeosAggregate_appendInstantAgg_39::Finish, MeosAggregate_appendInstantAgg_39::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_12Ops
 {
@@ -7582,13 +7583,13 @@ struct MeosAggregate_appendSequenceAgg_12Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7608,7 +7609,7 @@ struct MeosAggregate_appendSequenceAgg_12Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_12Literals{};
 using MeosAggregate_appendSequenceAgg_12 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_12Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_12Kernels{&MeosAggregate_appendSequenceAgg_12::Initialize, &MeosAggregate_appendSequenceAgg_12::Update, &MeosAggregate_appendSequenceAgg_12::Combine, &MeosAggregate_appendSequenceAgg_12::Finish, &MeosAggregate_appendSequenceAgg_12::Destroy, MeosAggregate_appendSequenceAgg_12::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_12Kernels{&MeosAggregate_appendSequenceAgg_12::Initialize, &MeosAggregate_appendSequenceAgg_12::Update, &MeosAggregate_appendSequenceAgg_12::Combine, &MeosAggregate_appendSequenceAgg_12::Finish, MeosAggregate_appendSequenceAgg_12::StateSize};
 
 struct MeosAggregate_rasterUnion_0Ops
 {
@@ -7637,13 +7638,13 @@ struct MeosAggregate_rasterUnion_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return raster_union_combinefn(static_cast<RasterUnionState*>(a), static_cast<const RasterUnionState*>(b));
-    }
     static void* Final(void* s)
     {
         return raster_union_finalfn(static_cast<RasterUnionState*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(raster_union_finalfn(static_cast<RasterUnionState*>(s)));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7663,7 +7664,7 @@ struct MeosAggregate_rasterUnion_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_rasterUnion_0Literals{};
 using MeosAggregate_rasterUnion_0 = MeosRuntime::MeosAggregate<MeosAggregate_rasterUnion_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_rasterUnion_0Kernels{&MeosAggregate_rasterUnion_0::Initialize, &MeosAggregate_rasterUnion_0::Update, &MeosAggregate_rasterUnion_0::Combine, &MeosAggregate_rasterUnion_0::Finish, &MeosAggregate_rasterUnion_0::Destroy, MeosAggregate_rasterUnion_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_rasterUnion_0Kernels{&MeosAggregate_rasterUnion_0::Initialize, &MeosAggregate_rasterUnion_0::Update, &MeosAggregate_rasterUnion_0::Combine, &MeosAggregate_rasterUnion_0::Finish, MeosAggregate_rasterUnion_0::StateSize};
 
 struct MeosAggregate_rasterUnion_1Ops
 {
@@ -7693,13 +7694,13 @@ struct MeosAggregate_rasterUnion_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return raster_union_combinefn(static_cast<RasterUnionState*>(a), static_cast<const RasterUnionState*>(b));
-    }
     static void* Final(void* s)
     {
         return raster_union_finalfn(static_cast<RasterUnionState*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(raster_union_finalfn(static_cast<RasterUnionState*>(s)));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7719,7 +7720,7 @@ struct MeosAggregate_rasterUnion_1Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_rasterUnion_1Literals{DataType::Type::INT32};
 using MeosAggregate_rasterUnion_1 = MeosRuntime::MeosAggregate<MeosAggregate_rasterUnion_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_rasterUnion_1Kernels{&MeosAggregate_rasterUnion_1::Initialize, &MeosAggregate_rasterUnion_1::Update, &MeosAggregate_rasterUnion_1::Combine, &MeosAggregate_rasterUnion_1::Finish, &MeosAggregate_rasterUnion_1::Destroy, MeosAggregate_rasterUnion_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_rasterUnion_1Kernels{&MeosAggregate_rasterUnion_1::Initialize, &MeosAggregate_rasterUnion_1::Update, &MeosAggregate_rasterUnion_1::Combine, &MeosAggregate_rasterUnion_1::Finish, MeosAggregate_rasterUnion_1::StateSize};
 
 struct MeosAggregate_rasterUnion_2Ops
 {
@@ -7750,13 +7751,13 @@ struct MeosAggregate_rasterUnion_2Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return raster_union_combinefn(static_cast<RasterUnionState*>(a), static_cast<const RasterUnionState*>(b));
-    }
     static void* Final(void* s)
     {
         return raster_union_finalfn(static_cast<RasterUnionState*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(raster_union_finalfn(static_cast<RasterUnionState*>(s)));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7776,7 +7777,7 @@ struct MeosAggregate_rasterUnion_2Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_rasterUnion_2Literals{DataType::Type::VARSIZED};
 using MeosAggregate_rasterUnion_2 = MeosRuntime::MeosAggregate<MeosAggregate_rasterUnion_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_rasterUnion_2Kernels{&MeosAggregate_rasterUnion_2::Initialize, &MeosAggregate_rasterUnion_2::Update, &MeosAggregate_rasterUnion_2::Combine, &MeosAggregate_rasterUnion_2::Finish, &MeosAggregate_rasterUnion_2::Destroy, MeosAggregate_rasterUnion_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_rasterUnion_2Kernels{&MeosAggregate_rasterUnion_2::Initialize, &MeosAggregate_rasterUnion_2::Update, &MeosAggregate_rasterUnion_2::Combine, &MeosAggregate_rasterUnion_2::Finish, MeosAggregate_rasterUnion_2::StateSize};
 
 struct MeosAggregate_rasterUnion_3Ops
 {
@@ -7809,13 +7810,13 @@ struct MeosAggregate_rasterUnion_3Ops
         std::free(row.a0);
         std::free(row.a2);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return raster_union_combinefn(static_cast<RasterUnionState*>(a), static_cast<const RasterUnionState*>(b));
-    }
     static void* Final(void* s)
     {
         return raster_union_finalfn(static_cast<RasterUnionState*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(raster_union_finalfn(static_cast<RasterUnionState*>(s)));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7835,7 +7836,7 @@ struct MeosAggregate_rasterUnion_3Ops
 
 constexpr std::array<DataType::Type, 2> MeosAggregate_rasterUnion_3Literals{DataType::Type::INT32, DataType::Type::VARSIZED};
 using MeosAggregate_rasterUnion_3 = MeosRuntime::MeosAggregate<MeosAggregate_rasterUnion_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_rasterUnion_3Kernels{&MeosAggregate_rasterUnion_3::Initialize, &MeosAggregate_rasterUnion_3::Update, &MeosAggregate_rasterUnion_3::Combine, &MeosAggregate_rasterUnion_3::Finish, &MeosAggregate_rasterUnion_3::Destroy, MeosAggregate_rasterUnion_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_rasterUnion_3Kernels{&MeosAggregate_rasterUnion_3::Initialize, &MeosAggregate_rasterUnion_3::Update, &MeosAggregate_rasterUnion_3::Combine, &MeosAggregate_rasterUnion_3::Finish, MeosAggregate_rasterUnion_3::StateSize};
 
 struct MeosAggregate_tCount_13Ops
 {
@@ -7864,13 +7865,13 @@ struct MeosAggregate_tCount_13Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7890,7 +7891,7 @@ struct MeosAggregate_tCount_13Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_13Literals{};
 using MeosAggregate_tCount_13 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_13Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_13Kernels{&MeosAggregate_tCount_13::Initialize, &MeosAggregate_tCount_13::Update, &MeosAggregate_tCount_13::Combine, &MeosAggregate_tCount_13::Finish, &MeosAggregate_tCount_13::Destroy, MeosAggregate_tCount_13::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_13Kernels{&MeosAggregate_tCount_13::Initialize, &MeosAggregate_tCount_13::Update, &MeosAggregate_tCount_13::Combine, &MeosAggregate_tCount_13::Finish, MeosAggregate_tCount_13::StateSize};
 
 struct MeosAggregate_wCount_13Ops
 {
@@ -7926,13 +7927,13 @@ struct MeosAggregate_wCount_13Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -7952,7 +7953,7 @@ struct MeosAggregate_wCount_13Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_13Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_13 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_13Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_13Kernels{&MeosAggregate_wCount_13::Initialize, &MeosAggregate_wCount_13::Update, &MeosAggregate_wCount_13::Combine, &MeosAggregate_wCount_13::Finish, &MeosAggregate_wCount_13::Destroy, MeosAggregate_wCount_13::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_13Kernels{&MeosAggregate_wCount_13::Initialize, &MeosAggregate_wCount_13::Update, &MeosAggregate_wCount_13::Combine, &MeosAggregate_wCount_13::Finish, MeosAggregate_wCount_13::StateSize};
 
 struct MeosAggregate_mergeAgg_13Ops
 {
@@ -7981,13 +7982,13 @@ struct MeosAggregate_mergeAgg_13Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8007,7 +8008,7 @@ struct MeosAggregate_mergeAgg_13Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_13Literals{};
 using MeosAggregate_mergeAgg_13 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_13Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_13Kernels{&MeosAggregate_mergeAgg_13::Initialize, &MeosAggregate_mergeAgg_13::Update, &MeosAggregate_mergeAgg_13::Combine, &MeosAggregate_mergeAgg_13::Finish, &MeosAggregate_mergeAgg_13::Destroy, MeosAggregate_mergeAgg_13::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_13Kernels{&MeosAggregate_mergeAgg_13::Initialize, &MeosAggregate_mergeAgg_13::Update, &MeosAggregate_mergeAgg_13::Combine, &MeosAggregate_mergeAgg_13::Finish, MeosAggregate_mergeAgg_13::StateSize};
 
 struct MeosAggregate_appendInstantAgg_40Ops
 {
@@ -8036,13 +8037,13 @@ struct MeosAggregate_appendInstantAgg_40Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8062,7 +8063,7 @@ struct MeosAggregate_appendInstantAgg_40Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_40Literals{};
 using MeosAggregate_appendInstantAgg_40 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_40Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_40Kernels{&MeosAggregate_appendInstantAgg_40::Initialize, &MeosAggregate_appendInstantAgg_40::Update, &MeosAggregate_appendInstantAgg_40::Combine, &MeosAggregate_appendInstantAgg_40::Finish, &MeosAggregate_appendInstantAgg_40::Destroy, MeosAggregate_appendInstantAgg_40::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_40Kernels{&MeosAggregate_appendInstantAgg_40::Initialize, &MeosAggregate_appendInstantAgg_40::Update, &MeosAggregate_appendInstantAgg_40::Combine, &MeosAggregate_appendInstantAgg_40::Finish, MeosAggregate_appendInstantAgg_40::StateSize};
 
 struct MeosAggregate_appendInstantAgg_41Ops
 {
@@ -8092,13 +8093,13 @@ struct MeosAggregate_appendInstantAgg_41Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8118,7 +8119,7 @@ struct MeosAggregate_appendInstantAgg_41Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_41Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_41 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_41Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_41Kernels{&MeosAggregate_appendInstantAgg_41::Initialize, &MeosAggregate_appendInstantAgg_41::Update, &MeosAggregate_appendInstantAgg_41::Combine, &MeosAggregate_appendInstantAgg_41::Finish, &MeosAggregate_appendInstantAgg_41::Destroy, MeosAggregate_appendInstantAgg_41::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_41Kernels{&MeosAggregate_appendInstantAgg_41::Initialize, &MeosAggregate_appendInstantAgg_41::Update, &MeosAggregate_appendInstantAgg_41::Combine, &MeosAggregate_appendInstantAgg_41::Finish, MeosAggregate_appendInstantAgg_41::StateSize};
 
 struct MeosAggregate_appendInstantAgg_42Ops
 {
@@ -8158,13 +8159,13 @@ struct MeosAggregate_appendInstantAgg_42Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8184,7 +8185,7 @@ struct MeosAggregate_appendInstantAgg_42Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_42Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_42 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_42Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_42Kernels{&MeosAggregate_appendInstantAgg_42::Initialize, &MeosAggregate_appendInstantAgg_42::Update, &MeosAggregate_appendInstantAgg_42::Combine, &MeosAggregate_appendInstantAgg_42::Finish, &MeosAggregate_appendInstantAgg_42::Destroy, MeosAggregate_appendInstantAgg_42::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_42Kernels{&MeosAggregate_appendInstantAgg_42::Initialize, &MeosAggregate_appendInstantAgg_42::Update, &MeosAggregate_appendInstantAgg_42::Combine, &MeosAggregate_appendInstantAgg_42::Finish, MeosAggregate_appendInstantAgg_42::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_13Ops
 {
@@ -8213,13 +8214,13 @@ struct MeosAggregate_appendSequenceAgg_13Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8239,7 +8240,7 @@ struct MeosAggregate_appendSequenceAgg_13Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_13Literals{};
 using MeosAggregate_appendSequenceAgg_13 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_13Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_13Kernels{&MeosAggregate_appendSequenceAgg_13::Initialize, &MeosAggregate_appendSequenceAgg_13::Update, &MeosAggregate_appendSequenceAgg_13::Combine, &MeosAggregate_appendSequenceAgg_13::Finish, &MeosAggregate_appendSequenceAgg_13::Destroy, MeosAggregate_appendSequenceAgg_13::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_13Kernels{&MeosAggregate_appendSequenceAgg_13::Initialize, &MeosAggregate_appendSequenceAgg_13::Update, &MeosAggregate_appendSequenceAgg_13::Combine, &MeosAggregate_appendSequenceAgg_13::Finish, MeosAggregate_appendSequenceAgg_13::StateSize};
 
 struct MeosAggregate_extent_15Ops
 {
@@ -8268,13 +8269,13 @@ struct MeosAggregate_extent_15Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8294,7 +8295,7 @@ struct MeosAggregate_extent_15Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_15Literals{};
 using MeosAggregate_extent_15 = MeosRuntime::MeosAggregate<MeosAggregate_extent_15Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_15Kernels{&MeosAggregate_extent_15::Initialize, &MeosAggregate_extent_15::Update, &MeosAggregate_extent_15::Combine, &MeosAggregate_extent_15::Finish, &MeosAggregate_extent_15::Destroy, MeosAggregate_extent_15::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_15Kernels{&MeosAggregate_extent_15::Initialize, &MeosAggregate_extent_15::Update, &MeosAggregate_extent_15::Combine, &MeosAggregate_extent_15::Finish, MeosAggregate_extent_15::StateSize};
 
 struct MeosAggregate_setUnionAgg_20Ops
 {
@@ -8323,13 +8324,13 @@ struct MeosAggregate_setUnionAgg_20Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8349,7 +8350,7 @@ struct MeosAggregate_setUnionAgg_20Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_20Literals{};
 using MeosAggregate_setUnionAgg_20 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_20Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_20Kernels{&MeosAggregate_setUnionAgg_20::Initialize, &MeosAggregate_setUnionAgg_20::Update, &MeosAggregate_setUnionAgg_20::Combine, &MeosAggregate_setUnionAgg_20::Finish, &MeosAggregate_setUnionAgg_20::Destroy, MeosAggregate_setUnionAgg_20::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_20Kernels{&MeosAggregate_setUnionAgg_20::Initialize, &MeosAggregate_setUnionAgg_20::Update, &MeosAggregate_setUnionAgg_20::Combine, &MeosAggregate_setUnionAgg_20::Finish, MeosAggregate_setUnionAgg_20::StateSize};
 
 struct MeosAggregate_extent_16Ops
 {
@@ -8378,13 +8379,13 @@ struct MeosAggregate_extent_16Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return stbox_extent_transfn(static_cast<STBox*>(a), static_cast<const STBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8404,7 +8405,7 @@ struct MeosAggregate_extent_16Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_16Literals{};
 using MeosAggregate_extent_16 = MeosRuntime::MeosAggregate<MeosAggregate_extent_16Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_16Kernels{&MeosAggregate_extent_16::Initialize, &MeosAggregate_extent_16::Update, &MeosAggregate_extent_16::Combine, &MeosAggregate_extent_16::Finish, &MeosAggregate_extent_16::Destroy, MeosAggregate_extent_16::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_16Kernels{&MeosAggregate_extent_16::Initialize, &MeosAggregate_extent_16::Update, &MeosAggregate_extent_16::Combine, &MeosAggregate_extent_16::Finish, MeosAggregate_extent_16::StateSize};
 
 struct MeosAggregate_tCount_14Ops
 {
@@ -8433,13 +8434,13 @@ struct MeosAggregate_tCount_14Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8459,7 +8460,7 @@ struct MeosAggregate_tCount_14Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_14Literals{};
 using MeosAggregate_tCount_14 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_14Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_14Kernels{&MeosAggregate_tCount_14::Initialize, &MeosAggregate_tCount_14::Update, &MeosAggregate_tCount_14::Combine, &MeosAggregate_tCount_14::Finish, &MeosAggregate_tCount_14::Destroy, MeosAggregate_tCount_14::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_14Kernels{&MeosAggregate_tCount_14::Initialize, &MeosAggregate_tCount_14::Update, &MeosAggregate_tCount_14::Combine, &MeosAggregate_tCount_14::Finish, MeosAggregate_tCount_14::StateSize};
 
 struct MeosAggregate_wCount_14Ops
 {
@@ -8495,13 +8496,13 @@ struct MeosAggregate_wCount_14Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8521,7 +8522,7 @@ struct MeosAggregate_wCount_14Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_14Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_14 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_14Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_14Kernels{&MeosAggregate_wCount_14::Initialize, &MeosAggregate_wCount_14::Update, &MeosAggregate_wCount_14::Combine, &MeosAggregate_wCount_14::Finish, &MeosAggregate_wCount_14::Destroy, MeosAggregate_wCount_14::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_14Kernels{&MeosAggregate_wCount_14::Initialize, &MeosAggregate_wCount_14::Update, &MeosAggregate_wCount_14::Combine, &MeosAggregate_wCount_14::Finish, MeosAggregate_wCount_14::StateSize};
 
 struct MeosAggregate_mergeAgg_14Ops
 {
@@ -8550,13 +8551,13 @@ struct MeosAggregate_mergeAgg_14Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8576,7 +8577,7 @@ struct MeosAggregate_mergeAgg_14Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_14Literals{};
 using MeosAggregate_mergeAgg_14 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_14Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_14Kernels{&MeosAggregate_mergeAgg_14::Initialize, &MeosAggregate_mergeAgg_14::Update, &MeosAggregate_mergeAgg_14::Combine, &MeosAggregate_mergeAgg_14::Finish, &MeosAggregate_mergeAgg_14::Destroy, MeosAggregate_mergeAgg_14::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_14Kernels{&MeosAggregate_mergeAgg_14::Initialize, &MeosAggregate_mergeAgg_14::Update, &MeosAggregate_mergeAgg_14::Combine, &MeosAggregate_mergeAgg_14::Finish, MeosAggregate_mergeAgg_14::StateSize};
 
 struct MeosAggregate_appendInstantAgg_43Ops
 {
@@ -8605,13 +8606,13 @@ struct MeosAggregate_appendInstantAgg_43Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8631,7 +8632,7 @@ struct MeosAggregate_appendInstantAgg_43Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_43Literals{};
 using MeosAggregate_appendInstantAgg_43 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_43Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_43Kernels{&MeosAggregate_appendInstantAgg_43::Initialize, &MeosAggregate_appendInstantAgg_43::Update, &MeosAggregate_appendInstantAgg_43::Combine, &MeosAggregate_appendInstantAgg_43::Finish, &MeosAggregate_appendInstantAgg_43::Destroy, MeosAggregate_appendInstantAgg_43::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_43Kernels{&MeosAggregate_appendInstantAgg_43::Initialize, &MeosAggregate_appendInstantAgg_43::Update, &MeosAggregate_appendInstantAgg_43::Combine, &MeosAggregate_appendInstantAgg_43::Finish, MeosAggregate_appendInstantAgg_43::StateSize};
 
 struct MeosAggregate_appendInstantAgg_44Ops
 {
@@ -8661,13 +8662,13 @@ struct MeosAggregate_appendInstantAgg_44Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8687,7 +8688,7 @@ struct MeosAggregate_appendInstantAgg_44Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_44Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_44 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_44Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_44Kernels{&MeosAggregate_appendInstantAgg_44::Initialize, &MeosAggregate_appendInstantAgg_44::Update, &MeosAggregate_appendInstantAgg_44::Combine, &MeosAggregate_appendInstantAgg_44::Finish, &MeosAggregate_appendInstantAgg_44::Destroy, MeosAggregate_appendInstantAgg_44::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_44Kernels{&MeosAggregate_appendInstantAgg_44::Initialize, &MeosAggregate_appendInstantAgg_44::Update, &MeosAggregate_appendInstantAgg_44::Combine, &MeosAggregate_appendInstantAgg_44::Finish, MeosAggregate_appendInstantAgg_44::StateSize};
 
 struct MeosAggregate_appendInstantAgg_45Ops
 {
@@ -8725,13 +8726,13 @@ struct MeosAggregate_appendInstantAgg_45Ops
         std::free(row.a0);
         std::free(row.a2);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8751,7 +8752,7 @@ struct MeosAggregate_appendInstantAgg_45Ops
 
 constexpr std::array<DataType::Type, 2> MeosAggregate_appendInstantAgg_45Literals{DataType::Type::VARSIZED, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_45 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_45Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_45Kernels{&MeosAggregate_appendInstantAgg_45::Initialize, &MeosAggregate_appendInstantAgg_45::Update, &MeosAggregate_appendInstantAgg_45::Combine, &MeosAggregate_appendInstantAgg_45::Finish, &MeosAggregate_appendInstantAgg_45::Destroy, MeosAggregate_appendInstantAgg_45::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_45Kernels{&MeosAggregate_appendInstantAgg_45::Initialize, &MeosAggregate_appendInstantAgg_45::Update, &MeosAggregate_appendInstantAgg_45::Combine, &MeosAggregate_appendInstantAgg_45::Finish, MeosAggregate_appendInstantAgg_45::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_14Ops
 {
@@ -8780,13 +8781,13 @@ struct MeosAggregate_appendSequenceAgg_14Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8806,7 +8807,7 @@ struct MeosAggregate_appendSequenceAgg_14Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_14Literals{};
 using MeosAggregate_appendSequenceAgg_14 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_14Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_14Kernels{&MeosAggregate_appendSequenceAgg_14::Initialize, &MeosAggregate_appendSequenceAgg_14::Update, &MeosAggregate_appendSequenceAgg_14::Combine, &MeosAggregate_appendSequenceAgg_14::Finish, &MeosAggregate_appendSequenceAgg_14::Destroy, MeosAggregate_appendSequenceAgg_14::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_14Kernels{&MeosAggregate_appendSequenceAgg_14::Initialize, &MeosAggregate_appendSequenceAgg_14::Update, &MeosAggregate_appendSequenceAgg_14::Combine, &MeosAggregate_appendSequenceAgg_14::Finish, MeosAggregate_appendSequenceAgg_14::StateSize};
 
 struct MeosAggregate_setUnionAgg_21Ops
 {
@@ -8831,13 +8832,13 @@ struct MeosAggregate_setUnionAgg_21Ops
     {
         static_cast<void>(row);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8857,7 +8858,7 @@ struct MeosAggregate_setUnionAgg_21Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_21Literals{};
 using MeosAggregate_setUnionAgg_21 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_21Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_21Kernels{&MeosAggregate_setUnionAgg_21::Initialize, &MeosAggregate_setUnionAgg_21::Update, &MeosAggregate_setUnionAgg_21::Combine, &MeosAggregate_setUnionAgg_21::Finish, &MeosAggregate_setUnionAgg_21::Destroy, MeosAggregate_setUnionAgg_21::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_21Kernels{&MeosAggregate_setUnionAgg_21::Initialize, &MeosAggregate_setUnionAgg_21::Update, &MeosAggregate_setUnionAgg_21::Combine, &MeosAggregate_setUnionAgg_21::Finish, MeosAggregate_setUnionAgg_21::StateSize};
 
 struct MeosAggregate_setUnionAgg_22Ops
 {
@@ -8882,13 +8883,13 @@ struct MeosAggregate_setUnionAgg_22Ops
     {
         static_cast<void>(row);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8908,7 +8909,7 @@ struct MeosAggregate_setUnionAgg_22Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_22Literals{};
 using MeosAggregate_setUnionAgg_22 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_22Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_22Kernels{&MeosAggregate_setUnionAgg_22::Initialize, &MeosAggregate_setUnionAgg_22::Update, &MeosAggregate_setUnionAgg_22::Combine, &MeosAggregate_setUnionAgg_22::Finish, &MeosAggregate_setUnionAgg_22::Destroy, MeosAggregate_setUnionAgg_22::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_22Kernels{&MeosAggregate_setUnionAgg_22::Initialize, &MeosAggregate_setUnionAgg_22::Update, &MeosAggregate_setUnionAgg_22::Combine, &MeosAggregate_setUnionAgg_22::Finish, MeosAggregate_setUnionAgg_22::StateSize};
 
 struct MeosAggregate_setUnionAgg_23Ops
 {
@@ -8933,13 +8934,13 @@ struct MeosAggregate_setUnionAgg_23Ops
     {
         static_cast<void>(row);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -8959,7 +8960,7 @@ struct MeosAggregate_setUnionAgg_23Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_23Literals{};
 using MeosAggregate_setUnionAgg_23 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_23Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_23Kernels{&MeosAggregate_setUnionAgg_23::Initialize, &MeosAggregate_setUnionAgg_23::Update, &MeosAggregate_setUnionAgg_23::Combine, &MeosAggregate_setUnionAgg_23::Finish, &MeosAggregate_setUnionAgg_23::Destroy, MeosAggregate_setUnionAgg_23::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_23Kernels{&MeosAggregate_setUnionAgg_23::Initialize, &MeosAggregate_setUnionAgg_23::Update, &MeosAggregate_setUnionAgg_23::Combine, &MeosAggregate_setUnionAgg_23::Finish, MeosAggregate_setUnionAgg_23::StateSize};
 
 struct MeosAggregate_setUnionAgg_24Ops
 {
@@ -8984,13 +8985,13 @@ struct MeosAggregate_setUnionAgg_24Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9010,7 +9011,7 @@ struct MeosAggregate_setUnionAgg_24Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_24Literals{};
 using MeosAggregate_setUnionAgg_24 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_24Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_24Kernels{&MeosAggregate_setUnionAgg_24::Initialize, &MeosAggregate_setUnionAgg_24::Update, &MeosAggregate_setUnionAgg_24::Combine, &MeosAggregate_setUnionAgg_24::Finish, &MeosAggregate_setUnionAgg_24::Destroy, MeosAggregate_setUnionAgg_24::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_24Kernels{&MeosAggregate_setUnionAgg_24::Initialize, &MeosAggregate_setUnionAgg_24::Update, &MeosAggregate_setUnionAgg_24::Combine, &MeosAggregate_setUnionAgg_24::Finish, MeosAggregate_setUnionAgg_24::StateSize};
 
 struct MeosAggregate_setUnionAgg_25Ops
 {
@@ -9035,13 +9036,13 @@ struct MeosAggregate_setUnionAgg_25Ops
     {
         static_cast<void>(row);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9061,7 +9062,7 @@ struct MeosAggregate_setUnionAgg_25Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_25Literals{};
 using MeosAggregate_setUnionAgg_25 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_25Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_25Kernels{&MeosAggregate_setUnionAgg_25::Initialize, &MeosAggregate_setUnionAgg_25::Update, &MeosAggregate_setUnionAgg_25::Combine, &MeosAggregate_setUnionAgg_25::Finish, &MeosAggregate_setUnionAgg_25::Destroy, MeosAggregate_setUnionAgg_25::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_25Kernels{&MeosAggregate_setUnionAgg_25::Initialize, &MeosAggregate_setUnionAgg_25::Update, &MeosAggregate_setUnionAgg_25::Combine, &MeosAggregate_setUnionAgg_25::Finish, MeosAggregate_setUnionAgg_25::StateSize};
 
 struct MeosAggregate_setUnionAgg_26Ops
 {
@@ -9090,13 +9091,13 @@ struct MeosAggregate_setUnionAgg_26Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9116,7 +9117,7 @@ struct MeosAggregate_setUnionAgg_26Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_26Literals{};
 using MeosAggregate_setUnionAgg_26 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_26Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_26Kernels{&MeosAggregate_setUnionAgg_26::Initialize, &MeosAggregate_setUnionAgg_26::Update, &MeosAggregate_setUnionAgg_26::Combine, &MeosAggregate_setUnionAgg_26::Finish, &MeosAggregate_setUnionAgg_26::Destroy, MeosAggregate_setUnionAgg_26::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_26Kernels{&MeosAggregate_setUnionAgg_26::Initialize, &MeosAggregate_setUnionAgg_26::Update, &MeosAggregate_setUnionAgg_26::Combine, &MeosAggregate_setUnionAgg_26::Finish, MeosAggregate_setUnionAgg_26::StateSize};
 
 struct MeosAggregate_setUnionAgg_27Ops
 {
@@ -9145,13 +9146,13 @@ struct MeosAggregate_setUnionAgg_27Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9171,7 +9172,7 @@ struct MeosAggregate_setUnionAgg_27Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_27Literals{};
 using MeosAggregate_setUnionAgg_27 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_27Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_27Kernels{&MeosAggregate_setUnionAgg_27::Initialize, &MeosAggregate_setUnionAgg_27::Update, &MeosAggregate_setUnionAgg_27::Combine, &MeosAggregate_setUnionAgg_27::Finish, &MeosAggregate_setUnionAgg_27::Destroy, MeosAggregate_setUnionAgg_27::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_27Kernels{&MeosAggregate_setUnionAgg_27::Initialize, &MeosAggregate_setUnionAgg_27::Update, &MeosAggregate_setUnionAgg_27::Combine, &MeosAggregate_setUnionAgg_27::Finish, MeosAggregate_setUnionAgg_27::StateSize};
 
 struct MeosAggregate_setUnionAgg_28Ops
 {
@@ -9200,13 +9201,13 @@ struct MeosAggregate_setUnionAgg_28Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9226,7 +9227,7 @@ struct MeosAggregate_setUnionAgg_28Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_28Literals{};
 using MeosAggregate_setUnionAgg_28 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_28Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_28Kernels{&MeosAggregate_setUnionAgg_28::Initialize, &MeosAggregate_setUnionAgg_28::Update, &MeosAggregate_setUnionAgg_28::Combine, &MeosAggregate_setUnionAgg_28::Finish, &MeosAggregate_setUnionAgg_28::Destroy, MeosAggregate_setUnionAgg_28::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_28Kernels{&MeosAggregate_setUnionAgg_28::Initialize, &MeosAggregate_setUnionAgg_28::Update, &MeosAggregate_setUnionAgg_28::Combine, &MeosAggregate_setUnionAgg_28::Finish, MeosAggregate_setUnionAgg_28::StateSize};
 
 struct MeosAggregate_setUnionAgg_29Ops
 {
@@ -9255,13 +9256,13 @@ struct MeosAggregate_setUnionAgg_29Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9281,7 +9282,7 @@ struct MeosAggregate_setUnionAgg_29Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_29Literals{};
 using MeosAggregate_setUnionAgg_29 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_29Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_29Kernels{&MeosAggregate_setUnionAgg_29::Initialize, &MeosAggregate_setUnionAgg_29::Update, &MeosAggregate_setUnionAgg_29::Combine, &MeosAggregate_setUnionAgg_29::Finish, &MeosAggregate_setUnionAgg_29::Destroy, MeosAggregate_setUnionAgg_29::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_29Kernels{&MeosAggregate_setUnionAgg_29::Initialize, &MeosAggregate_setUnionAgg_29::Update, &MeosAggregate_setUnionAgg_29::Combine, &MeosAggregate_setUnionAgg_29::Finish, MeosAggregate_setUnionAgg_29::StateSize};
 
 struct MeosAggregate_setUnionAgg_30Ops
 {
@@ -9310,13 +9311,13 @@ struct MeosAggregate_setUnionAgg_30Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9336,7 +9337,7 @@ struct MeosAggregate_setUnionAgg_30Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_30Literals{};
 using MeosAggregate_setUnionAgg_30 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_30Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_30Kernels{&MeosAggregate_setUnionAgg_30::Initialize, &MeosAggregate_setUnionAgg_30::Update, &MeosAggregate_setUnionAgg_30::Combine, &MeosAggregate_setUnionAgg_30::Finish, &MeosAggregate_setUnionAgg_30::Destroy, MeosAggregate_setUnionAgg_30::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_30Kernels{&MeosAggregate_setUnionAgg_30::Initialize, &MeosAggregate_setUnionAgg_30::Update, &MeosAggregate_setUnionAgg_30::Combine, &MeosAggregate_setUnionAgg_30::Finish, MeosAggregate_setUnionAgg_30::StateSize};
 
 struct MeosAggregate_setUnionAgg_31Ops
 {
@@ -9365,13 +9366,13 @@ struct MeosAggregate_setUnionAgg_31Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return set_union_combinefn(static_cast<Set*>(a), static_cast<Set*>(b));
-    }
     static void* Final(void* s)
     {
         return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9391,7 +9392,7 @@ struct MeosAggregate_setUnionAgg_31Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_31Literals{};
 using MeosAggregate_setUnionAgg_31 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_31Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_31Kernels{&MeosAggregate_setUnionAgg_31::Initialize, &MeosAggregate_setUnionAgg_31::Update, &MeosAggregate_setUnionAgg_31::Combine, &MeosAggregate_setUnionAgg_31::Finish, &MeosAggregate_setUnionAgg_31::Destroy, MeosAggregate_setUnionAgg_31::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_31Kernels{&MeosAggregate_setUnionAgg_31::Initialize, &MeosAggregate_setUnionAgg_31::Update, &MeosAggregate_setUnionAgg_31::Combine, &MeosAggregate_setUnionAgg_31::Finish, MeosAggregate_setUnionAgg_31::StateSize};
 
 struct MeosAggregate_extent_17Ops
 {
@@ -9420,13 +9421,13 @@ struct MeosAggregate_extent_17Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9446,7 +9447,7 @@ struct MeosAggregate_extent_17Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_17Literals{};
 using MeosAggregate_extent_17 = MeosRuntime::MeosAggregate<MeosAggregate_extent_17Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_17Kernels{&MeosAggregate_extent_17::Initialize, &MeosAggregate_extent_17::Update, &MeosAggregate_extent_17::Combine, &MeosAggregate_extent_17::Finish, &MeosAggregate_extent_17::Destroy, MeosAggregate_extent_17::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_17Kernels{&MeosAggregate_extent_17::Initialize, &MeosAggregate_extent_17::Update, &MeosAggregate_extent_17::Combine, &MeosAggregate_extent_17::Finish, MeosAggregate_extent_17::StateSize};
 
 struct MeosAggregate_extent_18Ops
 {
@@ -9475,13 +9476,13 @@ struct MeosAggregate_extent_18Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9501,7 +9502,7 @@ struct MeosAggregate_extent_18Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_18Literals{};
 using MeosAggregate_extent_18 = MeosRuntime::MeosAggregate<MeosAggregate_extent_18Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_18Kernels{&MeosAggregate_extent_18::Initialize, &MeosAggregate_extent_18::Update, &MeosAggregate_extent_18::Combine, &MeosAggregate_extent_18::Finish, &MeosAggregate_extent_18::Destroy, MeosAggregate_extent_18::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_18Kernels{&MeosAggregate_extent_18::Initialize, &MeosAggregate_extent_18::Update, &MeosAggregate_extent_18::Combine, &MeosAggregate_extent_18::Finish, MeosAggregate_extent_18::StateSize};
 
 struct MeosAggregate_extent_19Ops
 {
@@ -9530,13 +9531,13 @@ struct MeosAggregate_extent_19Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9556,7 +9557,7 @@ struct MeosAggregate_extent_19Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_19Literals{};
 using MeosAggregate_extent_19 = MeosRuntime::MeosAggregate<MeosAggregate_extent_19Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_19Kernels{&MeosAggregate_extent_19::Initialize, &MeosAggregate_extent_19::Update, &MeosAggregate_extent_19::Combine, &MeosAggregate_extent_19::Finish, &MeosAggregate_extent_19::Destroy, MeosAggregate_extent_19::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_19Kernels{&MeosAggregate_extent_19::Initialize, &MeosAggregate_extent_19::Update, &MeosAggregate_extent_19::Combine, &MeosAggregate_extent_19::Finish, MeosAggregate_extent_19::StateSize};
 
 struct MeosAggregate_extent_20Ops
 {
@@ -9585,13 +9586,13 @@ struct MeosAggregate_extent_20Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9611,7 +9612,7 @@ struct MeosAggregate_extent_20Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_20Literals{};
 using MeosAggregate_extent_20 = MeosRuntime::MeosAggregate<MeosAggregate_extent_20Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_20Kernels{&MeosAggregate_extent_20::Initialize, &MeosAggregate_extent_20::Update, &MeosAggregate_extent_20::Combine, &MeosAggregate_extent_20::Finish, &MeosAggregate_extent_20::Destroy, MeosAggregate_extent_20::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_20Kernels{&MeosAggregate_extent_20::Initialize, &MeosAggregate_extent_20::Update, &MeosAggregate_extent_20::Combine, &MeosAggregate_extent_20::Finish, MeosAggregate_extent_20::StateSize};
 
 struct MeosAggregate_extent_21Ops
 {
@@ -9640,13 +9641,13 @@ struct MeosAggregate_extent_21Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9666,7 +9667,7 @@ struct MeosAggregate_extent_21Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_21Literals{};
 using MeosAggregate_extent_21 = MeosRuntime::MeosAggregate<MeosAggregate_extent_21Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_21Kernels{&MeosAggregate_extent_21::Initialize, &MeosAggregate_extent_21::Update, &MeosAggregate_extent_21::Combine, &MeosAggregate_extent_21::Finish, &MeosAggregate_extent_21::Destroy, MeosAggregate_extent_21::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_21Kernels{&MeosAggregate_extent_21::Initialize, &MeosAggregate_extent_21::Update, &MeosAggregate_extent_21::Combine, &MeosAggregate_extent_21::Finish, MeosAggregate_extent_21::StateSize};
 
 struct MeosAggregate_extent_22Ops
 {
@@ -9691,13 +9692,13 @@ struct MeosAggregate_extent_22Ops
     {
         static_cast<void>(row);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9717,7 +9718,7 @@ struct MeosAggregate_extent_22Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_22Literals{};
 using MeosAggregate_extent_22 = MeosRuntime::MeosAggregate<MeosAggregate_extent_22Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_22Kernels{&MeosAggregate_extent_22::Initialize, &MeosAggregate_extent_22::Update, &MeosAggregate_extent_22::Combine, &MeosAggregate_extent_22::Finish, &MeosAggregate_extent_22::Destroy, MeosAggregate_extent_22::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_22Kernels{&MeosAggregate_extent_22::Initialize, &MeosAggregate_extent_22::Update, &MeosAggregate_extent_22::Combine, &MeosAggregate_extent_22::Finish, MeosAggregate_extent_22::StateSize};
 
 struct MeosAggregate_extent_23Ops
 {
@@ -9742,13 +9743,13 @@ struct MeosAggregate_extent_23Ops
     {
         static_cast<void>(row);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9768,7 +9769,7 @@ struct MeosAggregate_extent_23Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_23Literals{};
 using MeosAggregate_extent_23 = MeosRuntime::MeosAggregate<MeosAggregate_extent_23Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_23Kernels{&MeosAggregate_extent_23::Initialize, &MeosAggregate_extent_23::Update, &MeosAggregate_extent_23::Combine, &MeosAggregate_extent_23::Finish, &MeosAggregate_extent_23::Destroy, MeosAggregate_extent_23::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_23Kernels{&MeosAggregate_extent_23::Initialize, &MeosAggregate_extent_23::Update, &MeosAggregate_extent_23::Combine, &MeosAggregate_extent_23::Finish, MeosAggregate_extent_23::StateSize};
 
 struct MeosAggregate_extent_24Ops
 {
@@ -9793,13 +9794,13 @@ struct MeosAggregate_extent_24Ops
     {
         static_cast<void>(row);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9819,7 +9820,7 @@ struct MeosAggregate_extent_24Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_24Literals{};
 using MeosAggregate_extent_24 = MeosRuntime::MeosAggregate<MeosAggregate_extent_24Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_24Kernels{&MeosAggregate_extent_24::Initialize, &MeosAggregate_extent_24::Update, &MeosAggregate_extent_24::Combine, &MeosAggregate_extent_24::Finish, &MeosAggregate_extent_24::Destroy, MeosAggregate_extent_24::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_24Kernels{&MeosAggregate_extent_24::Initialize, &MeosAggregate_extent_24::Update, &MeosAggregate_extent_24::Combine, &MeosAggregate_extent_24::Finish, MeosAggregate_extent_24::StateSize};
 
 struct MeosAggregate_extent_25Ops
 {
@@ -9844,13 +9845,13 @@ struct MeosAggregate_extent_25Ops
     {
         static_cast<void>(row);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9870,7 +9871,7 @@ struct MeosAggregate_extent_25Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_25Literals{};
 using MeosAggregate_extent_25 = MeosRuntime::MeosAggregate<MeosAggregate_extent_25Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_25Kernels{&MeosAggregate_extent_25::Initialize, &MeosAggregate_extent_25::Update, &MeosAggregate_extent_25::Combine, &MeosAggregate_extent_25::Finish, &MeosAggregate_extent_25::Destroy, MeosAggregate_extent_25::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_25Kernels{&MeosAggregate_extent_25::Initialize, &MeosAggregate_extent_25::Update, &MeosAggregate_extent_25::Combine, &MeosAggregate_extent_25::Finish, MeosAggregate_extent_25::StateSize};
 
 struct MeosAggregate_extent_26Ops
 {
@@ -9899,13 +9900,13 @@ struct MeosAggregate_extent_26Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9925,7 +9926,7 @@ struct MeosAggregate_extent_26Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_26Literals{};
 using MeosAggregate_extent_26 = MeosRuntime::MeosAggregate<MeosAggregate_extent_26Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_26Kernels{&MeosAggregate_extent_26::Initialize, &MeosAggregate_extent_26::Update, &MeosAggregate_extent_26::Combine, &MeosAggregate_extent_26::Finish, &MeosAggregate_extent_26::Destroy, MeosAggregate_extent_26::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_26Kernels{&MeosAggregate_extent_26::Initialize, &MeosAggregate_extent_26::Update, &MeosAggregate_extent_26::Combine, &MeosAggregate_extent_26::Finish, MeosAggregate_extent_26::StateSize};
 
 struct MeosAggregate_extent_27Ops
 {
@@ -9954,13 +9955,13 @@ struct MeosAggregate_extent_27Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -9980,7 +9981,7 @@ struct MeosAggregate_extent_27Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_27Literals{};
 using MeosAggregate_extent_27 = MeosRuntime::MeosAggregate<MeosAggregate_extent_27Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_27Kernels{&MeosAggregate_extent_27::Initialize, &MeosAggregate_extent_27::Update, &MeosAggregate_extent_27::Combine, &MeosAggregate_extent_27::Finish, &MeosAggregate_extent_27::Destroy, MeosAggregate_extent_27::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_27Kernels{&MeosAggregate_extent_27::Initialize, &MeosAggregate_extent_27::Update, &MeosAggregate_extent_27::Combine, &MeosAggregate_extent_27::Finish, MeosAggregate_extent_27::StateSize};
 
 struct MeosAggregate_extent_28Ops
 {
@@ -10009,13 +10010,13 @@ struct MeosAggregate_extent_28Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10035,7 +10036,7 @@ struct MeosAggregate_extent_28Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_28Literals{};
 using MeosAggregate_extent_28 = MeosRuntime::MeosAggregate<MeosAggregate_extent_28Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_28Kernels{&MeosAggregate_extent_28::Initialize, &MeosAggregate_extent_28::Update, &MeosAggregate_extent_28::Combine, &MeosAggregate_extent_28::Finish, &MeosAggregate_extent_28::Destroy, MeosAggregate_extent_28::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_28Kernels{&MeosAggregate_extent_28::Initialize, &MeosAggregate_extent_28::Update, &MeosAggregate_extent_28::Combine, &MeosAggregate_extent_28::Finish, MeosAggregate_extent_28::StateSize};
 
 struct MeosAggregate_extent_29Ops
 {
@@ -10064,13 +10065,13 @@ struct MeosAggregate_extent_29Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10090,7 +10091,7 @@ struct MeosAggregate_extent_29Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_29Literals{};
 using MeosAggregate_extent_29 = MeosRuntime::MeosAggregate<MeosAggregate_extent_29Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_29Kernels{&MeosAggregate_extent_29::Initialize, &MeosAggregate_extent_29::Update, &MeosAggregate_extent_29::Combine, &MeosAggregate_extent_29::Finish, &MeosAggregate_extent_29::Destroy, MeosAggregate_extent_29::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_29Kernels{&MeosAggregate_extent_29::Initialize, &MeosAggregate_extent_29::Update, &MeosAggregate_extent_29::Combine, &MeosAggregate_extent_29::Finish, MeosAggregate_extent_29::StateSize};
 
 struct MeosAggregate_extent_30Ops
 {
@@ -10119,13 +10120,13 @@ struct MeosAggregate_extent_30Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10145,7 +10146,7 @@ struct MeosAggregate_extent_30Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_30Literals{};
 using MeosAggregate_extent_30 = MeosRuntime::MeosAggregate<MeosAggregate_extent_30Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_30Kernels{&MeosAggregate_extent_30::Initialize, &MeosAggregate_extent_30::Update, &MeosAggregate_extent_30::Combine, &MeosAggregate_extent_30::Finish, &MeosAggregate_extent_30::Destroy, MeosAggregate_extent_30::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_30Kernels{&MeosAggregate_extent_30::Initialize, &MeosAggregate_extent_30::Update, &MeosAggregate_extent_30::Combine, &MeosAggregate_extent_30::Finish, MeosAggregate_extent_30::StateSize};
 
 struct MeosAggregate_extent_31Ops
 {
@@ -10174,13 +10175,13 @@ struct MeosAggregate_extent_31Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10200,7 +10201,7 @@ struct MeosAggregate_extent_31Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_31Literals{};
 using MeosAggregate_extent_31 = MeosRuntime::MeosAggregate<MeosAggregate_extent_31Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_31Kernels{&MeosAggregate_extent_31::Initialize, &MeosAggregate_extent_31::Update, &MeosAggregate_extent_31::Combine, &MeosAggregate_extent_31::Finish, &MeosAggregate_extent_31::Destroy, MeosAggregate_extent_31::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_31Kernels{&MeosAggregate_extent_31::Initialize, &MeosAggregate_extent_31::Update, &MeosAggregate_extent_31::Combine, &MeosAggregate_extent_31::Finish, MeosAggregate_extent_31::StateSize};
 
 struct MeosAggregate_extent_32Ops
 {
@@ -10229,13 +10230,13 @@ struct MeosAggregate_extent_32Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10255,7 +10256,7 @@ struct MeosAggregate_extent_32Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_32Literals{};
 using MeosAggregate_extent_32 = MeosRuntime::MeosAggregate<MeosAggregate_extent_32Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_32Kernels{&MeosAggregate_extent_32::Initialize, &MeosAggregate_extent_32::Update, &MeosAggregate_extent_32::Combine, &MeosAggregate_extent_32::Finish, &MeosAggregate_extent_32::Destroy, MeosAggregate_extent_32::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_32Kernels{&MeosAggregate_extent_32::Initialize, &MeosAggregate_extent_32::Update, &MeosAggregate_extent_32::Combine, &MeosAggregate_extent_32::Finish, MeosAggregate_extent_32::StateSize};
 
 struct MeosAggregate_extent_33Ops
 {
@@ -10284,13 +10285,13 @@ struct MeosAggregate_extent_33Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10310,7 +10311,7 @@ struct MeosAggregate_extent_33Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_33Literals{};
 using MeosAggregate_extent_33 = MeosRuntime::MeosAggregate<MeosAggregate_extent_33Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_33Kernels{&MeosAggregate_extent_33::Initialize, &MeosAggregate_extent_33::Update, &MeosAggregate_extent_33::Combine, &MeosAggregate_extent_33::Finish, &MeosAggregate_extent_33::Destroy, MeosAggregate_extent_33::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_33Kernels{&MeosAggregate_extent_33::Initialize, &MeosAggregate_extent_33::Update, &MeosAggregate_extent_33::Combine, &MeosAggregate_extent_33::Finish, MeosAggregate_extent_33::StateSize};
 
 struct MeosAggregate_extent_34Ops
 {
@@ -10339,13 +10340,13 @@ struct MeosAggregate_extent_34Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10365,7 +10366,7 @@ struct MeosAggregate_extent_34Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_34Literals{};
 using MeosAggregate_extent_34 = MeosRuntime::MeosAggregate<MeosAggregate_extent_34Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_34Kernels{&MeosAggregate_extent_34::Initialize, &MeosAggregate_extent_34::Update, &MeosAggregate_extent_34::Combine, &MeosAggregate_extent_34::Finish, &MeosAggregate_extent_34::Destroy, MeosAggregate_extent_34::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_34Kernels{&MeosAggregate_extent_34::Initialize, &MeosAggregate_extent_34::Update, &MeosAggregate_extent_34::Combine, &MeosAggregate_extent_34::Finish, MeosAggregate_extent_34::StateSize};
 
 struct MeosAggregate_extent_35Ops
 {
@@ -10394,13 +10395,13 @@ struct MeosAggregate_extent_35Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10420,7 +10421,7 @@ struct MeosAggregate_extent_35Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_35Literals{};
 using MeosAggregate_extent_35 = MeosRuntime::MeosAggregate<MeosAggregate_extent_35Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_35Kernels{&MeosAggregate_extent_35::Initialize, &MeosAggregate_extent_35::Update, &MeosAggregate_extent_35::Combine, &MeosAggregate_extent_35::Finish, &MeosAggregate_extent_35::Destroy, MeosAggregate_extent_35::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_35Kernels{&MeosAggregate_extent_35::Initialize, &MeosAggregate_extent_35::Update, &MeosAggregate_extent_35::Combine, &MeosAggregate_extent_35::Finish, MeosAggregate_extent_35::StateSize};
 
 struct MeosAggregate_spanUnionAgg_0Ops
 {
@@ -10449,13 +10450,13 @@ struct MeosAggregate_spanUnionAgg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return spanset_union_combinefn(static_cast<SpanSet*>(a), static_cast<const SpanSet*>(b));
-    }
     static void* Final(void* s)
     {
         return spanset_union_finalfn(static_cast<SpanSet*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10475,7 +10476,7 @@ struct MeosAggregate_spanUnionAgg_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_spanUnionAgg_0Literals{};
 using MeosAggregate_spanUnionAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_spanUnionAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_spanUnionAgg_0Kernels{&MeosAggregate_spanUnionAgg_0::Initialize, &MeosAggregate_spanUnionAgg_0::Update, &MeosAggregate_spanUnionAgg_0::Combine, &MeosAggregate_spanUnionAgg_0::Finish, &MeosAggregate_spanUnionAgg_0::Destroy, MeosAggregate_spanUnionAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_spanUnionAgg_0Kernels{&MeosAggregate_spanUnionAgg_0::Initialize, &MeosAggregate_spanUnionAgg_0::Update, &MeosAggregate_spanUnionAgg_0::Combine, &MeosAggregate_spanUnionAgg_0::Finish, MeosAggregate_spanUnionAgg_0::StateSize};
 
 struct MeosAggregate_spanUnionAgg_1Ops
 {
@@ -10504,13 +10505,13 @@ struct MeosAggregate_spanUnionAgg_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return spanset_union_combinefn(static_cast<SpanSet*>(a), static_cast<const SpanSet*>(b));
-    }
     static void* Final(void* s)
     {
         return spanset_union_finalfn(static_cast<SpanSet*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10530,7 +10531,7 @@ struct MeosAggregate_spanUnionAgg_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_spanUnionAgg_1Literals{};
 using MeosAggregate_spanUnionAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_spanUnionAgg_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_spanUnionAgg_1Kernels{&MeosAggregate_spanUnionAgg_1::Initialize, &MeosAggregate_spanUnionAgg_1::Update, &MeosAggregate_spanUnionAgg_1::Combine, &MeosAggregate_spanUnionAgg_1::Finish, &MeosAggregate_spanUnionAgg_1::Destroy, MeosAggregate_spanUnionAgg_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_spanUnionAgg_1Kernels{&MeosAggregate_spanUnionAgg_1::Initialize, &MeosAggregate_spanUnionAgg_1::Update, &MeosAggregate_spanUnionAgg_1::Combine, &MeosAggregate_spanUnionAgg_1::Finish, MeosAggregate_spanUnionAgg_1::StateSize};
 
 struct MeosAggregate_spanUnionAgg_2Ops
 {
@@ -10559,13 +10560,13 @@ struct MeosAggregate_spanUnionAgg_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return spanset_union_combinefn(static_cast<SpanSet*>(a), static_cast<const SpanSet*>(b));
-    }
     static void* Final(void* s)
     {
         return spanset_union_finalfn(static_cast<SpanSet*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10585,7 +10586,7 @@ struct MeosAggregate_spanUnionAgg_2Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_spanUnionAgg_2Literals{};
 using MeosAggregate_spanUnionAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_spanUnionAgg_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_spanUnionAgg_2Kernels{&MeosAggregate_spanUnionAgg_2::Initialize, &MeosAggregate_spanUnionAgg_2::Update, &MeosAggregate_spanUnionAgg_2::Combine, &MeosAggregate_spanUnionAgg_2::Finish, &MeosAggregate_spanUnionAgg_2::Destroy, MeosAggregate_spanUnionAgg_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_spanUnionAgg_2Kernels{&MeosAggregate_spanUnionAgg_2::Initialize, &MeosAggregate_spanUnionAgg_2::Update, &MeosAggregate_spanUnionAgg_2::Combine, &MeosAggregate_spanUnionAgg_2::Finish, MeosAggregate_spanUnionAgg_2::StateSize};
 
 struct MeosAggregate_spanUnionAgg_3Ops
 {
@@ -10614,13 +10615,13 @@ struct MeosAggregate_spanUnionAgg_3Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return spanset_union_combinefn(static_cast<SpanSet*>(a), static_cast<const SpanSet*>(b));
-    }
     static void* Final(void* s)
     {
         return spanset_union_finalfn(static_cast<SpanSet*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10640,7 +10641,7 @@ struct MeosAggregate_spanUnionAgg_3Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_spanUnionAgg_3Literals{};
 using MeosAggregate_spanUnionAgg_3 = MeosRuntime::MeosAggregate<MeosAggregate_spanUnionAgg_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_spanUnionAgg_3Kernels{&MeosAggregate_spanUnionAgg_3::Initialize, &MeosAggregate_spanUnionAgg_3::Update, &MeosAggregate_spanUnionAgg_3::Combine, &MeosAggregate_spanUnionAgg_3::Finish, &MeosAggregate_spanUnionAgg_3::Destroy, MeosAggregate_spanUnionAgg_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_spanUnionAgg_3Kernels{&MeosAggregate_spanUnionAgg_3::Initialize, &MeosAggregate_spanUnionAgg_3::Update, &MeosAggregate_spanUnionAgg_3::Combine, &MeosAggregate_spanUnionAgg_3::Finish, MeosAggregate_spanUnionAgg_3::StateSize};
 
 struct MeosAggregate_spanUnionAgg_4Ops
 {
@@ -10669,13 +10670,13 @@ struct MeosAggregate_spanUnionAgg_4Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return spanset_union_combinefn(static_cast<SpanSet*>(a), static_cast<const SpanSet*>(b));
-    }
     static void* Final(void* s)
     {
         return spanset_union_finalfn(static_cast<SpanSet*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10695,7 +10696,7 @@ struct MeosAggregate_spanUnionAgg_4Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_spanUnionAgg_4Literals{};
 using MeosAggregate_spanUnionAgg_4 = MeosRuntime::MeosAggregate<MeosAggregate_spanUnionAgg_4Ops>;
-constexpr MeosAggregateKernels MeosAggregate_spanUnionAgg_4Kernels{&MeosAggregate_spanUnionAgg_4::Initialize, &MeosAggregate_spanUnionAgg_4::Update, &MeosAggregate_spanUnionAgg_4::Combine, &MeosAggregate_spanUnionAgg_4::Finish, &MeosAggregate_spanUnionAgg_4::Destroy, MeosAggregate_spanUnionAgg_4::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_spanUnionAgg_4Kernels{&MeosAggregate_spanUnionAgg_4::Initialize, &MeosAggregate_spanUnionAgg_4::Update, &MeosAggregate_spanUnionAgg_4::Combine, &MeosAggregate_spanUnionAgg_4::Finish, MeosAggregate_spanUnionAgg_4::StateSize};
 
 struct MeosAggregate_spansetUnionAgg_0Ops
 {
@@ -10724,13 +10725,13 @@ struct MeosAggregate_spansetUnionAgg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return spanset_union_combinefn(static_cast<SpanSet*>(a), static_cast<const SpanSet*>(b));
-    }
     static void* Final(void* s)
     {
         return spanset_union_finalfn(static_cast<SpanSet*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10750,7 +10751,7 @@ struct MeosAggregate_spansetUnionAgg_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_spansetUnionAgg_0Literals{};
 using MeosAggregate_spansetUnionAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_spansetUnionAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_spansetUnionAgg_0Kernels{&MeosAggregate_spansetUnionAgg_0::Initialize, &MeosAggregate_spansetUnionAgg_0::Update, &MeosAggregate_spansetUnionAgg_0::Combine, &MeosAggregate_spansetUnionAgg_0::Finish, &MeosAggregate_spansetUnionAgg_0::Destroy, MeosAggregate_spansetUnionAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_spansetUnionAgg_0Kernels{&MeosAggregate_spansetUnionAgg_0::Initialize, &MeosAggregate_spansetUnionAgg_0::Update, &MeosAggregate_spansetUnionAgg_0::Combine, &MeosAggregate_spansetUnionAgg_0::Finish, MeosAggregate_spansetUnionAgg_0::StateSize};
 
 struct MeosAggregate_spansetUnionAgg_1Ops
 {
@@ -10779,13 +10780,13 @@ struct MeosAggregate_spansetUnionAgg_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return spanset_union_combinefn(static_cast<SpanSet*>(a), static_cast<const SpanSet*>(b));
-    }
     static void* Final(void* s)
     {
         return spanset_union_finalfn(static_cast<SpanSet*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10805,7 +10806,7 @@ struct MeosAggregate_spansetUnionAgg_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_spansetUnionAgg_1Literals{};
 using MeosAggregate_spansetUnionAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_spansetUnionAgg_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_spansetUnionAgg_1Kernels{&MeosAggregate_spansetUnionAgg_1::Initialize, &MeosAggregate_spansetUnionAgg_1::Update, &MeosAggregate_spansetUnionAgg_1::Combine, &MeosAggregate_spansetUnionAgg_1::Finish, &MeosAggregate_spansetUnionAgg_1::Destroy, MeosAggregate_spansetUnionAgg_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_spansetUnionAgg_1Kernels{&MeosAggregate_spansetUnionAgg_1::Initialize, &MeosAggregate_spansetUnionAgg_1::Update, &MeosAggregate_spansetUnionAgg_1::Combine, &MeosAggregate_spansetUnionAgg_1::Finish, MeosAggregate_spansetUnionAgg_1::StateSize};
 
 struct MeosAggregate_spansetUnionAgg_2Ops
 {
@@ -10834,13 +10835,13 @@ struct MeosAggregate_spansetUnionAgg_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return spanset_union_combinefn(static_cast<SpanSet*>(a), static_cast<const SpanSet*>(b));
-    }
     static void* Final(void* s)
     {
         return spanset_union_finalfn(static_cast<SpanSet*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10860,7 +10861,7 @@ struct MeosAggregate_spansetUnionAgg_2Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_spansetUnionAgg_2Literals{};
 using MeosAggregate_spansetUnionAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_spansetUnionAgg_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_spansetUnionAgg_2Kernels{&MeosAggregate_spansetUnionAgg_2::Initialize, &MeosAggregate_spansetUnionAgg_2::Update, &MeosAggregate_spansetUnionAgg_2::Combine, &MeosAggregate_spansetUnionAgg_2::Finish, &MeosAggregate_spansetUnionAgg_2::Destroy, MeosAggregate_spansetUnionAgg_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_spansetUnionAgg_2Kernels{&MeosAggregate_spansetUnionAgg_2::Initialize, &MeosAggregate_spansetUnionAgg_2::Update, &MeosAggregate_spansetUnionAgg_2::Combine, &MeosAggregate_spansetUnionAgg_2::Finish, MeosAggregate_spansetUnionAgg_2::StateSize};
 
 struct MeosAggregate_spansetUnionAgg_3Ops
 {
@@ -10889,13 +10890,13 @@ struct MeosAggregate_spansetUnionAgg_3Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return spanset_union_combinefn(static_cast<SpanSet*>(a), static_cast<const SpanSet*>(b));
-    }
     static void* Final(void* s)
     {
         return spanset_union_finalfn(static_cast<SpanSet*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10915,7 +10916,7 @@ struct MeosAggregate_spansetUnionAgg_3Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_spansetUnionAgg_3Literals{};
 using MeosAggregate_spansetUnionAgg_3 = MeosRuntime::MeosAggregate<MeosAggregate_spansetUnionAgg_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_spansetUnionAgg_3Kernels{&MeosAggregate_spansetUnionAgg_3::Initialize, &MeosAggregate_spansetUnionAgg_3::Update, &MeosAggregate_spansetUnionAgg_3::Combine, &MeosAggregate_spansetUnionAgg_3::Finish, &MeosAggregate_spansetUnionAgg_3::Destroy, MeosAggregate_spansetUnionAgg_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_spansetUnionAgg_3Kernels{&MeosAggregate_spansetUnionAgg_3::Initialize, &MeosAggregate_spansetUnionAgg_3::Update, &MeosAggregate_spansetUnionAgg_3::Combine, &MeosAggregate_spansetUnionAgg_3::Finish, MeosAggregate_spansetUnionAgg_3::StateSize};
 
 struct MeosAggregate_spansetUnionAgg_4Ops
 {
@@ -10944,13 +10945,13 @@ struct MeosAggregate_spansetUnionAgg_4Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return spanset_union_combinefn(static_cast<SpanSet*>(a), static_cast<const SpanSet*>(b));
-    }
     static void* Final(void* s)
     {
         return spanset_union_finalfn(static_cast<SpanSet*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -10970,7 +10971,7 @@ struct MeosAggregate_spansetUnionAgg_4Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_spansetUnionAgg_4Literals{};
 using MeosAggregate_spansetUnionAgg_4 = MeosRuntime::MeosAggregate<MeosAggregate_spansetUnionAgg_4Ops>;
-constexpr MeosAggregateKernels MeosAggregate_spansetUnionAgg_4Kernels{&MeosAggregate_spansetUnionAgg_4::Initialize, &MeosAggregate_spansetUnionAgg_4::Update, &MeosAggregate_spansetUnionAgg_4::Combine, &MeosAggregate_spansetUnionAgg_4::Finish, &MeosAggregate_spansetUnionAgg_4::Destroy, MeosAggregate_spansetUnionAgg_4::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_spansetUnionAgg_4Kernels{&MeosAggregate_spansetUnionAgg_4::Initialize, &MeosAggregate_spansetUnionAgg_4::Update, &MeosAggregate_spansetUnionAgg_4::Combine, &MeosAggregate_spansetUnionAgg_4::Finish, MeosAggregate_spansetUnionAgg_4::StateSize};
 
 struct MeosAggregate_extent_36Ops
 {
@@ -10999,13 +11000,13 @@ struct MeosAggregate_extent_36Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tbox_extent_transfn(static_cast<TBox*>(a), static_cast<const TBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11025,7 +11026,7 @@ struct MeosAggregate_extent_36Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_36Literals{};
 using MeosAggregate_extent_36 = MeosRuntime::MeosAggregate<MeosAggregate_extent_36Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_36Kernels{&MeosAggregate_extent_36::Initialize, &MeosAggregate_extent_36::Update, &MeosAggregate_extent_36::Combine, &MeosAggregate_extent_36::Finish, &MeosAggregate_extent_36::Destroy, MeosAggregate_extent_36::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_36Kernels{&MeosAggregate_extent_36::Initialize, &MeosAggregate_extent_36::Update, &MeosAggregate_extent_36::Combine, &MeosAggregate_extent_36::Finish, MeosAggregate_extent_36::StateSize};
 
 struct MeosAggregate_extent_37Ops
 {
@@ -11054,13 +11055,13 @@ struct MeosAggregate_extent_37Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11080,7 +11081,7 @@ struct MeosAggregate_extent_37Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_37Literals{};
 using MeosAggregate_extent_37 = MeosRuntime::MeosAggregate<MeosAggregate_extent_37Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_37Kernels{&MeosAggregate_extent_37::Initialize, &MeosAggregate_extent_37::Update, &MeosAggregate_extent_37::Combine, &MeosAggregate_extent_37::Finish, &MeosAggregate_extent_37::Destroy, MeosAggregate_extent_37::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_37Kernels{&MeosAggregate_extent_37::Initialize, &MeosAggregate_extent_37::Update, &MeosAggregate_extent_37::Combine, &MeosAggregate_extent_37::Finish, MeosAggregate_extent_37::StateSize};
 
 struct MeosAggregate_extent_38Ops
 {
@@ -11109,13 +11110,13 @@ struct MeosAggregate_extent_38Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return span_extent_transfn(static_cast<Span*>(a), static_cast<const Span*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11135,7 +11136,7 @@ struct MeosAggregate_extent_38Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_38Literals{};
 using MeosAggregate_extent_38 = MeosRuntime::MeosAggregate<MeosAggregate_extent_38Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_38Kernels{&MeosAggregate_extent_38::Initialize, &MeosAggregate_extent_38::Update, &MeosAggregate_extent_38::Combine, &MeosAggregate_extent_38::Finish, &MeosAggregate_extent_38::Destroy, MeosAggregate_extent_38::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_38Kernels{&MeosAggregate_extent_38::Initialize, &MeosAggregate_extent_38::Update, &MeosAggregate_extent_38::Combine, &MeosAggregate_extent_38::Finish, MeosAggregate_extent_38::StateSize};
 
 struct MeosAggregate_extent_39Ops
 {
@@ -11164,13 +11165,13 @@ struct MeosAggregate_extent_39Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tbox_extent_transfn(static_cast<TBox*>(a), static_cast<const TBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11190,7 +11191,7 @@ struct MeosAggregate_extent_39Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_39Literals{};
 using MeosAggregate_extent_39 = MeosRuntime::MeosAggregate<MeosAggregate_extent_39Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_39Kernels{&MeosAggregate_extent_39::Initialize, &MeosAggregate_extent_39::Update, &MeosAggregate_extent_39::Combine, &MeosAggregate_extent_39::Finish, &MeosAggregate_extent_39::Destroy, MeosAggregate_extent_39::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_39Kernels{&MeosAggregate_extent_39::Initialize, &MeosAggregate_extent_39::Update, &MeosAggregate_extent_39::Combine, &MeosAggregate_extent_39::Finish, MeosAggregate_extent_39::StateSize};
 
 struct MeosAggregate_extent_40Ops
 {
@@ -11219,13 +11220,13 @@ struct MeosAggregate_extent_40Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tbox_extent_transfn(static_cast<TBox*>(a), static_cast<const TBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11245,7 +11246,7 @@ struct MeosAggregate_extent_40Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_40Literals{};
 using MeosAggregate_extent_40 = MeosRuntime::MeosAggregate<MeosAggregate_extent_40Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_40Kernels{&MeosAggregate_extent_40::Initialize, &MeosAggregate_extent_40::Update, &MeosAggregate_extent_40::Combine, &MeosAggregate_extent_40::Finish, &MeosAggregate_extent_40::Destroy, MeosAggregate_extent_40::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_40Kernels{&MeosAggregate_extent_40::Initialize, &MeosAggregate_extent_40::Update, &MeosAggregate_extent_40::Combine, &MeosAggregate_extent_40::Finish, MeosAggregate_extent_40::StateSize};
 
 struct MeosAggregate_extent_41Ops
 {
@@ -11274,13 +11275,13 @@ struct MeosAggregate_extent_41Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tbox_extent_transfn(static_cast<TBox*>(a), static_cast<const TBox*>(b));
-    }
     static void* Final(void* s)
     {
         return s;
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11300,7 +11301,7 @@ struct MeosAggregate_extent_41Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_extent_41Literals{};
 using MeosAggregate_extent_41 = MeosRuntime::MeosAggregate<MeosAggregate_extent_41Ops>;
-constexpr MeosAggregateKernels MeosAggregate_extent_41Kernels{&MeosAggregate_extent_41::Initialize, &MeosAggregate_extent_41::Update, &MeosAggregate_extent_41::Combine, &MeosAggregate_extent_41::Finish, &MeosAggregate_extent_41::Destroy, MeosAggregate_extent_41::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_extent_41Kernels{&MeosAggregate_extent_41::Initialize, &MeosAggregate_extent_41::Update, &MeosAggregate_extent_41::Combine, &MeosAggregate_extent_41::Finish, MeosAggregate_extent_41::StateSize};
 
 struct MeosAggregate_tCount_15Ops
 {
@@ -11325,13 +11326,13 @@ struct MeosAggregate_tCount_15Ops
     {
         static_cast<void>(row);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11351,7 +11352,7 @@ struct MeosAggregate_tCount_15Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_15Literals{};
 using MeosAggregate_tCount_15 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_15Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_15Kernels{&MeosAggregate_tCount_15::Initialize, &MeosAggregate_tCount_15::Update, &MeosAggregate_tCount_15::Combine, &MeosAggregate_tCount_15::Finish, &MeosAggregate_tCount_15::Destroy, MeosAggregate_tCount_15::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_15Kernels{&MeosAggregate_tCount_15::Initialize, &MeosAggregate_tCount_15::Update, &MeosAggregate_tCount_15::Combine, &MeosAggregate_tCount_15::Finish, MeosAggregate_tCount_15::StateSize};
 
 struct MeosAggregate_tCount_16Ops
 {
@@ -11380,13 +11381,13 @@ struct MeosAggregate_tCount_16Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11406,7 +11407,7 @@ struct MeosAggregate_tCount_16Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_16Literals{};
 using MeosAggregate_tCount_16 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_16Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_16Kernels{&MeosAggregate_tCount_16::Initialize, &MeosAggregate_tCount_16::Update, &MeosAggregate_tCount_16::Combine, &MeosAggregate_tCount_16::Finish, &MeosAggregate_tCount_16::Destroy, MeosAggregate_tCount_16::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_16Kernels{&MeosAggregate_tCount_16::Initialize, &MeosAggregate_tCount_16::Update, &MeosAggregate_tCount_16::Combine, &MeosAggregate_tCount_16::Finish, MeosAggregate_tCount_16::StateSize};
 
 struct MeosAggregate_tCount_17Ops
 {
@@ -11435,13 +11436,13 @@ struct MeosAggregate_tCount_17Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11461,7 +11462,7 @@ struct MeosAggregate_tCount_17Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_17Literals{};
 using MeosAggregate_tCount_17 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_17Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_17Kernels{&MeosAggregate_tCount_17::Initialize, &MeosAggregate_tCount_17::Update, &MeosAggregate_tCount_17::Combine, &MeosAggregate_tCount_17::Finish, &MeosAggregate_tCount_17::Destroy, MeosAggregate_tCount_17::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_17Kernels{&MeosAggregate_tCount_17::Initialize, &MeosAggregate_tCount_17::Update, &MeosAggregate_tCount_17::Combine, &MeosAggregate_tCount_17::Finish, MeosAggregate_tCount_17::StateSize};
 
 struct MeosAggregate_tCount_18Ops
 {
@@ -11490,13 +11491,13 @@ struct MeosAggregate_tCount_18Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11516,7 +11517,7 @@ struct MeosAggregate_tCount_18Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_18Literals{};
 using MeosAggregate_tCount_18 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_18Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_18Kernels{&MeosAggregate_tCount_18::Initialize, &MeosAggregate_tCount_18::Update, &MeosAggregate_tCount_18::Combine, &MeosAggregate_tCount_18::Finish, &MeosAggregate_tCount_18::Destroy, MeosAggregate_tCount_18::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_18Kernels{&MeosAggregate_tCount_18::Initialize, &MeosAggregate_tCount_18::Update, &MeosAggregate_tCount_18::Combine, &MeosAggregate_tCount_18::Finish, MeosAggregate_tCount_18::StateSize};
 
 struct MeosAggregate_tCount_19Ops
 {
@@ -11545,13 +11546,13 @@ struct MeosAggregate_tCount_19Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11571,7 +11572,7 @@ struct MeosAggregate_tCount_19Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_19Literals{};
 using MeosAggregate_tCount_19 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_19Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_19Kernels{&MeosAggregate_tCount_19::Initialize, &MeosAggregate_tCount_19::Update, &MeosAggregate_tCount_19::Combine, &MeosAggregate_tCount_19::Finish, &MeosAggregate_tCount_19::Destroy, MeosAggregate_tCount_19::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_19Kernels{&MeosAggregate_tCount_19::Initialize, &MeosAggregate_tCount_19::Update, &MeosAggregate_tCount_19::Combine, &MeosAggregate_tCount_19::Finish, MeosAggregate_tCount_19::StateSize};
 
 struct MeosAggregate_tAndAgg_0Ops
 {
@@ -11600,13 +11601,13 @@ struct MeosAggregate_tAndAgg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tbool_tand_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11626,7 +11627,7 @@ struct MeosAggregate_tAndAgg_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tAndAgg_0Literals{};
 using MeosAggregate_tAndAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_tAndAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tAndAgg_0Kernels{&MeosAggregate_tAndAgg_0::Initialize, &MeosAggregate_tAndAgg_0::Update, &MeosAggregate_tAndAgg_0::Combine, &MeosAggregate_tAndAgg_0::Finish, &MeosAggregate_tAndAgg_0::Destroy, MeosAggregate_tAndAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tAndAgg_0Kernels{&MeosAggregate_tAndAgg_0::Initialize, &MeosAggregate_tAndAgg_0::Update, &MeosAggregate_tAndAgg_0::Combine, &MeosAggregate_tAndAgg_0::Finish, MeosAggregate_tAndAgg_0::StateSize};
 
 struct MeosAggregate_tOrAgg_0Ops
 {
@@ -11655,13 +11656,13 @@ struct MeosAggregate_tOrAgg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tbool_tor_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11681,7 +11682,7 @@ struct MeosAggregate_tOrAgg_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tOrAgg_0Literals{};
 using MeosAggregate_tOrAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_tOrAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tOrAgg_0Kernels{&MeosAggregate_tOrAgg_0::Initialize, &MeosAggregate_tOrAgg_0::Update, &MeosAggregate_tOrAgg_0::Combine, &MeosAggregate_tOrAgg_0::Finish, &MeosAggregate_tOrAgg_0::Destroy, MeosAggregate_tOrAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tOrAgg_0Kernels{&MeosAggregate_tOrAgg_0::Initialize, &MeosAggregate_tOrAgg_0::Update, &MeosAggregate_tOrAgg_0::Combine, &MeosAggregate_tOrAgg_0::Finish, MeosAggregate_tOrAgg_0::StateSize};
 
 struct MeosAggregate_tCount_20Ops
 {
@@ -11710,13 +11711,13 @@ struct MeosAggregate_tCount_20Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11736,7 +11737,7 @@ struct MeosAggregate_tCount_20Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_20Literals{};
 using MeosAggregate_tCount_20 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_20Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_20Kernels{&MeosAggregate_tCount_20::Initialize, &MeosAggregate_tCount_20::Update, &MeosAggregate_tCount_20::Combine, &MeosAggregate_tCount_20::Finish, &MeosAggregate_tCount_20::Destroy, MeosAggregate_tCount_20::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_20Kernels{&MeosAggregate_tCount_20::Initialize, &MeosAggregate_tCount_20::Update, &MeosAggregate_tCount_20::Combine, &MeosAggregate_tCount_20::Finish, MeosAggregate_tCount_20::StateSize};
 
 struct MeosAggregate_tCount_21Ops
 {
@@ -11765,13 +11766,13 @@ struct MeosAggregate_tCount_21Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11791,7 +11792,7 @@ struct MeosAggregate_tCount_21Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_21Literals{};
 using MeosAggregate_tCount_21 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_21Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_21Kernels{&MeosAggregate_tCount_21::Initialize, &MeosAggregate_tCount_21::Update, &MeosAggregate_tCount_21::Combine, &MeosAggregate_tCount_21::Finish, &MeosAggregate_tCount_21::Destroy, MeosAggregate_tCount_21::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_21Kernels{&MeosAggregate_tCount_21::Initialize, &MeosAggregate_tCount_21::Update, &MeosAggregate_tCount_21::Combine, &MeosAggregate_tCount_21::Finish, MeosAggregate_tCount_21::StateSize};
 
 struct MeosAggregate_tMinAgg_0Ops
 {
@@ -11820,13 +11821,13 @@ struct MeosAggregate_tMinAgg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmin_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11846,7 +11847,7 @@ struct MeosAggregate_tMinAgg_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tMinAgg_0Literals{};
 using MeosAggregate_tMinAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_tMinAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tMinAgg_0Kernels{&MeosAggregate_tMinAgg_0::Initialize, &MeosAggregate_tMinAgg_0::Update, &MeosAggregate_tMinAgg_0::Combine, &MeosAggregate_tMinAgg_0::Finish, &MeosAggregate_tMinAgg_0::Destroy, MeosAggregate_tMinAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tMinAgg_0Kernels{&MeosAggregate_tMinAgg_0::Initialize, &MeosAggregate_tMinAgg_0::Update, &MeosAggregate_tMinAgg_0::Combine, &MeosAggregate_tMinAgg_0::Finish, MeosAggregate_tMinAgg_0::StateSize};
 
 struct MeosAggregate_tMaxAgg_0Ops
 {
@@ -11875,13 +11876,13 @@ struct MeosAggregate_tMaxAgg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmax_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11901,7 +11902,7 @@ struct MeosAggregate_tMaxAgg_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tMaxAgg_0Literals{};
 using MeosAggregate_tMaxAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_tMaxAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tMaxAgg_0Kernels{&MeosAggregate_tMaxAgg_0::Initialize, &MeosAggregate_tMaxAgg_0::Update, &MeosAggregate_tMaxAgg_0::Combine, &MeosAggregate_tMaxAgg_0::Finish, &MeosAggregate_tMaxAgg_0::Destroy, MeosAggregate_tMaxAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tMaxAgg_0Kernels{&MeosAggregate_tMaxAgg_0::Initialize, &MeosAggregate_tMaxAgg_0::Update, &MeosAggregate_tMaxAgg_0::Combine, &MeosAggregate_tMaxAgg_0::Finish, MeosAggregate_tMaxAgg_0::StateSize};
 
 struct MeosAggregate_tSum_0Ops
 {
@@ -11930,13 +11931,13 @@ struct MeosAggregate_tSum_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -11956,7 +11957,7 @@ struct MeosAggregate_tSum_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tSum_0Literals{};
 using MeosAggregate_tSum_0 = MeosRuntime::MeosAggregate<MeosAggregate_tSum_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tSum_0Kernels{&MeosAggregate_tSum_0::Initialize, &MeosAggregate_tSum_0::Update, &MeosAggregate_tSum_0::Combine, &MeosAggregate_tSum_0::Finish, &MeosAggregate_tSum_0::Destroy, MeosAggregate_tSum_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tSum_0Kernels{&MeosAggregate_tSum_0::Initialize, &MeosAggregate_tSum_0::Update, &MeosAggregate_tSum_0::Combine, &MeosAggregate_tSum_0::Finish, MeosAggregate_tSum_0::StateSize};
 
 struct MeosAggregate_tAvg_0Ops
 {
@@ -11985,13 +11986,13 @@ struct MeosAggregate_tAvg_0Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tavg_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return tnumber_tavg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12011,7 +12012,7 @@ struct MeosAggregate_tAvg_0Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tAvg_0Literals{};
 using MeosAggregate_tAvg_0 = MeosRuntime::MeosAggregate<MeosAggregate_tAvg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tAvg_0Kernels{&MeosAggregate_tAvg_0::Initialize, &MeosAggregate_tAvg_0::Update, &MeosAggregate_tAvg_0::Combine, &MeosAggregate_tAvg_0::Finish, &MeosAggregate_tAvg_0::Destroy, MeosAggregate_tAvg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tAvg_0Kernels{&MeosAggregate_tAvg_0::Initialize, &MeosAggregate_tAvg_0::Update, &MeosAggregate_tAvg_0::Combine, &MeosAggregate_tAvg_0::Finish, MeosAggregate_tAvg_0::StateSize};
 
 struct MeosAggregate_tMinAgg_1Ops
 {
@@ -12040,13 +12041,13 @@ struct MeosAggregate_tMinAgg_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmin_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12066,7 +12067,7 @@ struct MeosAggregate_tMinAgg_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tMinAgg_1Literals{};
 using MeosAggregate_tMinAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_tMinAgg_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tMinAgg_1Kernels{&MeosAggregate_tMinAgg_1::Initialize, &MeosAggregate_tMinAgg_1::Update, &MeosAggregate_tMinAgg_1::Combine, &MeosAggregate_tMinAgg_1::Finish, &MeosAggregate_tMinAgg_1::Destroy, MeosAggregate_tMinAgg_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tMinAgg_1Kernels{&MeosAggregate_tMinAgg_1::Initialize, &MeosAggregate_tMinAgg_1::Update, &MeosAggregate_tMinAgg_1::Combine, &MeosAggregate_tMinAgg_1::Finish, MeosAggregate_tMinAgg_1::StateSize};
 
 struct MeosAggregate_tMaxAgg_1Ops
 {
@@ -12095,13 +12096,13 @@ struct MeosAggregate_tMaxAgg_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmax_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12121,7 +12122,7 @@ struct MeosAggregate_tMaxAgg_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tMaxAgg_1Literals{};
 using MeosAggregate_tMaxAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_tMaxAgg_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tMaxAgg_1Kernels{&MeosAggregate_tMaxAgg_1::Initialize, &MeosAggregate_tMaxAgg_1::Update, &MeosAggregate_tMaxAgg_1::Combine, &MeosAggregate_tMaxAgg_1::Finish, &MeosAggregate_tMaxAgg_1::Destroy, MeosAggregate_tMaxAgg_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tMaxAgg_1Kernels{&MeosAggregate_tMaxAgg_1::Initialize, &MeosAggregate_tMaxAgg_1::Update, &MeosAggregate_tMaxAgg_1::Combine, &MeosAggregate_tMaxAgg_1::Finish, MeosAggregate_tMaxAgg_1::StateSize};
 
 struct MeosAggregate_tSum_1Ops
 {
@@ -12150,13 +12151,13 @@ struct MeosAggregate_tSum_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12176,7 +12177,7 @@ struct MeosAggregate_tSum_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tSum_1Literals{};
 using MeosAggregate_tSum_1 = MeosRuntime::MeosAggregate<MeosAggregate_tSum_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tSum_1Kernels{&MeosAggregate_tSum_1::Initialize, &MeosAggregate_tSum_1::Update, &MeosAggregate_tSum_1::Combine, &MeosAggregate_tSum_1::Finish, &MeosAggregate_tSum_1::Destroy, MeosAggregate_tSum_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tSum_1Kernels{&MeosAggregate_tSum_1::Initialize, &MeosAggregate_tSum_1::Update, &MeosAggregate_tSum_1::Combine, &MeosAggregate_tSum_1::Finish, MeosAggregate_tSum_1::StateSize};
 
 struct MeosAggregate_tAvg_1Ops
 {
@@ -12205,13 +12206,13 @@ struct MeosAggregate_tAvg_1Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tavg_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return tnumber_tavg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12231,7 +12232,7 @@ struct MeosAggregate_tAvg_1Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tAvg_1Literals{};
 using MeosAggregate_tAvg_1 = MeosRuntime::MeosAggregate<MeosAggregate_tAvg_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tAvg_1Kernels{&MeosAggregate_tAvg_1::Initialize, &MeosAggregate_tAvg_1::Update, &MeosAggregate_tAvg_1::Combine, &MeosAggregate_tAvg_1::Finish, &MeosAggregate_tAvg_1::Destroy, MeosAggregate_tAvg_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tAvg_1Kernels{&MeosAggregate_tAvg_1::Initialize, &MeosAggregate_tAvg_1::Update, &MeosAggregate_tAvg_1::Combine, &MeosAggregate_tAvg_1::Finish, MeosAggregate_tAvg_1::StateSize};
 
 struct MeosAggregate_tCount_22Ops
 {
@@ -12260,13 +12261,13 @@ struct MeosAggregate_tCount_22Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12286,7 +12287,7 @@ struct MeosAggregate_tCount_22Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_22Literals{};
 using MeosAggregate_tCount_22 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_22Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_22Kernels{&MeosAggregate_tCount_22::Initialize, &MeosAggregate_tCount_22::Update, &MeosAggregate_tCount_22::Combine, &MeosAggregate_tCount_22::Finish, &MeosAggregate_tCount_22::Destroy, MeosAggregate_tCount_22::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_22Kernels{&MeosAggregate_tCount_22::Initialize, &MeosAggregate_tCount_22::Update, &MeosAggregate_tCount_22::Combine, &MeosAggregate_tCount_22::Finish, MeosAggregate_tCount_22::StateSize};
 
 struct MeosAggregate_tMinAgg_2Ops
 {
@@ -12315,13 +12316,13 @@ struct MeosAggregate_tMinAgg_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmin_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12341,7 +12342,7 @@ struct MeosAggregate_tMinAgg_2Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tMinAgg_2Literals{};
 using MeosAggregate_tMinAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_tMinAgg_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tMinAgg_2Kernels{&MeosAggregate_tMinAgg_2::Initialize, &MeosAggregate_tMinAgg_2::Update, &MeosAggregate_tMinAgg_2::Combine, &MeosAggregate_tMinAgg_2::Finish, &MeosAggregate_tMinAgg_2::Destroy, MeosAggregate_tMinAgg_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tMinAgg_2Kernels{&MeosAggregate_tMinAgg_2::Initialize, &MeosAggregate_tMinAgg_2::Update, &MeosAggregate_tMinAgg_2::Combine, &MeosAggregate_tMinAgg_2::Finish, MeosAggregate_tMinAgg_2::StateSize};
 
 struct MeosAggregate_tMaxAgg_2Ops
 {
@@ -12370,13 +12371,13 @@ struct MeosAggregate_tMaxAgg_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmax_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12396,7 +12397,7 @@ struct MeosAggregate_tMaxAgg_2Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tMaxAgg_2Literals{};
 using MeosAggregate_tMaxAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_tMaxAgg_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tMaxAgg_2Kernels{&MeosAggregate_tMaxAgg_2::Initialize, &MeosAggregate_tMaxAgg_2::Update, &MeosAggregate_tMaxAgg_2::Combine, &MeosAggregate_tMaxAgg_2::Finish, &MeosAggregate_tMaxAgg_2::Destroy, MeosAggregate_tMaxAgg_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tMaxAgg_2Kernels{&MeosAggregate_tMaxAgg_2::Initialize, &MeosAggregate_tMaxAgg_2::Update, &MeosAggregate_tMaxAgg_2::Combine, &MeosAggregate_tMaxAgg_2::Finish, MeosAggregate_tMaxAgg_2::StateSize};
 
 struct MeosAggregate_tSum_2Ops
 {
@@ -12425,13 +12426,13 @@ struct MeosAggregate_tSum_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12451,7 +12452,7 @@ struct MeosAggregate_tSum_2Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tSum_2Literals{};
 using MeosAggregate_tSum_2 = MeosRuntime::MeosAggregate<MeosAggregate_tSum_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tSum_2Kernels{&MeosAggregate_tSum_2::Initialize, &MeosAggregate_tSum_2::Update, &MeosAggregate_tSum_2::Combine, &MeosAggregate_tSum_2::Finish, &MeosAggregate_tSum_2::Destroy, MeosAggregate_tSum_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tSum_2Kernels{&MeosAggregate_tSum_2::Initialize, &MeosAggregate_tSum_2::Update, &MeosAggregate_tSum_2::Combine, &MeosAggregate_tSum_2::Finish, MeosAggregate_tSum_2::StateSize};
 
 struct MeosAggregate_tAvg_2Ops
 {
@@ -12480,13 +12481,13 @@ struct MeosAggregate_tAvg_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tavg_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return tnumber_tavg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12506,7 +12507,7 @@ struct MeosAggregate_tAvg_2Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tAvg_2Literals{};
 using MeosAggregate_tAvg_2 = MeosRuntime::MeosAggregate<MeosAggregate_tAvg_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tAvg_2Kernels{&MeosAggregate_tAvg_2::Initialize, &MeosAggregate_tAvg_2::Update, &MeosAggregate_tAvg_2::Combine, &MeosAggregate_tAvg_2::Finish, &MeosAggregate_tAvg_2::Destroy, MeosAggregate_tAvg_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tAvg_2Kernels{&MeosAggregate_tAvg_2::Initialize, &MeosAggregate_tAvg_2::Update, &MeosAggregate_tAvg_2::Combine, &MeosAggregate_tAvg_2::Finish, MeosAggregate_tAvg_2::StateSize};
 
 struct MeosAggregate_tCount_23Ops
 {
@@ -12535,13 +12536,13 @@ struct MeosAggregate_tCount_23Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tcount_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12561,7 +12562,7 @@ struct MeosAggregate_tCount_23Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tCount_23Literals{};
 using MeosAggregate_tCount_23 = MeosRuntime::MeosAggregate<MeosAggregate_tCount_23Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tCount_23Kernels{&MeosAggregate_tCount_23::Initialize, &MeosAggregate_tCount_23::Update, &MeosAggregate_tCount_23::Combine, &MeosAggregate_tCount_23::Finish, &MeosAggregate_tCount_23::Destroy, MeosAggregate_tCount_23::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tCount_23Kernels{&MeosAggregate_tCount_23::Initialize, &MeosAggregate_tCount_23::Update, &MeosAggregate_tCount_23::Combine, &MeosAggregate_tCount_23::Finish, MeosAggregate_tCount_23::StateSize};
 
 struct MeosAggregate_tMinAgg_3Ops
 {
@@ -12590,13 +12591,13 @@ struct MeosAggregate_tMinAgg_3Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmin_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12616,7 +12617,7 @@ struct MeosAggregate_tMinAgg_3Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tMinAgg_3Literals{};
 using MeosAggregate_tMinAgg_3 = MeosRuntime::MeosAggregate<MeosAggregate_tMinAgg_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tMinAgg_3Kernels{&MeosAggregate_tMinAgg_3::Initialize, &MeosAggregate_tMinAgg_3::Update, &MeosAggregate_tMinAgg_3::Combine, &MeosAggregate_tMinAgg_3::Finish, &MeosAggregate_tMinAgg_3::Destroy, MeosAggregate_tMinAgg_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tMinAgg_3Kernels{&MeosAggregate_tMinAgg_3::Initialize, &MeosAggregate_tMinAgg_3::Update, &MeosAggregate_tMinAgg_3::Combine, &MeosAggregate_tMinAgg_3::Finish, MeosAggregate_tMinAgg_3::StateSize};
 
 struct MeosAggregate_tMaxAgg_3Ops
 {
@@ -12645,13 +12646,13 @@ struct MeosAggregate_tMaxAgg_3Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmax_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12671,7 +12672,7 @@ struct MeosAggregate_tMaxAgg_3Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_tMaxAgg_3Literals{};
 using MeosAggregate_tMaxAgg_3 = MeosRuntime::MeosAggregate<MeosAggregate_tMaxAgg_3Ops>;
-constexpr MeosAggregateKernels MeosAggregate_tMaxAgg_3Kernels{&MeosAggregate_tMaxAgg_3::Initialize, &MeosAggregate_tMaxAgg_3::Update, &MeosAggregate_tMaxAgg_3::Combine, &MeosAggregate_tMaxAgg_3::Finish, &MeosAggregate_tMaxAgg_3::Destroy, MeosAggregate_tMaxAgg_3::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_tMaxAgg_3Kernels{&MeosAggregate_tMaxAgg_3::Initialize, &MeosAggregate_tMaxAgg_3::Update, &MeosAggregate_tMaxAgg_3::Combine, &MeosAggregate_tMaxAgg_3::Finish, MeosAggregate_tMaxAgg_3::StateSize};
 
 struct MeosAggregate_mergeAgg_15Ops
 {
@@ -12700,13 +12701,13 @@ struct MeosAggregate_mergeAgg_15Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12726,7 +12727,7 @@ struct MeosAggregate_mergeAgg_15Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_15Literals{};
 using MeosAggregate_mergeAgg_15 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_15Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_15Kernels{&MeosAggregate_mergeAgg_15::Initialize, &MeosAggregate_mergeAgg_15::Update, &MeosAggregate_mergeAgg_15::Combine, &MeosAggregate_mergeAgg_15::Finish, &MeosAggregate_mergeAgg_15::Destroy, MeosAggregate_mergeAgg_15::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_15Kernels{&MeosAggregate_mergeAgg_15::Initialize, &MeosAggregate_mergeAgg_15::Update, &MeosAggregate_mergeAgg_15::Combine, &MeosAggregate_mergeAgg_15::Finish, MeosAggregate_mergeAgg_15::StateSize};
 
 struct MeosAggregate_mergeAgg_16Ops
 {
@@ -12755,13 +12756,13 @@ struct MeosAggregate_mergeAgg_16Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12781,7 +12782,7 @@ struct MeosAggregate_mergeAgg_16Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_16Literals{};
 using MeosAggregate_mergeAgg_16 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_16Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_16Kernels{&MeosAggregate_mergeAgg_16::Initialize, &MeosAggregate_mergeAgg_16::Update, &MeosAggregate_mergeAgg_16::Combine, &MeosAggregate_mergeAgg_16::Finish, &MeosAggregate_mergeAgg_16::Destroy, MeosAggregate_mergeAgg_16::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_16Kernels{&MeosAggregate_mergeAgg_16::Initialize, &MeosAggregate_mergeAgg_16::Update, &MeosAggregate_mergeAgg_16::Combine, &MeosAggregate_mergeAgg_16::Finish, MeosAggregate_mergeAgg_16::StateSize};
 
 struct MeosAggregate_mergeAgg_17Ops
 {
@@ -12810,13 +12811,13 @@ struct MeosAggregate_mergeAgg_17Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12836,7 +12837,7 @@ struct MeosAggregate_mergeAgg_17Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_17Literals{};
 using MeosAggregate_mergeAgg_17 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_17Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_17Kernels{&MeosAggregate_mergeAgg_17::Initialize, &MeosAggregate_mergeAgg_17::Update, &MeosAggregate_mergeAgg_17::Combine, &MeosAggregate_mergeAgg_17::Finish, &MeosAggregate_mergeAgg_17::Destroy, MeosAggregate_mergeAgg_17::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_17Kernels{&MeosAggregate_mergeAgg_17::Initialize, &MeosAggregate_mergeAgg_17::Update, &MeosAggregate_mergeAgg_17::Combine, &MeosAggregate_mergeAgg_17::Finish, MeosAggregate_mergeAgg_17::StateSize};
 
 struct MeosAggregate_mergeAgg_18Ops
 {
@@ -12865,13 +12866,13 @@ struct MeosAggregate_mergeAgg_18Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12891,7 +12892,7 @@ struct MeosAggregate_mergeAgg_18Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_18Literals{};
 using MeosAggregate_mergeAgg_18 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_18Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_18Kernels{&MeosAggregate_mergeAgg_18::Initialize, &MeosAggregate_mergeAgg_18::Update, &MeosAggregate_mergeAgg_18::Combine, &MeosAggregate_mergeAgg_18::Finish, &MeosAggregate_mergeAgg_18::Destroy, MeosAggregate_mergeAgg_18::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_18Kernels{&MeosAggregate_mergeAgg_18::Initialize, &MeosAggregate_mergeAgg_18::Update, &MeosAggregate_mergeAgg_18::Combine, &MeosAggregate_mergeAgg_18::Finish, MeosAggregate_mergeAgg_18::StateSize};
 
 struct MeosAggregate_mergeAgg_19Ops
 {
@@ -12920,13 +12921,13 @@ struct MeosAggregate_mergeAgg_19Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_merge_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -12946,7 +12947,7 @@ struct MeosAggregate_mergeAgg_19Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_mergeAgg_19Literals{};
 using MeosAggregate_mergeAgg_19 = MeosRuntime::MeosAggregate<MeosAggregate_mergeAgg_19Ops>;
-constexpr MeosAggregateKernels MeosAggregate_mergeAgg_19Kernels{&MeosAggregate_mergeAgg_19::Initialize, &MeosAggregate_mergeAgg_19::Update, &MeosAggregate_mergeAgg_19::Combine, &MeosAggregate_mergeAgg_19::Finish, &MeosAggregate_mergeAgg_19::Destroy, MeosAggregate_mergeAgg_19::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_mergeAgg_19Kernels{&MeosAggregate_mergeAgg_19::Initialize, &MeosAggregate_mergeAgg_19::Update, &MeosAggregate_mergeAgg_19::Combine, &MeosAggregate_mergeAgg_19::Finish, MeosAggregate_mergeAgg_19::StateSize};
 
 struct MeosAggregate_appendInstantAgg_46Ops
 {
@@ -12975,13 +12976,13 @@ struct MeosAggregate_appendInstantAgg_46Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13001,7 +13002,7 @@ struct MeosAggregate_appendInstantAgg_46Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_46Literals{};
 using MeosAggregate_appendInstantAgg_46 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_46Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_46Kernels{&MeosAggregate_appendInstantAgg_46::Initialize, &MeosAggregate_appendInstantAgg_46::Update, &MeosAggregate_appendInstantAgg_46::Combine, &MeosAggregate_appendInstantAgg_46::Finish, &MeosAggregate_appendInstantAgg_46::Destroy, MeosAggregate_appendInstantAgg_46::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_46Kernels{&MeosAggregate_appendInstantAgg_46::Initialize, &MeosAggregate_appendInstantAgg_46::Update, &MeosAggregate_appendInstantAgg_46::Combine, &MeosAggregate_appendInstantAgg_46::Finish, MeosAggregate_appendInstantAgg_46::StateSize};
 
 struct MeosAggregate_appendInstantAgg_47Ops
 {
@@ -13031,13 +13032,13 @@ struct MeosAggregate_appendInstantAgg_47Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13057,7 +13058,7 @@ struct MeosAggregate_appendInstantAgg_47Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_47Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_47 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_47Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_47Kernels{&MeosAggregate_appendInstantAgg_47::Initialize, &MeosAggregate_appendInstantAgg_47::Update, &MeosAggregate_appendInstantAgg_47::Combine, &MeosAggregate_appendInstantAgg_47::Finish, &MeosAggregate_appendInstantAgg_47::Destroy, MeosAggregate_appendInstantAgg_47::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_47Kernels{&MeosAggregate_appendInstantAgg_47::Initialize, &MeosAggregate_appendInstantAgg_47::Update, &MeosAggregate_appendInstantAgg_47::Combine, &MeosAggregate_appendInstantAgg_47::Finish, MeosAggregate_appendInstantAgg_47::StateSize};
 
 struct MeosAggregate_appendInstantAgg_48Ops
 {
@@ -13095,13 +13096,13 @@ struct MeosAggregate_appendInstantAgg_48Ops
         std::free(row.a0);
         std::free(row.a2);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13121,7 +13122,7 @@ struct MeosAggregate_appendInstantAgg_48Ops
 
 constexpr std::array<DataType::Type, 2> MeosAggregate_appendInstantAgg_48Literals{DataType::Type::VARSIZED, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_48 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_48Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_48Kernels{&MeosAggregate_appendInstantAgg_48::Initialize, &MeosAggregate_appendInstantAgg_48::Update, &MeosAggregate_appendInstantAgg_48::Combine, &MeosAggregate_appendInstantAgg_48::Finish, &MeosAggregate_appendInstantAgg_48::Destroy, MeosAggregate_appendInstantAgg_48::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_48Kernels{&MeosAggregate_appendInstantAgg_48::Initialize, &MeosAggregate_appendInstantAgg_48::Update, &MeosAggregate_appendInstantAgg_48::Combine, &MeosAggregate_appendInstantAgg_48::Finish, MeosAggregate_appendInstantAgg_48::StateSize};
 
 struct MeosAggregate_appendInstantAgg_49Ops
 {
@@ -13150,13 +13151,13 @@ struct MeosAggregate_appendInstantAgg_49Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13176,7 +13177,7 @@ struct MeosAggregate_appendInstantAgg_49Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_49Literals{};
 using MeosAggregate_appendInstantAgg_49 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_49Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_49Kernels{&MeosAggregate_appendInstantAgg_49::Initialize, &MeosAggregate_appendInstantAgg_49::Update, &MeosAggregate_appendInstantAgg_49::Combine, &MeosAggregate_appendInstantAgg_49::Finish, &MeosAggregate_appendInstantAgg_49::Destroy, MeosAggregate_appendInstantAgg_49::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_49Kernels{&MeosAggregate_appendInstantAgg_49::Initialize, &MeosAggregate_appendInstantAgg_49::Update, &MeosAggregate_appendInstantAgg_49::Combine, &MeosAggregate_appendInstantAgg_49::Finish, MeosAggregate_appendInstantAgg_49::StateSize};
 
 struct MeosAggregate_appendInstantAgg_50Ops
 {
@@ -13206,13 +13207,13 @@ struct MeosAggregate_appendInstantAgg_50Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13232,7 +13233,7 @@ struct MeosAggregate_appendInstantAgg_50Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_50Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_50 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_50Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_50Kernels{&MeosAggregate_appendInstantAgg_50::Initialize, &MeosAggregate_appendInstantAgg_50::Update, &MeosAggregate_appendInstantAgg_50::Combine, &MeosAggregate_appendInstantAgg_50::Finish, &MeosAggregate_appendInstantAgg_50::Destroy, MeosAggregate_appendInstantAgg_50::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_50Kernels{&MeosAggregate_appendInstantAgg_50::Initialize, &MeosAggregate_appendInstantAgg_50::Update, &MeosAggregate_appendInstantAgg_50::Combine, &MeosAggregate_appendInstantAgg_50::Finish, MeosAggregate_appendInstantAgg_50::StateSize};
 
 struct MeosAggregate_appendInstantAgg_51Ops
 {
@@ -13272,13 +13273,13 @@ struct MeosAggregate_appendInstantAgg_51Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13298,7 +13299,7 @@ struct MeosAggregate_appendInstantAgg_51Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_51Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_51 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_51Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_51Kernels{&MeosAggregate_appendInstantAgg_51::Initialize, &MeosAggregate_appendInstantAgg_51::Update, &MeosAggregate_appendInstantAgg_51::Combine, &MeosAggregate_appendInstantAgg_51::Finish, &MeosAggregate_appendInstantAgg_51::Destroy, MeosAggregate_appendInstantAgg_51::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_51Kernels{&MeosAggregate_appendInstantAgg_51::Initialize, &MeosAggregate_appendInstantAgg_51::Update, &MeosAggregate_appendInstantAgg_51::Combine, &MeosAggregate_appendInstantAgg_51::Finish, MeosAggregate_appendInstantAgg_51::StateSize};
 
 struct MeosAggregate_appendInstantAgg_52Ops
 {
@@ -13327,13 +13328,13 @@ struct MeosAggregate_appendInstantAgg_52Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13353,7 +13354,7 @@ struct MeosAggregate_appendInstantAgg_52Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_52Literals{};
 using MeosAggregate_appendInstantAgg_52 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_52Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_52Kernels{&MeosAggregate_appendInstantAgg_52::Initialize, &MeosAggregate_appendInstantAgg_52::Update, &MeosAggregate_appendInstantAgg_52::Combine, &MeosAggregate_appendInstantAgg_52::Finish, &MeosAggregate_appendInstantAgg_52::Destroy, MeosAggregate_appendInstantAgg_52::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_52Kernels{&MeosAggregate_appendInstantAgg_52::Initialize, &MeosAggregate_appendInstantAgg_52::Update, &MeosAggregate_appendInstantAgg_52::Combine, &MeosAggregate_appendInstantAgg_52::Finish, MeosAggregate_appendInstantAgg_52::StateSize};
 
 struct MeosAggregate_appendInstantAgg_53Ops
 {
@@ -13383,13 +13384,13 @@ struct MeosAggregate_appendInstantAgg_53Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13409,7 +13410,7 @@ struct MeosAggregate_appendInstantAgg_53Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_53Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_53 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_53Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_53Kernels{&MeosAggregate_appendInstantAgg_53::Initialize, &MeosAggregate_appendInstantAgg_53::Update, &MeosAggregate_appendInstantAgg_53::Combine, &MeosAggregate_appendInstantAgg_53::Finish, &MeosAggregate_appendInstantAgg_53::Destroy, MeosAggregate_appendInstantAgg_53::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_53Kernels{&MeosAggregate_appendInstantAgg_53::Initialize, &MeosAggregate_appendInstantAgg_53::Update, &MeosAggregate_appendInstantAgg_53::Combine, &MeosAggregate_appendInstantAgg_53::Finish, MeosAggregate_appendInstantAgg_53::StateSize};
 
 struct MeosAggregate_appendInstantAgg_54Ops
 {
@@ -13449,13 +13450,13 @@ struct MeosAggregate_appendInstantAgg_54Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13475,7 +13476,7 @@ struct MeosAggregate_appendInstantAgg_54Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_54Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_54 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_54Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_54Kernels{&MeosAggregate_appendInstantAgg_54::Initialize, &MeosAggregate_appendInstantAgg_54::Update, &MeosAggregate_appendInstantAgg_54::Combine, &MeosAggregate_appendInstantAgg_54::Finish, &MeosAggregate_appendInstantAgg_54::Destroy, MeosAggregate_appendInstantAgg_54::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_54Kernels{&MeosAggregate_appendInstantAgg_54::Initialize, &MeosAggregate_appendInstantAgg_54::Update, &MeosAggregate_appendInstantAgg_54::Combine, &MeosAggregate_appendInstantAgg_54::Finish, MeosAggregate_appendInstantAgg_54::StateSize};
 
 struct MeosAggregate_appendInstantAgg_55Ops
 {
@@ -13504,13 +13505,13 @@ struct MeosAggregate_appendInstantAgg_55Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13530,7 +13531,7 @@ struct MeosAggregate_appendInstantAgg_55Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_55Literals{};
 using MeosAggregate_appendInstantAgg_55 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_55Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_55Kernels{&MeosAggregate_appendInstantAgg_55::Initialize, &MeosAggregate_appendInstantAgg_55::Update, &MeosAggregate_appendInstantAgg_55::Combine, &MeosAggregate_appendInstantAgg_55::Finish, &MeosAggregate_appendInstantAgg_55::Destroy, MeosAggregate_appendInstantAgg_55::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_55Kernels{&MeosAggregate_appendInstantAgg_55::Initialize, &MeosAggregate_appendInstantAgg_55::Update, &MeosAggregate_appendInstantAgg_55::Combine, &MeosAggregate_appendInstantAgg_55::Finish, MeosAggregate_appendInstantAgg_55::StateSize};
 
 struct MeosAggregate_appendInstantAgg_56Ops
 {
@@ -13560,13 +13561,13 @@ struct MeosAggregate_appendInstantAgg_56Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13586,7 +13587,7 @@ struct MeosAggregate_appendInstantAgg_56Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_56Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_56 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_56Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_56Kernels{&MeosAggregate_appendInstantAgg_56::Initialize, &MeosAggregate_appendInstantAgg_56::Update, &MeosAggregate_appendInstantAgg_56::Combine, &MeosAggregate_appendInstantAgg_56::Finish, &MeosAggregate_appendInstantAgg_56::Destroy, MeosAggregate_appendInstantAgg_56::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_56Kernels{&MeosAggregate_appendInstantAgg_56::Initialize, &MeosAggregate_appendInstantAgg_56::Update, &MeosAggregate_appendInstantAgg_56::Combine, &MeosAggregate_appendInstantAgg_56::Finish, MeosAggregate_appendInstantAgg_56::StateSize};
 
 struct MeosAggregate_appendInstantAgg_57Ops
 {
@@ -13626,13 +13627,13 @@ struct MeosAggregate_appendInstantAgg_57Ops
         std::free(row.a0);
         std::free(row.a3);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13652,7 +13653,7 @@ struct MeosAggregate_appendInstantAgg_57Ops
 
 constexpr std::array<DataType::Type, 3> MeosAggregate_appendInstantAgg_57Literals{DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_57 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_57Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_57Kernels{&MeosAggregate_appendInstantAgg_57::Initialize, &MeosAggregate_appendInstantAgg_57::Update, &MeosAggregate_appendInstantAgg_57::Combine, &MeosAggregate_appendInstantAgg_57::Finish, &MeosAggregate_appendInstantAgg_57::Destroy, MeosAggregate_appendInstantAgg_57::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_57Kernels{&MeosAggregate_appendInstantAgg_57::Initialize, &MeosAggregate_appendInstantAgg_57::Update, &MeosAggregate_appendInstantAgg_57::Combine, &MeosAggregate_appendInstantAgg_57::Finish, MeosAggregate_appendInstantAgg_57::StateSize};
 
 struct MeosAggregate_appendInstantAgg_58Ops
 {
@@ -13681,13 +13682,13 @@ struct MeosAggregate_appendInstantAgg_58Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13707,7 +13708,7 @@ struct MeosAggregate_appendInstantAgg_58Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendInstantAgg_58Literals{};
 using MeosAggregate_appendInstantAgg_58 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_58Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_58Kernels{&MeosAggregate_appendInstantAgg_58::Initialize, &MeosAggregate_appendInstantAgg_58::Update, &MeosAggregate_appendInstantAgg_58::Combine, &MeosAggregate_appendInstantAgg_58::Finish, &MeosAggregate_appendInstantAgg_58::Destroy, MeosAggregate_appendInstantAgg_58::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_58Kernels{&MeosAggregate_appendInstantAgg_58::Initialize, &MeosAggregate_appendInstantAgg_58::Update, &MeosAggregate_appendInstantAgg_58::Combine, &MeosAggregate_appendInstantAgg_58::Finish, MeosAggregate_appendInstantAgg_58::StateSize};
 
 struct MeosAggregate_appendInstantAgg_59Ops
 {
@@ -13737,13 +13738,13 @@ struct MeosAggregate_appendInstantAgg_59Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13763,7 +13764,7 @@ struct MeosAggregate_appendInstantAgg_59Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_appendInstantAgg_59Literals{DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_59 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_59Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_59Kernels{&MeosAggregate_appendInstantAgg_59::Initialize, &MeosAggregate_appendInstantAgg_59::Update, &MeosAggregate_appendInstantAgg_59::Combine, &MeosAggregate_appendInstantAgg_59::Finish, &MeosAggregate_appendInstantAgg_59::Destroy, MeosAggregate_appendInstantAgg_59::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_59Kernels{&MeosAggregate_appendInstantAgg_59::Initialize, &MeosAggregate_appendInstantAgg_59::Update, &MeosAggregate_appendInstantAgg_59::Combine, &MeosAggregate_appendInstantAgg_59::Finish, MeosAggregate_appendInstantAgg_59::StateSize};
 
 struct MeosAggregate_appendInstantAgg_60Ops
 {
@@ -13801,13 +13802,13 @@ struct MeosAggregate_appendInstantAgg_60Ops
         std::free(row.a0);
         std::free(row.a2);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13827,7 +13828,7 @@ struct MeosAggregate_appendInstantAgg_60Ops
 
 constexpr std::array<DataType::Type, 2> MeosAggregate_appendInstantAgg_60Literals{DataType::Type::VARSIZED, DataType::Type::VARSIZED};
 using MeosAggregate_appendInstantAgg_60 = MeosRuntime::MeosAggregate<MeosAggregate_appendInstantAgg_60Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_60Kernels{&MeosAggregate_appendInstantAgg_60::Initialize, &MeosAggregate_appendInstantAgg_60::Update, &MeosAggregate_appendInstantAgg_60::Combine, &MeosAggregate_appendInstantAgg_60::Finish, &MeosAggregate_appendInstantAgg_60::Destroy, MeosAggregate_appendInstantAgg_60::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendInstantAgg_60Kernels{&MeosAggregate_appendInstantAgg_60::Initialize, &MeosAggregate_appendInstantAgg_60::Update, &MeosAggregate_appendInstantAgg_60::Combine, &MeosAggregate_appendInstantAgg_60::Finish, MeosAggregate_appendInstantAgg_60::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_15Ops
 {
@@ -13856,13 +13857,13 @@ struct MeosAggregate_appendSequenceAgg_15Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13882,7 +13883,7 @@ struct MeosAggregate_appendSequenceAgg_15Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_15Literals{};
 using MeosAggregate_appendSequenceAgg_15 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_15Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_15Kernels{&MeosAggregate_appendSequenceAgg_15::Initialize, &MeosAggregate_appendSequenceAgg_15::Update, &MeosAggregate_appendSequenceAgg_15::Combine, &MeosAggregate_appendSequenceAgg_15::Finish, &MeosAggregate_appendSequenceAgg_15::Destroy, MeosAggregate_appendSequenceAgg_15::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_15Kernels{&MeosAggregate_appendSequenceAgg_15::Initialize, &MeosAggregate_appendSequenceAgg_15::Update, &MeosAggregate_appendSequenceAgg_15::Combine, &MeosAggregate_appendSequenceAgg_15::Finish, MeosAggregate_appendSequenceAgg_15::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_16Ops
 {
@@ -13911,13 +13912,13 @@ struct MeosAggregate_appendSequenceAgg_16Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13937,7 +13938,7 @@ struct MeosAggregate_appendSequenceAgg_16Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_16Literals{};
 using MeosAggregate_appendSequenceAgg_16 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_16Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_16Kernels{&MeosAggregate_appendSequenceAgg_16::Initialize, &MeosAggregate_appendSequenceAgg_16::Update, &MeosAggregate_appendSequenceAgg_16::Combine, &MeosAggregate_appendSequenceAgg_16::Finish, &MeosAggregate_appendSequenceAgg_16::Destroy, MeosAggregate_appendSequenceAgg_16::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_16Kernels{&MeosAggregate_appendSequenceAgg_16::Initialize, &MeosAggregate_appendSequenceAgg_16::Update, &MeosAggregate_appendSequenceAgg_16::Combine, &MeosAggregate_appendSequenceAgg_16::Finish, MeosAggregate_appendSequenceAgg_16::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_17Ops
 {
@@ -13966,13 +13967,13 @@ struct MeosAggregate_appendSequenceAgg_17Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -13992,7 +13993,7 @@ struct MeosAggregate_appendSequenceAgg_17Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_17Literals{};
 using MeosAggregate_appendSequenceAgg_17 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_17Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_17Kernels{&MeosAggregate_appendSequenceAgg_17::Initialize, &MeosAggregate_appendSequenceAgg_17::Update, &MeosAggregate_appendSequenceAgg_17::Combine, &MeosAggregate_appendSequenceAgg_17::Finish, &MeosAggregate_appendSequenceAgg_17::Destroy, MeosAggregate_appendSequenceAgg_17::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_17Kernels{&MeosAggregate_appendSequenceAgg_17::Initialize, &MeosAggregate_appendSequenceAgg_17::Update, &MeosAggregate_appendSequenceAgg_17::Combine, &MeosAggregate_appendSequenceAgg_17::Finish, MeosAggregate_appendSequenceAgg_17::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_18Ops
 {
@@ -14021,13 +14022,13 @@ struct MeosAggregate_appendSequenceAgg_18Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14047,7 +14048,7 @@ struct MeosAggregate_appendSequenceAgg_18Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_18Literals{};
 using MeosAggregate_appendSequenceAgg_18 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_18Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_18Kernels{&MeosAggregate_appendSequenceAgg_18::Initialize, &MeosAggregate_appendSequenceAgg_18::Update, &MeosAggregate_appendSequenceAgg_18::Combine, &MeosAggregate_appendSequenceAgg_18::Finish, &MeosAggregate_appendSequenceAgg_18::Destroy, MeosAggregate_appendSequenceAgg_18::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_18Kernels{&MeosAggregate_appendSequenceAgg_18::Initialize, &MeosAggregate_appendSequenceAgg_18::Update, &MeosAggregate_appendSequenceAgg_18::Combine, &MeosAggregate_appendSequenceAgg_18::Finish, MeosAggregate_appendSequenceAgg_18::StateSize};
 
 struct MeosAggregate_appendSequenceAgg_19Ops
 {
@@ -14076,13 +14077,13 @@ struct MeosAggregate_appendSequenceAgg_19Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_append_finalfn(static_cast<const Temporal*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14102,7 +14103,7 @@ struct MeosAggregate_appendSequenceAgg_19Ops
 
 constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_19Literals{};
 using MeosAggregate_appendSequenceAgg_19 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_19Ops>;
-constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_19Kernels{&MeosAggregate_appendSequenceAgg_19::Initialize, &MeosAggregate_appendSequenceAgg_19::Update, &MeosAggregate_appendSequenceAgg_19::Combine, &MeosAggregate_appendSequenceAgg_19::Finish, &MeosAggregate_appendSequenceAgg_19::Destroy, MeosAggregate_appendSequenceAgg_19::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_19Kernels{&MeosAggregate_appendSequenceAgg_19::Initialize, &MeosAggregate_appendSequenceAgg_19::Update, &MeosAggregate_appendSequenceAgg_19::Combine, &MeosAggregate_appendSequenceAgg_19::Finish, MeosAggregate_appendSequenceAgg_19::StateSize};
 
 struct MeosAggregate_wMin_0Ops
 {
@@ -14138,13 +14139,13 @@ struct MeosAggregate_wMin_0Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmin_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14164,7 +14165,7 @@ struct MeosAggregate_wMin_0Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wMin_0Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wMin_0 = MeosRuntime::MeosAggregate<MeosAggregate_wMin_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wMin_0Kernels{&MeosAggregate_wMin_0::Initialize, &MeosAggregate_wMin_0::Update, &MeosAggregate_wMin_0::Combine, &MeosAggregate_wMin_0::Finish, &MeosAggregate_wMin_0::Destroy, MeosAggregate_wMin_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wMin_0Kernels{&MeosAggregate_wMin_0::Initialize, &MeosAggregate_wMin_0::Update, &MeosAggregate_wMin_0::Combine, &MeosAggregate_wMin_0::Finish, MeosAggregate_wMin_0::StateSize};
 
 struct MeosAggregate_wMax_0Ops
 {
@@ -14200,13 +14201,13 @@ struct MeosAggregate_wMax_0Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmax_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14226,7 +14227,7 @@ struct MeosAggregate_wMax_0Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wMax_0Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wMax_0 = MeosRuntime::MeosAggregate<MeosAggregate_wMax_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wMax_0Kernels{&MeosAggregate_wMax_0::Initialize, &MeosAggregate_wMax_0::Update, &MeosAggregate_wMax_0::Combine, &MeosAggregate_wMax_0::Finish, &MeosAggregate_wMax_0::Destroy, MeosAggregate_wMax_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wMax_0Kernels{&MeosAggregate_wMax_0::Initialize, &MeosAggregate_wMax_0::Update, &MeosAggregate_wMax_0::Combine, &MeosAggregate_wMax_0::Finish, MeosAggregate_wMax_0::StateSize};
 
 struct MeosAggregate_wSum_0Ops
 {
@@ -14262,13 +14263,13 @@ struct MeosAggregate_wSum_0Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14288,7 +14289,7 @@ struct MeosAggregate_wSum_0Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wSum_0Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wSum_0 = MeosRuntime::MeosAggregate<MeosAggregate_wSum_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wSum_0Kernels{&MeosAggregate_wSum_0::Initialize, &MeosAggregate_wSum_0::Update, &MeosAggregate_wSum_0::Combine, &MeosAggregate_wSum_0::Finish, &MeosAggregate_wSum_0::Destroy, MeosAggregate_wSum_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wSum_0Kernels{&MeosAggregate_wSum_0::Initialize, &MeosAggregate_wSum_0::Update, &MeosAggregate_wSum_0::Combine, &MeosAggregate_wSum_0::Finish, MeosAggregate_wSum_0::StateSize};
 
 struct MeosAggregate_wCount_15Ops
 {
@@ -14324,13 +14325,13 @@ struct MeosAggregate_wCount_15Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14350,7 +14351,7 @@ struct MeosAggregate_wCount_15Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_15Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_15 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_15Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_15Kernels{&MeosAggregate_wCount_15::Initialize, &MeosAggregate_wCount_15::Update, &MeosAggregate_wCount_15::Combine, &MeosAggregate_wCount_15::Finish, &MeosAggregate_wCount_15::Destroy, MeosAggregate_wCount_15::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_15Kernels{&MeosAggregate_wCount_15::Initialize, &MeosAggregate_wCount_15::Update, &MeosAggregate_wCount_15::Combine, &MeosAggregate_wCount_15::Finish, MeosAggregate_wCount_15::StateSize};
 
 struct MeosAggregate_wAvgAgg_0Ops
 {
@@ -14386,13 +14387,13 @@ struct MeosAggregate_wAvgAgg_0Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tavg_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return tnumber_tavg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14412,7 +14413,7 @@ struct MeosAggregate_wAvgAgg_0Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wAvgAgg_0Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wAvgAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_wAvgAgg_0Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wAvgAgg_0Kernels{&MeosAggregate_wAvgAgg_0::Initialize, &MeosAggregate_wAvgAgg_0::Update, &MeosAggregate_wAvgAgg_0::Combine, &MeosAggregate_wAvgAgg_0::Finish, &MeosAggregate_wAvgAgg_0::Destroy, MeosAggregate_wAvgAgg_0::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wAvgAgg_0Kernels{&MeosAggregate_wAvgAgg_0::Initialize, &MeosAggregate_wAvgAgg_0::Update, &MeosAggregate_wAvgAgg_0::Combine, &MeosAggregate_wAvgAgg_0::Finish, MeosAggregate_wAvgAgg_0::StateSize};
 
 struct MeosAggregate_wMin_1Ops
 {
@@ -14448,13 +14449,13 @@ struct MeosAggregate_wMin_1Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmin_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14474,7 +14475,7 @@ struct MeosAggregate_wMin_1Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wMin_1Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wMin_1 = MeosRuntime::MeosAggregate<MeosAggregate_wMin_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wMin_1Kernels{&MeosAggregate_wMin_1::Initialize, &MeosAggregate_wMin_1::Update, &MeosAggregate_wMin_1::Combine, &MeosAggregate_wMin_1::Finish, &MeosAggregate_wMin_1::Destroy, MeosAggregate_wMin_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wMin_1Kernels{&MeosAggregate_wMin_1::Initialize, &MeosAggregate_wMin_1::Update, &MeosAggregate_wMin_1::Combine, &MeosAggregate_wMin_1::Finish, MeosAggregate_wMin_1::StateSize};
 
 struct MeosAggregate_wMax_1Ops
 {
@@ -14510,13 +14511,13 @@ struct MeosAggregate_wMax_1Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmax_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14536,7 +14537,7 @@ struct MeosAggregate_wMax_1Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wMax_1Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wMax_1 = MeosRuntime::MeosAggregate<MeosAggregate_wMax_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wMax_1Kernels{&MeosAggregate_wMax_1::Initialize, &MeosAggregate_wMax_1::Update, &MeosAggregate_wMax_1::Combine, &MeosAggregate_wMax_1::Finish, &MeosAggregate_wMax_1::Destroy, MeosAggregate_wMax_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wMax_1Kernels{&MeosAggregate_wMax_1::Initialize, &MeosAggregate_wMax_1::Update, &MeosAggregate_wMax_1::Combine, &MeosAggregate_wMax_1::Finish, MeosAggregate_wMax_1::StateSize};
 
 struct MeosAggregate_wSum_1Ops
 {
@@ -14572,13 +14573,13 @@ struct MeosAggregate_wSum_1Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14598,7 +14599,7 @@ struct MeosAggregate_wSum_1Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wSum_1Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wSum_1 = MeosRuntime::MeosAggregate<MeosAggregate_wSum_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wSum_1Kernels{&MeosAggregate_wSum_1::Initialize, &MeosAggregate_wSum_1::Update, &MeosAggregate_wSum_1::Combine, &MeosAggregate_wSum_1::Finish, &MeosAggregate_wSum_1::Destroy, MeosAggregate_wSum_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wSum_1Kernels{&MeosAggregate_wSum_1::Initialize, &MeosAggregate_wSum_1::Update, &MeosAggregate_wSum_1::Combine, &MeosAggregate_wSum_1::Finish, MeosAggregate_wSum_1::StateSize};
 
 struct MeosAggregate_wCount_16Ops
 {
@@ -14634,13 +14635,13 @@ struct MeosAggregate_wCount_16Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14660,7 +14661,7 @@ struct MeosAggregate_wCount_16Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_16Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_16 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_16Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_16Kernels{&MeosAggregate_wCount_16::Initialize, &MeosAggregate_wCount_16::Update, &MeosAggregate_wCount_16::Combine, &MeosAggregate_wCount_16::Finish, &MeosAggregate_wCount_16::Destroy, MeosAggregate_wCount_16::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_16Kernels{&MeosAggregate_wCount_16::Initialize, &MeosAggregate_wCount_16::Update, &MeosAggregate_wCount_16::Combine, &MeosAggregate_wCount_16::Finish, MeosAggregate_wCount_16::StateSize};
 
 struct MeosAggregate_wAvgAgg_1Ops
 {
@@ -14696,13 +14697,13 @@ struct MeosAggregate_wAvgAgg_1Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tavg_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return tnumber_tavg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14722,7 +14723,7 @@ struct MeosAggregate_wAvgAgg_1Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wAvgAgg_1Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wAvgAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_wAvgAgg_1Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wAvgAgg_1Kernels{&MeosAggregate_wAvgAgg_1::Initialize, &MeosAggregate_wAvgAgg_1::Update, &MeosAggregate_wAvgAgg_1::Combine, &MeosAggregate_wAvgAgg_1::Finish, &MeosAggregate_wAvgAgg_1::Destroy, MeosAggregate_wAvgAgg_1::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wAvgAgg_1Kernels{&MeosAggregate_wAvgAgg_1::Initialize, &MeosAggregate_wAvgAgg_1::Update, &MeosAggregate_wAvgAgg_1::Combine, &MeosAggregate_wAvgAgg_1::Finish, MeosAggregate_wAvgAgg_1::StateSize};
 
 struct MeosAggregate_wMin_2Ops
 {
@@ -14758,13 +14759,13 @@ struct MeosAggregate_wMin_2Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmin_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14784,7 +14785,7 @@ struct MeosAggregate_wMin_2Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wMin_2Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wMin_2 = MeosRuntime::MeosAggregate<MeosAggregate_wMin_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wMin_2Kernels{&MeosAggregate_wMin_2::Initialize, &MeosAggregate_wMin_2::Update, &MeosAggregate_wMin_2::Combine, &MeosAggregate_wMin_2::Finish, &MeosAggregate_wMin_2::Destroy, MeosAggregate_wMin_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wMin_2Kernels{&MeosAggregate_wMin_2::Initialize, &MeosAggregate_wMin_2::Update, &MeosAggregate_wMin_2::Combine, &MeosAggregate_wMin_2::Finish, MeosAggregate_wMin_2::StateSize};
 
 struct MeosAggregate_wMax_2Ops
 {
@@ -14820,13 +14821,13 @@ struct MeosAggregate_wMax_2Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return temporal_tmax_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14846,7 +14847,7 @@ struct MeosAggregate_wMax_2Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wMax_2Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wMax_2 = MeosRuntime::MeosAggregate<MeosAggregate_wMax_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wMax_2Kernels{&MeosAggregate_wMax_2::Initialize, &MeosAggregate_wMax_2::Update, &MeosAggregate_wMax_2::Combine, &MeosAggregate_wMax_2::Finish, &MeosAggregate_wMax_2::Destroy, MeosAggregate_wMax_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wMax_2Kernels{&MeosAggregate_wMax_2::Initialize, &MeosAggregate_wMax_2::Update, &MeosAggregate_wMax_2::Combine, &MeosAggregate_wMax_2::Finish, MeosAggregate_wMax_2::StateSize};
 
 struct MeosAggregate_wSum_2Ops
 {
@@ -14882,13 +14883,13 @@ struct MeosAggregate_wSum_2Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14908,7 +14909,7 @@ struct MeosAggregate_wSum_2Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wSum_2Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wSum_2 = MeosRuntime::MeosAggregate<MeosAggregate_wSum_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wSum_2Kernels{&MeosAggregate_wSum_2::Initialize, &MeosAggregate_wSum_2::Update, &MeosAggregate_wSum_2::Combine, &MeosAggregate_wSum_2::Finish, &MeosAggregate_wSum_2::Destroy, MeosAggregate_wSum_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wSum_2Kernels{&MeosAggregate_wSum_2::Initialize, &MeosAggregate_wSum_2::Update, &MeosAggregate_wSum_2::Combine, &MeosAggregate_wSum_2::Finish, MeosAggregate_wSum_2::StateSize};
 
 struct MeosAggregate_wCount_17Ops
 {
@@ -14944,13 +14945,13 @@ struct MeosAggregate_wCount_17Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tsum_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return temporal_tagg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -14970,7 +14971,7 @@ struct MeosAggregate_wCount_17Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wCount_17Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wCount_17 = MeosRuntime::MeosAggregate<MeosAggregate_wCount_17Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wCount_17Kernels{&MeosAggregate_wCount_17::Initialize, &MeosAggregate_wCount_17::Update, &MeosAggregate_wCount_17::Combine, &MeosAggregate_wCount_17::Finish, &MeosAggregate_wCount_17::Destroy, MeosAggregate_wCount_17::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wCount_17Kernels{&MeosAggregate_wCount_17::Initialize, &MeosAggregate_wCount_17::Update, &MeosAggregate_wCount_17::Combine, &MeosAggregate_wCount_17::Finish, MeosAggregate_wCount_17::StateSize};
 
 struct MeosAggregate_wAvgAgg_2Ops
 {
@@ -15006,13 +15007,13 @@ struct MeosAggregate_wAvgAgg_2Ops
         std::free(row.a0);
         std::free(row.a1);
     }
-    static void* Combine(void* a, void* b)
-    {
-        return tnumber_tavg_combinefn(static_cast<struct SkipList*>(a), static_cast<struct SkipList*>(b));
-    }
     static void* Final(void* s)
     {
         return tnumber_tavg_finalfn(static_cast<struct SkipList*>(s));
+    }
+    static void Release(void* s)
+    {
+        skiplist_free(static_cast<struct SkipList*>(s));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -15032,7 +15033,7 @@ struct MeosAggregate_wAvgAgg_2Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_wAvgAgg_2Literals{DataType::Type::VARSIZED};
 using MeosAggregate_wAvgAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_wAvgAgg_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_wAvgAgg_2Kernels{&MeosAggregate_wAvgAgg_2::Initialize, &MeosAggregate_wAvgAgg_2::Update, &MeosAggregate_wAvgAgg_2::Combine, &MeosAggregate_wAvgAgg_2::Finish, &MeosAggregate_wAvgAgg_2::Destroy, MeosAggregate_wAvgAgg_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_wAvgAgg_2Kernels{&MeosAggregate_wAvgAgg_2::Initialize, &MeosAggregate_wAvgAgg_2::Update, &MeosAggregate_wAvgAgg_2::Combine, &MeosAggregate_wAvgAgg_2::Finish, MeosAggregate_wAvgAgg_2::StateSize};
 
 struct MeosAggregate_reachabilityFilterAgg_2Ops
 {
@@ -15062,13 +15063,13 @@ struct MeosAggregate_reachabilityFilterAgg_2Ops
     {
         std::free(row.a0);
     }
-    static void* Combine(void*, void*)
-    {
-        return nullptr;
-    }
     static void* Final(void* s)
     {
         return temporal_reachability_filter_finalfn(static_cast<struct ReachabilityState*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(temporal_reachability_filter_finalfn(static_cast<struct ReachabilityState*>(s)));
     }
     static int8_t* Write(void* v, int8_t* out)
     {
@@ -15088,7 +15089,7 @@ struct MeosAggregate_reachabilityFilterAgg_2Ops
 
 constexpr std::array<DataType::Type, 1> MeosAggregate_reachabilityFilterAgg_2Literals{DataType::Type::FLOAT64};
 using MeosAggregate_reachabilityFilterAgg_2 = MeosRuntime::MeosAggregate<MeosAggregate_reachabilityFilterAgg_2Ops>;
-constexpr MeosAggregateKernels MeosAggregate_reachabilityFilterAgg_2Kernels{&MeosAggregate_reachabilityFilterAgg_2::Initialize, &MeosAggregate_reachabilityFilterAgg_2::Update, &MeosAggregate_reachabilityFilterAgg_2::Combine, &MeosAggregate_reachabilityFilterAgg_2::Finish, &MeosAggregate_reachabilityFilterAgg_2::Destroy, MeosAggregate_reachabilityFilterAgg_2::StateSize};
+constexpr MeosAggregateKernels MeosAggregate_reachabilityFilterAgg_2Kernels{&MeosAggregate_reachabilityFilterAgg_2::Initialize, &MeosAggregate_reachabilityFilterAgg_2::Update, &MeosAggregate_reachabilityFilterAgg_2::Combine, &MeosAggregate_reachabilityFilterAgg_2::Finish, MeosAggregate_reachabilityFilterAgg_2::StateSize};
 
 void describe(PluginDescriptor& descriptor)
 {

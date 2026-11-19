@@ -25,6 +25,8 @@
 #include <Functions/LogicalFunction.hpp>
 #include <Functions/PhysicalFunction.hpp>
 #include <Interface/Record.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/TupleBuffer.hpp>
 #include <AggregationPhysicalFunctionRegistry.hpp>
 
 namespace NES
@@ -39,21 +41,20 @@ struct MeosAggregateKernels
 {
     /// The empty state laid in the slot
     void (*initialize)(int8_t* slot);
-    /// The argument of one row and the constants folded into the state
-    void (*update)(int8_t* slot, int8_t* argument, int8_t* literals);
-    /// The state of the source slot joined into the target's, the source left empty
-    void (*combine)(int8_t* target, int8_t* source);
-    /// The answer of the result over the state, which is left empty
-    int8_t* (*finish)(int8_t* slot, int8_t* out);
-    /// What the state holds released
-    void (*destroy)(int8_t* slot);
+    /// The argument of one row gathered in children of the parent buffer, allocated by the provider; whether the
+    /// argument is variable-sized
+    void (*update)(int8_t* slot, TupleBuffer* parent, AbstractBufferProvider* provider, int8_t* argument, bool varsized);
+    /// The rows of the source slot copied into the target's, the source left whole
+    void (*combine)(int8_t* target, TupleBuffer* targetParent, int8_t* source, TupleBuffer* sourceParent, AbstractBufferProvider* provider);
+    /// The answer of the result over the rows the slot gathers and the constants, which are left whole
+    int8_t* (*finish)(int8_t* slot, TupleBuffer* parent, int8_t* literals, bool varsized, int8_t* out);
     /// The size of the state
     size_t stateSize;
 };
 
-/// A MEOS aggregate over one overload: it folds the value of its argument into a MEOS state, joins the states
-/// of slices and threads with the aggregate's combine, and answers the final's result, null over no value. A
-/// variable-sized argument is passed as a MeosPhysicalFunction passes it; a number is cast to the type the
+/// A MEOS aggregate over one overload: it gathers the value of its argument in buffers of the hash map, joins the
+/// states of slices and threads by copying their values, leaving a slice whole for every window it lies in, and
+/// answers the final's result over the values folded by the transition, null over no value. A variable-sized argument is passed as a MeosPhysicalFunction passes it; a number is cast to the type the
 /// overload states. A null argument is skipped, the aggregate being STRICT.
 class MeosAggregationPhysicalFunction final : public AggregationPhysicalFunction
 {

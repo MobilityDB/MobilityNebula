@@ -16,7 +16,6 @@
 #define NES_PLUGINS_MEOS_HPP
 
 #include <string>
-#include <vector>
 
 extern "C" {
     #include <meos.h>
@@ -62,24 +61,6 @@ class Meos {
         void* stbox_ptr;
     };
 
-    class TemporalInstant {
-    public:
-        explicit TemporalInstant(double lon, double lat, long long ts, int srid=4326);
-        ~TemporalInstant();
-
-        TemporalInstant(const TemporalInstant&) = delete;
-        TemporalInstant& operator=(const TemporalInstant&) = delete;
-        TemporalInstant(TemporalInstant&& other) noexcept : instant(other.instant) { other.instant = nullptr; }
-        TemporalInstant& operator=(TemporalInstant&& other) noexcept { if (this!=&other){ instant = other.instant; other.instant=nullptr;} return *this; }
-
-        bool intersects(const TemporalInstant& point) const;
-
-    private:
-        Temporal* instant;
-    };
-
-    class StaticGeometry;
-    class TemporalGeometry;
     class StaticGeometry {
     public:
         explicit StaticGeometry(const std::string& wkt_string);
@@ -92,78 +73,12 @@ class Meos {
 
         GSERIALIZED* getGeometry() const;
 
-        int containsTemporal(const TemporalGeometry& temporal_geom) const;
-        // int coversTemporal(const TemporalGeometry& temporal_geom) const;
 
     private:
         GSERIALIZED* geometry;
     };
 
-    class TemporalGeometry {
-    public:
-        explicit TemporalGeometry(const std::string& wkt_string);
-        ~TemporalGeometry();
-
-        TemporalGeometry(const TemporalGeometry&) = delete;
-        TemporalGeometry& operator=(const TemporalGeometry&) = delete;
-        TemporalGeometry(TemporalGeometry&& other) noexcept : geometry(other.geometry) { other.geometry = nullptr; }
-        TemporalGeometry& operator=(TemporalGeometry&& other) noexcept { if (this!=&other){ geometry = other.geometry; other.geometry=nullptr;} return *this; }
-
-        Temporal* getGeometry() const;
-
-        int intersects(const TemporalGeometry& geom) const;
-        int intersectsStatic(const StaticGeometry& static_geom) const;
-        
-        int aintersects(const TemporalGeometry& geom) const;
-        int aintersectsStatic(const StaticGeometry& static_geom) const;
-
-        int contains(const TemporalGeometry& geom) const;
-        int containsStatic(const StaticGeometry& static_geom) const;
-
-        // int covers(const TemporalGeometry& geom) const;
-        // int coversStatic(const StaticGeometry& static_geom) const;
-
-        // int disjoint(const TemporalGeometry& geom) const;
-        // int disjointStatic(const StaticGeometry& static_geom) const;
-        
-        // int dwithin(const TemporalGeometry& geom, double dist) const;
-        // int dwithinStatic(const StaticGeometry& static_geom, double dist) const;
-
-        // int touches(const TemporalGeometry& geom) const;
-        // int touchesStatic(const StaticGeometry& static_geom) const;
-
-    private:
-        Temporal* geometry;
-    };
     
-    class TemporalSequence {
-    public:
-        // Constructor for creating trajectory from multiple points
-        explicit TemporalSequence(const std::vector<TemporalInstant*>& instants);
-        
-        // Constructor for creating trajectory from coordinate arrays
-        TemporalSequence(const std::vector<double>& longitudes, 
-                        const std::vector<double>& latitudes, 
-                        const std::vector<long long>& timestamps, 
-                        int srid = 4326);
-        
-        ~TemporalSequence();
-
-        TemporalSequence(const TemporalSequence&) = delete;
-        TemporalSequence& operator=(const TemporalSequence&) = delete;
-        TemporalSequence(TemporalSequence&& other) noexcept : sequence(other.sequence) { other.sequence = nullptr; }
-        TemporalSequence& operator=(TemporalSequence&& other) noexcept { if (this!=&other){ sequence = other.sequence; other.sequence=nullptr;} return *this; }
-
-        
-        // bool intersects(const TemporalInstant& point) const;
-        // double distance(const TemporalInstant& point) const;
-        double length(const TemporalInstant& instant) const;
-
-    private:
-        Temporal* sequence;
-    };
-
-
     class TemporalHolder {
     public:
         explicit TemporalHolder(Temporal* temporalPtr);
@@ -180,14 +95,6 @@ class Meos {
         Temporal* temporal;
     };
 
-
-    // Format a UTC timestamp string from seconds since epoch
-    static std::string convertSecondsToTimestamp(long long seconds);
-
-    // Heuristically interpret an epoch-like value that may be in seconds,
-    // milliseconds, microseconds, or nanoseconds, and format as UTC.
-    // Common thresholds: 10 digits (seconds), 13 (ms), 16 (us), 19 (ns).
-    static std::string convertEpochToTimestamp(unsigned long long epochLike);
 
     // Thread-safe wrappers around selected MEOS functions to avoid internal races
     static int safe_edwithin_tgeo_geo(const Temporal* temp, const GSERIALIZED* gs, double dist);

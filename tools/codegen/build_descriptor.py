@@ -34,16 +34,12 @@ import sys
 
 # --- per-base-type input construction -------------------------------------
 #
-# Building a single-instant temporal value of type T needs its parser and the C
-# type of its base value, and the catalog states both. MEOS names the parser
-# `<T>_in` for every text input, and `<T>inst_make(value, TimestampTz)` takes
-# the base value, so its FIRST parameter IS that C type — `tfloatinst_make`
-# takes a double and `tintinst_make` an int. Reading them retires a table that
-# named two temporal types where the catalog describes thirteen.
-#
-# The instant's text form `value@timestamp` is one grammar shared by every
-# temporal type, so it is a constant rather than a per-type entry.
-INSTANT_WKT = "{}@{}"
+# Building a single-instant temporal value of type T needs its constructor and
+# the C type of its base value, and the catalog states both.
+# `<T>inst_make(value, TimestampTz)` takes the base value, so its FIRST parameter
+# IS that C type — `tfloatinst_make` takes a double and `tintinst_make` an int.
+# Reading them retires a table that named two temporal types where the catalog
+# describes thirteen.
 # C width of a by-value operand -> the C++ spelling a stream field carries. This
 # is the binding's marshalling and not a MEOS fact, and it is ONE mapping: every
 # shape reads it through scalar_cpp(), so no two shapes disagree on which widths
@@ -96,7 +92,7 @@ def scalar_cpp(ctype):
     `TimestampTz` (its `typedefs` entry is int64_t), answers None: the stream
     carries an event time in its own epoch and unit, so an operand taken from a
     raw integer field would be a wrong instant, and every builder reaches a
-    TimestampTz through `timestamptz_in` or an explicit `(TimestampTz)` cast.
+    TimestampTz through `NES::MeosRuntime::timestamptz`.
     A width SCALAR_CPP does not hold also answers None, and the shape declines.
     """
     return SCALAR_CPP.get(ctype) or SCALAR_CPP.get(_OWN_TYPES.get(ctype, ""))
@@ -107,17 +103,17 @@ _TEMPORAL_TYPES: dict = {}
 
 
 def base_input(temporal_type):
-    """(parser, base C type, wkt format) for a temporal type, or None.
+    """(constructor, base C type) for a temporal type, or None.
 
-    None means the catalog does not describe both halves, so a shape asking for
-    this type declines rather than emitting a call to a parser or a constructor
-    that may not exist.
+    None means the catalog does not describe the constructor, so a shape asking
+    for this type declines rather than emitting a call to a constructor that may
+    not exist.
     """
-    parser = f"{temporal_type}_in"
-    ctor = (_CATALOG.get(f"{temporal_type}inst_make") or {}).get("params") or []
-    if parser not in _CATALOG or not ctor:
+    name = f"{temporal_type}inst_make"
+    ctor = (_CATALOG.get(name) or {}).get("params") or []
+    if not ctor:
         return None
-    return parser, ctor[0], INSTANT_WKT
+    return name, ctor[0]
 
 # Catalog index populated by load_catalog(); maps fn-name -> the catalog facts a
 # classifier may need: the canonical SQL name, and the header that declares the
@@ -230,7 +226,7 @@ def cmp_scalar_tempfirst(fn, ret, args):
     resolved = base_input(base) if base else None
     if not resolved:
         return None
-    in_fn, base_ctype, wkt = resolved
+    inst_make, base_ctype = resolved
     vcpp = scalar_cpp(base_ctype)
     if not vcpp:
         return None
@@ -262,8 +258,7 @@ def cmp_scalar_tempfirst(fn, ret, args):
         "build_tnumber_point_with_scalar": True,
         "tnumber_value_cpp_type": vcpp,
         "scalar_cpp_type": vcpp,
-        "tnumber_wkt_format": wkt,
-        "tnumber_in_fn": in_fn,
+        "tnumber_inst_make": inst_make,
         "comment_one_liner": (
             f"Per-event {parts[0]} comparison of a single-instant {base} "
             f"(built from value+timestamp) against a scalar constant."),
@@ -297,7 +292,7 @@ def cmp_scalar_scalarfirst(fn, ret, args):
     resolved = base_input(base) if base else None
     if not resolved:
         return None
-    in_fn, base_ctype, wkt = resolved
+    inst_make, base_ctype = resolved
     vcpp = scalar_cpp(base_ctype)
     if not vcpp:
         return None
@@ -328,8 +323,7 @@ def cmp_scalar_scalarfirst(fn, ret, args):
         "build_tnumber_scalar_first": True,
         "tnumber_value_cpp_type": vcpp,
         "scalar_cpp_type": vcpp,
-        "tnumber_wkt_format": wkt,
-        "tnumber_in_fn": in_fn,
+        "tnumber_inst_make": inst_make,
         "comment_one_liner": (
             f"Per-event {parts[0]} comparison of a scalar constant against a "
             f"single-instant {base} (built from value+timestamp); scalar-first MEOS arg order."),
@@ -355,7 +349,7 @@ def cmp_two_temporal(fn, ret, args):
     resolved = base_input("tfloat")
     if not resolved:
         return None
-    in_fn, vcpp, wkt = resolved
+    inst_make, vcpp = resolved
     # type suffix is always "temporal_temporal" for this shape
     type_suffix = "temporal_temporal"
     # a record now exists for every catalogued function, so the guard tests the
@@ -384,8 +378,7 @@ def cmp_two_temporal(fn, ret, args):
         "nautilus_return": "INT32",
         "build_two_tnumber_points": True,
         "tnumber_value_cpp_type": vcpp,
-        "tnumber_wkt_format": wkt,
-        "tnumber_in_fn": in_fn,
+        "tnumber_inst_make": inst_make,
         "comment_one_liner": (
             f"Per-event {fn.split('_')[0]} comparison between two single-instant "
             f"temporals (built from valueA/tsA and valueB/tsB)."),

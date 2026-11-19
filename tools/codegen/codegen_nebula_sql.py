@@ -1034,6 +1034,7 @@ class AggregateLayer:
             return 'no combine over a value of no temporal type'
         ff = self.by_name.get(roles['final']) if roles['final'] else None
         keeps = bool(ff and ff.get('params') and ff['params'][0]['canonical'].startswith('const '))
+        stc = c_spelling(params[0]['canonical'])
         res = ff or tf
         rc = c_spelling(res['returnType']['canonical'])
         if not rc.endswith('*'):
@@ -1044,7 +1045,7 @@ class AggregateLayer:
         lines, _ = answer
         cast = lambda fn, i: f'static_cast<{c_spelling(fn["params"][i]["canonical"])}>'  # noqa: E731
         key = f'MeosAggregate_{name}_{len(self.overloads.get(name, []))}'
-        for fn in (tf, self.by_name.get(roles['combine']), ff):
+        for fn in (tf, ff):
             if fn:
                 self.t.fn(fn['name'])
         L = [f'struct {key}Ops', '{', '    struct Row', '    {', *(f'        {f}' for f in fields), '    };',
@@ -1058,16 +1059,11 @@ class AggregateLayer:
              f'        return {tf["name"]}({cast(tf, 0)}(s){"".join(", " + c for c in call)});', '    }',
              '    static void Free(Row& row)', '    {',
              *((f'        {f}' for f in frees) if frees else ['        static_cast<void>(row);']), '    }']
-        if roles['combine']:
-            cf = self.by_name[roles['combine']]
-            L += ['    static void* Combine(void* a, void* b)', '    {',
-                  f'        return {cf["name"]}({cast(cf, 0)}(a), {cast(cf, 1)}(b));', '    }']
-        else:
-            L += ['    static void* Combine(void*, void*)', '    {', '        return nullptr;', '    }']
         if ff:
             L += ['    static void* Final(void* s)', '    {', f'        return {ff["name"]}({cast(ff, 0)}(s));', '    }']
         else:
             L += ['    static void* Final(void* s)', '    {', '        return s;', '    }']
+        L += ['    static void Release(void* s)', '    {', f'        {self.release(stc, ff, keeps)};', '    }']
         body = [line.replace('\n', '\n    ') for line in lines]
         L += ['    static int8_t* Write(void* v, int8_t* out)', '    {',
               f'        auto* r = static_cast<{rc.replace("const ", "")}>(v);']
@@ -1085,6 +1081,28 @@ class AggregateLayer:
         self.ops.append((key, '\n'.join(L), first[1], tuple(literal_types)))
         self.overloads.setdefault(name, []).append((first[0], tuple(literal_types), rtype[0], key))
         return None
+
+    def method(self, ctype, oo):
+        """The MEOS function the catalog's object model states as the method `oo` of the class of the C type
+        (objectModel.classes.<C type>.methods[].ooName), as SkipList states free and Span states copy; None where
+        it states none"""
+        base = ctype.replace('const ', '').replace('struct ', '').rstrip('*').strip()
+        cls = ((self.f.cat.get('objectModel') or {}).get('classes') or {}).get(base) or {}
+        for m in cls.get('methods') or []:
+            if m.get('ooName') == oo and m.get('function') in self.by_name:
+                return self.t.fn(m['function'])['name']
+        return None
+
+    def release(self, stc, ff, keeps):
+        """The statement releasing a state `s` of the C type stc without its result: the free of its type, else
+        the free of the one block of memory a value of a type with a copy is, else as its final releases it, a
+        final consuming its state"""
+        free = self.method(stc, 'free')
+        if free:
+            return f'{free}(static_cast<{stc}>(s))'
+        if ff and not keeps and not self.method(stc, 'copy'):
+            return f'std::free({ff["name"]}(static_cast<{c_spelling(ff["params"][0]["canonical"])}>(s)))'
+        return 'std::free(s)'
 
     def build(self, functions):
         """Every entry of the catalog's `aggregates` section, one overload per name and argument types, as
@@ -1145,7 +1163,7 @@ class AggregateLayer:
             out += [src, f'constexpr std::array<DataType::Type, {len(lits)}> {key}Literals{{{types}}};',
                     f'using {key} = MeosRuntime::MeosAggregate<{key}Ops>;',
                     f'constexpr MeosAggregateKernels {key}Kernels{{&{key}::Initialize, &{key}::Update, &{key}::Combine, '
-                    f'&{key}::Finish, &{key}::Destroy, {key}::StateSize}};', '']
+                    f'&{key}::Finish, {key}::StateSize}};', '']
         out += ['void describe(PluginDescriptor& descriptor)', '{']
         for key, _, ptype, _ in self.ops:
             out += ['    descriptor.entries.push_back(EntryProvision{',

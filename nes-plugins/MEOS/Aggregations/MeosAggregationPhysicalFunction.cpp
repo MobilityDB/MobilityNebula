@@ -186,12 +186,11 @@ MeosAggregationPhysicalFunction::MeosAggregationPhysicalFunction(
 
 void MeosAggregationPhysicalFunction::lift(
     const nautilus::val<AggregationState*>& aggregationState,
-    BorrowedNautilusBuffer,
+    BorrowedNautilusBuffer parentBuffer,
     PipelineMemoryProvider& pipelineMemoryProvider,
     const Record& record)
 {
     const auto slot = static_cast<nautilus::val<int8_t*>>(aggregationState);
-    const auto block = nautilus::val<int8_t*>(literals->block.data());
     const auto value = inputFunction.execute(record, pipelineMemoryProvider.arena);
     const auto update = [&]
     {
@@ -205,7 +204,13 @@ void MeosAggregationPhysicalFunction::lift(
         {
             value.castToType(argumentType).writeToMemory(argument);
         }
-        nautilus::invoke(kernels.update, slot, argument, block);
+        nautilus::invoke(
+            kernels.update,
+            slot,
+            parentBuffer.asArg(),
+            pipelineMemoryProvider.bufferProvider,
+            argument,
+            nautilus::val<bool>(argumentType == DataType::Type::VARSIZED));
     };
     if (value.isNullable())
     {
@@ -221,20 +226,33 @@ void MeosAggregationPhysicalFunction::lift(
 
 void MeosAggregationPhysicalFunction::combine(
     const nautilus::val<AggregationState*> aggregationState1,
-    BorrowedNautilusBuffer,
+    BorrowedNautilusBuffer parentBuffer1,
     const nautilus::val<AggregationState*> aggregationState2,
-    BorrowedNautilusBuffer,
-    PipelineMemoryProvider&)
+    BorrowedNautilusBuffer parentBuffer2,
+    PipelineMemoryProvider& pipelineMemoryProvider)
 {
     nautilus::invoke(
-        kernels.combine, static_cast<nautilus::val<int8_t*>>(aggregationState1), static_cast<nautilus::val<int8_t*>>(aggregationState2));
+        kernels.combine,
+        static_cast<nautilus::val<int8_t*>>(aggregationState1),
+        parentBuffer1.asArg(),
+        static_cast<nautilus::val<int8_t*>>(aggregationState2),
+        parentBuffer2.asArg(),
+        pipelineMemoryProvider.bufferProvider);
 }
 
 Record MeosAggregationPhysicalFunction::lower(
-    const nautilus::val<AggregationState*> aggregationState, BorrowedNautilusBuffer, PipelineMemoryProvider& pipelineMemoryProvider)
+    const nautilus::val<AggregationState*> aggregationState,
+    BorrowedNautilusBuffer parentBuffer,
+    PipelineMemoryProvider& pipelineMemoryProvider)
 {
     const auto out = pipelineMemoryProvider.arena.allocateMemory(nautilus::val<size_t>(MeosRuntime::AnswerSize));
-    const auto answer = nautilus::invoke(kernels.finish, static_cast<nautilus::val<int8_t*>>(aggregationState), out);
+    const auto answer = nautilus::invoke(
+        kernels.finish,
+        static_cast<nautilus::val<int8_t*>>(aggregationState),
+        parentBuffer.asArg(),
+        nautilus::val<int8_t*>(literals->block.data()),
+        nautilus::val<bool>(argumentType == DataType::Type::VARSIZED),
+        out);
     const auto null = nautilus::invoke(answeredNull, out);
     Record record;
     if (resultType.type != DataType::Type::VARSIZED)
@@ -255,9 +273,9 @@ void MeosAggregationPhysicalFunction::reset(
     nautilus::invoke(kernels.initialize, static_cast<nautilus::val<int8_t*>>(aggregationState));
 }
 
-void MeosAggregationPhysicalFunction::cleanup(const nautilus::val<AggregationState*> aggregationState)
+void MeosAggregationPhysicalFunction::cleanup(const nautilus::val<AggregationState*>)
 {
-    nautilus::invoke(kernels.destroy, static_cast<nautilus::val<int8_t*>>(aggregationState));
+    /// No-op: the state lives in children of the hash map's buffer, released with it
 }
 
 size_t MeosAggregationPhysicalFunction::getSizeOfStateInBytes() const

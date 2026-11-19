@@ -19,47 +19,50 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <limits>
 #include <vector>
+#include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/TupleBuffer.hpp>
+#include <ErrorHandling.hpp>
 #include <MeosKernelRuntime.hpp>
 
 /// An aggregate of the MEOS catalog over its MEOS state, as tools/codegen/codegen_nebula_sql.py
 /// generates each entry of the catalog's `aggregates` section, and as MobilityDuck's
 /// src/include/mobilityduck/meos_aggregate.hpp runs the same entries in DuckDB. The catalog states,
 /// per CREATE AGGREGATE of MobilityDB, the public MEOS function of each role: the transition folds the
-/// arguments of one row into the state, the combine joins two partial states, the final answers the
-/// result. Nothing else is stated per aggregate, so this one template runs every one of them from an
-/// operations struct the generator writes per catalog entry:
+/// arguments of one row into the state and the final answers the result. Nothing else is stated per
+/// aggregate, so this one template runs every one of them from an operations struct the generator writes
+/// per catalog entry:
 ///
 ///   Row                    the decoded arguments of one row
-///   GATHERS                true when the aggregate states no combine
+///   GATHERS                true when the aggregate states no combine, its rows folded in time order
 ///   HAS_FINAL, KEEPS       whether it states a final, and whether that final takes its state const,
 ///                          keeping it
 ///   Read(row, a0, block)   decode the argument a MeosAggregationPhysicalFunction hands over and the query
 ///                          literals of its block (#literal) into row; false when the argument holds no value
 ///   Transition(state, row) the state with the row folded in
 ///   Free(row)              release what Read decoded
-///   Combine(a, b)          the two partial states joined
 ///   Final(state)           the result over the state
 ///   Write(result, out)     the answer of the result, released, in the form a MEOS kernel answers
 ///   Order(row)             the start timestamp of the first argument of a row
+///   Release(state)         a state released without its result: the free of its type the catalog states,
+///                          else as its final releases it
 ///
-/// A combine answers in the place of its first state, returning it or freeing it for a larger one
-/// (set_union_combinefn), except that a skip-list combine answers its second state when the first is
-/// empty (temporal_tagg_combinefn): the state it does not answer is released. A final consumes its state
-/// (set_union_finalfn, temporal_tagg_finalfn), so a state is released by releasing what its final
-/// answers, except a final taking its state const, which keeps it (temporal_append_finalfn answers a
-/// compact copy): that state is released after its final.
+/// A final consumes its state (set_union_finalfn, temporal_tagg_finalfn), except a final taking its state
+/// const, which keeps it (temporal_append_finalfn answers a compact copy): that state is released after its
+/// final.
 ///
-/// An aggregate stating no combine is the constructor of a temporal value fed one row at a time:
-/// appendInstantAgg builds a sequence from instants and appendSequenceAgg a sequence set from sequences,
-/// each transition accepting a value only after those already folded in time. NebulaStream hands the rows
-/// of a window in no order and joins the partial states of its slices and worker threads, so such an
-/// aggregate gathers its rows, a partial state joining another by taking its rows, and folds them when it
-/// finishes, ordered by the start timestamp of their first argument: the answer MobilityDB gives over the
-/// same rows ordered by time.
-///
-/// The state lives in the memory NebulaStream keeps for each aggregation of a window and key, a slot of
-/// StateSize bytes it hands over with no alignment, so the state is copied in and out of it.
+/// NebulaStream keeps the state of each aggregation of a window and key in a slot of the hash map of a slice,
+/// and joins the state of a slice into the state of every window the slice lies in: a sliding window joins a
+/// slice into several windows, so a join reads its source and leaves it whole. It releases a slice by
+/// releasing the buffers of its hash map and calls no function of the aggregation on it, so the state lives
+/// in buffers the hash map holds as its children, as the median keeps its paged vector, and nothing a kernel
+/// allocates outlives the kernel. The state is the rows of the window: the slot holds the indexes of the
+/// children keeping the bytes of their arguments, a join copies the rows of its source, and the finish decodes
+/// them and folds them by the transition. An aggregate stating no combine is the constructor of a temporal
+/// value fed one row at a time (appendInstantAgg builds a sequence from instants), each transition accepting a
+/// value only after those already folded in time, so its rows are folded ordered by the start timestamp of
+/// their first argument: the answer MobilityDB gives over the same rows ordered by time.
 namespace NES::MeosRuntime
 {
 
@@ -68,168 +71,212 @@ namespace NES::MeosRuntime
 inline constexpr size_t AnswerNullAt = sizeof(int64_t);
 inline constexpr size_t AnswerSize = AnswerNullAt + sizeof(int64_t);
 
+/// The index of no child buffer
+inline constexpr uint32_t NoBuffer = std::numeric_limits<uint32_t>::max();
+
+/// The bytes a child buffer keeps start after a header of 8 bytes, aligned for any MEOS type
+inline constexpr size_t Header = sizeof(uint64_t);
+
+/// The smallest child buffer the rows are kept in
+inline constexpr size_t SmallestBuffer = 256;
+
+/// The size rounded up to the alignment of a header
+inline size_t aligned(const size_t size)
+{
+    return (size + Header - 1) / Header * Header;
+}
+
+inline uint32_t indexAt(const int8_t* slot, const size_t at)
+{
+    uint32_t index = 0;
+    std::memcpy(&index, slot + at, sizeof(index));
+    return index;
+}
+
+inline void setIndex(int8_t* slot, const size_t at, const uint32_t index)
+{
+    std::memcpy(slot + at, &index, sizeof(index));
+}
+
+/// The memory of the child buffer of the parent at the index, which the parent keeps as long as it lives
+inline int8_t* childMemory(const TupleBuffer* parent, const uint32_t index)
+{
+    auto child = parent->loadChildBuffer(ChildBufferIndex{index});
+    return child.getAvailableMemoryArea<int8_t>().data();
+}
+
+inline size_t childSize(const TupleBuffer* parent, const uint32_t index)
+{
+    return parent->loadChildBuffer(ChildBufferIndex{index}).getBufferSize();
+}
+
+/// A new child buffer of the parent of at least the size, its index
+inline uint32_t newChild(TupleBuffer* parent, AbstractBufferProvider* provider, const size_t size)
+{
+    auto buffer = provider->getUnpooledBuffer(std::max(size, SmallestBuffer));
+    if (not buffer)
+    {
+        throw BufferAllocationFailure("No unpooled TupleBuffer available for the state of a MEOS aggregate");
+    }
+    return parent->storeChildBuffer(*buffer).getRawValue();
+}
+
+/// The length of the bytes the memory keeps after its header
+inline size_t lengthAt(const int8_t* memory)
+{
+    uint64_t length = 0;
+    std::memcpy(&length, memory, sizeof(length));
+    return length;
+}
+
+/// The rows a slot gathers are kept in a chain of child buffers, the slot holding the index of the first and the
+/// last: each buffer holds the index of the next and the bytes it uses, then the rows, each its length and its
+/// bytes
+inline constexpr size_t FirstAt = 0;
+inline constexpr size_t LastAt = sizeof(uint32_t);
+inline constexpr size_t UsedAt = sizeof(uint64_t);
+inline constexpr size_t RowsAt = 2 * sizeof(uint64_t);
+inline constexpr size_t RowsBuffer = 4096;
+
+inline void appendRow(int8_t* slot, TupleBuffer* parent, AbstractBufferProvider* provider, const int8_t* data, const size_t size)
+{
+    const size_t needed = Header + aligned(size);
+    auto last = indexAt(slot, LastAt);
+    uint64_t used = 0;
+    if (last != NoBuffer)
+    {
+        used = lengthAt(childMemory(parent, last) + UsedAt);
+    }
+    if (last == NoBuffer or childSize(parent, last) < used + needed)
+    {
+        const auto next = newChild(parent, provider, std::max(RowsBuffer, RowsAt + needed));
+        setIndex(childMemory(parent, next), 0, NoBuffer);
+        used = RowsAt;
+        if (last == NoBuffer)
+        {
+            setIndex(slot, FirstAt, next);
+        }
+        else
+        {
+            setIndex(childMemory(parent, last), 0, next);
+        }
+        setIndex(slot, LastAt, next);
+        last = next;
+    }
+    auto* memory = childMemory(parent, last);
+    const uint64_t length = size;
+    std::memcpy(memory + used, &length, sizeof(length));
+    std::memcpy(memory + used + Header, data, size);
+    used += needed;
+    std::memcpy(memory + UsedAt, &used, sizeof(used));
+}
+
+/// Each row the slot gathers handed to the function, as its bytes and their length
+template <typename F>
+void forEachRow(const int8_t* slot, const TupleBuffer* parent, F&& function)
+{
+    auto index = indexAt(slot, FirstAt);
+    while (index != NoBuffer)
+    {
+        auto* memory = childMemory(parent, index);
+        const auto used = lengthAt(memory + UsedAt);
+        for (size_t at = RowsAt; at < used;)
+        {
+            const auto length = lengthAt(memory + at);
+            function(memory + at + Header, length);
+            at += Header + aligned(length);
+        }
+        index = indexAt(memory, 0);
+    }
+}
+
 template <class OPS>
 struct MeosAggregate
 {
     using Row = typename OPS::Row;
 
-    struct State
-    {
-        void* state;
-        std::vector<Row>* rows;
-    };
+    /// The indexes of the first and the last child buffer of the rows
+    static constexpr size_t StateSize = 2 * sizeof(uint32_t);
 
-    static constexpr size_t StateSize = sizeof(State);
-
-    static State load(const int8_t* slot)
+    static void Initialize(int8_t* slot)
     {
-        State s;
-        std::memcpy(&s, slot, sizeof(State));
-        return s;
+        setIndex(slot, FirstAt, NoBuffer);
+        setIndex(slot, LastAt, NoBuffer);
     }
 
-    static void store(int8_t* slot, const State& s) { std::memcpy(slot, &s, sizeof(State)); }
-
-    static void Initialize(int8_t* slot) { store(slot, State{nullptr, nullptr}); }
-
-    /// The state with the row folded in; the row is released either way
-    static void Fold(State& s, Row& row)
+    /// The argument of the row gathered: the bytes of a variable-sized one, the slot of a number
+    static void Update(int8_t* slot, TupleBuffer* parent, AbstractBufferProvider* provider, int8_t* argument, const bool varsized)
     {
-        s.state = OPS::Transition(s.state, row);
-        OPS::Free(row);
-    }
-
-    static void Release(void* state)
-    {
-        if (state == nullptr)
+        if (varsized)
         {
-            return;
-        }
-        if (not OPS::HAS_FINAL or OPS::KEEPS)
-        {
-            std::free(state);
+            appendRow(slot, parent, provider, contentOf(argument), lengthOf(argument));
         }
         else
         {
-            std::free(OPS::Final(state));
+            appendRow(slot, parent, provider, argument, sizeof(int64_t));
         }
     }
 
-    static void ReleaseRows(State& s)
+    /// The rows of the source slot copied into the target's; the source is left whole, a slice joining every window
+    /// it lies in
+    static void
+    Combine(int8_t* target, TupleBuffer* targetParent, int8_t* source, TupleBuffer* sourceParent, AbstractBufferProvider* provider)
     {
-        if (s.rows == nullptr)
-        {
-            return;
-        }
-        for (auto& row : *s.rows)
-        {
-            OPS::Free(row);
-        }
-        delete s.rows;
-        s.rows = nullptr;
+        forEachRow(
+            source, sourceParent, [&](const int8_t* data, const size_t size) { appendRow(target, targetParent, provider, data, size); });
     }
 
-    /// The gathered rows folded into the state, in the order of their start timestamps
-    static void FoldGathered(State& s)
+    /// The state the rows the slot gathers fold into, laid in memory MEOS allocates; none when no row holds a value
+    static void* Folded(const int8_t* slot, const TupleBuffer* parent, int8_t* block, const bool varsized)
     {
-        if (s.rows == nullptr)
-        {
-            return;
-        }
-        auto& rows = *s.rows;
-        std::stable_sort(rows.begin(), rows.end(), [](const Row& a, const Row& b) { return OPS::Order(a) < OPS::Order(b); });
-        for (auto& row : rows)
-        {
-            Fold(s, row);
-        }
-        delete s.rows;
-        s.rows = nullptr;
-    }
-
-    static void Update(int8_t* slot, int8_t* a0, int8_t* block)
-    {
-        initialized();
-        Row row{};
-        if (not OPS::Read(row, a0, block))
-        {
-            return;
-        }
-        auto s = load(slot);
-        if (OPS::GATHERS)
-        {
-            if (s.rows == nullptr)
+        std::vector<Row> rows;
+        forEachRow(
+            slot,
+            parent,
+            [&](const int8_t* data, const size_t size)
             {
-                s.rows = new std::vector<Row>();
-            }
-            s.rows->push_back(row);
-        }
-        else
-        {
-            Fold(s, row);
-        }
-        store(slot, s);
-    }
-
-    /// The source state joined into the target, the source left empty
-    static void Combine(int8_t* target, int8_t* source)
-    {
-        initialized();
-        auto a = load(target);
-        auto b = load(source);
-        if (OPS::GATHERS)
-        {
-            if (b.rows != nullptr)
-            {
-                if (a.rows == nullptr)
+                /// A variable-sized argument is handed over as the Argument naming its bytes, a number as its slot
+                int8_t named[sizeof(Argument)];
+                int8_t number[sizeof(int64_t)];
+                if (varsized)
                 {
-                    a.rows = b.rows;
+                    const Argument argument{.size = size, .content = data};
+                    std::memcpy(named, &argument, sizeof(argument));
                 }
                 else
                 {
-                    a.rows->insert(a.rows->end(), b.rows->begin(), b.rows->end());
-                    delete b.rows;
+                    std::memcpy(number, data, sizeof(number));
                 }
-                b.rows = nullptr;
-            }
-        }
-        else
+                Row row{};
+                if (OPS::Read(row, varsized ? named : number, block))
+                {
+                    rows.push_back(row);
+                }
+            });
+        if constexpr (OPS::GATHERS)
         {
-            void* x = a.state;
-            void* y = b.state;
-            b.state = nullptr;
-            if (x == nullptr)
-            {
-                a.state = y;
-            }
-            else if (y != nullptr)
-            {
-                void* r = OPS::Combine(x, y);
-                Release(r == y ? x : y);
-                a.state = r;
-            }
+            std::stable_sort(rows.begin(), rows.end(), [](const Row& a, const Row& b) { return OPS::Order(a) < OPS::Order(b); });
         }
-        store(target, a);
-        store(source, b);
+        void* state = nullptr;
+        for (auto& row : rows)
+        {
+            state = OPS::Transition(state, row);
+            OPS::Free(row);
+        }
+        return state;
     }
 
-    /// The answer of the result over a state, which is left empty: a variable-sized value as a kernel answers
-    /// it, a number in `out`, and in either case the null flag at AnswerNullAt of `out`, set when the aggregate
-    /// folded no value, as an aggregate over no row answers null in MobilityDB
-    static int8_t* Finish(int8_t* slot, int8_t* out)
+    /// The answer of the result over the rows the slot gathers, which it keeps: a variable-sized value as a kernel
+    /// answers it, a number in `out`, and in either case the null flag at AnswerNullAt of `out`, set when the
+    /// aggregate folded no value, as an aggregate over no row answers null in MobilityDB
+    static int8_t* Finish(int8_t* slot, TupleBuffer* parent, int8_t* block, const bool varsized, int8_t* out)
     {
         initialized();
-        auto s = load(slot);
-        if (OPS::GATHERS)
-        {
-            FoldGathered(s);
-        }
-        void* state = s.state;
-        s.state = nullptr;
-        store(slot, s);
+        void* state = Folded(slot, parent, block, varsized);
         void* r = state == nullptr ? nullptr : OPS::HAS_FINAL ? OPS::Final(state) : state;
         if (state != nullptr and OPS::KEEPS and r != state)
         {
-            std::free(state);
+            OPS::Release(state);
         }
         std::memset(out, 0, AnswerSize);
         if (r == nullptr)
@@ -238,16 +285,6 @@ struct MeosAggregate
             return none();
         }
         return OPS::Write(r, out);
-    }
-
-    /// A state left by an error or never finished released
-    static void Destroy(int8_t* slot)
-    {
-        auto s = load(slot);
-        Release(s.state);
-        s.state = nullptr;
-        ReleaseRows(s);
-        store(slot, s);
     }
 };
 

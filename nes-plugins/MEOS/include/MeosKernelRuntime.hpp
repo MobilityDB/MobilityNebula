@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -184,6 +185,7 @@ public:
             std::memcpy(laid, at, size);
             at += size;
             elements.push_back(laid);
+            sizes.push_back(size);
         }
     }
     Array(const Array&) = delete;
@@ -201,10 +203,24 @@ public:
     /// The C array of the elements, as MEOS takes it
     [[nodiscard]] void** get() { return elements.data(); }
     [[nodiscard]] int count() const { return static_cast<int>(elements.size()); }
+    /// The elements laid end to end, each the size of the struct MEOS reads, as the contiguous C array of
+    /// structs it takes (spanset_make reads Span *spans), as JMEOS's MeosSqlRuntime#structs copies the first
+    /// size bytes of each decoded value into it; an element shorter than the struct leaves the rest zero
+    [[nodiscard]] void* structs(const size_t size)
+    {
+        laid.assign(elements.size() * size, std::byte{0});
+        for (size_t i = 0; i < elements.size(); ++i)
+        {
+            std::memcpy(laid.data() + i * size, elements[i], std::min<size_t>(size, sizes[i]));
+        }
+        return laid.data();
+    }
 
 private:
     uint32_t length;
     std::vector<void*> elements;
+    std::vector<uint32_t> sizes;
+    std::vector<std::byte> laid;
 };
 
 /// The answer of the array of count values MEOS allocated, each written as the memory image of its size, then
@@ -227,6 +243,30 @@ int8_t* array(void** values, const int count, Size size)
         std::memcpy(carried.data() + at, &length, sizeof(length));
         std::memcpy(carried.data() + at + sizeof(length), values[i], length);
         std::free(values[i]);
+    }
+    std::free(values);
+    return bytes(carried.data(), carried.size());
+}
+
+/// The answer of the contiguous C array of count structs MEOS allocated (spanset_spans answers Span *), each
+/// written as the memory image of its size bytes, as JMEOS's #_setret_column reads element i at i times the size
+/// #struct_layout gives the struct, then freed as one block
+inline int8_t* structs(void* values, const int count, const size_t size)
+{
+    if (values == nullptr)
+    {
+        return none();
+    }
+    std::vector<std::byte> carried(sizeof(uint32_t));
+    const auto n = static_cast<uint32_t>(count);
+    std::memcpy(carried.data(), &n, sizeof(n));
+    const auto length = static_cast<uint32_t>(size);
+    for (int i = 0; i < count; ++i)
+    {
+        const auto at = carried.size();
+        carried.resize(at + sizeof(length) + length);
+        std::memcpy(carried.data() + at, &length, sizeof(length));
+        std::memcpy(carried.data() + at + sizeof(length), static_cast<const std::byte*>(values) + i * size, length);
     }
     std::free(values);
     return bytes(carried.data(), carried.size());

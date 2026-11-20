@@ -230,24 +230,18 @@ class TypeLayer:
             'constexpr ExtensionType ByteaType{.name = "BYTEA", .fromText = ByteaFromText};', ''])
 
     def array_source(self, sql):
-        """The C++ of the extension type of an array of `sql`, as #bytea_source writes the type of `bytea` and
-        MobilityFlink's ARRAY of the value class carries it: the number of elements, then each element's
-        memory image after its length, written as the text of its elements in braces. An array passes between
-        functions and is read from no text."""
+        """The C++ of the extension type of an array of `sql`, as MobilityFlink's ARRAY of the value class
+        carries it: the number of elements, then each element's bytes after their length, read and written in
+        PostgreSQL's array text form, each element by the reader and writer of `sql` (#arrayToText,
+        #arrayFromText)."""
         name = ident(sql)
         return '\n'.join([
-            f'/* {sql}[]: an array of {sql}, carried as its number of elements, then each element\'s memory image after its length */',
+            f'/* {sql}[]: an array of {sql}, carried as its number of elements, then each element after its length, '
+            f'read and written as PostgreSQL writes an array of {sql} */',
             f'std::string {name}ArrayToText(std::span<const std::byte> bytes)', '{',
-            '    if (bytes.empty())', '    {', '        return {};', '    }',
-            '    uint32_t count = 0;', '    std::memcpy(&count, bytes.data(), sizeof(count));',
-            '    size_t at = sizeof(count);', '    std::string text{"{"};',
-            '    for (uint32_t i = 0; i < count; ++i)', '    {',
-            '        uint32_t size = 0;', '        std::memcpy(&size, bytes.data() + at, sizeof(size));', '        at += sizeof(size);',
-            '        if (i > 0)', '        {', '            text += ", ";', '        }',
-            f'        text += {name}ToText(bytes.subspan(at, size));', '        at += size;', '    }',
-            '    text += "}";', '    return text;', '}', '',
+            f'    return arrayToText(bytes, {name}ToText);', '}', '',
             f'std::vector<std::byte> {name}ArrayFromText(std::string_view text)', '{',
-            f'    cannotRead("{sql}[]", text);', '}', '',
+            f'    return arrayFromText(text, "{sql}[]", {name}FromText);', '}', '',
             f'constexpr ExtensionType {name}ArrayType{{.name = "{sql.upper()}_ARRAY", .fromText = {name}ArrayFromText, '
             f'.element = &{name}Type}};', ''])
 
@@ -277,6 +271,7 @@ PREAMBLE = r'''
 #include <string>
 #include <string_view>
 #include <vector>
+#include <strings.h>
 
 extern "C" {
 @HEADERS@
@@ -380,6 +375,157 @@ std::vector<std::byte> image(const void* value, const size_t size)
     std::vector<std::byte> bytes(size);
     std::memcpy(bytes.data(), value, size);
     return bytes;
+}
+
+/// The text of the array the bytes carry (its number of elements, then each element after its length) in the form
+/// PostgreSQL's array_out writes a one-dimensional array: the texts element writes, in braces, separated by commas,
+/// a text quoted where it is empty, is NULL or holds a brace, a comma, a double quote, a backslash or white space,
+/// each double quote and backslash in it escaped by a backslash. No bytes are no value, written as the empty text.
+std::string arrayToText(std::span<const std::byte> bytes, std::string (*element)(std::span<const std::byte>))
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        const auto written = element(bytes.subspan(at, size));
+        at += size;
+        if (i > 0)
+        {
+            text += ',';
+        }
+        const bool quoted = written.empty() or strcasecmp(written.c_str(), "NULL") == 0
+            or written.find_first_of("{},\"\\ \t\n\r\v\f") != std::string::npos;
+        if (not quoted)
+        {
+            text += written;
+            continue;
+        }
+        text += '"';
+        for (const char c : written)
+        {
+            if (c == '"' or c == '\\')
+            {
+                text += '\\';
+            }
+            text += c;
+        }
+        text += '"';
+    }
+    text += '}';
+    return text;
+}
+
+/// The bytes of the array of `type` the text states in the form PostgreSQL's array_in reads a one-dimensional
+/// array (braces around elements separated by commas, an element quoted in double quotes or not, a backslash
+/// escaping the character after it, the white space around an unquoted element dropped), each element read by
+/// element; an array of MEOS values holds no NULL.
+std::vector<std::byte> arrayFromText(std::string_view text, std::string_view type, std::vector<std::byte> (*element)(std::string_view))
+{
+    const auto space = [](const char c) { return c == ' ' or c == '\t' or c == '\n' or c == '\r' or c == '\v' or c == '\f'; };
+    size_t at = 0;
+    const auto skip = [&]
+    {
+        while (at < text.size() and space(text[at]))
+        {
+            ++at;
+        }
+    };
+    skip();
+    if (at == text.size() or text[at] != '{')
+    {
+        cannotRead(type, text);
+    }
+    ++at;
+    std::vector<std::byte> carried(sizeof(uint32_t));
+    uint32_t count = 0;
+    skip();
+    bool closed = at < text.size() and text[at] == '}';
+    if (closed)
+    {
+        ++at;
+    }
+    while (not closed)
+    {
+        skip();
+        std::string value;
+        if (at < text.size() and text[at] == '"')
+        {
+            ++at;
+            while (at < text.size() and text[at] != '"')
+            {
+                if (text[at] == '\\')
+                {
+                    ++at;
+                }
+                if (at < text.size())
+                {
+                    value += text[at++];
+                }
+            }
+            if (at == text.size())
+            {
+                cannotRead(type, text);
+            }
+            ++at;
+            skip();
+        }
+        else
+        {
+            size_t kept = 0;
+            while (at < text.size() and text[at] != ',' and text[at] != '}')
+            {
+                if (text[at] == '{' or text[at] == '"')
+                {
+                    cannotRead(type, text);
+                }
+                if (text[at] == '\\' and at + 1 < text.size())
+                {
+                    ++at;
+                    value += text[at++];
+                    kept = value.size();
+                    continue;
+                }
+                value += text[at++];
+                if (not space(value.back()))
+                {
+                    kept = value.size();
+                }
+            }
+            value.resize(kept);
+            if (value.empty() or strcasecmp(value.c_str(), "NULL") == 0)
+            {
+                cannotRead(type, text);
+            }
+        }
+        if (at == text.size() or (text[at] != ',' and text[at] != '}'))
+        {
+            cannotRead(type, text);
+        }
+        closed = text[at++] == '}';
+        const auto bytes = element(value);
+        const auto size = static_cast<uint32_t>(bytes.size());
+        const auto from = carried.size();
+        carried.resize(from + sizeof(size) + size);
+        std::memcpy(carried.data() + from, &size, sizeof(size));
+        std::memcpy(carried.data() + from + sizeof(size), bytes.data(), size);
+        ++count;
+    }
+    skip();
+    if (at != text.size())
+    {
+        cannotRead(type, text);
+    }
+    std::memcpy(carried.data(), &count, sizeof(count));
+    return carried;
 }
 
 '''
@@ -526,12 +672,27 @@ class FunctionLayer:
         """The C array of the values an array argument k carries, as #_array_arg passes MEOS the array of
         the values a Flink ARRAY decodes to; MEOS reads its length off the parameter beside it"""
         ctype = c_spelling(p['canonical'])
-        if sql[:-2] not in self.m.image or not ctype.endswith('**'):
+        elem = sql[:-2]
+        image = self.m.image.get(elem)
+        if image is None:
+            return None
+        if ctype.endswith('**'):
+            pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
+            pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
+            # through void*, since C++ refuses to cast void** to a const-qualified T**
+            return f'static_cast<{ctype}>(static_cast<void*>(v{k}.get()))'
+        # A contiguous array of structs (raster_value_series reads Span *spans), as JMEOS's #_array_arg
+        # passes one: each element is the memory image of a value whose C type is that struct, so its
+        # bytes are laid end to end at the size #struct_layout gives the catalog struct. An image of a size
+        # the catalog states (sizeBytes) is the struct's; one its size function measures (cbuffer_mem_size) is
+        # the value laid from its start, the struct its first bytes, as JMEOS copies them off the decoded value.
+        base = self.cj._base(p['canonical'])
+        lay = self.m.layout(base) if self.cj._single_pointer(p['canonical']) else None
+        if lay is None or self.m.sql_cbase.get(elem) != base or image.get('sizeBytes', lay[0]) != lay[0]:
             return None
         pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
         pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
-        # through void*, since C++ refuses to cast void** to a const-qualified T**
-        return f'static_cast<{ctype}>(static_cast<void*>(v{k}.get()))'
+        return f'static_cast<{ctype}>(v{k}.structs({lay[0]}))'
 
     def answer(self, sql, f, length=None):
         """The statements answering the result `r` of SQL type `sql`, and the answer of no value; None
@@ -540,8 +701,17 @@ class FunctionLayer:
         none = 'MeosRuntime::none()'
         if sql.endswith('[]'):
             image = self.m.image.get(sql[:-2])
-            if not image or not rc.endswith('**') or length is None:
+            if not image or length is None:
                 return None
+            if not rc.endswith('**'):
+                # A contiguous array of structs (spanset_spans answers Span *), as JMEOS's
+                # #_setret_column reads one: element i is the struct at i times the size #struct_layout
+                # gives it, carried as the memory image of a value whose C type is that struct.
+                base = self.cj._base(f['returnType']['canonical'])
+                lay = self.m.layout(base) if self.cj._single_pointer(f['returnType']['canonical']) else None
+                if lay is None or self.m.sql_cbase.get(sql[:-2]) != base or image.get('sizeBytes', lay[0]) != lay[0]:
+                    return None
+                return [f'    return MeosRuntime::structs(r, static_cast<int>({length}), {lay[0]});'], none
             if image.get('size'):
                 sf = self.t.fn(image['size'])
                 pt = c_spelling(sf['params'][0]['canonical'])
@@ -705,7 +875,13 @@ class FunctionLayer:
         for j, p in enumerate(outs):
             pre.append(f'    {c_spelling(p["canonical"])[:-1]} length{j} = 0;')
             call.append(f'&length{j}')
-        got = self.answer(ret, f, 'length0' if outs else None)
+        length = 'length0' if outs else None
+        # an array answer as long as an input array (stboxarr_round answers count boxes) reads the count
+        # off that array, as the call passes it
+        lf = ((f.get('shape') or {}).get('arrayReturn') or {}).get('lengthFrom') or {}
+        if lf.get('kind') == 'param' and counts.get(lf.get('name')) in passed:
+            length = f'v{passed[counts[lf["name"]]]}.count()'
+        got = self.answer(ret, f, length)
         if got is None:
             return f'result {ret} as {c_spelling(f["returnType"]["canonical"])}'
         answer, none = got

@@ -8,7 +8,9 @@ name: Container Build
 # The MEOS plugin is built over libmeos of the MobilityDB commit nes-plugins/MEOS/MEOS_COMMIT names, the
 # commit of the MEOS catalog the plugin is generated from. libmeos is built once per commit, in the image
 # with the libraries it links (.github/ci/meos.dockerfile), and kept: in the runner's volume on the
-# self-hosted runner, in the Actions cache on a GitHub-hosted one.
+# self-hosted runner, in the Actions cache on a GitHub-hosted one. H3 is the one release that commit
+# requires (H3_REQUIRED_VERSION of its CMakeLists.txt, which refuses any other), built from its tag by the
+# commit's own .github/scripts/install-h3.sh into the prefix of libmeos, never the image's package.
 #
 # The build of a push, and of a pull request an owner, a member or a collaborator of the repository opens,
 # runs on the self-hosted runner labelled `nebula` while .github/ci/runner reads self-hosted; the build of any
@@ -101,7 +103,9 @@ jobs:
             git -C "$src" init -q
             git -C "$src" fetch -q --depth 1 https://github.com/MobilityDB/MobilityDB.git "$MEOS_COMMIT"
             git -C "$src" checkout -q FETCH_HEAD
-            cmake -S "$src" -B "$src/build" -G Ninja -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$prefix"
+            "$src/.github/scripts/install-h3.sh" "$prefix"
+            cmake -S "$src" -B "$src/build" -G Ninja -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$prefix" \
+              -DH3_LIBRARY="$prefix/lib/libh3.so" -DH3_INCLUDE_DIR="$prefix/include/h3"
             cmake --build "$src/build" -j
             cmake --install "$src/build"
             rm -rf "$src"
@@ -168,7 +172,9 @@ jobs:
             git init -q .meos-src
             git -C .meos-src fetch -q --depth 1 https://github.com/MobilityDB/MobilityDB.git "$(cat nes-plugins/MEOS/MEOS_COMMIT)"
             git -C .meos-src checkout -q FETCH_HEAD
-            cmake -S .meos-src -B .meos-src/build -G Ninja -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PWD/.meos"
+            .meos-src/.github/scripts/install-h3.sh "$PWD/.meos"
+            cmake -S .meos-src -B .meos-src/build -G Ninja -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PWD/.meos" \
+              -DH3_LIBRARY="$PWD/.meos/lib/libh3.so" -DH3_INCLUDE_DIR="$PWD/.meos/include/h3"
             cmake --build .meos-src/build -j
             cmake --install .meos-src/build
             rm -rf .meos-src

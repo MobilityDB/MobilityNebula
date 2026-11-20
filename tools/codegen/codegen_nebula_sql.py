@@ -526,12 +526,27 @@ class FunctionLayer:
         """The C array of the values an array argument k carries, as #_array_arg passes MEOS the array of
         the values a Flink ARRAY decodes to; MEOS reads its length off the parameter beside it"""
         ctype = c_spelling(p['canonical'])
-        if sql[:-2] not in self.m.image or not ctype.endswith('**'):
+        elem = sql[:-2]
+        image = self.m.image.get(elem)
+        if image is None:
+            return None
+        if ctype.endswith('**'):
+            pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
+            pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
+            # through void*, since C++ refuses to cast void** to a const-qualified T**
+            return f'static_cast<{ctype}>(static_cast<void*>(v{k}.get()))'
+        # A contiguous array of structs (raster_value_series reads Span *spans), as JMEOS's #_array_arg
+        # passes one: each element is the memory image of a value whose C type is that struct, so its
+        # bytes are laid end to end at the size #struct_layout gives the catalog struct. An image of a size
+        # the catalog states (sizeBytes) is the struct's; one its size function measures (cbuffer_mem_size) is
+        # the value laid from its start, the struct its first bytes, as JMEOS copies them off the decoded value.
+        base = self.cj._base(p['canonical'])
+        lay = self.m.layout(base) if self.cj._single_pointer(p['canonical']) else None
+        if lay is None or self.m.sql_cbase.get(elem) != base or image.get('sizeBytes', lay[0]) != lay[0]:
             return None
         pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
         pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
-        # through void*, since C++ refuses to cast void** to a const-qualified T**
-        return f'static_cast<{ctype}>(static_cast<void*>(v{k}.get()))'
+        return f'static_cast<{ctype}>(v{k}.structs({lay[0]}))'
 
     def answer(self, sql, f, length=None):
         """The statements answering the result `r` of SQL type `sql`, and the answer of no value; None

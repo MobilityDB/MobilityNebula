@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -184,6 +185,7 @@ public:
             std::memcpy(laid, at, size);
             at += size;
             elements.push_back(laid);
+            sizes.push_back(size);
         }
     }
     Array(const Array&) = delete;
@@ -201,10 +203,24 @@ public:
     /// The C array of the elements, as MEOS takes it
     [[nodiscard]] void** get() { return elements.data(); }
     [[nodiscard]] int count() const { return static_cast<int>(elements.size()); }
+    /// The elements laid end to end, each the size of the struct MEOS reads, as the contiguous C array of
+    /// structs it takes (spanset_make reads Span *spans), as JMEOS's MeosSqlRuntime#structs copies the first
+    /// size bytes of each decoded value into it; an element shorter than the struct leaves the rest zero
+    [[nodiscard]] void* structs(const size_t size)
+    {
+        laid.assign(elements.size() * size, std::byte{0});
+        for (size_t i = 0; i < elements.size(); ++i)
+        {
+            std::memcpy(laid.data() + i * size, elements[i], std::min<size_t>(size, sizes[i]));
+        }
+        return laid.data();
+    }
 
 private:
     uint32_t length;
     std::vector<void*> elements;
+    std::vector<uint32_t> sizes;
+    std::vector<std::byte> laid;
 };
 
 /// The answer of the array of count values MEOS allocated, each written as the memory image of its size, then

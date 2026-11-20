@@ -2757,6 +2757,40 @@ std::vector<std::byte> RaquetArrayFromText(std::string_view text)
 
 constexpr ExtensionType RaquetArrayType{.name = "RAQUET_ARRAY", .fromText = RaquetArrayFromText, .element = &RaquetType};
 
+/* raster[]: an array of raster, carried as its number of elements, then each element's memory image after its length */
+std::string RasterArrayToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        if (i > 0)
+        {
+            text += ", ";
+        }
+        text += RasterToText(bytes.subspan(at, size));
+        at += size;
+    }
+    text += "}";
+    return text;
+}
+
+std::vector<std::byte> RasterArrayFromText(std::string_view text)
+{
+    cannotRead("raster[]", text);
+}
+
+constexpr ExtensionType RasterArrayType{.name = "RASTER_ARRAY", .fromText = RasterArrayFromText, .element = &RasterType};
+
 /* stbox[]: an array of stbox, carried as its number of elements, then each element's memory image after its length */
 std::string StboxArrayToText(std::span<const std::byte> bytes)
 {
@@ -3580,7 +3614,7 @@ namespace NES
 
 std::span<const MeosType> meosTypes()
 {
-    static constexpr std::array<MeosType, 109> types{{
+    static constexpr std::array<MeosType, 110> types{{
     MeosType{&BigintsetType, BigintsetToText},
     MeosType{&BigintspanType, BigintspanToText},
     MeosType{&BigintspansetType, BigintspansetToText},
@@ -3666,6 +3700,7 @@ std::span<const MeosType> meosTypes()
     MeosType{&PoseArrayType, PoseArrayToText},
     MeosType{&PosechainArrayType, PosechainArrayToText},
     MeosType{&RaquetArrayType, RaquetArrayToText},
+    MeosType{&RasterArrayType, RasterArrayToText},
     MeosType{&StboxArrayType, StboxArrayToText},
     MeosType{&TbigintArrayType, TbigintArrayToText},
     MeosType{&TboolArrayType, TboolArrayToText},

@@ -196,6 +196,10 @@ public:
         {
             std::free(element);
         }
+        for (void* value : read)
+        {
+            std::free(value);
+        }
     }
 
     /// An array carried in no bytes is no value; an array of no element is a value
@@ -215,12 +219,26 @@ public:
         }
         return laid.data();
     }
+    /// The C array of the values the reader makes of each element, a string, as MEOS takes an array of texts
+    /// (text **, each made by the reader the catalog states for the element, text_in), as JMEOS's
+    /// MeosSqlRuntime#texts makes them; the values are freed with the array
+    template <typename Reader>
+    [[nodiscard]] void** texts(Reader reader)
+    {
+        for (size_t i = 0; i < elements.size(); ++i)
+        {
+            const std::string terminated(static_cast<const char*>(elements[i]), sizes[i]);
+            read.push_back(reader(terminated.c_str()));
+        }
+        return read.data();
+    }
 
 private:
     uint32_t length;
     std::vector<void*> elements;
     std::vector<uint32_t> sizes;
     std::vector<std::byte> laid;
+    std::vector<void*> read;
 };
 
 /// The answer of the array of count values MEOS allocated, each written as the memory image of its size, then
@@ -267,6 +285,37 @@ inline int8_t* structs(void* values, const int count, const size_t size)
         carried.resize(at + sizeof(length) + length);
         std::memcpy(carried.data() + at, &length, sizeof(length));
         std::memcpy(carried.data() + at + sizeof(length), static_cast<const std::byte*>(values) + i * size, length);
+    }
+    std::free(values);
+    return bytes(carried.data(), carried.size());
+}
+
+/// The answer of the array of count texts MEOS allocated (text **), each carried as the string the writer gives
+/// it, as Array#Texts reads one back, then freed with the array itself, as JMEOS's #_setret_column reads text_out
+/// of each element of a text array
+template <typename Writer>
+int8_t* texts(void** values, const int count, Writer write)
+{
+    if (values == nullptr)
+    {
+        return none();
+    }
+    std::vector<std::byte> carried(sizeof(uint32_t));
+    const auto n = static_cast<uint32_t>(count);
+    std::memcpy(carried.data(), &n, sizeof(n));
+    for (int i = 0; i < count; ++i)
+    {
+        char* written = write(values[i]);
+        const auto length = static_cast<uint32_t>(written == nullptr ? 0 : std::strlen(written));
+        const auto at = carried.size();
+        carried.resize(at + sizeof(length) + length);
+        std::memcpy(carried.data() + at, &length, sizeof(length));
+        if (length > 0)
+        {
+            std::memcpy(carried.data() + at + sizeof(length), written, length);
+        }
+        std::free(written);
+        std::free(values[i]);
     }
     std::free(values);
     return bytes(carried.data(), carried.size());

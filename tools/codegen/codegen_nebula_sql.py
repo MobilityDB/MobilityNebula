@@ -46,6 +46,7 @@ Usage:
 import argparse
 import importlib.util
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -117,7 +118,12 @@ def literal(aux):
 
 
 def ident(sql):
-    return ''.join(p.capitalize() for p in sql.split('_'))
+    return ''.join(p.capitalize() for p in re.split(r'[_ ]', sql))
+
+
+def array_name(sql):
+    """The name of the extension type of an array of `sql` (DOUBLE_PRECISION_ARRAY)"""
+    return sql.upper().replace(' ', '_') + '_ARRAY'
 
 
 class TypeLayer:
@@ -244,6 +250,47 @@ class TypeLayer:
             f'    return arrayFromText(text, "{sql}[]", {name}FromText);', '}', '',
             f'constexpr ExtensionType {name}ArrayType{{.name = "{sql.upper()}_ARRAY", .fromText = {name}ArrayFromText, '
             f'.element = &{name}Type}};', ''])
+
+    def scalar_array_source(self, sql, el):
+        """The C++ of the extension type of an array of the SQL scalar `sql`, as #array_source writes that of an
+        array of a MEOS type: each element carried as the C value it is laid in (text as its string), read and
+        written in PostgreSQL's array text form by the codec the catalog's sqlTypes[sql].element states
+        (int32_in and int32_out for integer), as JMEOS's #_array_arg reads each element of a Flink ARRAY. The
+        type has no element type, since no extension type stands for a SQL scalar."""
+        name = ident(sql) + 'Element'
+        ct = el['cType']
+        codec = el['codec']
+        out = [f'/* {sql}[]: an array of {sql}, each element carried as its C value ({ct}), read and written by '
+               f'{codec["decoder"]} and {codec["encoder"]} */']
+        if el['byValue']:
+            out += [f'std::string {name}ToText(std::span<const std::byte> bytes)', '{',
+                    f'    {ct} value{{}};',
+                    '    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));',
+                    '    [[maybe_unused]] size_t size = 0;',
+                    f'    char* written = {self.encoder_call(codec["encoder"], "value", codec["encoderAux"])};',
+                    f'    if (written == nullptr) {{ cannotWrite("{sql}"); }}',
+                    '    std::string text{written};', '    std::free(written);', '    return text;', '}', '',
+                    f'std::vector<std::byte> {name}FromText(std::string_view text)', '{',
+                    '    MEOS::Meos::ensureMeosInitialized();', '    const std::string terminated{text};',
+                    f'    {ct} value = {self.decoder_call("text", self.fn(codec["decoder"])["name"], codec["decoderAux"])};',
+                    '    return image(&value, sizeof(value));', '}', '']
+        else:
+            # a text is carried as its string, which the reader of its element makes a text of when a function
+            # takes it (MeosRuntime::Array#texts)
+            self.fn(codec['decoder'])
+            self.fn(codec['encoder'])
+            out += [f'std::string {name}ToText(std::span<const std::byte> bytes)', '{',
+                    '    return textOf(bytes);', '}', '',
+                    f'std::vector<std::byte> {name}FromText(std::string_view text)', '{',
+                    '    return bytesOf(std::span{text});', '}', '']
+        arr = ident(sql)
+        out += [f'std::string {arr}ArrayToText(std::span<const std::byte> bytes)', '{',
+                f'    return arrayToText(bytes, {name}ToText);', '}', '',
+                f'std::vector<std::byte> {arr}ArrayFromText(std::string_view text)', '{',
+                f'    return arrayFromText(text, "{sql}[]", {name}FromText);', '}', '',
+                f'constexpr ExtensionType {arr}ArrayType{{.name = "{array_name(sql)}", .fromText = {arr}ArrayFromText}};',
+                '']
+        return '\n'.join(out)
 
     def table(self, sqls, arrays=()):
         """The table of the types, each with the functions writing and reading its text, which the plugin
@@ -575,6 +622,9 @@ class FunctionLayer:
         self.kernels = []     # (key, C++ source, physical argument types, physical result type)
         self.left = {}        # reason -> count
         self.arrays = set()   # the SQL types an array of which some signature carries
+        # the element of an array of each SQL scalar, its C type and its codec (sqlTypes[<scalar>].element)
+        self.elements = {s: e['element'] for s, e in (cat.get('sqlTypes') or {}).items() if e.get('element')}
+        self.scalar_arrays = set()   # the SQL scalars an array of which some signature carries
 
     def leave(self, why):
         self.left[why] = self.left.get(why, 0) + 1
@@ -585,6 +635,9 @@ class FunctionLayer:
         if sql.endswith('[]') and sql[:-2] in self.m.image:
             self.arrays.add(sql[:-2])
             return f'{sql[:-2].upper()}_ARRAY', 'VARSIZED'
+        if sql.endswith('[]') and sql[:-2] in self.elements:
+            self.scalar_arrays.add(sql[:-2])
+            return array_name(sql[:-2]), 'VARSIZED'
         if sql in self.m.codec:
             return sql.upper(), 'VARSIZED'
         if sql == 'text':
@@ -674,6 +727,8 @@ class FunctionLayer:
         ctype = c_spelling(p['canonical'])
         elem = sql[:-2]
         image = self.m.image.get(elem)
+        if image is None and elem in self.elements:
+            return self.scalar_array_argument(k, self.elements[elem], p, pre)
         if image is None:
             return None
         if ctype.endswith('**'):
@@ -694,6 +749,42 @@ class FunctionLayer:
         pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
         return f'static_cast<{ctype}>(v{k}.structs({lay[0]}))'
 
+    def scalar_array_argument(self, k, el, p, pre):
+        """The C array of the values of an array argument k of a SQL scalar whose element is `el`, or None: the
+        contiguous C values MEOS reads (int *, TimestampTz *), as JMEOS's #_array_arg passes an array of scalars,
+        or the texts the reader of the element makes (text **), released after the call, as it passes a text
+        array"""
+        ctype = c_spelling(p['canonical'])
+        if self.cj._base(p['canonical']) != self.cj._base(el['cType']):
+            return None
+        if el['byValue'] and self.cj._single_pointer(p['canonical']):
+            call = f'static_cast<{ctype}>(v{k}.structs(sizeof({el["cType"]})))'
+        elif not el['byValue'] and ctype.endswith('**'):
+            dec = self.t.fn(el['codec']['decoder'])['name']
+            call = (f'static_cast<{ctype}>(static_cast<void*>(v{k}.texts([](const char* s) '
+                    f'{{ return static_cast<void*>({dec}(s)); }})))')
+        else:
+            return None
+        pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
+        pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
+        return call
+
+    def scalar_array_answer(self, el, f, length):
+        """The statements answering an array result `r` of a SQL scalar whose element is `el`, or None: the
+        contiguous C values MEOS answers (TimestampTz *), each carried as its C value, or its texts (text **),
+        each carried as the string the writer of the element gives it, as JMEOS's #_setret_column reads them"""
+        rc = f['returnType']['canonical']
+        if self.cj._base(rc) != self.cj._base(el['cType']):
+            return None
+        if el['byValue'] and self.cj._single_pointer(rc):
+            return [f'    return MeosRuntime::structs(r, static_cast<int>({length}), sizeof({el["cType"]}));']
+        if not el['byValue'] and c_spelling(rc).endswith('**'):
+            base = self.cj._base(rc)
+            call = self.t.encoder_call(el['codec']['encoder'], f'static_cast<const {base}*>(v)', el['codec']['encoderAux'])
+            return [f'    return MeosRuntime::texts(static_cast<void**>(static_cast<void*>(r)), static_cast<int>({length}), '
+                    f'[](void* v) -> char* {{ size_t size = 0; return {call}; }});']
+        return None
+
     def answer(self, sql, f, length=None):
         """The statements answering the result `r` of SQL type `sql`, and the answer of no value; None
         where no rule answers it. An array answer (shape.arrayReturn) holds `length` values."""
@@ -701,6 +792,9 @@ class FunctionLayer:
         none = 'MeosRuntime::none()'
         if sql.endswith('[]'):
             image = self.m.image.get(sql[:-2])
+            if not image and sql[:-2] in self.elements and length is not None:
+                got = self.scalar_array_answer(self.elements[sql[:-2]], f, length)
+                return (got, none) if got else None
             if not image or length is None:
                 return None
             if not rc.endswith('**'):
@@ -1386,16 +1480,23 @@ def run(args):
     sqls = sorted(layer.m.codec)
     # the MEOS types and `bytea`, the WKB a reader takes and a writer answers (TypeLayer.bytea_source)
     bodies = [layer.source(sql) for sql in sqls] + [layer.bytea_source()]
-    type_headers = '\n'.join(f'#include <{h}>' for h in sorted(layer.headers))
+    type_header_set = set(layer.headers)
 
     # The functions, whose kernels include the headers of the functions they call; the types written after
     # them carry an array of each type some signature passes or answers an array of
     layer.headers = set()
     functions = FunctionLayer(layer, cat, nebula_function_names(args.output_root), cj)
     functions.build()
+    # the arrays of the SQL scalars, whose element codecs' headers the types include, the kernels' kept apart
+    kernel_headers = layer.headers
+    layer.headers = set()
+    scalar_arrays = [layer.scalar_array_source(sql, functions.elements[sql]) for sql in sorted(functions.scalar_arrays)]
+    type_headers = '\n'.join(f'#include <{h}>' for h in sorted(type_header_set | layer.headers))
+    layer.headers = kernel_headers
     src = (LICENSE + PREAMBLE.replace('@HEADERS@', type_headers) + '\n'.join(bodies) + '\n'
            + '\n'.join(layer.array_source(sql) for sql in sorted(functions.arrays)) + '\n'
-           + '\n'.join(layer.table(sqls + ['bytea'], sorted(functions.arrays))) + '\n')
+           + '\n'.join(scalar_arrays) + '\n'
+           + '\n'.join(layer.table(sqls + ['bytea'], sorted(functions.arrays) + sorted(functions.scalar_arrays))) + '\n')
     out = Path(args.output_root) / 'nes-plugins' / 'MEOS' / 'DataTypes'
     out.mkdir(parents=True, exist_ok=True)
     write_if_changed(out / 'MeosDataTypes.cpp', src)

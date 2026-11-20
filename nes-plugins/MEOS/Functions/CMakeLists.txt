@@ -51,4 +51,6 @@ target_sources(nes-meos-physical PRIVATE
         MeosKernels31.cpp
         MeosKernels32.cpp
         MeosKernels33.cpp
+        MeosKernels34.cpp
+        MeosKernels35.cpp
 )

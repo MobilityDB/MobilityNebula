@@ -555,8 +555,17 @@ class FunctionLayer:
         none = 'MeosRuntime::none()'
         if sql.endswith('[]'):
             image = self.m.image.get(sql[:-2])
-            if not image or not rc.endswith('**') or length is None:
+            if not image or length is None:
                 return None
+            if not rc.endswith('**'):
+                # A contiguous array of structs (spanset_spans answers Span *), as JMEOS's
+                # #_setret_column reads one: element i is the struct at i times the size #struct_layout
+                # gives it, carried as the memory image of a value whose C type is that struct.
+                base = self.cj._base(f['returnType']['canonical'])
+                lay = self.m.layout(base) if self.cj._single_pointer(f['returnType']['canonical']) else None
+                if lay is None or self.m.sql_cbase.get(sql[:-2]) != base or image.get('sizeBytes', lay[0]) != lay[0]:
+                    return None
+                return [f'    return MeosRuntime::structs(r, static_cast<int>({length}), {lay[0]});'], none
             if image.get('size'):
                 sf = self.t.fn(image['size'])
                 pt = c_spelling(sf['params'][0]['canonical'])
@@ -720,7 +729,13 @@ class FunctionLayer:
         for j, p in enumerate(outs):
             pre.append(f'    {c_spelling(p["canonical"])[:-1]} length{j} = 0;')
             call.append(f'&length{j}')
-        got = self.answer(ret, f, 'length0' if outs else None)
+        length = 'length0' if outs else None
+        # an array answer as long as an input array (stboxarr_round answers count boxes) reads the count
+        # off that array, as the call passes it
+        lf = ((f.get('shape') or {}).get('arrayReturn') or {}).get('lengthFrom') or {}
+        if lf.get('kind') == 'param' and counts.get(lf.get('name')) in passed:
+            length = f'v{passed[counts[lf["name"]]]}.count()'
+        got = self.answer(ret, f, length)
         if got is None:
             return f'result {ret} as {c_spelling(f["returnType"]["canonical"])}'
         answer, none = got

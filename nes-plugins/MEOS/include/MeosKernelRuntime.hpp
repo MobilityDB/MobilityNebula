@@ -248,6 +248,30 @@ int8_t* array(void** values, const int count, Size size)
     return bytes(carried.data(), carried.size());
 }
 
+/// The answer of the contiguous C array of count structs MEOS allocated (spanset_spans answers Span *), each
+/// written as the memory image of its size bytes, as JMEOS's #_setret_column reads element i at i times the size
+/// #struct_layout gives the struct, then freed as one block
+inline int8_t* structs(void* values, const int count, const size_t size)
+{
+    if (values == nullptr)
+    {
+        return none();
+    }
+    std::vector<std::byte> carried(sizeof(uint32_t));
+    const auto n = static_cast<uint32_t>(count);
+    std::memcpy(carried.data(), &n, sizeof(n));
+    const auto length = static_cast<uint32_t>(size);
+    for (int i = 0; i < count; ++i)
+    {
+        const auto at = carried.size();
+        carried.resize(at + sizeof(length) + length);
+        std::memcpy(carried.data() + at, &length, sizeof(length));
+        std::memcpy(carried.data() + at + sizeof(length), static_cast<const std::byte*>(values) + i * size, length);
+    }
+    std::free(values);
+    return bytes(carried.data(), carried.size());
+}
+
 /// NebulaStream's timestamp is a count of milliseconds from the Unix epoch, as its event times and window bounds are;
 /// MEOS computes in TimestampTz. MEOS converts a TimestampTz to and from the microseconds from the Unix epoch
 /// (timestamptz_to_unix_us, unix_us_to_timestamptz), as it does for every binding, so the boundary only scales

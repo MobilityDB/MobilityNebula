@@ -1274,6 +1274,15 @@ class AggregateLayer:
         skip = f'\n        if ({at} == nullptr)\n        {{\n@RELEASE@            return false;\n        }}'
         if sql in self.m.codec:
             kind, dec = self.m.codec[sql][:2]
+            if not ctype.endswith('*') and kind == 'bytes' and sql in self.m.sql_byvalue:
+                # a value carried by value (a cell) is read by the decoder of its bytes codec into the C value
+                # the call takes, as FunctionLayer.argument reads one (h3index_union_transfn takes uint64_t)
+                vt = c_spelling(self.t.fn(dec)['returnType']['canonical'])
+                if base != vt:
+                    return None
+                decode = (f'const MeosRuntime::Value v{k}{{{src}}};\n        if (v{k}.empty())\n        {{\n'
+                          f'@RELEASE@            return false;\n        }}\n        {at} = {dec}(v{k}.bytes(), v{k}.size());')
+                return (f'{ctype} a{k};', decode, at, '', 'VARSIZED')
             if not ctype.endswith('*'):
                 return None
             if sql in self.m.image:

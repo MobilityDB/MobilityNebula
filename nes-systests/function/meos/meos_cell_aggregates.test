@@ -1,0 +1,15 @@
+# name: MEOS_CellAggregates
+# description: setUnionAgg, the setUnion aggregate under the name the catalog states for the engines, over a column of cells, each cell read as a value of its type is, the hex of its WKB, into the 64-bit value MEOS folds: the cells of the H3, QUADBIN and S2 cell set literals MobilityDB's tests use, a QUADBIN and an S2 cell read twice, collected into one set each over a window. The answers are those of libmeos folding the same cells (h3index_union_transfn, quadbin_union_transfn and s2cell_union_transfn, set_union_finalfn), each set written as its WKB, variant 4: {"831c02fffffffff", "880326b885fffff", "8a2a1072b59ffff"}, {"480fffffffffffff", "48427fffffffffff"} and {"47c3c444c0000004", "47c3c444c000000c"}.
+# groups: [Aggregation, MEOS]
+CREATE LOGICAL SOURCE cells(h3 H3INDEX, qb QUADBIN, s2 S2CELL, ts UINT64);
+CREATE PHYSICAL SOURCE FOR cells TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+01440040E6100000FFFF592B07A1A208|01470040E6100000FFFFFFFFFFFF0F48|01550040E61000000C0000C044C4C347|1000
+01440040E6100000FFFFFFFF2FC03108|01470040E6100000FFFFFFFFFF7F4248|01550040E6100000040000C044C4C347|2000
+01440040E6100000FFFF5F886B328008|01470040E6100000FFFFFFFFFFFF0F48|01550040E61000000C0000C044C4C347|3000
+
+CREATE SINK unions(start UINT64 NOT NULL, end UINT64 NOT NULL, h3 H3INDEXSET, qb QUADBINSET, s2 S2CELLSET) TYPE File;
+SELECT start, end, setUnionAgg(h3) AS h3, setUnionAgg(qb) AS qb, setUnionAgg(s2) AS s2
+FROM cells WINDOW TUMBLING(ts, size 1 minute) INTO unions;
+----
+0,60000,01450061E610000003000000FFFFFFFF2FC03108FFFF5F886B328008FFFF592B07A1A208,01480041E610000002000000FFFFFFFFFFFF0F48FFFFFFFFFF7F4248,01560061E610000002000000040000C044C4C3470C0000C044C4C347

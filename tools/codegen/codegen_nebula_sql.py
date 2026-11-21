@@ -638,6 +638,11 @@ class FunctionLayer:
         if sql.endswith('[]') and sql[:-2] in self.elements:
             self.scalar_arrays.add(sql[:-2])
             return array_name(sql[:-2]), 'VARSIZED'
+        # an array of a type carried by value (a cell), each element carried as a value of the type is, by its
+        # codec, as JMEOS's #_array_arg carries an array of cells (TypeLayer.array_source)
+        if sql.endswith('[]') and sql[:-2] in self.m.codec and sql[:-2] in self.m.sql_byvalue:
+            self.arrays.add(sql[:-2])
+            return f'{sql[:-2].upper()}_ARRAY', 'VARSIZED'
         if sql in self.m.codec:
             return sql.upper(), 'VARSIZED'
         if sql == 'text':
@@ -729,6 +734,8 @@ class FunctionLayer:
         image = self.m.image.get(elem)
         if image is None and elem in self.elements:
             return self.scalar_array_argument(k, self.elements[elem], p, pre)
+        if image is None and elem in self.m.codec and elem in self.m.sql_byvalue:
+            return self.byvalue_array_argument(k, elem, p, pre)
         if image is None:
             return None
         if ctype.endswith('**'):
@@ -748,6 +755,37 @@ class FunctionLayer:
         pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
         pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
         return f'static_cast<{ctype}>(v{k}.structs({lay[0]}))'
+
+    def byvalue_array_argument(self, k, sql, p, pre):
+        """The contiguous C array of the values of an array argument k of a type carried by value (a cell), or
+        None: each element read by the decoder of its bytes codec, as #argument reads one value of the type, and
+        the values laid end to end (MeosRuntime::Array#values), as JMEOS's #_array_arg passes MEOS an array of
+        cells (h3indexset_make reads uint64_t *values)"""
+        kind, dec, enc, in_aux, out_aux = self.m.codec[sql]
+        ctype = c_spelling(p['canonical'])
+        vt = c_spelling(self.t.fn(dec)['returnType']['canonical'])
+        if kind != 'bytes' or not self.cj._single_pointer(p['canonical']) or \
+                self.cj._base(p['canonical']) != self.cj._base(vt):
+            return None
+        pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
+        pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
+        return (f'static_cast<{ctype}>(v{k}.values<{vt}>([](const uint8_t* wkb, size_t size) '
+                f'{{ return {dec}(wkb, size); }}))')
+
+    def byvalue_array_answer(self, sql, f, length):
+        """The statements answering an array result `r` of a type carried by value (a cell), or None: the
+        contiguous C values MEOS answers (uint64_t *), each carried as the bytes the encoder of its codec writes,
+        as #answer carries one value of the type (MeosRuntime::encoded), as JMEOS's #_setret_column encodes each
+        cell of an array"""
+        kind, dec, enc, in_aux, out_aux = self.m.codec[sql]
+        rc = f['returnType']['canonical']
+        vt = c_spelling(self.t.fn(dec)['returnType']['canonical'])
+        if kind != 'bytes' or not self.cj._single_pointer(rc) or self.cj._base(rc) != self.cj._base(vt):
+            return None
+        call = self.t.encoder_call(enc, 'value', out_aux)
+        return [f'    return MeosRuntime::encoded<{vt}>(r, static_cast<int>({length}), '
+                f'[](const {vt} value, size_t* written) {{ size_t size = 0; uint8_t* w = {call}; *written = size; '
+                f'return w; }});']
 
     def scalar_array_argument(self, k, el, p, pre):
         """The C array of the values of an array argument k of a SQL scalar whose element is `el`, or None: the
@@ -794,6 +832,9 @@ class FunctionLayer:
             image = self.m.image.get(sql[:-2])
             if not image and sql[:-2] in self.elements and length is not None:
                 got = self.scalar_array_answer(self.elements[sql[:-2]], f, length)
+                return (got, none) if got else None
+            if not image and sql[:-2] in self.m.codec and sql[:-2] in self.m.sql_byvalue and length is not None:
+                got = self.byvalue_array_answer(sql[:-2], f, length)
                 return (got, none) if got else None
             if not image or length is None:
                 return None

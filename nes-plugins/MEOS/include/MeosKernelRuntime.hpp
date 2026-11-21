@@ -232,6 +232,20 @@ public:
         }
         return read.data();
     }
+    /// The values the decoder makes of each element, its bytes, laid end to end as #structs lays its structs, the
+    /// contiguous C array of the values MEOS takes by value (h3indexset_make reads uint64_t *values, each made by
+    /// h3index_from_wkb), as JMEOS's MeosSqlRuntime#longs lays the decoded cells end to end
+    template <typename T, typename Decoder>
+    [[nodiscard]] void* values(Decoder decode)
+    {
+        laid.assign(elements.size() * sizeof(T), std::byte{0});
+        for (size_t i = 0; i < elements.size(); ++i)
+        {
+            const T value = decode(static_cast<const uint8_t*>(elements[i]), static_cast<size_t>(sizes[i]));
+            std::memcpy(laid.data() + i * sizeof(T), &value, sizeof(T));
+        }
+        return laid.data();
+    }
 
 private:
     uint32_t length;
@@ -316,6 +330,37 @@ int8_t* texts(void** values, const int count, Writer write)
         }
         std::free(written);
         std::free(values[i]);
+    }
+    std::free(values);
+    return bytes(carried.data(), carried.size());
+}
+
+/// The answer of the contiguous C array of count values MEOS allocated and passes by value (h3indexset_values
+/// answers uint64_t *), each carried as the bytes the encoder writes of it, as a value of its type is carried and
+/// as Array#values reads one back, then freed as one block, as JMEOS's #_setret_column encodes each cell
+template <typename T, typename Encoder>
+int8_t* encoded(T* values, const int count, Encoder encode)
+{
+    if (values == nullptr)
+    {
+        return none();
+    }
+    std::vector<std::byte> carried(sizeof(uint32_t));
+    const auto n = static_cast<uint32_t>(count);
+    std::memcpy(carried.data(), &n, sizeof(n));
+    for (int i = 0; i < count; ++i)
+    {
+        size_t size = 0;
+        uint8_t* written = encode(values[i], &size);
+        const auto length = static_cast<uint32_t>(written == nullptr ? 0 : size);
+        const auto at = carried.size();
+        carried.resize(at + sizeof(length) + length);
+        std::memcpy(carried.data() + at, &length, sizeof(length));
+        if (length > 0)
+        {
+            std::memcpy(carried.data() + at + sizeof(length), written, length);
+        }
+        std::free(written);
     }
     std::free(values);
     return bytes(carried.data(), carried.size());

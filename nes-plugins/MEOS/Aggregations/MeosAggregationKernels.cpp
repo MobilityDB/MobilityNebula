@@ -7838,6 +7838,120 @@ constexpr std::array<DataType::Type, 2> MeosAggregate_rasterUnion_3Literals{Data
 using MeosAggregate_rasterUnion_3 = MeosRuntime::MeosAggregate<MeosAggregate_rasterUnion_3Ops>;
 constexpr MeosAggregateKernels MeosAggregate_rasterUnion_3Kernels{&MeosAggregate_rasterUnion_3::Initialize, &MeosAggregate_rasterUnion_3::Update, &MeosAggregate_rasterUnion_3::Combine, &MeosAggregate_rasterUnion_3::Finish, MeosAggregate_rasterUnion_3::StateSize};
 
+struct MeosAggregate_summaryStatsAgg_0Ops
+{
+    struct Row
+    {
+        void* a0;
+        int a1;
+        bool a2;
+    };
+    static constexpr bool GATHERS = false;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        row.a0 = MeosRuntime::laid(a0);
+        if (row.a0 == nullptr)
+        {
+            return false;
+        }
+        row.a1 = static_cast<int>(MeosRuntime::number<int32_t>(MeosRuntime::literal(block, 0)));
+        row.a2 = static_cast<bool>(MeosRuntime::number<bool>(MeosRuntime::literal(block, 1)));
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return raster_summary_stats_transfn(static_cast<RasterStatsState*>(s), static_cast<Raster*>(row.a0), row.a1, row.a2);
+    }
+    static void Free(Row& row)
+    {
+        std::free(row.a0);
+    }
+    static void* Final(void* s)
+    {
+        return raster_summary_stats_finalfn(static_cast<RasterStatsState*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(raster_summary_stats_finalfn(static_cast<RasterStatsState*>(s)));
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<BandStats*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, size_t{48});
+    }
+    static int64_t Order(const Row&)
+    {
+        return 0;
+    }
+};
+
+constexpr std::array<DataType::Type, 2> MeosAggregate_summaryStatsAgg_0Literals{DataType::Type::INT32, DataType::Type::BOOLEAN};
+using MeosAggregate_summaryStatsAgg_0 = MeosRuntime::MeosAggregate<MeosAggregate_summaryStatsAgg_0Ops>;
+constexpr MeosAggregateKernels MeosAggregate_summaryStatsAgg_0Kernels{&MeosAggregate_summaryStatsAgg_0::Initialize, &MeosAggregate_summaryStatsAgg_0::Update, &MeosAggregate_summaryStatsAgg_0::Combine, &MeosAggregate_summaryStatsAgg_0::Finish, MeosAggregate_summaryStatsAgg_0::StateSize};
+
+struct MeosAggregate_summaryStatsAgg_1Ops
+{
+    struct Row
+    {
+        void* a0;
+        bool a1;
+    };
+    static constexpr bool GATHERS = false;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        row.a0 = MeosRuntime::laid(a0);
+        if (row.a0 == nullptr)
+        {
+            return false;
+        }
+        row.a1 = static_cast<bool>(MeosRuntime::number<bool>(MeosRuntime::literal(block, 0)));
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return raster_summary_stats_transfn(static_cast<RasterStatsState*>(s), static_cast<Raster*>(row.a0), static_cast<int>(1), row.a1);
+    }
+    static void Free(Row& row)
+    {
+        std::free(row.a0);
+    }
+    static void* Final(void* s)
+    {
+        return raster_summary_stats_finalfn(static_cast<RasterStatsState*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(raster_summary_stats_finalfn(static_cast<RasterStatsState*>(s)));
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<BandStats*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, size_t{48});
+    }
+    static int64_t Order(const Row&)
+    {
+        return 0;
+    }
+};
+
+constexpr std::array<DataType::Type, 1> MeosAggregate_summaryStatsAgg_1Literals{DataType::Type::BOOLEAN};
+using MeosAggregate_summaryStatsAgg_1 = MeosRuntime::MeosAggregate<MeosAggregate_summaryStatsAgg_1Ops>;
+constexpr MeosAggregateKernels MeosAggregate_summaryStatsAgg_1Kernels{&MeosAggregate_summaryStatsAgg_1::Initialize, &MeosAggregate_summaryStatsAgg_1::Update, &MeosAggregate_summaryStatsAgg_1::Combine, &MeosAggregate_summaryStatsAgg_1::Finish, MeosAggregate_summaryStatsAgg_1::StateSize};
+
 struct MeosAggregate_tCount_13Ops
 {
     struct Row
@@ -15778,6 +15892,16 @@ void describe(PluginDescriptor& descriptor)
         .key = "MeosAggregate_rasterUnion_3",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_rasterUnion_3Literals, MeosAggregate_rasterUnion_3Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_summaryStatsAgg_0",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_summaryStatsAgg_0Literals, MeosAggregate_summaryStatsAgg_0Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_summaryStatsAgg_1",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_summaryStatsAgg_1Literals, MeosAggregate_summaryStatsAgg_1Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_tCount_13",

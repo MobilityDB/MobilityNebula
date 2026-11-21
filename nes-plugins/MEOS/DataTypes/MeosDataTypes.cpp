@@ -1577,6 +1577,37 @@ std::vector<std::byte> StboxFromText(std::string_view text)
 
 constexpr ExtensionType StboxType{.name = "STBOX", .fromText = StboxFromText};
 
+/* summarystats: C type BandStats, carried as its memory image (bandstats_copy / 48 bytes), read and written as its text string */
+std::string SummarystatsToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    MEOS::Meos::ensureMeosInitialized();
+    auto* value = static_cast<BandStats*>(fromImage(bytes, [](const void* laid) -> void* { return bandstats_copy(static_cast<const BandStats*>(laid)); }));
+    size_t size = 0;
+    auto* written = bandstats_out(value, &size);
+    std::free(value);
+    if (written == nullptr) { cannotWrite("summarystats"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> SummarystatsFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    auto value = bandstats_in(terminated.c_str());
+    if (value == nullptr) { cannotRead("summarystats", text); }
+    auto carried = image(value, size_t{48});
+    std::free(value);
+    return carried;
+}
+
+constexpr ExtensionType SummarystatsType{.name = "SUMMARYSTATS", .fromText = SummarystatsFromText};
+
 /* tbigint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TbigintToText(std::span<const std::byte> bytes)
 {
@@ -3182,7 +3213,7 @@ namespace NES
 
 std::span<const MeosType> meosTypes()
 {
-    static constexpr std::array<MeosType, 118> types{{
+    static constexpr std::array<MeosType, 119> types{{
     MeosType{&BigintsetType, BigintsetToText},
     MeosType{&BigintspanType, BigintspanToText},
     MeosType{&BigintspansetType, BigintspansetToText},
@@ -3226,6 +3257,7 @@ std::span<const MeosType> meosTypes()
     MeosType{&S2cellType, S2cellToText},
     MeosType{&S2cellsetType, S2cellsetToText},
     MeosType{&StboxType, StboxToText},
+    MeosType{&SummarystatsType, SummarystatsToText},
     MeosType{&TbigintType, TbigintToText},
     MeosType{&TboolType, TboolToText},
     MeosType{&TboxType, TboxToText},

@@ -27,12 +27,15 @@ extern "C" {
 #include <meos.h>
 #include <meos_cbuffer.h>
 #include <meos_geo.h>
+#include <meos_h3.h>
 #include <meos_internal.h>
 #include <meos_json.h>
 #include <meos_npoint.h>
 #include <meos_pointcloud.h>
 #include <meos_pose.h>
+#include <meos_quadbin.h>
 #include <meos_raster.h>
+#include <meos_s2cell.h>
 }
 
 #include <Aggregations/MeosAggregationPhysicalFunction.hpp>
@@ -2899,6 +2902,62 @@ struct MeosAggregate_setUnionAgg_6Ops
 {
     struct Row
     {
+        uint64_t a0;
+    };
+    static constexpr bool GATHERS = false;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        static_cast<void>(block);
+        const MeosRuntime::Value v0{a0};
+        if (v0.empty())
+        {
+            return false;
+        }
+        row.a0 = h3index_from_wkb(v0.bytes(), v0.size());
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return h3index_union_transfn(static_cast<Set*>(s), row.a0);
+    }
+    static void Free(Row& row)
+    {
+        static_cast<void>(row);
+    }
+    static void* Final(void* s)
+    {
+        return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<Set*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
+    }
+    static int64_t Order(const Row&)
+    {
+        return 0;
+    }
+};
+
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_6Literals{};
+using MeosAggregate_setUnionAgg_6 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_6Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_6Kernels{&MeosAggregate_setUnionAgg_6::Initialize, &MeosAggregate_setUnionAgg_6::Update, &MeosAggregate_setUnionAgg_6::Combine, &MeosAggregate_setUnionAgg_6::Finish, MeosAggregate_setUnionAgg_6::StateSize};
+
+struct MeosAggregate_setUnionAgg_7Ops
+{
+    struct Row
+    {
         void* a0;
     };
     static constexpr bool GATHERS = false;
@@ -2946,9 +3005,9 @@ struct MeosAggregate_setUnionAgg_6Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_6Literals{};
-using MeosAggregate_setUnionAgg_6 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_6Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_6Kernels{&MeosAggregate_setUnionAgg_6::Initialize, &MeosAggregate_setUnionAgg_6::Update, &MeosAggregate_setUnionAgg_6::Combine, &MeosAggregate_setUnionAgg_6::Finish, MeosAggregate_setUnionAgg_6::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_7Literals{};
+using MeosAggregate_setUnionAgg_7 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_7Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_7Kernels{&MeosAggregate_setUnionAgg_7::Initialize, &MeosAggregate_setUnionAgg_7::Update, &MeosAggregate_setUnionAgg_7::Combine, &MeosAggregate_setUnionAgg_7::Finish, MeosAggregate_setUnionAgg_7::StateSize};
 
 struct MeosAggregate_extent_6Ops
 {
@@ -3407,7 +3466,7 @@ constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_5Literal
 using MeosAggregate_appendSequenceAgg_5 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_5Ops>;
 constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_5Kernels{&MeosAggregate_appendSequenceAgg_5::Initialize, &MeosAggregate_appendSequenceAgg_5::Update, &MeosAggregate_appendSequenceAgg_5::Combine, &MeosAggregate_appendSequenceAgg_5::Finish, MeosAggregate_appendSequenceAgg_5::StateSize};
 
-struct MeosAggregate_setUnionAgg_7Ops
+struct MeosAggregate_setUnionAgg_8Ops
 {
     struct Row
     {
@@ -3458,11 +3517,11 @@ struct MeosAggregate_setUnionAgg_7Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_7Literals{};
-using MeosAggregate_setUnionAgg_7 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_7Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_7Kernels{&MeosAggregate_setUnionAgg_7::Initialize, &MeosAggregate_setUnionAgg_7::Update, &MeosAggregate_setUnionAgg_7::Combine, &MeosAggregate_setUnionAgg_7::Finish, MeosAggregate_setUnionAgg_7::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_8Literals{};
+using MeosAggregate_setUnionAgg_8 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_8Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_8Kernels{&MeosAggregate_setUnionAgg_8::Initialize, &MeosAggregate_setUnionAgg_8::Update, &MeosAggregate_setUnionAgg_8::Combine, &MeosAggregate_setUnionAgg_8::Finish, MeosAggregate_setUnionAgg_8::StateSize};
 
-struct MeosAggregate_setUnionAgg_8Ops
+struct MeosAggregate_setUnionAgg_9Ops
 {
     struct Row
     {
@@ -3513,9 +3572,9 @@ struct MeosAggregate_setUnionAgg_8Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_8Literals{};
-using MeosAggregate_setUnionAgg_8 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_8Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_8Kernels{&MeosAggregate_setUnionAgg_8::Initialize, &MeosAggregate_setUnionAgg_8::Update, &MeosAggregate_setUnionAgg_8::Combine, &MeosAggregate_setUnionAgg_8::Finish, MeosAggregate_setUnionAgg_8::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_9Literals{};
+using MeosAggregate_setUnionAgg_9 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_9Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_9Kernels{&MeosAggregate_setUnionAgg_9::Initialize, &MeosAggregate_setUnionAgg_9::Update, &MeosAggregate_setUnionAgg_9::Combine, &MeosAggregate_setUnionAgg_9::Finish, MeosAggregate_setUnionAgg_9::StateSize};
 
 struct MeosAggregate_extent_7Ops
 {
@@ -3974,7 +4033,7 @@ constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_6Literal
 using MeosAggregate_appendSequenceAgg_6 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_6Ops>;
 constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_6Kernels{&MeosAggregate_appendSequenceAgg_6::Initialize, &MeosAggregate_appendSequenceAgg_6::Update, &MeosAggregate_appendSequenceAgg_6::Combine, &MeosAggregate_appendSequenceAgg_6::Finish, MeosAggregate_appendSequenceAgg_6::StateSize};
 
-struct MeosAggregate_setUnionAgg_9Ops
+struct MeosAggregate_setUnionAgg_10Ops
 {
     struct Row
     {
@@ -4025,11 +4084,11 @@ struct MeosAggregate_setUnionAgg_9Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_9Literals{};
-using MeosAggregate_setUnionAgg_9 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_9Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_9Kernels{&MeosAggregate_setUnionAgg_9::Initialize, &MeosAggregate_setUnionAgg_9::Update, &MeosAggregate_setUnionAgg_9::Combine, &MeosAggregate_setUnionAgg_9::Finish, MeosAggregate_setUnionAgg_9::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_10Literals{};
+using MeosAggregate_setUnionAgg_10 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_10Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_10Kernels{&MeosAggregate_setUnionAgg_10::Initialize, &MeosAggregate_setUnionAgg_10::Update, &MeosAggregate_setUnionAgg_10::Combine, &MeosAggregate_setUnionAgg_10::Finish, MeosAggregate_setUnionAgg_10::StateSize};
 
-struct MeosAggregate_setUnionAgg_10Ops
+struct MeosAggregate_setUnionAgg_11Ops
 {
     struct Row
     {
@@ -4080,9 +4139,9 @@ struct MeosAggregate_setUnionAgg_10Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_10Literals{};
-using MeosAggregate_setUnionAgg_10 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_10Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_10Kernels{&MeosAggregate_setUnionAgg_10::Initialize, &MeosAggregate_setUnionAgg_10::Update, &MeosAggregate_setUnionAgg_10::Combine, &MeosAggregate_setUnionAgg_10::Finish, MeosAggregate_setUnionAgg_10::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_11Literals{};
+using MeosAggregate_setUnionAgg_11 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_11Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_11Kernels{&MeosAggregate_setUnionAgg_11::Initialize, &MeosAggregate_setUnionAgg_11::Update, &MeosAggregate_setUnionAgg_11::Combine, &MeosAggregate_setUnionAgg_11::Finish, MeosAggregate_setUnionAgg_11::StateSize};
 
 struct MeosAggregate_extent_8Ops
 {
@@ -4598,61 +4657,6 @@ constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_7Literal
 using MeosAggregate_appendSequenceAgg_7 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_7Ops>;
 constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_7Kernels{&MeosAggregate_appendSequenceAgg_7::Initialize, &MeosAggregate_appendSequenceAgg_7::Update, &MeosAggregate_appendSequenceAgg_7::Combine, &MeosAggregate_appendSequenceAgg_7::Finish, MeosAggregate_appendSequenceAgg_7::StateSize};
 
-struct MeosAggregate_setUnionAgg_11Ops
-{
-    struct Row
-    {
-        void* a0;
-    };
-    static constexpr bool GATHERS = false;
-    static constexpr bool HAS_FINAL = true;
-    static constexpr bool KEEPS = false;
-    static bool Read(Row& row, int8_t* a0, int8_t* block)
-    {
-        static_cast<void>(block);
-        row.a0 = MeosRuntime::laid(a0);
-        if (row.a0 == nullptr)
-        {
-            return false;
-        }
-        return true;
-    }
-    static void* Transition(void* s, Row& row)
-    {
-        return pcpoint_union_transfn(static_cast<Set*>(s), static_cast<Pcpoint*>(row.a0));
-    }
-    static void Free(Row& row)
-    {
-        std::free(row.a0);
-    }
-    static void* Final(void* s)
-    {
-        return set_union_finalfn(static_cast<Set*>(s));
-    }
-    static void Release(void* s)
-    {
-        std::free(s);
-    }
-    static int8_t* Write(void* v, int8_t* out)
-    {
-        auto* r = static_cast<Set*>(v);
-        static_cast<void>(out);
-        if (r == nullptr)
-        {
-            return MeosRuntime::none();
-        }
-        return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
-    }
-    static int64_t Order(const Row&)
-    {
-        return 0;
-    }
-};
-
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_11Literals{};
-using MeosAggregate_setUnionAgg_11 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_11Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_11Kernels{&MeosAggregate_setUnionAgg_11::Initialize, &MeosAggregate_setUnionAgg_11::Update, &MeosAggregate_setUnionAgg_11::Combine, &MeosAggregate_setUnionAgg_11::Finish, MeosAggregate_setUnionAgg_11::StateSize};
-
 struct MeosAggregate_setUnionAgg_12Ops
 {
     struct Row
@@ -4674,7 +4678,7 @@ struct MeosAggregate_setUnionAgg_12Ops
     }
     static void* Transition(void* s, Row& row)
     {
-        return set_union_transfn(static_cast<Set*>(s), static_cast<Set*>(row.a0));
+        return pcpoint_union_transfn(static_cast<Set*>(s), static_cast<Pcpoint*>(row.a0));
     }
     static void Free(Row& row)
     {
@@ -4729,7 +4733,7 @@ struct MeosAggregate_setUnionAgg_13Ops
     }
     static void* Transition(void* s, Row& row)
     {
-        return pcpatch_union_transfn(static_cast<Set*>(s), static_cast<Pcpatch*>(row.a0));
+        return set_union_transfn(static_cast<Set*>(s), static_cast<Set*>(row.a0));
     }
     static void Free(Row& row)
     {
@@ -4784,7 +4788,7 @@ struct MeosAggregate_setUnionAgg_14Ops
     }
     static void* Transition(void* s, Row& row)
     {
-        return set_union_transfn(static_cast<Set*>(s), static_cast<Set*>(row.a0));
+        return pcpatch_union_transfn(static_cast<Set*>(s), static_cast<Pcpatch*>(row.a0));
     }
     static void Free(Row& row)
     {
@@ -4817,6 +4821,61 @@ struct MeosAggregate_setUnionAgg_14Ops
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_14Literals{};
 using MeosAggregate_setUnionAgg_14 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_14Ops>;
 constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_14Kernels{&MeosAggregate_setUnionAgg_14::Initialize, &MeosAggregate_setUnionAgg_14::Update, &MeosAggregate_setUnionAgg_14::Combine, &MeosAggregate_setUnionAgg_14::Finish, MeosAggregate_setUnionAgg_14::StateSize};
+
+struct MeosAggregate_setUnionAgg_15Ops
+{
+    struct Row
+    {
+        void* a0;
+    };
+    static constexpr bool GATHERS = false;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        static_cast<void>(block);
+        row.a0 = MeosRuntime::laid(a0);
+        if (row.a0 == nullptr)
+        {
+            return false;
+        }
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return set_union_transfn(static_cast<Set*>(s), static_cast<Set*>(row.a0));
+    }
+    static void Free(Row& row)
+    {
+        std::free(row.a0);
+    }
+    static void* Final(void* s)
+    {
+        return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<Set*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
+    }
+    static int64_t Order(const Row&)
+    {
+        return 0;
+    }
+};
+
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_15Literals{};
+using MeosAggregate_setUnionAgg_15 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_15Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_15Kernels{&MeosAggregate_setUnionAgg_15::Initialize, &MeosAggregate_setUnionAgg_15::Update, &MeosAggregate_setUnionAgg_15::Combine, &MeosAggregate_setUnionAgg_15::Finish, MeosAggregate_setUnionAgg_15::StateSize};
 
 struct MeosAggregate_extent_9Ops
 {
@@ -5897,7 +5956,7 @@ constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_9Literal
 using MeosAggregate_appendSequenceAgg_9 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_9Ops>;
 constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_9Kernels{&MeosAggregate_appendSequenceAgg_9::Initialize, &MeosAggregate_appendSequenceAgg_9::Update, &MeosAggregate_appendSequenceAgg_9::Combine, &MeosAggregate_appendSequenceAgg_9::Finish, MeosAggregate_appendSequenceAgg_9::StateSize};
 
-struct MeosAggregate_setUnionAgg_15Ops
+struct MeosAggregate_setUnionAgg_16Ops
 {
     struct Row
     {
@@ -5948,11 +6007,11 @@ struct MeosAggregate_setUnionAgg_15Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_15Literals{};
-using MeosAggregate_setUnionAgg_15 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_15Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_15Kernels{&MeosAggregate_setUnionAgg_15::Initialize, &MeosAggregate_setUnionAgg_15::Update, &MeosAggregate_setUnionAgg_15::Combine, &MeosAggregate_setUnionAgg_15::Finish, MeosAggregate_setUnionAgg_15::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_16Literals{};
+using MeosAggregate_setUnionAgg_16 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_16Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_16Kernels{&MeosAggregate_setUnionAgg_16::Initialize, &MeosAggregate_setUnionAgg_16::Update, &MeosAggregate_setUnionAgg_16::Combine, &MeosAggregate_setUnionAgg_16::Finish, MeosAggregate_setUnionAgg_16::StateSize};
 
-struct MeosAggregate_setUnionAgg_16Ops
+struct MeosAggregate_setUnionAgg_17Ops
 {
     struct Row
     {
@@ -6003,9 +6062,9 @@ struct MeosAggregate_setUnionAgg_16Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_16Literals{};
-using MeosAggregate_setUnionAgg_16 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_16Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_16Kernels{&MeosAggregate_setUnionAgg_16::Initialize, &MeosAggregate_setUnionAgg_16::Update, &MeosAggregate_setUnionAgg_16::Combine, &MeosAggregate_setUnionAgg_16::Finish, MeosAggregate_setUnionAgg_16::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_17Literals{};
+using MeosAggregate_setUnionAgg_17 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_17Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_17Kernels{&MeosAggregate_setUnionAgg_17::Initialize, &MeosAggregate_setUnionAgg_17::Update, &MeosAggregate_setUnionAgg_17::Combine, &MeosAggregate_setUnionAgg_17::Finish, MeosAggregate_setUnionAgg_17::StateSize};
 
 struct MeosAggregate_tCount_10Ops
 {
@@ -6466,7 +6525,7 @@ constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_10Litera
 using MeosAggregate_appendSequenceAgg_10 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_10Ops>;
 constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_10Kernels{&MeosAggregate_appendSequenceAgg_10::Initialize, &MeosAggregate_appendSequenceAgg_10::Update, &MeosAggregate_appendSequenceAgg_10::Combine, &MeosAggregate_appendSequenceAgg_10::Finish, MeosAggregate_appendSequenceAgg_10::StateSize};
 
-struct MeosAggregate_setUnionAgg_17Ops
+struct MeosAggregate_setUnionAgg_18Ops
 {
     struct Row
     {
@@ -6517,11 +6576,11 @@ struct MeosAggregate_setUnionAgg_17Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_17Literals{};
-using MeosAggregate_setUnionAgg_17 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_17Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_17Kernels{&MeosAggregate_setUnionAgg_17::Initialize, &MeosAggregate_setUnionAgg_17::Update, &MeosAggregate_setUnionAgg_17::Combine, &MeosAggregate_setUnionAgg_17::Finish, MeosAggregate_setUnionAgg_17::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_18Literals{};
+using MeosAggregate_setUnionAgg_18 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_18Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_18Kernels{&MeosAggregate_setUnionAgg_18::Initialize, &MeosAggregate_setUnionAgg_18::Update, &MeosAggregate_setUnionAgg_18::Combine, &MeosAggregate_setUnionAgg_18::Finish, MeosAggregate_setUnionAgg_18::StateSize};
 
-struct MeosAggregate_setUnionAgg_18Ops
+struct MeosAggregate_setUnionAgg_19Ops
 {
     struct Row
     {
@@ -6572,9 +6631,9 @@ struct MeosAggregate_setUnionAgg_18Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_18Literals{};
-using MeosAggregate_setUnionAgg_18 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_18Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_18Kernels{&MeosAggregate_setUnionAgg_18::Initialize, &MeosAggregate_setUnionAgg_18::Update, &MeosAggregate_setUnionAgg_18::Combine, &MeosAggregate_setUnionAgg_18::Finish, MeosAggregate_setUnionAgg_18::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_19Literals{};
+using MeosAggregate_setUnionAgg_19 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_19Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_19Kernels{&MeosAggregate_setUnionAgg_19::Initialize, &MeosAggregate_setUnionAgg_19::Update, &MeosAggregate_setUnionAgg_19::Combine, &MeosAggregate_setUnionAgg_19::Finish, MeosAggregate_setUnionAgg_19::StateSize};
 
 struct MeosAggregate_tCount_11Ops
 {
@@ -7099,7 +7158,63 @@ constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_11Litera
 using MeosAggregate_appendSequenceAgg_11 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_11Ops>;
 constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_11Kernels{&MeosAggregate_appendSequenceAgg_11::Initialize, &MeosAggregate_appendSequenceAgg_11::Update, &MeosAggregate_appendSequenceAgg_11::Combine, &MeosAggregate_appendSequenceAgg_11::Finish, MeosAggregate_appendSequenceAgg_11::StateSize};
 
-struct MeosAggregate_setUnionAgg_19Ops
+struct MeosAggregate_setUnionAgg_20Ops
+{
+    struct Row
+    {
+        uint64_t a0;
+    };
+    static constexpr bool GATHERS = false;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        static_cast<void>(block);
+        const MeosRuntime::Value v0{a0};
+        if (v0.empty())
+        {
+            return false;
+        }
+        row.a0 = quadbin_from_wkb(v0.bytes(), v0.size());
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return quadbin_union_transfn(static_cast<Set*>(s), row.a0);
+    }
+    static void Free(Row& row)
+    {
+        static_cast<void>(row);
+    }
+    static void* Final(void* s)
+    {
+        return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<Set*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
+    }
+    static int64_t Order(const Row&)
+    {
+        return 0;
+    }
+};
+
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_20Literals{};
+using MeosAggregate_setUnionAgg_20 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_20Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_20Kernels{&MeosAggregate_setUnionAgg_20::Initialize, &MeosAggregate_setUnionAgg_20::Update, &MeosAggregate_setUnionAgg_20::Combine, &MeosAggregate_setUnionAgg_20::Finish, MeosAggregate_setUnionAgg_20::StateSize};
+
+struct MeosAggregate_setUnionAgg_21Ops
 {
     struct Row
     {
@@ -7150,9 +7265,9 @@ struct MeosAggregate_setUnionAgg_19Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_19Literals{};
-using MeosAggregate_setUnionAgg_19 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_19Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_19Kernels{&MeosAggregate_setUnionAgg_19::Initialize, &MeosAggregate_setUnionAgg_19::Update, &MeosAggregate_setUnionAgg_19::Combine, &MeosAggregate_setUnionAgg_19::Finish, MeosAggregate_setUnionAgg_19::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_21Literals{};
+using MeosAggregate_setUnionAgg_21 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_21Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_21Kernels{&MeosAggregate_setUnionAgg_21::Initialize, &MeosAggregate_setUnionAgg_21::Update, &MeosAggregate_setUnionAgg_21::Combine, &MeosAggregate_setUnionAgg_21::Finish, MeosAggregate_setUnionAgg_21::StateSize};
 
 struct MeosAggregate_extent_14Ops
 {
@@ -8411,7 +8526,63 @@ constexpr std::array<DataType::Type, 0> MeosAggregate_extent_15Literals{};
 using MeosAggregate_extent_15 = MeosRuntime::MeosAggregate<MeosAggregate_extent_15Ops>;
 constexpr MeosAggregateKernels MeosAggregate_extent_15Kernels{&MeosAggregate_extent_15::Initialize, &MeosAggregate_extent_15::Update, &MeosAggregate_extent_15::Combine, &MeosAggregate_extent_15::Finish, MeosAggregate_extent_15::StateSize};
 
-struct MeosAggregate_setUnionAgg_20Ops
+struct MeosAggregate_setUnionAgg_22Ops
+{
+    struct Row
+    {
+        uint64_t a0;
+    };
+    static constexpr bool GATHERS = false;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        static_cast<void>(block);
+        const MeosRuntime::Value v0{a0};
+        if (v0.empty())
+        {
+            return false;
+        }
+        row.a0 = s2cell_from_wkb(v0.bytes(), v0.size());
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return s2cell_union_transfn(static_cast<Set*>(s), row.a0);
+    }
+    static void Free(Row& row)
+    {
+        static_cast<void>(row);
+    }
+    static void* Final(void* s)
+    {
+        return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<Set*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
+    }
+    static int64_t Order(const Row&)
+    {
+        return 0;
+    }
+};
+
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_22Literals{};
+using MeosAggregate_setUnionAgg_22 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_22Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_22Kernels{&MeosAggregate_setUnionAgg_22::Initialize, &MeosAggregate_setUnionAgg_22::Update, &MeosAggregate_setUnionAgg_22::Combine, &MeosAggregate_setUnionAgg_22::Finish, MeosAggregate_setUnionAgg_22::StateSize};
+
+struct MeosAggregate_setUnionAgg_23Ops
 {
     struct Row
     {
@@ -8462,9 +8633,9 @@ struct MeosAggregate_setUnionAgg_20Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_20Literals{};
-using MeosAggregate_setUnionAgg_20 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_20Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_20Kernels{&MeosAggregate_setUnionAgg_20::Initialize, &MeosAggregate_setUnionAgg_20::Update, &MeosAggregate_setUnionAgg_20::Combine, &MeosAggregate_setUnionAgg_20::Finish, MeosAggregate_setUnionAgg_20::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_23Literals{};
+using MeosAggregate_setUnionAgg_23 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_23Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_23Kernels{&MeosAggregate_setUnionAgg_23::Initialize, &MeosAggregate_setUnionAgg_23::Update, &MeosAggregate_setUnionAgg_23::Combine, &MeosAggregate_setUnionAgg_23::Finish, MeosAggregate_setUnionAgg_23::StateSize};
 
 struct MeosAggregate_extent_16Ops
 {
@@ -8923,7 +9094,7 @@ constexpr std::array<DataType::Type, 0> MeosAggregate_appendSequenceAgg_14Litera
 using MeosAggregate_appendSequenceAgg_14 = MeosRuntime::MeosAggregate<MeosAggregate_appendSequenceAgg_14Ops>;
 constexpr MeosAggregateKernels MeosAggregate_appendSequenceAgg_14Kernels{&MeosAggregate_appendSequenceAgg_14::Initialize, &MeosAggregate_appendSequenceAgg_14::Update, &MeosAggregate_appendSequenceAgg_14::Combine, &MeosAggregate_appendSequenceAgg_14::Finish, MeosAggregate_appendSequenceAgg_14::StateSize};
 
-struct MeosAggregate_setUnionAgg_21Ops
+struct MeosAggregate_setUnionAgg_24Ops
 {
     struct Row
     {
@@ -8970,11 +9141,11 @@ struct MeosAggregate_setUnionAgg_21Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_21Literals{};
-using MeosAggregate_setUnionAgg_21 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_21Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_21Kernels{&MeosAggregate_setUnionAgg_21::Initialize, &MeosAggregate_setUnionAgg_21::Update, &MeosAggregate_setUnionAgg_21::Combine, &MeosAggregate_setUnionAgg_21::Finish, MeosAggregate_setUnionAgg_21::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_24Literals{};
+using MeosAggregate_setUnionAgg_24 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_24Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_24Kernels{&MeosAggregate_setUnionAgg_24::Initialize, &MeosAggregate_setUnionAgg_24::Update, &MeosAggregate_setUnionAgg_24::Combine, &MeosAggregate_setUnionAgg_24::Finish, MeosAggregate_setUnionAgg_24::StateSize};
 
-struct MeosAggregate_setUnionAgg_22Ops
+struct MeosAggregate_setUnionAgg_25Ops
 {
     struct Row
     {
@@ -9021,11 +9192,11 @@ struct MeosAggregate_setUnionAgg_22Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_22Literals{};
-using MeosAggregate_setUnionAgg_22 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_22Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_22Kernels{&MeosAggregate_setUnionAgg_22::Initialize, &MeosAggregate_setUnionAgg_22::Update, &MeosAggregate_setUnionAgg_22::Combine, &MeosAggregate_setUnionAgg_22::Finish, MeosAggregate_setUnionAgg_22::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_25Literals{};
+using MeosAggregate_setUnionAgg_25 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_25Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_25Kernels{&MeosAggregate_setUnionAgg_25::Initialize, &MeosAggregate_setUnionAgg_25::Update, &MeosAggregate_setUnionAgg_25::Combine, &MeosAggregate_setUnionAgg_25::Finish, MeosAggregate_setUnionAgg_25::StateSize};
 
-struct MeosAggregate_setUnionAgg_23Ops
+struct MeosAggregate_setUnionAgg_26Ops
 {
     struct Row
     {
@@ -9072,11 +9243,11 @@ struct MeosAggregate_setUnionAgg_23Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_23Literals{};
-using MeosAggregate_setUnionAgg_23 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_23Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_23Kernels{&MeosAggregate_setUnionAgg_23::Initialize, &MeosAggregate_setUnionAgg_23::Update, &MeosAggregate_setUnionAgg_23::Combine, &MeosAggregate_setUnionAgg_23::Finish, MeosAggregate_setUnionAgg_23::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_26Literals{};
+using MeosAggregate_setUnionAgg_26 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_26Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_26Kernels{&MeosAggregate_setUnionAgg_26::Initialize, &MeosAggregate_setUnionAgg_26::Update, &MeosAggregate_setUnionAgg_26::Combine, &MeosAggregate_setUnionAgg_26::Finish, MeosAggregate_setUnionAgg_26::StateSize};
 
-struct MeosAggregate_setUnionAgg_24Ops
+struct MeosAggregate_setUnionAgg_27Ops
 {
     struct Row
     {
@@ -9123,11 +9294,11 @@ struct MeosAggregate_setUnionAgg_24Ops
     }
 };
 
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_24Literals{};
-using MeosAggregate_setUnionAgg_24 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_24Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_24Kernels{&MeosAggregate_setUnionAgg_24::Initialize, &MeosAggregate_setUnionAgg_24::Update, &MeosAggregate_setUnionAgg_24::Combine, &MeosAggregate_setUnionAgg_24::Finish, MeosAggregate_setUnionAgg_24::StateSize};
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_27Literals{};
+using MeosAggregate_setUnionAgg_27 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_27Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_27Kernels{&MeosAggregate_setUnionAgg_27::Initialize, &MeosAggregate_setUnionAgg_27::Update, &MeosAggregate_setUnionAgg_27::Combine, &MeosAggregate_setUnionAgg_27::Finish, MeosAggregate_setUnionAgg_27::StateSize};
 
-struct MeosAggregate_setUnionAgg_25Ops
+struct MeosAggregate_setUnionAgg_28Ops
 {
     struct Row
     {
@@ -9149,171 +9320,6 @@ struct MeosAggregate_setUnionAgg_25Ops
     static void Free(Row& row)
     {
         static_cast<void>(row);
-    }
-    static void* Final(void* s)
-    {
-        return set_union_finalfn(static_cast<Set*>(s));
-    }
-    static void Release(void* s)
-    {
-        std::free(s);
-    }
-    static int8_t* Write(void* v, int8_t* out)
-    {
-        auto* r = static_cast<Set*>(v);
-        static_cast<void>(out);
-        if (r == nullptr)
-        {
-            return MeosRuntime::none();
-        }
-        return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
-    }
-    static int64_t Order(const Row&)
-    {
-        return 0;
-    }
-};
-
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_25Literals{};
-using MeosAggregate_setUnionAgg_25 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_25Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_25Kernels{&MeosAggregate_setUnionAgg_25::Initialize, &MeosAggregate_setUnionAgg_25::Update, &MeosAggregate_setUnionAgg_25::Combine, &MeosAggregate_setUnionAgg_25::Finish, MeosAggregate_setUnionAgg_25::StateSize};
-
-struct MeosAggregate_setUnionAgg_26Ops
-{
-    struct Row
-    {
-        void* a0;
-    };
-    static constexpr bool GATHERS = false;
-    static constexpr bool HAS_FINAL = true;
-    static constexpr bool KEEPS = false;
-    static bool Read(Row& row, int8_t* a0, int8_t* block)
-    {
-        static_cast<void>(block);
-        row.a0 = MeosRuntime::laid(a0);
-        if (row.a0 == nullptr)
-        {
-            return false;
-        }
-        return true;
-    }
-    static void* Transition(void* s, Row& row)
-    {
-        return set_union_transfn(static_cast<Set*>(s), static_cast<Set*>(row.a0));
-    }
-    static void Free(Row& row)
-    {
-        std::free(row.a0);
-    }
-    static void* Final(void* s)
-    {
-        return set_union_finalfn(static_cast<Set*>(s));
-    }
-    static void Release(void* s)
-    {
-        std::free(s);
-    }
-    static int8_t* Write(void* v, int8_t* out)
-    {
-        auto* r = static_cast<Set*>(v);
-        static_cast<void>(out);
-        if (r == nullptr)
-        {
-            return MeosRuntime::none();
-        }
-        return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
-    }
-    static int64_t Order(const Row&)
-    {
-        return 0;
-    }
-};
-
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_26Literals{};
-using MeosAggregate_setUnionAgg_26 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_26Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_26Kernels{&MeosAggregate_setUnionAgg_26::Initialize, &MeosAggregate_setUnionAgg_26::Update, &MeosAggregate_setUnionAgg_26::Combine, &MeosAggregate_setUnionAgg_26::Finish, MeosAggregate_setUnionAgg_26::StateSize};
-
-struct MeosAggregate_setUnionAgg_27Ops
-{
-    struct Row
-    {
-        void* a0;
-    };
-    static constexpr bool GATHERS = false;
-    static constexpr bool HAS_FINAL = true;
-    static constexpr bool KEEPS = false;
-    static bool Read(Row& row, int8_t* a0, int8_t* block)
-    {
-        static_cast<void>(block);
-        row.a0 = MeosRuntime::laid(a0);
-        if (row.a0 == nullptr)
-        {
-            return false;
-        }
-        return true;
-    }
-    static void* Transition(void* s, Row& row)
-    {
-        return set_union_transfn(static_cast<Set*>(s), static_cast<Set*>(row.a0));
-    }
-    static void Free(Row& row)
-    {
-        std::free(row.a0);
-    }
-    static void* Final(void* s)
-    {
-        return set_union_finalfn(static_cast<Set*>(s));
-    }
-    static void Release(void* s)
-    {
-        std::free(s);
-    }
-    static int8_t* Write(void* v, int8_t* out)
-    {
-        auto* r = static_cast<Set*>(v);
-        static_cast<void>(out);
-        if (r == nullptr)
-        {
-            return MeosRuntime::none();
-        }
-        return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
-    }
-    static int64_t Order(const Row&)
-    {
-        return 0;
-    }
-};
-
-constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_27Literals{};
-using MeosAggregate_setUnionAgg_27 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_27Ops>;
-constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_27Kernels{&MeosAggregate_setUnionAgg_27::Initialize, &MeosAggregate_setUnionAgg_27::Update, &MeosAggregate_setUnionAgg_27::Combine, &MeosAggregate_setUnionAgg_27::Finish, MeosAggregate_setUnionAgg_27::StateSize};
-
-struct MeosAggregate_setUnionAgg_28Ops
-{
-    struct Row
-    {
-        void* a0;
-    };
-    static constexpr bool GATHERS = false;
-    static constexpr bool HAS_FINAL = true;
-    static constexpr bool KEEPS = false;
-    static bool Read(Row& row, int8_t* a0, int8_t* block)
-    {
-        static_cast<void>(block);
-        row.a0 = MeosRuntime::laid(a0);
-        if (row.a0 == nullptr)
-        {
-            return false;
-        }
-        return true;
-    }
-    static void* Transition(void* s, Row& row)
-    {
-        return set_union_transfn(static_cast<Set*>(s), static_cast<Set*>(row.a0));
-    }
-    static void Free(Row& row)
-    {
-        std::free(row.a0);
     }
     static void* Final(void* s)
     {
@@ -9507,6 +9513,171 @@ struct MeosAggregate_setUnionAgg_31Ops
 constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_31Literals{};
 using MeosAggregate_setUnionAgg_31 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_31Ops>;
 constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_31Kernels{&MeosAggregate_setUnionAgg_31::Initialize, &MeosAggregate_setUnionAgg_31::Update, &MeosAggregate_setUnionAgg_31::Combine, &MeosAggregate_setUnionAgg_31::Finish, MeosAggregate_setUnionAgg_31::StateSize};
+
+struct MeosAggregate_setUnionAgg_32Ops
+{
+    struct Row
+    {
+        void* a0;
+    };
+    static constexpr bool GATHERS = false;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        static_cast<void>(block);
+        row.a0 = MeosRuntime::laid(a0);
+        if (row.a0 == nullptr)
+        {
+            return false;
+        }
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return set_union_transfn(static_cast<Set*>(s), static_cast<Set*>(row.a0));
+    }
+    static void Free(Row& row)
+    {
+        std::free(row.a0);
+    }
+    static void* Final(void* s)
+    {
+        return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<Set*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
+    }
+    static int64_t Order(const Row&)
+    {
+        return 0;
+    }
+};
+
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_32Literals{};
+using MeosAggregate_setUnionAgg_32 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_32Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_32Kernels{&MeosAggregate_setUnionAgg_32::Initialize, &MeosAggregate_setUnionAgg_32::Update, &MeosAggregate_setUnionAgg_32::Combine, &MeosAggregate_setUnionAgg_32::Finish, MeosAggregate_setUnionAgg_32::StateSize};
+
+struct MeosAggregate_setUnionAgg_33Ops
+{
+    struct Row
+    {
+        void* a0;
+    };
+    static constexpr bool GATHERS = false;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        static_cast<void>(block);
+        row.a0 = MeosRuntime::laid(a0);
+        if (row.a0 == nullptr)
+        {
+            return false;
+        }
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return set_union_transfn(static_cast<Set*>(s), static_cast<Set*>(row.a0));
+    }
+    static void Free(Row& row)
+    {
+        std::free(row.a0);
+    }
+    static void* Final(void* s)
+    {
+        return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<Set*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
+    }
+    static int64_t Order(const Row&)
+    {
+        return 0;
+    }
+};
+
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_33Literals{};
+using MeosAggregate_setUnionAgg_33 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_33Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_33Kernels{&MeosAggregate_setUnionAgg_33::Initialize, &MeosAggregate_setUnionAgg_33::Update, &MeosAggregate_setUnionAgg_33::Combine, &MeosAggregate_setUnionAgg_33::Finish, MeosAggregate_setUnionAgg_33::StateSize};
+
+struct MeosAggregate_setUnionAgg_34Ops
+{
+    struct Row
+    {
+        void* a0;
+    };
+    static constexpr bool GATHERS = false;
+    static constexpr bool HAS_FINAL = true;
+    static constexpr bool KEEPS = false;
+    static bool Read(Row& row, int8_t* a0, int8_t* block)
+    {
+        static_cast<void>(block);
+        row.a0 = MeosRuntime::laid(a0);
+        if (row.a0 == nullptr)
+        {
+            return false;
+        }
+        return true;
+    }
+    static void* Transition(void* s, Row& row)
+    {
+        return set_union_transfn(static_cast<Set*>(s), static_cast<Set*>(row.a0));
+    }
+    static void Free(Row& row)
+    {
+        std::free(row.a0);
+    }
+    static void* Final(void* s)
+    {
+        return set_union_finalfn(static_cast<Set*>(s));
+    }
+    static void Release(void* s)
+    {
+        std::free(s);
+    }
+    static int8_t* Write(void* v, int8_t* out)
+    {
+        auto* r = static_cast<Set*>(v);
+        static_cast<void>(out);
+        if (r == nullptr)
+        {
+            return MeosRuntime::none();
+        }
+        return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
+    }
+    static int64_t Order(const Row&)
+    {
+        return 0;
+    }
+};
+
+constexpr std::array<DataType::Type, 0> MeosAggregate_setUnionAgg_34Literals{};
+using MeosAggregate_setUnionAgg_34 = MeosRuntime::MeosAggregate<MeosAggregate_setUnionAgg_34Ops>;
+constexpr MeosAggregateKernels MeosAggregate_setUnionAgg_34Kernels{&MeosAggregate_setUnionAgg_34::Initialize, &MeosAggregate_setUnionAgg_34::Update, &MeosAggregate_setUnionAgg_34::Combine, &MeosAggregate_setUnionAgg_34::Finish, MeosAggregate_setUnionAgg_34::StateSize};
 
 struct MeosAggregate_extent_17Ops
 {
@@ -15464,6 +15635,11 @@ void describe(PluginDescriptor& descriptor)
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_6Literals, MeosAggregate_setUnionAgg_6Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_setUnionAgg_7",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_7Literals, MeosAggregate_setUnionAgg_7Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_extent_6",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_extent_6Literals, MeosAggregate_extent_6Kernels); }}}});
@@ -15504,14 +15680,14 @@ void describe(PluginDescriptor& descriptor)
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_appendSequenceAgg_5Literals, MeosAggregate_appendSequenceAgg_5Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
-        .key = "MeosAggregate_setUnionAgg_7",
-        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_7Literals, MeosAggregate_setUnionAgg_7Kernels); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_setUnionAgg_8",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_8Literals, MeosAggregate_setUnionAgg_8Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_setUnionAgg_9",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_9Literals, MeosAggregate_setUnionAgg_9Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_extent_7",
@@ -15554,14 +15730,14 @@ void describe(PluginDescriptor& descriptor)
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_appendSequenceAgg_6Literals, MeosAggregate_appendSequenceAgg_6Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
-        .key = "MeosAggregate_setUnionAgg_9",
-        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_9Literals, MeosAggregate_setUnionAgg_9Kernels); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_setUnionAgg_10",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_10Literals, MeosAggregate_setUnionAgg_10Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_setUnionAgg_11",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_11Literals, MeosAggregate_setUnionAgg_11Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_extent_8",
@@ -15609,11 +15785,6 @@ void describe(PluginDescriptor& descriptor)
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_appendSequenceAgg_7Literals, MeosAggregate_appendSequenceAgg_7Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
-        .key = "MeosAggregate_setUnionAgg_11",
-        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_11Literals, MeosAggregate_setUnionAgg_11Kernels); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_setUnionAgg_12",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_12Literals, MeosAggregate_setUnionAgg_12Kernels); }}}});
@@ -15627,6 +15798,11 @@ void describe(PluginDescriptor& descriptor)
         .key = "MeosAggregate_setUnionAgg_14",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_14Literals, MeosAggregate_setUnionAgg_14Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_setUnionAgg_15",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_15Literals, MeosAggregate_setUnionAgg_15Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_extent_9",
@@ -15724,14 +15900,14 @@ void describe(PluginDescriptor& descriptor)
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_appendSequenceAgg_9Literals, MeosAggregate_appendSequenceAgg_9Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
-        .key = "MeosAggregate_setUnionAgg_15",
-        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_15Literals, MeosAggregate_setUnionAgg_15Kernels); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_setUnionAgg_16",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_16Literals, MeosAggregate_setUnionAgg_16Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_setUnionAgg_17",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_17Literals, MeosAggregate_setUnionAgg_17Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_tCount_10",
@@ -15774,14 +15950,14 @@ void describe(PluginDescriptor& descriptor)
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_appendSequenceAgg_10Literals, MeosAggregate_appendSequenceAgg_10Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
-        .key = "MeosAggregate_setUnionAgg_17",
-        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_17Literals, MeosAggregate_setUnionAgg_17Kernels); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_setUnionAgg_18",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_18Literals, MeosAggregate_setUnionAgg_18Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_setUnionAgg_19",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_19Literals, MeosAggregate_setUnionAgg_19Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_tCount_11",
@@ -15829,9 +16005,14 @@ void describe(PluginDescriptor& descriptor)
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_appendSequenceAgg_11Literals, MeosAggregate_appendSequenceAgg_11Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
-        .key = "MeosAggregate_setUnionAgg_19",
+        .key = "MeosAggregate_setUnionAgg_20",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_19Literals, MeosAggregate_setUnionAgg_19Kernels); }}}});
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_20Literals, MeosAggregate_setUnionAgg_20Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_setUnionAgg_21",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_21Literals, MeosAggregate_setUnionAgg_21Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_extent_14",
@@ -15944,9 +16125,14 @@ void describe(PluginDescriptor& descriptor)
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_extent_15Literals, MeosAggregate_extent_15Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
-        .key = "MeosAggregate_setUnionAgg_20",
+        .key = "MeosAggregate_setUnionAgg_22",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_20Literals, MeosAggregate_setUnionAgg_20Kernels); }}}});
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_22Literals, MeosAggregate_setUnionAgg_22Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_setUnionAgg_23",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_23Literals, MeosAggregate_setUnionAgg_23Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_extent_16",
@@ -15989,34 +16175,19 @@ void describe(PluginDescriptor& descriptor)
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_appendSequenceAgg_14Literals, MeosAggregate_appendSequenceAgg_14Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
-        .key = "MeosAggregate_setUnionAgg_21",
-        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::INT32, MeosAggregate_setUnionAgg_21Literals, MeosAggregate_setUnionAgg_21Kernels); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "AggregationPhysicalFunctionRegistry",
-        .key = "MeosAggregate_setUnionAgg_22",
-        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::INT64, MeosAggregate_setUnionAgg_22Literals, MeosAggregate_setUnionAgg_22Kernels); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "AggregationPhysicalFunctionRegistry",
-        .key = "MeosAggregate_setUnionAgg_23",
-        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::FLOAT64, MeosAggregate_setUnionAgg_23Literals, MeosAggregate_setUnionAgg_23Kernels); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_setUnionAgg_24",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_24Literals, MeosAggregate_setUnionAgg_24Kernels); }}}});
+            { return meosAggregation(std::move(arguments), DataType::Type::INT32, MeosAggregate_setUnionAgg_24Literals, MeosAggregate_setUnionAgg_24Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_setUnionAgg_25",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::UINT64, MeosAggregate_setUnionAgg_25Literals, MeosAggregate_setUnionAgg_25Kernels); }}}});
+            { return meosAggregation(std::move(arguments), DataType::Type::INT64, MeosAggregate_setUnionAgg_25Literals, MeosAggregate_setUnionAgg_25Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_setUnionAgg_26",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_26Literals, MeosAggregate_setUnionAgg_26Kernels); }}}});
+            { return meosAggregation(std::move(arguments), DataType::Type::FLOAT64, MeosAggregate_setUnionAgg_26Literals, MeosAggregate_setUnionAgg_26Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_setUnionAgg_27",
@@ -16026,7 +16197,7 @@ void describe(PluginDescriptor& descriptor)
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_setUnionAgg_28",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
-            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_28Literals, MeosAggregate_setUnionAgg_28Kernels); }}}});
+            { return meosAggregation(std::move(arguments), DataType::Type::UINT64, MeosAggregate_setUnionAgg_28Literals, MeosAggregate_setUnionAgg_28Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_setUnionAgg_29",
@@ -16042,6 +16213,21 @@ void describe(PluginDescriptor& descriptor)
         .key = "MeosAggregate_setUnionAgg_31",
         .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
             { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_31Literals, MeosAggregate_setUnionAgg_31Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_setUnionAgg_32",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_32Literals, MeosAggregate_setUnionAgg_32Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_setUnionAgg_33",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_33Literals, MeosAggregate_setUnionAgg_33Kernels); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "AggregationPhysicalFunctionRegistry",
+        .key = "MeosAggregate_setUnionAgg_34",
+        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType
+            { return meosAggregation(std::move(arguments), DataType::Type::VARSIZED, MeosAggregate_setUnionAgg_34Literals, MeosAggregate_setUnionAgg_34Kernels); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "AggregationPhysicalFunctionRegistry",
         .key = "MeosAggregate_extent_17",

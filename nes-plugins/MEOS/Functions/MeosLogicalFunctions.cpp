@@ -7822,169 +7822,24 @@ constexpr std::array<std::string_view, 1> arguments801_7{"TPOSE"};
 constexpr std::array<std::string_view, 1> arguments801_8{"TPOSECHAIN"};
 constexpr std::array<std::string_view, 1> arguments801_9{"TRGEOMETRY"};
 constexpr std::array<MeosOverload, 10> overloads801{MeosOverload{arguments801_0, "STBOX_ARRAY", "Meos_geo_stboxes_0"}, MeosOverload{arguments801_1, "STBOX_ARRAY", "Meos_geo_stboxes_1"}, MeosOverload{arguments801_2, "STBOX_ARRAY", "Meos_tgeo_stboxes_0"}, MeosOverload{arguments801_3, "STBOX_ARRAY", "Meos_tgeo_stboxes_1"}, MeosOverload{arguments801_4, "STBOX_ARRAY", "Meos_tgeo_stboxes_2"}, MeosOverload{arguments801_5, "STBOX_ARRAY", "Meos_tgeo_stboxes_3"}, MeosOverload{arguments801_6, "STBOX_ARRAY", "Meos_tgeo_stboxes_4"}, MeosOverload{arguments801_7, "STBOX_ARRAY", "Meos_tgeo_stboxes_5"}, MeosOverload{arguments801_8, "STBOX_ARRAY", "Meos_tgeo_stboxes_6"}, MeosOverload{arguments801_9, "STBOX_ARRAY", "Meos_trgeometry_stboxes_0"}};
-constexpr std::array<std::string_view, 2> arguments802_0{"GEOMETRY", "GEOMETRY"};
-constexpr std::array<MeosOverload, 1> overloads802{MeosOverload{arguments802_0, "GEOMETRY", "Meos_geom_symdifference2d_0"}};
-constexpr std::array<std::string_view, 2> arguments803_0{"FLOAT64", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments803_1{"INT32", "TINT"};
-constexpr std::array<std::string_view, 2> arguments803_2{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments803_3{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments803_4{"INT64", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments803_5{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments803_6{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments803_7{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments803_8{"TFLOAT", "TFLOAT"};
-constexpr std::array<MeosOverload, 9> overloads803{MeosOverload{arguments803_0, "TFLOAT", "Meos_add_float_tfloat_0"}, MeosOverload{arguments803_1, "TINT", "Meos_add_int_tint_0"}, MeosOverload{arguments803_2, "TFLOAT", "Meos_add_tfloat_float_0"}, MeosOverload{arguments803_3, "TINT", "Meos_add_tint_int_0"}, MeosOverload{arguments803_4, "TBIGINT", "Meos_add_bigint_tbigint_0"}, MeosOverload{arguments803_5, "TBIGINT", "Meos_add_tbigint_bigint_0"}, MeosOverload{arguments803_6, "TBIGINT", "Meos_add_tnumber_tnumber_0"}, MeosOverload{arguments803_7, "TINT", "Meos_add_tnumber_tnumber_1"}, MeosOverload{arguments803_8, "TFLOAT", "Meos_add_tnumber_tnumber_2"}};
-constexpr std::array<std::string_view, 2> arguments804_0{"BOOLEAN", "TBOOL"};
-constexpr std::array<std::string_view, 2> arguments804_1{"TBOOL", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments804_2{"TBOOL", "TBOOL"};
-constexpr std::array<MeosOverload, 3> overloads804{MeosOverload{arguments804_0, "TBOOL", "Meos_tand_bool_tbool_0"}, MeosOverload{arguments804_1, "TBOOL", "Meos_tand_tbool_bool_0"}, MeosOverload{arguments804_2, "TBOOL", "Meos_tand_tbool_tbool_0"}};
-constexpr std::array<std::string_view, 2> arguments805_0{"VARSIZED", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments805_1{"TTEXT", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments805_2{"TTEXT", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments805_3{"JSONB", "TJSONB"};
-constexpr std::array<std::string_view, 2> arguments805_4{"TJSONB", "JSONB"};
-constexpr std::array<std::string_view, 2> arguments805_5{"TJSONB", "TJSONB"};
-constexpr std::array<MeosOverload, 6> overloads805{MeosOverload{arguments805_0, "TTEXT", "Meos_textcat_text_ttext_0"}, MeosOverload{arguments805_1, "TTEXT", "Meos_textcat_ttext_text_0"}, MeosOverload{arguments805_2, "TTEXT", "Meos_textcat_ttext_ttext_0"}, MeosOverload{arguments805_3, "TJSONB", "Meos_concat_jsonb_tjsonb_0"}, MeosOverload{arguments805_4, "TJSONB", "Meos_concat_tjsonb_jsonb_0"}, MeosOverload{arguments805_5, "TJSONB", "Meos_concat_tjsonb_tjsonb_0"}};
-constexpr std::array<std::string_view, 2> arguments806_0{"GEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments806_1{"GEOMETRY", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments806_2{"TGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments806_3{"TGEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments806_4{"CBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments806_5{"GEOMETRY", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments806_6{"TCBUFFER", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments806_7{"TCBUFFER", "CBUFFER"};
-constexpr std::array<std::string_view, 2> arguments806_8{"TCBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments806_9{"GEOMETRY", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments806_10{"GEOMETRY", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments806_11{"GEOMETRY", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments806_12{"GEOMETRY", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments806_13{"GEOMETRY", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments806_14{"GEOMETRY", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments806_15{"TQUADBIN", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments806_16{"TQUADBIN", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments806_17{"GEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments806_18{"TRGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments806_19{"TRGEOMETRY", "TRGEOMETRY"};
-constexpr std::array<MeosOverload, 20> overloads806{MeosOverload{arguments806_0, "TBOOL", "Meos_tcontains_geo_tgeo_0"}, MeosOverload{arguments806_1, "TBOOL", "Meos_tcontains_geo_tgeo_1"}, MeosOverload{arguments806_2, "TBOOL", "Meos_tcontains_tgeo_geo_0"}, MeosOverload{arguments806_3, "TBOOL", "Meos_tcontains_tgeo_tgeo_0"}, MeosOverload{arguments806_4, "TBOOL", "Meos_tcontains_cbuffer_tcbuffer_0"}, MeosOverload{arguments806_5, "TBOOL", "Meos_tcontains_geo_tcbuffer_0"}, MeosOverload{arguments806_6, "TBOOL", "Meos_tcontains_tcbuffer_geo_0"}, MeosOverload{arguments806_7, "TBOOL", "Meos_tcontains_tcbuffer_cbuffer_0"}, MeosOverload{arguments806_8, "TBOOL", "Meos_tcontains_tcbuffer_tcbuffer_0"}, MeosOverload{arguments806_9, "TBOOL", "Meos_composition225"}, MeosOverload{arguments806_10, "TBOOL", "Meos_composition226"}, MeosOverload{arguments806_11, "TBOOL", "Meos_composition227"}, MeosOverload{arguments806_12, "TBOOL", "Meos_composition228"}, MeosOverload{arguments806_13, "TBOOL", "Meos_composition229"}, MeosOverload{arguments806_14, "TBOOL", "Meos_composition230"}, MeosOverload{arguments806_15, "TBOOL", "Meos_composition231"}, MeosOverload{arguments806_16, "TBOOL", "Meos_composition232"}, MeosOverload{arguments806_17, "TBOOL", "Meos_composition233"}, MeosOverload{arguments806_18, "TBOOL", "Meos_composition234"}, MeosOverload{arguments806_19, "TBOOL", "Meos_composition235"}};
-constexpr std::array<std::string_view, 2> arguments807_0{"GEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments807_1{"GEOMETRY", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments807_2{"TGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments807_3{"TGEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments807_4{"CBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments807_5{"GEOMETRY", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments807_6{"TCBUFFER", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments807_7{"TCBUFFER", "CBUFFER"};
-constexpr std::array<std::string_view, 2> arguments807_8{"TCBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments807_9{"GEOMETRY", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments807_10{"GEOMETRY", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments807_11{"GEOMETRY", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments807_12{"GEOMETRY", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments807_13{"GEOMETRY", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments807_14{"GEOMETRY", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments807_15{"TQUADBIN", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments807_16{"TQUADBIN", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments807_17{"GEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments807_18{"TRGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments807_19{"TRGEOMETRY", "TRGEOMETRY"};
-constexpr std::array<MeosOverload, 20> overloads807{MeosOverload{arguments807_0, "TBOOL", "Meos_tcovers_geo_tgeo_0"}, MeosOverload{arguments807_1, "TBOOL", "Meos_tcovers_geo_tgeo_1"}, MeosOverload{arguments807_2, "TBOOL", "Meos_tcovers_tgeo_geo_0"}, MeosOverload{arguments807_3, "TBOOL", "Meos_tcovers_tgeo_tgeo_0"}, MeosOverload{arguments807_4, "TBOOL", "Meos_tcovers_cbuffer_tcbuffer_0"}, MeosOverload{arguments807_5, "TBOOL", "Meos_tcovers_geo_tcbuffer_0"}, MeosOverload{arguments807_6, "TBOOL", "Meos_tcovers_tcbuffer_geo_0"}, MeosOverload{arguments807_7, "TBOOL", "Meos_tcovers_tcbuffer_cbuffer_0"}, MeosOverload{arguments807_8, "TBOOL", "Meos_tcovers_tcbuffer_tcbuffer_0"}, MeosOverload{arguments807_9, "TBOOL", "Meos_composition236"}, MeosOverload{arguments807_10, "TBOOL", "Meos_composition237"}, MeosOverload{arguments807_11, "TBOOL", "Meos_composition238"}, MeosOverload{arguments807_12, "TBOOL", "Meos_composition239"}, MeosOverload{arguments807_13, "TBOOL", "Meos_composition240"}, MeosOverload{arguments807_14, "TBOOL", "Meos_composition241"}, MeosOverload{arguments807_15, "TBOOL", "Meos_composition242"}, MeosOverload{arguments807_16, "TBOOL", "Meos_composition243"}, MeosOverload{arguments807_17, "TBOOL", "Meos_composition244"}, MeosOverload{arguments807_18, "TBOOL", "Meos_composition245"}, MeosOverload{arguments807_19, "TBOOL", "Meos_composition246"}};
-constexpr std::array<std::string_view, 2> arguments808_0{"GEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_1{"GEOGRAPHY", "TGEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments808_2{"GEOMETRY", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments808_3{"GEOGRAPHY", "TGEOGPOINT"};
-constexpr std::array<std::string_view, 2> arguments808_4{"TGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_5{"TGEOGRAPHY", "GEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments808_6{"TGEOMPOINT", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_7{"TGEOGPOINT", "GEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments808_8{"TGEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_9{"TGEOGRAPHY", "TGEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments808_10{"TGEOMPOINT", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments808_11{"TGEOGPOINT", "TGEOGPOINT"};
-constexpr std::array<std::string_view, 2> arguments808_12{"CBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments808_13{"GEOMETRY", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments808_14{"TCBUFFER", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_15{"TCBUFFER", "CBUFFER"};
-constexpr std::array<std::string_view, 2> arguments808_16{"TCBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments808_17{"GEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_18{"TRGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_19{"TRGEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_20{"TH3INDEX", "TH3INDEX"};
-constexpr std::array<std::string_view, 2> arguments808_21{"GEOMETRY", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments808_22{"TNPOINT", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_23{"TNPOINT", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments808_24{"GEOMETRY", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments808_25{"TPCPOINT", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_26{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments808_27{"GEOMETRY", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments808_28{"TPCPATCH", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_29{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments808_30{"GEOMETRY", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments808_31{"TPOSE", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_32{"TPOSE", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments808_33{"GEOMETRY", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments808_34{"TPOSECHAIN", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_35{"TPOSECHAIN", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments808_36{"GEOMETRY", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments808_37{"TQUADBIN", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments808_38{"TQUADBIN", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments808_39{"TS2CELL", "TS2CELL"};
-constexpr std::array<MeosOverload, 40> overloads808{MeosOverload{arguments808_0, "TBOOL", "Meos_tdisjoint_geo_tgeo_0"}, MeosOverload{arguments808_1, "TBOOL", "Meos_tdisjoint_geo_tgeo_1"}, MeosOverload{arguments808_2, "TBOOL", "Meos_tdisjoint_geo_tgeo_2"}, MeosOverload{arguments808_3, "TBOOL", "Meos_tdisjoint_geo_tgeo_3"}, MeosOverload{arguments808_4, "TBOOL", "Meos_tdisjoint_tgeo_geo_0"}, MeosOverload{arguments808_5, "TBOOL", "Meos_tdisjoint_tgeo_geo_1"}, MeosOverload{arguments808_6, "TBOOL", "Meos_tdisjoint_tgeo_geo_2"}, MeosOverload{arguments808_7, "TBOOL", "Meos_tdisjoint_tgeo_geo_3"}, MeosOverload{arguments808_8, "TBOOL", "Meos_tdisjoint_tgeo_tgeo_0"}, MeosOverload{arguments808_9, "TBOOL", "Meos_tdisjoint_tgeo_tgeo_1"}, MeosOverload{arguments808_10, "TBOOL", "Meos_tdisjoint_tgeo_tgeo_2"}, MeosOverload{arguments808_11, "TBOOL", "Meos_tdisjoint_tgeo_tgeo_3"}, MeosOverload{arguments808_12, "TBOOL", "Meos_tdisjoint_cbuffer_tcbuffer_0"}, MeosOverload{arguments808_13, "TBOOL", "Meos_tdisjoint_geo_tcbuffer_0"}, MeosOverload{arguments808_14, "TBOOL", "Meos_tdisjoint_tcbuffer_geo_0"}, MeosOverload{arguments808_15, "TBOOL", "Meos_tdisjoint_tcbuffer_cbuffer_0"}, MeosOverload{arguments808_16, "TBOOL", "Meos_tdisjoint_tcbuffer_tcbuffer_0"}, MeosOverload{arguments808_17, "TBOOL", "Meos_tdisjoint_geo_trgeometry_0"}, MeosOverload{arguments808_18, "TBOOL", "Meos_tdisjoint_trgeometry_geo_0"}, MeosOverload{arguments808_19, "TBOOL", "Meos_tdisjoint_trgeometry_trgeometry_0"}, MeosOverload{arguments808_20, "TBOOL", "Meos_composition247"}, MeosOverload{arguments808_21, "TBOOL", "Meos_composition248"}, MeosOverload{arguments808_22, "TBOOL", "Meos_composition249"}, MeosOverload{arguments808_23, "TBOOL", "Meos_composition250"}, MeosOverload{arguments808_24, "TBOOL", "Meos_composition251"}, MeosOverload{arguments808_25, "TBOOL", "Meos_composition252"}, MeosOverload{arguments808_26, "TBOOL", "Meos_composition253"}, MeosOverload{arguments808_27, "TBOOL", "Meos_composition254"}, MeosOverload{arguments808_28, "TBOOL", "Meos_composition255"}, MeosOverload{arguments808_29, "TBOOL", "Meos_composition256"}, MeosOverload{arguments808_30, "TBOOL", "Meos_composition257"}, MeosOverload{arguments808_31, "TBOOL", "Meos_composition258"}, MeosOverload{arguments808_32, "TBOOL", "Meos_composition259"}, MeosOverload{arguments808_33, "TBOOL", "Meos_composition260"}, MeosOverload{arguments808_34, "TBOOL", "Meos_composition261"}, MeosOverload{arguments808_35, "TBOOL", "Meos_composition262"}, MeosOverload{arguments808_36, "TBOOL", "Meos_composition263"}, MeosOverload{arguments808_37, "TBOOL", "Meos_composition264"}, MeosOverload{arguments808_38, "TBOOL", "Meos_composition265"}, MeosOverload{arguments808_39, "TBOOL", "Meos_composition266"}};
-constexpr std::array<std::string_view, 2> arguments809_0{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments809_1{"FLOAT64", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments809_2{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments809_3{"INT32", "TINT"};
-constexpr std::array<std::string_view, 2> arguments809_4{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments809_5{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments809_6{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments809_7{"TGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 3> arguments809_8{"TGEOGRAPHY", "GEOGRAPHY", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments809_9{"TGEOGRAPHY", "GEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments809_10{"TGEOMPOINT", "GEOMETRY"};
-constexpr std::array<std::string_view, 3> arguments809_11{"TGEOGPOINT", "GEOGRAPHY", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments809_12{"TGEOGPOINT", "GEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments809_13{"GEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 3> arguments809_14{"GEOGRAPHY", "TGEOGRAPHY", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments809_15{"GEOGRAPHY", "TGEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments809_16{"GEOMETRY", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 3> arguments809_17{"GEOGRAPHY", "TGEOGPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments809_18{"GEOGRAPHY", "TGEOGPOINT"};
-constexpr std::array<std::string_view, 2> arguments809_19{"TGEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 3> arguments809_20{"TGEOGRAPHY", "TGEOGRAPHY", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments809_21{"TGEOGRAPHY", "TGEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments809_22{"TGEOMPOINT", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 3> arguments809_23{"TGEOGPOINT", "TGEOGPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments809_24{"TGEOGPOINT", "TGEOGPOINT"};
-constexpr std::array<std::string_view, 2> arguments809_25{"TCBUFFER", "CBUFFER"};
-constexpr std::array<std::string_view, 2> arguments809_26{"CBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments809_27{"TCBUFFER", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments809_28{"GEOMETRY", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments809_29{"TCBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments809_30{"TNPOINT", "NPOINT"};
-constexpr std::array<std::string_view, 2> arguments809_31{"NPOINT", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments809_32{"TNPOINT", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments809_33{"GEOMETRY", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments809_34{"TNPOINT", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments809_35{"TPOSE", "POSE"};
-constexpr std::array<std::string_view, 2> arguments809_36{"POSE", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments809_37{"TPOSE", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments809_38{"TPOSE", "GEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments809_39{"GEOMETRY", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments809_40{"GEOGRAPHY", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments809_41{"TPOSE", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments809_42{"TPOSECHAIN", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments809_43{"TPOSECHAIN", "GEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments809_44{"GEOMETRY", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments809_45{"GEOGRAPHY", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments809_46{"TPOSECHAIN", "POSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments809_47{"POSECHAIN", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments809_48{"TPOSECHAIN", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments809_49{"TRGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments809_50{"GEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments809_51{"TRGEOMETRY", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments809_52{"TGEOMPOINT", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments809_53{"TRGEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments809_54{"GEOMETRY", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments809_55{"TPCPOINT", "GEOMETRY"};
-constexpr std::array<MeosOverload, 56> overloads809{MeosOverload{arguments809_0, "TFLOAT", "Meos_tdistance_tfloat_float_0"}, MeosOverload{arguments809_1, "TFLOAT", "Meos_tdistance_tfloat_float_1"}, MeosOverload{arguments809_2, "TINT", "Meos_tdistance_tint_int_0"}, MeosOverload{arguments809_3, "TINT", "Meos_tdistance_tint_int_1"}, MeosOverload{arguments809_4, "TBIGINT", "Meos_tdistance_tnumber_tnumber_0"}, MeosOverload{arguments809_5, "TINT", "Meos_tdistance_tnumber_tnumber_1"}, MeosOverload{arguments809_6, "TFLOAT", "Meos_tdistance_tnumber_tnumber_2"}, MeosOverload{arguments809_7, "TFLOAT", "Meos_tdistance_tgeo_geo_0"}, MeosOverload{arguments809_8, "TFLOAT", "Meos_tdistance_tgeo_geo_1"}, MeosOverload{arguments809_9, "TFLOAT", "Meos_tdistance_tgeo_geo_1_2"}, MeosOverload{arguments809_10, "TFLOAT", "Meos_tdistance_tgeo_geo_2"}, MeosOverload{arguments809_11, "TFLOAT", "Meos_tdistance_tgeo_geo_3"}, MeosOverload{arguments809_12, "TFLOAT", "Meos_tdistance_tgeo_geo_3_2"}, MeosOverload{arguments809_13, "TFLOAT", "Meos_tdistance_tgeo_geo_4"}, MeosOverload{arguments809_14, "TFLOAT", "Meos_tdistance_tgeo_geo_5"}, MeosOverload{arguments809_15, "TFLOAT", "Meos_tdistance_tgeo_geo_5_2"}, MeosOverload{arguments809_16, "TFLOAT", "Meos_tdistance_tgeo_geo_6"}, MeosOverload{arguments809_17, "TFLOAT", "Meos_tdistance_tgeo_geo_7"}, MeosOverload{arguments809_18, "TFLOAT", "Meos_tdistance_tgeo_geo_7_2"}, MeosOverload{arguments809_19, "TFLOAT", "Meos_tdistance_tgeo_tgeo_0"}, MeosOverload{arguments809_20, "TFLOAT", "Meos_tdistance_tgeo_tgeo_1"}, MeosOverload{arguments809_21, "TFLOAT", "Meos_tdistance_tgeo_tgeo_1_2"}, MeosOverload{arguments809_22, "TFLOAT", "Meos_tdistance_tgeo_tgeo_2"}, MeosOverload{arguments809_23, "TFLOAT", "Meos_tdistance_tgeo_tgeo_3"}, MeosOverload{arguments809_24, "TFLOAT", "Meos_tdistance_tgeo_tgeo_3_2"}, MeosOverload{arguments809_25, "TFLOAT", "Meos_tdistance_tcbuffer_cbuffer_0"}, MeosOverload{arguments809_26, "TFLOAT", "Meos_tdistance_tcbuffer_cbuffer_1"}, MeosOverload{arguments809_27, "TFLOAT", "Meos_tdistance_tcbuffer_geo_0"}, MeosOverload{arguments809_28, "TFLOAT", "Meos_tdistance_tcbuffer_geo_1"}, MeosOverload{arguments809_29, "TFLOAT", "Meos_tdistance_tcbuffer_tcbuffer_0"}, MeosOverload{arguments809_30, "TFLOAT", "Meos_tdistance_tnpoint_npoint_0"}, MeosOverload{arguments809_31, "TFLOAT", "Meos_tdistance_tnpoint_npoint_1"}, MeosOverload{arguments809_32, "TFLOAT", "Meos_tdistance_tnpoint_geo_0"}, MeosOverload{arguments809_33, "TFLOAT", "Meos_tdistance_tnpoint_geo_1"}, MeosOverload{arguments809_34, "TFLOAT", "Meos_tdistance_tnpoint_tnpoint_0"}, MeosOverload{arguments809_35, "TFLOAT", "Meos_tdistance_tpose_pose_0"}, MeosOverload{arguments809_36, "TFLOAT", "Meos_tdistance_tpose_pose_1"}, MeosOverload{arguments809_37, "TFLOAT", "Meos_tdistance_tpose_geo_0"}, MeosOverload{arguments809_38, "TFLOAT", "Meos_tdistance_tpose_geo_1"}, MeosOverload{arguments809_39, "TFLOAT", "Meos_tdistance_tpose_geo_2"}, MeosOverload{arguments809_40, "TFLOAT", "Meos_tdistance_tpose_geo_3"}, MeosOverload{arguments809_41, "TFLOAT", "Meos_tdistance_tpose_tpose_0"}, MeosOverload{arguments809_42, "TFLOAT", "Meos_tdistance_tposechain_geo_0"}, MeosOverload{arguments809_43, "TFLOAT", "Meos_tdistance_tposechain_geo_1"}, MeosOverload{arguments809_44, "TFLOAT", "Meos_tdistance_tposechain_geo_2"}, MeosOverload{arguments809_45, "TFLOAT", "Meos_tdistance_tposechain_geo_3"}, MeosOverload{arguments809_46, "TFLOAT", "Meos_tdistance_tposechain_posechain_0"}, MeosOverload{arguments809_47, "TFLOAT", "Meos_tdistance_tposechain_posechain_1"}, MeosOverload{arguments809_48, "TFLOAT", "Meos_tdistance_tposechain_tposechain_0"}, MeosOverload{arguments809_49, "TFLOAT", "Meos_tdistance_trgeometry_geo_0"}, MeosOverload{arguments809_50, "TFLOAT", "Meos_tdistance_trgeometry_geo_1"}, MeosOverload{arguments809_51, "TFLOAT", "Meos_tdistance_trgeometry_tpoint_0"}, MeosOverload{arguments809_52, "TFLOAT", "Meos_tdistance_trgeometry_tpoint_1"}, MeosOverload{arguments809_53, "TFLOAT", "Meos_tdistance_trgeometry_trgeometry_0"}, MeosOverload{arguments809_54, "TFLOAT", "Meos_composition267"}, MeosOverload{arguments809_55, "TFLOAT", "Meos_composition268"}};
+constexpr std::array<std::string_view, 3> arguments802_0{"RASTER", "INT32", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments802_1{"RASTER", "INT32"};
+constexpr std::array<std::string_view, 1> arguments802_2{"RASTER"};
+constexpr std::array<MeosOverload, 3> overloads802{MeosOverload{arguments802_0, "SUMMARYSTATS", "Meos_raster_summary_stats_0"}, MeosOverload{arguments802_1, "SUMMARYSTATS", "Meos_raster_summary_stats_0_2"}, MeosOverload{arguments802_2, "SUMMARYSTATS", "Meos_raster_summary_stats_0_1"}};
+constexpr std::array<std::string_view, 1> arguments803_0{"SUMMARYSTATS"};
+constexpr std::array<MeosOverload, 1> overloads803{MeosOverload{arguments803_0, "INT64", "Meos_bandstats_count_0"}};
+constexpr std::array<std::string_view, 1> arguments804_0{"SUMMARYSTATS"};
+constexpr std::array<MeosOverload, 1> overloads804{MeosOverload{arguments804_0, "FLOAT64", "Meos_bandstats_max_0"}};
+constexpr std::array<std::string_view, 1> arguments805_0{"SUMMARYSTATS"};
+constexpr std::array<MeosOverload, 1> overloads805{MeosOverload{arguments805_0, "FLOAT64", "Meos_bandstats_mean_0"}};
+constexpr std::array<std::string_view, 1> arguments806_0{"SUMMARYSTATS"};
+constexpr std::array<MeosOverload, 1> overloads806{MeosOverload{arguments806_0, "FLOAT64", "Meos_bandstats_min_0"}};
+constexpr std::array<std::string_view, 1> arguments807_0{"SUMMARYSTATS"};
+constexpr std::array<MeosOverload, 1> overloads807{MeosOverload{arguments807_0, "FLOAT64", "Meos_bandstats_stddev_0"}};
+constexpr std::array<std::string_view, 1> arguments808_0{"SUMMARYSTATS"};
+constexpr std::array<MeosOverload, 1> overloads808{MeosOverload{arguments808_0, "FLOAT64", "Meos_bandstats_sum_0"}};
+constexpr std::array<std::string_view, 2> arguments809_0{"GEOMETRY", "GEOMETRY"};
+constexpr std::array<MeosOverload, 1> overloads809{MeosOverload{arguments809_0, "GEOMETRY", "Meos_geom_symdifference2d_0"}};
 constexpr std::array<std::string_view, 2> arguments810_0{"FLOAT64", "TFLOAT"};
 constexpr std::array<std::string_view, 2> arguments810_1{"INT32", "TINT"};
 constexpr std::array<std::string_view, 2> arguments810_2{"TFLOAT", "FLOAT64"};
@@ -7994,143 +7849,60 @@ constexpr std::array<std::string_view, 2> arguments810_5{"TBIGINT", "INT64"};
 constexpr std::array<std::string_view, 2> arguments810_6{"TBIGINT", "TBIGINT"};
 constexpr std::array<std::string_view, 2> arguments810_7{"TINT", "TINT"};
 constexpr std::array<std::string_view, 2> arguments810_8{"TFLOAT", "TFLOAT"};
-constexpr std::array<MeosOverload, 9> overloads810{MeosOverload{arguments810_0, "TFLOAT", "Meos_div_float_tfloat_0"}, MeosOverload{arguments810_1, "TINT", "Meos_div_int_tint_0"}, MeosOverload{arguments810_2, "TFLOAT", "Meos_div_tfloat_float_0"}, MeosOverload{arguments810_3, "TINT", "Meos_div_tint_int_0"}, MeosOverload{arguments810_4, "TBIGINT", "Meos_div_bigint_tbigint_0"}, MeosOverload{arguments810_5, "TBIGINT", "Meos_div_tbigint_bigint_0"}, MeosOverload{arguments810_6, "TBIGINT", "Meos_div_tnumber_tnumber_0"}, MeosOverload{arguments810_7, "TINT", "Meos_div_tnumber_tnumber_1"}, MeosOverload{arguments810_8, "TFLOAT", "Meos_div_tnumber_tnumber_2"}};
-constexpr std::array<std::string_view, 3> arguments811_0{"GEOMETRY", "TGEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 4> arguments811_1{"GEOGRAPHY", "TGEOGRAPHY", "FLOAT64", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments811_2{"GEOGRAPHY", "TGEOGRAPHY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_3{"GEOMETRY", "TGEOMPOINT", "FLOAT64"};
-constexpr std::array<std::string_view, 4> arguments811_4{"GEOGRAPHY", "TGEOGPOINT", "FLOAT64", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments811_5{"GEOGRAPHY", "TGEOGPOINT", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_6{"TGEOMETRY", "GEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 4> arguments811_7{"TGEOGRAPHY", "GEOGRAPHY", "FLOAT64", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments811_8{"TGEOGRAPHY", "GEOGRAPHY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_9{"TGEOMPOINT", "GEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 4> arguments811_10{"TGEOGPOINT", "GEOGRAPHY", "FLOAT64", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments811_11{"TGEOGPOINT", "GEOGRAPHY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_12{"TGEOMETRY", "TGEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 4> arguments811_13{"TGEOGRAPHY", "TGEOGRAPHY", "FLOAT64", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments811_14{"TGEOGRAPHY", "TGEOGRAPHY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_15{"TGEOMPOINT", "TGEOMPOINT", "FLOAT64"};
-constexpr std::array<std::string_view, 4> arguments811_16{"TGEOGPOINT", "TGEOGPOINT", "FLOAT64", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments811_17{"TGEOGPOINT", "TGEOGPOINT", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_18{"CBUFFER", "TCBUFFER", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_19{"GEOMETRY", "TCBUFFER", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_20{"TCBUFFER", "GEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_21{"TCBUFFER", "CBUFFER", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_22{"TCBUFFER", "TCBUFFER", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_23{"GEOMETRY", "TRGEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_24{"TRGEOMETRY", "GEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_25{"TRGEOMETRY", "TRGEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_26{"GEOMETRY", "TNPOINT", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_27{"TNPOINT", "GEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_28{"TNPOINT", "TNPOINT", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_29{"GEOMETRY", "TPCPOINT", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_30{"TPCPOINT", "GEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_31{"TPCPOINT", "TPCPOINT", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_32{"GEOMETRY", "TPCPATCH", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_33{"TPCPATCH", "GEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_34{"TPCPATCH", "TPCPATCH", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_35{"GEOMETRY", "TPOSE", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_36{"GEOGRAPHY", "TPOSE", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_37{"TPOSE", "GEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_38{"TPOSE", "GEOGRAPHY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_39{"TPOSE", "TPOSE", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_40{"GEOMETRY", "TPOSECHAIN", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_41{"GEOGRAPHY", "TPOSECHAIN", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_42{"TPOSECHAIN", "GEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_43{"TPOSECHAIN", "GEOGRAPHY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_44{"TPOSECHAIN", "TPOSECHAIN", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_45{"GEOMETRY", "TQUADBIN", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_46{"TQUADBIN", "GEOMETRY", "FLOAT64"};
-constexpr std::array<std::string_view, 3> arguments811_47{"TQUADBIN", "TQUADBIN", "FLOAT64"};
-constexpr std::array<MeosOverload, 48> overloads811{MeosOverload{arguments811_0, "TBOOL", "Meos_tdwithin_geo_tgeo_0"}, MeosOverload{arguments811_1, "TBOOL", "Meos_tdwithin_geo_tgeo_1"}, MeosOverload{arguments811_2, "TBOOL", "Meos_tdwithin_geo_tgeo_1_3"}, MeosOverload{arguments811_3, "TBOOL", "Meos_tdwithin_geo_tgeo_2"}, MeosOverload{arguments811_4, "TBOOL", "Meos_tdwithin_geo_tgeo_3"}, MeosOverload{arguments811_5, "TBOOL", "Meos_tdwithin_geo_tgeo_3_3"}, MeosOverload{arguments811_6, "TBOOL", "Meos_tdwithin_tgeo_geo_0"}, MeosOverload{arguments811_7, "TBOOL", "Meos_tdwithin_tgeo_geo_1"}, MeosOverload{arguments811_8, "TBOOL", "Meos_tdwithin_tgeo_geo_1_3"}, MeosOverload{arguments811_9, "TBOOL", "Meos_tdwithin_tgeo_geo_2"}, MeosOverload{arguments811_10, "TBOOL", "Meos_tdwithin_tgeo_geo_3"}, MeosOverload{arguments811_11, "TBOOL", "Meos_tdwithin_tgeo_geo_3_3"}, MeosOverload{arguments811_12, "TBOOL", "Meos_tdwithin_tgeo_tgeo_0"}, MeosOverload{arguments811_13, "TBOOL", "Meos_tdwithin_tgeo_tgeo_1"}, MeosOverload{arguments811_14, "TBOOL", "Meos_tdwithin_tgeo_tgeo_1_3"}, MeosOverload{arguments811_15, "TBOOL", "Meos_tdwithin_tgeo_tgeo_2"}, MeosOverload{arguments811_16, "TBOOL", "Meos_tdwithin_tgeo_tgeo_3"}, MeosOverload{arguments811_17, "TBOOL", "Meos_tdwithin_tgeo_tgeo_3_3"}, MeosOverload{arguments811_18, "TBOOL", "Meos_tdwithin_cbuffer_tcbuffer_0"}, MeosOverload{arguments811_19, "TBOOL", "Meos_tdwithin_geo_tcbuffer_0"}, MeosOverload{arguments811_20, "TBOOL", "Meos_tdwithin_tcbuffer_geo_0"}, MeosOverload{arguments811_21, "TBOOL", "Meos_tdwithin_tcbuffer_cbuffer_0"}, MeosOverload{arguments811_22, "TBOOL", "Meos_tdwithin_tcbuffer_tcbuffer_0"}, MeosOverload{arguments811_23, "TBOOL", "Meos_tdwithin_geo_trgeometry_0"}, MeosOverload{arguments811_24, "TBOOL", "Meos_tdwithin_trgeometry_geo_0"}, MeosOverload{arguments811_25, "TBOOL", "Meos_tdwithin_trgeometry_trgeometry_0"}, MeosOverload{arguments811_26, "TBOOL", "Meos_composition269"}, MeosOverload{arguments811_27, "TBOOL", "Meos_composition270"}, MeosOverload{arguments811_28, "TBOOL", "Meos_composition271"}, MeosOverload{arguments811_29, "TBOOL", "Meos_composition272"}, MeosOverload{arguments811_30, "TBOOL", "Meos_composition273"}, MeosOverload{arguments811_31, "TBOOL", "Meos_composition274"}, MeosOverload{arguments811_32, "TBOOL", "Meos_composition275"}, MeosOverload{arguments811_33, "TBOOL", "Meos_composition276"}, MeosOverload{arguments811_34, "TBOOL", "Meos_composition277"}, MeosOverload{arguments811_35, "TBOOL", "Meos_composition278"}, MeosOverload{arguments811_36, "TBOOL", "Meos_composition279"}, MeosOverload{arguments811_37, "TBOOL", "Meos_composition280"}, MeosOverload{arguments811_38, "TBOOL", "Meos_composition281"}, MeosOverload{arguments811_39, "TBOOL", "Meos_composition282"}, MeosOverload{arguments811_40, "TBOOL", "Meos_composition283"}, MeosOverload{arguments811_41, "TBOOL", "Meos_composition284"}, MeosOverload{arguments811_42, "TBOOL", "Meos_composition285"}, MeosOverload{arguments811_43, "TBOOL", "Meos_composition286"}, MeosOverload{arguments811_44, "TBOOL", "Meos_composition287"}, MeosOverload{arguments811_45, "TBOOL", "Meos_composition288"}, MeosOverload{arguments811_46, "TBOOL", "Meos_composition289"}, MeosOverload{arguments811_47, "TBOOL", "Meos_composition290"}};
-constexpr std::array<std::string_view, 2> arguments812_0{"INT64", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments812_1{"BOOLEAN", "TBOOL"};
-constexpr std::array<std::string_view, 2> arguments812_2{"FLOAT64", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments812_3{"INT32", "TINT"};
-constexpr std::array<std::string_view, 2> arguments812_4{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments812_5{"TBOOL", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments812_6{"TCBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments812_7{"TGEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments812_8{"TGEOGRAPHY", "TGEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments812_9{"TGEOMPOINT", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments812_10{"TGEOGPOINT", "TGEOGPOINT"};
-constexpr std::array<std::string_view, 2> arguments812_11{"TH3INDEX", "TH3INDEX"};
-constexpr std::array<std::string_view, 2> arguments812_12{"TJSONB", "TJSONB"};
-constexpr std::array<std::string_view, 2> arguments812_13{"TNPOINT", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments812_14{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments812_15{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments812_16{"TPOSE", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments812_17{"TPOSECHAIN", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments812_18{"TQUADBIN", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments812_19{"TRGEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments812_20{"TS2CELL", "TS2CELL"};
-constexpr std::array<std::string_view, 2> arguments812_21{"TBOOL", "TBOOL"};
-constexpr std::array<std::string_view, 2> arguments812_22{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments812_23{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments812_24{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments812_25{"TTEXT", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments812_26{"VARSIZED", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments812_27{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments812_28{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments812_29{"TTEXT", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments812_30{"GEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments812_31{"GEOGRAPHY", "TGEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments812_32{"GEOMETRY", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments812_33{"GEOGRAPHY", "TGEOGPOINT"};
-constexpr std::array<std::string_view, 2> arguments812_34{"TGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments812_35{"TGEOGRAPHY", "GEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments812_36{"TGEOMPOINT", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments812_37{"TGEOGPOINT", "GEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments812_38{"CBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments812_39{"TCBUFFER", "CBUFFER"};
-constexpr std::array<std::string_view, 2> arguments812_40{"H3INDEX", "TH3INDEX"};
-constexpr std::array<std::string_view, 2> arguments812_41{"TH3INDEX", "H3INDEX"};
-constexpr std::array<std::string_view, 2> arguments812_42{"JSONB", "TJSONB"};
-constexpr std::array<std::string_view, 2> arguments812_43{"TJSONB", "JSONB"};
-constexpr std::array<std::string_view, 2> arguments812_44{"TNPOINT", "NPOINT"};
-constexpr std::array<std::string_view, 2> arguments812_45{"NPOINT", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments812_46{"PCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments812_47{"TPCPOINT", "PCPOINT"};
-constexpr std::array<std::string_view, 2> arguments812_48{"PCPATCH", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments812_49{"TPCPATCH", "PCPATCH"};
-constexpr std::array<std::string_view, 2> arguments812_50{"POSE", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments812_51{"TPOSE", "POSE"};
-constexpr std::array<std::string_view, 2> arguments812_52{"POSECHAIN", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments812_53{"TPOSECHAIN", "POSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments812_54{"QUADBIN", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments812_55{"TQUADBIN", "QUADBIN"};
-constexpr std::array<std::string_view, 2> arguments812_56{"GEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments812_57{"TRGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments812_58{"S2CELL", "TS2CELL"};
-constexpr std::array<std::string_view, 2> arguments812_59{"TS2CELL", "S2CELL"};
-constexpr std::array<MeosOverload, 60> overloads812{MeosOverload{arguments812_0, "TBOOL", "Meos_teq_bigint_tbigint_0"}, MeosOverload{arguments812_1, "TBOOL", "Meos_teq_bool_tbool_0"}, MeosOverload{arguments812_2, "TBOOL", "Meos_teq_float_tfloat_0"}, MeosOverload{arguments812_3, "TBOOL", "Meos_teq_int_tint_0"}, MeosOverload{arguments812_4, "TBOOL", "Meos_teq_tbigint_bigint_0"}, MeosOverload{arguments812_5, "TBOOL", "Meos_teq_tbool_bool_0"}, MeosOverload{arguments812_6, "TBOOL", "Meos_teq_temporal_temporal_0"}, MeosOverload{arguments812_7, "TBOOL", "Meos_teq_temporal_temporal_1"}, MeosOverload{arguments812_8, "TBOOL", "Meos_teq_temporal_temporal_2"}, MeosOverload{arguments812_9, "TBOOL", "Meos_teq_temporal_temporal_3"}, MeosOverload{arguments812_10, "TBOOL", "Meos_teq_temporal_temporal_4"}, MeosOverload{arguments812_11, "TBOOL", "Meos_teq_temporal_temporal_5"}, MeosOverload{arguments812_12, "TBOOL", "Meos_teq_temporal_temporal_6"}, MeosOverload{arguments812_13, "TBOOL", "Meos_teq_temporal_temporal_7"}, MeosOverload{arguments812_14, "TBOOL", "Meos_teq_temporal_temporal_8"}, MeosOverload{arguments812_15, "TBOOL", "Meos_teq_temporal_temporal_9"}, MeosOverload{arguments812_16, "TBOOL", "Meos_teq_temporal_temporal_10"}, MeosOverload{arguments812_17, "TBOOL", "Meos_teq_temporal_temporal_11"}, MeosOverload{arguments812_18, "TBOOL", "Meos_teq_temporal_temporal_12"}, MeosOverload{arguments812_19, "TBOOL", "Meos_teq_temporal_temporal_13"}, MeosOverload{arguments812_20, "TBOOL", "Meos_teq_temporal_temporal_14"}, MeosOverload{arguments812_21, "TBOOL", "Meos_teq_temporal_temporal_15"}, MeosOverload{arguments812_22, "TBOOL", "Meos_teq_temporal_temporal_16"}, MeosOverload{arguments812_23, "TBOOL", "Meos_teq_temporal_temporal_17"}, MeosOverload{arguments812_24, "TBOOL", "Meos_teq_temporal_temporal_18"}, MeosOverload{arguments812_25, "TBOOL", "Meos_teq_temporal_temporal_19"}, MeosOverload{arguments812_26, "TBOOL", "Meos_teq_text_ttext_0"}, MeosOverload{arguments812_27, "TBOOL", "Meos_teq_tfloat_float_0"}, MeosOverload{arguments812_28, "TBOOL", "Meos_teq_tint_int_0"}, MeosOverload{arguments812_29, "TBOOL", "Meos_teq_ttext_text_0"}, MeosOverload{arguments812_30, "TBOOL", "Meos_teq_geo_tgeo_0"}, MeosOverload{arguments812_31, "TBOOL", "Meos_teq_geo_tgeo_1"}, MeosOverload{arguments812_32, "TBOOL", "Meos_teq_geo_tgeo_2"}, MeosOverload{arguments812_33, "TBOOL", "Meos_teq_geo_tgeo_3"}, MeosOverload{arguments812_34, "TBOOL", "Meos_teq_tgeo_geo_0"}, MeosOverload{arguments812_35, "TBOOL", "Meos_teq_tgeo_geo_1"}, MeosOverload{arguments812_36, "TBOOL", "Meos_teq_tgeo_geo_2"}, MeosOverload{arguments812_37, "TBOOL", "Meos_teq_tgeo_geo_3"}, MeosOverload{arguments812_38, "TBOOL", "Meos_teq_cbuffer_tcbuffer_0"}, MeosOverload{arguments812_39, "TBOOL", "Meos_teq_tcbuffer_cbuffer_0"}, MeosOverload{arguments812_40, "TBOOL", "Meos_teq_h3index_th3index_0"}, MeosOverload{arguments812_41, "TBOOL", "Meos_teq_th3index_h3index_0"}, MeosOverload{arguments812_42, "TBOOL", "Meos_teq_jsonb_tjsonb_0"}, MeosOverload{arguments812_43, "TBOOL", "Meos_teq_tjsonb_jsonb_0"}, MeosOverload{arguments812_44, "TBOOL", "Meos_teq_tnpoint_npoint_0"}, MeosOverload{arguments812_45, "TBOOL", "Meos_teq_tnpoint_npoint_1"}, MeosOverload{arguments812_46, "TBOOL", "Meos_teq_pcpoint_tpcpoint_0"}, MeosOverload{arguments812_47, "TBOOL", "Meos_teq_tpcpoint_pcpoint_0"}, MeosOverload{arguments812_48, "TBOOL", "Meos_teq_pcpatch_tpcpatch_0"}, MeosOverload{arguments812_49, "TBOOL", "Meos_teq_tpcpatch_pcpatch_0"}, MeosOverload{arguments812_50, "TBOOL", "Meos_teq_pose_tpose_0"}, MeosOverload{arguments812_51, "TBOOL", "Meos_teq_tpose_pose_0"}, MeosOverload{arguments812_52, "TBOOL", "Meos_teq_posechain_tposechain_0"}, MeosOverload{arguments812_53, "TBOOL", "Meos_teq_tposechain_posechain_0"}, MeosOverload{arguments812_54, "TBOOL", "Meos_teq_quadbin_tquadbin_0"}, MeosOverload{arguments812_55, "TBOOL", "Meos_teq_tquadbin_quadbin_0"}, MeosOverload{arguments812_56, "TBOOL", "Meos_teq_geo_trgeometry_0"}, MeosOverload{arguments812_57, "TBOOL", "Meos_teq_trgeometry_geo_0"}, MeosOverload{arguments812_58, "TBOOL", "Meos_teq_s2cell_ts2cell_0"}, MeosOverload{arguments812_59, "TBOOL", "Meos_teq_ts2cell_s2cell_0"}};
-constexpr std::array<std::string_view, 2> arguments813_0{"INT64", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments813_1{"FLOAT64", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments813_2{"INT32", "TINT"};
-constexpr std::array<std::string_view, 2> arguments813_3{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments813_4{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments813_5{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments813_6{"TTEXT", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments813_7{"VARSIZED", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments813_8{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments813_9{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments813_10{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments813_11{"TTEXT", "VARSIZED"};
-constexpr std::array<MeosOverload, 12> overloads813{MeosOverload{arguments813_0, "TBOOL", "Meos_tge_bigint_tbigint_0"}, MeosOverload{arguments813_1, "TBOOL", "Meos_tge_float_tfloat_0"}, MeosOverload{arguments813_2, "TBOOL", "Meos_tge_int_tint_0"}, MeosOverload{arguments813_3, "TBOOL", "Meos_tge_temporal_temporal_0"}, MeosOverload{arguments813_4, "TBOOL", "Meos_tge_temporal_temporal_1"}, MeosOverload{arguments813_5, "TBOOL", "Meos_tge_temporal_temporal_2"}, MeosOverload{arguments813_6, "TBOOL", "Meos_tge_temporal_temporal_3"}, MeosOverload{arguments813_7, "TBOOL", "Meos_tge_text_ttext_0"}, MeosOverload{arguments813_8, "TBOOL", "Meos_tge_tbigint_bigint_0"}, MeosOverload{arguments813_9, "TBOOL", "Meos_tge_tfloat_float_0"}, MeosOverload{arguments813_10, "TBOOL", "Meos_tge_tint_int_0"}, MeosOverload{arguments813_11, "TBOOL", "Meos_tge_ttext_text_0"}};
-constexpr std::array<std::string_view, 2> arguments814_0{"INT64", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments814_1{"FLOAT64", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments814_2{"INT32", "TINT"};
-constexpr std::array<std::string_view, 2> arguments814_3{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments814_4{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments814_5{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments814_6{"TTEXT", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments814_7{"VARSIZED", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments814_8{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments814_9{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments814_10{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments814_11{"TTEXT", "VARSIZED"};
-constexpr std::array<MeosOverload, 12> overloads814{MeosOverload{arguments814_0, "TBOOL", "Meos_tgt_bigint_tbigint_0"}, MeosOverload{arguments814_1, "TBOOL", "Meos_tgt_float_tfloat_0"}, MeosOverload{arguments814_2, "TBOOL", "Meos_tgt_int_tint_0"}, MeosOverload{arguments814_3, "TBOOL", "Meos_tgt_temporal_temporal_0"}, MeosOverload{arguments814_4, "TBOOL", "Meos_tgt_temporal_temporal_1"}, MeosOverload{arguments814_5, "TBOOL", "Meos_tgt_temporal_temporal_2"}, MeosOverload{arguments814_6, "TBOOL", "Meos_tgt_temporal_temporal_3"}, MeosOverload{arguments814_7, "TBOOL", "Meos_tgt_text_ttext_0"}, MeosOverload{arguments814_8, "TBOOL", "Meos_tgt_tbigint_bigint_0"}, MeosOverload{arguments814_9, "TBOOL", "Meos_tgt_tfloat_float_0"}, MeosOverload{arguments814_10, "TBOOL", "Meos_tgt_tint_int_0"}, MeosOverload{arguments814_11, "TBOOL", "Meos_tgt_ttext_text_0"}};
+constexpr std::array<MeosOverload, 9> overloads810{MeosOverload{arguments810_0, "TFLOAT", "Meos_add_float_tfloat_0"}, MeosOverload{arguments810_1, "TINT", "Meos_add_int_tint_0"}, MeosOverload{arguments810_2, "TFLOAT", "Meos_add_tfloat_float_0"}, MeosOverload{arguments810_3, "TINT", "Meos_add_tint_int_0"}, MeosOverload{arguments810_4, "TBIGINT", "Meos_add_bigint_tbigint_0"}, MeosOverload{arguments810_5, "TBIGINT", "Meos_add_tbigint_bigint_0"}, MeosOverload{arguments810_6, "TBIGINT", "Meos_add_tnumber_tnumber_0"}, MeosOverload{arguments810_7, "TINT", "Meos_add_tnumber_tnumber_1"}, MeosOverload{arguments810_8, "TFLOAT", "Meos_add_tnumber_tnumber_2"}};
+constexpr std::array<std::string_view, 2> arguments811_0{"BOOLEAN", "TBOOL"};
+constexpr std::array<std::string_view, 2> arguments811_1{"TBOOL", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments811_2{"TBOOL", "TBOOL"};
+constexpr std::array<MeosOverload, 3> overloads811{MeosOverload{arguments811_0, "TBOOL", "Meos_tand_bool_tbool_0"}, MeosOverload{arguments811_1, "TBOOL", "Meos_tand_tbool_bool_0"}, MeosOverload{arguments811_2, "TBOOL", "Meos_tand_tbool_tbool_0"}};
+constexpr std::array<std::string_view, 2> arguments812_0{"VARSIZED", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments812_1{"TTEXT", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments812_2{"TTEXT", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments812_3{"JSONB", "TJSONB"};
+constexpr std::array<std::string_view, 2> arguments812_4{"TJSONB", "JSONB"};
+constexpr std::array<std::string_view, 2> arguments812_5{"TJSONB", "TJSONB"};
+constexpr std::array<MeosOverload, 6> overloads812{MeosOverload{arguments812_0, "TTEXT", "Meos_textcat_text_ttext_0"}, MeosOverload{arguments812_1, "TTEXT", "Meos_textcat_ttext_text_0"}, MeosOverload{arguments812_2, "TTEXT", "Meos_textcat_ttext_ttext_0"}, MeosOverload{arguments812_3, "TJSONB", "Meos_concat_jsonb_tjsonb_0"}, MeosOverload{arguments812_4, "TJSONB", "Meos_concat_tjsonb_jsonb_0"}, MeosOverload{arguments812_5, "TJSONB", "Meos_concat_tjsonb_tjsonb_0"}};
+constexpr std::array<std::string_view, 2> arguments813_0{"GEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments813_1{"GEOMETRY", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments813_2{"TGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments813_3{"TGEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments813_4{"CBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments813_5{"GEOMETRY", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments813_6{"TCBUFFER", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments813_7{"TCBUFFER", "CBUFFER"};
+constexpr std::array<std::string_view, 2> arguments813_8{"TCBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments813_9{"GEOMETRY", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments813_10{"GEOMETRY", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments813_11{"GEOMETRY", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments813_12{"GEOMETRY", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments813_13{"GEOMETRY", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments813_14{"GEOMETRY", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments813_15{"TQUADBIN", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments813_16{"TQUADBIN", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments813_17{"GEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments813_18{"TRGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments813_19{"TRGEOMETRY", "TRGEOMETRY"};
+constexpr std::array<MeosOverload, 20> overloads813{MeosOverload{arguments813_0, "TBOOL", "Meos_tcontains_geo_tgeo_0"}, MeosOverload{arguments813_1, "TBOOL", "Meos_tcontains_geo_tgeo_1"}, MeosOverload{arguments813_2, "TBOOL", "Meos_tcontains_tgeo_geo_0"}, MeosOverload{arguments813_3, "TBOOL", "Meos_tcontains_tgeo_tgeo_0"}, MeosOverload{arguments813_4, "TBOOL", "Meos_tcontains_cbuffer_tcbuffer_0"}, MeosOverload{arguments813_5, "TBOOL", "Meos_tcontains_geo_tcbuffer_0"}, MeosOverload{arguments813_6, "TBOOL", "Meos_tcontains_tcbuffer_geo_0"}, MeosOverload{arguments813_7, "TBOOL", "Meos_tcontains_tcbuffer_cbuffer_0"}, MeosOverload{arguments813_8, "TBOOL", "Meos_tcontains_tcbuffer_tcbuffer_0"}, MeosOverload{arguments813_9, "TBOOL", "Meos_composition225"}, MeosOverload{arguments813_10, "TBOOL", "Meos_composition226"}, MeosOverload{arguments813_11, "TBOOL", "Meos_composition227"}, MeosOverload{arguments813_12, "TBOOL", "Meos_composition228"}, MeosOverload{arguments813_13, "TBOOL", "Meos_composition229"}, MeosOverload{arguments813_14, "TBOOL", "Meos_composition230"}, MeosOverload{arguments813_15, "TBOOL", "Meos_composition231"}, MeosOverload{arguments813_16, "TBOOL", "Meos_composition232"}, MeosOverload{arguments813_17, "TBOOL", "Meos_composition233"}, MeosOverload{arguments813_18, "TBOOL", "Meos_composition234"}, MeosOverload{arguments813_19, "TBOOL", "Meos_composition235"}};
+constexpr std::array<std::string_view, 2> arguments814_0{"GEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments814_1{"GEOMETRY", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments814_2{"TGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments814_3{"TGEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments814_4{"CBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments814_5{"GEOMETRY", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments814_6{"TCBUFFER", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments814_7{"TCBUFFER", "CBUFFER"};
+constexpr std::array<std::string_view, 2> arguments814_8{"TCBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments814_9{"GEOMETRY", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments814_10{"GEOMETRY", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments814_11{"GEOMETRY", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments814_12{"GEOMETRY", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments814_13{"GEOMETRY", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments814_14{"GEOMETRY", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments814_15{"TQUADBIN", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments814_16{"TQUADBIN", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments814_17{"GEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments814_18{"TRGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments814_19{"TRGEOMETRY", "TRGEOMETRY"};
+constexpr std::array<MeosOverload, 20> overloads814{MeosOverload{arguments814_0, "TBOOL", "Meos_tcovers_geo_tgeo_0"}, MeosOverload{arguments814_1, "TBOOL", "Meos_tcovers_geo_tgeo_1"}, MeosOverload{arguments814_2, "TBOOL", "Meos_tcovers_tgeo_geo_0"}, MeosOverload{arguments814_3, "TBOOL", "Meos_tcovers_tgeo_tgeo_0"}, MeosOverload{arguments814_4, "TBOOL", "Meos_tcovers_cbuffer_tcbuffer_0"}, MeosOverload{arguments814_5, "TBOOL", "Meos_tcovers_geo_tcbuffer_0"}, MeosOverload{arguments814_6, "TBOOL", "Meos_tcovers_tcbuffer_geo_0"}, MeosOverload{arguments814_7, "TBOOL", "Meos_tcovers_tcbuffer_cbuffer_0"}, MeosOverload{arguments814_8, "TBOOL", "Meos_tcovers_tcbuffer_tcbuffer_0"}, MeosOverload{arguments814_9, "TBOOL", "Meos_composition236"}, MeosOverload{arguments814_10, "TBOOL", "Meos_composition237"}, MeosOverload{arguments814_11, "TBOOL", "Meos_composition238"}, MeosOverload{arguments814_12, "TBOOL", "Meos_composition239"}, MeosOverload{arguments814_13, "TBOOL", "Meos_composition240"}, MeosOverload{arguments814_14, "TBOOL", "Meos_composition241"}, MeosOverload{arguments814_15, "TBOOL", "Meos_composition242"}, MeosOverload{arguments814_16, "TBOOL", "Meos_composition243"}, MeosOverload{arguments814_17, "TBOOL", "Meos_composition244"}, MeosOverload{arguments814_18, "TBOOL", "Meos_composition245"}, MeosOverload{arguments814_19, "TBOOL", "Meos_composition246"}};
 constexpr std::array<std::string_view, 2> arguments815_0{"GEOMETRY", "TGEOMETRY"};
 constexpr std::array<std::string_view, 2> arguments815_1{"GEOGRAPHY", "TGEOGRAPHY"};
 constexpr std::array<std::string_view, 2> arguments815_2{"GEOMETRY", "TGEOMPOINT"};
@@ -8171,395 +7943,596 @@ constexpr std::array<std::string_view, 2> arguments815_36{"GEOMETRY", "TQUADBIN"
 constexpr std::array<std::string_view, 2> arguments815_37{"TQUADBIN", "GEOMETRY"};
 constexpr std::array<std::string_view, 2> arguments815_38{"TQUADBIN", "TQUADBIN"};
 constexpr std::array<std::string_view, 2> arguments815_39{"TS2CELL", "TS2CELL"};
-constexpr std::array<MeosOverload, 40> overloads815{MeosOverload{arguments815_0, "TBOOL", "Meos_tintersects_geo_tgeo_0"}, MeosOverload{arguments815_1, "TBOOL", "Meos_tintersects_geo_tgeo_1"}, MeosOverload{arguments815_2, "TBOOL", "Meos_tintersects_geo_tgeo_2"}, MeosOverload{arguments815_3, "TBOOL", "Meos_tintersects_geo_tgeo_3"}, MeosOverload{arguments815_4, "TBOOL", "Meos_tintersects_tgeo_geo_0"}, MeosOverload{arguments815_5, "TBOOL", "Meos_tintersects_tgeo_geo_1"}, MeosOverload{arguments815_6, "TBOOL", "Meos_tintersects_tgeo_geo_2"}, MeosOverload{arguments815_7, "TBOOL", "Meos_tintersects_tgeo_geo_3"}, MeosOverload{arguments815_8, "TBOOL", "Meos_tintersects_tgeo_tgeo_0"}, MeosOverload{arguments815_9, "TBOOL", "Meos_tintersects_tgeo_tgeo_1"}, MeosOverload{arguments815_10, "TBOOL", "Meos_tintersects_tgeo_tgeo_2"}, MeosOverload{arguments815_11, "TBOOL", "Meos_tintersects_tgeo_tgeo_3"}, MeosOverload{arguments815_12, "TBOOL", "Meos_tintersects_cbuffer_tcbuffer_0"}, MeosOverload{arguments815_13, "TBOOL", "Meos_tintersects_geo_tcbuffer_0"}, MeosOverload{arguments815_14, "TBOOL", "Meos_tintersects_tcbuffer_geo_0"}, MeosOverload{arguments815_15, "TBOOL", "Meos_tintersects_tcbuffer_cbuffer_0"}, MeosOverload{arguments815_16, "TBOOL", "Meos_tintersects_tcbuffer_tcbuffer_0"}, MeosOverload{arguments815_17, "TBOOL", "Meos_tintersects_geo_trgeometry_0"}, MeosOverload{arguments815_18, "TBOOL", "Meos_tintersects_trgeometry_geo_0"}, MeosOverload{arguments815_19, "TBOOL", "Meos_tintersects_trgeometry_trgeometry_0"}, MeosOverload{arguments815_20, "TBOOL", "Meos_composition295"}, MeosOverload{arguments815_21, "TBOOL", "Meos_composition296"}, MeosOverload{arguments815_22, "TBOOL", "Meos_composition297"}, MeosOverload{arguments815_23, "TBOOL", "Meos_composition298"}, MeosOverload{arguments815_24, "TBOOL", "Meos_composition299"}, MeosOverload{arguments815_25, "TBOOL", "Meos_composition300"}, MeosOverload{arguments815_26, "TBOOL", "Meos_composition301"}, MeosOverload{arguments815_27, "TBOOL", "Meos_composition302"}, MeosOverload{arguments815_28, "TBOOL", "Meos_composition303"}, MeosOverload{arguments815_29, "TBOOL", "Meos_composition304"}, MeosOverload{arguments815_30, "TBOOL", "Meos_composition305"}, MeosOverload{arguments815_31, "TBOOL", "Meos_composition306"}, MeosOverload{arguments815_32, "TBOOL", "Meos_composition307"}, MeosOverload{arguments815_33, "TBOOL", "Meos_composition308"}, MeosOverload{arguments815_34, "TBOOL", "Meos_composition309"}, MeosOverload{arguments815_35, "TBOOL", "Meos_composition310"}, MeosOverload{arguments815_36, "TBOOL", "Meos_composition311"}, MeosOverload{arguments815_37, "TBOOL", "Meos_composition312"}, MeosOverload{arguments815_38, "TBOOL", "Meos_composition313"}, MeosOverload{arguments815_39, "TBOOL", "Meos_composition314"}};
-constexpr std::array<std::string_view, 2> arguments816_0{"INT64", "TBIGINT"};
+constexpr std::array<MeosOverload, 40> overloads815{MeosOverload{arguments815_0, "TBOOL", "Meos_tdisjoint_geo_tgeo_0"}, MeosOverload{arguments815_1, "TBOOL", "Meos_tdisjoint_geo_tgeo_1"}, MeosOverload{arguments815_2, "TBOOL", "Meos_tdisjoint_geo_tgeo_2"}, MeosOverload{arguments815_3, "TBOOL", "Meos_tdisjoint_geo_tgeo_3"}, MeosOverload{arguments815_4, "TBOOL", "Meos_tdisjoint_tgeo_geo_0"}, MeosOverload{arguments815_5, "TBOOL", "Meos_tdisjoint_tgeo_geo_1"}, MeosOverload{arguments815_6, "TBOOL", "Meos_tdisjoint_tgeo_geo_2"}, MeosOverload{arguments815_7, "TBOOL", "Meos_tdisjoint_tgeo_geo_3"}, MeosOverload{arguments815_8, "TBOOL", "Meos_tdisjoint_tgeo_tgeo_0"}, MeosOverload{arguments815_9, "TBOOL", "Meos_tdisjoint_tgeo_tgeo_1"}, MeosOverload{arguments815_10, "TBOOL", "Meos_tdisjoint_tgeo_tgeo_2"}, MeosOverload{arguments815_11, "TBOOL", "Meos_tdisjoint_tgeo_tgeo_3"}, MeosOverload{arguments815_12, "TBOOL", "Meos_tdisjoint_cbuffer_tcbuffer_0"}, MeosOverload{arguments815_13, "TBOOL", "Meos_tdisjoint_geo_tcbuffer_0"}, MeosOverload{arguments815_14, "TBOOL", "Meos_tdisjoint_tcbuffer_geo_0"}, MeosOverload{arguments815_15, "TBOOL", "Meos_tdisjoint_tcbuffer_cbuffer_0"}, MeosOverload{arguments815_16, "TBOOL", "Meos_tdisjoint_tcbuffer_tcbuffer_0"}, MeosOverload{arguments815_17, "TBOOL", "Meos_tdisjoint_geo_trgeometry_0"}, MeosOverload{arguments815_18, "TBOOL", "Meos_tdisjoint_trgeometry_geo_0"}, MeosOverload{arguments815_19, "TBOOL", "Meos_tdisjoint_trgeometry_trgeometry_0"}, MeosOverload{arguments815_20, "TBOOL", "Meos_composition247"}, MeosOverload{arguments815_21, "TBOOL", "Meos_composition248"}, MeosOverload{arguments815_22, "TBOOL", "Meos_composition249"}, MeosOverload{arguments815_23, "TBOOL", "Meos_composition250"}, MeosOverload{arguments815_24, "TBOOL", "Meos_composition251"}, MeosOverload{arguments815_25, "TBOOL", "Meos_composition252"}, MeosOverload{arguments815_26, "TBOOL", "Meos_composition253"}, MeosOverload{arguments815_27, "TBOOL", "Meos_composition254"}, MeosOverload{arguments815_28, "TBOOL", "Meos_composition255"}, MeosOverload{arguments815_29, "TBOOL", "Meos_composition256"}, MeosOverload{arguments815_30, "TBOOL", "Meos_composition257"}, MeosOverload{arguments815_31, "TBOOL", "Meos_composition258"}, MeosOverload{arguments815_32, "TBOOL", "Meos_composition259"}, MeosOverload{arguments815_33, "TBOOL", "Meos_composition260"}, MeosOverload{arguments815_34, "TBOOL", "Meos_composition261"}, MeosOverload{arguments815_35, "TBOOL", "Meos_composition262"}, MeosOverload{arguments815_36, "TBOOL", "Meos_composition263"}, MeosOverload{arguments815_37, "TBOOL", "Meos_composition264"}, MeosOverload{arguments815_38, "TBOOL", "Meos_composition265"}, MeosOverload{arguments815_39, "TBOOL", "Meos_composition266"}};
+constexpr std::array<std::string_view, 2> arguments816_0{"TFLOAT", "FLOAT64"};
 constexpr std::array<std::string_view, 2> arguments816_1{"FLOAT64", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments816_2{"INT32", "TINT"};
-constexpr std::array<std::string_view, 2> arguments816_3{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments816_2{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments816_3{"INT32", "TINT"};
 constexpr std::array<std::string_view, 2> arguments816_4{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments816_5{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments816_6{"TTEXT", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments816_7{"VARSIZED", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments816_8{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments816_9{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments816_10{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments816_11{"TTEXT", "VARSIZED"};
-constexpr std::array<MeosOverload, 12> overloads816{MeosOverload{arguments816_0, "TBOOL", "Meos_tle_bigint_tbigint_0"}, MeosOverload{arguments816_1, "TBOOL", "Meos_tle_float_tfloat_0"}, MeosOverload{arguments816_2, "TBOOL", "Meos_tle_int_tint_0"}, MeosOverload{arguments816_3, "TBOOL", "Meos_tle_temporal_temporal_0"}, MeosOverload{arguments816_4, "TBOOL", "Meos_tle_temporal_temporal_1"}, MeosOverload{arguments816_5, "TBOOL", "Meos_tle_temporal_temporal_2"}, MeosOverload{arguments816_6, "TBOOL", "Meos_tle_temporal_temporal_3"}, MeosOverload{arguments816_7, "TBOOL", "Meos_tle_text_ttext_0"}, MeosOverload{arguments816_8, "TBOOL", "Meos_tle_tbigint_bigint_0"}, MeosOverload{arguments816_9, "TBOOL", "Meos_tle_tfloat_float_0"}, MeosOverload{arguments816_10, "TBOOL", "Meos_tle_tint_int_0"}, MeosOverload{arguments816_11, "TBOOL", "Meos_tle_ttext_text_0"}};
-constexpr std::array<std::string_view, 2> arguments817_0{"INT64", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments817_1{"FLOAT64", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments817_2{"INT32", "TINT"};
-constexpr std::array<std::string_view, 2> arguments817_3{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments817_4{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments817_5{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments817_6{"TTEXT", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments817_7{"VARSIZED", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments817_8{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments817_9{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments817_10{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments817_11{"TTEXT", "VARSIZED"};
-constexpr std::array<MeosOverload, 12> overloads817{MeosOverload{arguments817_0, "TBOOL", "Meos_tlt_bigint_tbigint_0"}, MeosOverload{arguments817_1, "TBOOL", "Meos_tlt_float_tfloat_0"}, MeosOverload{arguments817_2, "TBOOL", "Meos_tlt_int_tint_0"}, MeosOverload{arguments817_3, "TBOOL", "Meos_tlt_temporal_temporal_0"}, MeosOverload{arguments817_4, "TBOOL", "Meos_tlt_temporal_temporal_1"}, MeosOverload{arguments817_5, "TBOOL", "Meos_tlt_temporal_temporal_2"}, MeosOverload{arguments817_6, "TBOOL", "Meos_tlt_temporal_temporal_3"}, MeosOverload{arguments817_7, "TBOOL", "Meos_tlt_text_ttext_0"}, MeosOverload{arguments817_8, "TBOOL", "Meos_tlt_tbigint_bigint_0"}, MeosOverload{arguments817_9, "TBOOL", "Meos_tlt_tfloat_float_0"}, MeosOverload{arguments817_10, "TBOOL", "Meos_tlt_tint_int_0"}, MeosOverload{arguments817_11, "TBOOL", "Meos_tlt_ttext_text_0"}};
-constexpr std::array<std::string_view, 1> arguments818_0{"TBOX"};
-constexpr std::array<std::string_view, 1> arguments818_1{"STBOX"};
-constexpr std::array<std::string_view, 1> arguments818_2{"TPCBOX"};
-constexpr std::array<MeosOverload, 3> overloads818{MeosOverload{arguments818_0, "UINT64", "Meos_tbox_tmax_0"}, MeosOverload{arguments818_1, "UINT64", "Meos_stbox_tmax_0"}, MeosOverload{arguments818_2, "UINT64", "Meos_tpcbox_tmax_0"}};
-constexpr std::array<std::string_view, 1> arguments819_0{"TBOX"};
-constexpr std::array<std::string_view, 1> arguments819_1{"STBOX"};
-constexpr std::array<std::string_view, 1> arguments819_2{"TPCBOX"};
-constexpr std::array<MeosOverload, 3> overloads819{MeosOverload{arguments819_0, "BOOLEAN", "Meos_tbox_tmax_inc_0"}, MeosOverload{arguments819_1, "BOOLEAN", "Meos_stbox_tmax_inc_0"}, MeosOverload{arguments819_2, "BOOLEAN", "Meos_tpcbox_tmax_inc_0"}};
-constexpr std::array<std::string_view, 1> arguments820_0{"TBOX"};
-constexpr std::array<std::string_view, 1> arguments820_1{"STBOX"};
-constexpr std::array<std::string_view, 1> arguments820_2{"TPCBOX"};
-constexpr std::array<MeosOverload, 3> overloads820{MeosOverload{arguments820_0, "UINT64", "Meos_tbox_tmin_0"}, MeosOverload{arguments820_1, "UINT64", "Meos_stbox_tmin_0"}, MeosOverload{arguments820_2, "UINT64", "Meos_tpcbox_tmin_0"}};
-constexpr std::array<std::string_view, 1> arguments821_0{"TBOX"};
-constexpr std::array<std::string_view, 1> arguments821_1{"STBOX"};
-constexpr std::array<std::string_view, 1> arguments821_2{"TPCBOX"};
-constexpr std::array<MeosOverload, 3> overloads821{MeosOverload{arguments821_0, "BOOLEAN", "Meos_tbox_tmin_inc_0"}, MeosOverload{arguments821_1, "BOOLEAN", "Meos_stbox_tmin_inc_0"}, MeosOverload{arguments821_2, "BOOLEAN", "Meos_tpcbox_tmin_inc_0"}};
-constexpr std::array<std::string_view, 2> arguments822_0{"FLOAT64", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments822_1{"INT32", "TINT"};
-constexpr std::array<std::string_view, 2> arguments822_2{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments822_3{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments822_4{"INT64", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments822_5{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments822_6{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments822_7{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments822_8{"TFLOAT", "TFLOAT"};
-constexpr std::array<MeosOverload, 9> overloads822{MeosOverload{arguments822_0, "TFLOAT", "Meos_mul_float_tfloat_0"}, MeosOverload{arguments822_1, "TINT", "Meos_mul_int_tint_0"}, MeosOverload{arguments822_2, "TFLOAT", "Meos_mul_tfloat_float_0"}, MeosOverload{arguments822_3, "TINT", "Meos_mul_tint_int_0"}, MeosOverload{arguments822_4, "TBIGINT", "Meos_mul_bigint_tbigint_0"}, MeosOverload{arguments822_5, "TBIGINT", "Meos_mul_tbigint_bigint_0"}, MeosOverload{arguments822_6, "TBIGINT", "Meos_mul_tnumber_tnumber_0"}, MeosOverload{arguments822_7, "TINT", "Meos_mul_tnumber_tnumber_1"}, MeosOverload{arguments822_8, "TFLOAT", "Meos_mul_tnumber_tnumber_2"}};
-constexpr std::array<std::string_view, 1> arguments823_0{"TBOOL"};
-constexpr std::array<MeosOverload, 1> overloads823{MeosOverload{arguments823_0, "TBOOL", "Meos_tnot_tbool_0"}};
+constexpr std::array<std::string_view, 2> arguments816_5{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments816_6{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments816_7{"TGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 3> arguments816_8{"TGEOGRAPHY", "GEOGRAPHY", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments816_9{"TGEOGRAPHY", "GEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments816_10{"TGEOMPOINT", "GEOMETRY"};
+constexpr std::array<std::string_view, 3> arguments816_11{"TGEOGPOINT", "GEOGRAPHY", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments816_12{"TGEOGPOINT", "GEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments816_13{"GEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 3> arguments816_14{"GEOGRAPHY", "TGEOGRAPHY", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments816_15{"GEOGRAPHY", "TGEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments816_16{"GEOMETRY", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 3> arguments816_17{"GEOGRAPHY", "TGEOGPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments816_18{"GEOGRAPHY", "TGEOGPOINT"};
+constexpr std::array<std::string_view, 2> arguments816_19{"TGEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 3> arguments816_20{"TGEOGRAPHY", "TGEOGRAPHY", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments816_21{"TGEOGRAPHY", "TGEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments816_22{"TGEOMPOINT", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 3> arguments816_23{"TGEOGPOINT", "TGEOGPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments816_24{"TGEOGPOINT", "TGEOGPOINT"};
+constexpr std::array<std::string_view, 2> arguments816_25{"TCBUFFER", "CBUFFER"};
+constexpr std::array<std::string_view, 2> arguments816_26{"CBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments816_27{"TCBUFFER", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments816_28{"GEOMETRY", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments816_29{"TCBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments816_30{"TNPOINT", "NPOINT"};
+constexpr std::array<std::string_view, 2> arguments816_31{"NPOINT", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments816_32{"TNPOINT", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments816_33{"GEOMETRY", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments816_34{"TNPOINT", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments816_35{"TPOSE", "POSE"};
+constexpr std::array<std::string_view, 2> arguments816_36{"POSE", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments816_37{"TPOSE", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments816_38{"TPOSE", "GEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments816_39{"GEOMETRY", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments816_40{"GEOGRAPHY", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments816_41{"TPOSE", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments816_42{"TPOSECHAIN", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments816_43{"TPOSECHAIN", "GEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments816_44{"GEOMETRY", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments816_45{"GEOGRAPHY", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments816_46{"TPOSECHAIN", "POSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments816_47{"POSECHAIN", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments816_48{"TPOSECHAIN", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments816_49{"TRGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments816_50{"GEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments816_51{"TRGEOMETRY", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments816_52{"TGEOMPOINT", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments816_53{"TRGEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments816_54{"GEOMETRY", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments816_55{"TPCPOINT", "GEOMETRY"};
+constexpr std::array<MeosOverload, 56> overloads816{MeosOverload{arguments816_0, "TFLOAT", "Meos_tdistance_tfloat_float_0"}, MeosOverload{arguments816_1, "TFLOAT", "Meos_tdistance_tfloat_float_1"}, MeosOverload{arguments816_2, "TINT", "Meos_tdistance_tint_int_0"}, MeosOverload{arguments816_3, "TINT", "Meos_tdistance_tint_int_1"}, MeosOverload{arguments816_4, "TBIGINT", "Meos_tdistance_tnumber_tnumber_0"}, MeosOverload{arguments816_5, "TINT", "Meos_tdistance_tnumber_tnumber_1"}, MeosOverload{arguments816_6, "TFLOAT", "Meos_tdistance_tnumber_tnumber_2"}, MeosOverload{arguments816_7, "TFLOAT", "Meos_tdistance_tgeo_geo_0"}, MeosOverload{arguments816_8, "TFLOAT", "Meos_tdistance_tgeo_geo_1"}, MeosOverload{arguments816_9, "TFLOAT", "Meos_tdistance_tgeo_geo_1_2"}, MeosOverload{arguments816_10, "TFLOAT", "Meos_tdistance_tgeo_geo_2"}, MeosOverload{arguments816_11, "TFLOAT", "Meos_tdistance_tgeo_geo_3"}, MeosOverload{arguments816_12, "TFLOAT", "Meos_tdistance_tgeo_geo_3_2"}, MeosOverload{arguments816_13, "TFLOAT", "Meos_tdistance_tgeo_geo_4"}, MeosOverload{arguments816_14, "TFLOAT", "Meos_tdistance_tgeo_geo_5"}, MeosOverload{arguments816_15, "TFLOAT", "Meos_tdistance_tgeo_geo_5_2"}, MeosOverload{arguments816_16, "TFLOAT", "Meos_tdistance_tgeo_geo_6"}, MeosOverload{arguments816_17, "TFLOAT", "Meos_tdistance_tgeo_geo_7"}, MeosOverload{arguments816_18, "TFLOAT", "Meos_tdistance_tgeo_geo_7_2"}, MeosOverload{arguments816_19, "TFLOAT", "Meos_tdistance_tgeo_tgeo_0"}, MeosOverload{arguments816_20, "TFLOAT", "Meos_tdistance_tgeo_tgeo_1"}, MeosOverload{arguments816_21, "TFLOAT", "Meos_tdistance_tgeo_tgeo_1_2"}, MeosOverload{arguments816_22, "TFLOAT", "Meos_tdistance_tgeo_tgeo_2"}, MeosOverload{arguments816_23, "TFLOAT", "Meos_tdistance_tgeo_tgeo_3"}, MeosOverload{arguments816_24, "TFLOAT", "Meos_tdistance_tgeo_tgeo_3_2"}, MeosOverload{arguments816_25, "TFLOAT", "Meos_tdistance_tcbuffer_cbuffer_0"}, MeosOverload{arguments816_26, "TFLOAT", "Meos_tdistance_tcbuffer_cbuffer_1"}, MeosOverload{arguments816_27, "TFLOAT", "Meos_tdistance_tcbuffer_geo_0"}, MeosOverload{arguments816_28, "TFLOAT", "Meos_tdistance_tcbuffer_geo_1"}, MeosOverload{arguments816_29, "TFLOAT", "Meos_tdistance_tcbuffer_tcbuffer_0"}, MeosOverload{arguments816_30, "TFLOAT", "Meos_tdistance_tnpoint_npoint_0"}, MeosOverload{arguments816_31, "TFLOAT", "Meos_tdistance_tnpoint_npoint_1"}, MeosOverload{arguments816_32, "TFLOAT", "Meos_tdistance_tnpoint_geo_0"}, MeosOverload{arguments816_33, "TFLOAT", "Meos_tdistance_tnpoint_geo_1"}, MeosOverload{arguments816_34, "TFLOAT", "Meos_tdistance_tnpoint_tnpoint_0"}, MeosOverload{arguments816_35, "TFLOAT", "Meos_tdistance_tpose_pose_0"}, MeosOverload{arguments816_36, "TFLOAT", "Meos_tdistance_tpose_pose_1"}, MeosOverload{arguments816_37, "TFLOAT", "Meos_tdistance_tpose_geo_0"}, MeosOverload{arguments816_38, "TFLOAT", "Meos_tdistance_tpose_geo_1"}, MeosOverload{arguments816_39, "TFLOAT", "Meos_tdistance_tpose_geo_2"}, MeosOverload{arguments816_40, "TFLOAT", "Meos_tdistance_tpose_geo_3"}, MeosOverload{arguments816_41, "TFLOAT", "Meos_tdistance_tpose_tpose_0"}, MeosOverload{arguments816_42, "TFLOAT", "Meos_tdistance_tposechain_geo_0"}, MeosOverload{arguments816_43, "TFLOAT", "Meos_tdistance_tposechain_geo_1"}, MeosOverload{arguments816_44, "TFLOAT", "Meos_tdistance_tposechain_geo_2"}, MeosOverload{arguments816_45, "TFLOAT", "Meos_tdistance_tposechain_geo_3"}, MeosOverload{arguments816_46, "TFLOAT", "Meos_tdistance_tposechain_posechain_0"}, MeosOverload{arguments816_47, "TFLOAT", "Meos_tdistance_tposechain_posechain_1"}, MeosOverload{arguments816_48, "TFLOAT", "Meos_tdistance_tposechain_tposechain_0"}, MeosOverload{arguments816_49, "TFLOAT", "Meos_tdistance_trgeometry_geo_0"}, MeosOverload{arguments816_50, "TFLOAT", "Meos_tdistance_trgeometry_geo_1"}, MeosOverload{arguments816_51, "TFLOAT", "Meos_tdistance_trgeometry_tpoint_0"}, MeosOverload{arguments816_52, "TFLOAT", "Meos_tdistance_trgeometry_tpoint_1"}, MeosOverload{arguments816_53, "TFLOAT", "Meos_tdistance_trgeometry_trgeometry_0"}, MeosOverload{arguments816_54, "TFLOAT", "Meos_composition267"}, MeosOverload{arguments816_55, "TFLOAT", "Meos_composition268"}};
+constexpr std::array<std::string_view, 2> arguments817_0{"FLOAT64", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments817_1{"INT32", "TINT"};
+constexpr std::array<std::string_view, 2> arguments817_2{"TFLOAT", "FLOAT64"};
+constexpr std::array<std::string_view, 2> arguments817_3{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments817_4{"INT64", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments817_5{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments817_6{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments817_7{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments817_8{"TFLOAT", "TFLOAT"};
+constexpr std::array<MeosOverload, 9> overloads817{MeosOverload{arguments817_0, "TFLOAT", "Meos_div_float_tfloat_0"}, MeosOverload{arguments817_1, "TINT", "Meos_div_int_tint_0"}, MeosOverload{arguments817_2, "TFLOAT", "Meos_div_tfloat_float_0"}, MeosOverload{arguments817_3, "TINT", "Meos_div_tint_int_0"}, MeosOverload{arguments817_4, "TBIGINT", "Meos_div_bigint_tbigint_0"}, MeosOverload{arguments817_5, "TBIGINT", "Meos_div_tbigint_bigint_0"}, MeosOverload{arguments817_6, "TBIGINT", "Meos_div_tnumber_tnumber_0"}, MeosOverload{arguments817_7, "TINT", "Meos_div_tnumber_tnumber_1"}, MeosOverload{arguments817_8, "TFLOAT", "Meos_div_tnumber_tnumber_2"}};
+constexpr std::array<std::string_view, 3> arguments818_0{"GEOMETRY", "TGEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 4> arguments818_1{"GEOGRAPHY", "TGEOGRAPHY", "FLOAT64", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments818_2{"GEOGRAPHY", "TGEOGRAPHY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_3{"GEOMETRY", "TGEOMPOINT", "FLOAT64"};
+constexpr std::array<std::string_view, 4> arguments818_4{"GEOGRAPHY", "TGEOGPOINT", "FLOAT64", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments818_5{"GEOGRAPHY", "TGEOGPOINT", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_6{"TGEOMETRY", "GEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 4> arguments818_7{"TGEOGRAPHY", "GEOGRAPHY", "FLOAT64", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments818_8{"TGEOGRAPHY", "GEOGRAPHY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_9{"TGEOMPOINT", "GEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 4> arguments818_10{"TGEOGPOINT", "GEOGRAPHY", "FLOAT64", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments818_11{"TGEOGPOINT", "GEOGRAPHY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_12{"TGEOMETRY", "TGEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 4> arguments818_13{"TGEOGRAPHY", "TGEOGRAPHY", "FLOAT64", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments818_14{"TGEOGRAPHY", "TGEOGRAPHY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_15{"TGEOMPOINT", "TGEOMPOINT", "FLOAT64"};
+constexpr std::array<std::string_view, 4> arguments818_16{"TGEOGPOINT", "TGEOGPOINT", "FLOAT64", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments818_17{"TGEOGPOINT", "TGEOGPOINT", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_18{"CBUFFER", "TCBUFFER", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_19{"GEOMETRY", "TCBUFFER", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_20{"TCBUFFER", "GEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_21{"TCBUFFER", "CBUFFER", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_22{"TCBUFFER", "TCBUFFER", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_23{"GEOMETRY", "TRGEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_24{"TRGEOMETRY", "GEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_25{"TRGEOMETRY", "TRGEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_26{"GEOMETRY", "TNPOINT", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_27{"TNPOINT", "GEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_28{"TNPOINT", "TNPOINT", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_29{"GEOMETRY", "TPCPOINT", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_30{"TPCPOINT", "GEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_31{"TPCPOINT", "TPCPOINT", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_32{"GEOMETRY", "TPCPATCH", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_33{"TPCPATCH", "GEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_34{"TPCPATCH", "TPCPATCH", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_35{"GEOMETRY", "TPOSE", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_36{"GEOGRAPHY", "TPOSE", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_37{"TPOSE", "GEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_38{"TPOSE", "GEOGRAPHY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_39{"TPOSE", "TPOSE", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_40{"GEOMETRY", "TPOSECHAIN", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_41{"GEOGRAPHY", "TPOSECHAIN", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_42{"TPOSECHAIN", "GEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_43{"TPOSECHAIN", "GEOGRAPHY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_44{"TPOSECHAIN", "TPOSECHAIN", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_45{"GEOMETRY", "TQUADBIN", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_46{"TQUADBIN", "GEOMETRY", "FLOAT64"};
+constexpr std::array<std::string_view, 3> arguments818_47{"TQUADBIN", "TQUADBIN", "FLOAT64"};
+constexpr std::array<MeosOverload, 48> overloads818{MeosOverload{arguments818_0, "TBOOL", "Meos_tdwithin_geo_tgeo_0"}, MeosOverload{arguments818_1, "TBOOL", "Meos_tdwithin_geo_tgeo_1"}, MeosOverload{arguments818_2, "TBOOL", "Meos_tdwithin_geo_tgeo_1_3"}, MeosOverload{arguments818_3, "TBOOL", "Meos_tdwithin_geo_tgeo_2"}, MeosOverload{arguments818_4, "TBOOL", "Meos_tdwithin_geo_tgeo_3"}, MeosOverload{arguments818_5, "TBOOL", "Meos_tdwithin_geo_tgeo_3_3"}, MeosOverload{arguments818_6, "TBOOL", "Meos_tdwithin_tgeo_geo_0"}, MeosOverload{arguments818_7, "TBOOL", "Meos_tdwithin_tgeo_geo_1"}, MeosOverload{arguments818_8, "TBOOL", "Meos_tdwithin_tgeo_geo_1_3"}, MeosOverload{arguments818_9, "TBOOL", "Meos_tdwithin_tgeo_geo_2"}, MeosOverload{arguments818_10, "TBOOL", "Meos_tdwithin_tgeo_geo_3"}, MeosOverload{arguments818_11, "TBOOL", "Meos_tdwithin_tgeo_geo_3_3"}, MeosOverload{arguments818_12, "TBOOL", "Meos_tdwithin_tgeo_tgeo_0"}, MeosOverload{arguments818_13, "TBOOL", "Meos_tdwithin_tgeo_tgeo_1"}, MeosOverload{arguments818_14, "TBOOL", "Meos_tdwithin_tgeo_tgeo_1_3"}, MeosOverload{arguments818_15, "TBOOL", "Meos_tdwithin_tgeo_tgeo_2"}, MeosOverload{arguments818_16, "TBOOL", "Meos_tdwithin_tgeo_tgeo_3"}, MeosOverload{arguments818_17, "TBOOL", "Meos_tdwithin_tgeo_tgeo_3_3"}, MeosOverload{arguments818_18, "TBOOL", "Meos_tdwithin_cbuffer_tcbuffer_0"}, MeosOverload{arguments818_19, "TBOOL", "Meos_tdwithin_geo_tcbuffer_0"}, MeosOverload{arguments818_20, "TBOOL", "Meos_tdwithin_tcbuffer_geo_0"}, MeosOverload{arguments818_21, "TBOOL", "Meos_tdwithin_tcbuffer_cbuffer_0"}, MeosOverload{arguments818_22, "TBOOL", "Meos_tdwithin_tcbuffer_tcbuffer_0"}, MeosOverload{arguments818_23, "TBOOL", "Meos_tdwithin_geo_trgeometry_0"}, MeosOverload{arguments818_24, "TBOOL", "Meos_tdwithin_trgeometry_geo_0"}, MeosOverload{arguments818_25, "TBOOL", "Meos_tdwithin_trgeometry_trgeometry_0"}, MeosOverload{arguments818_26, "TBOOL", "Meos_composition269"}, MeosOverload{arguments818_27, "TBOOL", "Meos_composition270"}, MeosOverload{arguments818_28, "TBOOL", "Meos_composition271"}, MeosOverload{arguments818_29, "TBOOL", "Meos_composition272"}, MeosOverload{arguments818_30, "TBOOL", "Meos_composition273"}, MeosOverload{arguments818_31, "TBOOL", "Meos_composition274"}, MeosOverload{arguments818_32, "TBOOL", "Meos_composition275"}, MeosOverload{arguments818_33, "TBOOL", "Meos_composition276"}, MeosOverload{arguments818_34, "TBOOL", "Meos_composition277"}, MeosOverload{arguments818_35, "TBOOL", "Meos_composition278"}, MeosOverload{arguments818_36, "TBOOL", "Meos_composition279"}, MeosOverload{arguments818_37, "TBOOL", "Meos_composition280"}, MeosOverload{arguments818_38, "TBOOL", "Meos_composition281"}, MeosOverload{arguments818_39, "TBOOL", "Meos_composition282"}, MeosOverload{arguments818_40, "TBOOL", "Meos_composition283"}, MeosOverload{arguments818_41, "TBOOL", "Meos_composition284"}, MeosOverload{arguments818_42, "TBOOL", "Meos_composition285"}, MeosOverload{arguments818_43, "TBOOL", "Meos_composition286"}, MeosOverload{arguments818_44, "TBOOL", "Meos_composition287"}, MeosOverload{arguments818_45, "TBOOL", "Meos_composition288"}, MeosOverload{arguments818_46, "TBOOL", "Meos_composition289"}, MeosOverload{arguments818_47, "TBOOL", "Meos_composition290"}};
+constexpr std::array<std::string_view, 2> arguments819_0{"INT64", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments819_1{"BOOLEAN", "TBOOL"};
+constexpr std::array<std::string_view, 2> arguments819_2{"FLOAT64", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments819_3{"INT32", "TINT"};
+constexpr std::array<std::string_view, 2> arguments819_4{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments819_5{"TBOOL", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments819_6{"TCBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments819_7{"TGEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments819_8{"TGEOGRAPHY", "TGEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments819_9{"TGEOMPOINT", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments819_10{"TGEOGPOINT", "TGEOGPOINT"};
+constexpr std::array<std::string_view, 2> arguments819_11{"TH3INDEX", "TH3INDEX"};
+constexpr std::array<std::string_view, 2> arguments819_12{"TJSONB", "TJSONB"};
+constexpr std::array<std::string_view, 2> arguments819_13{"TNPOINT", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments819_14{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments819_15{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments819_16{"TPOSE", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments819_17{"TPOSECHAIN", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments819_18{"TQUADBIN", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments819_19{"TRGEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments819_20{"TS2CELL", "TS2CELL"};
+constexpr std::array<std::string_view, 2> arguments819_21{"TBOOL", "TBOOL"};
+constexpr std::array<std::string_view, 2> arguments819_22{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments819_23{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments819_24{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments819_25{"TTEXT", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments819_26{"VARSIZED", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments819_27{"TFLOAT", "FLOAT64"};
+constexpr std::array<std::string_view, 2> arguments819_28{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments819_29{"TTEXT", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments819_30{"GEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments819_31{"GEOGRAPHY", "TGEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments819_32{"GEOMETRY", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments819_33{"GEOGRAPHY", "TGEOGPOINT"};
+constexpr std::array<std::string_view, 2> arguments819_34{"TGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments819_35{"TGEOGRAPHY", "GEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments819_36{"TGEOMPOINT", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments819_37{"TGEOGPOINT", "GEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments819_38{"CBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments819_39{"TCBUFFER", "CBUFFER"};
+constexpr std::array<std::string_view, 2> arguments819_40{"H3INDEX", "TH3INDEX"};
+constexpr std::array<std::string_view, 2> arguments819_41{"TH3INDEX", "H3INDEX"};
+constexpr std::array<std::string_view, 2> arguments819_42{"JSONB", "TJSONB"};
+constexpr std::array<std::string_view, 2> arguments819_43{"TJSONB", "JSONB"};
+constexpr std::array<std::string_view, 2> arguments819_44{"TNPOINT", "NPOINT"};
+constexpr std::array<std::string_view, 2> arguments819_45{"NPOINT", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments819_46{"PCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments819_47{"TPCPOINT", "PCPOINT"};
+constexpr std::array<std::string_view, 2> arguments819_48{"PCPATCH", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments819_49{"TPCPATCH", "PCPATCH"};
+constexpr std::array<std::string_view, 2> arguments819_50{"POSE", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments819_51{"TPOSE", "POSE"};
+constexpr std::array<std::string_view, 2> arguments819_52{"POSECHAIN", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments819_53{"TPOSECHAIN", "POSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments819_54{"QUADBIN", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments819_55{"TQUADBIN", "QUADBIN"};
+constexpr std::array<std::string_view, 2> arguments819_56{"GEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments819_57{"TRGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments819_58{"S2CELL", "TS2CELL"};
+constexpr std::array<std::string_view, 2> arguments819_59{"TS2CELL", "S2CELL"};
+constexpr std::array<MeosOverload, 60> overloads819{MeosOverload{arguments819_0, "TBOOL", "Meos_teq_bigint_tbigint_0"}, MeosOverload{arguments819_1, "TBOOL", "Meos_teq_bool_tbool_0"}, MeosOverload{arguments819_2, "TBOOL", "Meos_teq_float_tfloat_0"}, MeosOverload{arguments819_3, "TBOOL", "Meos_teq_int_tint_0"}, MeosOverload{arguments819_4, "TBOOL", "Meos_teq_tbigint_bigint_0"}, MeosOverload{arguments819_5, "TBOOL", "Meos_teq_tbool_bool_0"}, MeosOverload{arguments819_6, "TBOOL", "Meos_teq_temporal_temporal_0"}, MeosOverload{arguments819_7, "TBOOL", "Meos_teq_temporal_temporal_1"}, MeosOverload{arguments819_8, "TBOOL", "Meos_teq_temporal_temporal_2"}, MeosOverload{arguments819_9, "TBOOL", "Meos_teq_temporal_temporal_3"}, MeosOverload{arguments819_10, "TBOOL", "Meos_teq_temporal_temporal_4"}, MeosOverload{arguments819_11, "TBOOL", "Meos_teq_temporal_temporal_5"}, MeosOverload{arguments819_12, "TBOOL", "Meos_teq_temporal_temporal_6"}, MeosOverload{arguments819_13, "TBOOL", "Meos_teq_temporal_temporal_7"}, MeosOverload{arguments819_14, "TBOOL", "Meos_teq_temporal_temporal_8"}, MeosOverload{arguments819_15, "TBOOL", "Meos_teq_temporal_temporal_9"}, MeosOverload{arguments819_16, "TBOOL", "Meos_teq_temporal_temporal_10"}, MeosOverload{arguments819_17, "TBOOL", "Meos_teq_temporal_temporal_11"}, MeosOverload{arguments819_18, "TBOOL", "Meos_teq_temporal_temporal_12"}, MeosOverload{arguments819_19, "TBOOL", "Meos_teq_temporal_temporal_13"}, MeosOverload{arguments819_20, "TBOOL", "Meos_teq_temporal_temporal_14"}, MeosOverload{arguments819_21, "TBOOL", "Meos_teq_temporal_temporal_15"}, MeosOverload{arguments819_22, "TBOOL", "Meos_teq_temporal_temporal_16"}, MeosOverload{arguments819_23, "TBOOL", "Meos_teq_temporal_temporal_17"}, MeosOverload{arguments819_24, "TBOOL", "Meos_teq_temporal_temporal_18"}, MeosOverload{arguments819_25, "TBOOL", "Meos_teq_temporal_temporal_19"}, MeosOverload{arguments819_26, "TBOOL", "Meos_teq_text_ttext_0"}, MeosOverload{arguments819_27, "TBOOL", "Meos_teq_tfloat_float_0"}, MeosOverload{arguments819_28, "TBOOL", "Meos_teq_tint_int_0"}, MeosOverload{arguments819_29, "TBOOL", "Meos_teq_ttext_text_0"}, MeosOverload{arguments819_30, "TBOOL", "Meos_teq_geo_tgeo_0"}, MeosOverload{arguments819_31, "TBOOL", "Meos_teq_geo_tgeo_1"}, MeosOverload{arguments819_32, "TBOOL", "Meos_teq_geo_tgeo_2"}, MeosOverload{arguments819_33, "TBOOL", "Meos_teq_geo_tgeo_3"}, MeosOverload{arguments819_34, "TBOOL", "Meos_teq_tgeo_geo_0"}, MeosOverload{arguments819_35, "TBOOL", "Meos_teq_tgeo_geo_1"}, MeosOverload{arguments819_36, "TBOOL", "Meos_teq_tgeo_geo_2"}, MeosOverload{arguments819_37, "TBOOL", "Meos_teq_tgeo_geo_3"}, MeosOverload{arguments819_38, "TBOOL", "Meos_teq_cbuffer_tcbuffer_0"}, MeosOverload{arguments819_39, "TBOOL", "Meos_teq_tcbuffer_cbuffer_0"}, MeosOverload{arguments819_40, "TBOOL", "Meos_teq_h3index_th3index_0"}, MeosOverload{arguments819_41, "TBOOL", "Meos_teq_th3index_h3index_0"}, MeosOverload{arguments819_42, "TBOOL", "Meos_teq_jsonb_tjsonb_0"}, MeosOverload{arguments819_43, "TBOOL", "Meos_teq_tjsonb_jsonb_0"}, MeosOverload{arguments819_44, "TBOOL", "Meos_teq_tnpoint_npoint_0"}, MeosOverload{arguments819_45, "TBOOL", "Meos_teq_tnpoint_npoint_1"}, MeosOverload{arguments819_46, "TBOOL", "Meos_teq_pcpoint_tpcpoint_0"}, MeosOverload{arguments819_47, "TBOOL", "Meos_teq_tpcpoint_pcpoint_0"}, MeosOverload{arguments819_48, "TBOOL", "Meos_teq_pcpatch_tpcpatch_0"}, MeosOverload{arguments819_49, "TBOOL", "Meos_teq_tpcpatch_pcpatch_0"}, MeosOverload{arguments819_50, "TBOOL", "Meos_teq_pose_tpose_0"}, MeosOverload{arguments819_51, "TBOOL", "Meos_teq_tpose_pose_0"}, MeosOverload{arguments819_52, "TBOOL", "Meos_teq_posechain_tposechain_0"}, MeosOverload{arguments819_53, "TBOOL", "Meos_teq_tposechain_posechain_0"}, MeosOverload{arguments819_54, "TBOOL", "Meos_teq_quadbin_tquadbin_0"}, MeosOverload{arguments819_55, "TBOOL", "Meos_teq_tquadbin_quadbin_0"}, MeosOverload{arguments819_56, "TBOOL", "Meos_teq_geo_trgeometry_0"}, MeosOverload{arguments819_57, "TBOOL", "Meos_teq_trgeometry_geo_0"}, MeosOverload{arguments819_58, "TBOOL", "Meos_teq_s2cell_ts2cell_0"}, MeosOverload{arguments819_59, "TBOOL", "Meos_teq_ts2cell_s2cell_0"}};
+constexpr std::array<std::string_view, 2> arguments820_0{"INT64", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments820_1{"FLOAT64", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments820_2{"INT32", "TINT"};
+constexpr std::array<std::string_view, 2> arguments820_3{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments820_4{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments820_5{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments820_6{"TTEXT", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments820_7{"VARSIZED", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments820_8{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments820_9{"TFLOAT", "FLOAT64"};
+constexpr std::array<std::string_view, 2> arguments820_10{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments820_11{"TTEXT", "VARSIZED"};
+constexpr std::array<MeosOverload, 12> overloads820{MeosOverload{arguments820_0, "TBOOL", "Meos_tge_bigint_tbigint_0"}, MeosOverload{arguments820_1, "TBOOL", "Meos_tge_float_tfloat_0"}, MeosOverload{arguments820_2, "TBOOL", "Meos_tge_int_tint_0"}, MeosOverload{arguments820_3, "TBOOL", "Meos_tge_temporal_temporal_0"}, MeosOverload{arguments820_4, "TBOOL", "Meos_tge_temporal_temporal_1"}, MeosOverload{arguments820_5, "TBOOL", "Meos_tge_temporal_temporal_2"}, MeosOverload{arguments820_6, "TBOOL", "Meos_tge_temporal_temporal_3"}, MeosOverload{arguments820_7, "TBOOL", "Meos_tge_text_ttext_0"}, MeosOverload{arguments820_8, "TBOOL", "Meos_tge_tbigint_bigint_0"}, MeosOverload{arguments820_9, "TBOOL", "Meos_tge_tfloat_float_0"}, MeosOverload{arguments820_10, "TBOOL", "Meos_tge_tint_int_0"}, MeosOverload{arguments820_11, "TBOOL", "Meos_tge_ttext_text_0"}};
+constexpr std::array<std::string_view, 2> arguments821_0{"INT64", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments821_1{"FLOAT64", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments821_2{"INT32", "TINT"};
+constexpr std::array<std::string_view, 2> arguments821_3{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments821_4{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments821_5{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments821_6{"TTEXT", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments821_7{"VARSIZED", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments821_8{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments821_9{"TFLOAT", "FLOAT64"};
+constexpr std::array<std::string_view, 2> arguments821_10{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments821_11{"TTEXT", "VARSIZED"};
+constexpr std::array<MeosOverload, 12> overloads821{MeosOverload{arguments821_0, "TBOOL", "Meos_tgt_bigint_tbigint_0"}, MeosOverload{arguments821_1, "TBOOL", "Meos_tgt_float_tfloat_0"}, MeosOverload{arguments821_2, "TBOOL", "Meos_tgt_int_tint_0"}, MeosOverload{arguments821_3, "TBOOL", "Meos_tgt_temporal_temporal_0"}, MeosOverload{arguments821_4, "TBOOL", "Meos_tgt_temporal_temporal_1"}, MeosOverload{arguments821_5, "TBOOL", "Meos_tgt_temporal_temporal_2"}, MeosOverload{arguments821_6, "TBOOL", "Meos_tgt_temporal_temporal_3"}, MeosOverload{arguments821_7, "TBOOL", "Meos_tgt_text_ttext_0"}, MeosOverload{arguments821_8, "TBOOL", "Meos_tgt_tbigint_bigint_0"}, MeosOverload{arguments821_9, "TBOOL", "Meos_tgt_tfloat_float_0"}, MeosOverload{arguments821_10, "TBOOL", "Meos_tgt_tint_int_0"}, MeosOverload{arguments821_11, "TBOOL", "Meos_tgt_ttext_text_0"}};
+constexpr std::array<std::string_view, 2> arguments822_0{"GEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_1{"GEOGRAPHY", "TGEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments822_2{"GEOMETRY", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments822_3{"GEOGRAPHY", "TGEOGPOINT"};
+constexpr std::array<std::string_view, 2> arguments822_4{"TGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_5{"TGEOGRAPHY", "GEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments822_6{"TGEOMPOINT", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_7{"TGEOGPOINT", "GEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments822_8{"TGEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_9{"TGEOGRAPHY", "TGEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments822_10{"TGEOMPOINT", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments822_11{"TGEOGPOINT", "TGEOGPOINT"};
+constexpr std::array<std::string_view, 2> arguments822_12{"CBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments822_13{"GEOMETRY", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments822_14{"TCBUFFER", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_15{"TCBUFFER", "CBUFFER"};
+constexpr std::array<std::string_view, 2> arguments822_16{"TCBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments822_17{"GEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_18{"TRGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_19{"TRGEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_20{"TH3INDEX", "TH3INDEX"};
+constexpr std::array<std::string_view, 2> arguments822_21{"GEOMETRY", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments822_22{"TNPOINT", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_23{"TNPOINT", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments822_24{"GEOMETRY", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments822_25{"TPCPOINT", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_26{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments822_27{"GEOMETRY", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments822_28{"TPCPATCH", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_29{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments822_30{"GEOMETRY", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments822_31{"TPOSE", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_32{"TPOSE", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments822_33{"GEOMETRY", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments822_34{"TPOSECHAIN", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_35{"TPOSECHAIN", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments822_36{"GEOMETRY", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments822_37{"TQUADBIN", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments822_38{"TQUADBIN", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments822_39{"TS2CELL", "TS2CELL"};
+constexpr std::array<MeosOverload, 40> overloads822{MeosOverload{arguments822_0, "TBOOL", "Meos_tintersects_geo_tgeo_0"}, MeosOverload{arguments822_1, "TBOOL", "Meos_tintersects_geo_tgeo_1"}, MeosOverload{arguments822_2, "TBOOL", "Meos_tintersects_geo_tgeo_2"}, MeosOverload{arguments822_3, "TBOOL", "Meos_tintersects_geo_tgeo_3"}, MeosOverload{arguments822_4, "TBOOL", "Meos_tintersects_tgeo_geo_0"}, MeosOverload{arguments822_5, "TBOOL", "Meos_tintersects_tgeo_geo_1"}, MeosOverload{arguments822_6, "TBOOL", "Meos_tintersects_tgeo_geo_2"}, MeosOverload{arguments822_7, "TBOOL", "Meos_tintersects_tgeo_geo_3"}, MeosOverload{arguments822_8, "TBOOL", "Meos_tintersects_tgeo_tgeo_0"}, MeosOverload{arguments822_9, "TBOOL", "Meos_tintersects_tgeo_tgeo_1"}, MeosOverload{arguments822_10, "TBOOL", "Meos_tintersects_tgeo_tgeo_2"}, MeosOverload{arguments822_11, "TBOOL", "Meos_tintersects_tgeo_tgeo_3"}, MeosOverload{arguments822_12, "TBOOL", "Meos_tintersects_cbuffer_tcbuffer_0"}, MeosOverload{arguments822_13, "TBOOL", "Meos_tintersects_geo_tcbuffer_0"}, MeosOverload{arguments822_14, "TBOOL", "Meos_tintersects_tcbuffer_geo_0"}, MeosOverload{arguments822_15, "TBOOL", "Meos_tintersects_tcbuffer_cbuffer_0"}, MeosOverload{arguments822_16, "TBOOL", "Meos_tintersects_tcbuffer_tcbuffer_0"}, MeosOverload{arguments822_17, "TBOOL", "Meos_tintersects_geo_trgeometry_0"}, MeosOverload{arguments822_18, "TBOOL", "Meos_tintersects_trgeometry_geo_0"}, MeosOverload{arguments822_19, "TBOOL", "Meos_tintersects_trgeometry_trgeometry_0"}, MeosOverload{arguments822_20, "TBOOL", "Meos_composition295"}, MeosOverload{arguments822_21, "TBOOL", "Meos_composition296"}, MeosOverload{arguments822_22, "TBOOL", "Meos_composition297"}, MeosOverload{arguments822_23, "TBOOL", "Meos_composition298"}, MeosOverload{arguments822_24, "TBOOL", "Meos_composition299"}, MeosOverload{arguments822_25, "TBOOL", "Meos_composition300"}, MeosOverload{arguments822_26, "TBOOL", "Meos_composition301"}, MeosOverload{arguments822_27, "TBOOL", "Meos_composition302"}, MeosOverload{arguments822_28, "TBOOL", "Meos_composition303"}, MeosOverload{arguments822_29, "TBOOL", "Meos_composition304"}, MeosOverload{arguments822_30, "TBOOL", "Meos_composition305"}, MeosOverload{arguments822_31, "TBOOL", "Meos_composition306"}, MeosOverload{arguments822_32, "TBOOL", "Meos_composition307"}, MeosOverload{arguments822_33, "TBOOL", "Meos_composition308"}, MeosOverload{arguments822_34, "TBOOL", "Meos_composition309"}, MeosOverload{arguments822_35, "TBOOL", "Meos_composition310"}, MeosOverload{arguments822_36, "TBOOL", "Meos_composition311"}, MeosOverload{arguments822_37, "TBOOL", "Meos_composition312"}, MeosOverload{arguments822_38, "TBOOL", "Meos_composition313"}, MeosOverload{arguments822_39, "TBOOL", "Meos_composition314"}};
+constexpr std::array<std::string_view, 2> arguments823_0{"INT64", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments823_1{"FLOAT64", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments823_2{"INT32", "TINT"};
+constexpr std::array<std::string_view, 2> arguments823_3{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments823_4{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments823_5{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments823_6{"TTEXT", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments823_7{"VARSIZED", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments823_8{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments823_9{"TFLOAT", "FLOAT64"};
+constexpr std::array<std::string_view, 2> arguments823_10{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments823_11{"TTEXT", "VARSIZED"};
+constexpr std::array<MeosOverload, 12> overloads823{MeosOverload{arguments823_0, "TBOOL", "Meos_tle_bigint_tbigint_0"}, MeosOverload{arguments823_1, "TBOOL", "Meos_tle_float_tfloat_0"}, MeosOverload{arguments823_2, "TBOOL", "Meos_tle_int_tint_0"}, MeosOverload{arguments823_3, "TBOOL", "Meos_tle_temporal_temporal_0"}, MeosOverload{arguments823_4, "TBOOL", "Meos_tle_temporal_temporal_1"}, MeosOverload{arguments823_5, "TBOOL", "Meos_tle_temporal_temporal_2"}, MeosOverload{arguments823_6, "TBOOL", "Meos_tle_temporal_temporal_3"}, MeosOverload{arguments823_7, "TBOOL", "Meos_tle_text_ttext_0"}, MeosOverload{arguments823_8, "TBOOL", "Meos_tle_tbigint_bigint_0"}, MeosOverload{arguments823_9, "TBOOL", "Meos_tle_tfloat_float_0"}, MeosOverload{arguments823_10, "TBOOL", "Meos_tle_tint_int_0"}, MeosOverload{arguments823_11, "TBOOL", "Meos_tle_ttext_text_0"}};
 constexpr std::array<std::string_view, 2> arguments824_0{"INT64", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments824_1{"BOOLEAN", "TBOOL"};
-constexpr std::array<std::string_view, 2> arguments824_2{"FLOAT64", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments824_3{"INT32", "TINT"};
-constexpr std::array<std::string_view, 2> arguments824_4{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments824_5{"TBOOL", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments824_6{"TCBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments824_7{"TGEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments824_8{"TGEOGRAPHY", "TGEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments824_9{"TGEOMPOINT", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments824_10{"TGEOGPOINT", "TGEOGPOINT"};
-constexpr std::array<std::string_view, 2> arguments824_11{"TH3INDEX", "TH3INDEX"};
-constexpr std::array<std::string_view, 2> arguments824_12{"TJSONB", "TJSONB"};
-constexpr std::array<std::string_view, 2> arguments824_13{"TNPOINT", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments824_14{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments824_15{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments824_16{"TPOSE", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments824_17{"TPOSECHAIN", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments824_18{"TQUADBIN", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments824_19{"TRGEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments824_20{"TS2CELL", "TS2CELL"};
-constexpr std::array<std::string_view, 2> arguments824_21{"TBOOL", "TBOOL"};
-constexpr std::array<std::string_view, 2> arguments824_22{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments824_23{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments824_24{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments824_25{"TTEXT", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments824_26{"VARSIZED", "TTEXT"};
-constexpr std::array<std::string_view, 2> arguments824_27{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments824_28{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments824_29{"TTEXT", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments824_30{"GEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments824_31{"GEOGRAPHY", "TGEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments824_32{"GEOMETRY", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments824_33{"GEOGRAPHY", "TGEOGPOINT"};
-constexpr std::array<std::string_view, 2> arguments824_34{"TGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments824_35{"TGEOGRAPHY", "GEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments824_36{"TGEOMPOINT", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments824_37{"TGEOGPOINT", "GEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments824_38{"CBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments824_39{"TCBUFFER", "CBUFFER"};
-constexpr std::array<std::string_view, 2> arguments824_40{"H3INDEX", "TH3INDEX"};
-constexpr std::array<std::string_view, 2> arguments824_41{"TH3INDEX", "H3INDEX"};
-constexpr std::array<std::string_view, 2> arguments824_42{"JSONB", "TJSONB"};
-constexpr std::array<std::string_view, 2> arguments824_43{"TJSONB", "JSONB"};
-constexpr std::array<std::string_view, 2> arguments824_44{"TNPOINT", "NPOINT"};
-constexpr std::array<std::string_view, 2> arguments824_45{"NPOINT", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments824_46{"PCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments824_47{"TPCPOINT", "PCPOINT"};
-constexpr std::array<std::string_view, 2> arguments824_48{"PCPATCH", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments824_49{"TPCPATCH", "PCPATCH"};
-constexpr std::array<std::string_view, 2> arguments824_50{"POSE", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments824_51{"TPOSE", "POSE"};
-constexpr std::array<std::string_view, 2> arguments824_52{"POSECHAIN", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments824_53{"TPOSECHAIN", "POSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments824_54{"QUADBIN", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments824_55{"TQUADBIN", "QUADBIN"};
-constexpr std::array<std::string_view, 2> arguments824_56{"GEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments824_57{"TRGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments824_58{"S2CELL", "TS2CELL"};
-constexpr std::array<std::string_view, 2> arguments824_59{"TS2CELL", "S2CELL"};
-constexpr std::array<MeosOverload, 60> overloads824{MeosOverload{arguments824_0, "TBOOL", "Meos_tne_bigint_tbigint_0"}, MeosOverload{arguments824_1, "TBOOL", "Meos_tne_bool_tbool_0"}, MeosOverload{arguments824_2, "TBOOL", "Meos_tne_float_tfloat_0"}, MeosOverload{arguments824_3, "TBOOL", "Meos_tne_int_tint_0"}, MeosOverload{arguments824_4, "TBOOL", "Meos_tne_tbigint_bigint_0"}, MeosOverload{arguments824_5, "TBOOL", "Meos_tne_tbool_bool_0"}, MeosOverload{arguments824_6, "TBOOL", "Meos_tne_temporal_temporal_0"}, MeosOverload{arguments824_7, "TBOOL", "Meos_tne_temporal_temporal_1"}, MeosOverload{arguments824_8, "TBOOL", "Meos_tne_temporal_temporal_2"}, MeosOverload{arguments824_9, "TBOOL", "Meos_tne_temporal_temporal_3"}, MeosOverload{arguments824_10, "TBOOL", "Meos_tne_temporal_temporal_4"}, MeosOverload{arguments824_11, "TBOOL", "Meos_tne_temporal_temporal_5"}, MeosOverload{arguments824_12, "TBOOL", "Meos_tne_temporal_temporal_6"}, MeosOverload{arguments824_13, "TBOOL", "Meos_tne_temporal_temporal_7"}, MeosOverload{arguments824_14, "TBOOL", "Meos_tne_temporal_temporal_8"}, MeosOverload{arguments824_15, "TBOOL", "Meos_tne_temporal_temporal_9"}, MeosOverload{arguments824_16, "TBOOL", "Meos_tne_temporal_temporal_10"}, MeosOverload{arguments824_17, "TBOOL", "Meos_tne_temporal_temporal_11"}, MeosOverload{arguments824_18, "TBOOL", "Meos_tne_temporal_temporal_12"}, MeosOverload{arguments824_19, "TBOOL", "Meos_tne_temporal_temporal_13"}, MeosOverload{arguments824_20, "TBOOL", "Meos_tne_temporal_temporal_14"}, MeosOverload{arguments824_21, "TBOOL", "Meos_tne_temporal_temporal_15"}, MeosOverload{arguments824_22, "TBOOL", "Meos_tne_temporal_temporal_16"}, MeosOverload{arguments824_23, "TBOOL", "Meos_tne_temporal_temporal_17"}, MeosOverload{arguments824_24, "TBOOL", "Meos_tne_temporal_temporal_18"}, MeosOverload{arguments824_25, "TBOOL", "Meos_tne_temporal_temporal_19"}, MeosOverload{arguments824_26, "TBOOL", "Meos_tne_text_ttext_0"}, MeosOverload{arguments824_27, "TBOOL", "Meos_tne_tfloat_float_0"}, MeosOverload{arguments824_28, "TBOOL", "Meos_tne_tint_int_0"}, MeosOverload{arguments824_29, "TBOOL", "Meos_tne_ttext_text_0"}, MeosOverload{arguments824_30, "TBOOL", "Meos_tne_geo_tgeo_0"}, MeosOverload{arguments824_31, "TBOOL", "Meos_tne_geo_tgeo_1"}, MeosOverload{arguments824_32, "TBOOL", "Meos_tne_geo_tgeo_2"}, MeosOverload{arguments824_33, "TBOOL", "Meos_tne_geo_tgeo_3"}, MeosOverload{arguments824_34, "TBOOL", "Meos_tne_tgeo_geo_0"}, MeosOverload{arguments824_35, "TBOOL", "Meos_tne_tgeo_geo_1"}, MeosOverload{arguments824_36, "TBOOL", "Meos_tne_tgeo_geo_2"}, MeosOverload{arguments824_37, "TBOOL", "Meos_tne_tgeo_geo_3"}, MeosOverload{arguments824_38, "TBOOL", "Meos_tne_cbuffer_tcbuffer_0"}, MeosOverload{arguments824_39, "TBOOL", "Meos_tne_tcbuffer_cbuffer_0"}, MeosOverload{arguments824_40, "TBOOL", "Meos_tne_h3index_th3index_0"}, MeosOverload{arguments824_41, "TBOOL", "Meos_tne_th3index_h3index_0"}, MeosOverload{arguments824_42, "TBOOL", "Meos_tne_jsonb_tjsonb_0"}, MeosOverload{arguments824_43, "TBOOL", "Meos_tne_tjsonb_jsonb_0"}, MeosOverload{arguments824_44, "TBOOL", "Meos_tne_tnpoint_npoint_0"}, MeosOverload{arguments824_45, "TBOOL", "Meos_tne_tnpoint_npoint_1"}, MeosOverload{arguments824_46, "TBOOL", "Meos_tne_pcpoint_tpcpoint_0"}, MeosOverload{arguments824_47, "TBOOL", "Meos_tne_tpcpoint_pcpoint_0"}, MeosOverload{arguments824_48, "TBOOL", "Meos_tne_pcpatch_tpcpatch_0"}, MeosOverload{arguments824_49, "TBOOL", "Meos_tne_tpcpatch_pcpatch_0"}, MeosOverload{arguments824_50, "TBOOL", "Meos_tne_pose_tpose_0"}, MeosOverload{arguments824_51, "TBOOL", "Meos_tne_tpose_pose_0"}, MeosOverload{arguments824_52, "TBOOL", "Meos_tne_posechain_tposechain_0"}, MeosOverload{arguments824_53, "TBOOL", "Meos_tne_tposechain_posechain_0"}, MeosOverload{arguments824_54, "TBOOL", "Meos_tne_quadbin_tquadbin_0"}, MeosOverload{arguments824_55, "TBOOL", "Meos_tne_tquadbin_quadbin_0"}, MeosOverload{arguments824_56, "TBOOL", "Meos_tne_geo_trgeometry_0"}, MeosOverload{arguments824_57, "TBOOL", "Meos_tne_trgeometry_geo_0"}, MeosOverload{arguments824_58, "TBOOL", "Meos_tne_s2cell_ts2cell_0"}, MeosOverload{arguments824_59, "TBOOL", "Meos_tne_ts2cell_s2cell_0"}};
-constexpr std::array<std::string_view, 2> arguments825_0{"BOOLEAN", "TBOOL"};
-constexpr std::array<std::string_view, 2> arguments825_1{"TBOOL", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments825_2{"TBOOL", "TBOOL"};
-constexpr std::array<MeosOverload, 3> overloads825{MeosOverload{arguments825_0, "TBOOL", "Meos_tor_bool_tbool_0"}, MeosOverload{arguments825_1, "TBOOL", "Meos_tor_tbool_bool_0"}, MeosOverload{arguments825_2, "TBOOL", "Meos_tor_tbool_tbool_0"}};
-constexpr std::array<std::string_view, 2> arguments826_0{"FLOAT64", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments826_1{"INT32", "TINT"};
-constexpr std::array<std::string_view, 2> arguments826_2{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments826_3{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments826_4{"INT64", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments826_5{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments826_6{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments826_7{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments826_8{"TFLOAT", "TFLOAT"};
-constexpr std::array<MeosOverload, 9> overloads826{MeosOverload{arguments826_0, "TFLOAT", "Meos_sub_float_tfloat_0"}, MeosOverload{arguments826_1, "TINT", "Meos_sub_int_tint_0"}, MeosOverload{arguments826_2, "TFLOAT", "Meos_sub_tfloat_float_0"}, MeosOverload{arguments826_3, "TINT", "Meos_sub_tint_int_0"}, MeosOverload{arguments826_4, "TBIGINT", "Meos_sub_bigint_tbigint_0"}, MeosOverload{arguments826_5, "TBIGINT", "Meos_sub_tbigint_bigint_0"}, MeosOverload{arguments826_6, "TBIGINT", "Meos_sub_tnumber_tnumber_0"}, MeosOverload{arguments826_7, "TINT", "Meos_sub_tnumber_tnumber_1"}, MeosOverload{arguments826_8, "TFLOAT", "Meos_sub_tnumber_tnumber_2"}};
-constexpr std::array<std::string_view, 2> arguments827_0{"GEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_1{"GEOMETRY", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments827_2{"TGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_3{"TGEOMPOINT", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_4{"TGEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_5{"GEOMETRY", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments827_6{"TCBUFFER", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_7{"CBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments827_8{"TCBUFFER", "CBUFFER"};
-constexpr std::array<std::string_view, 2> arguments827_9{"TCBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments827_10{"GEOMETRY", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments827_11{"TNPOINT", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_12{"GEOMETRY", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments827_13{"TPCPOINT", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_14{"GEOMETRY", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments827_15{"TPCPATCH", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_16{"GEOMETRY", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments827_17{"TPOSE", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_18{"GEOMETRY", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments827_19{"TPOSECHAIN", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_20{"GEOMETRY", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments827_21{"TQUADBIN", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_22{"TQUADBIN", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments827_23{"GEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_24{"TRGEOMETRY", "GEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments827_25{"TRGEOMETRY", "TRGEOMETRY"};
-constexpr std::array<MeosOverload, 26> overloads827{MeosOverload{arguments827_0, "TBOOL", "Meos_ttouches_geo_tgeo_0"}, MeosOverload{arguments827_1, "TBOOL", "Meos_ttouches_geo_tgeo_1"}, MeosOverload{arguments827_2, "TBOOL", "Meos_ttouches_tgeo_geo_0"}, MeosOverload{arguments827_3, "TBOOL", "Meos_ttouches_tgeo_geo_1"}, MeosOverload{arguments827_4, "TBOOL", "Meos_ttouches_tgeo_tgeo_0"}, MeosOverload{arguments827_5, "TBOOL", "Meos_ttouches_geo_tcbuffer_0"}, MeosOverload{arguments827_6, "TBOOL", "Meos_ttouches_tcbuffer_geo_0"}, MeosOverload{arguments827_7, "TBOOL", "Meos_ttouches_cbuffer_tcbuffer_0"}, MeosOverload{arguments827_8, "TBOOL", "Meos_ttouches_tcbuffer_cbuffer_0"}, MeosOverload{arguments827_9, "TBOOL", "Meos_ttouches_tcbuffer_tcbuffer_0"}, MeosOverload{arguments827_10, "TBOOL", "Meos_composition316"}, MeosOverload{arguments827_11, "TBOOL", "Meos_composition317"}, MeosOverload{arguments827_12, "TBOOL", "Meos_composition318"}, MeosOverload{arguments827_13, "TBOOL", "Meos_composition319"}, MeosOverload{arguments827_14, "TBOOL", "Meos_composition320"}, MeosOverload{arguments827_15, "TBOOL", "Meos_composition321"}, MeosOverload{arguments827_16, "TBOOL", "Meos_composition322"}, MeosOverload{arguments827_17, "TBOOL", "Meos_composition323"}, MeosOverload{arguments827_18, "TBOOL", "Meos_composition324"}, MeosOverload{arguments827_19, "TBOOL", "Meos_composition325"}, MeosOverload{arguments827_20, "TBOOL", "Meos_composition326"}, MeosOverload{arguments827_21, "TBOOL", "Meos_composition327"}, MeosOverload{arguments827_22, "TBOOL", "Meos_composition328"}, MeosOverload{arguments827_23, "TBOOL", "Meos_composition329"}, MeosOverload{arguments827_24, "TBOOL", "Meos_composition330"}, MeosOverload{arguments827_25, "TBOOL", "Meos_composition331"}};
-constexpr std::array<std::string_view, 2> arguments828_0{"INT64", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments828_1{"INT64", "TSTZSET"};
-constexpr std::array<std::string_view, 2> arguments828_2{"INT64", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments828_3{"INT64", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments828_4{"TFLOAT"};
-constexpr std::array<std::string_view, 1> arguments828_5{"TINT"};
-constexpr std::array<std::string_view, 1> arguments828_6{"TH3INDEX"};
-constexpr std::array<std::string_view, 3> arguments828_7{"TJSONB", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments828_8{"TJSONB", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments828_9{"TQUADBIN"};
-constexpr std::array<std::string_view, 1> arguments828_10{"TS2CELL"};
-constexpr std::array<MeosOverload, 11> overloads828{MeosOverload{arguments828_0, "TBIGINT", "Meos_tbigintinst_make_0"}, MeosOverload{arguments828_1, "TBIGINT", "Meos_tbigintseq_from_base_tstzset_0"}, MeosOverload{arguments828_2, "TBIGINT", "Meos_tbigintseq_from_base_tstzspan_0"}, MeosOverload{arguments828_3, "TBIGINT", "Meos_tbigintseqset_from_base_tstzspanset_0"}, MeosOverload{arguments828_4, "TBIGINT", "Meos_tfloat_to_tbigint_0"}, MeosOverload{arguments828_5, "TBIGINT", "Meos_tint_to_tbigint_0"}, MeosOverload{arguments828_6, "TBIGINT", "Meos_th3index_to_tbigint_0"}, MeosOverload{arguments828_7, "TBIGINT", "Meos_tjsonb_to_tbigint_0"}, MeosOverload{arguments828_8, "TBIGINT", "Meos_tjsonb_to_tbigint_0_2"}, MeosOverload{arguments828_9, "TBIGINT", "Meos_tquadbin_to_tbigint_0"}, MeosOverload{arguments828_10, "TBIGINT", "Meos_ts2cell_to_tbigint_0"}};
-constexpr std::array<std::string_view, 1> arguments829_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads829{MeosOverload{arguments829_0, "TBIGINT", "Meos_temporal_from_wkb_50"}};
-constexpr std::array<std::string_view, 1> arguments830_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads830{MeosOverload{arguments830_0, "TBIGINT", "Meos_temporal_from_hexwkb_31"}};
-constexpr std::array<std::string_view, 1> arguments831_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads831{MeosOverload{arguments831_0, "TBIGINT", "Meos_tbigint_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments832_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads832{MeosOverload{arguments832_0, "TBIGINT", "Meos_tbigint_in_1"}};
-constexpr std::array<std::string_view, 1> arguments833_0{"TBIGINT"};
-constexpr std::array<MeosOverload, 1> overloads833{MeosOverload{arguments833_0, "TBIGINT", "Meos_temporal_as_tinstant_16"}};
-constexpr std::array<std::string_view, 4> arguments834_0{"TBIGINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments834_1{"TBIGINT_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments834_2{"TBIGINT_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments834_3{"TBIGINT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments834_4{"TBIGINT", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads834{MeosOverload{arguments834_0, "TBIGINT", "Meos_tsequence_make_17"}, MeosOverload{arguments834_1, "TBIGINT", "Meos_tsequence_make_17_3"}, MeosOverload{arguments834_2, "TBIGINT", "Meos_tsequence_make_17_2"}, MeosOverload{arguments834_3, "TBIGINT", "Meos_tsequence_make_17_1"}, MeosOverload{arguments834_4, "TBIGINT", "Meos_temporal_as_tsequence_16"}};
-constexpr std::array<std::string_view, 1> arguments835_0{"TBIGINT_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments835_1{"TBIGINT"};
-constexpr std::array<MeosOverload, 2> overloads835{MeosOverload{arguments835_0, "TBIGINT", "Meos_tsequenceset_make_17"}, MeosOverload{arguments835_1, "TBIGINT", "Meos_temporal_as_tsequenceset_16"}};
-constexpr std::array<std::string_view, 2> arguments836_0{"BOOLEAN", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments836_1{"BOOLEAN", "TSTZSET"};
-constexpr std::array<std::string_view, 2> arguments836_2{"BOOLEAN", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments836_3{"BOOLEAN", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 3> arguments836_4{"TJSONB", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments836_5{"TJSONB", "VARSIZED"};
-constexpr std::array<MeosOverload, 6> overloads836{MeosOverload{arguments836_0, "TBOOL", "Meos_tboolinst_make_0"}, MeosOverload{arguments836_1, "TBOOL", "Meos_tboolseq_from_base_tstzset_0"}, MeosOverload{arguments836_2, "TBOOL", "Meos_tboolseq_from_base_tstzspan_0"}, MeosOverload{arguments836_3, "TBOOL", "Meos_tboolseqset_from_base_tstzspanset_0"}, MeosOverload{arguments836_4, "TBOOL", "Meos_tjsonb_to_tbool_0"}, MeosOverload{arguments836_5, "TBOOL", "Meos_tjsonb_to_tbool_0_2"}};
-constexpr std::array<std::string_view, 1> arguments837_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads837{MeosOverload{arguments837_0, "TBOOL", "Meos_temporal_from_wkb_48"}};
+constexpr std::array<std::string_view, 2> arguments824_1{"FLOAT64", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments824_2{"INT32", "TINT"};
+constexpr std::array<std::string_view, 2> arguments824_3{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments824_4{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments824_5{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments824_6{"TTEXT", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments824_7{"VARSIZED", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments824_8{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments824_9{"TFLOAT", "FLOAT64"};
+constexpr std::array<std::string_view, 2> arguments824_10{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments824_11{"TTEXT", "VARSIZED"};
+constexpr std::array<MeosOverload, 12> overloads824{MeosOverload{arguments824_0, "TBOOL", "Meos_tlt_bigint_tbigint_0"}, MeosOverload{arguments824_1, "TBOOL", "Meos_tlt_float_tfloat_0"}, MeosOverload{arguments824_2, "TBOOL", "Meos_tlt_int_tint_0"}, MeosOverload{arguments824_3, "TBOOL", "Meos_tlt_temporal_temporal_0"}, MeosOverload{arguments824_4, "TBOOL", "Meos_tlt_temporal_temporal_1"}, MeosOverload{arguments824_5, "TBOOL", "Meos_tlt_temporal_temporal_2"}, MeosOverload{arguments824_6, "TBOOL", "Meos_tlt_temporal_temporal_3"}, MeosOverload{arguments824_7, "TBOOL", "Meos_tlt_text_ttext_0"}, MeosOverload{arguments824_8, "TBOOL", "Meos_tlt_tbigint_bigint_0"}, MeosOverload{arguments824_9, "TBOOL", "Meos_tlt_tfloat_float_0"}, MeosOverload{arguments824_10, "TBOOL", "Meos_tlt_tint_int_0"}, MeosOverload{arguments824_11, "TBOOL", "Meos_tlt_ttext_text_0"}};
+constexpr std::array<std::string_view, 1> arguments825_0{"TBOX"};
+constexpr std::array<std::string_view, 1> arguments825_1{"STBOX"};
+constexpr std::array<std::string_view, 1> arguments825_2{"TPCBOX"};
+constexpr std::array<MeosOverload, 3> overloads825{MeosOverload{arguments825_0, "UINT64", "Meos_tbox_tmax_0"}, MeosOverload{arguments825_1, "UINT64", "Meos_stbox_tmax_0"}, MeosOverload{arguments825_2, "UINT64", "Meos_tpcbox_tmax_0"}};
+constexpr std::array<std::string_view, 1> arguments826_0{"TBOX"};
+constexpr std::array<std::string_view, 1> arguments826_1{"STBOX"};
+constexpr std::array<std::string_view, 1> arguments826_2{"TPCBOX"};
+constexpr std::array<MeosOverload, 3> overloads826{MeosOverload{arguments826_0, "BOOLEAN", "Meos_tbox_tmax_inc_0"}, MeosOverload{arguments826_1, "BOOLEAN", "Meos_stbox_tmax_inc_0"}, MeosOverload{arguments826_2, "BOOLEAN", "Meos_tpcbox_tmax_inc_0"}};
+constexpr std::array<std::string_view, 1> arguments827_0{"TBOX"};
+constexpr std::array<std::string_view, 1> arguments827_1{"STBOX"};
+constexpr std::array<std::string_view, 1> arguments827_2{"TPCBOX"};
+constexpr std::array<MeosOverload, 3> overloads827{MeosOverload{arguments827_0, "UINT64", "Meos_tbox_tmin_0"}, MeosOverload{arguments827_1, "UINT64", "Meos_stbox_tmin_0"}, MeosOverload{arguments827_2, "UINT64", "Meos_tpcbox_tmin_0"}};
+constexpr std::array<std::string_view, 1> arguments828_0{"TBOX"};
+constexpr std::array<std::string_view, 1> arguments828_1{"STBOX"};
+constexpr std::array<std::string_view, 1> arguments828_2{"TPCBOX"};
+constexpr std::array<MeosOverload, 3> overloads828{MeosOverload{arguments828_0, "BOOLEAN", "Meos_tbox_tmin_inc_0"}, MeosOverload{arguments828_1, "BOOLEAN", "Meos_stbox_tmin_inc_0"}, MeosOverload{arguments828_2, "BOOLEAN", "Meos_tpcbox_tmin_inc_0"}};
+constexpr std::array<std::string_view, 2> arguments829_0{"FLOAT64", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments829_1{"INT32", "TINT"};
+constexpr std::array<std::string_view, 2> arguments829_2{"TFLOAT", "FLOAT64"};
+constexpr std::array<std::string_view, 2> arguments829_3{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments829_4{"INT64", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments829_5{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments829_6{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments829_7{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments829_8{"TFLOAT", "TFLOAT"};
+constexpr std::array<MeosOverload, 9> overloads829{MeosOverload{arguments829_0, "TFLOAT", "Meos_mul_float_tfloat_0"}, MeosOverload{arguments829_1, "TINT", "Meos_mul_int_tint_0"}, MeosOverload{arguments829_2, "TFLOAT", "Meos_mul_tfloat_float_0"}, MeosOverload{arguments829_3, "TINT", "Meos_mul_tint_int_0"}, MeosOverload{arguments829_4, "TBIGINT", "Meos_mul_bigint_tbigint_0"}, MeosOverload{arguments829_5, "TBIGINT", "Meos_mul_tbigint_bigint_0"}, MeosOverload{arguments829_6, "TBIGINT", "Meos_mul_tnumber_tnumber_0"}, MeosOverload{arguments829_7, "TINT", "Meos_mul_tnumber_tnumber_1"}, MeosOverload{arguments829_8, "TFLOAT", "Meos_mul_tnumber_tnumber_2"}};
+constexpr std::array<std::string_view, 1> arguments830_0{"TBOOL"};
+constexpr std::array<MeosOverload, 1> overloads830{MeosOverload{arguments830_0, "TBOOL", "Meos_tnot_tbool_0"}};
+constexpr std::array<std::string_view, 2> arguments831_0{"INT64", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments831_1{"BOOLEAN", "TBOOL"};
+constexpr std::array<std::string_view, 2> arguments831_2{"FLOAT64", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments831_3{"INT32", "TINT"};
+constexpr std::array<std::string_view, 2> arguments831_4{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments831_5{"TBOOL", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments831_6{"TCBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments831_7{"TGEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments831_8{"TGEOGRAPHY", "TGEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments831_9{"TGEOMPOINT", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments831_10{"TGEOGPOINT", "TGEOGPOINT"};
+constexpr std::array<std::string_view, 2> arguments831_11{"TH3INDEX", "TH3INDEX"};
+constexpr std::array<std::string_view, 2> arguments831_12{"TJSONB", "TJSONB"};
+constexpr std::array<std::string_view, 2> arguments831_13{"TNPOINT", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments831_14{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments831_15{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments831_16{"TPOSE", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments831_17{"TPOSECHAIN", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments831_18{"TQUADBIN", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments831_19{"TRGEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments831_20{"TS2CELL", "TS2CELL"};
+constexpr std::array<std::string_view, 2> arguments831_21{"TBOOL", "TBOOL"};
+constexpr std::array<std::string_view, 2> arguments831_22{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments831_23{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments831_24{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments831_25{"TTEXT", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments831_26{"VARSIZED", "TTEXT"};
+constexpr std::array<std::string_view, 2> arguments831_27{"TFLOAT", "FLOAT64"};
+constexpr std::array<std::string_view, 2> arguments831_28{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments831_29{"TTEXT", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments831_30{"GEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments831_31{"GEOGRAPHY", "TGEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments831_32{"GEOMETRY", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments831_33{"GEOGRAPHY", "TGEOGPOINT"};
+constexpr std::array<std::string_view, 2> arguments831_34{"TGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments831_35{"TGEOGRAPHY", "GEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments831_36{"TGEOMPOINT", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments831_37{"TGEOGPOINT", "GEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments831_38{"CBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments831_39{"TCBUFFER", "CBUFFER"};
+constexpr std::array<std::string_view, 2> arguments831_40{"H3INDEX", "TH3INDEX"};
+constexpr std::array<std::string_view, 2> arguments831_41{"TH3INDEX", "H3INDEX"};
+constexpr std::array<std::string_view, 2> arguments831_42{"JSONB", "TJSONB"};
+constexpr std::array<std::string_view, 2> arguments831_43{"TJSONB", "JSONB"};
+constexpr std::array<std::string_view, 2> arguments831_44{"TNPOINT", "NPOINT"};
+constexpr std::array<std::string_view, 2> arguments831_45{"NPOINT", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments831_46{"PCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments831_47{"TPCPOINT", "PCPOINT"};
+constexpr std::array<std::string_view, 2> arguments831_48{"PCPATCH", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments831_49{"TPCPATCH", "PCPATCH"};
+constexpr std::array<std::string_view, 2> arguments831_50{"POSE", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments831_51{"TPOSE", "POSE"};
+constexpr std::array<std::string_view, 2> arguments831_52{"POSECHAIN", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments831_53{"TPOSECHAIN", "POSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments831_54{"QUADBIN", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments831_55{"TQUADBIN", "QUADBIN"};
+constexpr std::array<std::string_view, 2> arguments831_56{"GEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments831_57{"TRGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments831_58{"S2CELL", "TS2CELL"};
+constexpr std::array<std::string_view, 2> arguments831_59{"TS2CELL", "S2CELL"};
+constexpr std::array<MeosOverload, 60> overloads831{MeosOverload{arguments831_0, "TBOOL", "Meos_tne_bigint_tbigint_0"}, MeosOverload{arguments831_1, "TBOOL", "Meos_tne_bool_tbool_0"}, MeosOverload{arguments831_2, "TBOOL", "Meos_tne_float_tfloat_0"}, MeosOverload{arguments831_3, "TBOOL", "Meos_tne_int_tint_0"}, MeosOverload{arguments831_4, "TBOOL", "Meos_tne_tbigint_bigint_0"}, MeosOverload{arguments831_5, "TBOOL", "Meos_tne_tbool_bool_0"}, MeosOverload{arguments831_6, "TBOOL", "Meos_tne_temporal_temporal_0"}, MeosOverload{arguments831_7, "TBOOL", "Meos_tne_temporal_temporal_1"}, MeosOverload{arguments831_8, "TBOOL", "Meos_tne_temporal_temporal_2"}, MeosOverload{arguments831_9, "TBOOL", "Meos_tne_temporal_temporal_3"}, MeosOverload{arguments831_10, "TBOOL", "Meos_tne_temporal_temporal_4"}, MeosOverload{arguments831_11, "TBOOL", "Meos_tne_temporal_temporal_5"}, MeosOverload{arguments831_12, "TBOOL", "Meos_tne_temporal_temporal_6"}, MeosOverload{arguments831_13, "TBOOL", "Meos_tne_temporal_temporal_7"}, MeosOverload{arguments831_14, "TBOOL", "Meos_tne_temporal_temporal_8"}, MeosOverload{arguments831_15, "TBOOL", "Meos_tne_temporal_temporal_9"}, MeosOverload{arguments831_16, "TBOOL", "Meos_tne_temporal_temporal_10"}, MeosOverload{arguments831_17, "TBOOL", "Meos_tne_temporal_temporal_11"}, MeosOverload{arguments831_18, "TBOOL", "Meos_tne_temporal_temporal_12"}, MeosOverload{arguments831_19, "TBOOL", "Meos_tne_temporal_temporal_13"}, MeosOverload{arguments831_20, "TBOOL", "Meos_tne_temporal_temporal_14"}, MeosOverload{arguments831_21, "TBOOL", "Meos_tne_temporal_temporal_15"}, MeosOverload{arguments831_22, "TBOOL", "Meos_tne_temporal_temporal_16"}, MeosOverload{arguments831_23, "TBOOL", "Meos_tne_temporal_temporal_17"}, MeosOverload{arguments831_24, "TBOOL", "Meos_tne_temporal_temporal_18"}, MeosOverload{arguments831_25, "TBOOL", "Meos_tne_temporal_temporal_19"}, MeosOverload{arguments831_26, "TBOOL", "Meos_tne_text_ttext_0"}, MeosOverload{arguments831_27, "TBOOL", "Meos_tne_tfloat_float_0"}, MeosOverload{arguments831_28, "TBOOL", "Meos_tne_tint_int_0"}, MeosOverload{arguments831_29, "TBOOL", "Meos_tne_ttext_text_0"}, MeosOverload{arguments831_30, "TBOOL", "Meos_tne_geo_tgeo_0"}, MeosOverload{arguments831_31, "TBOOL", "Meos_tne_geo_tgeo_1"}, MeosOverload{arguments831_32, "TBOOL", "Meos_tne_geo_tgeo_2"}, MeosOverload{arguments831_33, "TBOOL", "Meos_tne_geo_tgeo_3"}, MeosOverload{arguments831_34, "TBOOL", "Meos_tne_tgeo_geo_0"}, MeosOverload{arguments831_35, "TBOOL", "Meos_tne_tgeo_geo_1"}, MeosOverload{arguments831_36, "TBOOL", "Meos_tne_tgeo_geo_2"}, MeosOverload{arguments831_37, "TBOOL", "Meos_tne_tgeo_geo_3"}, MeosOverload{arguments831_38, "TBOOL", "Meos_tne_cbuffer_tcbuffer_0"}, MeosOverload{arguments831_39, "TBOOL", "Meos_tne_tcbuffer_cbuffer_0"}, MeosOverload{arguments831_40, "TBOOL", "Meos_tne_h3index_th3index_0"}, MeosOverload{arguments831_41, "TBOOL", "Meos_tne_th3index_h3index_0"}, MeosOverload{arguments831_42, "TBOOL", "Meos_tne_jsonb_tjsonb_0"}, MeosOverload{arguments831_43, "TBOOL", "Meos_tne_tjsonb_jsonb_0"}, MeosOverload{arguments831_44, "TBOOL", "Meos_tne_tnpoint_npoint_0"}, MeosOverload{arguments831_45, "TBOOL", "Meos_tne_tnpoint_npoint_1"}, MeosOverload{arguments831_46, "TBOOL", "Meos_tne_pcpoint_tpcpoint_0"}, MeosOverload{arguments831_47, "TBOOL", "Meos_tne_tpcpoint_pcpoint_0"}, MeosOverload{arguments831_48, "TBOOL", "Meos_tne_pcpatch_tpcpatch_0"}, MeosOverload{arguments831_49, "TBOOL", "Meos_tne_tpcpatch_pcpatch_0"}, MeosOverload{arguments831_50, "TBOOL", "Meos_tne_pose_tpose_0"}, MeosOverload{arguments831_51, "TBOOL", "Meos_tne_tpose_pose_0"}, MeosOverload{arguments831_52, "TBOOL", "Meos_tne_posechain_tposechain_0"}, MeosOverload{arguments831_53, "TBOOL", "Meos_tne_tposechain_posechain_0"}, MeosOverload{arguments831_54, "TBOOL", "Meos_tne_quadbin_tquadbin_0"}, MeosOverload{arguments831_55, "TBOOL", "Meos_tne_tquadbin_quadbin_0"}, MeosOverload{arguments831_56, "TBOOL", "Meos_tne_geo_trgeometry_0"}, MeosOverload{arguments831_57, "TBOOL", "Meos_tne_trgeometry_geo_0"}, MeosOverload{arguments831_58, "TBOOL", "Meos_tne_s2cell_ts2cell_0"}, MeosOverload{arguments831_59, "TBOOL", "Meos_tne_ts2cell_s2cell_0"}};
+constexpr std::array<std::string_view, 2> arguments832_0{"BOOLEAN", "TBOOL"};
+constexpr std::array<std::string_view, 2> arguments832_1{"TBOOL", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments832_2{"TBOOL", "TBOOL"};
+constexpr std::array<MeosOverload, 3> overloads832{MeosOverload{arguments832_0, "TBOOL", "Meos_tor_bool_tbool_0"}, MeosOverload{arguments832_1, "TBOOL", "Meos_tor_tbool_bool_0"}, MeosOverload{arguments832_2, "TBOOL", "Meos_tor_tbool_tbool_0"}};
+constexpr std::array<std::string_view, 2> arguments833_0{"FLOAT64", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments833_1{"INT32", "TINT"};
+constexpr std::array<std::string_view, 2> arguments833_2{"TFLOAT", "FLOAT64"};
+constexpr std::array<std::string_view, 2> arguments833_3{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments833_4{"INT64", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments833_5{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments833_6{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments833_7{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments833_8{"TFLOAT", "TFLOAT"};
+constexpr std::array<MeosOverload, 9> overloads833{MeosOverload{arguments833_0, "TFLOAT", "Meos_sub_float_tfloat_0"}, MeosOverload{arguments833_1, "TINT", "Meos_sub_int_tint_0"}, MeosOverload{arguments833_2, "TFLOAT", "Meos_sub_tfloat_float_0"}, MeosOverload{arguments833_3, "TINT", "Meos_sub_tint_int_0"}, MeosOverload{arguments833_4, "TBIGINT", "Meos_sub_bigint_tbigint_0"}, MeosOverload{arguments833_5, "TBIGINT", "Meos_sub_tbigint_bigint_0"}, MeosOverload{arguments833_6, "TBIGINT", "Meos_sub_tnumber_tnumber_0"}, MeosOverload{arguments833_7, "TINT", "Meos_sub_tnumber_tnumber_1"}, MeosOverload{arguments833_8, "TFLOAT", "Meos_sub_tnumber_tnumber_2"}};
+constexpr std::array<std::string_view, 2> arguments834_0{"GEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_1{"GEOMETRY", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments834_2{"TGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_3{"TGEOMPOINT", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_4{"TGEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_5{"GEOMETRY", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments834_6{"TCBUFFER", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_7{"CBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments834_8{"TCBUFFER", "CBUFFER"};
+constexpr std::array<std::string_view, 2> arguments834_9{"TCBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments834_10{"GEOMETRY", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments834_11{"TNPOINT", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_12{"GEOMETRY", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments834_13{"TPCPOINT", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_14{"GEOMETRY", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments834_15{"TPCPATCH", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_16{"GEOMETRY", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments834_17{"TPOSE", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_18{"GEOMETRY", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments834_19{"TPOSECHAIN", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_20{"GEOMETRY", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments834_21{"TQUADBIN", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_22{"TQUADBIN", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments834_23{"GEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_24{"TRGEOMETRY", "GEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments834_25{"TRGEOMETRY", "TRGEOMETRY"};
+constexpr std::array<MeosOverload, 26> overloads834{MeosOverload{arguments834_0, "TBOOL", "Meos_ttouches_geo_tgeo_0"}, MeosOverload{arguments834_1, "TBOOL", "Meos_ttouches_geo_tgeo_1"}, MeosOverload{arguments834_2, "TBOOL", "Meos_ttouches_tgeo_geo_0"}, MeosOverload{arguments834_3, "TBOOL", "Meos_ttouches_tgeo_geo_1"}, MeosOverload{arguments834_4, "TBOOL", "Meos_ttouches_tgeo_tgeo_0"}, MeosOverload{arguments834_5, "TBOOL", "Meos_ttouches_geo_tcbuffer_0"}, MeosOverload{arguments834_6, "TBOOL", "Meos_ttouches_tcbuffer_geo_0"}, MeosOverload{arguments834_7, "TBOOL", "Meos_ttouches_cbuffer_tcbuffer_0"}, MeosOverload{arguments834_8, "TBOOL", "Meos_ttouches_tcbuffer_cbuffer_0"}, MeosOverload{arguments834_9, "TBOOL", "Meos_ttouches_tcbuffer_tcbuffer_0"}, MeosOverload{arguments834_10, "TBOOL", "Meos_composition316"}, MeosOverload{arguments834_11, "TBOOL", "Meos_composition317"}, MeosOverload{arguments834_12, "TBOOL", "Meos_composition318"}, MeosOverload{arguments834_13, "TBOOL", "Meos_composition319"}, MeosOverload{arguments834_14, "TBOOL", "Meos_composition320"}, MeosOverload{arguments834_15, "TBOOL", "Meos_composition321"}, MeosOverload{arguments834_16, "TBOOL", "Meos_composition322"}, MeosOverload{arguments834_17, "TBOOL", "Meos_composition323"}, MeosOverload{arguments834_18, "TBOOL", "Meos_composition324"}, MeosOverload{arguments834_19, "TBOOL", "Meos_composition325"}, MeosOverload{arguments834_20, "TBOOL", "Meos_composition326"}, MeosOverload{arguments834_21, "TBOOL", "Meos_composition327"}, MeosOverload{arguments834_22, "TBOOL", "Meos_composition328"}, MeosOverload{arguments834_23, "TBOOL", "Meos_composition329"}, MeosOverload{arguments834_24, "TBOOL", "Meos_composition330"}, MeosOverload{arguments834_25, "TBOOL", "Meos_composition331"}};
+constexpr std::array<std::string_view, 2> arguments835_0{"INT64", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments835_1{"INT64", "TSTZSET"};
+constexpr std::array<std::string_view, 2> arguments835_2{"INT64", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments835_3{"INT64", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments835_4{"TFLOAT"};
+constexpr std::array<std::string_view, 1> arguments835_5{"TINT"};
+constexpr std::array<std::string_view, 1> arguments835_6{"TH3INDEX"};
+constexpr std::array<std::string_view, 3> arguments835_7{"TJSONB", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments835_8{"TJSONB", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments835_9{"TQUADBIN"};
+constexpr std::array<std::string_view, 1> arguments835_10{"TS2CELL"};
+constexpr std::array<MeosOverload, 11> overloads835{MeosOverload{arguments835_0, "TBIGINT", "Meos_tbigintinst_make_0"}, MeosOverload{arguments835_1, "TBIGINT", "Meos_tbigintseq_from_base_tstzset_0"}, MeosOverload{arguments835_2, "TBIGINT", "Meos_tbigintseq_from_base_tstzspan_0"}, MeosOverload{arguments835_3, "TBIGINT", "Meos_tbigintseqset_from_base_tstzspanset_0"}, MeosOverload{arguments835_4, "TBIGINT", "Meos_tfloat_to_tbigint_0"}, MeosOverload{arguments835_5, "TBIGINT", "Meos_tint_to_tbigint_0"}, MeosOverload{arguments835_6, "TBIGINT", "Meos_th3index_to_tbigint_0"}, MeosOverload{arguments835_7, "TBIGINT", "Meos_tjsonb_to_tbigint_0"}, MeosOverload{arguments835_8, "TBIGINT", "Meos_tjsonb_to_tbigint_0_2"}, MeosOverload{arguments835_9, "TBIGINT", "Meos_tquadbin_to_tbigint_0"}, MeosOverload{arguments835_10, "TBIGINT", "Meos_ts2cell_to_tbigint_0"}};
+constexpr std::array<std::string_view, 1> arguments836_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads836{MeosOverload{arguments836_0, "TBIGINT", "Meos_temporal_from_wkb_50"}};
+constexpr std::array<std::string_view, 1> arguments837_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads837{MeosOverload{arguments837_0, "TBIGINT", "Meos_temporal_from_hexwkb_31"}};
 constexpr std::array<std::string_view, 1> arguments838_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads838{MeosOverload{arguments838_0, "TBOOL", "Meos_temporal_from_hexwkb_29"}};
+constexpr std::array<MeosOverload, 1> overloads838{MeosOverload{arguments838_0, "TBIGINT", "Meos_tbigint_from_mfjson_0"}};
 constexpr std::array<std::string_view, 1> arguments839_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads839{MeosOverload{arguments839_0, "TBOOL", "Meos_tbool_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments840_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads840{MeosOverload{arguments840_0, "TBOOL", "Meos_tbool_in_1"}};
-constexpr std::array<std::string_view, 1> arguments841_0{"TBOOL"};
-constexpr std::array<MeosOverload, 1> overloads841{MeosOverload{arguments841_0, "TBOOL", "Meos_temporal_as_tinstant_14"}};
-constexpr std::array<std::string_view, 4> arguments842_0{"TBOOL_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments842_1{"TBOOL_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments842_2{"TBOOL_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments842_3{"TBOOL_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments842_4{"TBOOL", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads842{MeosOverload{arguments842_0, "TBOOL", "Meos_tsequence_make_15"}, MeosOverload{arguments842_1, "TBOOL", "Meos_tsequence_make_15_3"}, MeosOverload{arguments842_2, "TBOOL", "Meos_tsequence_make_15_2"}, MeosOverload{arguments842_3, "TBOOL", "Meos_tsequence_make_15_1"}, MeosOverload{arguments842_4, "TBOOL", "Meos_temporal_as_tsequence_14"}};
-constexpr std::array<std::string_view, 1> arguments843_0{"TBOOL_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments843_1{"TBOOL"};
-constexpr std::array<MeosOverload, 2> overloads843{MeosOverload{arguments843_0, "TBOOL", "Meos_tsequenceset_make_15"}, MeosOverload{arguments843_1, "TBOOL", "Meos_temporal_as_tsequenceset_14"}};
-constexpr std::array<std::string_view, 2> arguments844_0{"FLOAT64", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments844_1{"FLOAT64", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments844_2{"INT32", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments844_3{"INT64", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments844_4{"INT32", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments844_5{"INT64", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments844_6{"BIGINTSPAN", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments844_7{"INTSPAN", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments844_8{"FLOATSPAN", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments844_9{"BIGINTSPAN", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments844_10{"INTSPAN", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments844_11{"FLOATSPAN", "UINT64"};
-constexpr std::array<std::string_view, 1> arguments844_12{"FLOAT64"};
-constexpr std::array<std::string_view, 1> arguments844_13{"INT32"};
-constexpr std::array<std::string_view, 1> arguments844_14{"INT64"};
-constexpr std::array<std::string_view, 1> arguments844_15{"BIGINTSET"};
-constexpr std::array<std::string_view, 1> arguments844_16{"INTSET"};
-constexpr std::array<std::string_view, 1> arguments844_17{"FLOATSET"};
-constexpr std::array<std::string_view, 1> arguments844_18{"TSTZSET"};
-constexpr std::array<std::string_view, 1> arguments844_19{"BIGINTSPAN"};
-constexpr std::array<std::string_view, 1> arguments844_20{"INTSPAN"};
-constexpr std::array<std::string_view, 1> arguments844_21{"FLOATSPAN"};
-constexpr std::array<std::string_view, 1> arguments844_22{"TSTZSPAN"};
-constexpr std::array<std::string_view, 1> arguments844_23{"BIGINTSPANSET"};
-constexpr std::array<std::string_view, 1> arguments844_24{"INTSPANSET"};
-constexpr std::array<std::string_view, 1> arguments844_25{"FLOATSPANSET"};
-constexpr std::array<std::string_view, 1> arguments844_26{"TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments844_27{"UINT64"};
-constexpr std::array<std::string_view, 1> arguments844_28{"TINT"};
-constexpr std::array<std::string_view, 1> arguments844_29{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments844_30{"TFLOAT"};
-constexpr std::array<MeosOverload, 31> overloads844{MeosOverload{arguments844_0, "TBOX", "Meos_float_timestamptz_to_tbox_0"}, MeosOverload{arguments844_1, "TBOX", "Meos_float_tstzspan_to_tbox_0"}, MeosOverload{arguments844_2, "TBOX", "Meos_int_timestamptz_to_tbox_0"}, MeosOverload{arguments844_3, "TBOX", "Meos_bigint_timestamptz_to_tbox_0"}, MeosOverload{arguments844_4, "TBOX", "Meos_int_tstzspan_to_tbox_0"}, MeosOverload{arguments844_5, "TBOX", "Meos_bigint_tstzspan_to_tbox_0"}, MeosOverload{arguments844_6, "TBOX", "Meos_numspan_tstzspan_to_tbox_0"}, MeosOverload{arguments844_7, "TBOX", "Meos_numspan_tstzspan_to_tbox_1"}, MeosOverload{arguments844_8, "TBOX", "Meos_numspan_tstzspan_to_tbox_2"}, MeosOverload{arguments844_9, "TBOX", "Meos_numspan_timestamptz_to_tbox_0"}, MeosOverload{arguments844_10, "TBOX", "Meos_numspan_timestamptz_to_tbox_1"}, MeosOverload{arguments844_11, "TBOX", "Meos_numspan_timestamptz_to_tbox_2"}, MeosOverload{arguments844_12, "TBOX", "Meos_float_to_tbox_0"}, MeosOverload{arguments844_13, "TBOX", "Meos_int_to_tbox_0"}, MeosOverload{arguments844_14, "TBOX", "Meos_bigint_to_tbox_0"}, MeosOverload{arguments844_15, "TBOX", "Meos_set_to_tbox_0"}, MeosOverload{arguments844_16, "TBOX", "Meos_set_to_tbox_1"}, MeosOverload{arguments844_17, "TBOX", "Meos_set_to_tbox_2"}, MeosOverload{arguments844_18, "TBOX", "Meos_set_to_tbox_3"}, MeosOverload{arguments844_19, "TBOX", "Meos_span_to_tbox_0"}, MeosOverload{arguments844_20, "TBOX", "Meos_span_to_tbox_1"}, MeosOverload{arguments844_21, "TBOX", "Meos_span_to_tbox_2"}, MeosOverload{arguments844_22, "TBOX", "Meos_span_to_tbox_3"}, MeosOverload{arguments844_23, "TBOX", "Meos_spanset_to_tbox_0"}, MeosOverload{arguments844_24, "TBOX", "Meos_spanset_to_tbox_1"}, MeosOverload{arguments844_25, "TBOX", "Meos_spanset_to_tbox_2"}, MeosOverload{arguments844_26, "TBOX", "Meos_spanset_to_tbox_3"}, MeosOverload{arguments844_27, "TBOX", "Meos_timestamptz_to_tbox_0"}, MeosOverload{arguments844_28, "TBOX", "Meos_tnumber_to_tbox_0"}, MeosOverload{arguments844_29, "TBOX", "Meos_tnumber_to_tbox_1"}, MeosOverload{arguments844_30, "TBOX", "Meos_tnumber_to_tbox_2"}};
-constexpr std::array<std::string_view, 2> arguments845_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments845_1{"INTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments845_2{"BIGINTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments845_3{"FLOATSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments845_4{"TBOX", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments845_5{"TBOX", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments845_6{"TBOX", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments845_7{"TBOX", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments845_8{"TSTZSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments845_9{"INTSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments845_10{"BIGINTSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments845_11{"FLOATSPAN", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments845_12{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments845_13{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments845_14{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments845_15{"TINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments845_16{"TBIGINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments845_17{"TFLOAT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments845_18{"TINT", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments845_19{"TBIGINT", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments845_20{"TFLOAT", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments845_21{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments845_22{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments845_23{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments845_24{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments845_25{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments845_26{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments845_27{"TSTZSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments845_28{"TSTZSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments845_29{"TSTZSPAN", "TFLOAT"};
-constexpr std::array<MeosOverload, 30> overloads845{MeosOverload{arguments845_0, "BOOLEAN", "Meos_adjacent_tbox_tbox_0"}, MeosOverload{arguments845_1, "BOOLEAN", "Meos_adjacent_numspan_tbox_0"}, MeosOverload{arguments845_2, "BOOLEAN", "Meos_adjacent_numspan_tbox_1"}, MeosOverload{arguments845_3, "BOOLEAN", "Meos_adjacent_numspan_tbox_2"}, MeosOverload{arguments845_4, "BOOLEAN", "Meos_adjacent_tbox_numspan_0"}, MeosOverload{arguments845_5, "BOOLEAN", "Meos_adjacent_tbox_numspan_1"}, MeosOverload{arguments845_6, "BOOLEAN", "Meos_adjacent_tbox_numspan_2"}, MeosOverload{arguments845_7, "BOOLEAN", "Meos_adjacent_tbox_tstzspan_0"}, MeosOverload{arguments845_8, "BOOLEAN", "Meos_adjacent_tstzspan_tbox_0"}, MeosOverload{arguments845_9, "BOOLEAN", "Meos_adjacent_numspan_tnumber_0"}, MeosOverload{arguments845_10, "BOOLEAN", "Meos_adjacent_numspan_tnumber_1"}, MeosOverload{arguments845_11, "BOOLEAN", "Meos_adjacent_numspan_tnumber_2"}, MeosOverload{arguments845_12, "BOOLEAN", "Meos_adjacent_tbox_tnumber_0"}, MeosOverload{arguments845_13, "BOOLEAN", "Meos_adjacent_tbox_tnumber_1"}, MeosOverload{arguments845_14, "BOOLEAN", "Meos_adjacent_tbox_tnumber_2"}, MeosOverload{arguments845_15, "BOOLEAN", "Meos_adjacent_temporal_tstzspan_17"}, MeosOverload{arguments845_16, "BOOLEAN", "Meos_adjacent_temporal_tstzspan_18"}, MeosOverload{arguments845_17, "BOOLEAN", "Meos_adjacent_temporal_tstzspan_19"}, MeosOverload{arguments845_18, "BOOLEAN", "Meos_adjacent_tnumber_numspan_0"}, MeosOverload{arguments845_19, "BOOLEAN", "Meos_adjacent_tnumber_numspan_1"}, MeosOverload{arguments845_20, "BOOLEAN", "Meos_adjacent_tnumber_numspan_2"}, MeosOverload{arguments845_21, "BOOLEAN", "Meos_adjacent_tnumber_tbox_0"}, MeosOverload{arguments845_22, "BOOLEAN", "Meos_adjacent_tnumber_tbox_1"}, MeosOverload{arguments845_23, "BOOLEAN", "Meos_adjacent_tnumber_tbox_2"}, MeosOverload{arguments845_24, "BOOLEAN", "Meos_adjacent_tnumber_tnumber_0"}, MeosOverload{arguments845_25, "BOOLEAN", "Meos_adjacent_tnumber_tnumber_1"}, MeosOverload{arguments845_26, "BOOLEAN", "Meos_adjacent_tnumber_tnumber_2"}, MeosOverload{arguments845_27, "BOOLEAN", "Meos_adjacent_tstzspan_temporal_17"}, MeosOverload{arguments845_28, "BOOLEAN", "Meos_adjacent_tstzspan_temporal_18"}, MeosOverload{arguments845_29, "BOOLEAN", "Meos_adjacent_tstzspan_temporal_19"}};
-constexpr std::array<std::string_view, 2> arguments846_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments846_1{"TBOX", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments846_2{"TSTZSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments846_3{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments846_4{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments846_5{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments846_6{"TINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments846_7{"TBIGINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments846_8{"TFLOAT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments846_9{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments846_10{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments846_11{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments846_12{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments846_13{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments846_14{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments846_15{"TSTZSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments846_16{"TSTZSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments846_17{"TSTZSPAN", "TFLOAT"};
-constexpr std::array<MeosOverload, 18> overloads846{MeosOverload{arguments846_0, "BOOLEAN", "Meos_after_tbox_tbox_0"}, MeosOverload{arguments846_1, "BOOLEAN", "Meos_after_tbox_tstzspan_0"}, MeosOverload{arguments846_2, "BOOLEAN", "Meos_after_tstzspan_tbox_0"}, MeosOverload{arguments846_3, "BOOLEAN", "Meos_after_tbox_tnumber_0"}, MeosOverload{arguments846_4, "BOOLEAN", "Meos_after_tbox_tnumber_1"}, MeosOverload{arguments846_5, "BOOLEAN", "Meos_after_tbox_tnumber_2"}, MeosOverload{arguments846_6, "BOOLEAN", "Meos_after_temporal_tstzspan_17"}, MeosOverload{arguments846_7, "BOOLEAN", "Meos_after_temporal_tstzspan_18"}, MeosOverload{arguments846_8, "BOOLEAN", "Meos_after_temporal_tstzspan_19"}, MeosOverload{arguments846_9, "BOOLEAN", "Meos_after_tnumber_tbox_0"}, MeosOverload{arguments846_10, "BOOLEAN", "Meos_after_tnumber_tbox_1"}, MeosOverload{arguments846_11, "BOOLEAN", "Meos_after_tnumber_tbox_2"}, MeosOverload{arguments846_12, "BOOLEAN", "Meos_after_tnumber_tnumber_0"}, MeosOverload{arguments846_13, "BOOLEAN", "Meos_after_tnumber_tnumber_1"}, MeosOverload{arguments846_14, "BOOLEAN", "Meos_after_tnumber_tnumber_2"}, MeosOverload{arguments846_15, "BOOLEAN", "Meos_after_tstzspan_temporal_17"}, MeosOverload{arguments846_16, "BOOLEAN", "Meos_after_tstzspan_temporal_18"}, MeosOverload{arguments846_17, "BOOLEAN", "Meos_after_tstzspan_temporal_19"}};
-constexpr std::array<std::string_view, 2> arguments847_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments847_1{"TBOX", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments847_2{"TSTZSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments847_3{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments847_4{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments847_5{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments847_6{"TINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments847_7{"TBIGINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments847_8{"TFLOAT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments847_9{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments847_10{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments847_11{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments847_12{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments847_13{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments847_14{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments847_15{"TSTZSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments847_16{"TSTZSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments847_17{"TSTZSPAN", "TFLOAT"};
-constexpr std::array<MeosOverload, 18> overloads847{MeosOverload{arguments847_0, "BOOLEAN", "Meos_before_tbox_tbox_0"}, MeosOverload{arguments847_1, "BOOLEAN", "Meos_before_tbox_tstzspan_0"}, MeosOverload{arguments847_2, "BOOLEAN", "Meos_before_tstzspan_tbox_0"}, MeosOverload{arguments847_3, "BOOLEAN", "Meos_before_tbox_tnumber_0"}, MeosOverload{arguments847_4, "BOOLEAN", "Meos_before_tbox_tnumber_1"}, MeosOverload{arguments847_5, "BOOLEAN", "Meos_before_tbox_tnumber_2"}, MeosOverload{arguments847_6, "BOOLEAN", "Meos_before_temporal_tstzspan_17"}, MeosOverload{arguments847_7, "BOOLEAN", "Meos_before_temporal_tstzspan_18"}, MeosOverload{arguments847_8, "BOOLEAN", "Meos_before_temporal_tstzspan_19"}, MeosOverload{arguments847_9, "BOOLEAN", "Meos_before_tnumber_tbox_0"}, MeosOverload{arguments847_10, "BOOLEAN", "Meos_before_tnumber_tbox_1"}, MeosOverload{arguments847_11, "BOOLEAN", "Meos_before_tnumber_tbox_2"}, MeosOverload{arguments847_12, "BOOLEAN", "Meos_before_tnumber_tnumber_0"}, MeosOverload{arguments847_13, "BOOLEAN", "Meos_before_tnumber_tnumber_1"}, MeosOverload{arguments847_14, "BOOLEAN", "Meos_before_tnumber_tnumber_2"}, MeosOverload{arguments847_15, "BOOLEAN", "Meos_before_tstzspan_temporal_17"}, MeosOverload{arguments847_16, "BOOLEAN", "Meos_before_tstzspan_temporal_18"}, MeosOverload{arguments847_17, "BOOLEAN", "Meos_before_tstzspan_temporal_19"}};
-constexpr std::array<std::string_view, 2> arguments848_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments848_1{"INTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments848_2{"BIGINTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments848_3{"FLOATSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments848_4{"TBOX", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments848_5{"TBOX", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments848_6{"TBOX", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments848_7{"TBOX", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments848_8{"TSTZSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments848_9{"INTSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments848_10{"BIGINTSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments848_11{"FLOATSPAN", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments848_12{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments848_13{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments848_14{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments848_15{"TINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments848_16{"TBIGINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments848_17{"TFLOAT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments848_18{"TINT", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments848_19{"TBIGINT", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments848_20{"TFLOAT", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments848_21{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments848_22{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments848_23{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments848_24{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments848_25{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments848_26{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments848_27{"TSTZSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments848_28{"TSTZSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments848_29{"TSTZSPAN", "TFLOAT"};
-constexpr std::array<MeosOverload, 30> overloads848{MeosOverload{arguments848_0, "BOOLEAN", "Meos_contained_tbox_tbox_0"}, MeosOverload{arguments848_1, "BOOLEAN", "Meos_contained_numspan_tbox_0"}, MeosOverload{arguments848_2, "BOOLEAN", "Meos_contained_numspan_tbox_1"}, MeosOverload{arguments848_3, "BOOLEAN", "Meos_contained_numspan_tbox_2"}, MeosOverload{arguments848_4, "BOOLEAN", "Meos_contained_tbox_numspan_0"}, MeosOverload{arguments848_5, "BOOLEAN", "Meos_contained_tbox_numspan_1"}, MeosOverload{arguments848_6, "BOOLEAN", "Meos_contained_tbox_numspan_2"}, MeosOverload{arguments848_7, "BOOLEAN", "Meos_contained_tbox_tstzspan_0"}, MeosOverload{arguments848_8, "BOOLEAN", "Meos_contained_tstzspan_tbox_0"}, MeosOverload{arguments848_9, "BOOLEAN", "Meos_contained_numspan_tnumber_0"}, MeosOverload{arguments848_10, "BOOLEAN", "Meos_contained_numspan_tnumber_1"}, MeosOverload{arguments848_11, "BOOLEAN", "Meos_contained_numspan_tnumber_2"}, MeosOverload{arguments848_12, "BOOLEAN", "Meos_contained_tbox_tnumber_0"}, MeosOverload{arguments848_13, "BOOLEAN", "Meos_contained_tbox_tnumber_1"}, MeosOverload{arguments848_14, "BOOLEAN", "Meos_contained_tbox_tnumber_2"}, MeosOverload{arguments848_15, "BOOLEAN", "Meos_contained_temporal_tstzspan_17"}, MeosOverload{arguments848_16, "BOOLEAN", "Meos_contained_temporal_tstzspan_18"}, MeosOverload{arguments848_17, "BOOLEAN", "Meos_contained_temporal_tstzspan_19"}, MeosOverload{arguments848_18, "BOOLEAN", "Meos_contained_tnumber_numspan_0"}, MeosOverload{arguments848_19, "BOOLEAN", "Meos_contained_tnumber_numspan_1"}, MeosOverload{arguments848_20, "BOOLEAN", "Meos_contained_tnumber_numspan_2"}, MeosOverload{arguments848_21, "BOOLEAN", "Meos_contained_tnumber_tbox_0"}, MeosOverload{arguments848_22, "BOOLEAN", "Meos_contained_tnumber_tbox_1"}, MeosOverload{arguments848_23, "BOOLEAN", "Meos_contained_tnumber_tbox_2"}, MeosOverload{arguments848_24, "BOOLEAN", "Meos_contained_tnumber_tnumber_0"}, MeosOverload{arguments848_25, "BOOLEAN", "Meos_contained_tnumber_tnumber_1"}, MeosOverload{arguments848_26, "BOOLEAN", "Meos_contained_tnumber_tnumber_2"}, MeosOverload{arguments848_27, "BOOLEAN", "Meos_contained_tstzspan_temporal_17"}, MeosOverload{arguments848_28, "BOOLEAN", "Meos_contained_tstzspan_temporal_18"}, MeosOverload{arguments848_29, "BOOLEAN", "Meos_contained_tstzspan_temporal_19"}};
-constexpr std::array<std::string_view, 2> arguments849_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments849_1{"INTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments849_2{"BIGINTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments849_3{"FLOATSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments849_4{"TBOX", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments849_5{"TBOX", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments849_6{"TBOX", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments849_7{"TBOX", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments849_8{"TSTZSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments849_9{"INTSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments849_10{"BIGINTSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments849_11{"FLOATSPAN", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments849_12{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments849_13{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments849_14{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments849_15{"TINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments849_16{"TBIGINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments849_17{"TFLOAT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments849_18{"TINT", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments849_19{"TBIGINT", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments849_20{"TFLOAT", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments849_21{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments849_22{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments849_23{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments849_24{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments849_25{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments849_26{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments849_27{"TSTZSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments849_28{"TSTZSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments849_29{"TSTZSPAN", "TFLOAT"};
-constexpr std::array<MeosOverload, 30> overloads849{MeosOverload{arguments849_0, "BOOLEAN", "Meos_contains_tbox_tbox_0"}, MeosOverload{arguments849_1, "BOOLEAN", "Meos_contains_numspan_tbox_0"}, MeosOverload{arguments849_2, "BOOLEAN", "Meos_contains_numspan_tbox_1"}, MeosOverload{arguments849_3, "BOOLEAN", "Meos_contains_numspan_tbox_2"}, MeosOverload{arguments849_4, "BOOLEAN", "Meos_contains_tbox_numspan_0"}, MeosOverload{arguments849_5, "BOOLEAN", "Meos_contains_tbox_numspan_1"}, MeosOverload{arguments849_6, "BOOLEAN", "Meos_contains_tbox_numspan_2"}, MeosOverload{arguments849_7, "BOOLEAN", "Meos_contains_tbox_tstzspan_0"}, MeosOverload{arguments849_8, "BOOLEAN", "Meos_contains_tstzspan_tbox_0"}, MeosOverload{arguments849_9, "BOOLEAN", "Meos_contains_numspan_tnumber_0"}, MeosOverload{arguments849_10, "BOOLEAN", "Meos_contains_numspan_tnumber_1"}, MeosOverload{arguments849_11, "BOOLEAN", "Meos_contains_numspan_tnumber_2"}, MeosOverload{arguments849_12, "BOOLEAN", "Meos_contains_tbox_tnumber_0"}, MeosOverload{arguments849_13, "BOOLEAN", "Meos_contains_tbox_tnumber_1"}, MeosOverload{arguments849_14, "BOOLEAN", "Meos_contains_tbox_tnumber_2"}, MeosOverload{arguments849_15, "BOOLEAN", "Meos_contains_temporal_tstzspan_17"}, MeosOverload{arguments849_16, "BOOLEAN", "Meos_contains_temporal_tstzspan_18"}, MeosOverload{arguments849_17, "BOOLEAN", "Meos_contains_temporal_tstzspan_19"}, MeosOverload{arguments849_18, "BOOLEAN", "Meos_contains_tnumber_numspan_0"}, MeosOverload{arguments849_19, "BOOLEAN", "Meos_contains_tnumber_numspan_1"}, MeosOverload{arguments849_20, "BOOLEAN", "Meos_contains_tnumber_numspan_2"}, MeosOverload{arguments849_21, "BOOLEAN", "Meos_contains_tnumber_tbox_0"}, MeosOverload{arguments849_22, "BOOLEAN", "Meos_contains_tnumber_tbox_1"}, MeosOverload{arguments849_23, "BOOLEAN", "Meos_contains_tnumber_tbox_2"}, MeosOverload{arguments849_24, "BOOLEAN", "Meos_contains_tnumber_tnumber_0"}, MeosOverload{arguments849_25, "BOOLEAN", "Meos_contains_tnumber_tnumber_1"}, MeosOverload{arguments849_26, "BOOLEAN", "Meos_contains_tnumber_tnumber_2"}, MeosOverload{arguments849_27, "BOOLEAN", "Meos_contains_tstzspan_temporal_17"}, MeosOverload{arguments849_28, "BOOLEAN", "Meos_contains_tstzspan_temporal_18"}, MeosOverload{arguments849_29, "BOOLEAN", "Meos_contains_tstzspan_temporal_19"}};
-constexpr std::array<std::string_view, 1> arguments850_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads850{MeosOverload{arguments850_0, "TBOX", "Meos_tbox_from_wkb_1"}};
-constexpr std::array<std::string_view, 1> arguments851_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads851{MeosOverload{arguments851_0, "TBOX", "Meos_tbox_from_hexwkb_0"}};
-constexpr std::array<std::string_view, 1> arguments852_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads852{MeosOverload{arguments852_0, "TBOX", "Meos_tbox_in_1"}};
-constexpr std::array<std::string_view, 1> arguments853_0{"TBOX"};
-constexpr std::array<MeosOverload, 1> overloads853{MeosOverload{arguments853_0, "INT32", "Meos_tbox_hash_0"}};
-constexpr std::array<std::string_view, 2> arguments854_0{"TBOX", "INT64"};
-constexpr std::array<MeosOverload, 1> overloads854{MeosOverload{arguments854_0, "INT64", "Meos_tbox_hash_extended_0"}};
+constexpr std::array<MeosOverload, 1> overloads839{MeosOverload{arguments839_0, "TBIGINT", "Meos_tbigint_in_1"}};
+constexpr std::array<std::string_view, 1> arguments840_0{"TBIGINT"};
+constexpr std::array<MeosOverload, 1> overloads840{MeosOverload{arguments840_0, "TBIGINT", "Meos_temporal_as_tinstant_16"}};
+constexpr std::array<std::string_view, 4> arguments841_0{"TBIGINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments841_1{"TBIGINT_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments841_2{"TBIGINT_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments841_3{"TBIGINT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments841_4{"TBIGINT", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads841{MeosOverload{arguments841_0, "TBIGINT", "Meos_tsequence_make_17"}, MeosOverload{arguments841_1, "TBIGINT", "Meos_tsequence_make_17_3"}, MeosOverload{arguments841_2, "TBIGINT", "Meos_tsequence_make_17_2"}, MeosOverload{arguments841_3, "TBIGINT", "Meos_tsequence_make_17_1"}, MeosOverload{arguments841_4, "TBIGINT", "Meos_temporal_as_tsequence_16"}};
+constexpr std::array<std::string_view, 1> arguments842_0{"TBIGINT_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments842_1{"TBIGINT"};
+constexpr std::array<MeosOverload, 2> overloads842{MeosOverload{arguments842_0, "TBIGINT", "Meos_tsequenceset_make_17"}, MeosOverload{arguments842_1, "TBIGINT", "Meos_temporal_as_tsequenceset_16"}};
+constexpr std::array<std::string_view, 2> arguments843_0{"BOOLEAN", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments843_1{"BOOLEAN", "TSTZSET"};
+constexpr std::array<std::string_view, 2> arguments843_2{"BOOLEAN", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments843_3{"BOOLEAN", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 3> arguments843_4{"TJSONB", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments843_5{"TJSONB", "VARSIZED"};
+constexpr std::array<MeosOverload, 6> overloads843{MeosOverload{arguments843_0, "TBOOL", "Meos_tboolinst_make_0"}, MeosOverload{arguments843_1, "TBOOL", "Meos_tboolseq_from_base_tstzset_0"}, MeosOverload{arguments843_2, "TBOOL", "Meos_tboolseq_from_base_tstzspan_0"}, MeosOverload{arguments843_3, "TBOOL", "Meos_tboolseqset_from_base_tstzspanset_0"}, MeosOverload{arguments843_4, "TBOOL", "Meos_tjsonb_to_tbool_0"}, MeosOverload{arguments843_5, "TBOOL", "Meos_tjsonb_to_tbool_0_2"}};
+constexpr std::array<std::string_view, 1> arguments844_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads844{MeosOverload{arguments844_0, "TBOOL", "Meos_temporal_from_wkb_48"}};
+constexpr std::array<std::string_view, 1> arguments845_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads845{MeosOverload{arguments845_0, "TBOOL", "Meos_temporal_from_hexwkb_29"}};
+constexpr std::array<std::string_view, 1> arguments846_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads846{MeosOverload{arguments846_0, "TBOOL", "Meos_tbool_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments847_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads847{MeosOverload{arguments847_0, "TBOOL", "Meos_tbool_in_1"}};
+constexpr std::array<std::string_view, 1> arguments848_0{"TBOOL"};
+constexpr std::array<MeosOverload, 1> overloads848{MeosOverload{arguments848_0, "TBOOL", "Meos_temporal_as_tinstant_14"}};
+constexpr std::array<std::string_view, 4> arguments849_0{"TBOOL_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments849_1{"TBOOL_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments849_2{"TBOOL_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments849_3{"TBOOL_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments849_4{"TBOOL", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads849{MeosOverload{arguments849_0, "TBOOL", "Meos_tsequence_make_15"}, MeosOverload{arguments849_1, "TBOOL", "Meos_tsequence_make_15_3"}, MeosOverload{arguments849_2, "TBOOL", "Meos_tsequence_make_15_2"}, MeosOverload{arguments849_3, "TBOOL", "Meos_tsequence_make_15_1"}, MeosOverload{arguments849_4, "TBOOL", "Meos_temporal_as_tsequence_14"}};
+constexpr std::array<std::string_view, 1> arguments850_0{"TBOOL_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments850_1{"TBOOL"};
+constexpr std::array<MeosOverload, 2> overloads850{MeosOverload{arguments850_0, "TBOOL", "Meos_tsequenceset_make_15"}, MeosOverload{arguments850_1, "TBOOL", "Meos_temporal_as_tsequenceset_14"}};
+constexpr std::array<std::string_view, 2> arguments851_0{"FLOAT64", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments851_1{"FLOAT64", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments851_2{"INT32", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments851_3{"INT64", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments851_4{"INT32", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments851_5{"INT64", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments851_6{"BIGINTSPAN", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments851_7{"INTSPAN", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments851_8{"FLOATSPAN", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments851_9{"BIGINTSPAN", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments851_10{"INTSPAN", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments851_11{"FLOATSPAN", "UINT64"};
+constexpr std::array<std::string_view, 1> arguments851_12{"FLOAT64"};
+constexpr std::array<std::string_view, 1> arguments851_13{"INT32"};
+constexpr std::array<std::string_view, 1> arguments851_14{"INT64"};
+constexpr std::array<std::string_view, 1> arguments851_15{"BIGINTSET"};
+constexpr std::array<std::string_view, 1> arguments851_16{"INTSET"};
+constexpr std::array<std::string_view, 1> arguments851_17{"FLOATSET"};
+constexpr std::array<std::string_view, 1> arguments851_18{"TSTZSET"};
+constexpr std::array<std::string_view, 1> arguments851_19{"BIGINTSPAN"};
+constexpr std::array<std::string_view, 1> arguments851_20{"INTSPAN"};
+constexpr std::array<std::string_view, 1> arguments851_21{"FLOATSPAN"};
+constexpr std::array<std::string_view, 1> arguments851_22{"TSTZSPAN"};
+constexpr std::array<std::string_view, 1> arguments851_23{"BIGINTSPANSET"};
+constexpr std::array<std::string_view, 1> arguments851_24{"INTSPANSET"};
+constexpr std::array<std::string_view, 1> arguments851_25{"FLOATSPANSET"};
+constexpr std::array<std::string_view, 1> arguments851_26{"TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments851_27{"UINT64"};
+constexpr std::array<std::string_view, 1> arguments851_28{"TINT"};
+constexpr std::array<std::string_view, 1> arguments851_29{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments851_30{"TFLOAT"};
+constexpr std::array<MeosOverload, 31> overloads851{MeosOverload{arguments851_0, "TBOX", "Meos_float_timestamptz_to_tbox_0"}, MeosOverload{arguments851_1, "TBOX", "Meos_float_tstzspan_to_tbox_0"}, MeosOverload{arguments851_2, "TBOX", "Meos_int_timestamptz_to_tbox_0"}, MeosOverload{arguments851_3, "TBOX", "Meos_bigint_timestamptz_to_tbox_0"}, MeosOverload{arguments851_4, "TBOX", "Meos_int_tstzspan_to_tbox_0"}, MeosOverload{arguments851_5, "TBOX", "Meos_bigint_tstzspan_to_tbox_0"}, MeosOverload{arguments851_6, "TBOX", "Meos_numspan_tstzspan_to_tbox_0"}, MeosOverload{arguments851_7, "TBOX", "Meos_numspan_tstzspan_to_tbox_1"}, MeosOverload{arguments851_8, "TBOX", "Meos_numspan_tstzspan_to_tbox_2"}, MeosOverload{arguments851_9, "TBOX", "Meos_numspan_timestamptz_to_tbox_0"}, MeosOverload{arguments851_10, "TBOX", "Meos_numspan_timestamptz_to_tbox_1"}, MeosOverload{arguments851_11, "TBOX", "Meos_numspan_timestamptz_to_tbox_2"}, MeosOverload{arguments851_12, "TBOX", "Meos_float_to_tbox_0"}, MeosOverload{arguments851_13, "TBOX", "Meos_int_to_tbox_0"}, MeosOverload{arguments851_14, "TBOX", "Meos_bigint_to_tbox_0"}, MeosOverload{arguments851_15, "TBOX", "Meos_set_to_tbox_0"}, MeosOverload{arguments851_16, "TBOX", "Meos_set_to_tbox_1"}, MeosOverload{arguments851_17, "TBOX", "Meos_set_to_tbox_2"}, MeosOverload{arguments851_18, "TBOX", "Meos_set_to_tbox_3"}, MeosOverload{arguments851_19, "TBOX", "Meos_span_to_tbox_0"}, MeosOverload{arguments851_20, "TBOX", "Meos_span_to_tbox_1"}, MeosOverload{arguments851_21, "TBOX", "Meos_span_to_tbox_2"}, MeosOverload{arguments851_22, "TBOX", "Meos_span_to_tbox_3"}, MeosOverload{arguments851_23, "TBOX", "Meos_spanset_to_tbox_0"}, MeosOverload{arguments851_24, "TBOX", "Meos_spanset_to_tbox_1"}, MeosOverload{arguments851_25, "TBOX", "Meos_spanset_to_tbox_2"}, MeosOverload{arguments851_26, "TBOX", "Meos_spanset_to_tbox_3"}, MeosOverload{arguments851_27, "TBOX", "Meos_timestamptz_to_tbox_0"}, MeosOverload{arguments851_28, "TBOX", "Meos_tnumber_to_tbox_0"}, MeosOverload{arguments851_29, "TBOX", "Meos_tnumber_to_tbox_1"}, MeosOverload{arguments851_30, "TBOX", "Meos_tnumber_to_tbox_2"}};
+constexpr std::array<std::string_view, 2> arguments852_0{"TBOX", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments852_1{"INTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments852_2{"BIGINTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments852_3{"FLOATSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments852_4{"TBOX", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments852_5{"TBOX", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments852_6{"TBOX", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments852_7{"TBOX", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments852_8{"TSTZSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments852_9{"INTSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments852_10{"BIGINTSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments852_11{"FLOATSPAN", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments852_12{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments852_13{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments852_14{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments852_15{"TINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments852_16{"TBIGINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments852_17{"TFLOAT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments852_18{"TINT", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments852_19{"TBIGINT", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments852_20{"TFLOAT", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments852_21{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments852_22{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments852_23{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments852_24{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments852_25{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments852_26{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments852_27{"TSTZSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments852_28{"TSTZSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments852_29{"TSTZSPAN", "TFLOAT"};
+constexpr std::array<MeosOverload, 30> overloads852{MeosOverload{arguments852_0, "BOOLEAN", "Meos_adjacent_tbox_tbox_0"}, MeosOverload{arguments852_1, "BOOLEAN", "Meos_adjacent_numspan_tbox_0"}, MeosOverload{arguments852_2, "BOOLEAN", "Meos_adjacent_numspan_tbox_1"}, MeosOverload{arguments852_3, "BOOLEAN", "Meos_adjacent_numspan_tbox_2"}, MeosOverload{arguments852_4, "BOOLEAN", "Meos_adjacent_tbox_numspan_0"}, MeosOverload{arguments852_5, "BOOLEAN", "Meos_adjacent_tbox_numspan_1"}, MeosOverload{arguments852_6, "BOOLEAN", "Meos_adjacent_tbox_numspan_2"}, MeosOverload{arguments852_7, "BOOLEAN", "Meos_adjacent_tbox_tstzspan_0"}, MeosOverload{arguments852_8, "BOOLEAN", "Meos_adjacent_tstzspan_tbox_0"}, MeosOverload{arguments852_9, "BOOLEAN", "Meos_adjacent_numspan_tnumber_0"}, MeosOverload{arguments852_10, "BOOLEAN", "Meos_adjacent_numspan_tnumber_1"}, MeosOverload{arguments852_11, "BOOLEAN", "Meos_adjacent_numspan_tnumber_2"}, MeosOverload{arguments852_12, "BOOLEAN", "Meos_adjacent_tbox_tnumber_0"}, MeosOverload{arguments852_13, "BOOLEAN", "Meos_adjacent_tbox_tnumber_1"}, MeosOverload{arguments852_14, "BOOLEAN", "Meos_adjacent_tbox_tnumber_2"}, MeosOverload{arguments852_15, "BOOLEAN", "Meos_adjacent_temporal_tstzspan_17"}, MeosOverload{arguments852_16, "BOOLEAN", "Meos_adjacent_temporal_tstzspan_18"}, MeosOverload{arguments852_17, "BOOLEAN", "Meos_adjacent_temporal_tstzspan_19"}, MeosOverload{arguments852_18, "BOOLEAN", "Meos_adjacent_tnumber_numspan_0"}, MeosOverload{arguments852_19, "BOOLEAN", "Meos_adjacent_tnumber_numspan_1"}, MeosOverload{arguments852_20, "BOOLEAN", "Meos_adjacent_tnumber_numspan_2"}, MeosOverload{arguments852_21, "BOOLEAN", "Meos_adjacent_tnumber_tbox_0"}, MeosOverload{arguments852_22, "BOOLEAN", "Meos_adjacent_tnumber_tbox_1"}, MeosOverload{arguments852_23, "BOOLEAN", "Meos_adjacent_tnumber_tbox_2"}, MeosOverload{arguments852_24, "BOOLEAN", "Meos_adjacent_tnumber_tnumber_0"}, MeosOverload{arguments852_25, "BOOLEAN", "Meos_adjacent_tnumber_tnumber_1"}, MeosOverload{arguments852_26, "BOOLEAN", "Meos_adjacent_tnumber_tnumber_2"}, MeosOverload{arguments852_27, "BOOLEAN", "Meos_adjacent_tstzspan_temporal_17"}, MeosOverload{arguments852_28, "BOOLEAN", "Meos_adjacent_tstzspan_temporal_18"}, MeosOverload{arguments852_29, "BOOLEAN", "Meos_adjacent_tstzspan_temporal_19"}};
+constexpr std::array<std::string_view, 2> arguments853_0{"TBOX", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments853_1{"TBOX", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments853_2{"TSTZSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments853_3{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments853_4{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments853_5{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments853_6{"TINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments853_7{"TBIGINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments853_8{"TFLOAT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments853_9{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments853_10{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments853_11{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments853_12{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments853_13{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments853_14{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments853_15{"TSTZSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments853_16{"TSTZSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments853_17{"TSTZSPAN", "TFLOAT"};
+constexpr std::array<MeosOverload, 18> overloads853{MeosOverload{arguments853_0, "BOOLEAN", "Meos_after_tbox_tbox_0"}, MeosOverload{arguments853_1, "BOOLEAN", "Meos_after_tbox_tstzspan_0"}, MeosOverload{arguments853_2, "BOOLEAN", "Meos_after_tstzspan_tbox_0"}, MeosOverload{arguments853_3, "BOOLEAN", "Meos_after_tbox_tnumber_0"}, MeosOverload{arguments853_4, "BOOLEAN", "Meos_after_tbox_tnumber_1"}, MeosOverload{arguments853_5, "BOOLEAN", "Meos_after_tbox_tnumber_2"}, MeosOverload{arguments853_6, "BOOLEAN", "Meos_after_temporal_tstzspan_17"}, MeosOverload{arguments853_7, "BOOLEAN", "Meos_after_temporal_tstzspan_18"}, MeosOverload{arguments853_8, "BOOLEAN", "Meos_after_temporal_tstzspan_19"}, MeosOverload{arguments853_9, "BOOLEAN", "Meos_after_tnumber_tbox_0"}, MeosOverload{arguments853_10, "BOOLEAN", "Meos_after_tnumber_tbox_1"}, MeosOverload{arguments853_11, "BOOLEAN", "Meos_after_tnumber_tbox_2"}, MeosOverload{arguments853_12, "BOOLEAN", "Meos_after_tnumber_tnumber_0"}, MeosOverload{arguments853_13, "BOOLEAN", "Meos_after_tnumber_tnumber_1"}, MeosOverload{arguments853_14, "BOOLEAN", "Meos_after_tnumber_tnumber_2"}, MeosOverload{arguments853_15, "BOOLEAN", "Meos_after_tstzspan_temporal_17"}, MeosOverload{arguments853_16, "BOOLEAN", "Meos_after_tstzspan_temporal_18"}, MeosOverload{arguments853_17, "BOOLEAN", "Meos_after_tstzspan_temporal_19"}};
+constexpr std::array<std::string_view, 2> arguments854_0{"TBOX", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments854_1{"TBOX", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments854_2{"TSTZSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments854_3{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments854_4{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments854_5{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments854_6{"TINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments854_7{"TBIGINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments854_8{"TFLOAT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments854_9{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments854_10{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments854_11{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments854_12{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments854_13{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments854_14{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments854_15{"TSTZSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments854_16{"TSTZSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments854_17{"TSTZSPAN", "TFLOAT"};
+constexpr std::array<MeosOverload, 18> overloads854{MeosOverload{arguments854_0, "BOOLEAN", "Meos_before_tbox_tbox_0"}, MeosOverload{arguments854_1, "BOOLEAN", "Meos_before_tbox_tstzspan_0"}, MeosOverload{arguments854_2, "BOOLEAN", "Meos_before_tstzspan_tbox_0"}, MeosOverload{arguments854_3, "BOOLEAN", "Meos_before_tbox_tnumber_0"}, MeosOverload{arguments854_4, "BOOLEAN", "Meos_before_tbox_tnumber_1"}, MeosOverload{arguments854_5, "BOOLEAN", "Meos_before_tbox_tnumber_2"}, MeosOverload{arguments854_6, "BOOLEAN", "Meos_before_temporal_tstzspan_17"}, MeosOverload{arguments854_7, "BOOLEAN", "Meos_before_temporal_tstzspan_18"}, MeosOverload{arguments854_8, "BOOLEAN", "Meos_before_temporal_tstzspan_19"}, MeosOverload{arguments854_9, "BOOLEAN", "Meos_before_tnumber_tbox_0"}, MeosOverload{arguments854_10, "BOOLEAN", "Meos_before_tnumber_tbox_1"}, MeosOverload{arguments854_11, "BOOLEAN", "Meos_before_tnumber_tbox_2"}, MeosOverload{arguments854_12, "BOOLEAN", "Meos_before_tnumber_tnumber_0"}, MeosOverload{arguments854_13, "BOOLEAN", "Meos_before_tnumber_tnumber_1"}, MeosOverload{arguments854_14, "BOOLEAN", "Meos_before_tnumber_tnumber_2"}, MeosOverload{arguments854_15, "BOOLEAN", "Meos_before_tstzspan_temporal_17"}, MeosOverload{arguments854_16, "BOOLEAN", "Meos_before_tstzspan_temporal_18"}, MeosOverload{arguments854_17, "BOOLEAN", "Meos_before_tstzspan_temporal_19"}};
 constexpr std::array<std::string_view, 2> arguments855_0{"TBOX", "TBOX"};
-constexpr std::array<MeosOverload, 1> overloads855{MeosOverload{arguments855_0, "TBOX", "Meos_intersection_tbox_tbox_0"}};
+constexpr std::array<std::string_view, 2> arguments855_1{"INTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments855_2{"BIGINTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments855_3{"FLOATSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments855_4{"TBOX", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments855_5{"TBOX", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments855_6{"TBOX", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments855_7{"TBOX", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments855_8{"TSTZSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments855_9{"INTSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments855_10{"BIGINTSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments855_11{"FLOATSPAN", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments855_12{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments855_13{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments855_14{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments855_15{"TINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments855_16{"TBIGINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments855_17{"TFLOAT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments855_18{"TINT", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments855_19{"TBIGINT", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments855_20{"TFLOAT", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments855_21{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments855_22{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments855_23{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments855_24{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments855_25{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments855_26{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments855_27{"TSTZSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments855_28{"TSTZSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments855_29{"TSTZSPAN", "TFLOAT"};
+constexpr std::array<MeosOverload, 30> overloads855{MeosOverload{arguments855_0, "BOOLEAN", "Meos_contained_tbox_tbox_0"}, MeosOverload{arguments855_1, "BOOLEAN", "Meos_contained_numspan_tbox_0"}, MeosOverload{arguments855_2, "BOOLEAN", "Meos_contained_numspan_tbox_1"}, MeosOverload{arguments855_3, "BOOLEAN", "Meos_contained_numspan_tbox_2"}, MeosOverload{arguments855_4, "BOOLEAN", "Meos_contained_tbox_numspan_0"}, MeosOverload{arguments855_5, "BOOLEAN", "Meos_contained_tbox_numspan_1"}, MeosOverload{arguments855_6, "BOOLEAN", "Meos_contained_tbox_numspan_2"}, MeosOverload{arguments855_7, "BOOLEAN", "Meos_contained_tbox_tstzspan_0"}, MeosOverload{arguments855_8, "BOOLEAN", "Meos_contained_tstzspan_tbox_0"}, MeosOverload{arguments855_9, "BOOLEAN", "Meos_contained_numspan_tnumber_0"}, MeosOverload{arguments855_10, "BOOLEAN", "Meos_contained_numspan_tnumber_1"}, MeosOverload{arguments855_11, "BOOLEAN", "Meos_contained_numspan_tnumber_2"}, MeosOverload{arguments855_12, "BOOLEAN", "Meos_contained_tbox_tnumber_0"}, MeosOverload{arguments855_13, "BOOLEAN", "Meos_contained_tbox_tnumber_1"}, MeosOverload{arguments855_14, "BOOLEAN", "Meos_contained_tbox_tnumber_2"}, MeosOverload{arguments855_15, "BOOLEAN", "Meos_contained_temporal_tstzspan_17"}, MeosOverload{arguments855_16, "BOOLEAN", "Meos_contained_temporal_tstzspan_18"}, MeosOverload{arguments855_17, "BOOLEAN", "Meos_contained_temporal_tstzspan_19"}, MeosOverload{arguments855_18, "BOOLEAN", "Meos_contained_tnumber_numspan_0"}, MeosOverload{arguments855_19, "BOOLEAN", "Meos_contained_tnumber_numspan_1"}, MeosOverload{arguments855_20, "BOOLEAN", "Meos_contained_tnumber_numspan_2"}, MeosOverload{arguments855_21, "BOOLEAN", "Meos_contained_tnumber_tbox_0"}, MeosOverload{arguments855_22, "BOOLEAN", "Meos_contained_tnumber_tbox_1"}, MeosOverload{arguments855_23, "BOOLEAN", "Meos_contained_tnumber_tbox_2"}, MeosOverload{arguments855_24, "BOOLEAN", "Meos_contained_tnumber_tnumber_0"}, MeosOverload{arguments855_25, "BOOLEAN", "Meos_contained_tnumber_tnumber_1"}, MeosOverload{arguments855_26, "BOOLEAN", "Meos_contained_tnumber_tnumber_2"}, MeosOverload{arguments855_27, "BOOLEAN", "Meos_contained_tstzspan_temporal_17"}, MeosOverload{arguments855_28, "BOOLEAN", "Meos_contained_tstzspan_temporal_18"}, MeosOverload{arguments855_29, "BOOLEAN", "Meos_contained_tstzspan_temporal_19"}};
 constexpr std::array<std::string_view, 2> arguments856_0{"TBOX", "TBOX"};
 constexpr std::array<std::string_view, 2> arguments856_1{"INTSPAN", "TBOX"};
 constexpr std::array<std::string_view, 2> arguments856_2{"BIGINTSPAN", "TBOX"};
@@ -8567,463 +8540,299 @@ constexpr std::array<std::string_view, 2> arguments856_3{"FLOATSPAN", "TBOX"};
 constexpr std::array<std::string_view, 2> arguments856_4{"TBOX", "INTSPAN"};
 constexpr std::array<std::string_view, 2> arguments856_5{"TBOX", "BIGINTSPAN"};
 constexpr std::array<std::string_view, 2> arguments856_6{"TBOX", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments856_7{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments856_8{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments856_9{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments856_10{"INTSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments856_11{"BIGINTSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments856_12{"FLOATSPAN", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments856_13{"TINT", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments856_14{"TBIGINT", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments856_15{"TFLOAT", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments856_16{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments856_17{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments856_18{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments856_19{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments856_20{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments856_21{"TFLOAT", "TFLOAT"};
-constexpr std::array<MeosOverload, 22> overloads856{MeosOverload{arguments856_0, "BOOLEAN", "Meos_left_tbox_tbox_0"}, MeosOverload{arguments856_1, "BOOLEAN", "Meos_left_numspan_tbox_0"}, MeosOverload{arguments856_2, "BOOLEAN", "Meos_left_numspan_tbox_1"}, MeosOverload{arguments856_3, "BOOLEAN", "Meos_left_numspan_tbox_2"}, MeosOverload{arguments856_4, "BOOLEAN", "Meos_left_tbox_numspan_0"}, MeosOverload{arguments856_5, "BOOLEAN", "Meos_left_tbox_numspan_1"}, MeosOverload{arguments856_6, "BOOLEAN", "Meos_left_tbox_numspan_2"}, MeosOverload{arguments856_7, "BOOLEAN", "Meos_left_tbox_tnumber_0"}, MeosOverload{arguments856_8, "BOOLEAN", "Meos_left_tbox_tnumber_1"}, MeosOverload{arguments856_9, "BOOLEAN", "Meos_left_tbox_tnumber_2"}, MeosOverload{arguments856_10, "BOOLEAN", "Meos_left_numspan_tnumber_0"}, MeosOverload{arguments856_11, "BOOLEAN", "Meos_left_numspan_tnumber_1"}, MeosOverload{arguments856_12, "BOOLEAN", "Meos_left_numspan_tnumber_2"}, MeosOverload{arguments856_13, "BOOLEAN", "Meos_left_tnumber_numspan_0"}, MeosOverload{arguments856_14, "BOOLEAN", "Meos_left_tnumber_numspan_1"}, MeosOverload{arguments856_15, "BOOLEAN", "Meos_left_tnumber_numspan_2"}, MeosOverload{arguments856_16, "BOOLEAN", "Meos_left_tnumber_tbox_0"}, MeosOverload{arguments856_17, "BOOLEAN", "Meos_left_tnumber_tbox_1"}, MeosOverload{arguments856_18, "BOOLEAN", "Meos_left_tnumber_tbox_2"}, MeosOverload{arguments856_19, "BOOLEAN", "Meos_left_tnumber_tnumber_0"}, MeosOverload{arguments856_20, "BOOLEAN", "Meos_left_tnumber_tnumber_1"}, MeosOverload{arguments856_21, "BOOLEAN", "Meos_left_tnumber_tnumber_2"}};
-constexpr std::array<std::string_view, 2> arguments857_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments857_1{"TBOX", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments857_2{"TSTZSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments857_3{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments857_4{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments857_5{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments857_6{"TINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments857_7{"TBIGINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments857_8{"TFLOAT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments857_9{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments857_10{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments857_11{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments857_12{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments857_13{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments857_14{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments857_15{"TSTZSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments857_16{"TSTZSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments857_17{"TSTZSPAN", "TFLOAT"};
-constexpr std::array<MeosOverload, 18> overloads857{MeosOverload{arguments857_0, "BOOLEAN", "Meos_overafter_tbox_tbox_0"}, MeosOverload{arguments857_1, "BOOLEAN", "Meos_overafter_tbox_tstzspan_0"}, MeosOverload{arguments857_2, "BOOLEAN", "Meos_overafter_tstzspan_tbox_0"}, MeosOverload{arguments857_3, "BOOLEAN", "Meos_overafter_tbox_tnumber_0"}, MeosOverload{arguments857_4, "BOOLEAN", "Meos_overafter_tbox_tnumber_1"}, MeosOverload{arguments857_5, "BOOLEAN", "Meos_overafter_tbox_tnumber_2"}, MeosOverload{arguments857_6, "BOOLEAN", "Meos_overafter_temporal_tstzspan_17"}, MeosOverload{arguments857_7, "BOOLEAN", "Meos_overafter_temporal_tstzspan_18"}, MeosOverload{arguments857_8, "BOOLEAN", "Meos_overafter_temporal_tstzspan_19"}, MeosOverload{arguments857_9, "BOOLEAN", "Meos_overafter_tnumber_tbox_0"}, MeosOverload{arguments857_10, "BOOLEAN", "Meos_overafter_tnumber_tbox_1"}, MeosOverload{arguments857_11, "BOOLEAN", "Meos_overafter_tnumber_tbox_2"}, MeosOverload{arguments857_12, "BOOLEAN", "Meos_overafter_tnumber_tnumber_0"}, MeosOverload{arguments857_13, "BOOLEAN", "Meos_overafter_tnumber_tnumber_1"}, MeosOverload{arguments857_14, "BOOLEAN", "Meos_overafter_tnumber_tnumber_2"}, MeosOverload{arguments857_15, "BOOLEAN", "Meos_overafter_tstzspan_temporal_17"}, MeosOverload{arguments857_16, "BOOLEAN", "Meos_overafter_tstzspan_temporal_18"}, MeosOverload{arguments857_17, "BOOLEAN", "Meos_overafter_tstzspan_temporal_19"}};
-constexpr std::array<std::string_view, 2> arguments858_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments858_1{"TBOX", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments858_2{"TSTZSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments858_3{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments858_4{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments858_5{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments858_6{"TINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments858_7{"TBIGINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments858_8{"TFLOAT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments858_9{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments858_10{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments858_11{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments858_12{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments858_13{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments858_14{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments858_15{"TSTZSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments858_16{"TSTZSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments858_17{"TSTZSPAN", "TFLOAT"};
-constexpr std::array<MeosOverload, 18> overloads858{MeosOverload{arguments858_0, "BOOLEAN", "Meos_overbefore_tbox_tbox_0"}, MeosOverload{arguments858_1, "BOOLEAN", "Meos_overbefore_tbox_tstzspan_0"}, MeosOverload{arguments858_2, "BOOLEAN", "Meos_overbefore_tstzspan_tbox_0"}, MeosOverload{arguments858_3, "BOOLEAN", "Meos_overbefore_tbox_tnumber_0"}, MeosOverload{arguments858_4, "BOOLEAN", "Meos_overbefore_tbox_tnumber_1"}, MeosOverload{arguments858_5, "BOOLEAN", "Meos_overbefore_tbox_tnumber_2"}, MeosOverload{arguments858_6, "BOOLEAN", "Meos_overbefore_temporal_tstzspan_17"}, MeosOverload{arguments858_7, "BOOLEAN", "Meos_overbefore_temporal_tstzspan_18"}, MeosOverload{arguments858_8, "BOOLEAN", "Meos_overbefore_temporal_tstzspan_19"}, MeosOverload{arguments858_9, "BOOLEAN", "Meos_overbefore_tnumber_tbox_0"}, MeosOverload{arguments858_10, "BOOLEAN", "Meos_overbefore_tnumber_tbox_1"}, MeosOverload{arguments858_11, "BOOLEAN", "Meos_overbefore_tnumber_tbox_2"}, MeosOverload{arguments858_12, "BOOLEAN", "Meos_overbefore_tnumber_tnumber_0"}, MeosOverload{arguments858_13, "BOOLEAN", "Meos_overbefore_tnumber_tnumber_1"}, MeosOverload{arguments858_14, "BOOLEAN", "Meos_overbefore_tnumber_tnumber_2"}, MeosOverload{arguments858_15, "BOOLEAN", "Meos_overbefore_tstzspan_temporal_17"}, MeosOverload{arguments858_16, "BOOLEAN", "Meos_overbefore_tstzspan_temporal_18"}, MeosOverload{arguments858_17, "BOOLEAN", "Meos_overbefore_tstzspan_temporal_19"}};
-constexpr std::array<std::string_view, 2> arguments859_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments859_1{"INTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments859_2{"BIGINTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments859_3{"FLOATSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments859_4{"TBOX", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments859_5{"TBOX", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments859_6{"TBOX", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments859_7{"TBOX", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments859_8{"TSTZSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments859_9{"INTSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments859_10{"BIGINTSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments859_11{"FLOATSPAN", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments859_12{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments859_13{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments859_14{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments859_15{"TINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments859_16{"TBIGINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments859_17{"TFLOAT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments859_18{"TINT", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments859_19{"TBIGINT", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments859_20{"TFLOAT", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments859_21{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments859_22{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments859_23{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments859_24{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments859_25{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments859_26{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments859_27{"TSTZSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments859_28{"TSTZSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments859_29{"TSTZSPAN", "TFLOAT"};
-constexpr std::array<MeosOverload, 30> overloads859{MeosOverload{arguments859_0, "BOOLEAN", "Meos_overlaps_tbox_tbox_0"}, MeosOverload{arguments859_1, "BOOLEAN", "Meos_overlaps_numspan_tbox_0"}, MeosOverload{arguments859_2, "BOOLEAN", "Meos_overlaps_numspan_tbox_1"}, MeosOverload{arguments859_3, "BOOLEAN", "Meos_overlaps_numspan_tbox_2"}, MeosOverload{arguments859_4, "BOOLEAN", "Meos_overlaps_tbox_numspan_0"}, MeosOverload{arguments859_5, "BOOLEAN", "Meos_overlaps_tbox_numspan_1"}, MeosOverload{arguments859_6, "BOOLEAN", "Meos_overlaps_tbox_numspan_2"}, MeosOverload{arguments859_7, "BOOLEAN", "Meos_overlaps_tbox_tstzspan_0"}, MeosOverload{arguments859_8, "BOOLEAN", "Meos_overlaps_tstzspan_tbox_0"}, MeosOverload{arguments859_9, "BOOLEAN", "Meos_overlaps_numspan_tnumber_0"}, MeosOverload{arguments859_10, "BOOLEAN", "Meos_overlaps_numspan_tnumber_1"}, MeosOverload{arguments859_11, "BOOLEAN", "Meos_overlaps_numspan_tnumber_2"}, MeosOverload{arguments859_12, "BOOLEAN", "Meos_overlaps_tbox_tnumber_0"}, MeosOverload{arguments859_13, "BOOLEAN", "Meos_overlaps_tbox_tnumber_1"}, MeosOverload{arguments859_14, "BOOLEAN", "Meos_overlaps_tbox_tnumber_2"}, MeosOverload{arguments859_15, "BOOLEAN", "Meos_overlaps_temporal_tstzspan_17"}, MeosOverload{arguments859_16, "BOOLEAN", "Meos_overlaps_temporal_tstzspan_18"}, MeosOverload{arguments859_17, "BOOLEAN", "Meos_overlaps_temporal_tstzspan_19"}, MeosOverload{arguments859_18, "BOOLEAN", "Meos_overlaps_tnumber_numspan_0"}, MeosOverload{arguments859_19, "BOOLEAN", "Meos_overlaps_tnumber_numspan_1"}, MeosOverload{arguments859_20, "BOOLEAN", "Meos_overlaps_tnumber_numspan_2"}, MeosOverload{arguments859_21, "BOOLEAN", "Meos_overlaps_tnumber_tbox_0"}, MeosOverload{arguments859_22, "BOOLEAN", "Meos_overlaps_tnumber_tbox_1"}, MeosOverload{arguments859_23, "BOOLEAN", "Meos_overlaps_tnumber_tbox_2"}, MeosOverload{arguments859_24, "BOOLEAN", "Meos_overlaps_tnumber_tnumber_0"}, MeosOverload{arguments859_25, "BOOLEAN", "Meos_overlaps_tnumber_tnumber_1"}, MeosOverload{arguments859_26, "BOOLEAN", "Meos_overlaps_tnumber_tnumber_2"}, MeosOverload{arguments859_27, "BOOLEAN", "Meos_overlaps_tstzspan_temporal_17"}, MeosOverload{arguments859_28, "BOOLEAN", "Meos_overlaps_tstzspan_temporal_18"}, MeosOverload{arguments859_29, "BOOLEAN", "Meos_overlaps_tstzspan_temporal_19"}};
-constexpr std::array<std::string_view, 2> arguments860_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments860_1{"INTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments860_2{"BIGINTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments860_3{"FLOATSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments860_4{"TBOX", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments860_5{"TBOX", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments860_6{"TBOX", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments860_7{"INTSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments860_8{"BIGINTSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments860_9{"FLOATSPAN", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments860_10{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments860_11{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments860_12{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments860_13{"TINT", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments860_14{"TBIGINT", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments860_15{"TFLOAT", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments860_16{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments860_17{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments860_18{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments860_19{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments860_20{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments860_21{"TFLOAT", "TFLOAT"};
-constexpr std::array<MeosOverload, 22> overloads860{MeosOverload{arguments860_0, "BOOLEAN", "Meos_overleft_tbox_tbox_0"}, MeosOverload{arguments860_1, "BOOLEAN", "Meos_overleft_numspan_tbox_0"}, MeosOverload{arguments860_2, "BOOLEAN", "Meos_overleft_numspan_tbox_1"}, MeosOverload{arguments860_3, "BOOLEAN", "Meos_overleft_numspan_tbox_2"}, MeosOverload{arguments860_4, "BOOLEAN", "Meos_overleft_tbox_numspan_0"}, MeosOverload{arguments860_5, "BOOLEAN", "Meos_overleft_tbox_numspan_1"}, MeosOverload{arguments860_6, "BOOLEAN", "Meos_overleft_tbox_numspan_2"}, MeosOverload{arguments860_7, "BOOLEAN", "Meos_overleft_numspan_tnumber_0"}, MeosOverload{arguments860_8, "BOOLEAN", "Meos_overleft_numspan_tnumber_1"}, MeosOverload{arguments860_9, "BOOLEAN", "Meos_overleft_numspan_tnumber_2"}, MeosOverload{arguments860_10, "BOOLEAN", "Meos_overleft_tbox_tnumber_0"}, MeosOverload{arguments860_11, "BOOLEAN", "Meos_overleft_tbox_tnumber_1"}, MeosOverload{arguments860_12, "BOOLEAN", "Meos_overleft_tbox_tnumber_2"}, MeosOverload{arguments860_13, "BOOLEAN", "Meos_overleft_tnumber_numspan_0"}, MeosOverload{arguments860_14, "BOOLEAN", "Meos_overleft_tnumber_numspan_1"}, MeosOverload{arguments860_15, "BOOLEAN", "Meos_overleft_tnumber_numspan_2"}, MeosOverload{arguments860_16, "BOOLEAN", "Meos_overleft_tnumber_tbox_0"}, MeosOverload{arguments860_17, "BOOLEAN", "Meos_overleft_tnumber_tbox_1"}, MeosOverload{arguments860_18, "BOOLEAN", "Meos_overleft_tnumber_tbox_2"}, MeosOverload{arguments860_19, "BOOLEAN", "Meos_overleft_tnumber_tnumber_0"}, MeosOverload{arguments860_20, "BOOLEAN", "Meos_overleft_tnumber_tnumber_1"}, MeosOverload{arguments860_21, "BOOLEAN", "Meos_overleft_tnumber_tnumber_2"}};
-constexpr std::array<std::string_view, 2> arguments861_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments861_1{"INTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments861_2{"BIGINTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments861_3{"FLOATSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments861_4{"TBOX", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments861_5{"TBOX", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments861_6{"TBOX", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments861_7{"INTSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments861_8{"BIGINTSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments861_9{"FLOATSPAN", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments861_10{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments861_11{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments861_12{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments861_13{"TINT", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments861_14{"TBIGINT", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments861_15{"TFLOAT", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments861_16{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments861_17{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments861_18{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments861_19{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments861_20{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments861_21{"TFLOAT", "TFLOAT"};
-constexpr std::array<MeosOverload, 22> overloads861{MeosOverload{arguments861_0, "BOOLEAN", "Meos_overright_tbox_tbox_0"}, MeosOverload{arguments861_1, "BOOLEAN", "Meos_overright_numspan_tbox_0"}, MeosOverload{arguments861_2, "BOOLEAN", "Meos_overright_numspan_tbox_1"}, MeosOverload{arguments861_3, "BOOLEAN", "Meos_overright_numspan_tbox_2"}, MeosOverload{arguments861_4, "BOOLEAN", "Meos_overright_tbox_numspan_0"}, MeosOverload{arguments861_5, "BOOLEAN", "Meos_overright_tbox_numspan_1"}, MeosOverload{arguments861_6, "BOOLEAN", "Meos_overright_tbox_numspan_2"}, MeosOverload{arguments861_7, "BOOLEAN", "Meos_overright_numspan_tnumber_0"}, MeosOverload{arguments861_8, "BOOLEAN", "Meos_overright_numspan_tnumber_1"}, MeosOverload{arguments861_9, "BOOLEAN", "Meos_overright_numspan_tnumber_2"}, MeosOverload{arguments861_10, "BOOLEAN", "Meos_overright_tbox_tnumber_0"}, MeosOverload{arguments861_11, "BOOLEAN", "Meos_overright_tbox_tnumber_1"}, MeosOverload{arguments861_12, "BOOLEAN", "Meos_overright_tbox_tnumber_2"}, MeosOverload{arguments861_13, "BOOLEAN", "Meos_overright_tnumber_numspan_0"}, MeosOverload{arguments861_14, "BOOLEAN", "Meos_overright_tnumber_numspan_1"}, MeosOverload{arguments861_15, "BOOLEAN", "Meos_overright_tnumber_numspan_2"}, MeosOverload{arguments861_16, "BOOLEAN", "Meos_overright_tnumber_tbox_0"}, MeosOverload{arguments861_17, "BOOLEAN", "Meos_overright_tnumber_tbox_1"}, MeosOverload{arguments861_18, "BOOLEAN", "Meos_overright_tnumber_tbox_2"}, MeosOverload{arguments861_19, "BOOLEAN", "Meos_overright_tnumber_tnumber_0"}, MeosOverload{arguments861_20, "BOOLEAN", "Meos_overright_tnumber_tnumber_1"}, MeosOverload{arguments861_21, "BOOLEAN", "Meos_overright_tnumber_tnumber_2"}};
+constexpr std::array<std::string_view, 2> arguments856_7{"TBOX", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments856_8{"TSTZSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments856_9{"INTSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments856_10{"BIGINTSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments856_11{"FLOATSPAN", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments856_12{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments856_13{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments856_14{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments856_15{"TINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments856_16{"TBIGINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments856_17{"TFLOAT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments856_18{"TINT", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments856_19{"TBIGINT", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments856_20{"TFLOAT", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments856_21{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments856_22{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments856_23{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments856_24{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments856_25{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments856_26{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments856_27{"TSTZSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments856_28{"TSTZSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments856_29{"TSTZSPAN", "TFLOAT"};
+constexpr std::array<MeosOverload, 30> overloads856{MeosOverload{arguments856_0, "BOOLEAN", "Meos_contains_tbox_tbox_0"}, MeosOverload{arguments856_1, "BOOLEAN", "Meos_contains_numspan_tbox_0"}, MeosOverload{arguments856_2, "BOOLEAN", "Meos_contains_numspan_tbox_1"}, MeosOverload{arguments856_3, "BOOLEAN", "Meos_contains_numspan_tbox_2"}, MeosOverload{arguments856_4, "BOOLEAN", "Meos_contains_tbox_numspan_0"}, MeosOverload{arguments856_5, "BOOLEAN", "Meos_contains_tbox_numspan_1"}, MeosOverload{arguments856_6, "BOOLEAN", "Meos_contains_tbox_numspan_2"}, MeosOverload{arguments856_7, "BOOLEAN", "Meos_contains_tbox_tstzspan_0"}, MeosOverload{arguments856_8, "BOOLEAN", "Meos_contains_tstzspan_tbox_0"}, MeosOverload{arguments856_9, "BOOLEAN", "Meos_contains_numspan_tnumber_0"}, MeosOverload{arguments856_10, "BOOLEAN", "Meos_contains_numspan_tnumber_1"}, MeosOverload{arguments856_11, "BOOLEAN", "Meos_contains_numspan_tnumber_2"}, MeosOverload{arguments856_12, "BOOLEAN", "Meos_contains_tbox_tnumber_0"}, MeosOverload{arguments856_13, "BOOLEAN", "Meos_contains_tbox_tnumber_1"}, MeosOverload{arguments856_14, "BOOLEAN", "Meos_contains_tbox_tnumber_2"}, MeosOverload{arguments856_15, "BOOLEAN", "Meos_contains_temporal_tstzspan_17"}, MeosOverload{arguments856_16, "BOOLEAN", "Meos_contains_temporal_tstzspan_18"}, MeosOverload{arguments856_17, "BOOLEAN", "Meos_contains_temporal_tstzspan_19"}, MeosOverload{arguments856_18, "BOOLEAN", "Meos_contains_tnumber_numspan_0"}, MeosOverload{arguments856_19, "BOOLEAN", "Meos_contains_tnumber_numspan_1"}, MeosOverload{arguments856_20, "BOOLEAN", "Meos_contains_tnumber_numspan_2"}, MeosOverload{arguments856_21, "BOOLEAN", "Meos_contains_tnumber_tbox_0"}, MeosOverload{arguments856_22, "BOOLEAN", "Meos_contains_tnumber_tbox_1"}, MeosOverload{arguments856_23, "BOOLEAN", "Meos_contains_tnumber_tbox_2"}, MeosOverload{arguments856_24, "BOOLEAN", "Meos_contains_tnumber_tnumber_0"}, MeosOverload{arguments856_25, "BOOLEAN", "Meos_contains_tnumber_tnumber_1"}, MeosOverload{arguments856_26, "BOOLEAN", "Meos_contains_tnumber_tnumber_2"}, MeosOverload{arguments856_27, "BOOLEAN", "Meos_contains_tstzspan_temporal_17"}, MeosOverload{arguments856_28, "BOOLEAN", "Meos_contains_tstzspan_temporal_18"}, MeosOverload{arguments856_29, "BOOLEAN", "Meos_contains_tstzspan_temporal_19"}};
+constexpr std::array<std::string_view, 1> arguments857_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads857{MeosOverload{arguments857_0, "TBOX", "Meos_tbox_from_wkb_1"}};
+constexpr std::array<std::string_view, 1> arguments858_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads858{MeosOverload{arguments858_0, "TBOX", "Meos_tbox_from_hexwkb_0"}};
+constexpr std::array<std::string_view, 1> arguments859_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads859{MeosOverload{arguments859_0, "TBOX", "Meos_tbox_in_1"}};
+constexpr std::array<std::string_view, 1> arguments860_0{"TBOX"};
+constexpr std::array<MeosOverload, 1> overloads860{MeosOverload{arguments860_0, "INT32", "Meos_tbox_hash_0"}};
+constexpr std::array<std::string_view, 2> arguments861_0{"TBOX", "INT64"};
+constexpr std::array<MeosOverload, 1> overloads861{MeosOverload{arguments861_0, "INT64", "Meos_tbox_hash_extended_0"}};
 constexpr std::array<std::string_view, 2> arguments862_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments862_1{"INTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments862_2{"BIGINTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments862_3{"FLOATSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments862_4{"TBOX", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments862_5{"TBOX", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments862_6{"TBOX", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments862_7{"INTSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments862_8{"BIGINTSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments862_9{"FLOATSPAN", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments862_10{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments862_11{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments862_12{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments862_13{"TINT", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments862_14{"TBIGINT", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments862_15{"TFLOAT", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments862_16{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments862_17{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments862_18{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments862_19{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments862_20{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments862_21{"TFLOAT", "TFLOAT"};
-constexpr std::array<MeosOverload, 22> overloads862{MeosOverload{arguments862_0, "BOOLEAN", "Meos_right_tbox_tbox_0"}, MeosOverload{arguments862_1, "BOOLEAN", "Meos_right_numspan_tbox_0"}, MeosOverload{arguments862_2, "BOOLEAN", "Meos_right_numspan_tbox_1"}, MeosOverload{arguments862_3, "BOOLEAN", "Meos_right_numspan_tbox_2"}, MeosOverload{arguments862_4, "BOOLEAN", "Meos_right_tbox_numspan_0"}, MeosOverload{arguments862_5, "BOOLEAN", "Meos_right_tbox_numspan_1"}, MeosOverload{arguments862_6, "BOOLEAN", "Meos_right_tbox_numspan_2"}, MeosOverload{arguments862_7, "BOOLEAN", "Meos_right_numspan_tnumber_0"}, MeosOverload{arguments862_8, "BOOLEAN", "Meos_right_numspan_tnumber_1"}, MeosOverload{arguments862_9, "BOOLEAN", "Meos_right_numspan_tnumber_2"}, MeosOverload{arguments862_10, "BOOLEAN", "Meos_right_tbox_tnumber_0"}, MeosOverload{arguments862_11, "BOOLEAN", "Meos_right_tbox_tnumber_1"}, MeosOverload{arguments862_12, "BOOLEAN", "Meos_right_tbox_tnumber_2"}, MeosOverload{arguments862_13, "BOOLEAN", "Meos_right_tnumber_numspan_0"}, MeosOverload{arguments862_14, "BOOLEAN", "Meos_right_tnumber_numspan_1"}, MeosOverload{arguments862_15, "BOOLEAN", "Meos_right_tnumber_numspan_2"}, MeosOverload{arguments862_16, "BOOLEAN", "Meos_right_tnumber_tbox_0"}, MeosOverload{arguments862_17, "BOOLEAN", "Meos_right_tnumber_tbox_1"}, MeosOverload{arguments862_18, "BOOLEAN", "Meos_right_tnumber_tbox_2"}, MeosOverload{arguments862_19, "BOOLEAN", "Meos_right_tnumber_tnumber_0"}, MeosOverload{arguments862_20, "BOOLEAN", "Meos_right_tnumber_tnumber_1"}, MeosOverload{arguments862_21, "BOOLEAN", "Meos_right_tnumber_tnumber_2"}};
-constexpr std::array<std::string_view, 2> arguments863_0{"TBOX", "INT32"};
-constexpr std::array<std::string_view, 1> arguments863_1{"TBOX"};
-constexpr std::array<MeosOverload, 2> overloads863{MeosOverload{arguments863_0, "TBOX", "Meos_tbox_round_0"}, MeosOverload{arguments863_1, "TBOX", "Meos_tbox_round_0_1"}};
+constexpr std::array<MeosOverload, 1> overloads862{MeosOverload{arguments862_0, "TBOX", "Meos_intersection_tbox_tbox_0"}};
+constexpr std::array<std::string_view, 2> arguments863_0{"TBOX", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments863_1{"INTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments863_2{"BIGINTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments863_3{"FLOATSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments863_4{"TBOX", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments863_5{"TBOX", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments863_6{"TBOX", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments863_7{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments863_8{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments863_9{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments863_10{"INTSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments863_11{"BIGINTSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments863_12{"FLOATSPAN", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments863_13{"TINT", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments863_14{"TBIGINT", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments863_15{"TFLOAT", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments863_16{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments863_17{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments863_18{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments863_19{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments863_20{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments863_21{"TFLOAT", "TFLOAT"};
+constexpr std::array<MeosOverload, 22> overloads863{MeosOverload{arguments863_0, "BOOLEAN", "Meos_left_tbox_tbox_0"}, MeosOverload{arguments863_1, "BOOLEAN", "Meos_left_numspan_tbox_0"}, MeosOverload{arguments863_2, "BOOLEAN", "Meos_left_numspan_tbox_1"}, MeosOverload{arguments863_3, "BOOLEAN", "Meos_left_numspan_tbox_2"}, MeosOverload{arguments863_4, "BOOLEAN", "Meos_left_tbox_numspan_0"}, MeosOverload{arguments863_5, "BOOLEAN", "Meos_left_tbox_numspan_1"}, MeosOverload{arguments863_6, "BOOLEAN", "Meos_left_tbox_numspan_2"}, MeosOverload{arguments863_7, "BOOLEAN", "Meos_left_tbox_tnumber_0"}, MeosOverload{arguments863_8, "BOOLEAN", "Meos_left_tbox_tnumber_1"}, MeosOverload{arguments863_9, "BOOLEAN", "Meos_left_tbox_tnumber_2"}, MeosOverload{arguments863_10, "BOOLEAN", "Meos_left_numspan_tnumber_0"}, MeosOverload{arguments863_11, "BOOLEAN", "Meos_left_numspan_tnumber_1"}, MeosOverload{arguments863_12, "BOOLEAN", "Meos_left_numspan_tnumber_2"}, MeosOverload{arguments863_13, "BOOLEAN", "Meos_left_tnumber_numspan_0"}, MeosOverload{arguments863_14, "BOOLEAN", "Meos_left_tnumber_numspan_1"}, MeosOverload{arguments863_15, "BOOLEAN", "Meos_left_tnumber_numspan_2"}, MeosOverload{arguments863_16, "BOOLEAN", "Meos_left_tnumber_tbox_0"}, MeosOverload{arguments863_17, "BOOLEAN", "Meos_left_tnumber_tbox_1"}, MeosOverload{arguments863_18, "BOOLEAN", "Meos_left_tnumber_tbox_2"}, MeosOverload{arguments863_19, "BOOLEAN", "Meos_left_tnumber_tnumber_0"}, MeosOverload{arguments863_20, "BOOLEAN", "Meos_left_tnumber_tnumber_1"}, MeosOverload{arguments863_21, "BOOLEAN", "Meos_left_tnumber_tnumber_2"}};
 constexpr std::array<std::string_view, 2> arguments864_0{"TBOX", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments864_1{"INTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments864_2{"BIGINTSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments864_3{"FLOATSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments864_4{"TBOX", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments864_5{"TBOX", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments864_6{"TBOX", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments864_7{"TBOX", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments864_8{"TSTZSPAN", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments864_9{"INTSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments864_10{"BIGINTSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments864_11{"FLOATSPAN", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments864_12{"TBOX", "TINT"};
-constexpr std::array<std::string_view, 2> arguments864_13{"TBOX", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments864_14{"TBOX", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments864_15{"TINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments864_16{"TBIGINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments864_17{"TFLOAT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments864_18{"TINT", "INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments864_19{"TBIGINT", "BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments864_20{"TFLOAT", "FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments864_21{"TINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments864_22{"TBIGINT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments864_23{"TFLOAT", "TBOX"};
-constexpr std::array<std::string_view, 2> arguments864_24{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments864_25{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments864_26{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments864_27{"TSTZSPAN", "TINT"};
-constexpr std::array<std::string_view, 2> arguments864_28{"TSTZSPAN", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments864_29{"TSTZSPAN", "TFLOAT"};
-constexpr std::array<MeosOverload, 30> overloads864{MeosOverload{arguments864_0, "BOOLEAN", "Meos_same_tbox_tbox_0"}, MeosOverload{arguments864_1, "BOOLEAN", "Meos_same_numspan_tbox_0"}, MeosOverload{arguments864_2, "BOOLEAN", "Meos_same_numspan_tbox_1"}, MeosOverload{arguments864_3, "BOOLEAN", "Meos_same_numspan_tbox_2"}, MeosOverload{arguments864_4, "BOOLEAN", "Meos_same_tbox_numspan_0"}, MeosOverload{arguments864_5, "BOOLEAN", "Meos_same_tbox_numspan_1"}, MeosOverload{arguments864_6, "BOOLEAN", "Meos_same_tbox_numspan_2"}, MeosOverload{arguments864_7, "BOOLEAN", "Meos_same_tbox_tstzspan_0"}, MeosOverload{arguments864_8, "BOOLEAN", "Meos_same_tstzspan_tbox_0"}, MeosOverload{arguments864_9, "BOOLEAN", "Meos_same_numspan_tnumber_0"}, MeosOverload{arguments864_10, "BOOLEAN", "Meos_same_numspan_tnumber_1"}, MeosOverload{arguments864_11, "BOOLEAN", "Meos_same_numspan_tnumber_2"}, MeosOverload{arguments864_12, "BOOLEAN", "Meos_same_tbox_tnumber_0"}, MeosOverload{arguments864_13, "BOOLEAN", "Meos_same_tbox_tnumber_1"}, MeosOverload{arguments864_14, "BOOLEAN", "Meos_same_tbox_tnumber_2"}, MeosOverload{arguments864_15, "BOOLEAN", "Meos_same_temporal_tstzspan_17"}, MeosOverload{arguments864_16, "BOOLEAN", "Meos_same_temporal_tstzspan_18"}, MeosOverload{arguments864_17, "BOOLEAN", "Meos_same_temporal_tstzspan_19"}, MeosOverload{arguments864_18, "BOOLEAN", "Meos_same_tnumber_numspan_0"}, MeosOverload{arguments864_19, "BOOLEAN", "Meos_same_tnumber_numspan_1"}, MeosOverload{arguments864_20, "BOOLEAN", "Meos_same_tnumber_numspan_2"}, MeosOverload{arguments864_21, "BOOLEAN", "Meos_same_tnumber_tbox_0"}, MeosOverload{arguments864_22, "BOOLEAN", "Meos_same_tnumber_tbox_1"}, MeosOverload{arguments864_23, "BOOLEAN", "Meos_same_tnumber_tbox_2"}, MeosOverload{arguments864_24, "BOOLEAN", "Meos_same_tnumber_tnumber_0"}, MeosOverload{arguments864_25, "BOOLEAN", "Meos_same_tnumber_tnumber_1"}, MeosOverload{arguments864_26, "BOOLEAN", "Meos_same_tnumber_tnumber_2"}, MeosOverload{arguments864_27, "BOOLEAN", "Meos_same_tstzspan_temporal_17"}, MeosOverload{arguments864_28, "BOOLEAN", "Meos_same_tstzspan_temporal_18"}, MeosOverload{arguments864_29, "BOOLEAN", "Meos_same_tstzspan_temporal_19"}};
+constexpr std::array<std::string_view, 2> arguments864_1{"TBOX", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments864_2{"TSTZSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments864_3{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments864_4{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments864_5{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments864_6{"TINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments864_7{"TBIGINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments864_8{"TFLOAT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments864_9{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments864_10{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments864_11{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments864_12{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments864_13{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments864_14{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments864_15{"TSTZSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments864_16{"TSTZSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments864_17{"TSTZSPAN", "TFLOAT"};
+constexpr std::array<MeosOverload, 18> overloads864{MeosOverload{arguments864_0, "BOOLEAN", "Meos_overafter_tbox_tbox_0"}, MeosOverload{arguments864_1, "BOOLEAN", "Meos_overafter_tbox_tstzspan_0"}, MeosOverload{arguments864_2, "BOOLEAN", "Meos_overafter_tstzspan_tbox_0"}, MeosOverload{arguments864_3, "BOOLEAN", "Meos_overafter_tbox_tnumber_0"}, MeosOverload{arguments864_4, "BOOLEAN", "Meos_overafter_tbox_tnumber_1"}, MeosOverload{arguments864_5, "BOOLEAN", "Meos_overafter_tbox_tnumber_2"}, MeosOverload{arguments864_6, "BOOLEAN", "Meos_overafter_temporal_tstzspan_17"}, MeosOverload{arguments864_7, "BOOLEAN", "Meos_overafter_temporal_tstzspan_18"}, MeosOverload{arguments864_8, "BOOLEAN", "Meos_overafter_temporal_tstzspan_19"}, MeosOverload{arguments864_9, "BOOLEAN", "Meos_overafter_tnumber_tbox_0"}, MeosOverload{arguments864_10, "BOOLEAN", "Meos_overafter_tnumber_tbox_1"}, MeosOverload{arguments864_11, "BOOLEAN", "Meos_overafter_tnumber_tbox_2"}, MeosOverload{arguments864_12, "BOOLEAN", "Meos_overafter_tnumber_tnumber_0"}, MeosOverload{arguments864_13, "BOOLEAN", "Meos_overafter_tnumber_tnumber_1"}, MeosOverload{arguments864_14, "BOOLEAN", "Meos_overafter_tnumber_tnumber_2"}, MeosOverload{arguments864_15, "BOOLEAN", "Meos_overafter_tstzspan_temporal_17"}, MeosOverload{arguments864_16, "BOOLEAN", "Meos_overafter_tstzspan_temporal_18"}, MeosOverload{arguments864_17, "BOOLEAN", "Meos_overafter_tstzspan_temporal_19"}};
 constexpr std::array<std::string_view, 2> arguments865_0{"TBOX", "TBOX"};
-constexpr std::array<MeosOverload, 1> overloads865{MeosOverload{arguments865_0, "TBOX", "Meos_union_tbox_tbox_0"}};
-constexpr std::array<std::string_view, 1> arguments866_0{"TINT"};
-constexpr std::array<std::string_view, 1> arguments866_1{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments866_2{"TFLOAT"};
-constexpr std::array<MeosOverload, 3> overloads866{MeosOverload{arguments866_0, "TBOX_ARRAY", "Meos_tnumber_tboxes_0"}, MeosOverload{arguments866_1, "TBOX_ARRAY", "Meos_tnumber_tboxes_1"}, MeosOverload{arguments866_2, "TBOX_ARRAY", "Meos_tnumber_tboxes_2"}};
-constexpr std::array<std::string_view, 2> arguments867_0{"CBUFFER", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments867_1{"TGEOMPOINT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments867_2{"CBUFFER", "TSTZSET"};
-constexpr std::array<std::string_view, 3> arguments867_3{"CBUFFER", "TSTZSPAN", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments867_4{"CBUFFER", "TSTZSPAN"};
-constexpr std::array<std::string_view, 3> arguments867_5{"CBUFFER", "TSTZSPANSET", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments867_6{"CBUFFER", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments867_7{"TGEOMPOINT"};
-constexpr std::array<std::string_view, 1> arguments867_8{"TGEOMETRY"};
-constexpr std::array<MeosOverload, 9> overloads867{MeosOverload{arguments867_0, "TCBUFFER", "Meos_tcbufferinst_make_0"}, MeosOverload{arguments867_1, "TCBUFFER", "Meos_tcbuffer_make_0"}, MeosOverload{arguments867_2, "TCBUFFER", "Meos_tcbufferseq_from_base_tstzset_0"}, MeosOverload{arguments867_3, "TCBUFFER", "Meos_tcbufferseq_from_base_tstzspan_0"}, MeosOverload{arguments867_4, "TCBUFFER", "Meos_tcbufferseq_from_base_tstzspan_0_2"}, MeosOverload{arguments867_5, "TCBUFFER", "Meos_tcbufferseqset_from_base_tstzspanset_0"}, MeosOverload{arguments867_6, "TCBUFFER", "Meos_tcbufferseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments867_7, "TCBUFFER", "Meos_tgeometry_to_tcbuffer_0"}, MeosOverload{arguments867_8, "TCBUFFER", "Meos_tgeometry_to_tcbuffer_1"}};
-constexpr std::array<std::string_view, 1> arguments868_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads868{MeosOverload{arguments868_0, "TCBUFFER", "Meos_temporal_from_wkb_19"}};
-constexpr std::array<std::string_view, 1> arguments869_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads869{MeosOverload{arguments869_0, "TCBUFFER", "Meos_temporal_from_wkb_20"}};
-constexpr std::array<std::string_view, 1> arguments870_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads870{MeosOverload{arguments870_0, "TCBUFFER", "Meos_tcbuffer_in_2"}};
-constexpr std::array<std::string_view, 1> arguments871_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads871{MeosOverload{arguments871_0, "TCBUFFER", "Meos_temporal_from_hexwkb_1"}};
-constexpr std::array<std::string_view, 1> arguments872_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads872{MeosOverload{arguments872_0, "TCBUFFER", "Meos_temporal_from_hexwkb_0"}};
-constexpr std::array<std::string_view, 1> arguments873_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads873{MeosOverload{arguments873_0, "TCBUFFER", "Meos_tcbuffer_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments874_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads874{MeosOverload{arguments874_0, "TCBUFFER", "Meos_tcbuffer_in_1"}};
-constexpr std::array<std::string_view, 1> arguments875_0{"TCBUFFER"};
-constexpr std::array<MeosOverload, 1> overloads875{MeosOverload{arguments875_0, "TCBUFFER", "Meos_temporal_as_tinstant_0"}};
-constexpr std::array<std::string_view, 4> arguments876_0{"TCBUFFER_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments876_1{"TCBUFFER_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments876_2{"TCBUFFER_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments876_3{"TCBUFFER_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments876_4{"TCBUFFER", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads876{MeosOverload{arguments876_0, "TCBUFFER", "Meos_tsequence_make_0"}, MeosOverload{arguments876_1, "TCBUFFER", "Meos_tsequence_make_0_3"}, MeosOverload{arguments876_2, "TCBUFFER", "Meos_tsequence_make_0_2"}, MeosOverload{arguments876_3, "TCBUFFER", "Meos_tsequence_make_0_1"}, MeosOverload{arguments876_4, "TCBUFFER", "Meos_temporal_as_tsequence_0"}};
-constexpr std::array<std::string_view, 1> arguments877_0{"TCBUFFER_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments877_1{"TCBUFFER", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads877{MeosOverload{arguments877_0, "TCBUFFER", "Meos_tsequenceset_make_0"}, MeosOverload{arguments877_1, "TCBUFFER", "Meos_temporal_as_tsequenceset_0"}};
-constexpr std::array<std::string_view, 1> arguments878_0{"TCBUFFER"};
-constexpr std::array<std::string_view, 1> arguments878_1{"TGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments878_2{"TGEOGRAPHY"};
-constexpr std::array<std::string_view, 1> arguments878_3{"TGEOMPOINT"};
-constexpr std::array<std::string_view, 1> arguments878_4{"TGEOGPOINT"};
-constexpr std::array<std::string_view, 1> arguments878_5{"TH3INDEX"};
-constexpr std::array<std::string_view, 1> arguments878_6{"TJSONB"};
-constexpr std::array<std::string_view, 1> arguments878_7{"TNPOINT"};
-constexpr std::array<std::string_view, 1> arguments878_8{"TPCPOINT"};
-constexpr std::array<std::string_view, 1> arguments878_9{"TPCPATCH"};
-constexpr std::array<std::string_view, 1> arguments878_10{"TPOSE"};
-constexpr std::array<std::string_view, 1> arguments878_11{"TPOSECHAIN"};
-constexpr std::array<std::string_view, 1> arguments878_12{"TQUADBIN"};
-constexpr std::array<std::string_view, 1> arguments878_13{"TRGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments878_14{"TS2CELL"};
-constexpr std::array<std::string_view, 1> arguments878_15{"TBOOL"};
-constexpr std::array<std::string_view, 1> arguments878_16{"TINT"};
-constexpr std::array<std::string_view, 1> arguments878_17{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments878_18{"TFLOAT"};
-constexpr std::array<std::string_view, 1> arguments878_19{"TTEXT"};
-constexpr std::array<MeosOverload, 20> overloads878{MeosOverload{arguments878_0, "VARSIZED", "Meos_temporal_basetype_name_0"}, MeosOverload{arguments878_1, "VARSIZED", "Meos_temporal_basetype_name_1"}, MeosOverload{arguments878_2, "VARSIZED", "Meos_temporal_basetype_name_2"}, MeosOverload{arguments878_3, "VARSIZED", "Meos_temporal_basetype_name_3"}, MeosOverload{arguments878_4, "VARSIZED", "Meos_temporal_basetype_name_4"}, MeosOverload{arguments878_5, "VARSIZED", "Meos_temporal_basetype_name_5"}, MeosOverload{arguments878_6, "VARSIZED", "Meos_temporal_basetype_name_6"}, MeosOverload{arguments878_7, "VARSIZED", "Meos_temporal_basetype_name_7"}, MeosOverload{arguments878_8, "VARSIZED", "Meos_temporal_basetype_name_8"}, MeosOverload{arguments878_9, "VARSIZED", "Meos_temporal_basetype_name_9"}, MeosOverload{arguments878_10, "VARSIZED", "Meos_temporal_basetype_name_10"}, MeosOverload{arguments878_11, "VARSIZED", "Meos_temporal_basetype_name_11"}, MeosOverload{arguments878_12, "VARSIZED", "Meos_temporal_basetype_name_12"}, MeosOverload{arguments878_13, "VARSIZED", "Meos_temporal_basetype_name_13"}, MeosOverload{arguments878_14, "VARSIZED", "Meos_temporal_basetype_name_14"}, MeosOverload{arguments878_15, "VARSIZED", "Meos_temporal_basetype_name_15"}, MeosOverload{arguments878_16, "VARSIZED", "Meos_temporal_basetype_name_16"}, MeosOverload{arguments878_17, "VARSIZED", "Meos_temporal_basetype_name_17"}, MeosOverload{arguments878_18, "VARSIZED", "Meos_temporal_basetype_name_18"}, MeosOverload{arguments878_19, "VARSIZED", "Meos_temporal_basetype_name_19"}};
-constexpr std::array<std::string_view, 1> arguments879_0{"TCBUFFER"};
-constexpr std::array<std::string_view, 1> arguments879_1{"TGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments879_2{"TGEOGRAPHY"};
-constexpr std::array<std::string_view, 1> arguments879_3{"TGEOMPOINT"};
-constexpr std::array<std::string_view, 1> arguments879_4{"TGEOGPOINT"};
-constexpr std::array<std::string_view, 1> arguments879_5{"TH3INDEX"};
-constexpr std::array<std::string_view, 1> arguments879_6{"TJSONB"};
-constexpr std::array<std::string_view, 1> arguments879_7{"TNPOINT"};
-constexpr std::array<std::string_view, 1> arguments879_8{"TPCPOINT"};
-constexpr std::array<std::string_view, 1> arguments879_9{"TPCPATCH"};
-constexpr std::array<std::string_view, 1> arguments879_10{"TPOSE"};
-constexpr std::array<std::string_view, 1> arguments879_11{"TPOSECHAIN"};
-constexpr std::array<std::string_view, 1> arguments879_12{"TQUADBIN"};
-constexpr std::array<std::string_view, 1> arguments879_13{"TRGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments879_14{"TS2CELL"};
-constexpr std::array<std::string_view, 1> arguments879_15{"TBOOL"};
-constexpr std::array<std::string_view, 1> arguments879_16{"TINT"};
-constexpr std::array<std::string_view, 1> arguments879_17{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments879_18{"TFLOAT"};
-constexpr std::array<std::string_view, 1> arguments879_19{"TTEXT"};
-constexpr std::array<MeosOverload, 20> overloads879{MeosOverload{arguments879_0, "VARSIZED", "Meos_temporal_subtype_0"}, MeosOverload{arguments879_1, "VARSIZED", "Meos_temporal_subtype_1"}, MeosOverload{arguments879_2, "VARSIZED", "Meos_temporal_subtype_2"}, MeosOverload{arguments879_3, "VARSIZED", "Meos_temporal_subtype_3"}, MeosOverload{arguments879_4, "VARSIZED", "Meos_temporal_subtype_4"}, MeosOverload{arguments879_5, "VARSIZED", "Meos_temporal_subtype_5"}, MeosOverload{arguments879_6, "VARSIZED", "Meos_temporal_subtype_6"}, MeosOverload{arguments879_7, "VARSIZED", "Meos_temporal_subtype_7"}, MeosOverload{arguments879_8, "VARSIZED", "Meos_temporal_subtype_8"}, MeosOverload{arguments879_9, "VARSIZED", "Meos_temporal_subtype_9"}, MeosOverload{arguments879_10, "VARSIZED", "Meos_temporal_subtype_10"}, MeosOverload{arguments879_11, "VARSIZED", "Meos_temporal_subtype_11"}, MeosOverload{arguments879_12, "VARSIZED", "Meos_temporal_subtype_12"}, MeosOverload{arguments879_13, "VARSIZED", "Meos_temporal_subtype_13"}, MeosOverload{arguments879_14, "VARSIZED", "Meos_temporal_subtype_14"}, MeosOverload{arguments879_15, "VARSIZED", "Meos_temporal_subtype_15"}, MeosOverload{arguments879_16, "VARSIZED", "Meos_temporal_subtype_16"}, MeosOverload{arguments879_17, "VARSIZED", "Meos_temporal_subtype_17"}, MeosOverload{arguments879_18, "VARSIZED", "Meos_temporal_subtype_18"}, MeosOverload{arguments879_19, "VARSIZED", "Meos_temporal_subtype_19"}};
-constexpr std::array<std::string_view, 1> arguments880_0{"TCBUFFER"};
-constexpr std::array<std::string_view, 1> arguments880_1{"TGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments880_2{"TGEOGRAPHY"};
-constexpr std::array<std::string_view, 1> arguments880_3{"TGEOMPOINT"};
-constexpr std::array<std::string_view, 1> arguments880_4{"TGEOGPOINT"};
-constexpr std::array<std::string_view, 1> arguments880_5{"TH3INDEX"};
-constexpr std::array<std::string_view, 1> arguments880_6{"TJSONB"};
-constexpr std::array<std::string_view, 1> arguments880_7{"TNPOINT"};
-constexpr std::array<std::string_view, 1> arguments880_8{"TPCPOINT"};
-constexpr std::array<std::string_view, 1> arguments880_9{"TPCPATCH"};
-constexpr std::array<std::string_view, 1> arguments880_10{"TPOSE"};
-constexpr std::array<std::string_view, 1> arguments880_11{"TPOSECHAIN"};
-constexpr std::array<std::string_view, 1> arguments880_12{"TQUADBIN"};
-constexpr std::array<std::string_view, 1> arguments880_13{"TRGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments880_14{"TS2CELL"};
-constexpr std::array<std::string_view, 1> arguments880_15{"TBOOL"};
-constexpr std::array<std::string_view, 1> arguments880_16{"TINT"};
-constexpr std::array<std::string_view, 1> arguments880_17{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments880_18{"TFLOAT"};
-constexpr std::array<std::string_view, 1> arguments880_19{"TTEXT"};
-constexpr std::array<MeosOverload, 20> overloads880{MeosOverload{arguments880_0, "INT32", "Meos_temporal_hash_0"}, MeosOverload{arguments880_1, "INT32", "Meos_temporal_hash_1"}, MeosOverload{arguments880_2, "INT32", "Meos_temporal_hash_2"}, MeosOverload{arguments880_3, "INT32", "Meos_temporal_hash_3"}, MeosOverload{arguments880_4, "INT32", "Meos_temporal_hash_4"}, MeosOverload{arguments880_5, "INT32", "Meos_temporal_hash_5"}, MeosOverload{arguments880_6, "INT32", "Meos_temporal_hash_6"}, MeosOverload{arguments880_7, "INT32", "Meos_temporal_hash_7"}, MeosOverload{arguments880_8, "INT32", "Meos_temporal_hash_8"}, MeosOverload{arguments880_9, "INT32", "Meos_temporal_hash_9"}, MeosOverload{arguments880_10, "INT32", "Meos_temporal_hash_10"}, MeosOverload{arguments880_11, "INT32", "Meos_temporal_hash_11"}, MeosOverload{arguments880_12, "INT32", "Meos_temporal_hash_12"}, MeosOverload{arguments880_13, "INT32", "Meos_temporal_hash_13"}, MeosOverload{arguments880_14, "INT32", "Meos_temporal_hash_14"}, MeosOverload{arguments880_15, "INT32", "Meos_temporal_hash_15"}, MeosOverload{arguments880_16, "INT32", "Meos_temporal_hash_16"}, MeosOverload{arguments880_17, "INT32", "Meos_temporal_hash_17"}, MeosOverload{arguments880_18, "INT32", "Meos_temporal_hash_18"}, MeosOverload{arguments880_19, "INT32", "Meos_temporal_hash_19"}};
-constexpr std::array<std::string_view, 2> arguments881_0{"TCBUFFER", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_1{"TGEOMETRY", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_2{"TGEOGRAPHY", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_3{"TGEOMPOINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_4{"TGEOGPOINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_5{"TH3INDEX", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_6{"TJSONB", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_7{"TNPOINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_8{"TPCPOINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_9{"TPCPATCH", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_10{"TPOSE", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_11{"TPOSECHAIN", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_12{"TQUADBIN", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_13{"TRGEOMETRY", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_14{"TS2CELL", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_15{"TBOOL", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_16{"TINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_17{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_18{"TFLOAT", "INT64"};
-constexpr std::array<std::string_view, 2> arguments881_19{"TTEXT", "INT64"};
-constexpr std::array<MeosOverload, 20> overloads881{MeosOverload{arguments881_0, "INT64", "Meos_temporal_hash_extended_0"}, MeosOverload{arguments881_1, "INT64", "Meos_temporal_hash_extended_1"}, MeosOverload{arguments881_2, "INT64", "Meos_temporal_hash_extended_2"}, MeosOverload{arguments881_3, "INT64", "Meos_temporal_hash_extended_3"}, MeosOverload{arguments881_4, "INT64", "Meos_temporal_hash_extended_4"}, MeosOverload{arguments881_5, "INT64", "Meos_temporal_hash_extended_5"}, MeosOverload{arguments881_6, "INT64", "Meos_temporal_hash_extended_6"}, MeosOverload{arguments881_7, "INT64", "Meos_temporal_hash_extended_7"}, MeosOverload{arguments881_8, "INT64", "Meos_temporal_hash_extended_8"}, MeosOverload{arguments881_9, "INT64", "Meos_temporal_hash_extended_9"}, MeosOverload{arguments881_10, "INT64", "Meos_temporal_hash_extended_10"}, MeosOverload{arguments881_11, "INT64", "Meos_temporal_hash_extended_11"}, MeosOverload{arguments881_12, "INT64", "Meos_temporal_hash_extended_12"}, MeosOverload{arguments881_13, "INT64", "Meos_temporal_hash_extended_13"}, MeosOverload{arguments881_14, "INT64", "Meos_temporal_hash_extended_14"}, MeosOverload{arguments881_15, "INT64", "Meos_temporal_hash_extended_15"}, MeosOverload{arguments881_16, "INT64", "Meos_temporal_hash_extended_16"}, MeosOverload{arguments881_17, "INT64", "Meos_temporal_hash_extended_17"}, MeosOverload{arguments881_18, "INT64", "Meos_temporal_hash_extended_18"}, MeosOverload{arguments881_19, "INT64", "Meos_temporal_hash_extended_19"}};
-constexpr std::array<std::string_view, 3> arguments882_0{"TCBUFFER", "TCBUFFER", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_1{"TCBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 3> arguments882_2{"TGEOMETRY", "TGEOMETRY", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_3{"TGEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 3> arguments882_4{"TGEOGRAPHY", "TGEOGRAPHY", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_5{"TGEOGRAPHY", "TGEOGRAPHY"};
-constexpr std::array<std::string_view, 3> arguments882_6{"TGEOMPOINT", "TGEOMPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_7{"TGEOMPOINT", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 3> arguments882_8{"TGEOGPOINT", "TGEOGPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_9{"TGEOGPOINT", "TGEOGPOINT"};
-constexpr std::array<std::string_view, 3> arguments882_10{"TH3INDEX", "TH3INDEX", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_11{"TH3INDEX", "TH3INDEX"};
-constexpr std::array<std::string_view, 3> arguments882_12{"TJSONB", "TJSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_13{"TJSONB", "TJSONB"};
-constexpr std::array<std::string_view, 3> arguments882_14{"TNPOINT", "TNPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_15{"TNPOINT", "TNPOINT"};
-constexpr std::array<std::string_view, 3> arguments882_16{"TPCPOINT", "TPCPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_17{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 3> arguments882_18{"TPCPATCH", "TPCPATCH", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_19{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<std::string_view, 3> arguments882_20{"TPOSE", "TPOSE", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_21{"TPOSE", "TPOSE"};
-constexpr std::array<std::string_view, 3> arguments882_22{"TPOSECHAIN", "TPOSECHAIN", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_23{"TPOSECHAIN", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 3> arguments882_24{"TQUADBIN", "TQUADBIN", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_25{"TQUADBIN", "TQUADBIN"};
-constexpr std::array<std::string_view, 3> arguments882_26{"TRGEOMETRY", "TRGEOMETRY", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_27{"TRGEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 3> arguments882_28{"TS2CELL", "TS2CELL", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_29{"TS2CELL", "TS2CELL"};
-constexpr std::array<std::string_view, 3> arguments882_30{"TBOOL", "TBOOL", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_31{"TBOOL", "TBOOL"};
-constexpr std::array<std::string_view, 3> arguments882_32{"TINT", "TINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_33{"TINT", "TINT"};
-constexpr std::array<std::string_view, 3> arguments882_34{"TBIGINT", "TBIGINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_35{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 3> arguments882_36{"TFLOAT", "TFLOAT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_37{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 3> arguments882_38{"TTEXT", "TTEXT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments882_39{"TTEXT", "TTEXT"};
-constexpr std::array<MeosOverload, 40> overloads882{MeosOverload{arguments882_0, "TCBUFFER", "Meos_temporal_insert_0"}, MeosOverload{arguments882_1, "TCBUFFER", "Meos_temporal_insert_0_2"}, MeosOverload{arguments882_2, "TGEOMETRY", "Meos_temporal_insert_1"}, MeosOverload{arguments882_3, "TGEOMETRY", "Meos_temporal_insert_1_2"}, MeosOverload{arguments882_4, "TGEOGRAPHY", "Meos_temporal_insert_2"}, MeosOverload{arguments882_5, "TGEOGRAPHY", "Meos_temporal_insert_2_2"}, MeosOverload{arguments882_6, "TGEOMPOINT", "Meos_temporal_insert_3"}, MeosOverload{arguments882_7, "TGEOMPOINT", "Meos_temporal_insert_3_2"}, MeosOverload{arguments882_8, "TGEOGPOINT", "Meos_temporal_insert_4"}, MeosOverload{arguments882_9, "TGEOGPOINT", "Meos_temporal_insert_4_2"}, MeosOverload{arguments882_10, "TH3INDEX", "Meos_temporal_insert_5"}, MeosOverload{arguments882_11, "TH3INDEX", "Meos_temporal_insert_5_2"}, MeosOverload{arguments882_12, "TJSONB", "Meos_temporal_insert_6"}, MeosOverload{arguments882_13, "TJSONB", "Meos_temporal_insert_6_2"}, MeosOverload{arguments882_14, "TNPOINT", "Meos_temporal_insert_7"}, MeosOverload{arguments882_15, "TNPOINT", "Meos_temporal_insert_7_2"}, MeosOverload{arguments882_16, "TPCPOINT", "Meos_temporal_insert_8"}, MeosOverload{arguments882_17, "TPCPOINT", "Meos_temporal_insert_8_2"}, MeosOverload{arguments882_18, "TPCPATCH", "Meos_temporal_insert_9"}, MeosOverload{arguments882_19, "TPCPATCH", "Meos_temporal_insert_9_2"}, MeosOverload{arguments882_20, "TPOSE", "Meos_temporal_insert_10"}, MeosOverload{arguments882_21, "TPOSE", "Meos_temporal_insert_10_2"}, MeosOverload{arguments882_22, "TPOSECHAIN", "Meos_temporal_insert_11"}, MeosOverload{arguments882_23, "TPOSECHAIN", "Meos_temporal_insert_11_2"}, MeosOverload{arguments882_24, "TQUADBIN", "Meos_temporal_insert_12"}, MeosOverload{arguments882_25, "TQUADBIN", "Meos_temporal_insert_12_2"}, MeosOverload{arguments882_26, "TRGEOMETRY", "Meos_temporal_insert_13"}, MeosOverload{arguments882_27, "TRGEOMETRY", "Meos_temporal_insert_13_2"}, MeosOverload{arguments882_28, "TS2CELL", "Meos_temporal_insert_14"}, MeosOverload{arguments882_29, "TS2CELL", "Meos_temporal_insert_14_2"}, MeosOverload{arguments882_30, "TBOOL", "Meos_temporal_insert_15"}, MeosOverload{arguments882_31, "TBOOL", "Meos_temporal_insert_15_2"}, MeosOverload{arguments882_32, "TINT", "Meos_temporal_insert_16"}, MeosOverload{arguments882_33, "TINT", "Meos_temporal_insert_16_2"}, MeosOverload{arguments882_34, "TBIGINT", "Meos_temporal_insert_17"}, MeosOverload{arguments882_35, "TBIGINT", "Meos_temporal_insert_17_2"}, MeosOverload{arguments882_36, "TFLOAT", "Meos_temporal_insert_18"}, MeosOverload{arguments882_37, "TFLOAT", "Meos_temporal_insert_18_2"}, MeosOverload{arguments882_38, "TTEXT", "Meos_temporal_insert_19"}, MeosOverload{arguments882_39, "TTEXT", "Meos_temporal_insert_19_2"}};
-constexpr std::array<std::string_view, 1> arguments883_0{"TCBUFFER"};
-constexpr std::array<std::string_view, 1> arguments883_1{"TGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments883_2{"TGEOGRAPHY"};
-constexpr std::array<std::string_view, 1> arguments883_3{"TGEOMPOINT"};
-constexpr std::array<std::string_view, 1> arguments883_4{"TGEOGPOINT"};
-constexpr std::array<std::string_view, 1> arguments883_5{"TH3INDEX"};
-constexpr std::array<std::string_view, 1> arguments883_6{"TJSONB"};
-constexpr std::array<std::string_view, 1> arguments883_7{"TNPOINT"};
-constexpr std::array<std::string_view, 1> arguments883_8{"TPCPOINT"};
-constexpr std::array<std::string_view, 1> arguments883_9{"TPCPATCH"};
-constexpr std::array<std::string_view, 1> arguments883_10{"TPOSE"};
-constexpr std::array<std::string_view, 1> arguments883_11{"TPOSECHAIN"};
-constexpr std::array<std::string_view, 1> arguments883_12{"TQUADBIN"};
-constexpr std::array<std::string_view, 1> arguments883_13{"TRGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments883_14{"TS2CELL"};
-constexpr std::array<std::string_view, 1> arguments883_15{"TBOOL"};
-constexpr std::array<std::string_view, 1> arguments883_16{"TINT"};
-constexpr std::array<std::string_view, 1> arguments883_17{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments883_18{"TFLOAT"};
-constexpr std::array<std::string_view, 1> arguments883_19{"TTEXT"};
-constexpr std::array<MeosOverload, 20> overloads883{MeosOverload{arguments883_0, "BOOLEAN", "Meos_temporal_lower_inc_0"}, MeosOverload{arguments883_1, "BOOLEAN", "Meos_temporal_lower_inc_1"}, MeosOverload{arguments883_2, "BOOLEAN", "Meos_temporal_lower_inc_2"}, MeosOverload{arguments883_3, "BOOLEAN", "Meos_temporal_lower_inc_3"}, MeosOverload{arguments883_4, "BOOLEAN", "Meos_temporal_lower_inc_4"}, MeosOverload{arguments883_5, "BOOLEAN", "Meos_temporal_lower_inc_5"}, MeosOverload{arguments883_6, "BOOLEAN", "Meos_temporal_lower_inc_6"}, MeosOverload{arguments883_7, "BOOLEAN", "Meos_temporal_lower_inc_7"}, MeosOverload{arguments883_8, "BOOLEAN", "Meos_temporal_lower_inc_8"}, MeosOverload{arguments883_9, "BOOLEAN", "Meos_temporal_lower_inc_9"}, MeosOverload{arguments883_10, "BOOLEAN", "Meos_temporal_lower_inc_10"}, MeosOverload{arguments883_11, "BOOLEAN", "Meos_temporal_lower_inc_11"}, MeosOverload{arguments883_12, "BOOLEAN", "Meos_temporal_lower_inc_12"}, MeosOverload{arguments883_13, "BOOLEAN", "Meos_temporal_lower_inc_13"}, MeosOverload{arguments883_14, "BOOLEAN", "Meos_temporal_lower_inc_14"}, MeosOverload{arguments883_15, "BOOLEAN", "Meos_temporal_lower_inc_15"}, MeosOverload{arguments883_16, "BOOLEAN", "Meos_temporal_lower_inc_16"}, MeosOverload{arguments883_17, "BOOLEAN", "Meos_temporal_lower_inc_17"}, MeosOverload{arguments883_18, "BOOLEAN", "Meos_temporal_lower_inc_18"}, MeosOverload{arguments883_19, "BOOLEAN", "Meos_temporal_lower_inc_19"}};
-constexpr std::array<std::string_view, 2> arguments884_0{"TCBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments884_1{"TGEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments884_2{"TGEOGRAPHY", "TGEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments884_3{"TGEOMPOINT", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments884_4{"TGEOGPOINT", "TGEOGPOINT"};
-constexpr std::array<std::string_view, 2> arguments884_5{"TH3INDEX", "TH3INDEX"};
-constexpr std::array<std::string_view, 2> arguments884_6{"TJSONB", "TJSONB"};
-constexpr std::array<std::string_view, 2> arguments884_7{"TNPOINT", "TNPOINT"};
-constexpr std::array<std::string_view, 2> arguments884_8{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments884_9{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments884_10{"TPOSE", "TPOSE"};
-constexpr std::array<std::string_view, 2> arguments884_11{"TPOSECHAIN", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 2> arguments884_12{"TQUADBIN", "TQUADBIN"};
-constexpr std::array<std::string_view, 2> arguments884_13{"TRGEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments884_14{"TS2CELL", "TS2CELL"};
-constexpr std::array<std::string_view, 2> arguments884_15{"TBOOL", "TBOOL"};
-constexpr std::array<std::string_view, 2> arguments884_16{"TINT", "TINT"};
-constexpr std::array<std::string_view, 2> arguments884_17{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 2> arguments884_18{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 2> arguments884_19{"TTEXT", "TTEXT"};
-constexpr std::array<std::string_view, 1> arguments884_20{"TCBUFFER_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_21{"TGEOMETRY_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_22{"TGEOGRAPHY_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_23{"TGEOMPOINT_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_24{"TGEOGPOINT_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_25{"TH3INDEX_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_26{"TJSONB_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_27{"TNPOINT_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_28{"TPCPOINT_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_29{"TPCPATCH_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_30{"TPOSE_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_31{"TPOSECHAIN_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_32{"TQUADBIN_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_33{"TRGEOMETRY_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_34{"TS2CELL_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_35{"TBOOL_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_36{"TINT_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_37{"TBIGINT_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_38{"TFLOAT_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments884_39{"TTEXT_ARRAY"};
-constexpr std::array<MeosOverload, 40> overloads884{MeosOverload{arguments884_0, "TCBUFFER", "Meos_temporal_merge_0"}, MeosOverload{arguments884_1, "TGEOMETRY", "Meos_temporal_merge_1"}, MeosOverload{arguments884_2, "TGEOGRAPHY", "Meos_temporal_merge_2"}, MeosOverload{arguments884_3, "TGEOMPOINT", "Meos_temporal_merge_3"}, MeosOverload{arguments884_4, "TGEOGPOINT", "Meos_temporal_merge_4"}, MeosOverload{arguments884_5, "TH3INDEX", "Meos_temporal_merge_5"}, MeosOverload{arguments884_6, "TJSONB", "Meos_temporal_merge_6"}, MeosOverload{arguments884_7, "TNPOINT", "Meos_temporal_merge_7"}, MeosOverload{arguments884_8, "TPCPOINT", "Meos_temporal_merge_8"}, MeosOverload{arguments884_9, "TPCPATCH", "Meos_temporal_merge_9"}, MeosOverload{arguments884_10, "TPOSE", "Meos_temporal_merge_10"}, MeosOverload{arguments884_11, "TPOSECHAIN", "Meos_temporal_merge_11"}, MeosOverload{arguments884_12, "TQUADBIN", "Meos_temporal_merge_12"}, MeosOverload{arguments884_13, "TRGEOMETRY", "Meos_temporal_merge_13"}, MeosOverload{arguments884_14, "TS2CELL", "Meos_temporal_merge_14"}, MeosOverload{arguments884_15, "TBOOL", "Meos_temporal_merge_15"}, MeosOverload{arguments884_16, "TINT", "Meos_temporal_merge_16"}, MeosOverload{arguments884_17, "TBIGINT", "Meos_temporal_merge_17"}, MeosOverload{arguments884_18, "TFLOAT", "Meos_temporal_merge_18"}, MeosOverload{arguments884_19, "TTEXT", "Meos_temporal_merge_19"}, MeosOverload{arguments884_20, "TCBUFFER", "Meos_temporal_merge_array_0"}, MeosOverload{arguments884_21, "TGEOMETRY", "Meos_temporal_merge_array_1"}, MeosOverload{arguments884_22, "TGEOGRAPHY", "Meos_temporal_merge_array_2"}, MeosOverload{arguments884_23, "TGEOMPOINT", "Meos_temporal_merge_array_3"}, MeosOverload{arguments884_24, "TGEOGPOINT", "Meos_temporal_merge_array_4"}, MeosOverload{arguments884_25, "TH3INDEX", "Meos_temporal_merge_array_5"}, MeosOverload{arguments884_26, "TJSONB", "Meos_temporal_merge_array_6"}, MeosOverload{arguments884_27, "TNPOINT", "Meos_temporal_merge_array_7"}, MeosOverload{arguments884_28, "TPCPOINT", "Meos_temporal_merge_array_8"}, MeosOverload{arguments884_29, "TPCPATCH", "Meos_temporal_merge_array_9"}, MeosOverload{arguments884_30, "TPOSE", "Meos_temporal_merge_array_10"}, MeosOverload{arguments884_31, "TPOSECHAIN", "Meos_temporal_merge_array_11"}, MeosOverload{arguments884_32, "TQUADBIN", "Meos_temporal_merge_array_12"}, MeosOverload{arguments884_33, "TRGEOMETRY", "Meos_temporal_merge_array_13"}, MeosOverload{arguments884_34, "TS2CELL", "Meos_temporal_merge_array_14"}, MeosOverload{arguments884_35, "TBOOL", "Meos_temporal_merge_array_15"}, MeosOverload{arguments884_36, "TINT", "Meos_temporal_merge_array_16"}, MeosOverload{arguments884_37, "TBIGINT", "Meos_temporal_merge_array_17"}, MeosOverload{arguments884_38, "TFLOAT", "Meos_temporal_merge_array_18"}, MeosOverload{arguments884_39, "TTEXT", "Meos_temporal_merge_array_19"}};
-constexpr std::array<std::string_view, 3> arguments885_0{"TCBUFFER", "TCBUFFER", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_1{"TCBUFFER", "TCBUFFER"};
-constexpr std::array<std::string_view, 3> arguments885_2{"TGEOMETRY", "TGEOMETRY", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_3{"TGEOMETRY", "TGEOMETRY"};
-constexpr std::array<std::string_view, 3> arguments885_4{"TGEOGRAPHY", "TGEOGRAPHY", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_5{"TGEOGRAPHY", "TGEOGRAPHY"};
-constexpr std::array<std::string_view, 3> arguments885_6{"TGEOMPOINT", "TGEOMPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_7{"TGEOMPOINT", "TGEOMPOINT"};
-constexpr std::array<std::string_view, 3> arguments885_8{"TGEOGPOINT", "TGEOGPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_9{"TGEOGPOINT", "TGEOGPOINT"};
-constexpr std::array<std::string_view, 3> arguments885_10{"TH3INDEX", "TH3INDEX", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_11{"TH3INDEX", "TH3INDEX"};
-constexpr std::array<std::string_view, 3> arguments885_12{"TJSONB", "TJSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_13{"TJSONB", "TJSONB"};
-constexpr std::array<std::string_view, 3> arguments885_14{"TNPOINT", "TNPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_15{"TNPOINT", "TNPOINT"};
-constexpr std::array<std::string_view, 3> arguments885_16{"TPCPOINT", "TPCPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_17{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 3> arguments885_18{"TPCPATCH", "TPCPATCH", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_19{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<std::string_view, 3> arguments885_20{"TPOSE", "TPOSE", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_21{"TPOSE", "TPOSE"};
-constexpr std::array<std::string_view, 3> arguments885_22{"TPOSECHAIN", "TPOSECHAIN", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_23{"TPOSECHAIN", "TPOSECHAIN"};
-constexpr std::array<std::string_view, 3> arguments885_24{"TQUADBIN", "TQUADBIN", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_25{"TQUADBIN", "TQUADBIN"};
-constexpr std::array<std::string_view, 3> arguments885_26{"TRGEOMETRY", "TRGEOMETRY", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_27{"TRGEOMETRY", "TRGEOMETRY"};
-constexpr std::array<std::string_view, 3> arguments885_28{"TS2CELL", "TS2CELL", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_29{"TS2CELL", "TS2CELL"};
-constexpr std::array<std::string_view, 3> arguments885_30{"TBOOL", "TBOOL", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_31{"TBOOL", "TBOOL"};
-constexpr std::array<std::string_view, 3> arguments885_32{"TINT", "TINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_33{"TINT", "TINT"};
-constexpr std::array<std::string_view, 3> arguments885_34{"TBIGINT", "TBIGINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_35{"TBIGINT", "TBIGINT"};
-constexpr std::array<std::string_view, 3> arguments885_36{"TFLOAT", "TFLOAT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_37{"TFLOAT", "TFLOAT"};
-constexpr std::array<std::string_view, 3> arguments885_38{"TTEXT", "TTEXT", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments885_39{"TTEXT", "TTEXT"};
-constexpr std::array<MeosOverload, 40> overloads885{MeosOverload{arguments885_0, "TCBUFFER", "Meos_temporal_update_0"}, MeosOverload{arguments885_1, "TCBUFFER", "Meos_temporal_update_0_2"}, MeosOverload{arguments885_2, "TGEOMETRY", "Meos_temporal_update_1"}, MeosOverload{arguments885_3, "TGEOMETRY", "Meos_temporal_update_1_2"}, MeosOverload{arguments885_4, "TGEOGRAPHY", "Meos_temporal_update_2"}, MeosOverload{arguments885_5, "TGEOGRAPHY", "Meos_temporal_update_2_2"}, MeosOverload{arguments885_6, "TGEOMPOINT", "Meos_temporal_update_3"}, MeosOverload{arguments885_7, "TGEOMPOINT", "Meos_temporal_update_3_2"}, MeosOverload{arguments885_8, "TGEOGPOINT", "Meos_temporal_update_4"}, MeosOverload{arguments885_9, "TGEOGPOINT", "Meos_temporal_update_4_2"}, MeosOverload{arguments885_10, "TH3INDEX", "Meos_temporal_update_5"}, MeosOverload{arguments885_11, "TH3INDEX", "Meos_temporal_update_5_2"}, MeosOverload{arguments885_12, "TJSONB", "Meos_temporal_update_6"}, MeosOverload{arguments885_13, "TJSONB", "Meos_temporal_update_6_2"}, MeosOverload{arguments885_14, "TNPOINT", "Meos_temporal_update_7"}, MeosOverload{arguments885_15, "TNPOINT", "Meos_temporal_update_7_2"}, MeosOverload{arguments885_16, "TPCPOINT", "Meos_temporal_update_8"}, MeosOverload{arguments885_17, "TPCPOINT", "Meos_temporal_update_8_2"}, MeosOverload{arguments885_18, "TPCPATCH", "Meos_temporal_update_9"}, MeosOverload{arguments885_19, "TPCPATCH", "Meos_temporal_update_9_2"}, MeosOverload{arguments885_20, "TPOSE", "Meos_temporal_update_10"}, MeosOverload{arguments885_21, "TPOSE", "Meos_temporal_update_10_2"}, MeosOverload{arguments885_22, "TPOSECHAIN", "Meos_temporal_update_11"}, MeosOverload{arguments885_23, "TPOSECHAIN", "Meos_temporal_update_11_2"}, MeosOverload{arguments885_24, "TQUADBIN", "Meos_temporal_update_12"}, MeosOverload{arguments885_25, "TQUADBIN", "Meos_temporal_update_12_2"}, MeosOverload{arguments885_26, "TRGEOMETRY", "Meos_temporal_update_13"}, MeosOverload{arguments885_27, "TRGEOMETRY", "Meos_temporal_update_13_2"}, MeosOverload{arguments885_28, "TS2CELL", "Meos_temporal_update_14"}, MeosOverload{arguments885_29, "TS2CELL", "Meos_temporal_update_14_2"}, MeosOverload{arguments885_30, "TBOOL", "Meos_temporal_update_15"}, MeosOverload{arguments885_31, "TBOOL", "Meos_temporal_update_15_2"}, MeosOverload{arguments885_32, "TINT", "Meos_temporal_update_16"}, MeosOverload{arguments885_33, "TINT", "Meos_temporal_update_16_2"}, MeosOverload{arguments885_34, "TBIGINT", "Meos_temporal_update_17"}, MeosOverload{arguments885_35, "TBIGINT", "Meos_temporal_update_17_2"}, MeosOverload{arguments885_36, "TFLOAT", "Meos_temporal_update_18"}, MeosOverload{arguments885_37, "TFLOAT", "Meos_temporal_update_18_2"}, MeosOverload{arguments885_38, "TTEXT", "Meos_temporal_update_19"}, MeosOverload{arguments885_39, "TTEXT", "Meos_temporal_update_19_2"}};
+constexpr std::array<std::string_view, 2> arguments865_1{"TBOX", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments865_2{"TSTZSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments865_3{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments865_4{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments865_5{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments865_6{"TINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments865_7{"TBIGINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments865_8{"TFLOAT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments865_9{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments865_10{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments865_11{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments865_12{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments865_13{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments865_14{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments865_15{"TSTZSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments865_16{"TSTZSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments865_17{"TSTZSPAN", "TFLOAT"};
+constexpr std::array<MeosOverload, 18> overloads865{MeosOverload{arguments865_0, "BOOLEAN", "Meos_overbefore_tbox_tbox_0"}, MeosOverload{arguments865_1, "BOOLEAN", "Meos_overbefore_tbox_tstzspan_0"}, MeosOverload{arguments865_2, "BOOLEAN", "Meos_overbefore_tstzspan_tbox_0"}, MeosOverload{arguments865_3, "BOOLEAN", "Meos_overbefore_tbox_tnumber_0"}, MeosOverload{arguments865_4, "BOOLEAN", "Meos_overbefore_tbox_tnumber_1"}, MeosOverload{arguments865_5, "BOOLEAN", "Meos_overbefore_tbox_tnumber_2"}, MeosOverload{arguments865_6, "BOOLEAN", "Meos_overbefore_temporal_tstzspan_17"}, MeosOverload{arguments865_7, "BOOLEAN", "Meos_overbefore_temporal_tstzspan_18"}, MeosOverload{arguments865_8, "BOOLEAN", "Meos_overbefore_temporal_tstzspan_19"}, MeosOverload{arguments865_9, "BOOLEAN", "Meos_overbefore_tnumber_tbox_0"}, MeosOverload{arguments865_10, "BOOLEAN", "Meos_overbefore_tnumber_tbox_1"}, MeosOverload{arguments865_11, "BOOLEAN", "Meos_overbefore_tnumber_tbox_2"}, MeosOverload{arguments865_12, "BOOLEAN", "Meos_overbefore_tnumber_tnumber_0"}, MeosOverload{arguments865_13, "BOOLEAN", "Meos_overbefore_tnumber_tnumber_1"}, MeosOverload{arguments865_14, "BOOLEAN", "Meos_overbefore_tnumber_tnumber_2"}, MeosOverload{arguments865_15, "BOOLEAN", "Meos_overbefore_tstzspan_temporal_17"}, MeosOverload{arguments865_16, "BOOLEAN", "Meos_overbefore_tstzspan_temporal_18"}, MeosOverload{arguments865_17, "BOOLEAN", "Meos_overbefore_tstzspan_temporal_19"}};
+constexpr std::array<std::string_view, 2> arguments866_0{"TBOX", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments866_1{"INTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments866_2{"BIGINTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments866_3{"FLOATSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments866_4{"TBOX", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments866_5{"TBOX", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments866_6{"TBOX", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments866_7{"TBOX", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments866_8{"TSTZSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments866_9{"INTSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments866_10{"BIGINTSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments866_11{"FLOATSPAN", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments866_12{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments866_13{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments866_14{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments866_15{"TINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments866_16{"TBIGINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments866_17{"TFLOAT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments866_18{"TINT", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments866_19{"TBIGINT", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments866_20{"TFLOAT", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments866_21{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments866_22{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments866_23{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments866_24{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments866_25{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments866_26{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments866_27{"TSTZSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments866_28{"TSTZSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments866_29{"TSTZSPAN", "TFLOAT"};
+constexpr std::array<MeosOverload, 30> overloads866{MeosOverload{arguments866_0, "BOOLEAN", "Meos_overlaps_tbox_tbox_0"}, MeosOverload{arguments866_1, "BOOLEAN", "Meos_overlaps_numspan_tbox_0"}, MeosOverload{arguments866_2, "BOOLEAN", "Meos_overlaps_numspan_tbox_1"}, MeosOverload{arguments866_3, "BOOLEAN", "Meos_overlaps_numspan_tbox_2"}, MeosOverload{arguments866_4, "BOOLEAN", "Meos_overlaps_tbox_numspan_0"}, MeosOverload{arguments866_5, "BOOLEAN", "Meos_overlaps_tbox_numspan_1"}, MeosOverload{arguments866_6, "BOOLEAN", "Meos_overlaps_tbox_numspan_2"}, MeosOverload{arguments866_7, "BOOLEAN", "Meos_overlaps_tbox_tstzspan_0"}, MeosOverload{arguments866_8, "BOOLEAN", "Meos_overlaps_tstzspan_tbox_0"}, MeosOverload{arguments866_9, "BOOLEAN", "Meos_overlaps_numspan_tnumber_0"}, MeosOverload{arguments866_10, "BOOLEAN", "Meos_overlaps_numspan_tnumber_1"}, MeosOverload{arguments866_11, "BOOLEAN", "Meos_overlaps_numspan_tnumber_2"}, MeosOverload{arguments866_12, "BOOLEAN", "Meos_overlaps_tbox_tnumber_0"}, MeosOverload{arguments866_13, "BOOLEAN", "Meos_overlaps_tbox_tnumber_1"}, MeosOverload{arguments866_14, "BOOLEAN", "Meos_overlaps_tbox_tnumber_2"}, MeosOverload{arguments866_15, "BOOLEAN", "Meos_overlaps_temporal_tstzspan_17"}, MeosOverload{arguments866_16, "BOOLEAN", "Meos_overlaps_temporal_tstzspan_18"}, MeosOverload{arguments866_17, "BOOLEAN", "Meos_overlaps_temporal_tstzspan_19"}, MeosOverload{arguments866_18, "BOOLEAN", "Meos_overlaps_tnumber_numspan_0"}, MeosOverload{arguments866_19, "BOOLEAN", "Meos_overlaps_tnumber_numspan_1"}, MeosOverload{arguments866_20, "BOOLEAN", "Meos_overlaps_tnumber_numspan_2"}, MeosOverload{arguments866_21, "BOOLEAN", "Meos_overlaps_tnumber_tbox_0"}, MeosOverload{arguments866_22, "BOOLEAN", "Meos_overlaps_tnumber_tbox_1"}, MeosOverload{arguments866_23, "BOOLEAN", "Meos_overlaps_tnumber_tbox_2"}, MeosOverload{arguments866_24, "BOOLEAN", "Meos_overlaps_tnumber_tnumber_0"}, MeosOverload{arguments866_25, "BOOLEAN", "Meos_overlaps_tnumber_tnumber_1"}, MeosOverload{arguments866_26, "BOOLEAN", "Meos_overlaps_tnumber_tnumber_2"}, MeosOverload{arguments866_27, "BOOLEAN", "Meos_overlaps_tstzspan_temporal_17"}, MeosOverload{arguments866_28, "BOOLEAN", "Meos_overlaps_tstzspan_temporal_18"}, MeosOverload{arguments866_29, "BOOLEAN", "Meos_overlaps_tstzspan_temporal_19"}};
+constexpr std::array<std::string_view, 2> arguments867_0{"TBOX", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments867_1{"INTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments867_2{"BIGINTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments867_3{"FLOATSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments867_4{"TBOX", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments867_5{"TBOX", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments867_6{"TBOX", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments867_7{"INTSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments867_8{"BIGINTSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments867_9{"FLOATSPAN", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments867_10{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments867_11{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments867_12{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments867_13{"TINT", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments867_14{"TBIGINT", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments867_15{"TFLOAT", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments867_16{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments867_17{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments867_18{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments867_19{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments867_20{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments867_21{"TFLOAT", "TFLOAT"};
+constexpr std::array<MeosOverload, 22> overloads867{MeosOverload{arguments867_0, "BOOLEAN", "Meos_overleft_tbox_tbox_0"}, MeosOverload{arguments867_1, "BOOLEAN", "Meos_overleft_numspan_tbox_0"}, MeosOverload{arguments867_2, "BOOLEAN", "Meos_overleft_numspan_tbox_1"}, MeosOverload{arguments867_3, "BOOLEAN", "Meos_overleft_numspan_tbox_2"}, MeosOverload{arguments867_4, "BOOLEAN", "Meos_overleft_tbox_numspan_0"}, MeosOverload{arguments867_5, "BOOLEAN", "Meos_overleft_tbox_numspan_1"}, MeosOverload{arguments867_6, "BOOLEAN", "Meos_overleft_tbox_numspan_2"}, MeosOverload{arguments867_7, "BOOLEAN", "Meos_overleft_numspan_tnumber_0"}, MeosOverload{arguments867_8, "BOOLEAN", "Meos_overleft_numspan_tnumber_1"}, MeosOverload{arguments867_9, "BOOLEAN", "Meos_overleft_numspan_tnumber_2"}, MeosOverload{arguments867_10, "BOOLEAN", "Meos_overleft_tbox_tnumber_0"}, MeosOverload{arguments867_11, "BOOLEAN", "Meos_overleft_tbox_tnumber_1"}, MeosOverload{arguments867_12, "BOOLEAN", "Meos_overleft_tbox_tnumber_2"}, MeosOverload{arguments867_13, "BOOLEAN", "Meos_overleft_tnumber_numspan_0"}, MeosOverload{arguments867_14, "BOOLEAN", "Meos_overleft_tnumber_numspan_1"}, MeosOverload{arguments867_15, "BOOLEAN", "Meos_overleft_tnumber_numspan_2"}, MeosOverload{arguments867_16, "BOOLEAN", "Meos_overleft_tnumber_tbox_0"}, MeosOverload{arguments867_17, "BOOLEAN", "Meos_overleft_tnumber_tbox_1"}, MeosOverload{arguments867_18, "BOOLEAN", "Meos_overleft_tnumber_tbox_2"}, MeosOverload{arguments867_19, "BOOLEAN", "Meos_overleft_tnumber_tnumber_0"}, MeosOverload{arguments867_20, "BOOLEAN", "Meos_overleft_tnumber_tnumber_1"}, MeosOverload{arguments867_21, "BOOLEAN", "Meos_overleft_tnumber_tnumber_2"}};
+constexpr std::array<std::string_view, 2> arguments868_0{"TBOX", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments868_1{"INTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments868_2{"BIGINTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments868_3{"FLOATSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments868_4{"TBOX", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments868_5{"TBOX", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments868_6{"TBOX", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments868_7{"INTSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments868_8{"BIGINTSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments868_9{"FLOATSPAN", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments868_10{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments868_11{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments868_12{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments868_13{"TINT", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments868_14{"TBIGINT", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments868_15{"TFLOAT", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments868_16{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments868_17{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments868_18{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments868_19{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments868_20{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments868_21{"TFLOAT", "TFLOAT"};
+constexpr std::array<MeosOverload, 22> overloads868{MeosOverload{arguments868_0, "BOOLEAN", "Meos_overright_tbox_tbox_0"}, MeosOverload{arguments868_1, "BOOLEAN", "Meos_overright_numspan_tbox_0"}, MeosOverload{arguments868_2, "BOOLEAN", "Meos_overright_numspan_tbox_1"}, MeosOverload{arguments868_3, "BOOLEAN", "Meos_overright_numspan_tbox_2"}, MeosOverload{arguments868_4, "BOOLEAN", "Meos_overright_tbox_numspan_0"}, MeosOverload{arguments868_5, "BOOLEAN", "Meos_overright_tbox_numspan_1"}, MeosOverload{arguments868_6, "BOOLEAN", "Meos_overright_tbox_numspan_2"}, MeosOverload{arguments868_7, "BOOLEAN", "Meos_overright_numspan_tnumber_0"}, MeosOverload{arguments868_8, "BOOLEAN", "Meos_overright_numspan_tnumber_1"}, MeosOverload{arguments868_9, "BOOLEAN", "Meos_overright_numspan_tnumber_2"}, MeosOverload{arguments868_10, "BOOLEAN", "Meos_overright_tbox_tnumber_0"}, MeosOverload{arguments868_11, "BOOLEAN", "Meos_overright_tbox_tnumber_1"}, MeosOverload{arguments868_12, "BOOLEAN", "Meos_overright_tbox_tnumber_2"}, MeosOverload{arguments868_13, "BOOLEAN", "Meos_overright_tnumber_numspan_0"}, MeosOverload{arguments868_14, "BOOLEAN", "Meos_overright_tnumber_numspan_1"}, MeosOverload{arguments868_15, "BOOLEAN", "Meos_overright_tnumber_numspan_2"}, MeosOverload{arguments868_16, "BOOLEAN", "Meos_overright_tnumber_tbox_0"}, MeosOverload{arguments868_17, "BOOLEAN", "Meos_overright_tnumber_tbox_1"}, MeosOverload{arguments868_18, "BOOLEAN", "Meos_overright_tnumber_tbox_2"}, MeosOverload{arguments868_19, "BOOLEAN", "Meos_overright_tnumber_tnumber_0"}, MeosOverload{arguments868_20, "BOOLEAN", "Meos_overright_tnumber_tnumber_1"}, MeosOverload{arguments868_21, "BOOLEAN", "Meos_overright_tnumber_tnumber_2"}};
+constexpr std::array<std::string_view, 2> arguments869_0{"TBOX", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments869_1{"INTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments869_2{"BIGINTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments869_3{"FLOATSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments869_4{"TBOX", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments869_5{"TBOX", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments869_6{"TBOX", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments869_7{"INTSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments869_8{"BIGINTSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments869_9{"FLOATSPAN", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments869_10{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments869_11{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments869_12{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments869_13{"TINT", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments869_14{"TBIGINT", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments869_15{"TFLOAT", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments869_16{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments869_17{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments869_18{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments869_19{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments869_20{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments869_21{"TFLOAT", "TFLOAT"};
+constexpr std::array<MeosOverload, 22> overloads869{MeosOverload{arguments869_0, "BOOLEAN", "Meos_right_tbox_tbox_0"}, MeosOverload{arguments869_1, "BOOLEAN", "Meos_right_numspan_tbox_0"}, MeosOverload{arguments869_2, "BOOLEAN", "Meos_right_numspan_tbox_1"}, MeosOverload{arguments869_3, "BOOLEAN", "Meos_right_numspan_tbox_2"}, MeosOverload{arguments869_4, "BOOLEAN", "Meos_right_tbox_numspan_0"}, MeosOverload{arguments869_5, "BOOLEAN", "Meos_right_tbox_numspan_1"}, MeosOverload{arguments869_6, "BOOLEAN", "Meos_right_tbox_numspan_2"}, MeosOverload{arguments869_7, "BOOLEAN", "Meos_right_numspan_tnumber_0"}, MeosOverload{arguments869_8, "BOOLEAN", "Meos_right_numspan_tnumber_1"}, MeosOverload{arguments869_9, "BOOLEAN", "Meos_right_numspan_tnumber_2"}, MeosOverload{arguments869_10, "BOOLEAN", "Meos_right_tbox_tnumber_0"}, MeosOverload{arguments869_11, "BOOLEAN", "Meos_right_tbox_tnumber_1"}, MeosOverload{arguments869_12, "BOOLEAN", "Meos_right_tbox_tnumber_2"}, MeosOverload{arguments869_13, "BOOLEAN", "Meos_right_tnumber_numspan_0"}, MeosOverload{arguments869_14, "BOOLEAN", "Meos_right_tnumber_numspan_1"}, MeosOverload{arguments869_15, "BOOLEAN", "Meos_right_tnumber_numspan_2"}, MeosOverload{arguments869_16, "BOOLEAN", "Meos_right_tnumber_tbox_0"}, MeosOverload{arguments869_17, "BOOLEAN", "Meos_right_tnumber_tbox_1"}, MeosOverload{arguments869_18, "BOOLEAN", "Meos_right_tnumber_tbox_2"}, MeosOverload{arguments869_19, "BOOLEAN", "Meos_right_tnumber_tnumber_0"}, MeosOverload{arguments869_20, "BOOLEAN", "Meos_right_tnumber_tnumber_1"}, MeosOverload{arguments869_21, "BOOLEAN", "Meos_right_tnumber_tnumber_2"}};
+constexpr std::array<std::string_view, 2> arguments870_0{"TBOX", "INT32"};
+constexpr std::array<std::string_view, 1> arguments870_1{"TBOX"};
+constexpr std::array<MeosOverload, 2> overloads870{MeosOverload{arguments870_0, "TBOX", "Meos_tbox_round_0"}, MeosOverload{arguments870_1, "TBOX", "Meos_tbox_round_0_1"}};
+constexpr std::array<std::string_view, 2> arguments871_0{"TBOX", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments871_1{"INTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments871_2{"BIGINTSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments871_3{"FLOATSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments871_4{"TBOX", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments871_5{"TBOX", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments871_6{"TBOX", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments871_7{"TBOX", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments871_8{"TSTZSPAN", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments871_9{"INTSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments871_10{"BIGINTSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments871_11{"FLOATSPAN", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments871_12{"TBOX", "TINT"};
+constexpr std::array<std::string_view, 2> arguments871_13{"TBOX", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments871_14{"TBOX", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments871_15{"TINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments871_16{"TBIGINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments871_17{"TFLOAT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments871_18{"TINT", "INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments871_19{"TBIGINT", "BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments871_20{"TFLOAT", "FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments871_21{"TINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments871_22{"TBIGINT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments871_23{"TFLOAT", "TBOX"};
+constexpr std::array<std::string_view, 2> arguments871_24{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments871_25{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments871_26{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments871_27{"TSTZSPAN", "TINT"};
+constexpr std::array<std::string_view, 2> arguments871_28{"TSTZSPAN", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments871_29{"TSTZSPAN", "TFLOAT"};
+constexpr std::array<MeosOverload, 30> overloads871{MeosOverload{arguments871_0, "BOOLEAN", "Meos_same_tbox_tbox_0"}, MeosOverload{arguments871_1, "BOOLEAN", "Meos_same_numspan_tbox_0"}, MeosOverload{arguments871_2, "BOOLEAN", "Meos_same_numspan_tbox_1"}, MeosOverload{arguments871_3, "BOOLEAN", "Meos_same_numspan_tbox_2"}, MeosOverload{arguments871_4, "BOOLEAN", "Meos_same_tbox_numspan_0"}, MeosOverload{arguments871_5, "BOOLEAN", "Meos_same_tbox_numspan_1"}, MeosOverload{arguments871_6, "BOOLEAN", "Meos_same_tbox_numspan_2"}, MeosOverload{arguments871_7, "BOOLEAN", "Meos_same_tbox_tstzspan_0"}, MeosOverload{arguments871_8, "BOOLEAN", "Meos_same_tstzspan_tbox_0"}, MeosOverload{arguments871_9, "BOOLEAN", "Meos_same_numspan_tnumber_0"}, MeosOverload{arguments871_10, "BOOLEAN", "Meos_same_numspan_tnumber_1"}, MeosOverload{arguments871_11, "BOOLEAN", "Meos_same_numspan_tnumber_2"}, MeosOverload{arguments871_12, "BOOLEAN", "Meos_same_tbox_tnumber_0"}, MeosOverload{arguments871_13, "BOOLEAN", "Meos_same_tbox_tnumber_1"}, MeosOverload{arguments871_14, "BOOLEAN", "Meos_same_tbox_tnumber_2"}, MeosOverload{arguments871_15, "BOOLEAN", "Meos_same_temporal_tstzspan_17"}, MeosOverload{arguments871_16, "BOOLEAN", "Meos_same_temporal_tstzspan_18"}, MeosOverload{arguments871_17, "BOOLEAN", "Meos_same_temporal_tstzspan_19"}, MeosOverload{arguments871_18, "BOOLEAN", "Meos_same_tnumber_numspan_0"}, MeosOverload{arguments871_19, "BOOLEAN", "Meos_same_tnumber_numspan_1"}, MeosOverload{arguments871_20, "BOOLEAN", "Meos_same_tnumber_numspan_2"}, MeosOverload{arguments871_21, "BOOLEAN", "Meos_same_tnumber_tbox_0"}, MeosOverload{arguments871_22, "BOOLEAN", "Meos_same_tnumber_tbox_1"}, MeosOverload{arguments871_23, "BOOLEAN", "Meos_same_tnumber_tbox_2"}, MeosOverload{arguments871_24, "BOOLEAN", "Meos_same_tnumber_tnumber_0"}, MeosOverload{arguments871_25, "BOOLEAN", "Meos_same_tnumber_tnumber_1"}, MeosOverload{arguments871_26, "BOOLEAN", "Meos_same_tnumber_tnumber_2"}, MeosOverload{arguments871_27, "BOOLEAN", "Meos_same_tstzspan_temporal_17"}, MeosOverload{arguments871_28, "BOOLEAN", "Meos_same_tstzspan_temporal_18"}, MeosOverload{arguments871_29, "BOOLEAN", "Meos_same_tstzspan_temporal_19"}};
+constexpr std::array<std::string_view, 2> arguments872_0{"TBOX", "TBOX"};
+constexpr std::array<MeosOverload, 1> overloads872{MeosOverload{arguments872_0, "TBOX", "Meos_union_tbox_tbox_0"}};
+constexpr std::array<std::string_view, 1> arguments873_0{"TINT"};
+constexpr std::array<std::string_view, 1> arguments873_1{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments873_2{"TFLOAT"};
+constexpr std::array<MeosOverload, 3> overloads873{MeosOverload{arguments873_0, "TBOX_ARRAY", "Meos_tnumber_tboxes_0"}, MeosOverload{arguments873_1, "TBOX_ARRAY", "Meos_tnumber_tboxes_1"}, MeosOverload{arguments873_2, "TBOX_ARRAY", "Meos_tnumber_tboxes_2"}};
+constexpr std::array<std::string_view, 2> arguments874_0{"CBUFFER", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments874_1{"TGEOMPOINT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments874_2{"CBUFFER", "TSTZSET"};
+constexpr std::array<std::string_view, 3> arguments874_3{"CBUFFER", "TSTZSPAN", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments874_4{"CBUFFER", "TSTZSPAN"};
+constexpr std::array<std::string_view, 3> arguments874_5{"CBUFFER", "TSTZSPANSET", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments874_6{"CBUFFER", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments874_7{"TGEOMPOINT"};
+constexpr std::array<std::string_view, 1> arguments874_8{"TGEOMETRY"};
+constexpr std::array<MeosOverload, 9> overloads874{MeosOverload{arguments874_0, "TCBUFFER", "Meos_tcbufferinst_make_0"}, MeosOverload{arguments874_1, "TCBUFFER", "Meos_tcbuffer_make_0"}, MeosOverload{arguments874_2, "TCBUFFER", "Meos_tcbufferseq_from_base_tstzset_0"}, MeosOverload{arguments874_3, "TCBUFFER", "Meos_tcbufferseq_from_base_tstzspan_0"}, MeosOverload{arguments874_4, "TCBUFFER", "Meos_tcbufferseq_from_base_tstzspan_0_2"}, MeosOverload{arguments874_5, "TCBUFFER", "Meos_tcbufferseqset_from_base_tstzspanset_0"}, MeosOverload{arguments874_6, "TCBUFFER", "Meos_tcbufferseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments874_7, "TCBUFFER", "Meos_tgeometry_to_tcbuffer_0"}, MeosOverload{arguments874_8, "TCBUFFER", "Meos_tgeometry_to_tcbuffer_1"}};
+constexpr std::array<std::string_view, 1> arguments875_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads875{MeosOverload{arguments875_0, "TCBUFFER", "Meos_temporal_from_wkb_19"}};
+constexpr std::array<std::string_view, 1> arguments876_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads876{MeosOverload{arguments876_0, "TCBUFFER", "Meos_temporal_from_wkb_20"}};
+constexpr std::array<std::string_view, 1> arguments877_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads877{MeosOverload{arguments877_0, "TCBUFFER", "Meos_tcbuffer_in_2"}};
+constexpr std::array<std::string_view, 1> arguments878_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads878{MeosOverload{arguments878_0, "TCBUFFER", "Meos_temporal_from_hexwkb_1"}};
+constexpr std::array<std::string_view, 1> arguments879_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads879{MeosOverload{arguments879_0, "TCBUFFER", "Meos_temporal_from_hexwkb_0"}};
+constexpr std::array<std::string_view, 1> arguments880_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads880{MeosOverload{arguments880_0, "TCBUFFER", "Meos_tcbuffer_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments881_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads881{MeosOverload{arguments881_0, "TCBUFFER", "Meos_tcbuffer_in_1"}};
+constexpr std::array<std::string_view, 1> arguments882_0{"TCBUFFER"};
+constexpr std::array<MeosOverload, 1> overloads882{MeosOverload{arguments882_0, "TCBUFFER", "Meos_temporal_as_tinstant_0"}};
+constexpr std::array<std::string_view, 4> arguments883_0{"TCBUFFER_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments883_1{"TCBUFFER_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments883_2{"TCBUFFER_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments883_3{"TCBUFFER_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments883_4{"TCBUFFER", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads883{MeosOverload{arguments883_0, "TCBUFFER", "Meos_tsequence_make_0"}, MeosOverload{arguments883_1, "TCBUFFER", "Meos_tsequence_make_0_3"}, MeosOverload{arguments883_2, "TCBUFFER", "Meos_tsequence_make_0_2"}, MeosOverload{arguments883_3, "TCBUFFER", "Meos_tsequence_make_0_1"}, MeosOverload{arguments883_4, "TCBUFFER", "Meos_temporal_as_tsequence_0"}};
+constexpr std::array<std::string_view, 1> arguments884_0{"TCBUFFER_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments884_1{"TCBUFFER", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads884{MeosOverload{arguments884_0, "TCBUFFER", "Meos_tsequenceset_make_0"}, MeosOverload{arguments884_1, "TCBUFFER", "Meos_temporal_as_tsequenceset_0"}};
+constexpr std::array<std::string_view, 1> arguments885_0{"TCBUFFER"};
+constexpr std::array<std::string_view, 1> arguments885_1{"TGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments885_2{"TGEOGRAPHY"};
+constexpr std::array<std::string_view, 1> arguments885_3{"TGEOMPOINT"};
+constexpr std::array<std::string_view, 1> arguments885_4{"TGEOGPOINT"};
+constexpr std::array<std::string_view, 1> arguments885_5{"TH3INDEX"};
+constexpr std::array<std::string_view, 1> arguments885_6{"TJSONB"};
+constexpr std::array<std::string_view, 1> arguments885_7{"TNPOINT"};
+constexpr std::array<std::string_view, 1> arguments885_8{"TPCPOINT"};
+constexpr std::array<std::string_view, 1> arguments885_9{"TPCPATCH"};
+constexpr std::array<std::string_view, 1> arguments885_10{"TPOSE"};
+constexpr std::array<std::string_view, 1> arguments885_11{"TPOSECHAIN"};
+constexpr std::array<std::string_view, 1> arguments885_12{"TQUADBIN"};
+constexpr std::array<std::string_view, 1> arguments885_13{"TRGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments885_14{"TS2CELL"};
+constexpr std::array<std::string_view, 1> arguments885_15{"TBOOL"};
+constexpr std::array<std::string_view, 1> arguments885_16{"TINT"};
+constexpr std::array<std::string_view, 1> arguments885_17{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments885_18{"TFLOAT"};
+constexpr std::array<std::string_view, 1> arguments885_19{"TTEXT"};
+constexpr std::array<MeosOverload, 20> overloads885{MeosOverload{arguments885_0, "VARSIZED", "Meos_temporal_basetype_name_0"}, MeosOverload{arguments885_1, "VARSIZED", "Meos_temporal_basetype_name_1"}, MeosOverload{arguments885_2, "VARSIZED", "Meos_temporal_basetype_name_2"}, MeosOverload{arguments885_3, "VARSIZED", "Meos_temporal_basetype_name_3"}, MeosOverload{arguments885_4, "VARSIZED", "Meos_temporal_basetype_name_4"}, MeosOverload{arguments885_5, "VARSIZED", "Meos_temporal_basetype_name_5"}, MeosOverload{arguments885_6, "VARSIZED", "Meos_temporal_basetype_name_6"}, MeosOverload{arguments885_7, "VARSIZED", "Meos_temporal_basetype_name_7"}, MeosOverload{arguments885_8, "VARSIZED", "Meos_temporal_basetype_name_8"}, MeosOverload{arguments885_9, "VARSIZED", "Meos_temporal_basetype_name_9"}, MeosOverload{arguments885_10, "VARSIZED", "Meos_temporal_basetype_name_10"}, MeosOverload{arguments885_11, "VARSIZED", "Meos_temporal_basetype_name_11"}, MeosOverload{arguments885_12, "VARSIZED", "Meos_temporal_basetype_name_12"}, MeosOverload{arguments885_13, "VARSIZED", "Meos_temporal_basetype_name_13"}, MeosOverload{arguments885_14, "VARSIZED", "Meos_temporal_basetype_name_14"}, MeosOverload{arguments885_15, "VARSIZED", "Meos_temporal_basetype_name_15"}, MeosOverload{arguments885_16, "VARSIZED", "Meos_temporal_basetype_name_16"}, MeosOverload{arguments885_17, "VARSIZED", "Meos_temporal_basetype_name_17"}, MeosOverload{arguments885_18, "VARSIZED", "Meos_temporal_basetype_name_18"}, MeosOverload{arguments885_19, "VARSIZED", "Meos_temporal_basetype_name_19"}};
 constexpr std::array<std::string_view, 1> arguments886_0{"TCBUFFER"};
 constexpr std::array<std::string_view, 1> arguments886_1{"TGEOMETRY"};
 constexpr std::array<std::string_view, 1> arguments886_2{"TGEOGRAPHY"};
@@ -9044,703 +8853,852 @@ constexpr std::array<std::string_view, 1> arguments886_16{"TINT"};
 constexpr std::array<std::string_view, 1> arguments886_17{"TBIGINT"};
 constexpr std::array<std::string_view, 1> arguments886_18{"TFLOAT"};
 constexpr std::array<std::string_view, 1> arguments886_19{"TTEXT"};
-constexpr std::array<MeosOverload, 20> overloads886{MeosOverload{arguments886_0, "BOOLEAN", "Meos_temporal_upper_inc_0"}, MeosOverload{arguments886_1, "BOOLEAN", "Meos_temporal_upper_inc_1"}, MeosOverload{arguments886_2, "BOOLEAN", "Meos_temporal_upper_inc_2"}, MeosOverload{arguments886_3, "BOOLEAN", "Meos_temporal_upper_inc_3"}, MeosOverload{arguments886_4, "BOOLEAN", "Meos_temporal_upper_inc_4"}, MeosOverload{arguments886_5, "BOOLEAN", "Meos_temporal_upper_inc_5"}, MeosOverload{arguments886_6, "BOOLEAN", "Meos_temporal_upper_inc_6"}, MeosOverload{arguments886_7, "BOOLEAN", "Meos_temporal_upper_inc_7"}, MeosOverload{arguments886_8, "BOOLEAN", "Meos_temporal_upper_inc_8"}, MeosOverload{arguments886_9, "BOOLEAN", "Meos_temporal_upper_inc_9"}, MeosOverload{arguments886_10, "BOOLEAN", "Meos_temporal_upper_inc_10"}, MeosOverload{arguments886_11, "BOOLEAN", "Meos_temporal_upper_inc_11"}, MeosOverload{arguments886_12, "BOOLEAN", "Meos_temporal_upper_inc_12"}, MeosOverload{arguments886_13, "BOOLEAN", "Meos_temporal_upper_inc_13"}, MeosOverload{arguments886_14, "BOOLEAN", "Meos_temporal_upper_inc_14"}, MeosOverload{arguments886_15, "BOOLEAN", "Meos_temporal_upper_inc_15"}, MeosOverload{arguments886_16, "BOOLEAN", "Meos_temporal_upper_inc_16"}, MeosOverload{arguments886_17, "BOOLEAN", "Meos_temporal_upper_inc_17"}, MeosOverload{arguments886_18, "BOOLEAN", "Meos_temporal_upper_inc_18"}, MeosOverload{arguments886_19, "BOOLEAN", "Meos_temporal_upper_inc_19"}};
-constexpr std::array<std::string_view, 1> arguments887_0{"TEXTSET"};
-constexpr std::array<std::string_view, 1> arguments887_1{"TTEXT"};
-constexpr std::array<MeosOverload, 2> overloads887{MeosOverload{arguments887_0, "TEXTSET", "Meos_textset_initcap_0"}, MeosOverload{arguments887_1, "TTEXT", "Meos_ttext_initcap_0"}};
-constexpr std::array<std::string_view, 1> arguments888_0{"TEXTSET"};
-constexpr std::array<std::string_view, 1> arguments888_1{"TTEXT"};
-constexpr std::array<MeosOverload, 2> overloads888{MeosOverload{arguments888_0, "TEXTSET", "Meos_textset_lower_0"}, MeosOverload{arguments888_1, "TTEXT", "Meos_ttext_lower_0"}};
-constexpr std::array<std::string_view, 1> arguments889_0{"TEXTSET"};
-constexpr std::array<std::string_view, 1> arguments889_1{"TTEXT"};
-constexpr std::array<MeosOverload, 2> overloads889{MeosOverload{arguments889_0, "TEXTSET", "Meos_textset_upper_0"}, MeosOverload{arguments889_1, "TTEXT", "Meos_ttext_upper_0"}};
-constexpr std::array<std::string_view, 1> arguments890_0{"JSONBSET"};
-constexpr std::array<std::string_view, 3> arguments890_1{"JSONBSET", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments890_2{"JSONBSET", "VARSIZED"};
-constexpr std::array<MeosOverload, 3> overloads890{MeosOverload{arguments890_0, "TEXTSET", "Meos_jsonbset_to_textset_0"}, MeosOverload{arguments890_1, "TEXTSET", "Meos_jsonbset_to_textset_key_0"}, MeosOverload{arguments890_2, "TEXTSET", "Meos_jsonbset_to_textset_key_0_2"}};
-constexpr std::array<std::string_view, 1> arguments891_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads891{MeosOverload{arguments891_0, "TEXTSET", "Meos_set_from_wkb_44"}};
-constexpr std::array<std::string_view, 1> arguments892_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads892{MeosOverload{arguments892_0, "TEXTSET", "Meos_set_from_hexwkb_26"}};
-constexpr std::array<std::string_view, 1> arguments893_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads893{MeosOverload{arguments893_0, "TEXTSET", "Meos_textset_in_1"}};
-constexpr std::array<std::string_view, 2> arguments894_0{"FLOAT64", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments894_1{"FLOAT64", "TSTZSET"};
-constexpr std::array<std::string_view, 3> arguments894_2{"FLOAT64", "TSTZSPAN", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments894_3{"FLOAT64", "TSTZSPAN"};
-constexpr std::array<std::string_view, 3> arguments894_4{"FLOAT64", "TSTZSPANSET", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments894_5{"FLOAT64", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments894_6{"TINT"};
-constexpr std::array<std::string_view, 1> arguments894_7{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments894_8{"TCBUFFER"};
-constexpr std::array<std::string_view, 4> arguments894_9{"TJSONB", "VARSIZED", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 3> arguments894_10{"TJSONB", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments894_11{"TJSONB", "VARSIZED"};
-constexpr std::array<MeosOverload, 12> overloads894{MeosOverload{arguments894_0, "TFLOAT", "Meos_tfloatinst_make_0"}, MeosOverload{arguments894_1, "TFLOAT", "Meos_tfloatseq_from_base_tstzset_0"}, MeosOverload{arguments894_2, "TFLOAT", "Meos_tfloatseq_from_base_tstzspan_0"}, MeosOverload{arguments894_3, "TFLOAT", "Meos_tfloatseq_from_base_tstzspan_0_2"}, MeosOverload{arguments894_4, "TFLOAT", "Meos_tfloatseqset_from_base_tstzspanset_0"}, MeosOverload{arguments894_5, "TFLOAT", "Meos_tfloatseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments894_6, "TFLOAT", "Meos_tint_to_tfloat_0"}, MeosOverload{arguments894_7, "TFLOAT", "Meos_tbigint_to_tfloat_0"}, MeosOverload{arguments894_8, "TFLOAT", "Meos_tcbuffer_to_tfloat_0"}, MeosOverload{arguments894_9, "TFLOAT", "Meos_tjsonb_to_tfloat_0"}, MeosOverload{arguments894_10, "TFLOAT", "Meos_tjsonb_to_tfloat_0_3"}, MeosOverload{arguments894_11, "TFLOAT", "Meos_tjsonb_to_tfloat_0_2"}};
-constexpr std::array<std::string_view, 1> arguments895_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads895{MeosOverload{arguments895_0, "TFLOAT", "Meos_temporal_from_wkb_51"}};
-constexpr std::array<std::string_view, 1> arguments896_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads896{MeosOverload{arguments896_0, "TFLOAT", "Meos_temporal_from_hexwkb_32"}};
-constexpr std::array<std::string_view, 1> arguments897_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads897{MeosOverload{arguments897_0, "TFLOAT", "Meos_tfloat_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments898_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads898{MeosOverload{arguments898_0, "TFLOAT", "Meos_tfloat_in_1"}};
-constexpr std::array<std::string_view, 1> arguments899_0{"TFLOAT"};
-constexpr std::array<MeosOverload, 1> overloads899{MeosOverload{arguments899_0, "TFLOAT", "Meos_temporal_as_tinstant_17"}};
-constexpr std::array<std::string_view, 4> arguments900_0{"TFLOAT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments900_1{"TFLOAT_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments900_2{"TFLOAT_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments900_3{"TFLOAT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments900_4{"TFLOAT", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads900{MeosOverload{arguments900_0, "TFLOAT", "Meos_tsequence_make_18"}, MeosOverload{arguments900_1, "TFLOAT", "Meos_tsequence_make_18_3"}, MeosOverload{arguments900_2, "TFLOAT", "Meos_tsequence_make_18_2"}, MeosOverload{arguments900_3, "TFLOAT", "Meos_tsequence_make_18_1"}, MeosOverload{arguments900_4, "TFLOAT", "Meos_temporal_as_tsequence_17"}};
-constexpr std::array<std::string_view, 1> arguments901_0{"TFLOAT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments901_1{"TFLOAT", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads901{MeosOverload{arguments901_0, "TFLOAT", "Meos_tsequenceset_make_18"}, MeosOverload{arguments901_1, "TFLOAT", "Meos_temporal_as_tsequenceset_17"}};
-constexpr std::array<std::string_view, 2> arguments902_0{"GEOGRAPHY", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments902_1{"GEOGRAPHY", "TSTZSET"};
-constexpr std::array<std::string_view, 3> arguments902_2{"GEOGRAPHY", "TSTZSPAN", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments902_3{"GEOGRAPHY", "TSTZSPAN"};
-constexpr std::array<std::string_view, 3> arguments902_4{"GEOGRAPHY", "TSTZSPANSET", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments902_5{"GEOGRAPHY", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments902_6{"GEOGRAPHY"};
-constexpr std::array<std::string_view, 1> arguments902_7{"TGEOGRAPHY"};
-constexpr std::array<std::string_view, 1> arguments902_8{"TGEOMPOINT"};
-constexpr std::array<std::string_view, 1> arguments902_9{"TCBUFFER"};
-constexpr std::array<std::string_view, 4> arguments902_10{"TJSONB", "VARSIZED", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 3> arguments902_11{"TJSONB", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments902_12{"TJSONB", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments902_13{"TNPOINT"};
-constexpr std::array<std::string_view, 1> arguments902_14{"TPCPOINT"};
-constexpr std::array<std::string_view, 1> arguments902_15{"TPOSE"};
-constexpr std::array<std::string_view, 1> arguments902_16{"TPOSECHAIN"};
-constexpr std::array<std::string_view, 1> arguments902_17{"TQUADBIN"};
-constexpr std::array<std::string_view, 1> arguments902_18{"TRGEOMETRY"};
-constexpr std::array<MeosOverload, 19> overloads902{MeosOverload{arguments902_0, "TGEOGPOINT", "Meos_tpointinst_make_1"}, MeosOverload{arguments902_1, "TGEOGPOINT", "Meos_tpointseq_from_base_tstzset_1"}, MeosOverload{arguments902_2, "TGEOGPOINT", "Meos_tpointseq_from_base_tstzspan_1"}, MeosOverload{arguments902_3, "TGEOGPOINT", "Meos_tpointseq_from_base_tstzspan_1_2"}, MeosOverload{arguments902_4, "TGEOGPOINT", "Meos_tpointseqset_from_base_tstzspanset_1"}, MeosOverload{arguments902_5, "TGEOGPOINT", "Meos_tpointseqset_from_base_tstzspanset_1_2"}, MeosOverload{arguments902_6, "TGEOGPOINT", "Meos_geomeas_to_tpoint_1"}, MeosOverload{arguments902_7, "TGEOGPOINT", "Meos_tgeography_to_tgeogpoint_0"}, MeosOverload{arguments902_8, "TGEOGPOINT", "Meos_tgeompoint_to_tgeogpoint_0"}, MeosOverload{arguments902_9, "TGEOGPOINT", "Meos_tcbuffer_to_tgeogpoint_0"}, MeosOverload{arguments902_10, "TGEOGPOINT", "Meos_tjsonb_to_tgeogpoint_0"}, MeosOverload{arguments902_11, "TGEOGPOINT", "Meos_tjsonb_to_tgeogpoint_0_3"}, MeosOverload{arguments902_12, "TGEOGPOINT", "Meos_tjsonb_to_tgeogpoint_0_2"}, MeosOverload{arguments902_13, "TGEOGPOINT", "Meos_tnpoint_to_tgeogpoint_0"}, MeosOverload{arguments902_14, "TGEOGPOINT", "Meos_tpcpoint_to_tgeogpoint_0"}, MeosOverload{arguments902_15, "TGEOGPOINT", "Meos_tpose_to_tgeogpoint_0"}, MeosOverload{arguments902_16, "TGEOGPOINT", "Meos_tposechain_to_tgeogpoint_0"}, MeosOverload{arguments902_17, "TGEOGPOINT", "Meos_tquadbin_to_tgeogpoint_0"}, MeosOverload{arguments902_18, "TGEOGPOINT", "Meos_trgeometry_to_tgeogpoint_0"}};
-constexpr std::array<std::string_view, 1> arguments903_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads903{MeosOverload{arguments903_0, "TGEOGPOINT", "Meos_temporal_from_wkb_26"}};
-constexpr std::array<std::string_view, 1> arguments904_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads904{MeosOverload{arguments904_0, "TGEOGPOINT", "Meos_temporal_from_wkb_28"}};
+constexpr std::array<MeosOverload, 20> overloads886{MeosOverload{arguments886_0, "VARSIZED", "Meos_temporal_subtype_0"}, MeosOverload{arguments886_1, "VARSIZED", "Meos_temporal_subtype_1"}, MeosOverload{arguments886_2, "VARSIZED", "Meos_temporal_subtype_2"}, MeosOverload{arguments886_3, "VARSIZED", "Meos_temporal_subtype_3"}, MeosOverload{arguments886_4, "VARSIZED", "Meos_temporal_subtype_4"}, MeosOverload{arguments886_5, "VARSIZED", "Meos_temporal_subtype_5"}, MeosOverload{arguments886_6, "VARSIZED", "Meos_temporal_subtype_6"}, MeosOverload{arguments886_7, "VARSIZED", "Meos_temporal_subtype_7"}, MeosOverload{arguments886_8, "VARSIZED", "Meos_temporal_subtype_8"}, MeosOverload{arguments886_9, "VARSIZED", "Meos_temporal_subtype_9"}, MeosOverload{arguments886_10, "VARSIZED", "Meos_temporal_subtype_10"}, MeosOverload{arguments886_11, "VARSIZED", "Meos_temporal_subtype_11"}, MeosOverload{arguments886_12, "VARSIZED", "Meos_temporal_subtype_12"}, MeosOverload{arguments886_13, "VARSIZED", "Meos_temporal_subtype_13"}, MeosOverload{arguments886_14, "VARSIZED", "Meos_temporal_subtype_14"}, MeosOverload{arguments886_15, "VARSIZED", "Meos_temporal_subtype_15"}, MeosOverload{arguments886_16, "VARSIZED", "Meos_temporal_subtype_16"}, MeosOverload{arguments886_17, "VARSIZED", "Meos_temporal_subtype_17"}, MeosOverload{arguments886_18, "VARSIZED", "Meos_temporal_subtype_18"}, MeosOverload{arguments886_19, "VARSIZED", "Meos_temporal_subtype_19"}};
+constexpr std::array<std::string_view, 1> arguments887_0{"TCBUFFER"};
+constexpr std::array<std::string_view, 1> arguments887_1{"TGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments887_2{"TGEOGRAPHY"};
+constexpr std::array<std::string_view, 1> arguments887_3{"TGEOMPOINT"};
+constexpr std::array<std::string_view, 1> arguments887_4{"TGEOGPOINT"};
+constexpr std::array<std::string_view, 1> arguments887_5{"TH3INDEX"};
+constexpr std::array<std::string_view, 1> arguments887_6{"TJSONB"};
+constexpr std::array<std::string_view, 1> arguments887_7{"TNPOINT"};
+constexpr std::array<std::string_view, 1> arguments887_8{"TPCPOINT"};
+constexpr std::array<std::string_view, 1> arguments887_9{"TPCPATCH"};
+constexpr std::array<std::string_view, 1> arguments887_10{"TPOSE"};
+constexpr std::array<std::string_view, 1> arguments887_11{"TPOSECHAIN"};
+constexpr std::array<std::string_view, 1> arguments887_12{"TQUADBIN"};
+constexpr std::array<std::string_view, 1> arguments887_13{"TRGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments887_14{"TS2CELL"};
+constexpr std::array<std::string_view, 1> arguments887_15{"TBOOL"};
+constexpr std::array<std::string_view, 1> arguments887_16{"TINT"};
+constexpr std::array<std::string_view, 1> arguments887_17{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments887_18{"TFLOAT"};
+constexpr std::array<std::string_view, 1> arguments887_19{"TTEXT"};
+constexpr std::array<MeosOverload, 20> overloads887{MeosOverload{arguments887_0, "INT32", "Meos_temporal_hash_0"}, MeosOverload{arguments887_1, "INT32", "Meos_temporal_hash_1"}, MeosOverload{arguments887_2, "INT32", "Meos_temporal_hash_2"}, MeosOverload{arguments887_3, "INT32", "Meos_temporal_hash_3"}, MeosOverload{arguments887_4, "INT32", "Meos_temporal_hash_4"}, MeosOverload{arguments887_5, "INT32", "Meos_temporal_hash_5"}, MeosOverload{arguments887_6, "INT32", "Meos_temporal_hash_6"}, MeosOverload{arguments887_7, "INT32", "Meos_temporal_hash_7"}, MeosOverload{arguments887_8, "INT32", "Meos_temporal_hash_8"}, MeosOverload{arguments887_9, "INT32", "Meos_temporal_hash_9"}, MeosOverload{arguments887_10, "INT32", "Meos_temporal_hash_10"}, MeosOverload{arguments887_11, "INT32", "Meos_temporal_hash_11"}, MeosOverload{arguments887_12, "INT32", "Meos_temporal_hash_12"}, MeosOverload{arguments887_13, "INT32", "Meos_temporal_hash_13"}, MeosOverload{arguments887_14, "INT32", "Meos_temporal_hash_14"}, MeosOverload{arguments887_15, "INT32", "Meos_temporal_hash_15"}, MeosOverload{arguments887_16, "INT32", "Meos_temporal_hash_16"}, MeosOverload{arguments887_17, "INT32", "Meos_temporal_hash_17"}, MeosOverload{arguments887_18, "INT32", "Meos_temporal_hash_18"}, MeosOverload{arguments887_19, "INT32", "Meos_temporal_hash_19"}};
+constexpr std::array<std::string_view, 2> arguments888_0{"TCBUFFER", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_1{"TGEOMETRY", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_2{"TGEOGRAPHY", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_3{"TGEOMPOINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_4{"TGEOGPOINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_5{"TH3INDEX", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_6{"TJSONB", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_7{"TNPOINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_8{"TPCPOINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_9{"TPCPATCH", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_10{"TPOSE", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_11{"TPOSECHAIN", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_12{"TQUADBIN", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_13{"TRGEOMETRY", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_14{"TS2CELL", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_15{"TBOOL", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_16{"TINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_17{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_18{"TFLOAT", "INT64"};
+constexpr std::array<std::string_view, 2> arguments888_19{"TTEXT", "INT64"};
+constexpr std::array<MeosOverload, 20> overloads888{MeosOverload{arguments888_0, "INT64", "Meos_temporal_hash_extended_0"}, MeosOverload{arguments888_1, "INT64", "Meos_temporal_hash_extended_1"}, MeosOverload{arguments888_2, "INT64", "Meos_temporal_hash_extended_2"}, MeosOverload{arguments888_3, "INT64", "Meos_temporal_hash_extended_3"}, MeosOverload{arguments888_4, "INT64", "Meos_temporal_hash_extended_4"}, MeosOverload{arguments888_5, "INT64", "Meos_temporal_hash_extended_5"}, MeosOverload{arguments888_6, "INT64", "Meos_temporal_hash_extended_6"}, MeosOverload{arguments888_7, "INT64", "Meos_temporal_hash_extended_7"}, MeosOverload{arguments888_8, "INT64", "Meos_temporal_hash_extended_8"}, MeosOverload{arguments888_9, "INT64", "Meos_temporal_hash_extended_9"}, MeosOverload{arguments888_10, "INT64", "Meos_temporal_hash_extended_10"}, MeosOverload{arguments888_11, "INT64", "Meos_temporal_hash_extended_11"}, MeosOverload{arguments888_12, "INT64", "Meos_temporal_hash_extended_12"}, MeosOverload{arguments888_13, "INT64", "Meos_temporal_hash_extended_13"}, MeosOverload{arguments888_14, "INT64", "Meos_temporal_hash_extended_14"}, MeosOverload{arguments888_15, "INT64", "Meos_temporal_hash_extended_15"}, MeosOverload{arguments888_16, "INT64", "Meos_temporal_hash_extended_16"}, MeosOverload{arguments888_17, "INT64", "Meos_temporal_hash_extended_17"}, MeosOverload{arguments888_18, "INT64", "Meos_temporal_hash_extended_18"}, MeosOverload{arguments888_19, "INT64", "Meos_temporal_hash_extended_19"}};
+constexpr std::array<std::string_view, 3> arguments889_0{"TCBUFFER", "TCBUFFER", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_1{"TCBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 3> arguments889_2{"TGEOMETRY", "TGEOMETRY", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_3{"TGEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 3> arguments889_4{"TGEOGRAPHY", "TGEOGRAPHY", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_5{"TGEOGRAPHY", "TGEOGRAPHY"};
+constexpr std::array<std::string_view, 3> arguments889_6{"TGEOMPOINT", "TGEOMPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_7{"TGEOMPOINT", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 3> arguments889_8{"TGEOGPOINT", "TGEOGPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_9{"TGEOGPOINT", "TGEOGPOINT"};
+constexpr std::array<std::string_view, 3> arguments889_10{"TH3INDEX", "TH3INDEX", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_11{"TH3INDEX", "TH3INDEX"};
+constexpr std::array<std::string_view, 3> arguments889_12{"TJSONB", "TJSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_13{"TJSONB", "TJSONB"};
+constexpr std::array<std::string_view, 3> arguments889_14{"TNPOINT", "TNPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_15{"TNPOINT", "TNPOINT"};
+constexpr std::array<std::string_view, 3> arguments889_16{"TPCPOINT", "TPCPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_17{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 3> arguments889_18{"TPCPATCH", "TPCPATCH", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_19{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<std::string_view, 3> arguments889_20{"TPOSE", "TPOSE", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_21{"TPOSE", "TPOSE"};
+constexpr std::array<std::string_view, 3> arguments889_22{"TPOSECHAIN", "TPOSECHAIN", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_23{"TPOSECHAIN", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 3> arguments889_24{"TQUADBIN", "TQUADBIN", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_25{"TQUADBIN", "TQUADBIN"};
+constexpr std::array<std::string_view, 3> arguments889_26{"TRGEOMETRY", "TRGEOMETRY", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_27{"TRGEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 3> arguments889_28{"TS2CELL", "TS2CELL", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_29{"TS2CELL", "TS2CELL"};
+constexpr std::array<std::string_view, 3> arguments889_30{"TBOOL", "TBOOL", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_31{"TBOOL", "TBOOL"};
+constexpr std::array<std::string_view, 3> arguments889_32{"TINT", "TINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_33{"TINT", "TINT"};
+constexpr std::array<std::string_view, 3> arguments889_34{"TBIGINT", "TBIGINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_35{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 3> arguments889_36{"TFLOAT", "TFLOAT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_37{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 3> arguments889_38{"TTEXT", "TTEXT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments889_39{"TTEXT", "TTEXT"};
+constexpr std::array<MeosOverload, 40> overloads889{MeosOverload{arguments889_0, "TCBUFFER", "Meos_temporal_insert_0"}, MeosOverload{arguments889_1, "TCBUFFER", "Meos_temporal_insert_0_2"}, MeosOverload{arguments889_2, "TGEOMETRY", "Meos_temporal_insert_1"}, MeosOverload{arguments889_3, "TGEOMETRY", "Meos_temporal_insert_1_2"}, MeosOverload{arguments889_4, "TGEOGRAPHY", "Meos_temporal_insert_2"}, MeosOverload{arguments889_5, "TGEOGRAPHY", "Meos_temporal_insert_2_2"}, MeosOverload{arguments889_6, "TGEOMPOINT", "Meos_temporal_insert_3"}, MeosOverload{arguments889_7, "TGEOMPOINT", "Meos_temporal_insert_3_2"}, MeosOverload{arguments889_8, "TGEOGPOINT", "Meos_temporal_insert_4"}, MeosOverload{arguments889_9, "TGEOGPOINT", "Meos_temporal_insert_4_2"}, MeosOverload{arguments889_10, "TH3INDEX", "Meos_temporal_insert_5"}, MeosOverload{arguments889_11, "TH3INDEX", "Meos_temporal_insert_5_2"}, MeosOverload{arguments889_12, "TJSONB", "Meos_temporal_insert_6"}, MeosOverload{arguments889_13, "TJSONB", "Meos_temporal_insert_6_2"}, MeosOverload{arguments889_14, "TNPOINT", "Meos_temporal_insert_7"}, MeosOverload{arguments889_15, "TNPOINT", "Meos_temporal_insert_7_2"}, MeosOverload{arguments889_16, "TPCPOINT", "Meos_temporal_insert_8"}, MeosOverload{arguments889_17, "TPCPOINT", "Meos_temporal_insert_8_2"}, MeosOverload{arguments889_18, "TPCPATCH", "Meos_temporal_insert_9"}, MeosOverload{arguments889_19, "TPCPATCH", "Meos_temporal_insert_9_2"}, MeosOverload{arguments889_20, "TPOSE", "Meos_temporal_insert_10"}, MeosOverload{arguments889_21, "TPOSE", "Meos_temporal_insert_10_2"}, MeosOverload{arguments889_22, "TPOSECHAIN", "Meos_temporal_insert_11"}, MeosOverload{arguments889_23, "TPOSECHAIN", "Meos_temporal_insert_11_2"}, MeosOverload{arguments889_24, "TQUADBIN", "Meos_temporal_insert_12"}, MeosOverload{arguments889_25, "TQUADBIN", "Meos_temporal_insert_12_2"}, MeosOverload{arguments889_26, "TRGEOMETRY", "Meos_temporal_insert_13"}, MeosOverload{arguments889_27, "TRGEOMETRY", "Meos_temporal_insert_13_2"}, MeosOverload{arguments889_28, "TS2CELL", "Meos_temporal_insert_14"}, MeosOverload{arguments889_29, "TS2CELL", "Meos_temporal_insert_14_2"}, MeosOverload{arguments889_30, "TBOOL", "Meos_temporal_insert_15"}, MeosOverload{arguments889_31, "TBOOL", "Meos_temporal_insert_15_2"}, MeosOverload{arguments889_32, "TINT", "Meos_temporal_insert_16"}, MeosOverload{arguments889_33, "TINT", "Meos_temporal_insert_16_2"}, MeosOverload{arguments889_34, "TBIGINT", "Meos_temporal_insert_17"}, MeosOverload{arguments889_35, "TBIGINT", "Meos_temporal_insert_17_2"}, MeosOverload{arguments889_36, "TFLOAT", "Meos_temporal_insert_18"}, MeosOverload{arguments889_37, "TFLOAT", "Meos_temporal_insert_18_2"}, MeosOverload{arguments889_38, "TTEXT", "Meos_temporal_insert_19"}, MeosOverload{arguments889_39, "TTEXT", "Meos_temporal_insert_19_2"}};
+constexpr std::array<std::string_view, 1> arguments890_0{"TCBUFFER"};
+constexpr std::array<std::string_view, 1> arguments890_1{"TGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments890_2{"TGEOGRAPHY"};
+constexpr std::array<std::string_view, 1> arguments890_3{"TGEOMPOINT"};
+constexpr std::array<std::string_view, 1> arguments890_4{"TGEOGPOINT"};
+constexpr std::array<std::string_view, 1> arguments890_5{"TH3INDEX"};
+constexpr std::array<std::string_view, 1> arguments890_6{"TJSONB"};
+constexpr std::array<std::string_view, 1> arguments890_7{"TNPOINT"};
+constexpr std::array<std::string_view, 1> arguments890_8{"TPCPOINT"};
+constexpr std::array<std::string_view, 1> arguments890_9{"TPCPATCH"};
+constexpr std::array<std::string_view, 1> arguments890_10{"TPOSE"};
+constexpr std::array<std::string_view, 1> arguments890_11{"TPOSECHAIN"};
+constexpr std::array<std::string_view, 1> arguments890_12{"TQUADBIN"};
+constexpr std::array<std::string_view, 1> arguments890_13{"TRGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments890_14{"TS2CELL"};
+constexpr std::array<std::string_view, 1> arguments890_15{"TBOOL"};
+constexpr std::array<std::string_view, 1> arguments890_16{"TINT"};
+constexpr std::array<std::string_view, 1> arguments890_17{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments890_18{"TFLOAT"};
+constexpr std::array<std::string_view, 1> arguments890_19{"TTEXT"};
+constexpr std::array<MeosOverload, 20> overloads890{MeosOverload{arguments890_0, "BOOLEAN", "Meos_temporal_lower_inc_0"}, MeosOverload{arguments890_1, "BOOLEAN", "Meos_temporal_lower_inc_1"}, MeosOverload{arguments890_2, "BOOLEAN", "Meos_temporal_lower_inc_2"}, MeosOverload{arguments890_3, "BOOLEAN", "Meos_temporal_lower_inc_3"}, MeosOverload{arguments890_4, "BOOLEAN", "Meos_temporal_lower_inc_4"}, MeosOverload{arguments890_5, "BOOLEAN", "Meos_temporal_lower_inc_5"}, MeosOverload{arguments890_6, "BOOLEAN", "Meos_temporal_lower_inc_6"}, MeosOverload{arguments890_7, "BOOLEAN", "Meos_temporal_lower_inc_7"}, MeosOverload{arguments890_8, "BOOLEAN", "Meos_temporal_lower_inc_8"}, MeosOverload{arguments890_9, "BOOLEAN", "Meos_temporal_lower_inc_9"}, MeosOverload{arguments890_10, "BOOLEAN", "Meos_temporal_lower_inc_10"}, MeosOverload{arguments890_11, "BOOLEAN", "Meos_temporal_lower_inc_11"}, MeosOverload{arguments890_12, "BOOLEAN", "Meos_temporal_lower_inc_12"}, MeosOverload{arguments890_13, "BOOLEAN", "Meos_temporal_lower_inc_13"}, MeosOverload{arguments890_14, "BOOLEAN", "Meos_temporal_lower_inc_14"}, MeosOverload{arguments890_15, "BOOLEAN", "Meos_temporal_lower_inc_15"}, MeosOverload{arguments890_16, "BOOLEAN", "Meos_temporal_lower_inc_16"}, MeosOverload{arguments890_17, "BOOLEAN", "Meos_temporal_lower_inc_17"}, MeosOverload{arguments890_18, "BOOLEAN", "Meos_temporal_lower_inc_18"}, MeosOverload{arguments890_19, "BOOLEAN", "Meos_temporal_lower_inc_19"}};
+constexpr std::array<std::string_view, 2> arguments891_0{"TCBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments891_1{"TGEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments891_2{"TGEOGRAPHY", "TGEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments891_3{"TGEOMPOINT", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments891_4{"TGEOGPOINT", "TGEOGPOINT"};
+constexpr std::array<std::string_view, 2> arguments891_5{"TH3INDEX", "TH3INDEX"};
+constexpr std::array<std::string_view, 2> arguments891_6{"TJSONB", "TJSONB"};
+constexpr std::array<std::string_view, 2> arguments891_7{"TNPOINT", "TNPOINT"};
+constexpr std::array<std::string_view, 2> arguments891_8{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments891_9{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments891_10{"TPOSE", "TPOSE"};
+constexpr std::array<std::string_view, 2> arguments891_11{"TPOSECHAIN", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 2> arguments891_12{"TQUADBIN", "TQUADBIN"};
+constexpr std::array<std::string_view, 2> arguments891_13{"TRGEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments891_14{"TS2CELL", "TS2CELL"};
+constexpr std::array<std::string_view, 2> arguments891_15{"TBOOL", "TBOOL"};
+constexpr std::array<std::string_view, 2> arguments891_16{"TINT", "TINT"};
+constexpr std::array<std::string_view, 2> arguments891_17{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 2> arguments891_18{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 2> arguments891_19{"TTEXT", "TTEXT"};
+constexpr std::array<std::string_view, 1> arguments891_20{"TCBUFFER_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_21{"TGEOMETRY_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_22{"TGEOGRAPHY_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_23{"TGEOMPOINT_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_24{"TGEOGPOINT_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_25{"TH3INDEX_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_26{"TJSONB_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_27{"TNPOINT_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_28{"TPCPOINT_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_29{"TPCPATCH_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_30{"TPOSE_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_31{"TPOSECHAIN_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_32{"TQUADBIN_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_33{"TRGEOMETRY_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_34{"TS2CELL_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_35{"TBOOL_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_36{"TINT_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_37{"TBIGINT_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_38{"TFLOAT_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments891_39{"TTEXT_ARRAY"};
+constexpr std::array<MeosOverload, 40> overloads891{MeosOverload{arguments891_0, "TCBUFFER", "Meos_temporal_merge_0"}, MeosOverload{arguments891_1, "TGEOMETRY", "Meos_temporal_merge_1"}, MeosOverload{arguments891_2, "TGEOGRAPHY", "Meos_temporal_merge_2"}, MeosOverload{arguments891_3, "TGEOMPOINT", "Meos_temporal_merge_3"}, MeosOverload{arguments891_4, "TGEOGPOINT", "Meos_temporal_merge_4"}, MeosOverload{arguments891_5, "TH3INDEX", "Meos_temporal_merge_5"}, MeosOverload{arguments891_6, "TJSONB", "Meos_temporal_merge_6"}, MeosOverload{arguments891_7, "TNPOINT", "Meos_temporal_merge_7"}, MeosOverload{arguments891_8, "TPCPOINT", "Meos_temporal_merge_8"}, MeosOverload{arguments891_9, "TPCPATCH", "Meos_temporal_merge_9"}, MeosOverload{arguments891_10, "TPOSE", "Meos_temporal_merge_10"}, MeosOverload{arguments891_11, "TPOSECHAIN", "Meos_temporal_merge_11"}, MeosOverload{arguments891_12, "TQUADBIN", "Meos_temporal_merge_12"}, MeosOverload{arguments891_13, "TRGEOMETRY", "Meos_temporal_merge_13"}, MeosOverload{arguments891_14, "TS2CELL", "Meos_temporal_merge_14"}, MeosOverload{arguments891_15, "TBOOL", "Meos_temporal_merge_15"}, MeosOverload{arguments891_16, "TINT", "Meos_temporal_merge_16"}, MeosOverload{arguments891_17, "TBIGINT", "Meos_temporal_merge_17"}, MeosOverload{arguments891_18, "TFLOAT", "Meos_temporal_merge_18"}, MeosOverload{arguments891_19, "TTEXT", "Meos_temporal_merge_19"}, MeosOverload{arguments891_20, "TCBUFFER", "Meos_temporal_merge_array_0"}, MeosOverload{arguments891_21, "TGEOMETRY", "Meos_temporal_merge_array_1"}, MeosOverload{arguments891_22, "TGEOGRAPHY", "Meos_temporal_merge_array_2"}, MeosOverload{arguments891_23, "TGEOMPOINT", "Meos_temporal_merge_array_3"}, MeosOverload{arguments891_24, "TGEOGPOINT", "Meos_temporal_merge_array_4"}, MeosOverload{arguments891_25, "TH3INDEX", "Meos_temporal_merge_array_5"}, MeosOverload{arguments891_26, "TJSONB", "Meos_temporal_merge_array_6"}, MeosOverload{arguments891_27, "TNPOINT", "Meos_temporal_merge_array_7"}, MeosOverload{arguments891_28, "TPCPOINT", "Meos_temporal_merge_array_8"}, MeosOverload{arguments891_29, "TPCPATCH", "Meos_temporal_merge_array_9"}, MeosOverload{arguments891_30, "TPOSE", "Meos_temporal_merge_array_10"}, MeosOverload{arguments891_31, "TPOSECHAIN", "Meos_temporal_merge_array_11"}, MeosOverload{arguments891_32, "TQUADBIN", "Meos_temporal_merge_array_12"}, MeosOverload{arguments891_33, "TRGEOMETRY", "Meos_temporal_merge_array_13"}, MeosOverload{arguments891_34, "TS2CELL", "Meos_temporal_merge_array_14"}, MeosOverload{arguments891_35, "TBOOL", "Meos_temporal_merge_array_15"}, MeosOverload{arguments891_36, "TINT", "Meos_temporal_merge_array_16"}, MeosOverload{arguments891_37, "TBIGINT", "Meos_temporal_merge_array_17"}, MeosOverload{arguments891_38, "TFLOAT", "Meos_temporal_merge_array_18"}, MeosOverload{arguments891_39, "TTEXT", "Meos_temporal_merge_array_19"}};
+constexpr std::array<std::string_view, 3> arguments892_0{"TCBUFFER", "TCBUFFER", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_1{"TCBUFFER", "TCBUFFER"};
+constexpr std::array<std::string_view, 3> arguments892_2{"TGEOMETRY", "TGEOMETRY", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_3{"TGEOMETRY", "TGEOMETRY"};
+constexpr std::array<std::string_view, 3> arguments892_4{"TGEOGRAPHY", "TGEOGRAPHY", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_5{"TGEOGRAPHY", "TGEOGRAPHY"};
+constexpr std::array<std::string_view, 3> arguments892_6{"TGEOMPOINT", "TGEOMPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_7{"TGEOMPOINT", "TGEOMPOINT"};
+constexpr std::array<std::string_view, 3> arguments892_8{"TGEOGPOINT", "TGEOGPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_9{"TGEOGPOINT", "TGEOGPOINT"};
+constexpr std::array<std::string_view, 3> arguments892_10{"TH3INDEX", "TH3INDEX", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_11{"TH3INDEX", "TH3INDEX"};
+constexpr std::array<std::string_view, 3> arguments892_12{"TJSONB", "TJSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_13{"TJSONB", "TJSONB"};
+constexpr std::array<std::string_view, 3> arguments892_14{"TNPOINT", "TNPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_15{"TNPOINT", "TNPOINT"};
+constexpr std::array<std::string_view, 3> arguments892_16{"TPCPOINT", "TPCPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_17{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 3> arguments892_18{"TPCPATCH", "TPCPATCH", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_19{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<std::string_view, 3> arguments892_20{"TPOSE", "TPOSE", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_21{"TPOSE", "TPOSE"};
+constexpr std::array<std::string_view, 3> arguments892_22{"TPOSECHAIN", "TPOSECHAIN", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_23{"TPOSECHAIN", "TPOSECHAIN"};
+constexpr std::array<std::string_view, 3> arguments892_24{"TQUADBIN", "TQUADBIN", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_25{"TQUADBIN", "TQUADBIN"};
+constexpr std::array<std::string_view, 3> arguments892_26{"TRGEOMETRY", "TRGEOMETRY", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_27{"TRGEOMETRY", "TRGEOMETRY"};
+constexpr std::array<std::string_view, 3> arguments892_28{"TS2CELL", "TS2CELL", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_29{"TS2CELL", "TS2CELL"};
+constexpr std::array<std::string_view, 3> arguments892_30{"TBOOL", "TBOOL", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_31{"TBOOL", "TBOOL"};
+constexpr std::array<std::string_view, 3> arguments892_32{"TINT", "TINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_33{"TINT", "TINT"};
+constexpr std::array<std::string_view, 3> arguments892_34{"TBIGINT", "TBIGINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_35{"TBIGINT", "TBIGINT"};
+constexpr std::array<std::string_view, 3> arguments892_36{"TFLOAT", "TFLOAT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_37{"TFLOAT", "TFLOAT"};
+constexpr std::array<std::string_view, 3> arguments892_38{"TTEXT", "TTEXT", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments892_39{"TTEXT", "TTEXT"};
+constexpr std::array<MeosOverload, 40> overloads892{MeosOverload{arguments892_0, "TCBUFFER", "Meos_temporal_update_0"}, MeosOverload{arguments892_1, "TCBUFFER", "Meos_temporal_update_0_2"}, MeosOverload{arguments892_2, "TGEOMETRY", "Meos_temporal_update_1"}, MeosOverload{arguments892_3, "TGEOMETRY", "Meos_temporal_update_1_2"}, MeosOverload{arguments892_4, "TGEOGRAPHY", "Meos_temporal_update_2"}, MeosOverload{arguments892_5, "TGEOGRAPHY", "Meos_temporal_update_2_2"}, MeosOverload{arguments892_6, "TGEOMPOINT", "Meos_temporal_update_3"}, MeosOverload{arguments892_7, "TGEOMPOINT", "Meos_temporal_update_3_2"}, MeosOverload{arguments892_8, "TGEOGPOINT", "Meos_temporal_update_4"}, MeosOverload{arguments892_9, "TGEOGPOINT", "Meos_temporal_update_4_2"}, MeosOverload{arguments892_10, "TH3INDEX", "Meos_temporal_update_5"}, MeosOverload{arguments892_11, "TH3INDEX", "Meos_temporal_update_5_2"}, MeosOverload{arguments892_12, "TJSONB", "Meos_temporal_update_6"}, MeosOverload{arguments892_13, "TJSONB", "Meos_temporal_update_6_2"}, MeosOverload{arguments892_14, "TNPOINT", "Meos_temporal_update_7"}, MeosOverload{arguments892_15, "TNPOINT", "Meos_temporal_update_7_2"}, MeosOverload{arguments892_16, "TPCPOINT", "Meos_temporal_update_8"}, MeosOverload{arguments892_17, "TPCPOINT", "Meos_temporal_update_8_2"}, MeosOverload{arguments892_18, "TPCPATCH", "Meos_temporal_update_9"}, MeosOverload{arguments892_19, "TPCPATCH", "Meos_temporal_update_9_2"}, MeosOverload{arguments892_20, "TPOSE", "Meos_temporal_update_10"}, MeosOverload{arguments892_21, "TPOSE", "Meos_temporal_update_10_2"}, MeosOverload{arguments892_22, "TPOSECHAIN", "Meos_temporal_update_11"}, MeosOverload{arguments892_23, "TPOSECHAIN", "Meos_temporal_update_11_2"}, MeosOverload{arguments892_24, "TQUADBIN", "Meos_temporal_update_12"}, MeosOverload{arguments892_25, "TQUADBIN", "Meos_temporal_update_12_2"}, MeosOverload{arguments892_26, "TRGEOMETRY", "Meos_temporal_update_13"}, MeosOverload{arguments892_27, "TRGEOMETRY", "Meos_temporal_update_13_2"}, MeosOverload{arguments892_28, "TS2CELL", "Meos_temporal_update_14"}, MeosOverload{arguments892_29, "TS2CELL", "Meos_temporal_update_14_2"}, MeosOverload{arguments892_30, "TBOOL", "Meos_temporal_update_15"}, MeosOverload{arguments892_31, "TBOOL", "Meos_temporal_update_15_2"}, MeosOverload{arguments892_32, "TINT", "Meos_temporal_update_16"}, MeosOverload{arguments892_33, "TINT", "Meos_temporal_update_16_2"}, MeosOverload{arguments892_34, "TBIGINT", "Meos_temporal_update_17"}, MeosOverload{arguments892_35, "TBIGINT", "Meos_temporal_update_17_2"}, MeosOverload{arguments892_36, "TFLOAT", "Meos_temporal_update_18"}, MeosOverload{arguments892_37, "TFLOAT", "Meos_temporal_update_18_2"}, MeosOverload{arguments892_38, "TTEXT", "Meos_temporal_update_19"}, MeosOverload{arguments892_39, "TTEXT", "Meos_temporal_update_19_2"}};
+constexpr std::array<std::string_view, 1> arguments893_0{"TCBUFFER"};
+constexpr std::array<std::string_view, 1> arguments893_1{"TGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments893_2{"TGEOGRAPHY"};
+constexpr std::array<std::string_view, 1> arguments893_3{"TGEOMPOINT"};
+constexpr std::array<std::string_view, 1> arguments893_4{"TGEOGPOINT"};
+constexpr std::array<std::string_view, 1> arguments893_5{"TH3INDEX"};
+constexpr std::array<std::string_view, 1> arguments893_6{"TJSONB"};
+constexpr std::array<std::string_view, 1> arguments893_7{"TNPOINT"};
+constexpr std::array<std::string_view, 1> arguments893_8{"TPCPOINT"};
+constexpr std::array<std::string_view, 1> arguments893_9{"TPCPATCH"};
+constexpr std::array<std::string_view, 1> arguments893_10{"TPOSE"};
+constexpr std::array<std::string_view, 1> arguments893_11{"TPOSECHAIN"};
+constexpr std::array<std::string_view, 1> arguments893_12{"TQUADBIN"};
+constexpr std::array<std::string_view, 1> arguments893_13{"TRGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments893_14{"TS2CELL"};
+constexpr std::array<std::string_view, 1> arguments893_15{"TBOOL"};
+constexpr std::array<std::string_view, 1> arguments893_16{"TINT"};
+constexpr std::array<std::string_view, 1> arguments893_17{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments893_18{"TFLOAT"};
+constexpr std::array<std::string_view, 1> arguments893_19{"TTEXT"};
+constexpr std::array<MeosOverload, 20> overloads893{MeosOverload{arguments893_0, "BOOLEAN", "Meos_temporal_upper_inc_0"}, MeosOverload{arguments893_1, "BOOLEAN", "Meos_temporal_upper_inc_1"}, MeosOverload{arguments893_2, "BOOLEAN", "Meos_temporal_upper_inc_2"}, MeosOverload{arguments893_3, "BOOLEAN", "Meos_temporal_upper_inc_3"}, MeosOverload{arguments893_4, "BOOLEAN", "Meos_temporal_upper_inc_4"}, MeosOverload{arguments893_5, "BOOLEAN", "Meos_temporal_upper_inc_5"}, MeosOverload{arguments893_6, "BOOLEAN", "Meos_temporal_upper_inc_6"}, MeosOverload{arguments893_7, "BOOLEAN", "Meos_temporal_upper_inc_7"}, MeosOverload{arguments893_8, "BOOLEAN", "Meos_temporal_upper_inc_8"}, MeosOverload{arguments893_9, "BOOLEAN", "Meos_temporal_upper_inc_9"}, MeosOverload{arguments893_10, "BOOLEAN", "Meos_temporal_upper_inc_10"}, MeosOverload{arguments893_11, "BOOLEAN", "Meos_temporal_upper_inc_11"}, MeosOverload{arguments893_12, "BOOLEAN", "Meos_temporal_upper_inc_12"}, MeosOverload{arguments893_13, "BOOLEAN", "Meos_temporal_upper_inc_13"}, MeosOverload{arguments893_14, "BOOLEAN", "Meos_temporal_upper_inc_14"}, MeosOverload{arguments893_15, "BOOLEAN", "Meos_temporal_upper_inc_15"}, MeosOverload{arguments893_16, "BOOLEAN", "Meos_temporal_upper_inc_16"}, MeosOverload{arguments893_17, "BOOLEAN", "Meos_temporal_upper_inc_17"}, MeosOverload{arguments893_18, "BOOLEAN", "Meos_temporal_upper_inc_18"}, MeosOverload{arguments893_19, "BOOLEAN", "Meos_temporal_upper_inc_19"}};
+constexpr std::array<std::string_view, 1> arguments894_0{"TEXTSET"};
+constexpr std::array<std::string_view, 1> arguments894_1{"TTEXT"};
+constexpr std::array<MeosOverload, 2> overloads894{MeosOverload{arguments894_0, "TEXTSET", "Meos_textset_initcap_0"}, MeosOverload{arguments894_1, "TTEXT", "Meos_ttext_initcap_0"}};
+constexpr std::array<std::string_view, 1> arguments895_0{"TEXTSET"};
+constexpr std::array<std::string_view, 1> arguments895_1{"TTEXT"};
+constexpr std::array<MeosOverload, 2> overloads895{MeosOverload{arguments895_0, "TEXTSET", "Meos_textset_lower_0"}, MeosOverload{arguments895_1, "TTEXT", "Meos_ttext_lower_0"}};
+constexpr std::array<std::string_view, 1> arguments896_0{"TEXTSET"};
+constexpr std::array<std::string_view, 1> arguments896_1{"TTEXT"};
+constexpr std::array<MeosOverload, 2> overloads896{MeosOverload{arguments896_0, "TEXTSET", "Meos_textset_upper_0"}, MeosOverload{arguments896_1, "TTEXT", "Meos_ttext_upper_0"}};
+constexpr std::array<std::string_view, 1> arguments897_0{"JSONBSET"};
+constexpr std::array<std::string_view, 3> arguments897_1{"JSONBSET", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments897_2{"JSONBSET", "VARSIZED"};
+constexpr std::array<MeosOverload, 3> overloads897{MeosOverload{arguments897_0, "TEXTSET", "Meos_jsonbset_to_textset_0"}, MeosOverload{arguments897_1, "TEXTSET", "Meos_jsonbset_to_textset_key_0"}, MeosOverload{arguments897_2, "TEXTSET", "Meos_jsonbset_to_textset_key_0_2"}};
+constexpr std::array<std::string_view, 1> arguments898_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads898{MeosOverload{arguments898_0, "TEXTSET", "Meos_set_from_wkb_44"}};
+constexpr std::array<std::string_view, 1> arguments899_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads899{MeosOverload{arguments899_0, "TEXTSET", "Meos_set_from_hexwkb_26"}};
+constexpr std::array<std::string_view, 1> arguments900_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads900{MeosOverload{arguments900_0, "TEXTSET", "Meos_textset_in_1"}};
+constexpr std::array<std::string_view, 2> arguments901_0{"FLOAT64", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments901_1{"FLOAT64", "TSTZSET"};
+constexpr std::array<std::string_view, 3> arguments901_2{"FLOAT64", "TSTZSPAN", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments901_3{"FLOAT64", "TSTZSPAN"};
+constexpr std::array<std::string_view, 3> arguments901_4{"FLOAT64", "TSTZSPANSET", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments901_5{"FLOAT64", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments901_6{"TINT"};
+constexpr std::array<std::string_view, 1> arguments901_7{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments901_8{"TCBUFFER"};
+constexpr std::array<std::string_view, 4> arguments901_9{"TJSONB", "VARSIZED", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 3> arguments901_10{"TJSONB", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments901_11{"TJSONB", "VARSIZED"};
+constexpr std::array<MeosOverload, 12> overloads901{MeosOverload{arguments901_0, "TFLOAT", "Meos_tfloatinst_make_0"}, MeosOverload{arguments901_1, "TFLOAT", "Meos_tfloatseq_from_base_tstzset_0"}, MeosOverload{arguments901_2, "TFLOAT", "Meos_tfloatseq_from_base_tstzspan_0"}, MeosOverload{arguments901_3, "TFLOAT", "Meos_tfloatseq_from_base_tstzspan_0_2"}, MeosOverload{arguments901_4, "TFLOAT", "Meos_tfloatseqset_from_base_tstzspanset_0"}, MeosOverload{arguments901_5, "TFLOAT", "Meos_tfloatseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments901_6, "TFLOAT", "Meos_tint_to_tfloat_0"}, MeosOverload{arguments901_7, "TFLOAT", "Meos_tbigint_to_tfloat_0"}, MeosOverload{arguments901_8, "TFLOAT", "Meos_tcbuffer_to_tfloat_0"}, MeosOverload{arguments901_9, "TFLOAT", "Meos_tjsonb_to_tfloat_0"}, MeosOverload{arguments901_10, "TFLOAT", "Meos_tjsonb_to_tfloat_0_3"}, MeosOverload{arguments901_11, "TFLOAT", "Meos_tjsonb_to_tfloat_0_2"}};
+constexpr std::array<std::string_view, 1> arguments902_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads902{MeosOverload{arguments902_0, "TFLOAT", "Meos_temporal_from_wkb_51"}};
+constexpr std::array<std::string_view, 1> arguments903_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads903{MeosOverload{arguments903_0, "TFLOAT", "Meos_temporal_from_hexwkb_32"}};
+constexpr std::array<std::string_view, 1> arguments904_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads904{MeosOverload{arguments904_0, "TFLOAT", "Meos_tfloat_from_mfjson_0"}};
 constexpr std::array<std::string_view, 1> arguments905_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads905{MeosOverload{arguments905_0, "TGEOGPOINT", "Meos_tgeogpoint_in_2"}};
-constexpr std::array<std::string_view, 1> arguments906_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads906{MeosOverload{arguments906_0, "TGEOGPOINT", "Meos_temporal_from_hexwkb_9"}};
-constexpr std::array<std::string_view, 1> arguments907_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads907{MeosOverload{arguments907_0, "TGEOGPOINT", "Meos_temporal_from_hexwkb_7"}};
-constexpr std::array<std::string_view, 1> arguments908_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads908{MeosOverload{arguments908_0, "TGEOGPOINT", "Meos_tgeogpoint_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments909_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads909{MeosOverload{arguments909_0, "TGEOGPOINT", "Meos_tgeogpoint_in_1"}};
-constexpr std::array<std::string_view, 1> arguments910_0{"TGEOGPOINT"};
-constexpr std::array<MeosOverload, 1> overloads910{MeosOverload{arguments910_0, "TGEOGPOINT", "Meos_temporal_as_tinstant_4"}};
-constexpr std::array<std::string_view, 4> arguments911_0{"TGEOGPOINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments911_1{"TGEOGPOINT_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments911_2{"TGEOGPOINT_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments911_3{"TGEOGPOINT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments911_4{"TGEOGPOINT", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads911{MeosOverload{arguments911_0, "TGEOGPOINT", "Meos_tsequence_make_4"}, MeosOverload{arguments911_1, "TGEOGPOINT", "Meos_tsequence_make_4_3"}, MeosOverload{arguments911_2, "TGEOGPOINT", "Meos_tsequence_make_4_2"}, MeosOverload{arguments911_3, "TGEOGPOINT", "Meos_tsequence_make_4_1"}, MeosOverload{arguments911_4, "TGEOGPOINT", "Meos_temporal_as_tsequence_4"}};
-constexpr std::array<std::string_view, 1> arguments912_0{"TGEOGPOINT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments912_1{"TGEOGPOINT", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads912{MeosOverload{arguments912_0, "TGEOGPOINT", "Meos_tsequenceset_make_4"}, MeosOverload{arguments912_1, "TGEOGPOINT", "Meos_temporal_as_tsequenceset_4"}};
-constexpr std::array<std::string_view, 2> arguments913_0{"GEOGRAPHY", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments913_1{"GEOGRAPHY", "TSTZSET"};
-constexpr std::array<std::string_view, 3> arguments913_2{"GEOGRAPHY", "TSTZSPAN", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments913_3{"GEOGRAPHY", "TSTZSPAN"};
-constexpr std::array<std::string_view, 3> arguments913_4{"GEOGRAPHY", "TSTZSPANSET", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments913_5{"GEOGRAPHY", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments913_6{"TGEOGPOINT"};
-constexpr std::array<std::string_view, 1> arguments913_7{"TGEOMETRY"};
-constexpr std::array<std::string_view, 3> arguments913_8{"TJSONB", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments913_9{"TJSONB", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments913_10{"TPCPATCH"};
-constexpr std::array<std::string_view, 1> arguments913_11{"TRGEOMETRY"};
-constexpr std::array<MeosOverload, 12> overloads913{MeosOverload{arguments913_0, "TGEOGRAPHY", "Meos_tgeoinst_make_1"}, MeosOverload{arguments913_1, "TGEOGRAPHY", "Meos_tgeoseq_from_base_tstzset_1"}, MeosOverload{arguments913_2, "TGEOGRAPHY", "Meos_tgeoseq_from_base_tstzspan_1"}, MeosOverload{arguments913_3, "TGEOGRAPHY", "Meos_tgeoseq_from_base_tstzspan_1_2"}, MeosOverload{arguments913_4, "TGEOGRAPHY", "Meos_tgeoseqset_from_base_tstzspanset_1"}, MeosOverload{arguments913_5, "TGEOGRAPHY", "Meos_tgeoseqset_from_base_tstzspanset_1_2"}, MeosOverload{arguments913_6, "TGEOGRAPHY", "Meos_tgeogpoint_to_tgeography_0"}, MeosOverload{arguments913_7, "TGEOGRAPHY", "Meos_tgeometry_to_tgeography_0"}, MeosOverload{arguments913_8, "TGEOGRAPHY", "Meos_tjsonb_to_tgeography_0"}, MeosOverload{arguments913_9, "TGEOGRAPHY", "Meos_tjsonb_to_tgeography_0_2"}, MeosOverload{arguments913_10, "TGEOGRAPHY", "Meos_tpcpatch_to_tgeography_0"}, MeosOverload{arguments913_11, "TGEOGRAPHY", "Meos_trgeometry_to_tgeography_0"}};
-constexpr std::array<std::string_view, 1> arguments914_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads914{MeosOverload{arguments914_0, "TGEOGRAPHY", "Meos_temporal_from_wkb_22"}};
-constexpr std::array<std::string_view, 1> arguments915_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads915{MeosOverload{arguments915_0, "TGEOGRAPHY", "Meos_temporal_from_wkb_24"}};
+constexpr std::array<MeosOverload, 1> overloads905{MeosOverload{arguments905_0, "TFLOAT", "Meos_tfloat_in_1"}};
+constexpr std::array<std::string_view, 1> arguments906_0{"TFLOAT"};
+constexpr std::array<MeosOverload, 1> overloads906{MeosOverload{arguments906_0, "TFLOAT", "Meos_temporal_as_tinstant_17"}};
+constexpr std::array<std::string_view, 4> arguments907_0{"TFLOAT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments907_1{"TFLOAT_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments907_2{"TFLOAT_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments907_3{"TFLOAT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments907_4{"TFLOAT", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads907{MeosOverload{arguments907_0, "TFLOAT", "Meos_tsequence_make_18"}, MeosOverload{arguments907_1, "TFLOAT", "Meos_tsequence_make_18_3"}, MeosOverload{arguments907_2, "TFLOAT", "Meos_tsequence_make_18_2"}, MeosOverload{arguments907_3, "TFLOAT", "Meos_tsequence_make_18_1"}, MeosOverload{arguments907_4, "TFLOAT", "Meos_temporal_as_tsequence_17"}};
+constexpr std::array<std::string_view, 1> arguments908_0{"TFLOAT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments908_1{"TFLOAT", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads908{MeosOverload{arguments908_0, "TFLOAT", "Meos_tsequenceset_make_18"}, MeosOverload{arguments908_1, "TFLOAT", "Meos_temporal_as_tsequenceset_17"}};
+constexpr std::array<std::string_view, 2> arguments909_0{"GEOGRAPHY", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments909_1{"GEOGRAPHY", "TSTZSET"};
+constexpr std::array<std::string_view, 3> arguments909_2{"GEOGRAPHY", "TSTZSPAN", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments909_3{"GEOGRAPHY", "TSTZSPAN"};
+constexpr std::array<std::string_view, 3> arguments909_4{"GEOGRAPHY", "TSTZSPANSET", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments909_5{"GEOGRAPHY", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments909_6{"GEOGRAPHY"};
+constexpr std::array<std::string_view, 1> arguments909_7{"TGEOGRAPHY"};
+constexpr std::array<std::string_view, 1> arguments909_8{"TGEOMPOINT"};
+constexpr std::array<std::string_view, 1> arguments909_9{"TCBUFFER"};
+constexpr std::array<std::string_view, 4> arguments909_10{"TJSONB", "VARSIZED", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 3> arguments909_11{"TJSONB", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments909_12{"TJSONB", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments909_13{"TNPOINT"};
+constexpr std::array<std::string_view, 1> arguments909_14{"TPCPOINT"};
+constexpr std::array<std::string_view, 1> arguments909_15{"TPOSE"};
+constexpr std::array<std::string_view, 1> arguments909_16{"TPOSECHAIN"};
+constexpr std::array<std::string_view, 1> arguments909_17{"TQUADBIN"};
+constexpr std::array<std::string_view, 1> arguments909_18{"TRGEOMETRY"};
+constexpr std::array<MeosOverload, 19> overloads909{MeosOverload{arguments909_0, "TGEOGPOINT", "Meos_tpointinst_make_1"}, MeosOverload{arguments909_1, "TGEOGPOINT", "Meos_tpointseq_from_base_tstzset_1"}, MeosOverload{arguments909_2, "TGEOGPOINT", "Meos_tpointseq_from_base_tstzspan_1"}, MeosOverload{arguments909_3, "TGEOGPOINT", "Meos_tpointseq_from_base_tstzspan_1_2"}, MeosOverload{arguments909_4, "TGEOGPOINT", "Meos_tpointseqset_from_base_tstzspanset_1"}, MeosOverload{arguments909_5, "TGEOGPOINT", "Meos_tpointseqset_from_base_tstzspanset_1_2"}, MeosOverload{arguments909_6, "TGEOGPOINT", "Meos_geomeas_to_tpoint_1"}, MeosOverload{arguments909_7, "TGEOGPOINT", "Meos_tgeography_to_tgeogpoint_0"}, MeosOverload{arguments909_8, "TGEOGPOINT", "Meos_tgeompoint_to_tgeogpoint_0"}, MeosOverload{arguments909_9, "TGEOGPOINT", "Meos_tcbuffer_to_tgeogpoint_0"}, MeosOverload{arguments909_10, "TGEOGPOINT", "Meos_tjsonb_to_tgeogpoint_0"}, MeosOverload{arguments909_11, "TGEOGPOINT", "Meos_tjsonb_to_tgeogpoint_0_3"}, MeosOverload{arguments909_12, "TGEOGPOINT", "Meos_tjsonb_to_tgeogpoint_0_2"}, MeosOverload{arguments909_13, "TGEOGPOINT", "Meos_tnpoint_to_tgeogpoint_0"}, MeosOverload{arguments909_14, "TGEOGPOINT", "Meos_tpcpoint_to_tgeogpoint_0"}, MeosOverload{arguments909_15, "TGEOGPOINT", "Meos_tpose_to_tgeogpoint_0"}, MeosOverload{arguments909_16, "TGEOGPOINT", "Meos_tposechain_to_tgeogpoint_0"}, MeosOverload{arguments909_17, "TGEOGPOINT", "Meos_tquadbin_to_tgeogpoint_0"}, MeosOverload{arguments909_18, "TGEOGPOINT", "Meos_trgeometry_to_tgeogpoint_0"}};
+constexpr std::array<std::string_view, 1> arguments910_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads910{MeosOverload{arguments910_0, "TGEOGPOINT", "Meos_temporal_from_wkb_26"}};
+constexpr std::array<std::string_view, 1> arguments911_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads911{MeosOverload{arguments911_0, "TGEOGPOINT", "Meos_temporal_from_wkb_28"}};
+constexpr std::array<std::string_view, 1> arguments912_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads912{MeosOverload{arguments912_0, "TGEOGPOINT", "Meos_tgeogpoint_in_2"}};
+constexpr std::array<std::string_view, 1> arguments913_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads913{MeosOverload{arguments913_0, "TGEOGPOINT", "Meos_temporal_from_hexwkb_9"}};
+constexpr std::array<std::string_view, 1> arguments914_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads914{MeosOverload{arguments914_0, "TGEOGPOINT", "Meos_temporal_from_hexwkb_7"}};
+constexpr std::array<std::string_view, 1> arguments915_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads915{MeosOverload{arguments915_0, "TGEOGPOINT", "Meos_tgeogpoint_from_mfjson_0"}};
 constexpr std::array<std::string_view, 1> arguments916_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads916{MeosOverload{arguments916_0, "TGEOGRAPHY", "Meos_tgeography_in_2"}};
-constexpr std::array<std::string_view, 1> arguments917_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads917{MeosOverload{arguments917_0, "TGEOGRAPHY", "Meos_temporal_from_hexwkb_5"}};
-constexpr std::array<std::string_view, 1> arguments918_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads918{MeosOverload{arguments918_0, "TGEOGRAPHY", "Meos_temporal_from_hexwkb_3"}};
-constexpr std::array<std::string_view, 1> arguments919_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads919{MeosOverload{arguments919_0, "TGEOGRAPHY", "Meos_tgeography_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments920_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads920{MeosOverload{arguments920_0, "TGEOGRAPHY", "Meos_tgeography_in_1"}};
-constexpr std::array<std::string_view, 1> arguments921_0{"TGEOGRAPHY"};
-constexpr std::array<MeosOverload, 1> overloads921{MeosOverload{arguments921_0, "TGEOGRAPHY", "Meos_temporal_as_tinstant_2"}};
-constexpr std::array<std::string_view, 4> arguments922_0{"TGEOGRAPHY_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments922_1{"TGEOGRAPHY_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments922_2{"TGEOGRAPHY_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments922_3{"TGEOGRAPHY_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments922_4{"TGEOGRAPHY", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads922{MeosOverload{arguments922_0, "TGEOGRAPHY", "Meos_tsequence_make_2"}, MeosOverload{arguments922_1, "TGEOGRAPHY", "Meos_tsequence_make_2_3"}, MeosOverload{arguments922_2, "TGEOGRAPHY", "Meos_tsequence_make_2_2"}, MeosOverload{arguments922_3, "TGEOGRAPHY", "Meos_tsequence_make_2_1"}, MeosOverload{arguments922_4, "TGEOGRAPHY", "Meos_temporal_as_tsequence_2"}};
-constexpr std::array<std::string_view, 1> arguments923_0{"TGEOGRAPHY_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments923_1{"TGEOGRAPHY", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads923{MeosOverload{arguments923_0, "TGEOGRAPHY", "Meos_tsequenceset_make_2"}, MeosOverload{arguments923_1, "TGEOGRAPHY", "Meos_temporal_as_tsequenceset_2"}};
-constexpr std::array<std::string_view, 2> arguments924_0{"GEOMETRY", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments924_1{"GEOMETRY", "TSTZSET"};
-constexpr std::array<std::string_view, 3> arguments924_2{"GEOMETRY", "TSTZSPAN", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments924_3{"GEOMETRY", "TSTZSPAN"};
-constexpr std::array<std::string_view, 3> arguments924_4{"GEOMETRY", "TSTZSPANSET", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments924_5{"GEOMETRY", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments924_6{"TGEOGRAPHY"};
-constexpr std::array<std::string_view, 1> arguments924_7{"TGEOMPOINT"};
-constexpr std::array<std::string_view, 3> arguments924_8{"TJSONB", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments924_9{"TJSONB", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments924_10{"TPCPATCH"};
-constexpr std::array<std::string_view, 1> arguments924_11{"TRGEOMETRY"};
-constexpr std::array<MeosOverload, 12> overloads924{MeosOverload{arguments924_0, "TGEOMETRY", "Meos_tgeoinst_make_0"}, MeosOverload{arguments924_1, "TGEOMETRY", "Meos_tgeoseq_from_base_tstzset_0"}, MeosOverload{arguments924_2, "TGEOMETRY", "Meos_tgeoseq_from_base_tstzspan_0"}, MeosOverload{arguments924_3, "TGEOMETRY", "Meos_tgeoseq_from_base_tstzspan_0_2"}, MeosOverload{arguments924_4, "TGEOMETRY", "Meos_tgeoseqset_from_base_tstzspanset_0"}, MeosOverload{arguments924_5, "TGEOMETRY", "Meos_tgeoseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments924_6, "TGEOMETRY", "Meos_tgeography_to_tgeometry_0"}, MeosOverload{arguments924_7, "TGEOMETRY", "Meos_tgeompoint_to_tgeometry_0"}, MeosOverload{arguments924_8, "TGEOMETRY", "Meos_tjsonb_to_tgeometry_0"}, MeosOverload{arguments924_9, "TGEOMETRY", "Meos_tjsonb_to_tgeometry_0_2"}, MeosOverload{arguments924_10, "TGEOMETRY", "Meos_tpcpatch_to_tgeometry_0"}, MeosOverload{arguments924_11, "TGEOMETRY", "Meos_trgeometry_to_tgeometry_0"}};
-constexpr std::array<std::string_view, 1> arguments925_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads925{MeosOverload{arguments925_0, "TGEOMETRY", "Meos_temporal_from_wkb_21"}};
-constexpr std::array<std::string_view, 1> arguments926_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads926{MeosOverload{arguments926_0, "TGEOMETRY", "Meos_temporal_from_wkb_23"}};
+constexpr std::array<MeosOverload, 1> overloads916{MeosOverload{arguments916_0, "TGEOGPOINT", "Meos_tgeogpoint_in_1"}};
+constexpr std::array<std::string_view, 1> arguments917_0{"TGEOGPOINT"};
+constexpr std::array<MeosOverload, 1> overloads917{MeosOverload{arguments917_0, "TGEOGPOINT", "Meos_temporal_as_tinstant_4"}};
+constexpr std::array<std::string_view, 4> arguments918_0{"TGEOGPOINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments918_1{"TGEOGPOINT_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments918_2{"TGEOGPOINT_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments918_3{"TGEOGPOINT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments918_4{"TGEOGPOINT", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads918{MeosOverload{arguments918_0, "TGEOGPOINT", "Meos_tsequence_make_4"}, MeosOverload{arguments918_1, "TGEOGPOINT", "Meos_tsequence_make_4_3"}, MeosOverload{arguments918_2, "TGEOGPOINT", "Meos_tsequence_make_4_2"}, MeosOverload{arguments918_3, "TGEOGPOINT", "Meos_tsequence_make_4_1"}, MeosOverload{arguments918_4, "TGEOGPOINT", "Meos_temporal_as_tsequence_4"}};
+constexpr std::array<std::string_view, 1> arguments919_0{"TGEOGPOINT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments919_1{"TGEOGPOINT", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads919{MeosOverload{arguments919_0, "TGEOGPOINT", "Meos_tsequenceset_make_4"}, MeosOverload{arguments919_1, "TGEOGPOINT", "Meos_temporal_as_tsequenceset_4"}};
+constexpr std::array<std::string_view, 2> arguments920_0{"GEOGRAPHY", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments920_1{"GEOGRAPHY", "TSTZSET"};
+constexpr std::array<std::string_view, 3> arguments920_2{"GEOGRAPHY", "TSTZSPAN", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments920_3{"GEOGRAPHY", "TSTZSPAN"};
+constexpr std::array<std::string_view, 3> arguments920_4{"GEOGRAPHY", "TSTZSPANSET", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments920_5{"GEOGRAPHY", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments920_6{"TGEOGPOINT"};
+constexpr std::array<std::string_view, 1> arguments920_7{"TGEOMETRY"};
+constexpr std::array<std::string_view, 3> arguments920_8{"TJSONB", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments920_9{"TJSONB", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments920_10{"TPCPATCH"};
+constexpr std::array<std::string_view, 1> arguments920_11{"TRGEOMETRY"};
+constexpr std::array<MeosOverload, 12> overloads920{MeosOverload{arguments920_0, "TGEOGRAPHY", "Meos_tgeoinst_make_1"}, MeosOverload{arguments920_1, "TGEOGRAPHY", "Meos_tgeoseq_from_base_tstzset_1"}, MeosOverload{arguments920_2, "TGEOGRAPHY", "Meos_tgeoseq_from_base_tstzspan_1"}, MeosOverload{arguments920_3, "TGEOGRAPHY", "Meos_tgeoseq_from_base_tstzspan_1_2"}, MeosOverload{arguments920_4, "TGEOGRAPHY", "Meos_tgeoseqset_from_base_tstzspanset_1"}, MeosOverload{arguments920_5, "TGEOGRAPHY", "Meos_tgeoseqset_from_base_tstzspanset_1_2"}, MeosOverload{arguments920_6, "TGEOGRAPHY", "Meos_tgeogpoint_to_tgeography_0"}, MeosOverload{arguments920_7, "TGEOGRAPHY", "Meos_tgeometry_to_tgeography_0"}, MeosOverload{arguments920_8, "TGEOGRAPHY", "Meos_tjsonb_to_tgeography_0"}, MeosOverload{arguments920_9, "TGEOGRAPHY", "Meos_tjsonb_to_tgeography_0_2"}, MeosOverload{arguments920_10, "TGEOGRAPHY", "Meos_tpcpatch_to_tgeography_0"}, MeosOverload{arguments920_11, "TGEOGRAPHY", "Meos_trgeometry_to_tgeography_0"}};
+constexpr std::array<std::string_view, 1> arguments921_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads921{MeosOverload{arguments921_0, "TGEOGRAPHY", "Meos_temporal_from_wkb_22"}};
+constexpr std::array<std::string_view, 1> arguments922_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads922{MeosOverload{arguments922_0, "TGEOGRAPHY", "Meos_temporal_from_wkb_24"}};
+constexpr std::array<std::string_view, 1> arguments923_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads923{MeosOverload{arguments923_0, "TGEOGRAPHY", "Meos_tgeography_in_2"}};
+constexpr std::array<std::string_view, 1> arguments924_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads924{MeosOverload{arguments924_0, "TGEOGRAPHY", "Meos_temporal_from_hexwkb_5"}};
+constexpr std::array<std::string_view, 1> arguments925_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads925{MeosOverload{arguments925_0, "TGEOGRAPHY", "Meos_temporal_from_hexwkb_3"}};
+constexpr std::array<std::string_view, 1> arguments926_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads926{MeosOverload{arguments926_0, "TGEOGRAPHY", "Meos_tgeography_from_mfjson_0"}};
 constexpr std::array<std::string_view, 1> arguments927_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads927{MeosOverload{arguments927_0, "TGEOMETRY", "Meos_tgeometry_in_2"}};
-constexpr std::array<std::string_view, 1> arguments928_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads928{MeosOverload{arguments928_0, "TGEOMETRY", "Meos_temporal_from_hexwkb_4"}};
-constexpr std::array<std::string_view, 1> arguments929_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads929{MeosOverload{arguments929_0, "TGEOMETRY", "Meos_temporal_from_hexwkb_2"}};
-constexpr std::array<std::string_view, 1> arguments930_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads930{MeosOverload{arguments930_0, "TGEOMETRY", "Meos_tgeometry_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments931_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads931{MeosOverload{arguments931_0, "TGEOMETRY", "Meos_tgeometry_in_1"}};
-constexpr std::array<std::string_view, 1> arguments932_0{"TGEOMETRY"};
-constexpr std::array<MeosOverload, 1> overloads932{MeosOverload{arguments932_0, "TGEOMETRY", "Meos_temporal_as_tinstant_1"}};
-constexpr std::array<std::string_view, 4> arguments933_0{"TGEOMETRY_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments933_1{"TGEOMETRY_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments933_2{"TGEOMETRY_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments933_3{"TGEOMETRY_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments933_4{"TGEOMETRY", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads933{MeosOverload{arguments933_0, "TGEOMETRY", "Meos_tsequence_make_1"}, MeosOverload{arguments933_1, "TGEOMETRY", "Meos_tsequence_make_1_3"}, MeosOverload{arguments933_2, "TGEOMETRY", "Meos_tsequence_make_1_2"}, MeosOverload{arguments933_3, "TGEOMETRY", "Meos_tsequence_make_1_1"}, MeosOverload{arguments933_4, "TGEOMETRY", "Meos_temporal_as_tsequence_1"}};
-constexpr std::array<std::string_view, 1> arguments934_0{"TGEOMETRY_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments934_1{"TGEOMETRY", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads934{MeosOverload{arguments934_0, "TGEOMETRY", "Meos_tsequenceset_make_1"}, MeosOverload{arguments934_1, "TGEOMETRY", "Meos_temporal_as_tsequenceset_1"}};
-constexpr std::array<std::string_view, 2> arguments935_0{"GEOMETRY", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments935_1{"GEOMETRY", "TSTZSET"};
-constexpr std::array<std::string_view, 3> arguments935_2{"GEOMETRY", "TSTZSPAN", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments935_3{"GEOMETRY", "TSTZSPAN"};
-constexpr std::array<std::string_view, 3> arguments935_4{"GEOMETRY", "TSTZSPANSET", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments935_5{"GEOMETRY", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments935_6{"GEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments935_7{"TGEOGPOINT"};
-constexpr std::array<std::string_view, 1> arguments935_8{"TGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments935_9{"TCBUFFER"};
-constexpr std::array<std::string_view, 1> arguments935_10{"TH3INDEX"};
-constexpr std::array<std::string_view, 4> arguments935_11{"TJSONB", "VARSIZED", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 3> arguments935_12{"TJSONB", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments935_13{"TJSONB", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments935_14{"TNPOINT"};
-constexpr std::array<std::string_view, 1> arguments935_15{"TPCPOINT"};
-constexpr std::array<std::string_view, 1> arguments935_16{"TPOSE"};
-constexpr std::array<std::string_view, 1> arguments935_17{"TPOSECHAIN"};
-constexpr std::array<std::string_view, 1> arguments935_18{"TRGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments935_19{"TS2CELL"};
-constexpr std::array<MeosOverload, 20> overloads935{MeosOverload{arguments935_0, "TGEOMPOINT", "Meos_tpointinst_make_0"}, MeosOverload{arguments935_1, "TGEOMPOINT", "Meos_tpointseq_from_base_tstzset_0"}, MeosOverload{arguments935_2, "TGEOMPOINT", "Meos_tpointseq_from_base_tstzspan_0"}, MeosOverload{arguments935_3, "TGEOMPOINT", "Meos_tpointseq_from_base_tstzspan_0_2"}, MeosOverload{arguments935_4, "TGEOMPOINT", "Meos_tpointseqset_from_base_tstzspanset_0"}, MeosOverload{arguments935_5, "TGEOMPOINT", "Meos_tpointseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments935_6, "TGEOMPOINT", "Meos_geomeas_to_tpoint_0"}, MeosOverload{arguments935_7, "TGEOMPOINT", "Meos_tgeogpoint_to_tgeompoint_0"}, MeosOverload{arguments935_8, "TGEOMPOINT", "Meos_tgeometry_to_tgeompoint_0"}, MeosOverload{arguments935_9, "TGEOMPOINT", "Meos_tcbuffer_to_tgeompoint_0"}, MeosOverload{arguments935_10, "TGEOMPOINT", "Meos_th3index_to_tgeompoint_0"}, MeosOverload{arguments935_11, "TGEOMPOINT", "Meos_tjsonb_to_tgeompoint_0"}, MeosOverload{arguments935_12, "TGEOMPOINT", "Meos_tjsonb_to_tgeompoint_0_3"}, MeosOverload{arguments935_13, "TGEOMPOINT", "Meos_tjsonb_to_tgeompoint_0_2"}, MeosOverload{arguments935_14, "TGEOMPOINT", "Meos_tnpoint_to_tgeompoint_0"}, MeosOverload{arguments935_15, "TGEOMPOINT", "Meos_tpcpoint_to_tgeompoint_0"}, MeosOverload{arguments935_16, "TGEOMPOINT", "Meos_tpose_to_tgeompoint_0"}, MeosOverload{arguments935_17, "TGEOMPOINT", "Meos_tposechain_to_tgeompoint_0"}, MeosOverload{arguments935_18, "TGEOMPOINT", "Meos_trgeometry_to_tgeompoint_0"}, MeosOverload{arguments935_19, "TGEOMPOINT", "Meos_ts2cell_to_tgeompoint_0"}};
-constexpr std::array<std::string_view, 1> arguments936_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads936{MeosOverload{arguments936_0, "TGEOMPOINT", "Meos_temporal_from_wkb_25"}};
-constexpr std::array<std::string_view, 1> arguments937_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads937{MeosOverload{arguments937_0, "TGEOMPOINT", "Meos_temporal_from_wkb_27"}};
+constexpr std::array<MeosOverload, 1> overloads927{MeosOverload{arguments927_0, "TGEOGRAPHY", "Meos_tgeography_in_1"}};
+constexpr std::array<std::string_view, 1> arguments928_0{"TGEOGRAPHY"};
+constexpr std::array<MeosOverload, 1> overloads928{MeosOverload{arguments928_0, "TGEOGRAPHY", "Meos_temporal_as_tinstant_2"}};
+constexpr std::array<std::string_view, 4> arguments929_0{"TGEOGRAPHY_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments929_1{"TGEOGRAPHY_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments929_2{"TGEOGRAPHY_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments929_3{"TGEOGRAPHY_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments929_4{"TGEOGRAPHY", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads929{MeosOverload{arguments929_0, "TGEOGRAPHY", "Meos_tsequence_make_2"}, MeosOverload{arguments929_1, "TGEOGRAPHY", "Meos_tsequence_make_2_3"}, MeosOverload{arguments929_2, "TGEOGRAPHY", "Meos_tsequence_make_2_2"}, MeosOverload{arguments929_3, "TGEOGRAPHY", "Meos_tsequence_make_2_1"}, MeosOverload{arguments929_4, "TGEOGRAPHY", "Meos_temporal_as_tsequence_2"}};
+constexpr std::array<std::string_view, 1> arguments930_0{"TGEOGRAPHY_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments930_1{"TGEOGRAPHY", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads930{MeosOverload{arguments930_0, "TGEOGRAPHY", "Meos_tsequenceset_make_2"}, MeosOverload{arguments930_1, "TGEOGRAPHY", "Meos_temporal_as_tsequenceset_2"}};
+constexpr std::array<std::string_view, 2> arguments931_0{"GEOMETRY", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments931_1{"GEOMETRY", "TSTZSET"};
+constexpr std::array<std::string_view, 3> arguments931_2{"GEOMETRY", "TSTZSPAN", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments931_3{"GEOMETRY", "TSTZSPAN"};
+constexpr std::array<std::string_view, 3> arguments931_4{"GEOMETRY", "TSTZSPANSET", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments931_5{"GEOMETRY", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments931_6{"TGEOGRAPHY"};
+constexpr std::array<std::string_view, 1> arguments931_7{"TGEOMPOINT"};
+constexpr std::array<std::string_view, 3> arguments931_8{"TJSONB", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments931_9{"TJSONB", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments931_10{"TPCPATCH"};
+constexpr std::array<std::string_view, 1> arguments931_11{"TRGEOMETRY"};
+constexpr std::array<MeosOverload, 12> overloads931{MeosOverload{arguments931_0, "TGEOMETRY", "Meos_tgeoinst_make_0"}, MeosOverload{arguments931_1, "TGEOMETRY", "Meos_tgeoseq_from_base_tstzset_0"}, MeosOverload{arguments931_2, "TGEOMETRY", "Meos_tgeoseq_from_base_tstzspan_0"}, MeosOverload{arguments931_3, "TGEOMETRY", "Meos_tgeoseq_from_base_tstzspan_0_2"}, MeosOverload{arguments931_4, "TGEOMETRY", "Meos_tgeoseqset_from_base_tstzspanset_0"}, MeosOverload{arguments931_5, "TGEOMETRY", "Meos_tgeoseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments931_6, "TGEOMETRY", "Meos_tgeography_to_tgeometry_0"}, MeosOverload{arguments931_7, "TGEOMETRY", "Meos_tgeompoint_to_tgeometry_0"}, MeosOverload{arguments931_8, "TGEOMETRY", "Meos_tjsonb_to_tgeometry_0"}, MeosOverload{arguments931_9, "TGEOMETRY", "Meos_tjsonb_to_tgeometry_0_2"}, MeosOverload{arguments931_10, "TGEOMETRY", "Meos_tpcpatch_to_tgeometry_0"}, MeosOverload{arguments931_11, "TGEOMETRY", "Meos_trgeometry_to_tgeometry_0"}};
+constexpr std::array<std::string_view, 1> arguments932_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads932{MeosOverload{arguments932_0, "TGEOMETRY", "Meos_temporal_from_wkb_21"}};
+constexpr std::array<std::string_view, 1> arguments933_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads933{MeosOverload{arguments933_0, "TGEOMETRY", "Meos_temporal_from_wkb_23"}};
+constexpr std::array<std::string_view, 1> arguments934_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads934{MeosOverload{arguments934_0, "TGEOMETRY", "Meos_tgeometry_in_2"}};
+constexpr std::array<std::string_view, 1> arguments935_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads935{MeosOverload{arguments935_0, "TGEOMETRY", "Meos_temporal_from_hexwkb_4"}};
+constexpr std::array<std::string_view, 1> arguments936_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads936{MeosOverload{arguments936_0, "TGEOMETRY", "Meos_temporal_from_hexwkb_2"}};
+constexpr std::array<std::string_view, 1> arguments937_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads937{MeosOverload{arguments937_0, "TGEOMETRY", "Meos_tgeometry_from_mfjson_0"}};
 constexpr std::array<std::string_view, 1> arguments938_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads938{MeosOverload{arguments938_0, "TGEOMPOINT", "Meos_tgeompoint_in_2"}};
-constexpr std::array<std::string_view, 1> arguments939_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads939{MeosOverload{arguments939_0, "TGEOMPOINT", "Meos_temporal_from_hexwkb_8"}};
-constexpr std::array<std::string_view, 1> arguments940_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads940{MeosOverload{arguments940_0, "TGEOMPOINT", "Meos_temporal_from_hexwkb_6"}};
-constexpr std::array<std::string_view, 1> arguments941_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads941{MeosOverload{arguments941_0, "TGEOMPOINT", "Meos_tgeompoint_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments942_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads942{MeosOverload{arguments942_0, "TGEOMPOINT", "Meos_tgeompoint_in_1"}};
-constexpr std::array<std::string_view, 1> arguments943_0{"TGEOMPOINT"};
-constexpr std::array<MeosOverload, 1> overloads943{MeosOverload{arguments943_0, "TGEOMPOINT", "Meos_temporal_as_tinstant_3"}};
-constexpr std::array<std::string_view, 4> arguments944_0{"TGEOMPOINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments944_1{"TGEOMPOINT_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments944_2{"TGEOMPOINT_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments944_3{"TGEOMPOINT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments944_4{"TGEOMPOINT", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads944{MeosOverload{arguments944_0, "TGEOMPOINT", "Meos_tsequence_make_3"}, MeosOverload{arguments944_1, "TGEOMPOINT", "Meos_tsequence_make_3_3"}, MeosOverload{arguments944_2, "TGEOMPOINT", "Meos_tsequence_make_3_2"}, MeosOverload{arguments944_3, "TGEOMPOINT", "Meos_tsequence_make_3_1"}, MeosOverload{arguments944_4, "TGEOMPOINT", "Meos_temporal_as_tsequence_3"}};
-constexpr std::array<std::string_view, 1> arguments945_0{"TGEOMPOINT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments945_1{"TGEOMPOINT", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads945{MeosOverload{arguments945_0, "TGEOMPOINT", "Meos_tsequenceset_make_3"}, MeosOverload{arguments945_1, "TGEOMPOINT", "Meos_temporal_as_tsequenceset_3"}};
-constexpr std::array<std::string_view, 2> arguments946_0{"TH3INDEX", "TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads946{MeosOverload{arguments946_0, "TBOOL", "Meos_th3index_are_neighbor_cells_0"}};
-constexpr std::array<std::string_view, 2> arguments947_0{"TH3INDEX", "INT32"};
-constexpr std::array<std::string_view, 1> arguments947_1{"TH3INDEX"};
-constexpr std::array<MeosOverload, 2> overloads947{MeosOverload{arguments947_0, "TH3INDEX", "Meos_th3index_cell_to_center_child_0"}, MeosOverload{arguments947_1, "TH3INDEX", "Meos_th3index_cell_to_center_child_next_0"}};
-constexpr std::array<std::string_view, 2> arguments948_0{"TH3INDEX", "INT32"};
-constexpr std::array<MeosOverload, 1> overloads948{MeosOverload{arguments948_0, "TBIGINT", "Meos_th3index_cell_to_child_pos_0"}};
-constexpr std::array<std::string_view, 2> arguments949_0{"TH3INDEX", "TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads949{MeosOverload{arguments949_0, "TGEOMPOINT", "Meos_th3index_cell_to_local_ij_0"}};
-constexpr std::array<std::string_view, 2> arguments950_0{"TH3INDEX", "INT32"};
-constexpr std::array<MeosOverload, 1> overloads950{MeosOverload{arguments950_0, "TH3INDEX", "Meos_th3index_cell_to_vertex_0"}};
-constexpr std::array<std::string_view, 2> arguments951_0{"TH3INDEX", "TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads951{MeosOverload{arguments951_0, "TH3INDEX", "Meos_th3index_cells_to_directed_edge_0"}};
-constexpr std::array<std::string_view, 3> arguments952_0{"TBIGINT", "TH3INDEX", "INT32"};
-constexpr std::array<MeosOverload, 1> overloads952{MeosOverload{arguments952_0, "TH3INDEX", "Meos_th3index_child_pos_to_cell_0"}};
-constexpr std::array<std::string_view, 1> arguments953_0{"TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads953{MeosOverload{arguments953_0, "TGEOGRAPHY", "Meos_th3index_directed_edge_to_boundary_0"}};
-constexpr std::array<std::string_view, 1> arguments954_0{"TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads954{MeosOverload{arguments954_0, "TFLOAT", "Meos_th3index_edge_length_0"}};
-constexpr std::array<std::string_view, 1> arguments955_0{"TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads955{MeosOverload{arguments955_0, "TINT", "Meos_th3index_get_base_cell_number_0"}};
-constexpr std::array<std::string_view, 1> arguments956_0{"TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads956{MeosOverload{arguments956_0, "TH3INDEX", "Meos_th3index_get_directed_edge_destination_0"}};
-constexpr std::array<std::string_view, 1> arguments957_0{"TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads957{MeosOverload{arguments957_0, "TH3INDEX", "Meos_th3index_get_directed_edge_origin_0"}};
+constexpr std::array<MeosOverload, 1> overloads938{MeosOverload{arguments938_0, "TGEOMETRY", "Meos_tgeometry_in_1"}};
+constexpr std::array<std::string_view, 1> arguments939_0{"TGEOMETRY"};
+constexpr std::array<MeosOverload, 1> overloads939{MeosOverload{arguments939_0, "TGEOMETRY", "Meos_temporal_as_tinstant_1"}};
+constexpr std::array<std::string_view, 4> arguments940_0{"TGEOMETRY_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments940_1{"TGEOMETRY_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments940_2{"TGEOMETRY_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments940_3{"TGEOMETRY_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments940_4{"TGEOMETRY", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads940{MeosOverload{arguments940_0, "TGEOMETRY", "Meos_tsequence_make_1"}, MeosOverload{arguments940_1, "TGEOMETRY", "Meos_tsequence_make_1_3"}, MeosOverload{arguments940_2, "TGEOMETRY", "Meos_tsequence_make_1_2"}, MeosOverload{arguments940_3, "TGEOMETRY", "Meos_tsequence_make_1_1"}, MeosOverload{arguments940_4, "TGEOMETRY", "Meos_temporal_as_tsequence_1"}};
+constexpr std::array<std::string_view, 1> arguments941_0{"TGEOMETRY_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments941_1{"TGEOMETRY", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads941{MeosOverload{arguments941_0, "TGEOMETRY", "Meos_tsequenceset_make_1"}, MeosOverload{arguments941_1, "TGEOMETRY", "Meos_temporal_as_tsequenceset_1"}};
+constexpr std::array<std::string_view, 2> arguments942_0{"GEOMETRY", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments942_1{"GEOMETRY", "TSTZSET"};
+constexpr std::array<std::string_view, 3> arguments942_2{"GEOMETRY", "TSTZSPAN", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments942_3{"GEOMETRY", "TSTZSPAN"};
+constexpr std::array<std::string_view, 3> arguments942_4{"GEOMETRY", "TSTZSPANSET", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments942_5{"GEOMETRY", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments942_6{"GEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments942_7{"TGEOGPOINT"};
+constexpr std::array<std::string_view, 1> arguments942_8{"TGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments942_9{"TCBUFFER"};
+constexpr std::array<std::string_view, 1> arguments942_10{"TH3INDEX"};
+constexpr std::array<std::string_view, 4> arguments942_11{"TJSONB", "VARSIZED", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 3> arguments942_12{"TJSONB", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments942_13{"TJSONB", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments942_14{"TNPOINT"};
+constexpr std::array<std::string_view, 1> arguments942_15{"TPCPOINT"};
+constexpr std::array<std::string_view, 1> arguments942_16{"TPOSE"};
+constexpr std::array<std::string_view, 1> arguments942_17{"TPOSECHAIN"};
+constexpr std::array<std::string_view, 1> arguments942_18{"TRGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments942_19{"TS2CELL"};
+constexpr std::array<MeosOverload, 20> overloads942{MeosOverload{arguments942_0, "TGEOMPOINT", "Meos_tpointinst_make_0"}, MeosOverload{arguments942_1, "TGEOMPOINT", "Meos_tpointseq_from_base_tstzset_0"}, MeosOverload{arguments942_2, "TGEOMPOINT", "Meos_tpointseq_from_base_tstzspan_0"}, MeosOverload{arguments942_3, "TGEOMPOINT", "Meos_tpointseq_from_base_tstzspan_0_2"}, MeosOverload{arguments942_4, "TGEOMPOINT", "Meos_tpointseqset_from_base_tstzspanset_0"}, MeosOverload{arguments942_5, "TGEOMPOINT", "Meos_tpointseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments942_6, "TGEOMPOINT", "Meos_geomeas_to_tpoint_0"}, MeosOverload{arguments942_7, "TGEOMPOINT", "Meos_tgeogpoint_to_tgeompoint_0"}, MeosOverload{arguments942_8, "TGEOMPOINT", "Meos_tgeometry_to_tgeompoint_0"}, MeosOverload{arguments942_9, "TGEOMPOINT", "Meos_tcbuffer_to_tgeompoint_0"}, MeosOverload{arguments942_10, "TGEOMPOINT", "Meos_th3index_to_tgeompoint_0"}, MeosOverload{arguments942_11, "TGEOMPOINT", "Meos_tjsonb_to_tgeompoint_0"}, MeosOverload{arguments942_12, "TGEOMPOINT", "Meos_tjsonb_to_tgeompoint_0_3"}, MeosOverload{arguments942_13, "TGEOMPOINT", "Meos_tjsonb_to_tgeompoint_0_2"}, MeosOverload{arguments942_14, "TGEOMPOINT", "Meos_tnpoint_to_tgeompoint_0"}, MeosOverload{arguments942_15, "TGEOMPOINT", "Meos_tpcpoint_to_tgeompoint_0"}, MeosOverload{arguments942_16, "TGEOMPOINT", "Meos_tpose_to_tgeompoint_0"}, MeosOverload{arguments942_17, "TGEOMPOINT", "Meos_tposechain_to_tgeompoint_0"}, MeosOverload{arguments942_18, "TGEOMPOINT", "Meos_trgeometry_to_tgeompoint_0"}, MeosOverload{arguments942_19, "TGEOMPOINT", "Meos_ts2cell_to_tgeompoint_0"}};
+constexpr std::array<std::string_view, 1> arguments943_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads943{MeosOverload{arguments943_0, "TGEOMPOINT", "Meos_temporal_from_wkb_25"}};
+constexpr std::array<std::string_view, 1> arguments944_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads944{MeosOverload{arguments944_0, "TGEOMPOINT", "Meos_temporal_from_wkb_27"}};
+constexpr std::array<std::string_view, 1> arguments945_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads945{MeosOverload{arguments945_0, "TGEOMPOINT", "Meos_tgeompoint_in_2"}};
+constexpr std::array<std::string_view, 1> arguments946_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads946{MeosOverload{arguments946_0, "TGEOMPOINT", "Meos_temporal_from_hexwkb_8"}};
+constexpr std::array<std::string_view, 1> arguments947_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads947{MeosOverload{arguments947_0, "TGEOMPOINT", "Meos_temporal_from_hexwkb_6"}};
+constexpr std::array<std::string_view, 1> arguments948_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads948{MeosOverload{arguments948_0, "TGEOMPOINT", "Meos_tgeompoint_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments949_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads949{MeosOverload{arguments949_0, "TGEOMPOINT", "Meos_tgeompoint_in_1"}};
+constexpr std::array<std::string_view, 1> arguments950_0{"TGEOMPOINT"};
+constexpr std::array<MeosOverload, 1> overloads950{MeosOverload{arguments950_0, "TGEOMPOINT", "Meos_temporal_as_tinstant_3"}};
+constexpr std::array<std::string_view, 4> arguments951_0{"TGEOMPOINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments951_1{"TGEOMPOINT_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments951_2{"TGEOMPOINT_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments951_3{"TGEOMPOINT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments951_4{"TGEOMPOINT", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads951{MeosOverload{arguments951_0, "TGEOMPOINT", "Meos_tsequence_make_3"}, MeosOverload{arguments951_1, "TGEOMPOINT", "Meos_tsequence_make_3_3"}, MeosOverload{arguments951_2, "TGEOMPOINT", "Meos_tsequence_make_3_2"}, MeosOverload{arguments951_3, "TGEOMPOINT", "Meos_tsequence_make_3_1"}, MeosOverload{arguments951_4, "TGEOMPOINT", "Meos_temporal_as_tsequence_3"}};
+constexpr std::array<std::string_view, 1> arguments952_0{"TGEOMPOINT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments952_1{"TGEOMPOINT", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads952{MeosOverload{arguments952_0, "TGEOMPOINT", "Meos_tsequenceset_make_3"}, MeosOverload{arguments952_1, "TGEOMPOINT", "Meos_temporal_as_tsequenceset_3"}};
+constexpr std::array<std::string_view, 2> arguments953_0{"TH3INDEX", "TH3INDEX"};
+constexpr std::array<MeosOverload, 1> overloads953{MeosOverload{arguments953_0, "TBOOL", "Meos_th3index_are_neighbor_cells_0"}};
+constexpr std::array<std::string_view, 2> arguments954_0{"TH3INDEX", "INT32"};
+constexpr std::array<std::string_view, 1> arguments954_1{"TH3INDEX"};
+constexpr std::array<MeosOverload, 2> overloads954{MeosOverload{arguments954_0, "TH3INDEX", "Meos_th3index_cell_to_center_child_0"}, MeosOverload{arguments954_1, "TH3INDEX", "Meos_th3index_cell_to_center_child_next_0"}};
+constexpr std::array<std::string_view, 2> arguments955_0{"TH3INDEX", "INT32"};
+constexpr std::array<MeosOverload, 1> overloads955{MeosOverload{arguments955_0, "TBIGINT", "Meos_th3index_cell_to_child_pos_0"}};
+constexpr std::array<std::string_view, 2> arguments956_0{"TH3INDEX", "TH3INDEX"};
+constexpr std::array<MeosOverload, 1> overloads956{MeosOverload{arguments956_0, "TGEOMPOINT", "Meos_th3index_cell_to_local_ij_0"}};
+constexpr std::array<std::string_view, 2> arguments957_0{"TH3INDEX", "INT32"};
+constexpr std::array<MeosOverload, 1> overloads957{MeosOverload{arguments957_0, "TH3INDEX", "Meos_th3index_cell_to_vertex_0"}};
 constexpr std::array<std::string_view, 2> arguments958_0{"TH3INDEX", "TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads958{MeosOverload{arguments958_0, "TBIGINT", "Meos_th3index_grid_distance_0"}};
-constexpr std::array<std::string_view, 1> arguments959_0{"TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads959{MeosOverload{arguments959_0, "TBOOL", "Meos_th3index_is_pentagon_0"}};
+constexpr std::array<MeosOverload, 1> overloads958{MeosOverload{arguments958_0, "TH3INDEX", "Meos_th3index_cells_to_directed_edge_0"}};
+constexpr std::array<std::string_view, 3> arguments959_0{"TBIGINT", "TH3INDEX", "INT32"};
+constexpr std::array<MeosOverload, 1> overloads959{MeosOverload{arguments959_0, "TH3INDEX", "Meos_th3index_child_pos_to_cell_0"}};
 constexpr std::array<std::string_view, 1> arguments960_0{"TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads960{MeosOverload{arguments960_0, "TBOOL", "Meos_th3index_is_res_class_iii_0"}};
-constexpr std::array<std::string_view, 2> arguments961_0{"TH3INDEX", "TGEOMPOINT"};
-constexpr std::array<MeosOverload, 1> overloads961{MeosOverload{arguments961_0, "TH3INDEX", "Meos_th3index_local_ij_to_cell_0"}};
+constexpr std::array<MeosOverload, 1> overloads960{MeosOverload{arguments960_0, "TGEOGRAPHY", "Meos_th3index_directed_edge_to_boundary_0"}};
+constexpr std::array<std::string_view, 1> arguments961_0{"TH3INDEX"};
+constexpr std::array<MeosOverload, 1> overloads961{MeosOverload{arguments961_0, "TFLOAT", "Meos_th3index_edge_length_0"}};
 constexpr std::array<std::string_view, 1> arguments962_0{"TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads962{MeosOverload{arguments962_0, "TGEOGPOINT", "Meos_th3index_vertex_to_latlng_0"}};
-constexpr std::array<std::string_view, 2> arguments963_0{"H3INDEX", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments963_1{"H3INDEX", "TSTZSET"};
-constexpr std::array<std::string_view, 2> arguments963_2{"H3INDEX", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments963_3{"H3INDEX", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments963_4{"TBIGINT"};
-constexpr std::array<std::string_view, 3> arguments963_5{"TGEOGPOINT", "INT32", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments963_6{"TGEOGPOINT", "INT32"};
-constexpr std::array<std::string_view, 3> arguments963_7{"TGEOMPOINT", "INT32", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments963_8{"TGEOMPOINT", "INT32"};
-constexpr std::array<MeosOverload, 9> overloads963{MeosOverload{arguments963_0, "TH3INDEX", "Meos_th3indexinst_make_0"}, MeosOverload{arguments963_1, "TH3INDEX", "Meos_th3indexseq_from_base_tstzset_0"}, MeosOverload{arguments963_2, "TH3INDEX", "Meos_th3indexseq_from_base_tstzspan_0"}, MeosOverload{arguments963_3, "TH3INDEX", "Meos_th3indexseqset_from_base_tstzspanset_0"}, MeosOverload{arguments963_4, "TH3INDEX", "Meos_tbigint_to_th3index_0"}, MeosOverload{arguments963_5, "TH3INDEX", "Meos_tgeogpoint_to_th3index_0"}, MeosOverload{arguments963_6, "TH3INDEX", "Meos_tgeogpoint_to_th3index_0_2"}, MeosOverload{arguments963_7, "TH3INDEX", "Meos_tgeompoint_to_th3index_0"}, MeosOverload{arguments963_8, "TH3INDEX", "Meos_tgeompoint_to_th3index_0_2"}};
-constexpr std::array<std::string_view, 1> arguments964_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads964{MeosOverload{arguments964_0, "TH3INDEX", "Meos_temporal_from_wkb_29"}};
-constexpr std::array<std::string_view, 1> arguments965_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads965{MeosOverload{arguments965_0, "TH3INDEX", "Meos_temporal_from_wkb_30"}};
-constexpr std::array<std::string_view, 1> arguments966_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads966{MeosOverload{arguments966_0, "TH3INDEX", "Meos_th3index_in_2"}};
-constexpr std::array<std::string_view, 1> arguments967_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads967{MeosOverload{arguments967_0, "TH3INDEX", "Meos_temporal_from_hexwkb_11"}};
-constexpr std::array<std::string_view, 1> arguments968_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads968{MeosOverload{arguments968_0, "TH3INDEX", "Meos_temporal_from_hexwkb_10"}};
-constexpr std::array<std::string_view, 1> arguments969_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads969{MeosOverload{arguments969_0, "TH3INDEX", "Meos_th3index_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments970_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads970{MeosOverload{arguments970_0, "TH3INDEX", "Meos_th3index_in_1"}};
-constexpr std::array<std::string_view, 1> arguments971_0{"TH3INDEX"};
-constexpr std::array<MeosOverload, 1> overloads971{MeosOverload{arguments971_0, "TH3INDEX", "Meos_temporal_as_tinstant_5"}};
-constexpr std::array<std::string_view, 4> arguments972_0{"TH3INDEX_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments972_1{"TH3INDEX_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments972_2{"TH3INDEX_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments972_3{"TH3INDEX_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments972_4{"TH3INDEX", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads972{MeosOverload{arguments972_0, "TH3INDEX", "Meos_tsequence_make_5"}, MeosOverload{arguments972_1, "TH3INDEX", "Meos_tsequence_make_5_3"}, MeosOverload{arguments972_2, "TH3INDEX", "Meos_tsequence_make_5_2"}, MeosOverload{arguments972_3, "TH3INDEX", "Meos_tsequence_make_5_1"}, MeosOverload{arguments972_4, "TH3INDEX", "Meos_temporal_as_tsequence_5"}};
-constexpr std::array<std::string_view, 1> arguments973_0{"TH3INDEX_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments973_1{"TH3INDEX", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads973{MeosOverload{arguments973_0, "TH3INDEX", "Meos_tsequenceset_make_5"}, MeosOverload{arguments973_1, "TH3INDEX", "Meos_temporal_as_tsequenceset_5"}};
-constexpr std::array<std::string_view, 1> arguments974_0{"TBOX"};
-constexpr std::array<std::string_view, 1> arguments974_1{"TCBUFFER"};
-constexpr std::array<std::string_view, 1> arguments974_2{"TGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments974_3{"TGEOGRAPHY"};
-constexpr std::array<std::string_view, 1> arguments974_4{"TGEOMPOINT"};
-constexpr std::array<std::string_view, 1> arguments974_5{"TGEOGPOINT"};
-constexpr std::array<std::string_view, 1> arguments974_6{"TH3INDEX"};
-constexpr std::array<std::string_view, 1> arguments974_7{"TJSONB"};
-constexpr std::array<std::string_view, 1> arguments974_8{"TNPOINT"};
-constexpr std::array<std::string_view, 1> arguments974_9{"TPCPOINT"};
-constexpr std::array<std::string_view, 1> arguments974_10{"TPCPATCH"};
-constexpr std::array<std::string_view, 1> arguments974_11{"TPOSE"};
-constexpr std::array<std::string_view, 1> arguments974_12{"TPOSECHAIN"};
-constexpr std::array<std::string_view, 1> arguments974_13{"TQUADBIN"};
-constexpr std::array<std::string_view, 1> arguments974_14{"TRGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments974_15{"TS2CELL"};
-constexpr std::array<std::string_view, 1> arguments974_16{"TBOOL"};
-constexpr std::array<std::string_view, 1> arguments974_17{"TINT"};
-constexpr std::array<std::string_view, 1> arguments974_18{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments974_19{"TFLOAT"};
-constexpr std::array<std::string_view, 1> arguments974_20{"TTEXT"};
-constexpr std::array<std::string_view, 1> arguments974_21{"STBOX"};
-constexpr std::array<MeosOverload, 22> overloads974{MeosOverload{arguments974_0, "TSTZSPAN", "Meos_tbox_to_tstzspan_0"}, MeosOverload{arguments974_1, "TSTZSPAN", "Meos_temporal_to_tstzspan_0"}, MeosOverload{arguments974_2, "TSTZSPAN", "Meos_temporal_to_tstzspan_1"}, MeosOverload{arguments974_3, "TSTZSPAN", "Meos_temporal_to_tstzspan_2"}, MeosOverload{arguments974_4, "TSTZSPAN", "Meos_temporal_to_tstzspan_3"}, MeosOverload{arguments974_5, "TSTZSPAN", "Meos_temporal_to_tstzspan_4"}, MeosOverload{arguments974_6, "TSTZSPAN", "Meos_temporal_to_tstzspan_5"}, MeosOverload{arguments974_7, "TSTZSPAN", "Meos_temporal_to_tstzspan_6"}, MeosOverload{arguments974_8, "TSTZSPAN", "Meos_temporal_to_tstzspan_7"}, MeosOverload{arguments974_9, "TSTZSPAN", "Meos_temporal_to_tstzspan_8"}, MeosOverload{arguments974_10, "TSTZSPAN", "Meos_temporal_to_tstzspan_9"}, MeosOverload{arguments974_11, "TSTZSPAN", "Meos_temporal_to_tstzspan_10"}, MeosOverload{arguments974_12, "TSTZSPAN", "Meos_temporal_to_tstzspan_11"}, MeosOverload{arguments974_13, "TSTZSPAN", "Meos_temporal_to_tstzspan_12"}, MeosOverload{arguments974_14, "TSTZSPAN", "Meos_temporal_to_tstzspan_13"}, MeosOverload{arguments974_15, "TSTZSPAN", "Meos_temporal_to_tstzspan_14"}, MeosOverload{arguments974_16, "TSTZSPAN", "Meos_temporal_to_tstzspan_15"}, MeosOverload{arguments974_17, "TSTZSPAN", "Meos_temporal_to_tstzspan_16"}, MeosOverload{arguments974_18, "TSTZSPAN", "Meos_temporal_to_tstzspan_17"}, MeosOverload{arguments974_19, "TSTZSPAN", "Meos_temporal_to_tstzspan_18"}, MeosOverload{arguments974_20, "TSTZSPAN", "Meos_temporal_to_tstzspan_19"}, MeosOverload{arguments974_21, "TSTZSPAN", "Meos_stbox_to_tstzspan_0"}};
-constexpr std::array<std::string_view, 2> arguments975_0{"TSTZSPANSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_1{"TCBUFFER", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_2{"TGEOMETRY", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_3{"TGEOGRAPHY", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_4{"TGEOMPOINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_5{"TGEOGPOINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_6{"TH3INDEX", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_7{"TJSONB", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_8{"TNPOINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_9{"TPCPOINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_10{"TPCPATCH", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_11{"TPOSE", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_12{"TPOSECHAIN", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_13{"TQUADBIN", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_14{"TRGEOMETRY", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_15{"TS2CELL", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_16{"TBOOL", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_17{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_18{"TBIGINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_19{"TFLOAT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments975_20{"TTEXT", "INT32"};
-constexpr std::array<MeosOverload, 21> overloads975{MeosOverload{arguments975_0, "UINT64", "Meos_tstzspanset_timestamptz_n_0"}, MeosOverload{arguments975_1, "UINT64", "Meos_temporal_timestamptz_n_0"}, MeosOverload{arguments975_2, "UINT64", "Meos_temporal_timestamptz_n_1"}, MeosOverload{arguments975_3, "UINT64", "Meos_temporal_timestamptz_n_2"}, MeosOverload{arguments975_4, "UINT64", "Meos_temporal_timestamptz_n_3"}, MeosOverload{arguments975_5, "UINT64", "Meos_temporal_timestamptz_n_4"}, MeosOverload{arguments975_6, "UINT64", "Meos_temporal_timestamptz_n_5"}, MeosOverload{arguments975_7, "UINT64", "Meos_temporal_timestamptz_n_6"}, MeosOverload{arguments975_8, "UINT64", "Meos_temporal_timestamptz_n_7"}, MeosOverload{arguments975_9, "UINT64", "Meos_temporal_timestamptz_n_8"}, MeosOverload{arguments975_10, "UINT64", "Meos_temporal_timestamptz_n_9"}, MeosOverload{arguments975_11, "UINT64", "Meos_temporal_timestamptz_n_10"}, MeosOverload{arguments975_12, "UINT64", "Meos_temporal_timestamptz_n_11"}, MeosOverload{arguments975_13, "UINT64", "Meos_temporal_timestamptz_n_12"}, MeosOverload{arguments975_14, "UINT64", "Meos_temporal_timestamptz_n_13"}, MeosOverload{arguments975_15, "UINT64", "Meos_temporal_timestamptz_n_14"}, MeosOverload{arguments975_16, "UINT64", "Meos_temporal_timestamptz_n_15"}, MeosOverload{arguments975_17, "UINT64", "Meos_temporal_timestamptz_n_16"}, MeosOverload{arguments975_18, "UINT64", "Meos_temporal_timestamptz_n_17"}, MeosOverload{arguments975_19, "UINT64", "Meos_temporal_timestamptz_n_18"}, MeosOverload{arguments975_20, "UINT64", "Meos_temporal_timestamptz_n_19"}};
-constexpr std::array<std::string_view, 1> arguments976_0{"TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments976_1{"TCBUFFER"};
-constexpr std::array<std::string_view, 1> arguments976_2{"TGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments976_3{"TGEOGRAPHY"};
-constexpr std::array<std::string_view, 1> arguments976_4{"TGEOMPOINT"};
-constexpr std::array<std::string_view, 1> arguments976_5{"TGEOGPOINT"};
-constexpr std::array<std::string_view, 1> arguments976_6{"TH3INDEX"};
-constexpr std::array<std::string_view, 1> arguments976_7{"TJSONB"};
-constexpr std::array<std::string_view, 1> arguments976_8{"TNPOINT"};
-constexpr std::array<std::string_view, 1> arguments976_9{"TPCPOINT"};
-constexpr std::array<std::string_view, 1> arguments976_10{"TPCPATCH"};
-constexpr std::array<std::string_view, 1> arguments976_11{"TPOSE"};
-constexpr std::array<std::string_view, 1> arguments976_12{"TPOSECHAIN"};
-constexpr std::array<std::string_view, 1> arguments976_13{"TQUADBIN"};
-constexpr std::array<std::string_view, 1> arguments976_14{"TRGEOMETRY"};
-constexpr std::array<std::string_view, 1> arguments976_15{"TS2CELL"};
-constexpr std::array<std::string_view, 1> arguments976_16{"TBOOL"};
-constexpr std::array<std::string_view, 1> arguments976_17{"TINT"};
-constexpr std::array<std::string_view, 1> arguments976_18{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments976_19{"TFLOAT"};
-constexpr std::array<std::string_view, 1> arguments976_20{"TTEXT"};
-constexpr std::array<MeosOverload, 21> overloads976{MeosOverload{arguments976_0, "TSTZSET", "Meos_tstzspanset_timestamps_0"}, MeosOverload{arguments976_1, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_0"}, MeosOverload{arguments976_2, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_1"}, MeosOverload{arguments976_3, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_2"}, MeosOverload{arguments976_4, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_3"}, MeosOverload{arguments976_5, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_4"}, MeosOverload{arguments976_6, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_5"}, MeosOverload{arguments976_7, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_6"}, MeosOverload{arguments976_8, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_7"}, MeosOverload{arguments976_9, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_8"}, MeosOverload{arguments976_10, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_9"}, MeosOverload{arguments976_11, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_10"}, MeosOverload{arguments976_12, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_11"}, MeosOverload{arguments976_13, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_12"}, MeosOverload{arguments976_14, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_13"}, MeosOverload{arguments976_15, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_14"}, MeosOverload{arguments976_16, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_15"}, MeosOverload{arguments976_17, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_16"}, MeosOverload{arguments976_18, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_17"}, MeosOverload{arguments976_19, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_18"}, MeosOverload{arguments976_20, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_19"}};
-constexpr std::array<std::string_view, 2> arguments977_0{"INT32", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments977_1{"INT32", "TSTZSET"};
-constexpr std::array<std::string_view, 2> arguments977_2{"INT32", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments977_3{"INT32", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments977_4{"TBOOL"};
-constexpr std::array<std::string_view, 1> arguments977_5{"TFLOAT"};
-constexpr std::array<std::string_view, 1> arguments977_6{"TBIGINT"};
-constexpr std::array<std::string_view, 3> arguments977_7{"TJSONB", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments977_8{"TJSONB", "VARSIZED"};
-constexpr std::array<MeosOverload, 9> overloads977{MeosOverload{arguments977_0, "TINT", "Meos_tintinst_make_0"}, MeosOverload{arguments977_1, "TINT", "Meos_tintseq_from_base_tstzset_0"}, MeosOverload{arguments977_2, "TINT", "Meos_tintseq_from_base_tstzspan_0"}, MeosOverload{arguments977_3, "TINT", "Meos_tintseqset_from_base_tstzspanset_0"}, MeosOverload{arguments977_4, "TINT", "Meos_tbool_to_tint_0"}, MeosOverload{arguments977_5, "TINT", "Meos_tfloat_to_tint_0"}, MeosOverload{arguments977_6, "TINT", "Meos_tbigint_to_tint_0"}, MeosOverload{arguments977_7, "TINT", "Meos_tjsonb_to_tint_0"}, MeosOverload{arguments977_8, "TINT", "Meos_tjsonb_to_tint_0_2"}};
-constexpr std::array<std::string_view, 1> arguments978_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads978{MeosOverload{arguments978_0, "TINT", "Meos_temporal_from_wkb_49"}};
-constexpr std::array<std::string_view, 1> arguments979_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads979{MeosOverload{arguments979_0, "TINT", "Meos_temporal_from_hexwkb_30"}};
-constexpr std::array<std::string_view, 1> arguments980_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads980{MeosOverload{arguments980_0, "TINT", "Meos_tint_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments981_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads981{MeosOverload{arguments981_0, "TINT", "Meos_tint_in_1"}};
-constexpr std::array<std::string_view, 1> arguments982_0{"TINT"};
-constexpr std::array<MeosOverload, 1> overloads982{MeosOverload{arguments982_0, "TINT", "Meos_temporal_as_tinstant_15"}};
-constexpr std::array<std::string_view, 4> arguments983_0{"TINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments983_1{"TINT_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments983_2{"TINT_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments983_3{"TINT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments983_4{"TINT", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads983{MeosOverload{arguments983_0, "TINT", "Meos_tsequence_make_16"}, MeosOverload{arguments983_1, "TINT", "Meos_tsequence_make_16_3"}, MeosOverload{arguments983_2, "TINT", "Meos_tsequence_make_16_2"}, MeosOverload{arguments983_3, "TINT", "Meos_tsequence_make_16_1"}, MeosOverload{arguments983_4, "TINT", "Meos_temporal_as_tsequence_15"}};
-constexpr std::array<std::string_view, 1> arguments984_0{"TINT_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments984_1{"TINT"};
-constexpr std::array<MeosOverload, 2> overloads984{MeosOverload{arguments984_0, "TINT", "Meos_tsequenceset_make_16"}, MeosOverload{arguments984_1, "TINT", "Meos_temporal_as_tsequenceset_15"}};
-constexpr std::array<std::string_view, 3> arguments985_0{"TTEXT", "INT32", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments985_1{"TTEXT", "INT32"};
-constexpr std::array<MeosOverload, 2> overloads985{MeosOverload{arguments985_0, "TTEXT", "Meos_tjson_array_element_0"}, MeosOverload{arguments985_1, "TTEXT", "Meos_tjson_array_element_0_2"}};
-constexpr std::array<std::string_view, 1> arguments986_0{"TTEXT"};
-constexpr std::array<MeosOverload, 1> overloads986{MeosOverload{arguments986_0, "TINT", "Meos_tjson_array_length_0"}};
-constexpr std::array<std::string_view, 3> arguments987_0{"TTEXT", "TEXT_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments987_1{"TTEXT", "TEXT_ARRAY"};
-constexpr std::array<MeosOverload, 2> overloads987{MeosOverload{arguments987_0, "TTEXT", "Meos_tjson_extract_path_0"}, MeosOverload{arguments987_1, "TTEXT", "Meos_tjson_extract_path_0_2"}};
-constexpr std::array<std::string_view, 3> arguments988_0{"TTEXT", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments988_1{"TTEXT", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads988{MeosOverload{arguments988_0, "TTEXT", "Meos_tjson_object_field_0"}, MeosOverload{arguments988_1, "TTEXT", "Meos_tjson_object_field_0_2"}};
-constexpr std::array<std::string_view, 2> arguments989_0{"TTEXT", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments989_1{"TTEXT"};
-constexpr std::array<MeosOverload, 2> overloads989{MeosOverload{arguments989_0, "TTEXT", "Meos_tjson_strip_nulls_0"}, MeosOverload{arguments989_1, "TTEXT", "Meos_tjson_strip_nulls_0_1"}};
-constexpr std::array<std::string_view, 2> arguments990_0{"JSONB", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments990_1{"JSONB", "TSTZSET"};
-constexpr std::array<std::string_view, 2> arguments990_2{"JSONB", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments990_3{"JSONB", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments990_4{"TTEXT"};
-constexpr std::array<MeosOverload, 5> overloads990{MeosOverload{arguments990_0, "TJSONB", "Meos_tjsonbinst_make_0"}, MeosOverload{arguments990_1, "TJSONB", "Meos_tjsonbseq_from_base_tstzset_0"}, MeosOverload{arguments990_2, "TJSONB", "Meos_tjsonbseq_from_base_tstzspan_0"}, MeosOverload{arguments990_3, "TJSONB", "Meos_tjsonbseqset_from_base_tstzspanset_0"}, MeosOverload{arguments990_4, "TJSONB", "Meos_ttext_to_tjsonb_0"}};
-constexpr std::array<std::string_view, 3> arguments991_0{"TJSONB", "INT32", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments991_1{"TJSONB", "INT32"};
-constexpr std::array<MeosOverload, 2> overloads991{MeosOverload{arguments991_0, "TJSONB", "Meos_tjsonb_array_element_0"}, MeosOverload{arguments991_1, "TJSONB", "Meos_tjsonb_array_element_0_2"}};
-constexpr std::array<std::string_view, 3> arguments992_0{"TJSONB", "INT32", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments992_1{"TJSONB", "INT32"};
-constexpr std::array<MeosOverload, 2> overloads992{MeosOverload{arguments992_0, "TTEXT", "Meos_tjsonb_array_element_text_0"}, MeosOverload{arguments992_1, "TTEXT", "Meos_tjsonb_array_element_text_0_2"}};
-constexpr std::array<std::string_view, 1> arguments993_0{"TJSONB"};
-constexpr std::array<MeosOverload, 1> overloads993{MeosOverload{arguments993_0, "TINT", "Meos_tjsonb_array_length_0"}};
-constexpr std::array<std::string_view, 2> arguments994_0{"JSONB", "TJSONB"};
-constexpr std::array<std::string_view, 2> arguments994_1{"TJSONB", "JSONB"};
-constexpr std::array<std::string_view, 2> arguments994_2{"TJSONB", "TJSONB"};
-constexpr std::array<MeosOverload, 3> overloads994{MeosOverload{arguments994_0, "TBOOL", "Meos_contained_jsonb_tjsonb_0"}, MeosOverload{arguments994_1, "TBOOL", "Meos_contained_tjsonb_jsonb_0"}, MeosOverload{arguments994_2, "TBOOL", "Meos_contained_tjsonb_tjsonb_0"}};
-constexpr std::array<std::string_view, 2> arguments995_0{"JSONB", "TJSONB"};
-constexpr std::array<std::string_view, 2> arguments995_1{"TJSONB", "JSONB"};
-constexpr std::array<std::string_view, 2> arguments995_2{"TJSONB", "TJSONB"};
-constexpr std::array<MeosOverload, 3> overloads995{MeosOverload{arguments995_0, "TBOOL", "Meos_contains_jsonb_tjsonb_0"}, MeosOverload{arguments995_1, "TBOOL", "Meos_contains_tjsonb_jsonb_0"}, MeosOverload{arguments995_2, "TBOOL", "Meos_contains_tjsonb_tjsonb_0"}};
-constexpr std::array<std::string_view, 2> arguments996_0{"TJSONB", "VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads996{MeosOverload{arguments996_0, "TJSONB", "Meos_tjsonb_delete_0"}};
-constexpr std::array<std::string_view, 2> arguments997_0{"TJSONB", "TEXT_ARRAY"};
-constexpr std::array<MeosOverload, 1> overloads997{MeosOverload{arguments997_0, "TJSONB", "Meos_tjsonb_delete_array_0"}};
-constexpr std::array<std::string_view, 2> arguments998_0{"TJSONB", "INT32"};
-constexpr std::array<MeosOverload, 1> overloads998{MeosOverload{arguments998_0, "TJSONB", "Meos_tjsonb_delete_index_0"}};
-constexpr std::array<std::string_view, 2> arguments999_0{"TJSONB", "TEXT_ARRAY"};
-constexpr std::array<MeosOverload, 1> overloads999{MeosOverload{arguments999_0, "TJSONB", "Meos_tjsonb_delete_path_0"}};
-constexpr std::array<std::string_view, 2> arguments1000_0{"TJSONB", "VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1000{MeosOverload{arguments1000_0, "TBOOL", "Meos_tjsonb_exists_0"}};
-constexpr std::array<std::string_view, 2> arguments1001_0{"TJSONB", "TEXT_ARRAY"};
-constexpr std::array<MeosOverload, 1> overloads1001{MeosOverload{arguments1001_0, "TBOOL", "Meos_tjsonb_exists_all_0"}};
-constexpr std::array<std::string_view, 2> arguments1002_0{"TJSONB", "TEXT_ARRAY"};
-constexpr std::array<MeosOverload, 1> overloads1002{MeosOverload{arguments1002_0, "TBOOL", "Meos_tjsonb_exists_any_0"}};
-constexpr std::array<std::string_view, 3> arguments1003_0{"TJSONB", "TEXT_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1003_1{"TJSONB", "TEXT_ARRAY"};
-constexpr std::array<MeosOverload, 2> overloads1003{MeosOverload{arguments1003_0, "TJSONB", "Meos_tjsonb_extract_path_0"}, MeosOverload{arguments1003_1, "TJSONB", "Meos_tjsonb_extract_path_0_2"}};
-constexpr std::array<std::string_view, 3> arguments1004_0{"TJSONB", "TEXT_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1004_1{"TJSONB", "TEXT_ARRAY"};
-constexpr std::array<MeosOverload, 2> overloads1004{MeosOverload{arguments1004_0, "TTEXT", "Meos_tjsonb_extract_path_text_0"}, MeosOverload{arguments1004_1, "TTEXT", "Meos_tjsonb_extract_path_text_0_2"}};
-constexpr std::array<std::string_view, 1> arguments1005_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1005{MeosOverload{arguments1005_0, "TJSONB", "Meos_temporal_from_wkb_31"}};
-constexpr std::array<std::string_view, 1> arguments1006_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1006{MeosOverload{arguments1006_0, "TJSONB", "Meos_temporal_from_hexwkb_12"}};
-constexpr std::array<std::string_view, 1> arguments1007_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1007{MeosOverload{arguments1007_0, "TJSONB", "Meos_tjsonb_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments1008_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1008{MeosOverload{arguments1008_0, "TJSONB", "Meos_tjsonb_in_1"}};
-constexpr std::array<std::string_view, 4> arguments1009_0{"TJSONB", "TEXT_ARRAY", "JSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1009_1{"TJSONB", "TEXT_ARRAY", "JSONB"};
-constexpr std::array<MeosOverload, 2> overloads1009{MeosOverload{arguments1009_0, "TJSONB", "Meos_tjsonb_insert_0"}, MeosOverload{arguments1009_1, "TJSONB", "Meos_tjsonb_insert_0_3"}};
-constexpr std::array<std::string_view, 1> arguments1010_0{"TJSONB"};
-constexpr std::array<MeosOverload, 1> overloads1010{MeosOverload{arguments1010_0, "TJSONB", "Meos_temporal_as_tinstant_6"}};
-constexpr std::array<std::string_view, 3> arguments1011_0{"TJSONB", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1011_1{"TJSONB", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads1011{MeosOverload{arguments1011_0, "TJSONB", "Meos_tjsonb_object_field_0"}, MeosOverload{arguments1011_1, "TJSONB", "Meos_tjsonb_object_field_0_2"}};
-constexpr std::array<std::string_view, 3> arguments1012_0{"TJSONB", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1012_1{"TJSONB", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads1012{MeosOverload{arguments1012_0, "TTEXT", "Meos_tjsonb_object_field_text_0"}, MeosOverload{arguments1012_1, "TTEXT", "Meos_tjsonb_object_field_text_0_2"}};
-constexpr std::array<std::string_view, 4> arguments1013_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1013_1{"TJSONB", "JSONPATH", "JSONB"};
-constexpr std::array<MeosOverload, 2> overloads1013{MeosOverload{arguments1013_0, "TBOOL", "Meos_tjsonb_path_exists_0"}, MeosOverload{arguments1013_1, "TBOOL", "Meos_tjsonb_path_exists_0_3"}};
-constexpr std::array<std::string_view, 4> arguments1014_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1014_1{"TJSONB", "JSONPATH", "JSONB"};
-constexpr std::array<MeosOverload, 2> overloads1014{MeosOverload{arguments1014_0, "TBOOL", "Meos_tjsonb_path_exists_1"}, MeosOverload{arguments1014_1, "TBOOL", "Meos_tjsonb_path_exists_1_3"}};
-constexpr std::array<std::string_view, 4> arguments1015_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1015_1{"TJSONB", "JSONPATH", "JSONB"};
-constexpr std::array<MeosOverload, 2> overloads1015{MeosOverload{arguments1015_0, "TBOOL", "Meos_tjsonb_path_match_0"}, MeosOverload{arguments1015_1, "TBOOL", "Meos_tjsonb_path_match_0_3"}};
-constexpr std::array<std::string_view, 4> arguments1016_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1016_1{"TJSONB", "JSONPATH", "JSONB"};
-constexpr std::array<MeosOverload, 2> overloads1016{MeosOverload{arguments1016_0, "TBOOL", "Meos_tjsonb_path_match_1"}, MeosOverload{arguments1016_1, "TBOOL", "Meos_tjsonb_path_match_1_3"}};
-constexpr std::array<std::string_view, 4> arguments1017_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1017_1{"TJSONB", "JSONPATH", "JSONB"};
-constexpr std::array<MeosOverload, 2> overloads1017{MeosOverload{arguments1017_0, "TJSONB", "Meos_tjsonb_path_query_array_0"}, MeosOverload{arguments1017_1, "TJSONB", "Meos_tjsonb_path_query_array_0_3"}};
-constexpr std::array<std::string_view, 4> arguments1018_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1018_1{"TJSONB", "JSONPATH", "JSONB"};
-constexpr std::array<MeosOverload, 2> overloads1018{MeosOverload{arguments1018_0, "TJSONB", "Meos_tjsonb_path_query_array_1"}, MeosOverload{arguments1018_1, "TJSONB", "Meos_tjsonb_path_query_array_1_3"}};
-constexpr std::array<std::string_view, 4> arguments1019_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1019_1{"TJSONB", "JSONPATH", "JSONB"};
-constexpr std::array<MeosOverload, 2> overloads1019{MeosOverload{arguments1019_0, "TJSONB", "Meos_tjsonb_path_query_first_0"}, MeosOverload{arguments1019_1, "TJSONB", "Meos_tjsonb_path_query_first_0_3"}};
+constexpr std::array<MeosOverload, 1> overloads962{MeosOverload{arguments962_0, "TINT", "Meos_th3index_get_base_cell_number_0"}};
+constexpr std::array<std::string_view, 1> arguments963_0{"TH3INDEX"};
+constexpr std::array<MeosOverload, 1> overloads963{MeosOverload{arguments963_0, "TH3INDEX", "Meos_th3index_get_directed_edge_destination_0"}};
+constexpr std::array<std::string_view, 1> arguments964_0{"TH3INDEX"};
+constexpr std::array<MeosOverload, 1> overloads964{MeosOverload{arguments964_0, "TH3INDEX", "Meos_th3index_get_directed_edge_origin_0"}};
+constexpr std::array<std::string_view, 2> arguments965_0{"TH3INDEX", "TH3INDEX"};
+constexpr std::array<MeosOverload, 1> overloads965{MeosOverload{arguments965_0, "TBIGINT", "Meos_th3index_grid_distance_0"}};
+constexpr std::array<std::string_view, 1> arguments966_0{"TH3INDEX"};
+constexpr std::array<MeosOverload, 1> overloads966{MeosOverload{arguments966_0, "TBOOL", "Meos_th3index_is_pentagon_0"}};
+constexpr std::array<std::string_view, 1> arguments967_0{"TH3INDEX"};
+constexpr std::array<MeosOverload, 1> overloads967{MeosOverload{arguments967_0, "TBOOL", "Meos_th3index_is_res_class_iii_0"}};
+constexpr std::array<std::string_view, 2> arguments968_0{"TH3INDEX", "TGEOMPOINT"};
+constexpr std::array<MeosOverload, 1> overloads968{MeosOverload{arguments968_0, "TH3INDEX", "Meos_th3index_local_ij_to_cell_0"}};
+constexpr std::array<std::string_view, 1> arguments969_0{"TH3INDEX"};
+constexpr std::array<MeosOverload, 1> overloads969{MeosOverload{arguments969_0, "TGEOGPOINT", "Meos_th3index_vertex_to_latlng_0"}};
+constexpr std::array<std::string_view, 2> arguments970_0{"H3INDEX", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments970_1{"H3INDEX", "TSTZSET"};
+constexpr std::array<std::string_view, 2> arguments970_2{"H3INDEX", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments970_3{"H3INDEX", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments970_4{"TBIGINT"};
+constexpr std::array<std::string_view, 3> arguments970_5{"TGEOGPOINT", "INT32", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments970_6{"TGEOGPOINT", "INT32"};
+constexpr std::array<std::string_view, 3> arguments970_7{"TGEOMPOINT", "INT32", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments970_8{"TGEOMPOINT", "INT32"};
+constexpr std::array<MeosOverload, 9> overloads970{MeosOverload{arguments970_0, "TH3INDEX", "Meos_th3indexinst_make_0"}, MeosOverload{arguments970_1, "TH3INDEX", "Meos_th3indexseq_from_base_tstzset_0"}, MeosOverload{arguments970_2, "TH3INDEX", "Meos_th3indexseq_from_base_tstzspan_0"}, MeosOverload{arguments970_3, "TH3INDEX", "Meos_th3indexseqset_from_base_tstzspanset_0"}, MeosOverload{arguments970_4, "TH3INDEX", "Meos_tbigint_to_th3index_0"}, MeosOverload{arguments970_5, "TH3INDEX", "Meos_tgeogpoint_to_th3index_0"}, MeosOverload{arguments970_6, "TH3INDEX", "Meos_tgeogpoint_to_th3index_0_2"}, MeosOverload{arguments970_7, "TH3INDEX", "Meos_tgeompoint_to_th3index_0"}, MeosOverload{arguments970_8, "TH3INDEX", "Meos_tgeompoint_to_th3index_0_2"}};
+constexpr std::array<std::string_view, 1> arguments971_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads971{MeosOverload{arguments971_0, "TH3INDEX", "Meos_temporal_from_wkb_29"}};
+constexpr std::array<std::string_view, 1> arguments972_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads972{MeosOverload{arguments972_0, "TH3INDEX", "Meos_temporal_from_wkb_30"}};
+constexpr std::array<std::string_view, 1> arguments973_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads973{MeosOverload{arguments973_0, "TH3INDEX", "Meos_th3index_in_2"}};
+constexpr std::array<std::string_view, 1> arguments974_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads974{MeosOverload{arguments974_0, "TH3INDEX", "Meos_temporal_from_hexwkb_11"}};
+constexpr std::array<std::string_view, 1> arguments975_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads975{MeosOverload{arguments975_0, "TH3INDEX", "Meos_temporal_from_hexwkb_10"}};
+constexpr std::array<std::string_view, 1> arguments976_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads976{MeosOverload{arguments976_0, "TH3INDEX", "Meos_th3index_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments977_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads977{MeosOverload{arguments977_0, "TH3INDEX", "Meos_th3index_in_1"}};
+constexpr std::array<std::string_view, 1> arguments978_0{"TH3INDEX"};
+constexpr std::array<MeosOverload, 1> overloads978{MeosOverload{arguments978_0, "TH3INDEX", "Meos_temporal_as_tinstant_5"}};
+constexpr std::array<std::string_view, 4> arguments979_0{"TH3INDEX_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments979_1{"TH3INDEX_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments979_2{"TH3INDEX_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments979_3{"TH3INDEX_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments979_4{"TH3INDEX", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads979{MeosOverload{arguments979_0, "TH3INDEX", "Meos_tsequence_make_5"}, MeosOverload{arguments979_1, "TH3INDEX", "Meos_tsequence_make_5_3"}, MeosOverload{arguments979_2, "TH3INDEX", "Meos_tsequence_make_5_2"}, MeosOverload{arguments979_3, "TH3INDEX", "Meos_tsequence_make_5_1"}, MeosOverload{arguments979_4, "TH3INDEX", "Meos_temporal_as_tsequence_5"}};
+constexpr std::array<std::string_view, 1> arguments980_0{"TH3INDEX_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments980_1{"TH3INDEX", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads980{MeosOverload{arguments980_0, "TH3INDEX", "Meos_tsequenceset_make_5"}, MeosOverload{arguments980_1, "TH3INDEX", "Meos_temporal_as_tsequenceset_5"}};
+constexpr std::array<std::string_view, 1> arguments981_0{"TBOX"};
+constexpr std::array<std::string_view, 1> arguments981_1{"TCBUFFER"};
+constexpr std::array<std::string_view, 1> arguments981_2{"TGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments981_3{"TGEOGRAPHY"};
+constexpr std::array<std::string_view, 1> arguments981_4{"TGEOMPOINT"};
+constexpr std::array<std::string_view, 1> arguments981_5{"TGEOGPOINT"};
+constexpr std::array<std::string_view, 1> arguments981_6{"TH3INDEX"};
+constexpr std::array<std::string_view, 1> arguments981_7{"TJSONB"};
+constexpr std::array<std::string_view, 1> arguments981_8{"TNPOINT"};
+constexpr std::array<std::string_view, 1> arguments981_9{"TPCPOINT"};
+constexpr std::array<std::string_view, 1> arguments981_10{"TPCPATCH"};
+constexpr std::array<std::string_view, 1> arguments981_11{"TPOSE"};
+constexpr std::array<std::string_view, 1> arguments981_12{"TPOSECHAIN"};
+constexpr std::array<std::string_view, 1> arguments981_13{"TQUADBIN"};
+constexpr std::array<std::string_view, 1> arguments981_14{"TRGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments981_15{"TS2CELL"};
+constexpr std::array<std::string_view, 1> arguments981_16{"TBOOL"};
+constexpr std::array<std::string_view, 1> arguments981_17{"TINT"};
+constexpr std::array<std::string_view, 1> arguments981_18{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments981_19{"TFLOAT"};
+constexpr std::array<std::string_view, 1> arguments981_20{"TTEXT"};
+constexpr std::array<std::string_view, 1> arguments981_21{"STBOX"};
+constexpr std::array<MeosOverload, 22> overloads981{MeosOverload{arguments981_0, "TSTZSPAN", "Meos_tbox_to_tstzspan_0"}, MeosOverload{arguments981_1, "TSTZSPAN", "Meos_temporal_to_tstzspan_0"}, MeosOverload{arguments981_2, "TSTZSPAN", "Meos_temporal_to_tstzspan_1"}, MeosOverload{arguments981_3, "TSTZSPAN", "Meos_temporal_to_tstzspan_2"}, MeosOverload{arguments981_4, "TSTZSPAN", "Meos_temporal_to_tstzspan_3"}, MeosOverload{arguments981_5, "TSTZSPAN", "Meos_temporal_to_tstzspan_4"}, MeosOverload{arguments981_6, "TSTZSPAN", "Meos_temporal_to_tstzspan_5"}, MeosOverload{arguments981_7, "TSTZSPAN", "Meos_temporal_to_tstzspan_6"}, MeosOverload{arguments981_8, "TSTZSPAN", "Meos_temporal_to_tstzspan_7"}, MeosOverload{arguments981_9, "TSTZSPAN", "Meos_temporal_to_tstzspan_8"}, MeosOverload{arguments981_10, "TSTZSPAN", "Meos_temporal_to_tstzspan_9"}, MeosOverload{arguments981_11, "TSTZSPAN", "Meos_temporal_to_tstzspan_10"}, MeosOverload{arguments981_12, "TSTZSPAN", "Meos_temporal_to_tstzspan_11"}, MeosOverload{arguments981_13, "TSTZSPAN", "Meos_temporal_to_tstzspan_12"}, MeosOverload{arguments981_14, "TSTZSPAN", "Meos_temporal_to_tstzspan_13"}, MeosOverload{arguments981_15, "TSTZSPAN", "Meos_temporal_to_tstzspan_14"}, MeosOverload{arguments981_16, "TSTZSPAN", "Meos_temporal_to_tstzspan_15"}, MeosOverload{arguments981_17, "TSTZSPAN", "Meos_temporal_to_tstzspan_16"}, MeosOverload{arguments981_18, "TSTZSPAN", "Meos_temporal_to_tstzspan_17"}, MeosOverload{arguments981_19, "TSTZSPAN", "Meos_temporal_to_tstzspan_18"}, MeosOverload{arguments981_20, "TSTZSPAN", "Meos_temporal_to_tstzspan_19"}, MeosOverload{arguments981_21, "TSTZSPAN", "Meos_stbox_to_tstzspan_0"}};
+constexpr std::array<std::string_view, 2> arguments982_0{"TSTZSPANSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_1{"TCBUFFER", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_2{"TGEOMETRY", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_3{"TGEOGRAPHY", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_4{"TGEOMPOINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_5{"TGEOGPOINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_6{"TH3INDEX", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_7{"TJSONB", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_8{"TNPOINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_9{"TPCPOINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_10{"TPCPATCH", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_11{"TPOSE", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_12{"TPOSECHAIN", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_13{"TQUADBIN", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_14{"TRGEOMETRY", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_15{"TS2CELL", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_16{"TBOOL", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_17{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_18{"TBIGINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_19{"TFLOAT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments982_20{"TTEXT", "INT32"};
+constexpr std::array<MeosOverload, 21> overloads982{MeosOverload{arguments982_0, "UINT64", "Meos_tstzspanset_timestamptz_n_0"}, MeosOverload{arguments982_1, "UINT64", "Meos_temporal_timestamptz_n_0"}, MeosOverload{arguments982_2, "UINT64", "Meos_temporal_timestamptz_n_1"}, MeosOverload{arguments982_3, "UINT64", "Meos_temporal_timestamptz_n_2"}, MeosOverload{arguments982_4, "UINT64", "Meos_temporal_timestamptz_n_3"}, MeosOverload{arguments982_5, "UINT64", "Meos_temporal_timestamptz_n_4"}, MeosOverload{arguments982_6, "UINT64", "Meos_temporal_timestamptz_n_5"}, MeosOverload{arguments982_7, "UINT64", "Meos_temporal_timestamptz_n_6"}, MeosOverload{arguments982_8, "UINT64", "Meos_temporal_timestamptz_n_7"}, MeosOverload{arguments982_9, "UINT64", "Meos_temporal_timestamptz_n_8"}, MeosOverload{arguments982_10, "UINT64", "Meos_temporal_timestamptz_n_9"}, MeosOverload{arguments982_11, "UINT64", "Meos_temporal_timestamptz_n_10"}, MeosOverload{arguments982_12, "UINT64", "Meos_temporal_timestamptz_n_11"}, MeosOverload{arguments982_13, "UINT64", "Meos_temporal_timestamptz_n_12"}, MeosOverload{arguments982_14, "UINT64", "Meos_temporal_timestamptz_n_13"}, MeosOverload{arguments982_15, "UINT64", "Meos_temporal_timestamptz_n_14"}, MeosOverload{arguments982_16, "UINT64", "Meos_temporal_timestamptz_n_15"}, MeosOverload{arguments982_17, "UINT64", "Meos_temporal_timestamptz_n_16"}, MeosOverload{arguments982_18, "UINT64", "Meos_temporal_timestamptz_n_17"}, MeosOverload{arguments982_19, "UINT64", "Meos_temporal_timestamptz_n_18"}, MeosOverload{arguments982_20, "UINT64", "Meos_temporal_timestamptz_n_19"}};
+constexpr std::array<std::string_view, 1> arguments983_0{"TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments983_1{"TCBUFFER"};
+constexpr std::array<std::string_view, 1> arguments983_2{"TGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments983_3{"TGEOGRAPHY"};
+constexpr std::array<std::string_view, 1> arguments983_4{"TGEOMPOINT"};
+constexpr std::array<std::string_view, 1> arguments983_5{"TGEOGPOINT"};
+constexpr std::array<std::string_view, 1> arguments983_6{"TH3INDEX"};
+constexpr std::array<std::string_view, 1> arguments983_7{"TJSONB"};
+constexpr std::array<std::string_view, 1> arguments983_8{"TNPOINT"};
+constexpr std::array<std::string_view, 1> arguments983_9{"TPCPOINT"};
+constexpr std::array<std::string_view, 1> arguments983_10{"TPCPATCH"};
+constexpr std::array<std::string_view, 1> arguments983_11{"TPOSE"};
+constexpr std::array<std::string_view, 1> arguments983_12{"TPOSECHAIN"};
+constexpr std::array<std::string_view, 1> arguments983_13{"TQUADBIN"};
+constexpr std::array<std::string_view, 1> arguments983_14{"TRGEOMETRY"};
+constexpr std::array<std::string_view, 1> arguments983_15{"TS2CELL"};
+constexpr std::array<std::string_view, 1> arguments983_16{"TBOOL"};
+constexpr std::array<std::string_view, 1> arguments983_17{"TINT"};
+constexpr std::array<std::string_view, 1> arguments983_18{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments983_19{"TFLOAT"};
+constexpr std::array<std::string_view, 1> arguments983_20{"TTEXT"};
+constexpr std::array<MeosOverload, 21> overloads983{MeosOverload{arguments983_0, "TSTZSET", "Meos_tstzspanset_timestamps_0"}, MeosOverload{arguments983_1, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_0"}, MeosOverload{arguments983_2, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_1"}, MeosOverload{arguments983_3, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_2"}, MeosOverload{arguments983_4, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_3"}, MeosOverload{arguments983_5, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_4"}, MeosOverload{arguments983_6, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_5"}, MeosOverload{arguments983_7, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_6"}, MeosOverload{arguments983_8, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_7"}, MeosOverload{arguments983_9, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_8"}, MeosOverload{arguments983_10, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_9"}, MeosOverload{arguments983_11, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_10"}, MeosOverload{arguments983_12, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_11"}, MeosOverload{arguments983_13, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_12"}, MeosOverload{arguments983_14, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_13"}, MeosOverload{arguments983_15, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_14"}, MeosOverload{arguments983_16, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_15"}, MeosOverload{arguments983_17, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_16"}, MeosOverload{arguments983_18, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_17"}, MeosOverload{arguments983_19, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_18"}, MeosOverload{arguments983_20, "TIMESTAMPTZ_ARRAY", "Meos_temporal_timestamps_19"}};
+constexpr std::array<std::string_view, 2> arguments984_0{"INT32", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments984_1{"INT32", "TSTZSET"};
+constexpr std::array<std::string_view, 2> arguments984_2{"INT32", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments984_3{"INT32", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments984_4{"TBOOL"};
+constexpr std::array<std::string_view, 1> arguments984_5{"TFLOAT"};
+constexpr std::array<std::string_view, 1> arguments984_6{"TBIGINT"};
+constexpr std::array<std::string_view, 3> arguments984_7{"TJSONB", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments984_8{"TJSONB", "VARSIZED"};
+constexpr std::array<MeosOverload, 9> overloads984{MeosOverload{arguments984_0, "TINT", "Meos_tintinst_make_0"}, MeosOverload{arguments984_1, "TINT", "Meos_tintseq_from_base_tstzset_0"}, MeosOverload{arguments984_2, "TINT", "Meos_tintseq_from_base_tstzspan_0"}, MeosOverload{arguments984_3, "TINT", "Meos_tintseqset_from_base_tstzspanset_0"}, MeosOverload{arguments984_4, "TINT", "Meos_tbool_to_tint_0"}, MeosOverload{arguments984_5, "TINT", "Meos_tfloat_to_tint_0"}, MeosOverload{arguments984_6, "TINT", "Meos_tbigint_to_tint_0"}, MeosOverload{arguments984_7, "TINT", "Meos_tjsonb_to_tint_0"}, MeosOverload{arguments984_8, "TINT", "Meos_tjsonb_to_tint_0_2"}};
+constexpr std::array<std::string_view, 1> arguments985_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads985{MeosOverload{arguments985_0, "TINT", "Meos_temporal_from_wkb_49"}};
+constexpr std::array<std::string_view, 1> arguments986_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads986{MeosOverload{arguments986_0, "TINT", "Meos_temporal_from_hexwkb_30"}};
+constexpr std::array<std::string_view, 1> arguments987_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads987{MeosOverload{arguments987_0, "TINT", "Meos_tint_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments988_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads988{MeosOverload{arguments988_0, "TINT", "Meos_tint_in_1"}};
+constexpr std::array<std::string_view, 1> arguments989_0{"TINT"};
+constexpr std::array<MeosOverload, 1> overloads989{MeosOverload{arguments989_0, "TINT", "Meos_temporal_as_tinstant_15"}};
+constexpr std::array<std::string_view, 4> arguments990_0{"TINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments990_1{"TINT_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments990_2{"TINT_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments990_3{"TINT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments990_4{"TINT", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads990{MeosOverload{arguments990_0, "TINT", "Meos_tsequence_make_16"}, MeosOverload{arguments990_1, "TINT", "Meos_tsequence_make_16_3"}, MeosOverload{arguments990_2, "TINT", "Meos_tsequence_make_16_2"}, MeosOverload{arguments990_3, "TINT", "Meos_tsequence_make_16_1"}, MeosOverload{arguments990_4, "TINT", "Meos_temporal_as_tsequence_15"}};
+constexpr std::array<std::string_view, 1> arguments991_0{"TINT_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments991_1{"TINT"};
+constexpr std::array<MeosOverload, 2> overloads991{MeosOverload{arguments991_0, "TINT", "Meos_tsequenceset_make_16"}, MeosOverload{arguments991_1, "TINT", "Meos_temporal_as_tsequenceset_15"}};
+constexpr std::array<std::string_view, 3> arguments992_0{"TTEXT", "INT32", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments992_1{"TTEXT", "INT32"};
+constexpr std::array<MeosOverload, 2> overloads992{MeosOverload{arguments992_0, "TTEXT", "Meos_tjson_array_element_0"}, MeosOverload{arguments992_1, "TTEXT", "Meos_tjson_array_element_0_2"}};
+constexpr std::array<std::string_view, 1> arguments993_0{"TTEXT"};
+constexpr std::array<MeosOverload, 1> overloads993{MeosOverload{arguments993_0, "TINT", "Meos_tjson_array_length_0"}};
+constexpr std::array<std::string_view, 3> arguments994_0{"TTEXT", "TEXT_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments994_1{"TTEXT", "TEXT_ARRAY"};
+constexpr std::array<MeosOverload, 2> overloads994{MeosOverload{arguments994_0, "TTEXT", "Meos_tjson_extract_path_0"}, MeosOverload{arguments994_1, "TTEXT", "Meos_tjson_extract_path_0_2"}};
+constexpr std::array<std::string_view, 3> arguments995_0{"TTEXT", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments995_1{"TTEXT", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads995{MeosOverload{arguments995_0, "TTEXT", "Meos_tjson_object_field_0"}, MeosOverload{arguments995_1, "TTEXT", "Meos_tjson_object_field_0_2"}};
+constexpr std::array<std::string_view, 2> arguments996_0{"TTEXT", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments996_1{"TTEXT"};
+constexpr std::array<MeosOverload, 2> overloads996{MeosOverload{arguments996_0, "TTEXT", "Meos_tjson_strip_nulls_0"}, MeosOverload{arguments996_1, "TTEXT", "Meos_tjson_strip_nulls_0_1"}};
+constexpr std::array<std::string_view, 2> arguments997_0{"JSONB", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments997_1{"JSONB", "TSTZSET"};
+constexpr std::array<std::string_view, 2> arguments997_2{"JSONB", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments997_3{"JSONB", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments997_4{"TTEXT"};
+constexpr std::array<MeosOverload, 5> overloads997{MeosOverload{arguments997_0, "TJSONB", "Meos_tjsonbinst_make_0"}, MeosOverload{arguments997_1, "TJSONB", "Meos_tjsonbseq_from_base_tstzset_0"}, MeosOverload{arguments997_2, "TJSONB", "Meos_tjsonbseq_from_base_tstzspan_0"}, MeosOverload{arguments997_3, "TJSONB", "Meos_tjsonbseqset_from_base_tstzspanset_0"}, MeosOverload{arguments997_4, "TJSONB", "Meos_ttext_to_tjsonb_0"}};
+constexpr std::array<std::string_view, 3> arguments998_0{"TJSONB", "INT32", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments998_1{"TJSONB", "INT32"};
+constexpr std::array<MeosOverload, 2> overloads998{MeosOverload{arguments998_0, "TJSONB", "Meos_tjsonb_array_element_0"}, MeosOverload{arguments998_1, "TJSONB", "Meos_tjsonb_array_element_0_2"}};
+constexpr std::array<std::string_view, 3> arguments999_0{"TJSONB", "INT32", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments999_1{"TJSONB", "INT32"};
+constexpr std::array<MeosOverload, 2> overloads999{MeosOverload{arguments999_0, "TTEXT", "Meos_tjsonb_array_element_text_0"}, MeosOverload{arguments999_1, "TTEXT", "Meos_tjsonb_array_element_text_0_2"}};
+constexpr std::array<std::string_view, 1> arguments1000_0{"TJSONB"};
+constexpr std::array<MeosOverload, 1> overloads1000{MeosOverload{arguments1000_0, "TINT", "Meos_tjsonb_array_length_0"}};
+constexpr std::array<std::string_view, 2> arguments1001_0{"JSONB", "TJSONB"};
+constexpr std::array<std::string_view, 2> arguments1001_1{"TJSONB", "JSONB"};
+constexpr std::array<std::string_view, 2> arguments1001_2{"TJSONB", "TJSONB"};
+constexpr std::array<MeosOverload, 3> overloads1001{MeosOverload{arguments1001_0, "TBOOL", "Meos_contained_jsonb_tjsonb_0"}, MeosOverload{arguments1001_1, "TBOOL", "Meos_contained_tjsonb_jsonb_0"}, MeosOverload{arguments1001_2, "TBOOL", "Meos_contained_tjsonb_tjsonb_0"}};
+constexpr std::array<std::string_view, 2> arguments1002_0{"JSONB", "TJSONB"};
+constexpr std::array<std::string_view, 2> arguments1002_1{"TJSONB", "JSONB"};
+constexpr std::array<std::string_view, 2> arguments1002_2{"TJSONB", "TJSONB"};
+constexpr std::array<MeosOverload, 3> overloads1002{MeosOverload{arguments1002_0, "TBOOL", "Meos_contains_jsonb_tjsonb_0"}, MeosOverload{arguments1002_1, "TBOOL", "Meos_contains_tjsonb_jsonb_0"}, MeosOverload{arguments1002_2, "TBOOL", "Meos_contains_tjsonb_tjsonb_0"}};
+constexpr std::array<std::string_view, 2> arguments1003_0{"TJSONB", "VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1003{MeosOverload{arguments1003_0, "TJSONB", "Meos_tjsonb_delete_0"}};
+constexpr std::array<std::string_view, 2> arguments1004_0{"TJSONB", "TEXT_ARRAY"};
+constexpr std::array<MeosOverload, 1> overloads1004{MeosOverload{arguments1004_0, "TJSONB", "Meos_tjsonb_delete_array_0"}};
+constexpr std::array<std::string_view, 2> arguments1005_0{"TJSONB", "INT32"};
+constexpr std::array<MeosOverload, 1> overloads1005{MeosOverload{arguments1005_0, "TJSONB", "Meos_tjsonb_delete_index_0"}};
+constexpr std::array<std::string_view, 2> arguments1006_0{"TJSONB", "TEXT_ARRAY"};
+constexpr std::array<MeosOverload, 1> overloads1006{MeosOverload{arguments1006_0, "TJSONB", "Meos_tjsonb_delete_path_0"}};
+constexpr std::array<std::string_view, 2> arguments1007_0{"TJSONB", "VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1007{MeosOverload{arguments1007_0, "TBOOL", "Meos_tjsonb_exists_0"}};
+constexpr std::array<std::string_view, 2> arguments1008_0{"TJSONB", "TEXT_ARRAY"};
+constexpr std::array<MeosOverload, 1> overloads1008{MeosOverload{arguments1008_0, "TBOOL", "Meos_tjsonb_exists_all_0"}};
+constexpr std::array<std::string_view, 2> arguments1009_0{"TJSONB", "TEXT_ARRAY"};
+constexpr std::array<MeosOverload, 1> overloads1009{MeosOverload{arguments1009_0, "TBOOL", "Meos_tjsonb_exists_any_0"}};
+constexpr std::array<std::string_view, 3> arguments1010_0{"TJSONB", "TEXT_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1010_1{"TJSONB", "TEXT_ARRAY"};
+constexpr std::array<MeosOverload, 2> overloads1010{MeosOverload{arguments1010_0, "TJSONB", "Meos_tjsonb_extract_path_0"}, MeosOverload{arguments1010_1, "TJSONB", "Meos_tjsonb_extract_path_0_2"}};
+constexpr std::array<std::string_view, 3> arguments1011_0{"TJSONB", "TEXT_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1011_1{"TJSONB", "TEXT_ARRAY"};
+constexpr std::array<MeosOverload, 2> overloads1011{MeosOverload{arguments1011_0, "TTEXT", "Meos_tjsonb_extract_path_text_0"}, MeosOverload{arguments1011_1, "TTEXT", "Meos_tjsonb_extract_path_text_0_2"}};
+constexpr std::array<std::string_view, 1> arguments1012_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1012{MeosOverload{arguments1012_0, "TJSONB", "Meos_temporal_from_wkb_31"}};
+constexpr std::array<std::string_view, 1> arguments1013_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1013{MeosOverload{arguments1013_0, "TJSONB", "Meos_temporal_from_hexwkb_12"}};
+constexpr std::array<std::string_view, 1> arguments1014_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1014{MeosOverload{arguments1014_0, "TJSONB", "Meos_tjsonb_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments1015_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1015{MeosOverload{arguments1015_0, "TJSONB", "Meos_tjsonb_in_1"}};
+constexpr std::array<std::string_view, 4> arguments1016_0{"TJSONB", "TEXT_ARRAY", "JSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1016_1{"TJSONB", "TEXT_ARRAY", "JSONB"};
+constexpr std::array<MeosOverload, 2> overloads1016{MeosOverload{arguments1016_0, "TJSONB", "Meos_tjsonb_insert_0"}, MeosOverload{arguments1016_1, "TJSONB", "Meos_tjsonb_insert_0_3"}};
+constexpr std::array<std::string_view, 1> arguments1017_0{"TJSONB"};
+constexpr std::array<MeosOverload, 1> overloads1017{MeosOverload{arguments1017_0, "TJSONB", "Meos_temporal_as_tinstant_6"}};
+constexpr std::array<std::string_view, 3> arguments1018_0{"TJSONB", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1018_1{"TJSONB", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads1018{MeosOverload{arguments1018_0, "TJSONB", "Meos_tjsonb_object_field_0"}, MeosOverload{arguments1018_1, "TJSONB", "Meos_tjsonb_object_field_0_2"}};
+constexpr std::array<std::string_view, 3> arguments1019_0{"TJSONB", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1019_1{"TJSONB", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads1019{MeosOverload{arguments1019_0, "TTEXT", "Meos_tjsonb_object_field_text_0"}, MeosOverload{arguments1019_1, "TTEXT", "Meos_tjsonb_object_field_text_0_2"}};
 constexpr std::array<std::string_view, 4> arguments1020_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
 constexpr std::array<std::string_view, 3> arguments1020_1{"TJSONB", "JSONPATH", "JSONB"};
-constexpr std::array<MeosOverload, 2> overloads1020{MeosOverload{arguments1020_0, "TJSONB", "Meos_tjsonb_path_query_first_1"}, MeosOverload{arguments1020_1, "TJSONB", "Meos_tjsonb_path_query_first_1_3"}};
-constexpr std::array<std::string_view, 1> arguments1021_0{"TJSONB"};
-constexpr std::array<MeosOverload, 1> overloads1021{MeosOverload{arguments1021_0, "TTEXT", "Meos_tjsonb_pretty_0"}};
-constexpr std::array<std::string_view, 4> arguments1022_0{"TJSONB_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1022_1{"TJSONB_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1022_2{"TJSONB_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments1022_3{"TJSONB_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1022_4{"TJSONB", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads1022{MeosOverload{arguments1022_0, "TJSONB", "Meos_tsequence_make_6"}, MeosOverload{arguments1022_1, "TJSONB", "Meos_tsequence_make_6_3"}, MeosOverload{arguments1022_2, "TJSONB", "Meos_tsequence_make_6_2"}, MeosOverload{arguments1022_3, "TJSONB", "Meos_tsequence_make_6_1"}, MeosOverload{arguments1022_4, "TJSONB", "Meos_temporal_as_tsequence_6"}};
-constexpr std::array<std::string_view, 1> arguments1023_0{"TJSONB_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments1023_1{"TJSONB"};
-constexpr std::array<MeosOverload, 2> overloads1023{MeosOverload{arguments1023_0, "TJSONB", "Meos_tsequenceset_make_6"}, MeosOverload{arguments1023_1, "TJSONB", "Meos_temporal_as_tsequenceset_6"}};
-constexpr std::array<std::string_view, 4> arguments1024_0{"TJSONB", "TEXT_ARRAY", "JSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1024_1{"TJSONB", "TEXT_ARRAY", "JSONB"};
-constexpr std::array<MeosOverload, 2> overloads1024{MeosOverload{arguments1024_0, "TJSONB", "Meos_tjsonb_set_0"}, MeosOverload{arguments1024_1, "TJSONB", "Meos_tjsonb_set_0_3"}};
-constexpr std::array<std::string_view, 5> arguments1025_0{"TJSONB", "TEXT_ARRAY", "JSONB", "BOOLEAN", "VARSIZED"};
-constexpr std::array<std::string_view, 4> arguments1025_1{"TJSONB", "TEXT_ARRAY", "JSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1025_2{"TJSONB", "TEXT_ARRAY", "JSONB"};
-constexpr std::array<MeosOverload, 3> overloads1025{MeosOverload{arguments1025_0, "TJSONB", "Meos_tjsonb_set_lax_0"}, MeosOverload{arguments1025_1, "TJSONB", "Meos_tjsonb_set_lax_0_4"}, MeosOverload{arguments1025_2, "TJSONB", "Meos_tjsonb_set_lax_0_3"}};
-constexpr std::array<std::string_view, 2> arguments1026_0{"TJSONB", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments1026_1{"TJSONB"};
-constexpr std::array<MeosOverload, 2> overloads1026{MeosOverload{arguments1026_0, "TJSONB", "Meos_tjsonb_strip_nulls_0"}, MeosOverload{arguments1026_1, "TJSONB", "Meos_tjsonb_strip_nulls_0_1"}};
-constexpr std::array<std::string_view, 2> arguments1027_0{"NPOINT", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1027_1{"NPOINT", "TSTZSET"};
-constexpr std::array<std::string_view, 3> arguments1027_2{"NPOINT", "TSTZSPAN", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1027_3{"NPOINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 3> arguments1027_4{"NPOINT", "TSTZSPANSET", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1027_5{"NPOINT", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments1027_6{"TGEOMPOINT"};
-constexpr std::array<MeosOverload, 7> overloads1027{MeosOverload{arguments1027_0, "TNPOINT", "Meos_tnpointinst_make_0"}, MeosOverload{arguments1027_1, "TNPOINT", "Meos_tnpointseq_from_base_tstzset_0"}, MeosOverload{arguments1027_2, "TNPOINT", "Meos_tnpointseq_from_base_tstzspan_0"}, MeosOverload{arguments1027_3, "TNPOINT", "Meos_tnpointseq_from_base_tstzspan_0_2"}, MeosOverload{arguments1027_4, "TNPOINT", "Meos_tnpointseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1027_5, "TNPOINT", "Meos_tnpointseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments1027_6, "TNPOINT", "Meos_tgeompoint_to_tnpoint_0"}};
-constexpr std::array<std::string_view, 1> arguments1028_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1028{MeosOverload{arguments1028_0, "TNPOINT", "Meos_temporal_from_wkb_32"}};
-constexpr std::array<std::string_view, 1> arguments1029_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1029{MeosOverload{arguments1029_0, "TNPOINT", "Meos_temporal_from_wkb_33"}};
-constexpr std::array<std::string_view, 1> arguments1030_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1030{MeosOverload{arguments1030_0, "TNPOINT", "Meos_tnpoint_in_2"}};
-constexpr std::array<std::string_view, 1> arguments1031_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1031{MeosOverload{arguments1031_0, "TNPOINT", "Meos_temporal_from_hexwkb_14"}};
-constexpr std::array<std::string_view, 1> arguments1032_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1032{MeosOverload{arguments1032_0, "TNPOINT", "Meos_temporal_from_hexwkb_13"}};
-constexpr std::array<std::string_view, 1> arguments1033_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1033{MeosOverload{arguments1033_0, "TNPOINT", "Meos_tnpoint_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments1034_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1034{MeosOverload{arguments1034_0, "TNPOINT", "Meos_tnpoint_in_1"}};
-constexpr std::array<std::string_view, 1> arguments1035_0{"TNPOINT"};
-constexpr std::array<MeosOverload, 1> overloads1035{MeosOverload{arguments1035_0, "TNPOINT", "Meos_temporal_as_tinstant_7"}};
-constexpr std::array<std::string_view, 4> arguments1036_0{"TNPOINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1036_1{"TNPOINT_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1036_2{"TNPOINT_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments1036_3{"TNPOINT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1036_4{"TNPOINT", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads1036{MeosOverload{arguments1036_0, "TNPOINT", "Meos_tsequence_make_7"}, MeosOverload{arguments1036_1, "TNPOINT", "Meos_tsequence_make_7_3"}, MeosOverload{arguments1036_2, "TNPOINT", "Meos_tsequence_make_7_2"}, MeosOverload{arguments1036_3, "TNPOINT", "Meos_tsequence_make_7_1"}, MeosOverload{arguments1036_4, "TNPOINT", "Meos_temporal_as_tsequence_7"}};
-constexpr std::array<std::string_view, 1> arguments1037_0{"TNPOINT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1037_1{"TNPOINT", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads1037{MeosOverload{arguments1037_0, "TNPOINT", "Meos_tsequenceset_make_7"}, MeosOverload{arguments1037_1, "TNPOINT", "Meos_temporal_as_tsequenceset_7"}};
-constexpr std::array<std::string_view, 1> arguments1038_0{"PCPOINT"};
-constexpr std::array<std::string_view, 1> arguments1038_1{"PCPATCH"};
-constexpr std::array<std::string_view, 1> arguments1038_2{"TPCPOINT"};
-constexpr std::array<std::string_view, 1> arguments1038_3{"TPCPATCH"};
-constexpr std::array<MeosOverload, 4> overloads1038{MeosOverload{arguments1038_0, "TPCBOX", "Meos_pcpoint_to_tpcbox_0"}, MeosOverload{arguments1038_1, "TPCBOX", "Meos_pcpatch_to_tpcbox_0"}, MeosOverload{arguments1038_2, "TPCBOX", "Meos_tpointcloud_to_tpcbox_0"}, MeosOverload{arguments1038_3, "TPCBOX", "Meos_tpointcloud_to_tpcbox_1"}};
-constexpr std::array<std::string_view, 2> arguments1039_0{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1039_1{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1039_2{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1039_3{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1039_4{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1039_5{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1039_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1039{MeosOverload{arguments1039_0, "BOOLEAN", "Meos_above_tpcbox_tpcbox_0"}, MeosOverload{arguments1039_1, "BOOLEAN", "Meos_above_tpcbox_tpointcloud_0"}, MeosOverload{arguments1039_2, "BOOLEAN", "Meos_above_tpcbox_tpointcloud_1"}, MeosOverload{arguments1039_3, "BOOLEAN", "Meos_above_tpointcloud_tpcbox_0"}, MeosOverload{arguments1039_4, "BOOLEAN", "Meos_above_tpointcloud_tpcbox_1"}, MeosOverload{arguments1039_5, "BOOLEAN", "Meos_above_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1039_6, "BOOLEAN", "Meos_above_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1040_0{"TPCPOINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1040_1{"TPCPATCH", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1040_2{"TSTZSPAN", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1040_3{"TSTZSPAN", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1040_4{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1040_5{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1040_6{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1040_7{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1040_8{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1040_9{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1040_10{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 11> overloads1040{MeosOverload{arguments1040_0, "BOOLEAN", "Meos_adjacent_temporal_tstzspan_8"}, MeosOverload{arguments1040_1, "BOOLEAN", "Meos_adjacent_temporal_tstzspan_9"}, MeosOverload{arguments1040_2, "BOOLEAN", "Meos_adjacent_tstzspan_temporal_8"}, MeosOverload{arguments1040_3, "BOOLEAN", "Meos_adjacent_tstzspan_temporal_9"}, MeosOverload{arguments1040_4, "BOOLEAN", "Meos_adjacent_tpcbox_tpcbox_0"}, MeosOverload{arguments1040_5, "BOOLEAN", "Meos_adjacent_tpcbox_tpointcloud_0"}, MeosOverload{arguments1040_6, "BOOLEAN", "Meos_adjacent_tpcbox_tpointcloud_1"}, MeosOverload{arguments1040_7, "BOOLEAN", "Meos_adjacent_tpointcloud_tpcbox_0"}, MeosOverload{arguments1040_8, "BOOLEAN", "Meos_adjacent_tpointcloud_tpcbox_1"}, MeosOverload{arguments1040_9, "BOOLEAN", "Meos_adjacent_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1040_10, "BOOLEAN", "Meos_adjacent_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1041_0{"TPCPOINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1041_1{"TPCPATCH", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1041_2{"TSTZSPAN", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1041_3{"TSTZSPAN", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1041_4{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1041_5{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1041_6{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1041_7{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1041_8{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1041_9{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1041_10{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 11> overloads1041{MeosOverload{arguments1041_0, "BOOLEAN", "Meos_after_temporal_tstzspan_8"}, MeosOverload{arguments1041_1, "BOOLEAN", "Meos_after_temporal_tstzspan_9"}, MeosOverload{arguments1041_2, "BOOLEAN", "Meos_after_tstzspan_temporal_8"}, MeosOverload{arguments1041_3, "BOOLEAN", "Meos_after_tstzspan_temporal_9"}, MeosOverload{arguments1041_4, "BOOLEAN", "Meos_after_tpcbox_tpcbox_0"}, MeosOverload{arguments1041_5, "BOOLEAN", "Meos_after_tpcbox_tpointcloud_0"}, MeosOverload{arguments1041_6, "BOOLEAN", "Meos_after_tpcbox_tpointcloud_1"}, MeosOverload{arguments1041_7, "BOOLEAN", "Meos_after_tpointcloud_tpcbox_0"}, MeosOverload{arguments1041_8, "BOOLEAN", "Meos_after_tpointcloud_tpcbox_1"}, MeosOverload{arguments1041_9, "BOOLEAN", "Meos_after_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1041_10, "BOOLEAN", "Meos_after_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1042_0{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1042_1{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1042_2{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1042_3{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1042_4{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1042_5{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1042_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1042{MeosOverload{arguments1042_0, "BOOLEAN", "Meos_back_tpcbox_tpcbox_0"}, MeosOverload{arguments1042_1, "BOOLEAN", "Meos_back_tpcbox_tpointcloud_0"}, MeosOverload{arguments1042_2, "BOOLEAN", "Meos_back_tpcbox_tpointcloud_1"}, MeosOverload{arguments1042_3, "BOOLEAN", "Meos_back_tpointcloud_tpcbox_0"}, MeosOverload{arguments1042_4, "BOOLEAN", "Meos_back_tpointcloud_tpcbox_1"}, MeosOverload{arguments1042_5, "BOOLEAN", "Meos_back_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1042_6, "BOOLEAN", "Meos_back_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1043_0{"TPCPOINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1043_1{"TPCPATCH", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1043_2{"TSTZSPAN", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1043_3{"TSTZSPAN", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1043_4{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1043_5{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1043_6{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1043_7{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1043_8{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1043_9{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1043_10{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 11> overloads1043{MeosOverload{arguments1043_0, "BOOLEAN", "Meos_before_temporal_tstzspan_8"}, MeosOverload{arguments1043_1, "BOOLEAN", "Meos_before_temporal_tstzspan_9"}, MeosOverload{arguments1043_2, "BOOLEAN", "Meos_before_tstzspan_temporal_8"}, MeosOverload{arguments1043_3, "BOOLEAN", "Meos_before_tstzspan_temporal_9"}, MeosOverload{arguments1043_4, "BOOLEAN", "Meos_before_tpcbox_tpcbox_0"}, MeosOverload{arguments1043_5, "BOOLEAN", "Meos_before_tpcbox_tpointcloud_0"}, MeosOverload{arguments1043_6, "BOOLEAN", "Meos_before_tpcbox_tpointcloud_1"}, MeosOverload{arguments1043_7, "BOOLEAN", "Meos_before_tpointcloud_tpcbox_0"}, MeosOverload{arguments1043_8, "BOOLEAN", "Meos_before_tpointcloud_tpcbox_1"}, MeosOverload{arguments1043_9, "BOOLEAN", "Meos_before_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1043_10, "BOOLEAN", "Meos_before_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1044_0{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1044_1{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1044_2{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1044_3{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1044_4{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1044_5{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1044_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1044{MeosOverload{arguments1044_0, "BOOLEAN", "Meos_below_tpcbox_tpcbox_0"}, MeosOverload{arguments1044_1, "BOOLEAN", "Meos_below_tpcbox_tpointcloud_0"}, MeosOverload{arguments1044_2, "BOOLEAN", "Meos_below_tpcbox_tpointcloud_1"}, MeosOverload{arguments1044_3, "BOOLEAN", "Meos_below_tpointcloud_tpcbox_0"}, MeosOverload{arguments1044_4, "BOOLEAN", "Meos_below_tpointcloud_tpcbox_1"}, MeosOverload{arguments1044_5, "BOOLEAN", "Meos_below_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1044_6, "BOOLEAN", "Meos_below_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1045_0{"TPCPOINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1045_1{"TPCPATCH", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1045_2{"TSTZSPAN", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1045_3{"TSTZSPAN", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1045_4{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1045_5{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1045_6{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1045_7{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1045_8{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1045_9{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1045_10{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 11> overloads1045{MeosOverload{arguments1045_0, "BOOLEAN", "Meos_contained_temporal_tstzspan_8"}, MeosOverload{arguments1045_1, "BOOLEAN", "Meos_contained_temporal_tstzspan_9"}, MeosOverload{arguments1045_2, "BOOLEAN", "Meos_contained_tstzspan_temporal_8"}, MeosOverload{arguments1045_3, "BOOLEAN", "Meos_contained_tstzspan_temporal_9"}, MeosOverload{arguments1045_4, "BOOLEAN", "Meos_contained_tpcbox_tpcbox_0"}, MeosOverload{arguments1045_5, "BOOLEAN", "Meos_contained_tpcbox_tpointcloud_0"}, MeosOverload{arguments1045_6, "BOOLEAN", "Meos_contained_tpcbox_tpointcloud_1"}, MeosOverload{arguments1045_7, "BOOLEAN", "Meos_contained_tpointcloud_tpcbox_0"}, MeosOverload{arguments1045_8, "BOOLEAN", "Meos_contained_tpointcloud_tpcbox_1"}, MeosOverload{arguments1045_9, "BOOLEAN", "Meos_contained_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1045_10, "BOOLEAN", "Meos_contained_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1046_0{"TPCPOINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1046_1{"TPCPATCH", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1046_2{"TSTZSPAN", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1046_3{"TSTZSPAN", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1046_4{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1046_5{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1046_6{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1046_7{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1046_8{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1046_9{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1046_10{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 11> overloads1046{MeosOverload{arguments1046_0, "BOOLEAN", "Meos_contains_temporal_tstzspan_8"}, MeosOverload{arguments1046_1, "BOOLEAN", "Meos_contains_temporal_tstzspan_9"}, MeosOverload{arguments1046_2, "BOOLEAN", "Meos_contains_tstzspan_temporal_8"}, MeosOverload{arguments1046_3, "BOOLEAN", "Meos_contains_tstzspan_temporal_9"}, MeosOverload{arguments1046_4, "BOOLEAN", "Meos_contains_tpcbox_tpcbox_0"}, MeosOverload{arguments1046_5, "BOOLEAN", "Meos_contains_tpcbox_tpointcloud_0"}, MeosOverload{arguments1046_6, "BOOLEAN", "Meos_contains_tpcbox_tpointcloud_1"}, MeosOverload{arguments1046_7, "BOOLEAN", "Meos_contains_tpointcloud_tpcbox_0"}, MeosOverload{arguments1046_8, "BOOLEAN", "Meos_contains_tpointcloud_tpcbox_1"}, MeosOverload{arguments1046_9, "BOOLEAN", "Meos_contains_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1046_10, "BOOLEAN", "Meos_contains_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 1> arguments1047_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1047{MeosOverload{arguments1047_0, "TPCBOX", "Meos_tpcbox_from_wkb_1"}};
-constexpr std::array<std::string_view, 1> arguments1048_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1048{MeosOverload{arguments1048_0, "TPCBOX", "Meos_tpcbox_from_wkb_2"}};
-constexpr std::array<std::string_view, 1> arguments1049_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1049{MeosOverload{arguments1049_0, "TPCBOX", "Meos_tpcbox_in_2"}};
-constexpr std::array<std::string_view, 1> arguments1050_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1050{MeosOverload{arguments1050_0, "TPCBOX", "Meos_tpcbox_from_hexwkb_1"}};
-constexpr std::array<std::string_view, 1> arguments1051_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1051{MeosOverload{arguments1051_0, "TPCBOX", "Meos_tpcbox_from_hexwkb_0"}};
-constexpr std::array<std::string_view, 1> arguments1052_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1052{MeosOverload{arguments1052_0, "TPCBOX", "Meos_tpcbox_in_1"}};
-constexpr std::array<std::string_view, 2> arguments1053_0{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1053_1{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1053_2{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1053_3{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1053_4{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1053_5{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1053_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1053{MeosOverload{arguments1053_0, "BOOLEAN", "Meos_front_tpcbox_tpcbox_0"}, MeosOverload{arguments1053_1, "BOOLEAN", "Meos_front_tpcbox_tpointcloud_0"}, MeosOverload{arguments1053_2, "BOOLEAN", "Meos_front_tpcbox_tpointcloud_1"}, MeosOverload{arguments1053_3, "BOOLEAN", "Meos_front_tpointcloud_tpcbox_0"}, MeosOverload{arguments1053_4, "BOOLEAN", "Meos_front_tpointcloud_tpcbox_1"}, MeosOverload{arguments1053_5, "BOOLEAN", "Meos_front_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1053_6, "BOOLEAN", "Meos_front_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1054_0{"TPCBOX", "TPCBOX"};
-constexpr std::array<MeosOverload, 1> overloads1054{MeosOverload{arguments1054_0, "TPCBOX", "Meos_intersection_tpcbox_tpcbox_0"}};
-constexpr std::array<std::string_view, 2> arguments1055_0{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1055_1{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1055_2{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1055_3{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1055_4{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1055_5{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1055_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1055{MeosOverload{arguments1055_0, "BOOLEAN", "Meos_left_tpcbox_tpcbox_0"}, MeosOverload{arguments1055_1, "BOOLEAN", "Meos_left_tpcbox_tpointcloud_0"}, MeosOverload{arguments1055_2, "BOOLEAN", "Meos_left_tpcbox_tpointcloud_1"}, MeosOverload{arguments1055_3, "BOOLEAN", "Meos_left_tpointcloud_tpcbox_0"}, MeosOverload{arguments1055_4, "BOOLEAN", "Meos_left_tpointcloud_tpcbox_1"}, MeosOverload{arguments1055_5, "BOOLEAN", "Meos_left_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1055_6, "BOOLEAN", "Meos_left_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1056_0{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1056_1{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1056_2{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1056_3{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1056_4{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1056_5{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1056_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1056{MeosOverload{arguments1056_0, "BOOLEAN", "Meos_overabove_tpcbox_tpcbox_0"}, MeosOverload{arguments1056_1, "BOOLEAN", "Meos_overabove_tpcbox_tpointcloud_0"}, MeosOverload{arguments1056_2, "BOOLEAN", "Meos_overabove_tpcbox_tpointcloud_1"}, MeosOverload{arguments1056_3, "BOOLEAN", "Meos_overabove_tpointcloud_tpcbox_0"}, MeosOverload{arguments1056_4, "BOOLEAN", "Meos_overabove_tpointcloud_tpcbox_1"}, MeosOverload{arguments1056_5, "BOOLEAN", "Meos_overabove_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1056_6, "BOOLEAN", "Meos_overabove_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1057_0{"TPCPOINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1057_1{"TPCPATCH", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1057_2{"TSTZSPAN", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1057_3{"TSTZSPAN", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1057_4{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1057_5{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1057_6{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1057_7{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1057_8{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1057_9{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1057_10{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 11> overloads1057{MeosOverload{arguments1057_0, "BOOLEAN", "Meos_overafter_temporal_tstzspan_8"}, MeosOverload{arguments1057_1, "BOOLEAN", "Meos_overafter_temporal_tstzspan_9"}, MeosOverload{arguments1057_2, "BOOLEAN", "Meos_overafter_tstzspan_temporal_8"}, MeosOverload{arguments1057_3, "BOOLEAN", "Meos_overafter_tstzspan_temporal_9"}, MeosOverload{arguments1057_4, "BOOLEAN", "Meos_overafter_tpcbox_tpcbox_0"}, MeosOverload{arguments1057_5, "BOOLEAN", "Meos_overafter_tpcbox_tpointcloud_0"}, MeosOverload{arguments1057_6, "BOOLEAN", "Meos_overafter_tpcbox_tpointcloud_1"}, MeosOverload{arguments1057_7, "BOOLEAN", "Meos_overafter_tpointcloud_tpcbox_0"}, MeosOverload{arguments1057_8, "BOOLEAN", "Meos_overafter_tpointcloud_tpcbox_1"}, MeosOverload{arguments1057_9, "BOOLEAN", "Meos_overafter_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1057_10, "BOOLEAN", "Meos_overafter_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1058_0{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1058_1{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1058_2{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1058_3{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1058_4{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1058_5{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1058_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1058{MeosOverload{arguments1058_0, "BOOLEAN", "Meos_overback_tpcbox_tpcbox_0"}, MeosOverload{arguments1058_1, "BOOLEAN", "Meos_overback_tpcbox_tpointcloud_0"}, MeosOverload{arguments1058_2, "BOOLEAN", "Meos_overback_tpcbox_tpointcloud_1"}, MeosOverload{arguments1058_3, "BOOLEAN", "Meos_overback_tpointcloud_tpcbox_0"}, MeosOverload{arguments1058_4, "BOOLEAN", "Meos_overback_tpointcloud_tpcbox_1"}, MeosOverload{arguments1058_5, "BOOLEAN", "Meos_overback_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1058_6, "BOOLEAN", "Meos_overback_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1059_0{"TPCPOINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1059_1{"TPCPATCH", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1059_2{"TSTZSPAN", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1059_3{"TSTZSPAN", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1059_4{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1059_5{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1059_6{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1059_7{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1059_8{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1059_9{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1059_10{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 11> overloads1059{MeosOverload{arguments1059_0, "BOOLEAN", "Meos_overbefore_temporal_tstzspan_8"}, MeosOverload{arguments1059_1, "BOOLEAN", "Meos_overbefore_temporal_tstzspan_9"}, MeosOverload{arguments1059_2, "BOOLEAN", "Meos_overbefore_tstzspan_temporal_8"}, MeosOverload{arguments1059_3, "BOOLEAN", "Meos_overbefore_tstzspan_temporal_9"}, MeosOverload{arguments1059_4, "BOOLEAN", "Meos_overbefore_tpcbox_tpcbox_0"}, MeosOverload{arguments1059_5, "BOOLEAN", "Meos_overbefore_tpcbox_tpointcloud_0"}, MeosOverload{arguments1059_6, "BOOLEAN", "Meos_overbefore_tpcbox_tpointcloud_1"}, MeosOverload{arguments1059_7, "BOOLEAN", "Meos_overbefore_tpointcloud_tpcbox_0"}, MeosOverload{arguments1059_8, "BOOLEAN", "Meos_overbefore_tpointcloud_tpcbox_1"}, MeosOverload{arguments1059_9, "BOOLEAN", "Meos_overbefore_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1059_10, "BOOLEAN", "Meos_overbefore_tpointcloud_tpointcloud_1"}};
+constexpr std::array<MeosOverload, 2> overloads1020{MeosOverload{arguments1020_0, "TBOOL", "Meos_tjsonb_path_exists_0"}, MeosOverload{arguments1020_1, "TBOOL", "Meos_tjsonb_path_exists_0_3"}};
+constexpr std::array<std::string_view, 4> arguments1021_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1021_1{"TJSONB", "JSONPATH", "JSONB"};
+constexpr std::array<MeosOverload, 2> overloads1021{MeosOverload{arguments1021_0, "TBOOL", "Meos_tjsonb_path_exists_1"}, MeosOverload{arguments1021_1, "TBOOL", "Meos_tjsonb_path_exists_1_3"}};
+constexpr std::array<std::string_view, 4> arguments1022_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1022_1{"TJSONB", "JSONPATH", "JSONB"};
+constexpr std::array<MeosOverload, 2> overloads1022{MeosOverload{arguments1022_0, "TBOOL", "Meos_tjsonb_path_match_0"}, MeosOverload{arguments1022_1, "TBOOL", "Meos_tjsonb_path_match_0_3"}};
+constexpr std::array<std::string_view, 4> arguments1023_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1023_1{"TJSONB", "JSONPATH", "JSONB"};
+constexpr std::array<MeosOverload, 2> overloads1023{MeosOverload{arguments1023_0, "TBOOL", "Meos_tjsonb_path_match_1"}, MeosOverload{arguments1023_1, "TBOOL", "Meos_tjsonb_path_match_1_3"}};
+constexpr std::array<std::string_view, 4> arguments1024_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1024_1{"TJSONB", "JSONPATH", "JSONB"};
+constexpr std::array<MeosOverload, 2> overloads1024{MeosOverload{arguments1024_0, "TJSONB", "Meos_tjsonb_path_query_array_0"}, MeosOverload{arguments1024_1, "TJSONB", "Meos_tjsonb_path_query_array_0_3"}};
+constexpr std::array<std::string_view, 4> arguments1025_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1025_1{"TJSONB", "JSONPATH", "JSONB"};
+constexpr std::array<MeosOverload, 2> overloads1025{MeosOverload{arguments1025_0, "TJSONB", "Meos_tjsonb_path_query_array_1"}, MeosOverload{arguments1025_1, "TJSONB", "Meos_tjsonb_path_query_array_1_3"}};
+constexpr std::array<std::string_view, 4> arguments1026_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1026_1{"TJSONB", "JSONPATH", "JSONB"};
+constexpr std::array<MeosOverload, 2> overloads1026{MeosOverload{arguments1026_0, "TJSONB", "Meos_tjsonb_path_query_first_0"}, MeosOverload{arguments1026_1, "TJSONB", "Meos_tjsonb_path_query_first_0_3"}};
+constexpr std::array<std::string_view, 4> arguments1027_0{"TJSONB", "JSONPATH", "JSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1027_1{"TJSONB", "JSONPATH", "JSONB"};
+constexpr std::array<MeosOverload, 2> overloads1027{MeosOverload{arguments1027_0, "TJSONB", "Meos_tjsonb_path_query_first_1"}, MeosOverload{arguments1027_1, "TJSONB", "Meos_tjsonb_path_query_first_1_3"}};
+constexpr std::array<std::string_view, 1> arguments1028_0{"TJSONB"};
+constexpr std::array<MeosOverload, 1> overloads1028{MeosOverload{arguments1028_0, "TTEXT", "Meos_tjsonb_pretty_0"}};
+constexpr std::array<std::string_view, 4> arguments1029_0{"TJSONB_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1029_1{"TJSONB_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1029_2{"TJSONB_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments1029_3{"TJSONB_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1029_4{"TJSONB", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads1029{MeosOverload{arguments1029_0, "TJSONB", "Meos_tsequence_make_6"}, MeosOverload{arguments1029_1, "TJSONB", "Meos_tsequence_make_6_3"}, MeosOverload{arguments1029_2, "TJSONB", "Meos_tsequence_make_6_2"}, MeosOverload{arguments1029_3, "TJSONB", "Meos_tsequence_make_6_1"}, MeosOverload{arguments1029_4, "TJSONB", "Meos_temporal_as_tsequence_6"}};
+constexpr std::array<std::string_view, 1> arguments1030_0{"TJSONB_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments1030_1{"TJSONB"};
+constexpr std::array<MeosOverload, 2> overloads1030{MeosOverload{arguments1030_0, "TJSONB", "Meos_tsequenceset_make_6"}, MeosOverload{arguments1030_1, "TJSONB", "Meos_temporal_as_tsequenceset_6"}};
+constexpr std::array<std::string_view, 4> arguments1031_0{"TJSONB", "TEXT_ARRAY", "JSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1031_1{"TJSONB", "TEXT_ARRAY", "JSONB"};
+constexpr std::array<MeosOverload, 2> overloads1031{MeosOverload{arguments1031_0, "TJSONB", "Meos_tjsonb_set_0"}, MeosOverload{arguments1031_1, "TJSONB", "Meos_tjsonb_set_0_3"}};
+constexpr std::array<std::string_view, 5> arguments1032_0{"TJSONB", "TEXT_ARRAY", "JSONB", "BOOLEAN", "VARSIZED"};
+constexpr std::array<std::string_view, 4> arguments1032_1{"TJSONB", "TEXT_ARRAY", "JSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1032_2{"TJSONB", "TEXT_ARRAY", "JSONB"};
+constexpr std::array<MeosOverload, 3> overloads1032{MeosOverload{arguments1032_0, "TJSONB", "Meos_tjsonb_set_lax_0"}, MeosOverload{arguments1032_1, "TJSONB", "Meos_tjsonb_set_lax_0_4"}, MeosOverload{arguments1032_2, "TJSONB", "Meos_tjsonb_set_lax_0_3"}};
+constexpr std::array<std::string_view, 2> arguments1033_0{"TJSONB", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments1033_1{"TJSONB"};
+constexpr std::array<MeosOverload, 2> overloads1033{MeosOverload{arguments1033_0, "TJSONB", "Meos_tjsonb_strip_nulls_0"}, MeosOverload{arguments1033_1, "TJSONB", "Meos_tjsonb_strip_nulls_0_1"}};
+constexpr std::array<std::string_view, 2> arguments1034_0{"NPOINT", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1034_1{"NPOINT", "TSTZSET"};
+constexpr std::array<std::string_view, 3> arguments1034_2{"NPOINT", "TSTZSPAN", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1034_3{"NPOINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 3> arguments1034_4{"NPOINT", "TSTZSPANSET", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1034_5{"NPOINT", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments1034_6{"TGEOMPOINT"};
+constexpr std::array<MeosOverload, 7> overloads1034{MeosOverload{arguments1034_0, "TNPOINT", "Meos_tnpointinst_make_0"}, MeosOverload{arguments1034_1, "TNPOINT", "Meos_tnpointseq_from_base_tstzset_0"}, MeosOverload{arguments1034_2, "TNPOINT", "Meos_tnpointseq_from_base_tstzspan_0"}, MeosOverload{arguments1034_3, "TNPOINT", "Meos_tnpointseq_from_base_tstzspan_0_2"}, MeosOverload{arguments1034_4, "TNPOINT", "Meos_tnpointseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1034_5, "TNPOINT", "Meos_tnpointseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments1034_6, "TNPOINT", "Meos_tgeompoint_to_tnpoint_0"}};
+constexpr std::array<std::string_view, 1> arguments1035_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1035{MeosOverload{arguments1035_0, "TNPOINT", "Meos_temporal_from_wkb_32"}};
+constexpr std::array<std::string_view, 1> arguments1036_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1036{MeosOverload{arguments1036_0, "TNPOINT", "Meos_temporal_from_wkb_33"}};
+constexpr std::array<std::string_view, 1> arguments1037_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1037{MeosOverload{arguments1037_0, "TNPOINT", "Meos_tnpoint_in_2"}};
+constexpr std::array<std::string_view, 1> arguments1038_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1038{MeosOverload{arguments1038_0, "TNPOINT", "Meos_temporal_from_hexwkb_14"}};
+constexpr std::array<std::string_view, 1> arguments1039_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1039{MeosOverload{arguments1039_0, "TNPOINT", "Meos_temporal_from_hexwkb_13"}};
+constexpr std::array<std::string_view, 1> arguments1040_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1040{MeosOverload{arguments1040_0, "TNPOINT", "Meos_tnpoint_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments1041_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1041{MeosOverload{arguments1041_0, "TNPOINT", "Meos_tnpoint_in_1"}};
+constexpr std::array<std::string_view, 1> arguments1042_0{"TNPOINT"};
+constexpr std::array<MeosOverload, 1> overloads1042{MeosOverload{arguments1042_0, "TNPOINT", "Meos_temporal_as_tinstant_7"}};
+constexpr std::array<std::string_view, 4> arguments1043_0{"TNPOINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1043_1{"TNPOINT_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1043_2{"TNPOINT_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments1043_3{"TNPOINT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1043_4{"TNPOINT", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads1043{MeosOverload{arguments1043_0, "TNPOINT", "Meos_tsequence_make_7"}, MeosOverload{arguments1043_1, "TNPOINT", "Meos_tsequence_make_7_3"}, MeosOverload{arguments1043_2, "TNPOINT", "Meos_tsequence_make_7_2"}, MeosOverload{arguments1043_3, "TNPOINT", "Meos_tsequence_make_7_1"}, MeosOverload{arguments1043_4, "TNPOINT", "Meos_temporal_as_tsequence_7"}};
+constexpr std::array<std::string_view, 1> arguments1044_0{"TNPOINT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1044_1{"TNPOINT", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads1044{MeosOverload{arguments1044_0, "TNPOINT", "Meos_tsequenceset_make_7"}, MeosOverload{arguments1044_1, "TNPOINT", "Meos_temporal_as_tsequenceset_7"}};
+constexpr std::array<std::string_view, 1> arguments1045_0{"PCPOINT"};
+constexpr std::array<std::string_view, 1> arguments1045_1{"PCPATCH"};
+constexpr std::array<std::string_view, 1> arguments1045_2{"TPCPOINT"};
+constexpr std::array<std::string_view, 1> arguments1045_3{"TPCPATCH"};
+constexpr std::array<MeosOverload, 4> overloads1045{MeosOverload{arguments1045_0, "TPCBOX", "Meos_pcpoint_to_tpcbox_0"}, MeosOverload{arguments1045_1, "TPCBOX", "Meos_pcpatch_to_tpcbox_0"}, MeosOverload{arguments1045_2, "TPCBOX", "Meos_tpointcloud_to_tpcbox_0"}, MeosOverload{arguments1045_3, "TPCBOX", "Meos_tpointcloud_to_tpcbox_1"}};
+constexpr std::array<std::string_view, 2> arguments1046_0{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1046_1{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1046_2{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1046_3{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1046_4{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1046_5{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1046_6{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 7> overloads1046{MeosOverload{arguments1046_0, "BOOLEAN", "Meos_above_tpcbox_tpcbox_0"}, MeosOverload{arguments1046_1, "BOOLEAN", "Meos_above_tpcbox_tpointcloud_0"}, MeosOverload{arguments1046_2, "BOOLEAN", "Meos_above_tpcbox_tpointcloud_1"}, MeosOverload{arguments1046_3, "BOOLEAN", "Meos_above_tpointcloud_tpcbox_0"}, MeosOverload{arguments1046_4, "BOOLEAN", "Meos_above_tpointcloud_tpcbox_1"}, MeosOverload{arguments1046_5, "BOOLEAN", "Meos_above_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1046_6, "BOOLEAN", "Meos_above_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1047_0{"TPCPOINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1047_1{"TPCPATCH", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1047_2{"TSTZSPAN", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1047_3{"TSTZSPAN", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1047_4{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1047_5{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1047_6{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1047_7{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1047_8{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1047_9{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1047_10{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 11> overloads1047{MeosOverload{arguments1047_0, "BOOLEAN", "Meos_adjacent_temporal_tstzspan_8"}, MeosOverload{arguments1047_1, "BOOLEAN", "Meos_adjacent_temporal_tstzspan_9"}, MeosOverload{arguments1047_2, "BOOLEAN", "Meos_adjacent_tstzspan_temporal_8"}, MeosOverload{arguments1047_3, "BOOLEAN", "Meos_adjacent_tstzspan_temporal_9"}, MeosOverload{arguments1047_4, "BOOLEAN", "Meos_adjacent_tpcbox_tpcbox_0"}, MeosOverload{arguments1047_5, "BOOLEAN", "Meos_adjacent_tpcbox_tpointcloud_0"}, MeosOverload{arguments1047_6, "BOOLEAN", "Meos_adjacent_tpcbox_tpointcloud_1"}, MeosOverload{arguments1047_7, "BOOLEAN", "Meos_adjacent_tpointcloud_tpcbox_0"}, MeosOverload{arguments1047_8, "BOOLEAN", "Meos_adjacent_tpointcloud_tpcbox_1"}, MeosOverload{arguments1047_9, "BOOLEAN", "Meos_adjacent_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1047_10, "BOOLEAN", "Meos_adjacent_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1048_0{"TPCPOINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1048_1{"TPCPATCH", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1048_2{"TSTZSPAN", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1048_3{"TSTZSPAN", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1048_4{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1048_5{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1048_6{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1048_7{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1048_8{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1048_9{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1048_10{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 11> overloads1048{MeosOverload{arguments1048_0, "BOOLEAN", "Meos_after_temporal_tstzspan_8"}, MeosOverload{arguments1048_1, "BOOLEAN", "Meos_after_temporal_tstzspan_9"}, MeosOverload{arguments1048_2, "BOOLEAN", "Meos_after_tstzspan_temporal_8"}, MeosOverload{arguments1048_3, "BOOLEAN", "Meos_after_tstzspan_temporal_9"}, MeosOverload{arguments1048_4, "BOOLEAN", "Meos_after_tpcbox_tpcbox_0"}, MeosOverload{arguments1048_5, "BOOLEAN", "Meos_after_tpcbox_tpointcloud_0"}, MeosOverload{arguments1048_6, "BOOLEAN", "Meos_after_tpcbox_tpointcloud_1"}, MeosOverload{arguments1048_7, "BOOLEAN", "Meos_after_tpointcloud_tpcbox_0"}, MeosOverload{arguments1048_8, "BOOLEAN", "Meos_after_tpointcloud_tpcbox_1"}, MeosOverload{arguments1048_9, "BOOLEAN", "Meos_after_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1048_10, "BOOLEAN", "Meos_after_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1049_0{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1049_1{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1049_2{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1049_3{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1049_4{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1049_5{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1049_6{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 7> overloads1049{MeosOverload{arguments1049_0, "BOOLEAN", "Meos_back_tpcbox_tpcbox_0"}, MeosOverload{arguments1049_1, "BOOLEAN", "Meos_back_tpcbox_tpointcloud_0"}, MeosOverload{arguments1049_2, "BOOLEAN", "Meos_back_tpcbox_tpointcloud_1"}, MeosOverload{arguments1049_3, "BOOLEAN", "Meos_back_tpointcloud_tpcbox_0"}, MeosOverload{arguments1049_4, "BOOLEAN", "Meos_back_tpointcloud_tpcbox_1"}, MeosOverload{arguments1049_5, "BOOLEAN", "Meos_back_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1049_6, "BOOLEAN", "Meos_back_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1050_0{"TPCPOINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1050_1{"TPCPATCH", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1050_2{"TSTZSPAN", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1050_3{"TSTZSPAN", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1050_4{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1050_5{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1050_6{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1050_7{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1050_8{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1050_9{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1050_10{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 11> overloads1050{MeosOverload{arguments1050_0, "BOOLEAN", "Meos_before_temporal_tstzspan_8"}, MeosOverload{arguments1050_1, "BOOLEAN", "Meos_before_temporal_tstzspan_9"}, MeosOverload{arguments1050_2, "BOOLEAN", "Meos_before_tstzspan_temporal_8"}, MeosOverload{arguments1050_3, "BOOLEAN", "Meos_before_tstzspan_temporal_9"}, MeosOverload{arguments1050_4, "BOOLEAN", "Meos_before_tpcbox_tpcbox_0"}, MeosOverload{arguments1050_5, "BOOLEAN", "Meos_before_tpcbox_tpointcloud_0"}, MeosOverload{arguments1050_6, "BOOLEAN", "Meos_before_tpcbox_tpointcloud_1"}, MeosOverload{arguments1050_7, "BOOLEAN", "Meos_before_tpointcloud_tpcbox_0"}, MeosOverload{arguments1050_8, "BOOLEAN", "Meos_before_tpointcloud_tpcbox_1"}, MeosOverload{arguments1050_9, "BOOLEAN", "Meos_before_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1050_10, "BOOLEAN", "Meos_before_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1051_0{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1051_1{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1051_2{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1051_3{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1051_4{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1051_5{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1051_6{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 7> overloads1051{MeosOverload{arguments1051_0, "BOOLEAN", "Meos_below_tpcbox_tpcbox_0"}, MeosOverload{arguments1051_1, "BOOLEAN", "Meos_below_tpcbox_tpointcloud_0"}, MeosOverload{arguments1051_2, "BOOLEAN", "Meos_below_tpcbox_tpointcloud_1"}, MeosOverload{arguments1051_3, "BOOLEAN", "Meos_below_tpointcloud_tpcbox_0"}, MeosOverload{arguments1051_4, "BOOLEAN", "Meos_below_tpointcloud_tpcbox_1"}, MeosOverload{arguments1051_5, "BOOLEAN", "Meos_below_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1051_6, "BOOLEAN", "Meos_below_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1052_0{"TPCPOINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1052_1{"TPCPATCH", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1052_2{"TSTZSPAN", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1052_3{"TSTZSPAN", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1052_4{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1052_5{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1052_6{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1052_7{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1052_8{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1052_9{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1052_10{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 11> overloads1052{MeosOverload{arguments1052_0, "BOOLEAN", "Meos_contained_temporal_tstzspan_8"}, MeosOverload{arguments1052_1, "BOOLEAN", "Meos_contained_temporal_tstzspan_9"}, MeosOverload{arguments1052_2, "BOOLEAN", "Meos_contained_tstzspan_temporal_8"}, MeosOverload{arguments1052_3, "BOOLEAN", "Meos_contained_tstzspan_temporal_9"}, MeosOverload{arguments1052_4, "BOOLEAN", "Meos_contained_tpcbox_tpcbox_0"}, MeosOverload{arguments1052_5, "BOOLEAN", "Meos_contained_tpcbox_tpointcloud_0"}, MeosOverload{arguments1052_6, "BOOLEAN", "Meos_contained_tpcbox_tpointcloud_1"}, MeosOverload{arguments1052_7, "BOOLEAN", "Meos_contained_tpointcloud_tpcbox_0"}, MeosOverload{arguments1052_8, "BOOLEAN", "Meos_contained_tpointcloud_tpcbox_1"}, MeosOverload{arguments1052_9, "BOOLEAN", "Meos_contained_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1052_10, "BOOLEAN", "Meos_contained_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1053_0{"TPCPOINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1053_1{"TPCPATCH", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1053_2{"TSTZSPAN", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1053_3{"TSTZSPAN", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1053_4{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1053_5{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1053_6{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1053_7{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1053_8{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1053_9{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1053_10{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 11> overloads1053{MeosOverload{arguments1053_0, "BOOLEAN", "Meos_contains_temporal_tstzspan_8"}, MeosOverload{arguments1053_1, "BOOLEAN", "Meos_contains_temporal_tstzspan_9"}, MeosOverload{arguments1053_2, "BOOLEAN", "Meos_contains_tstzspan_temporal_8"}, MeosOverload{arguments1053_3, "BOOLEAN", "Meos_contains_tstzspan_temporal_9"}, MeosOverload{arguments1053_4, "BOOLEAN", "Meos_contains_tpcbox_tpcbox_0"}, MeosOverload{arguments1053_5, "BOOLEAN", "Meos_contains_tpcbox_tpointcloud_0"}, MeosOverload{arguments1053_6, "BOOLEAN", "Meos_contains_tpcbox_tpointcloud_1"}, MeosOverload{arguments1053_7, "BOOLEAN", "Meos_contains_tpointcloud_tpcbox_0"}, MeosOverload{arguments1053_8, "BOOLEAN", "Meos_contains_tpointcloud_tpcbox_1"}, MeosOverload{arguments1053_9, "BOOLEAN", "Meos_contains_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1053_10, "BOOLEAN", "Meos_contains_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 1> arguments1054_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1054{MeosOverload{arguments1054_0, "TPCBOX", "Meos_tpcbox_from_wkb_1"}};
+constexpr std::array<std::string_view, 1> arguments1055_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1055{MeosOverload{arguments1055_0, "TPCBOX", "Meos_tpcbox_from_wkb_2"}};
+constexpr std::array<std::string_view, 1> arguments1056_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1056{MeosOverload{arguments1056_0, "TPCBOX", "Meos_tpcbox_in_2"}};
+constexpr std::array<std::string_view, 1> arguments1057_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1057{MeosOverload{arguments1057_0, "TPCBOX", "Meos_tpcbox_from_hexwkb_1"}};
+constexpr std::array<std::string_view, 1> arguments1058_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1058{MeosOverload{arguments1058_0, "TPCBOX", "Meos_tpcbox_from_hexwkb_0"}};
+constexpr std::array<std::string_view, 1> arguments1059_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1059{MeosOverload{arguments1059_0, "TPCBOX", "Meos_tpcbox_in_1"}};
 constexpr std::array<std::string_view, 2> arguments1060_0{"TPCBOX", "TPCBOX"};
 constexpr std::array<std::string_view, 2> arguments1060_1{"TPCBOX", "TPCPOINT"};
 constexpr std::array<std::string_view, 2> arguments1060_2{"TPCBOX", "TPCPATCH"};
@@ -9748,27 +9706,17 @@ constexpr std::array<std::string_view, 2> arguments1060_3{"TPCPOINT", "TPCBOX"};
 constexpr std::array<std::string_view, 2> arguments1060_4{"TPCPATCH", "TPCBOX"};
 constexpr std::array<std::string_view, 2> arguments1060_5{"TPCPOINT", "TPCPOINT"};
 constexpr std::array<std::string_view, 2> arguments1060_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1060{MeosOverload{arguments1060_0, "BOOLEAN", "Meos_overbelow_tpcbox_tpcbox_0"}, MeosOverload{arguments1060_1, "BOOLEAN", "Meos_overbelow_tpcbox_tpointcloud_0"}, MeosOverload{arguments1060_2, "BOOLEAN", "Meos_overbelow_tpcbox_tpointcloud_1"}, MeosOverload{arguments1060_3, "BOOLEAN", "Meos_overbelow_tpointcloud_tpcbox_0"}, MeosOverload{arguments1060_4, "BOOLEAN", "Meos_overbelow_tpointcloud_tpcbox_1"}, MeosOverload{arguments1060_5, "BOOLEAN", "Meos_overbelow_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1060_6, "BOOLEAN", "Meos_overbelow_tpointcloud_tpointcloud_1"}};
+constexpr std::array<MeosOverload, 7> overloads1060{MeosOverload{arguments1060_0, "BOOLEAN", "Meos_front_tpcbox_tpcbox_0"}, MeosOverload{arguments1060_1, "BOOLEAN", "Meos_front_tpcbox_tpointcloud_0"}, MeosOverload{arguments1060_2, "BOOLEAN", "Meos_front_tpcbox_tpointcloud_1"}, MeosOverload{arguments1060_3, "BOOLEAN", "Meos_front_tpointcloud_tpcbox_0"}, MeosOverload{arguments1060_4, "BOOLEAN", "Meos_front_tpointcloud_tpcbox_1"}, MeosOverload{arguments1060_5, "BOOLEAN", "Meos_front_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1060_6, "BOOLEAN", "Meos_front_tpointcloud_tpointcloud_1"}};
 constexpr std::array<std::string_view, 2> arguments1061_0{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1061_1{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1061_2{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1061_3{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1061_4{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1061_5{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1061_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1061{MeosOverload{arguments1061_0, "BOOLEAN", "Meos_overfront_tpcbox_tpcbox_0"}, MeosOverload{arguments1061_1, "BOOLEAN", "Meos_overfront_tpcbox_tpointcloud_0"}, MeosOverload{arguments1061_2, "BOOLEAN", "Meos_overfront_tpcbox_tpointcloud_1"}, MeosOverload{arguments1061_3, "BOOLEAN", "Meos_overfront_tpointcloud_tpcbox_0"}, MeosOverload{arguments1061_4, "BOOLEAN", "Meos_overfront_tpointcloud_tpcbox_1"}, MeosOverload{arguments1061_5, "BOOLEAN", "Meos_overfront_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1061_6, "BOOLEAN", "Meos_overfront_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1062_0{"TPCPOINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1062_1{"TPCPATCH", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1062_2{"TSTZSPAN", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1062_3{"TSTZSPAN", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1062_4{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1062_5{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1062_6{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1062_7{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1062_8{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1062_9{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1062_10{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 11> overloads1062{MeosOverload{arguments1062_0, "BOOLEAN", "Meos_overlaps_temporal_tstzspan_8"}, MeosOverload{arguments1062_1, "BOOLEAN", "Meos_overlaps_temporal_tstzspan_9"}, MeosOverload{arguments1062_2, "BOOLEAN", "Meos_overlaps_tstzspan_temporal_8"}, MeosOverload{arguments1062_3, "BOOLEAN", "Meos_overlaps_tstzspan_temporal_9"}, MeosOverload{arguments1062_4, "BOOLEAN", "Meos_overlaps_tpcbox_tpcbox_0"}, MeosOverload{arguments1062_5, "BOOLEAN", "Meos_overlaps_tpcbox_tpointcloud_0"}, MeosOverload{arguments1062_6, "BOOLEAN", "Meos_overlaps_tpcbox_tpointcloud_1"}, MeosOverload{arguments1062_7, "BOOLEAN", "Meos_overlaps_tpointcloud_tpcbox_0"}, MeosOverload{arguments1062_8, "BOOLEAN", "Meos_overlaps_tpointcloud_tpcbox_1"}, MeosOverload{arguments1062_9, "BOOLEAN", "Meos_overlaps_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1062_10, "BOOLEAN", "Meos_overlaps_tpointcloud_tpointcloud_1"}};
+constexpr std::array<MeosOverload, 1> overloads1061{MeosOverload{arguments1061_0, "TPCBOX", "Meos_intersection_tpcbox_tpcbox_0"}};
+constexpr std::array<std::string_view, 2> arguments1062_0{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1062_1{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1062_2{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1062_3{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1062_4{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1062_5{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1062_6{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 7> overloads1062{MeosOverload{arguments1062_0, "BOOLEAN", "Meos_left_tpcbox_tpcbox_0"}, MeosOverload{arguments1062_1, "BOOLEAN", "Meos_left_tpcbox_tpointcloud_0"}, MeosOverload{arguments1062_2, "BOOLEAN", "Meos_left_tpcbox_tpointcloud_1"}, MeosOverload{arguments1062_3, "BOOLEAN", "Meos_left_tpointcloud_tpcbox_0"}, MeosOverload{arguments1062_4, "BOOLEAN", "Meos_left_tpointcloud_tpcbox_1"}, MeosOverload{arguments1062_5, "BOOLEAN", "Meos_left_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1062_6, "BOOLEAN", "Meos_left_tpointcloud_tpointcloud_1"}};
 constexpr std::array<std::string_view, 2> arguments1063_0{"TPCBOX", "TPCBOX"};
 constexpr std::array<std::string_view, 2> arguments1063_1{"TPCBOX", "TPCPOINT"};
 constexpr std::array<std::string_view, 2> arguments1063_2{"TPCBOX", "TPCPATCH"};
@@ -9776,15 +9724,19 @@ constexpr std::array<std::string_view, 2> arguments1063_3{"TPCPOINT", "TPCBOX"};
 constexpr std::array<std::string_view, 2> arguments1063_4{"TPCPATCH", "TPCBOX"};
 constexpr std::array<std::string_view, 2> arguments1063_5{"TPCPOINT", "TPCPOINT"};
 constexpr std::array<std::string_view, 2> arguments1063_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1063{MeosOverload{arguments1063_0, "BOOLEAN", "Meos_overleft_tpcbox_tpcbox_0"}, MeosOverload{arguments1063_1, "BOOLEAN", "Meos_overleft_tpcbox_tpointcloud_0"}, MeosOverload{arguments1063_2, "BOOLEAN", "Meos_overleft_tpcbox_tpointcloud_1"}, MeosOverload{arguments1063_3, "BOOLEAN", "Meos_overleft_tpointcloud_tpcbox_0"}, MeosOverload{arguments1063_4, "BOOLEAN", "Meos_overleft_tpointcloud_tpcbox_1"}, MeosOverload{arguments1063_5, "BOOLEAN", "Meos_overleft_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1063_6, "BOOLEAN", "Meos_overleft_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1064_0{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1064_1{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1064_2{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1064_3{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1064_4{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1064_5{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1064_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1064{MeosOverload{arguments1064_0, "BOOLEAN", "Meos_overright_tpcbox_tpcbox_0"}, MeosOverload{arguments1064_1, "BOOLEAN", "Meos_overright_tpcbox_tpointcloud_0"}, MeosOverload{arguments1064_2, "BOOLEAN", "Meos_overright_tpcbox_tpointcloud_1"}, MeosOverload{arguments1064_3, "BOOLEAN", "Meos_overright_tpointcloud_tpcbox_0"}, MeosOverload{arguments1064_4, "BOOLEAN", "Meos_overright_tpointcloud_tpcbox_1"}, MeosOverload{arguments1064_5, "BOOLEAN", "Meos_overright_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1064_6, "BOOLEAN", "Meos_overright_tpointcloud_tpointcloud_1"}};
+constexpr std::array<MeosOverload, 7> overloads1063{MeosOverload{arguments1063_0, "BOOLEAN", "Meos_overabove_tpcbox_tpcbox_0"}, MeosOverload{arguments1063_1, "BOOLEAN", "Meos_overabove_tpcbox_tpointcloud_0"}, MeosOverload{arguments1063_2, "BOOLEAN", "Meos_overabove_tpcbox_tpointcloud_1"}, MeosOverload{arguments1063_3, "BOOLEAN", "Meos_overabove_tpointcloud_tpcbox_0"}, MeosOverload{arguments1063_4, "BOOLEAN", "Meos_overabove_tpointcloud_tpcbox_1"}, MeosOverload{arguments1063_5, "BOOLEAN", "Meos_overabove_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1063_6, "BOOLEAN", "Meos_overabove_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1064_0{"TPCPOINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1064_1{"TPCPATCH", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1064_2{"TSTZSPAN", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1064_3{"TSTZSPAN", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1064_4{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1064_5{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1064_6{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1064_7{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1064_8{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1064_9{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1064_10{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 11> overloads1064{MeosOverload{arguments1064_0, "BOOLEAN", "Meos_overafter_temporal_tstzspan_8"}, MeosOverload{arguments1064_1, "BOOLEAN", "Meos_overafter_temporal_tstzspan_9"}, MeosOverload{arguments1064_2, "BOOLEAN", "Meos_overafter_tstzspan_temporal_8"}, MeosOverload{arguments1064_3, "BOOLEAN", "Meos_overafter_tstzspan_temporal_9"}, MeosOverload{arguments1064_4, "BOOLEAN", "Meos_overafter_tpcbox_tpcbox_0"}, MeosOverload{arguments1064_5, "BOOLEAN", "Meos_overafter_tpcbox_tpointcloud_0"}, MeosOverload{arguments1064_6, "BOOLEAN", "Meos_overafter_tpcbox_tpointcloud_1"}, MeosOverload{arguments1064_7, "BOOLEAN", "Meos_overafter_tpointcloud_tpcbox_0"}, MeosOverload{arguments1064_8, "BOOLEAN", "Meos_overafter_tpointcloud_tpcbox_1"}, MeosOverload{arguments1064_9, "BOOLEAN", "Meos_overafter_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1064_10, "BOOLEAN", "Meos_overafter_tpointcloud_tpointcloud_1"}};
 constexpr std::array<std::string_view, 2> arguments1065_0{"TPCBOX", "TPCBOX"};
 constexpr std::array<std::string_view, 2> arguments1065_1{"TPCBOX", "TPCPOINT"};
 constexpr std::array<std::string_view, 2> arguments1065_2{"TPCBOX", "TPCPATCH"};
@@ -9792,521 +9744,585 @@ constexpr std::array<std::string_view, 2> arguments1065_3{"TPCPOINT", "TPCBOX"};
 constexpr std::array<std::string_view, 2> arguments1065_4{"TPCPATCH", "TPCBOX"};
 constexpr std::array<std::string_view, 2> arguments1065_5{"TPCPOINT", "TPCPOINT"};
 constexpr std::array<std::string_view, 2> arguments1065_6{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 7> overloads1065{MeosOverload{arguments1065_0, "BOOLEAN", "Meos_right_tpcbox_tpcbox_0"}, MeosOverload{arguments1065_1, "BOOLEAN", "Meos_right_tpcbox_tpointcloud_0"}, MeosOverload{arguments1065_2, "BOOLEAN", "Meos_right_tpcbox_tpointcloud_1"}, MeosOverload{arguments1065_3, "BOOLEAN", "Meos_right_tpointcloud_tpcbox_0"}, MeosOverload{arguments1065_4, "BOOLEAN", "Meos_right_tpointcloud_tpcbox_1"}, MeosOverload{arguments1065_5, "BOOLEAN", "Meos_right_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1065_6, "BOOLEAN", "Meos_right_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1066_0{"TPCBOX", "INT32"};
-constexpr std::array<std::string_view, 1> arguments1066_1{"TPCBOX"};
-constexpr std::array<MeosOverload, 2> overloads1066{MeosOverload{arguments1066_0, "TPCBOX", "Meos_tpcbox_round_0"}, MeosOverload{arguments1066_1, "TPCBOX", "Meos_tpcbox_round_0_1"}};
-constexpr std::array<std::string_view, 2> arguments1067_0{"TPCPOINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1067_1{"TPCPATCH", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1067_2{"TSTZSPAN", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1067_3{"TSTZSPAN", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1067_4{"TPCBOX", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1067_5{"TPCBOX", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1067_6{"TPCBOX", "TPCPATCH"};
-constexpr std::array<std::string_view, 2> arguments1067_7{"TPCPOINT", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1067_8{"TPCPATCH", "TPCBOX"};
-constexpr std::array<std::string_view, 2> arguments1067_9{"TPCPOINT", "TPCPOINT"};
-constexpr std::array<std::string_view, 2> arguments1067_10{"TPCPATCH", "TPCPATCH"};
-constexpr std::array<MeosOverload, 11> overloads1067{MeosOverload{arguments1067_0, "BOOLEAN", "Meos_same_temporal_tstzspan_8"}, MeosOverload{arguments1067_1, "BOOLEAN", "Meos_same_temporal_tstzspan_9"}, MeosOverload{arguments1067_2, "BOOLEAN", "Meos_same_tstzspan_temporal_8"}, MeosOverload{arguments1067_3, "BOOLEAN", "Meos_same_tstzspan_temporal_9"}, MeosOverload{arguments1067_4, "BOOLEAN", "Meos_same_tpcbox_tpcbox_0"}, MeosOverload{arguments1067_5, "BOOLEAN", "Meos_same_tpcbox_tpointcloud_0"}, MeosOverload{arguments1067_6, "BOOLEAN", "Meos_same_tpcbox_tpointcloud_1"}, MeosOverload{arguments1067_7, "BOOLEAN", "Meos_same_tpointcloud_tpcbox_0"}, MeosOverload{arguments1067_8, "BOOLEAN", "Meos_same_tpointcloud_tpcbox_1"}, MeosOverload{arguments1067_9, "BOOLEAN", "Meos_same_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1067_10, "BOOLEAN", "Meos_same_tpointcloud_tpointcloud_1"}};
-constexpr std::array<std::string_view, 2> arguments1068_0{"TSTZSPAN", "INT32"};
-constexpr std::array<std::string_view, 1> arguments1068_1{"TSTZSPAN"};
-constexpr std::array<MeosOverload, 2> overloads1068{MeosOverload{arguments1068_0, "TPCBOX", "Meos_tpcbox_make_2"}, MeosOverload{arguments1068_1, "TPCBOX", "Meos_tpcbox_make_2_1"}};
-constexpr std::array<std::string_view, 2> arguments1069_0{"TPCBOX", "INT32"};
-constexpr std::array<MeosOverload, 1> overloads1069{MeosOverload{arguments1069_0, "TPCBOX", "Meos_tpcbox_transform_0"}};
+constexpr std::array<MeosOverload, 7> overloads1065{MeosOverload{arguments1065_0, "BOOLEAN", "Meos_overback_tpcbox_tpcbox_0"}, MeosOverload{arguments1065_1, "BOOLEAN", "Meos_overback_tpcbox_tpointcloud_0"}, MeosOverload{arguments1065_2, "BOOLEAN", "Meos_overback_tpcbox_tpointcloud_1"}, MeosOverload{arguments1065_3, "BOOLEAN", "Meos_overback_tpointcloud_tpcbox_0"}, MeosOverload{arguments1065_4, "BOOLEAN", "Meos_overback_tpointcloud_tpcbox_1"}, MeosOverload{arguments1065_5, "BOOLEAN", "Meos_overback_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1065_6, "BOOLEAN", "Meos_overback_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1066_0{"TPCPOINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1066_1{"TPCPATCH", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1066_2{"TSTZSPAN", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1066_3{"TSTZSPAN", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1066_4{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1066_5{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1066_6{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1066_7{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1066_8{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1066_9{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1066_10{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 11> overloads1066{MeosOverload{arguments1066_0, "BOOLEAN", "Meos_overbefore_temporal_tstzspan_8"}, MeosOverload{arguments1066_1, "BOOLEAN", "Meos_overbefore_temporal_tstzspan_9"}, MeosOverload{arguments1066_2, "BOOLEAN", "Meos_overbefore_tstzspan_temporal_8"}, MeosOverload{arguments1066_3, "BOOLEAN", "Meos_overbefore_tstzspan_temporal_9"}, MeosOverload{arguments1066_4, "BOOLEAN", "Meos_overbefore_tpcbox_tpcbox_0"}, MeosOverload{arguments1066_5, "BOOLEAN", "Meos_overbefore_tpcbox_tpointcloud_0"}, MeosOverload{arguments1066_6, "BOOLEAN", "Meos_overbefore_tpcbox_tpointcloud_1"}, MeosOverload{arguments1066_7, "BOOLEAN", "Meos_overbefore_tpointcloud_tpcbox_0"}, MeosOverload{arguments1066_8, "BOOLEAN", "Meos_overbefore_tpointcloud_tpcbox_1"}, MeosOverload{arguments1066_9, "BOOLEAN", "Meos_overbefore_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1066_10, "BOOLEAN", "Meos_overbefore_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1067_0{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1067_1{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1067_2{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1067_3{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1067_4{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1067_5{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1067_6{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 7> overloads1067{MeosOverload{arguments1067_0, "BOOLEAN", "Meos_overbelow_tpcbox_tpcbox_0"}, MeosOverload{arguments1067_1, "BOOLEAN", "Meos_overbelow_tpcbox_tpointcloud_0"}, MeosOverload{arguments1067_2, "BOOLEAN", "Meos_overbelow_tpcbox_tpointcloud_1"}, MeosOverload{arguments1067_3, "BOOLEAN", "Meos_overbelow_tpointcloud_tpcbox_0"}, MeosOverload{arguments1067_4, "BOOLEAN", "Meos_overbelow_tpointcloud_tpcbox_1"}, MeosOverload{arguments1067_5, "BOOLEAN", "Meos_overbelow_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1067_6, "BOOLEAN", "Meos_overbelow_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1068_0{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1068_1{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1068_2{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1068_3{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1068_4{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1068_5{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1068_6{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 7> overloads1068{MeosOverload{arguments1068_0, "BOOLEAN", "Meos_overfront_tpcbox_tpcbox_0"}, MeosOverload{arguments1068_1, "BOOLEAN", "Meos_overfront_tpcbox_tpointcloud_0"}, MeosOverload{arguments1068_2, "BOOLEAN", "Meos_overfront_tpcbox_tpointcloud_1"}, MeosOverload{arguments1068_3, "BOOLEAN", "Meos_overfront_tpointcloud_tpcbox_0"}, MeosOverload{arguments1068_4, "BOOLEAN", "Meos_overfront_tpointcloud_tpcbox_1"}, MeosOverload{arguments1068_5, "BOOLEAN", "Meos_overfront_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1068_6, "BOOLEAN", "Meos_overfront_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1069_0{"TPCPOINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1069_1{"TPCPATCH", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1069_2{"TSTZSPAN", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1069_3{"TSTZSPAN", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1069_4{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1069_5{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1069_6{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1069_7{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1069_8{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1069_9{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1069_10{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 11> overloads1069{MeosOverload{arguments1069_0, "BOOLEAN", "Meos_overlaps_temporal_tstzspan_8"}, MeosOverload{arguments1069_1, "BOOLEAN", "Meos_overlaps_temporal_tstzspan_9"}, MeosOverload{arguments1069_2, "BOOLEAN", "Meos_overlaps_tstzspan_temporal_8"}, MeosOverload{arguments1069_3, "BOOLEAN", "Meos_overlaps_tstzspan_temporal_9"}, MeosOverload{arguments1069_4, "BOOLEAN", "Meos_overlaps_tpcbox_tpcbox_0"}, MeosOverload{arguments1069_5, "BOOLEAN", "Meos_overlaps_tpcbox_tpointcloud_0"}, MeosOverload{arguments1069_6, "BOOLEAN", "Meos_overlaps_tpcbox_tpointcloud_1"}, MeosOverload{arguments1069_7, "BOOLEAN", "Meos_overlaps_tpointcloud_tpcbox_0"}, MeosOverload{arguments1069_8, "BOOLEAN", "Meos_overlaps_tpointcloud_tpcbox_1"}, MeosOverload{arguments1069_9, "BOOLEAN", "Meos_overlaps_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1069_10, "BOOLEAN", "Meos_overlaps_tpointcloud_tpointcloud_1"}};
 constexpr std::array<std::string_view, 2> arguments1070_0{"TPCBOX", "TPCBOX"};
-constexpr std::array<MeosOverload, 1> overloads1070{MeosOverload{arguments1070_0, "TPCBOX", "Meos_union_tpcbox_tpcbox_0"}};
-constexpr std::array<std::string_view, 5> arguments1071_0{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "INT32"};
-constexpr std::array<std::string_view, 4> arguments1071_1{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64"};
-constexpr std::array<MeosOverload, 2> overloads1071{MeosOverload{arguments1071_0, "TPCBOX", "Meos_tpcbox_make_0"}, MeosOverload{arguments1071_1, "TPCBOX", "Meos_tpcbox_make_0_4"}};
-constexpr std::array<std::string_view, 6> arguments1072_0{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "TSTZSPAN", "INT32"};
-constexpr std::array<std::string_view, 5> arguments1072_1{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "TSTZSPAN"};
-constexpr std::array<MeosOverload, 2> overloads1072{MeosOverload{arguments1072_0, "TPCBOX", "Meos_tpcbox_make_3"}, MeosOverload{arguments1072_1, "TPCBOX", "Meos_tpcbox_make_3_5"}};
-constexpr std::array<std::string_view, 7> arguments1073_0{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "INT32"};
-constexpr std::array<std::string_view, 6> arguments1073_1{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64"};
-constexpr std::array<MeosOverload, 2> overloads1073{MeosOverload{arguments1073_0, "TPCBOX", "Meos_tpcbox_make_1"}, MeosOverload{arguments1073_1, "TPCBOX", "Meos_tpcbox_make_1_6"}};
-constexpr std::array<std::string_view, 8> arguments1074_0{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "TSTZSPAN", "INT32"};
-constexpr std::array<std::string_view, 7> arguments1074_1{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "TSTZSPAN"};
-constexpr std::array<MeosOverload, 2> overloads1074{MeosOverload{arguments1074_0, "TPCBOX", "Meos_tpcbox_make_4"}, MeosOverload{arguments1074_1, "TPCBOX", "Meos_tpcbox_make_4_7"}};
-constexpr std::array<std::string_view, 1> arguments1075_0{"TPCPOINT"};
-constexpr std::array<std::string_view, 1> arguments1075_1{"TPCPATCH"};
-constexpr std::array<MeosOverload, 2> overloads1075{MeosOverload{arguments1075_0, "TPCBOX_ARRAY", "Meos_tpointcloud_tpcboxes_0"}, MeosOverload{arguments1075_1, "TPCBOX_ARRAY", "Meos_tpointcloud_tpcboxes_1"}};
-constexpr std::array<std::string_view, 2> arguments1076_0{"PCPATCH", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1076_1{"PCPATCH", "TSTZSET"};
-constexpr std::array<std::string_view, 2> arguments1076_2{"PCPATCH", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1076_3{"PCPATCH", "TSTZSPANSET"};
-constexpr std::array<MeosOverload, 4> overloads1076{MeosOverload{arguments1076_0, "TPCPATCH", "Meos_tpcpatchinst_make_0"}, MeosOverload{arguments1076_1, "TPCPATCH", "Meos_tpcpatchseq_from_base_tstzset_0"}, MeosOverload{arguments1076_2, "TPCPATCH", "Meos_tpcpatchseq_from_base_tstzspan_0"}, MeosOverload{arguments1076_3, "TPCPATCH", "Meos_tpcpatchseqset_from_base_tstzspanset_0"}};
-constexpr std::array<std::string_view, 1> arguments1077_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1077{MeosOverload{arguments1077_0, "TPCPATCH", "Meos_temporal_from_wkb_36"}};
-constexpr std::array<std::string_view, 1> arguments1078_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1078{MeosOverload{arguments1078_0, "TPCPATCH", "Meos_temporal_from_wkb_37"}};
-constexpr std::array<std::string_view, 1> arguments1079_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1079{MeosOverload{arguments1079_0, "TPCPATCH", "Meos_tpcpatch_in_2"}};
-constexpr std::array<std::string_view, 1> arguments1080_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1080{MeosOverload{arguments1080_0, "TPCPATCH", "Meos_temporal_from_hexwkb_18"}};
-constexpr std::array<std::string_view, 1> arguments1081_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1081{MeosOverload{arguments1081_0, "TPCPATCH", "Meos_temporal_from_hexwkb_17"}};
-constexpr std::array<std::string_view, 1> arguments1082_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1082{MeosOverload{arguments1082_0, "TPCPATCH", "Meos_tpcpatch_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments1083_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1083{MeosOverload{arguments1083_0, "TPCPATCH", "Meos_tpcpatch_in_1"}};
-constexpr std::array<std::string_view, 1> arguments1084_0{"TPCPATCH"};
-constexpr std::array<MeosOverload, 1> overloads1084{MeosOverload{arguments1084_0, "TPCPATCH", "Meos_temporal_as_tinstant_9"}};
-constexpr std::array<std::string_view, 4> arguments1085_0{"TPCPATCH_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1085_1{"TPCPATCH_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1085_2{"TPCPATCH_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments1085_3{"TPCPATCH_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1085_4{"TPCPATCH", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads1085{MeosOverload{arguments1085_0, "TPCPATCH", "Meos_tsequence_make_9"}, MeosOverload{arguments1085_1, "TPCPATCH", "Meos_tsequence_make_9_3"}, MeosOverload{arguments1085_2, "TPCPATCH", "Meos_tsequence_make_9_2"}, MeosOverload{arguments1085_3, "TPCPATCH", "Meos_tsequence_make_9_1"}, MeosOverload{arguments1085_4, "TPCPATCH", "Meos_temporal_as_tsequence_9"}};
-constexpr std::array<std::string_view, 1> arguments1086_0{"TPCPATCH_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments1086_1{"TPCPATCH"};
-constexpr std::array<MeosOverload, 2> overloads1086{MeosOverload{arguments1086_0, "TPCPATCH", "Meos_tsequenceset_make_9"}, MeosOverload{arguments1086_1, "TPCPATCH", "Meos_temporal_as_tsequenceset_9"}};
-constexpr std::array<std::string_view, 2> arguments1087_0{"PCPOINT", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1087_1{"PCPOINT", "TSTZSET"};
-constexpr std::array<std::string_view, 2> arguments1087_2{"PCPOINT", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1087_3{"PCPOINT", "TSTZSPANSET"};
-constexpr std::array<MeosOverload, 4> overloads1087{MeosOverload{arguments1087_0, "TPCPOINT", "Meos_tpcpointinst_make_0"}, MeosOverload{arguments1087_1, "TPCPOINT", "Meos_tpcpointseq_from_base_tstzset_0"}, MeosOverload{arguments1087_2, "TPCPOINT", "Meos_tpcpointseq_from_base_tstzspan_0"}, MeosOverload{arguments1087_3, "TPCPOINT", "Meos_tpcpointseqset_from_base_tstzspanset_0"}};
-constexpr std::array<std::string_view, 1> arguments1088_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1088{MeosOverload{arguments1088_0, "TPCPOINT", "Meos_temporal_from_wkb_34"}};
-constexpr std::array<std::string_view, 1> arguments1089_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1089{MeosOverload{arguments1089_0, "TPCPOINT", "Meos_temporal_from_wkb_35"}};
+constexpr std::array<std::string_view, 2> arguments1070_1{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1070_2{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1070_3{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1070_4{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1070_5{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1070_6{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 7> overloads1070{MeosOverload{arguments1070_0, "BOOLEAN", "Meos_overleft_tpcbox_tpcbox_0"}, MeosOverload{arguments1070_1, "BOOLEAN", "Meos_overleft_tpcbox_tpointcloud_0"}, MeosOverload{arguments1070_2, "BOOLEAN", "Meos_overleft_tpcbox_tpointcloud_1"}, MeosOverload{arguments1070_3, "BOOLEAN", "Meos_overleft_tpointcloud_tpcbox_0"}, MeosOverload{arguments1070_4, "BOOLEAN", "Meos_overleft_tpointcloud_tpcbox_1"}, MeosOverload{arguments1070_5, "BOOLEAN", "Meos_overleft_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1070_6, "BOOLEAN", "Meos_overleft_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1071_0{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1071_1{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1071_2{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1071_3{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1071_4{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1071_5{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1071_6{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 7> overloads1071{MeosOverload{arguments1071_0, "BOOLEAN", "Meos_overright_tpcbox_tpcbox_0"}, MeosOverload{arguments1071_1, "BOOLEAN", "Meos_overright_tpcbox_tpointcloud_0"}, MeosOverload{arguments1071_2, "BOOLEAN", "Meos_overright_tpcbox_tpointcloud_1"}, MeosOverload{arguments1071_3, "BOOLEAN", "Meos_overright_tpointcloud_tpcbox_0"}, MeosOverload{arguments1071_4, "BOOLEAN", "Meos_overright_tpointcloud_tpcbox_1"}, MeosOverload{arguments1071_5, "BOOLEAN", "Meos_overright_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1071_6, "BOOLEAN", "Meos_overright_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1072_0{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1072_1{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1072_2{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1072_3{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1072_4{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1072_5{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1072_6{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 7> overloads1072{MeosOverload{arguments1072_0, "BOOLEAN", "Meos_right_tpcbox_tpcbox_0"}, MeosOverload{arguments1072_1, "BOOLEAN", "Meos_right_tpcbox_tpointcloud_0"}, MeosOverload{arguments1072_2, "BOOLEAN", "Meos_right_tpcbox_tpointcloud_1"}, MeosOverload{arguments1072_3, "BOOLEAN", "Meos_right_tpointcloud_tpcbox_0"}, MeosOverload{arguments1072_4, "BOOLEAN", "Meos_right_tpointcloud_tpcbox_1"}, MeosOverload{arguments1072_5, "BOOLEAN", "Meos_right_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1072_6, "BOOLEAN", "Meos_right_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1073_0{"TPCBOX", "INT32"};
+constexpr std::array<std::string_view, 1> arguments1073_1{"TPCBOX"};
+constexpr std::array<MeosOverload, 2> overloads1073{MeosOverload{arguments1073_0, "TPCBOX", "Meos_tpcbox_round_0"}, MeosOverload{arguments1073_1, "TPCBOX", "Meos_tpcbox_round_0_1"}};
+constexpr std::array<std::string_view, 2> arguments1074_0{"TPCPOINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1074_1{"TPCPATCH", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1074_2{"TSTZSPAN", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1074_3{"TSTZSPAN", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1074_4{"TPCBOX", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1074_5{"TPCBOX", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1074_6{"TPCBOX", "TPCPATCH"};
+constexpr std::array<std::string_view, 2> arguments1074_7{"TPCPOINT", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1074_8{"TPCPATCH", "TPCBOX"};
+constexpr std::array<std::string_view, 2> arguments1074_9{"TPCPOINT", "TPCPOINT"};
+constexpr std::array<std::string_view, 2> arguments1074_10{"TPCPATCH", "TPCPATCH"};
+constexpr std::array<MeosOverload, 11> overloads1074{MeosOverload{arguments1074_0, "BOOLEAN", "Meos_same_temporal_tstzspan_8"}, MeosOverload{arguments1074_1, "BOOLEAN", "Meos_same_temporal_tstzspan_9"}, MeosOverload{arguments1074_2, "BOOLEAN", "Meos_same_tstzspan_temporal_8"}, MeosOverload{arguments1074_3, "BOOLEAN", "Meos_same_tstzspan_temporal_9"}, MeosOverload{arguments1074_4, "BOOLEAN", "Meos_same_tpcbox_tpcbox_0"}, MeosOverload{arguments1074_5, "BOOLEAN", "Meos_same_tpcbox_tpointcloud_0"}, MeosOverload{arguments1074_6, "BOOLEAN", "Meos_same_tpcbox_tpointcloud_1"}, MeosOverload{arguments1074_7, "BOOLEAN", "Meos_same_tpointcloud_tpcbox_0"}, MeosOverload{arguments1074_8, "BOOLEAN", "Meos_same_tpointcloud_tpcbox_1"}, MeosOverload{arguments1074_9, "BOOLEAN", "Meos_same_tpointcloud_tpointcloud_0"}, MeosOverload{arguments1074_10, "BOOLEAN", "Meos_same_tpointcloud_tpointcloud_1"}};
+constexpr std::array<std::string_view, 2> arguments1075_0{"TSTZSPAN", "INT32"};
+constexpr std::array<std::string_view, 1> arguments1075_1{"TSTZSPAN"};
+constexpr std::array<MeosOverload, 2> overloads1075{MeosOverload{arguments1075_0, "TPCBOX", "Meos_tpcbox_make_2"}, MeosOverload{arguments1075_1, "TPCBOX", "Meos_tpcbox_make_2_1"}};
+constexpr std::array<std::string_view, 2> arguments1076_0{"TPCBOX", "INT32"};
+constexpr std::array<MeosOverload, 1> overloads1076{MeosOverload{arguments1076_0, "TPCBOX", "Meos_tpcbox_transform_0"}};
+constexpr std::array<std::string_view, 2> arguments1077_0{"TPCBOX", "TPCBOX"};
+constexpr std::array<MeosOverload, 1> overloads1077{MeosOverload{arguments1077_0, "TPCBOX", "Meos_union_tpcbox_tpcbox_0"}};
+constexpr std::array<std::string_view, 5> arguments1078_0{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "INT32"};
+constexpr std::array<std::string_view, 4> arguments1078_1{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64"};
+constexpr std::array<MeosOverload, 2> overloads1078{MeosOverload{arguments1078_0, "TPCBOX", "Meos_tpcbox_make_0"}, MeosOverload{arguments1078_1, "TPCBOX", "Meos_tpcbox_make_0_4"}};
+constexpr std::array<std::string_view, 6> arguments1079_0{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "TSTZSPAN", "INT32"};
+constexpr std::array<std::string_view, 5> arguments1079_1{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "TSTZSPAN"};
+constexpr std::array<MeosOverload, 2> overloads1079{MeosOverload{arguments1079_0, "TPCBOX", "Meos_tpcbox_make_3"}, MeosOverload{arguments1079_1, "TPCBOX", "Meos_tpcbox_make_3_5"}};
+constexpr std::array<std::string_view, 7> arguments1080_0{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "INT32"};
+constexpr std::array<std::string_view, 6> arguments1080_1{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64"};
+constexpr std::array<MeosOverload, 2> overloads1080{MeosOverload{arguments1080_0, "TPCBOX", "Meos_tpcbox_make_1"}, MeosOverload{arguments1080_1, "TPCBOX", "Meos_tpcbox_make_1_6"}};
+constexpr std::array<std::string_view, 8> arguments1081_0{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "TSTZSPAN", "INT32"};
+constexpr std::array<std::string_view, 7> arguments1081_1{"FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "FLOAT64", "TSTZSPAN"};
+constexpr std::array<MeosOverload, 2> overloads1081{MeosOverload{arguments1081_0, "TPCBOX", "Meos_tpcbox_make_4"}, MeosOverload{arguments1081_1, "TPCBOX", "Meos_tpcbox_make_4_7"}};
+constexpr std::array<std::string_view, 1> arguments1082_0{"TPCPOINT"};
+constexpr std::array<std::string_view, 1> arguments1082_1{"TPCPATCH"};
+constexpr std::array<MeosOverload, 2> overloads1082{MeosOverload{arguments1082_0, "TPCBOX_ARRAY", "Meos_tpointcloud_tpcboxes_0"}, MeosOverload{arguments1082_1, "TPCBOX_ARRAY", "Meos_tpointcloud_tpcboxes_1"}};
+constexpr std::array<std::string_view, 2> arguments1083_0{"PCPATCH", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1083_1{"PCPATCH", "TSTZSET"};
+constexpr std::array<std::string_view, 2> arguments1083_2{"PCPATCH", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1083_3{"PCPATCH", "TSTZSPANSET"};
+constexpr std::array<MeosOverload, 4> overloads1083{MeosOverload{arguments1083_0, "TPCPATCH", "Meos_tpcpatchinst_make_0"}, MeosOverload{arguments1083_1, "TPCPATCH", "Meos_tpcpatchseq_from_base_tstzset_0"}, MeosOverload{arguments1083_2, "TPCPATCH", "Meos_tpcpatchseq_from_base_tstzspan_0"}, MeosOverload{arguments1083_3, "TPCPATCH", "Meos_tpcpatchseqset_from_base_tstzspanset_0"}};
+constexpr std::array<std::string_view, 1> arguments1084_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1084{MeosOverload{arguments1084_0, "TPCPATCH", "Meos_temporal_from_wkb_36"}};
+constexpr std::array<std::string_view, 1> arguments1085_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1085{MeosOverload{arguments1085_0, "TPCPATCH", "Meos_temporal_from_wkb_37"}};
+constexpr std::array<std::string_view, 1> arguments1086_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1086{MeosOverload{arguments1086_0, "TPCPATCH", "Meos_tpcpatch_in_2"}};
+constexpr std::array<std::string_view, 1> arguments1087_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1087{MeosOverload{arguments1087_0, "TPCPATCH", "Meos_temporal_from_hexwkb_18"}};
+constexpr std::array<std::string_view, 1> arguments1088_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1088{MeosOverload{arguments1088_0, "TPCPATCH", "Meos_temporal_from_hexwkb_17"}};
+constexpr std::array<std::string_view, 1> arguments1089_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1089{MeosOverload{arguments1089_0, "TPCPATCH", "Meos_tpcpatch_from_mfjson_0"}};
 constexpr std::array<std::string_view, 1> arguments1090_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1090{MeosOverload{arguments1090_0, "TPCPOINT", "Meos_tpcpoint_in_2"}};
-constexpr std::array<std::string_view, 1> arguments1091_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1091{MeosOverload{arguments1091_0, "TPCPOINT", "Meos_temporal_from_hexwkb_16"}};
-constexpr std::array<std::string_view, 1> arguments1092_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1092{MeosOverload{arguments1092_0, "TPCPOINT", "Meos_temporal_from_hexwkb_15"}};
-constexpr std::array<std::string_view, 1> arguments1093_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1093{MeosOverload{arguments1093_0, "TPCPOINT", "Meos_tpcpoint_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments1094_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1094{MeosOverload{arguments1094_0, "TPCPOINT", "Meos_tpcpoint_in_1"}};
-constexpr std::array<std::string_view, 1> arguments1095_0{"TPCPOINT"};
-constexpr std::array<MeosOverload, 1> overloads1095{MeosOverload{arguments1095_0, "TPCPOINT", "Meos_temporal_as_tinstant_8"}};
-constexpr std::array<std::string_view, 4> arguments1096_0{"TPCPOINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1096_1{"TPCPOINT_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1096_2{"TPCPOINT_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments1096_3{"TPCPOINT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1096_4{"TPCPOINT", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads1096{MeosOverload{arguments1096_0, "TPCPOINT", "Meos_tsequence_make_8"}, MeosOverload{arguments1096_1, "TPCPOINT", "Meos_tsequence_make_8_3"}, MeosOverload{arguments1096_2, "TPCPOINT", "Meos_tsequence_make_8_2"}, MeosOverload{arguments1096_3, "TPCPOINT", "Meos_tsequence_make_8_1"}, MeosOverload{arguments1096_4, "TPCPOINT", "Meos_temporal_as_tsequence_8"}};
-constexpr std::array<std::string_view, 1> arguments1097_0{"TPCPOINT_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments1097_1{"TPCPOINT"};
-constexpr std::array<MeosOverload, 2> overloads1097{MeosOverload{arguments1097_0, "TPCPOINT", "Meos_tsequenceset_make_8"}, MeosOverload{arguments1097_1, "TPCPOINT", "Meos_temporal_as_tsequenceset_8"}};
-constexpr std::array<std::string_view, 4> arguments1098_0{"RASTER", "INT32", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1098_1{"RASTER", "INT32", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1098_2{"RASTER", "INT32"};
-constexpr std::array<std::string_view, 1> arguments1098_3{"RASTER"};
-constexpr std::array<std::string_view, 5> arguments1098_4{"RASTER", "INT32", "RASTER", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 4> arguments1098_5{"RASTER", "INT32", "RASTER", "VARSIZED"};
-constexpr std::array<std::string_view, 3> arguments1098_6{"RASTER", "INT32", "RASTER"};
-constexpr std::array<MeosOverload, 7> overloads1098{MeosOverload{arguments1098_0, "RASTER", "Meos_raster_tpi_0"}, MeosOverload{arguments1098_1, "RASTER", "Meos_raster_tpi_0_3"}, MeosOverload{arguments1098_2, "RASTER", "Meos_raster_tpi_0_2"}, MeosOverload{arguments1098_3, "RASTER", "Meos_raster_tpi_0_1"}, MeosOverload{arguments1098_4, "RASTER", "Meos_raster_tpi_1"}, MeosOverload{arguments1098_5, "RASTER", "Meos_raster_tpi_1_4"}, MeosOverload{arguments1098_6, "RASTER", "Meos_raster_tpi_1_3"}};
-constexpr std::array<std::string_view, 2> arguments1099_0{"POSE", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1099_1{"POSE", "TSTZSET"};
-constexpr std::array<std::string_view, 3> arguments1099_2{"POSE", "TSTZSPAN", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1099_3{"POSE", "TSTZSPAN"};
-constexpr std::array<std::string_view, 3> arguments1099_4{"POSE", "TSTZSPANSET", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1099_5{"POSE", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 2> arguments1099_6{"TGEOMPOINT", "TFLOAT"};
-constexpr std::array<std::string_view, 1> arguments1099_7{"TPOSECHAIN"};
-constexpr std::array<std::string_view, 1> arguments1099_8{"TRGEOMETRY"};
-constexpr std::array<MeosOverload, 9> overloads1099{MeosOverload{arguments1099_0, "TPOSE", "Meos_tposeinst_make_0"}, MeosOverload{arguments1099_1, "TPOSE", "Meos_tposeseq_from_base_tstzset_0"}, MeosOverload{arguments1099_2, "TPOSE", "Meos_tposeseq_from_base_tstzspan_0"}, MeosOverload{arguments1099_3, "TPOSE", "Meos_tposeseq_from_base_tstzspan_0_2"}, MeosOverload{arguments1099_4, "TPOSE", "Meos_tposeseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1099_5, "TPOSE", "Meos_tposeseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments1099_6, "TPOSE", "Meos_tpose_make_0"}, MeosOverload{arguments1099_7, "TPOSE", "Meos_tposechain_to_tpose_0"}, MeosOverload{arguments1099_8, "TPOSE", "Meos_trgeometry_to_tpose_0"}};
-constexpr std::array<std::string_view, 1> arguments1100_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1100{MeosOverload{arguments1100_0, "TPOSE", "Meos_temporal_from_wkb_38"}};
-constexpr std::array<std::string_view, 1> arguments1101_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1101{MeosOverload{arguments1101_0, "TPOSE", "Meos_temporal_from_wkb_39"}};
-constexpr std::array<std::string_view, 1> arguments1102_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1102{MeosOverload{arguments1102_0, "TPOSE", "Meos_tpose_in_2"}};
-constexpr std::array<std::string_view, 1> arguments1103_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1103{MeosOverload{arguments1103_0, "TPOSE", "Meos_tpose_from_geopose_0"}};
-constexpr std::array<std::string_view, 1> arguments1104_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1104{MeosOverload{arguments1104_0, "TPOSE", "Meos_temporal_from_hexwkb_20"}};
-constexpr std::array<std::string_view, 1> arguments1105_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1105{MeosOverload{arguments1105_0, "TPOSE", "Meos_temporal_from_hexwkb_19"}};
-constexpr std::array<std::string_view, 1> arguments1106_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1106{MeosOverload{arguments1106_0, "TPOSE", "Meos_tpose_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments1107_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1107{MeosOverload{arguments1107_0, "TPOSE", "Meos_tpose_in_1"}};
-constexpr std::array<std::string_view, 1> arguments1108_0{"TPOSE"};
-constexpr std::array<MeosOverload, 1> overloads1108{MeosOverload{arguments1108_0, "TPOSE", "Meos_temporal_as_tinstant_10"}};
-constexpr std::array<std::string_view, 4> arguments1109_0{"TPOSE_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1109_1{"TPOSE_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1109_2{"TPOSE_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments1109_3{"TPOSE_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1109_4{"TPOSE", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads1109{MeosOverload{arguments1109_0, "TPOSE", "Meos_tsequence_make_10"}, MeosOverload{arguments1109_1, "TPOSE", "Meos_tsequence_make_10_3"}, MeosOverload{arguments1109_2, "TPOSE", "Meos_tsequence_make_10_2"}, MeosOverload{arguments1109_3, "TPOSE", "Meos_tsequence_make_10_1"}, MeosOverload{arguments1109_4, "TPOSE", "Meos_temporal_as_tsequence_10"}};
-constexpr std::array<std::string_view, 1> arguments1110_0{"TPOSE_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1110_1{"TPOSE", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads1110{MeosOverload{arguments1110_0, "TPOSE", "Meos_tsequenceset_make_10"}, MeosOverload{arguments1110_1, "TPOSE", "Meos_temporal_as_tsequenceset_10"}};
-constexpr std::array<std::string_view, 2> arguments1111_0{"POSECHAIN", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1111_1{"POSECHAIN", "TSTZSET"};
-constexpr std::array<std::string_view, 3> arguments1111_2{"POSECHAIN", "TSTZSPAN", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1111_3{"POSECHAIN", "TSTZSPAN"};
-constexpr std::array<std::string_view, 3> arguments1111_4{"POSECHAIN", "TSTZSPANSET", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1111_5{"POSECHAIN", "TSTZSPANSET"};
-constexpr std::array<MeosOverload, 6> overloads1111{MeosOverload{arguments1111_0, "TPOSECHAIN", "Meos_tposechaininst_make_0"}, MeosOverload{arguments1111_1, "TPOSECHAIN", "Meos_tposechainseq_from_base_tstzset_0"}, MeosOverload{arguments1111_2, "TPOSECHAIN", "Meos_tposechainseq_from_base_tstzspan_0"}, MeosOverload{arguments1111_3, "TPOSECHAIN", "Meos_tposechainseq_from_base_tstzspan_0_2"}, MeosOverload{arguments1111_4, "TPOSECHAIN", "Meos_tposechainseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1111_5, "TPOSECHAIN", "Meos_tposechainseqset_from_base_tstzspanset_0_2"}};
-constexpr std::array<std::string_view, 1> arguments1112_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1112{MeosOverload{arguments1112_0, "TPOSECHAIN", "Meos_temporal_from_wkb_40"}};
-constexpr std::array<std::string_view, 1> arguments1113_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1113{MeosOverload{arguments1113_0, "TPOSECHAIN", "Meos_temporal_from_wkb_41"}};
+constexpr std::array<MeosOverload, 1> overloads1090{MeosOverload{arguments1090_0, "TPCPATCH", "Meos_tpcpatch_in_1"}};
+constexpr std::array<std::string_view, 1> arguments1091_0{"TPCPATCH"};
+constexpr std::array<MeosOverload, 1> overloads1091{MeosOverload{arguments1091_0, "TPCPATCH", "Meos_temporal_as_tinstant_9"}};
+constexpr std::array<std::string_view, 4> arguments1092_0{"TPCPATCH_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1092_1{"TPCPATCH_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1092_2{"TPCPATCH_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments1092_3{"TPCPATCH_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1092_4{"TPCPATCH", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads1092{MeosOverload{arguments1092_0, "TPCPATCH", "Meos_tsequence_make_9"}, MeosOverload{arguments1092_1, "TPCPATCH", "Meos_tsequence_make_9_3"}, MeosOverload{arguments1092_2, "TPCPATCH", "Meos_tsequence_make_9_2"}, MeosOverload{arguments1092_3, "TPCPATCH", "Meos_tsequence_make_9_1"}, MeosOverload{arguments1092_4, "TPCPATCH", "Meos_temporal_as_tsequence_9"}};
+constexpr std::array<std::string_view, 1> arguments1093_0{"TPCPATCH_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments1093_1{"TPCPATCH"};
+constexpr std::array<MeosOverload, 2> overloads1093{MeosOverload{arguments1093_0, "TPCPATCH", "Meos_tsequenceset_make_9"}, MeosOverload{arguments1093_1, "TPCPATCH", "Meos_temporal_as_tsequenceset_9"}};
+constexpr std::array<std::string_view, 2> arguments1094_0{"PCPOINT", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1094_1{"PCPOINT", "TSTZSET"};
+constexpr std::array<std::string_view, 2> arguments1094_2{"PCPOINT", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1094_3{"PCPOINT", "TSTZSPANSET"};
+constexpr std::array<MeosOverload, 4> overloads1094{MeosOverload{arguments1094_0, "TPCPOINT", "Meos_tpcpointinst_make_0"}, MeosOverload{arguments1094_1, "TPCPOINT", "Meos_tpcpointseq_from_base_tstzset_0"}, MeosOverload{arguments1094_2, "TPCPOINT", "Meos_tpcpointseq_from_base_tstzspan_0"}, MeosOverload{arguments1094_3, "TPCPOINT", "Meos_tpcpointseqset_from_base_tstzspanset_0"}};
+constexpr std::array<std::string_view, 1> arguments1095_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1095{MeosOverload{arguments1095_0, "TPCPOINT", "Meos_temporal_from_wkb_34"}};
+constexpr std::array<std::string_view, 1> arguments1096_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1096{MeosOverload{arguments1096_0, "TPCPOINT", "Meos_temporal_from_wkb_35"}};
+constexpr std::array<std::string_view, 1> arguments1097_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1097{MeosOverload{arguments1097_0, "TPCPOINT", "Meos_tpcpoint_in_2"}};
+constexpr std::array<std::string_view, 1> arguments1098_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1098{MeosOverload{arguments1098_0, "TPCPOINT", "Meos_temporal_from_hexwkb_16"}};
+constexpr std::array<std::string_view, 1> arguments1099_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1099{MeosOverload{arguments1099_0, "TPCPOINT", "Meos_temporal_from_hexwkb_15"}};
+constexpr std::array<std::string_view, 1> arguments1100_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1100{MeosOverload{arguments1100_0, "TPCPOINT", "Meos_tpcpoint_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments1101_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1101{MeosOverload{arguments1101_0, "TPCPOINT", "Meos_tpcpoint_in_1"}};
+constexpr std::array<std::string_view, 1> arguments1102_0{"TPCPOINT"};
+constexpr std::array<MeosOverload, 1> overloads1102{MeosOverload{arguments1102_0, "TPCPOINT", "Meos_temporal_as_tinstant_8"}};
+constexpr std::array<std::string_view, 4> arguments1103_0{"TPCPOINT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1103_1{"TPCPOINT_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1103_2{"TPCPOINT_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments1103_3{"TPCPOINT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1103_4{"TPCPOINT", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads1103{MeosOverload{arguments1103_0, "TPCPOINT", "Meos_tsequence_make_8"}, MeosOverload{arguments1103_1, "TPCPOINT", "Meos_tsequence_make_8_3"}, MeosOverload{arguments1103_2, "TPCPOINT", "Meos_tsequence_make_8_2"}, MeosOverload{arguments1103_3, "TPCPOINT", "Meos_tsequence_make_8_1"}, MeosOverload{arguments1103_4, "TPCPOINT", "Meos_temporal_as_tsequence_8"}};
+constexpr std::array<std::string_view, 1> arguments1104_0{"TPCPOINT_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments1104_1{"TPCPOINT"};
+constexpr std::array<MeosOverload, 2> overloads1104{MeosOverload{arguments1104_0, "TPCPOINT", "Meos_tsequenceset_make_8"}, MeosOverload{arguments1104_1, "TPCPOINT", "Meos_temporal_as_tsequenceset_8"}};
+constexpr std::array<std::string_view, 4> arguments1105_0{"RASTER", "INT32", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1105_1{"RASTER", "INT32", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1105_2{"RASTER", "INT32"};
+constexpr std::array<std::string_view, 1> arguments1105_3{"RASTER"};
+constexpr std::array<std::string_view, 5> arguments1105_4{"RASTER", "INT32", "RASTER", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 4> arguments1105_5{"RASTER", "INT32", "RASTER", "VARSIZED"};
+constexpr std::array<std::string_view, 3> arguments1105_6{"RASTER", "INT32", "RASTER"};
+constexpr std::array<MeosOverload, 7> overloads1105{MeosOverload{arguments1105_0, "RASTER", "Meos_raster_tpi_0"}, MeosOverload{arguments1105_1, "RASTER", "Meos_raster_tpi_0_3"}, MeosOverload{arguments1105_2, "RASTER", "Meos_raster_tpi_0_2"}, MeosOverload{arguments1105_3, "RASTER", "Meos_raster_tpi_0_1"}, MeosOverload{arguments1105_4, "RASTER", "Meos_raster_tpi_1"}, MeosOverload{arguments1105_5, "RASTER", "Meos_raster_tpi_1_4"}, MeosOverload{arguments1105_6, "RASTER", "Meos_raster_tpi_1_3"}};
+constexpr std::array<std::string_view, 2> arguments1106_0{"POSE", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1106_1{"POSE", "TSTZSET"};
+constexpr std::array<std::string_view, 3> arguments1106_2{"POSE", "TSTZSPAN", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1106_3{"POSE", "TSTZSPAN"};
+constexpr std::array<std::string_view, 3> arguments1106_4{"POSE", "TSTZSPANSET", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1106_5{"POSE", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 2> arguments1106_6{"TGEOMPOINT", "TFLOAT"};
+constexpr std::array<std::string_view, 1> arguments1106_7{"TPOSECHAIN"};
+constexpr std::array<std::string_view, 1> arguments1106_8{"TRGEOMETRY"};
+constexpr std::array<MeosOverload, 9> overloads1106{MeosOverload{arguments1106_0, "TPOSE", "Meos_tposeinst_make_0"}, MeosOverload{arguments1106_1, "TPOSE", "Meos_tposeseq_from_base_tstzset_0"}, MeosOverload{arguments1106_2, "TPOSE", "Meos_tposeseq_from_base_tstzspan_0"}, MeosOverload{arguments1106_3, "TPOSE", "Meos_tposeseq_from_base_tstzspan_0_2"}, MeosOverload{arguments1106_4, "TPOSE", "Meos_tposeseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1106_5, "TPOSE", "Meos_tposeseqset_from_base_tstzspanset_0_2"}, MeosOverload{arguments1106_6, "TPOSE", "Meos_tpose_make_0"}, MeosOverload{arguments1106_7, "TPOSE", "Meos_tposechain_to_tpose_0"}, MeosOverload{arguments1106_8, "TPOSE", "Meos_trgeometry_to_tpose_0"}};
+constexpr std::array<std::string_view, 1> arguments1107_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1107{MeosOverload{arguments1107_0, "TPOSE", "Meos_temporal_from_wkb_38"}};
+constexpr std::array<std::string_view, 1> arguments1108_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1108{MeosOverload{arguments1108_0, "TPOSE", "Meos_temporal_from_wkb_39"}};
+constexpr std::array<std::string_view, 1> arguments1109_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1109{MeosOverload{arguments1109_0, "TPOSE", "Meos_tpose_in_2"}};
+constexpr std::array<std::string_view, 1> arguments1110_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1110{MeosOverload{arguments1110_0, "TPOSE", "Meos_tpose_from_geopose_0"}};
+constexpr std::array<std::string_view, 1> arguments1111_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1111{MeosOverload{arguments1111_0, "TPOSE", "Meos_temporal_from_hexwkb_20"}};
+constexpr std::array<std::string_view, 1> arguments1112_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1112{MeosOverload{arguments1112_0, "TPOSE", "Meos_temporal_from_hexwkb_19"}};
+constexpr std::array<std::string_view, 1> arguments1113_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1113{MeosOverload{arguments1113_0, "TPOSE", "Meos_tpose_from_mfjson_0"}};
 constexpr std::array<std::string_view, 1> arguments1114_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1114{MeosOverload{arguments1114_0, "TPOSECHAIN", "Meos_tposechain_in_2"}};
-constexpr std::array<std::string_view, 1> arguments1115_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1115{MeosOverload{arguments1115_0, "TPOSECHAIN", "Meos_tposechain_from_geopose_0"}};
-constexpr std::array<std::string_view, 1> arguments1116_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1116{MeosOverload{arguments1116_0, "TPOSECHAIN", "Meos_temporal_from_hexwkb_22"}};
-constexpr std::array<std::string_view, 1> arguments1117_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1117{MeosOverload{arguments1117_0, "TPOSECHAIN", "Meos_temporal_from_hexwkb_21"}};
-constexpr std::array<std::string_view, 1> arguments1118_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1118{MeosOverload{arguments1118_0, "TPOSECHAIN", "Meos_tposechain_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments1119_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1119{MeosOverload{arguments1119_0, "TPOSECHAIN", "Meos_tposechain_in_1"}};
-constexpr std::array<std::string_view, 1> arguments1120_0{"TPOSECHAIN"};
-constexpr std::array<MeosOverload, 1> overloads1120{MeosOverload{arguments1120_0, "TPOSECHAIN", "Meos_temporal_as_tinstant_11"}};
-constexpr std::array<std::string_view, 4> arguments1121_0{"TPOSECHAIN_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1121_1{"TPOSECHAIN_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1121_2{"TPOSECHAIN_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments1121_3{"TPOSECHAIN_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1121_4{"TPOSECHAIN", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads1121{MeosOverload{arguments1121_0, "TPOSECHAIN", "Meos_tsequence_make_11"}, MeosOverload{arguments1121_1, "TPOSECHAIN", "Meos_tsequence_make_11_3"}, MeosOverload{arguments1121_2, "TPOSECHAIN", "Meos_tsequence_make_11_2"}, MeosOverload{arguments1121_3, "TPOSECHAIN", "Meos_tsequence_make_11_1"}, MeosOverload{arguments1121_4, "TPOSECHAIN", "Meos_temporal_as_tsequence_11"}};
-constexpr std::array<std::string_view, 1> arguments1122_0{"TPOSECHAIN_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1122_1{"TPOSECHAIN", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads1122{MeosOverload{arguments1122_0, "TPOSECHAIN", "Meos_tsequenceset_make_11"}, MeosOverload{arguments1122_1, "TPOSECHAIN", "Meos_temporal_as_tsequenceset_11"}};
-constexpr std::array<std::string_view, 2> arguments1123_0{"QUADBIN", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1123_1{"QUADBIN", "TSTZSET"};
-constexpr std::array<std::string_view, 2> arguments1123_2{"QUADBIN", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1123_3{"QUADBIN", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments1123_4{"TBIGINT"};
-constexpr std::array<std::string_view, 3> arguments1123_5{"TGEOGPOINT", "INT32", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1123_6{"TGEOGPOINT", "INT32"};
-constexpr std::array<std::string_view, 3> arguments1123_7{"TGEOMPOINT", "INT32", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1123_8{"TGEOMPOINT", "INT32"};
-constexpr std::array<MeosOverload, 9> overloads1123{MeosOverload{arguments1123_0, "TQUADBIN", "Meos_tquadbininst_make_0"}, MeosOverload{arguments1123_1, "TQUADBIN", "Meos_tquadbinseq_from_base_tstzset_0"}, MeosOverload{arguments1123_2, "TQUADBIN", "Meos_tquadbinseq_from_base_tstzspan_0"}, MeosOverload{arguments1123_3, "TQUADBIN", "Meos_tquadbinseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1123_4, "TQUADBIN", "Meos_tbigint_to_tquadbin_0"}, MeosOverload{arguments1123_5, "TQUADBIN", "Meos_tgeogpoint_to_tquadbin_0"}, MeosOverload{arguments1123_6, "TQUADBIN", "Meos_tgeogpoint_to_tquadbin_0_2"}, MeosOverload{arguments1123_7, "TQUADBIN", "Meos_tgeompoint_to_tquadbin_0"}, MeosOverload{arguments1123_8, "TQUADBIN", "Meos_tgeompoint_to_tquadbin_0_2"}};
-constexpr std::array<std::string_view, 1> arguments1124_0{"TQUADBIN"};
-constexpr std::array<MeosOverload, 1> overloads1124{MeosOverload{arguments1124_0, "TTEXT", "Meos_tquadbin_cell_to_quadkey_0"}};
-constexpr std::array<std::string_view, 1> arguments1125_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1125{MeosOverload{arguments1125_0, "TQUADBIN", "Meos_temporal_from_wkb_42"}};
-constexpr std::array<std::string_view, 1> arguments1126_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1126{MeosOverload{arguments1126_0, "TQUADBIN", "Meos_temporal_from_wkb_43"}};
-constexpr std::array<std::string_view, 1> arguments1127_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1127{MeosOverload{arguments1127_0, "TQUADBIN", "Meos_tquadbin_in_2"}};
-constexpr std::array<std::string_view, 1> arguments1128_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1128{MeosOverload{arguments1128_0, "TQUADBIN", "Meos_temporal_from_hexwkb_24"}};
-constexpr std::array<std::string_view, 1> arguments1129_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1129{MeosOverload{arguments1129_0, "TQUADBIN", "Meos_temporal_from_hexwkb_23"}};
-constexpr std::array<std::string_view, 1> arguments1130_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1130{MeosOverload{arguments1130_0, "TQUADBIN", "Meos_tquadbin_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments1131_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1131{MeosOverload{arguments1131_0, "TQUADBIN", "Meos_tquadbin_in_1"}};
-constexpr std::array<std::string_view, 2> arguments1132_0{"TQUADBIN", "TQUADBIN"};
-constexpr std::array<MeosOverload, 1> overloads1132{MeosOverload{arguments1132_0, "TBIGINT", "Meos_tquadbin_grid_distance_0"}};
-constexpr std::array<std::string_view, 1> arguments1133_0{"TQUADBIN"};
-constexpr std::array<MeosOverload, 1> overloads1133{MeosOverload{arguments1133_0, "TQUADBIN", "Meos_temporal_as_tinstant_12"}};
-constexpr std::array<std::string_view, 4> arguments1134_0{"TQUADBIN_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1134_1{"TQUADBIN_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1134_2{"TQUADBIN_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments1134_3{"TQUADBIN_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1134_4{"TQUADBIN", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads1134{MeosOverload{arguments1134_0, "TQUADBIN", "Meos_tsequence_make_12"}, MeosOverload{arguments1134_1, "TQUADBIN", "Meos_tsequence_make_12_3"}, MeosOverload{arguments1134_2, "TQUADBIN", "Meos_tsequence_make_12_2"}, MeosOverload{arguments1134_3, "TQUADBIN", "Meos_tsequence_make_12_1"}, MeosOverload{arguments1134_4, "TQUADBIN", "Meos_temporal_as_tsequence_12"}};
-constexpr std::array<std::string_view, 1> arguments1135_0{"TQUADBIN_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1135_1{"TQUADBIN", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads1135{MeosOverload{arguments1135_0, "TQUADBIN", "Meos_tsequenceset_make_12"}, MeosOverload{arguments1135_1, "TQUADBIN", "Meos_temporal_as_tsequenceset_12"}};
-constexpr std::array<std::string_view, 2> arguments1136_0{"TGEOMPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments1136_1{"TGEOMPOINT"};
-constexpr std::array<std::string_view, 2> arguments1136_2{"TGEOGPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments1136_3{"TGEOGPOINT"};
-constexpr std::array<std::string_view, 1> arguments1136_4{"TNPOINT"};
-constexpr std::array<std::string_view, 1> arguments1136_5{"TPOSE"};
-constexpr std::array<std::string_view, 2> arguments1136_6{"TPCPOINT", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments1136_7{"TPCPOINT"};
-constexpr std::array<MeosOverload, 8> overloads1136{MeosOverload{arguments1136_0, "GEOMETRY", "Meos_tpoint_trajectory_0"}, MeosOverload{arguments1136_1, "GEOMETRY", "Meos_tpoint_trajectory_0_1"}, MeosOverload{arguments1136_2, "GEOGRAPHY", "Meos_tpoint_trajectory_1"}, MeosOverload{arguments1136_3, "GEOGRAPHY", "Meos_tpoint_trajectory_1_1"}, MeosOverload{arguments1136_4, "GEOMETRY", "Meos_tnpoint_trajectory_0"}, MeosOverload{arguments1136_5, "GEOMETRY", "Meos_tpose_trajectory_0"}, MeosOverload{arguments1136_6, "GEOMETRY", "Meos_composition315"}, MeosOverload{arguments1136_7, "GEOMETRY", "Meos_composition315_1"}};
-constexpr std::array<std::string_view, 2> arguments1137_0{"TGEOMETRY", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments1137_1{"TGEOMETRY"};
-constexpr std::array<std::string_view, 2> arguments1137_2{"TGEOGRAPHY", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments1137_3{"TGEOGRAPHY"};
-constexpr std::array<std::string_view, 2> arguments1137_4{"TCBUFFER", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments1137_5{"TCBUFFER"};
-constexpr std::array<std::string_view, 2> arguments1137_6{"TRGEOMETRY", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments1137_7{"TRGEOMETRY"};
-constexpr std::array<MeosOverload, 8> overloads1137{MeosOverload{arguments1137_0, "GEOMETRY", "Meos_tgeo_traversed_area_0"}, MeosOverload{arguments1137_1, "GEOMETRY", "Meos_tgeo_traversed_area_0_1"}, MeosOverload{arguments1137_2, "GEOGRAPHY", "Meos_tgeo_traversed_area_1"}, MeosOverload{arguments1137_3, "GEOGRAPHY", "Meos_tgeo_traversed_area_1_1"}, MeosOverload{arguments1137_4, "GEOMETRY", "Meos_tcbuffer_traversed_area_0"}, MeosOverload{arguments1137_5, "GEOMETRY", "Meos_tcbuffer_traversed_area_0_1"}, MeosOverload{arguments1137_6, "GEOMETRY", "Meos_trgeometry_traversed_area_0"}, MeosOverload{arguments1137_7, "GEOMETRY", "Meos_trgeometry_traversed_area_0_1"}};
-constexpr std::array<std::string_view, 1> arguments1138_0{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments1138_1{"TINT"};
-constexpr std::array<std::string_view, 1> arguments1138_2{"TFLOAT"};
-constexpr std::array<MeosOverload, 3> overloads1138{MeosOverload{arguments1138_0, "TINT", "Meos_tnumber_trend_0"}, MeosOverload{arguments1138_1, "TINT", "Meos_tnumber_trend_1"}, MeosOverload{arguments1138_2, "TINT", "Meos_tnumber_trend_2"}};
-constexpr std::array<std::string_view, 2> arguments1139_0{"GEOMETRY", "TPOSE"};
-constexpr std::array<MeosOverload, 1> overloads1139{MeosOverload{arguments1139_0, "TRGEOMETRY", "Meos_geometry_tpose_to_trgeometry_0"}};
-constexpr std::array<std::string_view, 1> arguments1140_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1140{MeosOverload{arguments1140_0, "TRGEOMETRY", "Meos_temporal_from_wkb_44"}};
-constexpr std::array<std::string_view, 1> arguments1141_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1141{MeosOverload{arguments1141_0, "TRGEOMETRY", "Meos_temporal_from_wkb_45"}};
-constexpr std::array<std::string_view, 1> arguments1142_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1142{MeosOverload{arguments1142_0, "TRGEOMETRY", "Meos_trgeometry_in_2"}};
-constexpr std::array<std::string_view, 1> arguments1143_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1143{MeosOverload{arguments1143_0, "TRGEOMETRY", "Meos_temporal_from_hexwkb_26"}};
-constexpr std::array<std::string_view, 1> arguments1144_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1144{MeosOverload{arguments1144_0, "TRGEOMETRY", "Meos_temporal_from_hexwkb_25"}};
-constexpr std::array<std::string_view, 1> arguments1145_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1145{MeosOverload{arguments1145_0, "TRGEOMETRY", "Meos_trgeometry_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments1146_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1146{MeosOverload{arguments1146_0, "TRGEOMETRY", "Meos_trgeometry_in_1"}};
-constexpr std::array<std::string_view, 1> arguments1147_0{"TRGEOMETRY"};
-constexpr std::array<MeosOverload, 1> overloads1147{MeosOverload{arguments1147_0, "TRGEOMETRY", "Meos_trgeometry_as_tinstant_0"}};
-constexpr std::array<std::string_view, 4> arguments1148_0{"TRGEOMETRY_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1148_1{"TRGEOMETRY_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1148_2{"TRGEOMETRY_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments1148_3{"TRGEOMETRY_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1148_4{"TRGEOMETRY", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads1148{MeosOverload{arguments1148_0, "TRGEOMETRY", "Meos_tsequence_make_13"}, MeosOverload{arguments1148_1, "TRGEOMETRY", "Meos_tsequence_make_13_3"}, MeosOverload{arguments1148_2, "TRGEOMETRY", "Meos_tsequence_make_13_2"}, MeosOverload{arguments1148_3, "TRGEOMETRY", "Meos_tsequence_make_13_1"}, MeosOverload{arguments1148_4, "TRGEOMETRY", "Meos_trgeometry_as_tsequence_0"}};
-constexpr std::array<std::string_view, 1> arguments1149_0{"TRGEOMETRY_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1149_1{"TRGEOMETRY", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads1149{MeosOverload{arguments1149_0, "TRGEOMETRY", "Meos_tsequenceset_make_13"}, MeosOverload{arguments1149_1, "TRGEOMETRY", "Meos_trgeometry_as_tsequenceset_0"}};
-constexpr std::array<std::string_view, 4> arguments1150_0{"RASTER", "INT32", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1150_1{"RASTER", "INT32", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1150_2{"RASTER", "INT32"};
-constexpr std::array<std::string_view, 1> arguments1150_3{"RASTER"};
-constexpr std::array<std::string_view, 5> arguments1150_4{"RASTER", "INT32", "RASTER", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 4> arguments1150_5{"RASTER", "INT32", "RASTER", "VARSIZED"};
-constexpr std::array<std::string_view, 3> arguments1150_6{"RASTER", "INT32", "RASTER"};
-constexpr std::array<MeosOverload, 7> overloads1150{MeosOverload{arguments1150_0, "RASTER", "Meos_raster_tri_0"}, MeosOverload{arguments1150_1, "RASTER", "Meos_raster_tri_0_3"}, MeosOverload{arguments1150_2, "RASTER", "Meos_raster_tri_0_2"}, MeosOverload{arguments1150_3, "RASTER", "Meos_raster_tri_0_1"}, MeosOverload{arguments1150_4, "RASTER", "Meos_raster_tri_1"}, MeosOverload{arguments1150_5, "RASTER", "Meos_raster_tri_1_4"}, MeosOverload{arguments1150_6, "RASTER", "Meos_raster_tri_1_3"}};
-constexpr std::array<std::string_view, 1> arguments1151_0{"TS2CELL"};
-constexpr std::array<MeosOverload, 1> overloads1151{MeosOverload{arguments1151_0, "TTEXT", "Meos_ts2cell_cell_to_token_0"}};
-constexpr std::array<std::string_view, 2> arguments1152_0{"TS2CELL", "TS2CELL"};
-constexpr std::array<MeosOverload, 1> overloads1152{MeosOverload{arguments1152_0, "TBIGINT", "Meos_ts2cell_grid_distance_0"}};
-constexpr std::array<std::string_view, 2> arguments1153_0{"S2CELL", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1153_1{"S2CELL", "TSTZSET"};
-constexpr std::array<std::string_view, 2> arguments1153_2{"S2CELL", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1153_3{"S2CELL", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments1153_4{"TBIGINT"};
-constexpr std::array<std::string_view, 3> arguments1153_5{"TGEOGPOINT", "INT32", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1153_6{"TGEOGPOINT", "INT32"};
-constexpr std::array<std::string_view, 3> arguments1153_7{"TGEOMPOINT", "INT32", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1153_8{"TGEOMPOINT", "INT32"};
-constexpr std::array<MeosOverload, 9> overloads1153{MeosOverload{arguments1153_0, "TS2CELL", "Meos_ts2cellinst_make_0"}, MeosOverload{arguments1153_1, "TS2CELL", "Meos_ts2cellseq_from_base_tstzset_0"}, MeosOverload{arguments1153_2, "TS2CELL", "Meos_ts2cellseq_from_base_tstzspan_0"}, MeosOverload{arguments1153_3, "TS2CELL", "Meos_ts2cellseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1153_4, "TS2CELL", "Meos_tbigint_to_ts2cell_0"}, MeosOverload{arguments1153_5, "TS2CELL", "Meos_tgeogpoint_to_ts2cell_0"}, MeosOverload{arguments1153_6, "TS2CELL", "Meos_tgeogpoint_to_ts2cell_0_2"}, MeosOverload{arguments1153_7, "TS2CELL", "Meos_tgeompoint_to_ts2cell_0"}, MeosOverload{arguments1153_8, "TS2CELL", "Meos_tgeompoint_to_ts2cell_0_2"}};
-constexpr std::array<std::string_view, 1> arguments1154_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1154{MeosOverload{arguments1154_0, "TS2CELL", "Meos_temporal_from_wkb_46"}};
-constexpr std::array<std::string_view, 1> arguments1155_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1155{MeosOverload{arguments1155_0, "TS2CELL", "Meos_temporal_from_wkb_47"}};
-constexpr std::array<std::string_view, 1> arguments1156_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1156{MeosOverload{arguments1156_0, "TS2CELL", "Meos_ts2cell_in_2"}};
-constexpr std::array<std::string_view, 1> arguments1157_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1157{MeosOverload{arguments1157_0, "TS2CELL", "Meos_temporal_from_hexwkb_28"}};
-constexpr std::array<std::string_view, 1> arguments1158_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1158{MeosOverload{arguments1158_0, "TS2CELL", "Meos_temporal_from_hexwkb_27"}};
-constexpr std::array<std::string_view, 1> arguments1159_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1159{MeosOverload{arguments1159_0, "TS2CELL", "Meos_ts2cell_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments1160_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1160{MeosOverload{arguments1160_0, "TS2CELL", "Meos_ts2cell_in_1"}};
-constexpr std::array<std::string_view, 1> arguments1161_0{"TS2CELL"};
-constexpr std::array<MeosOverload, 1> overloads1161{MeosOverload{arguments1161_0, "TS2CELL", "Meos_temporal_as_tinstant_13"}};
-constexpr std::array<std::string_view, 4> arguments1162_0{"TS2CELL_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1162_1{"TS2CELL_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1162_2{"TS2CELL_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments1162_3{"TS2CELL_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1162_4{"TS2CELL", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads1162{MeosOverload{arguments1162_0, "TS2CELL", "Meos_tsequence_make_14"}, MeosOverload{arguments1162_1, "TS2CELL", "Meos_tsequence_make_14_3"}, MeosOverload{arguments1162_2, "TS2CELL", "Meos_tsequence_make_14_2"}, MeosOverload{arguments1162_3, "TS2CELL", "Meos_tsequence_make_14_1"}, MeosOverload{arguments1162_4, "TS2CELL", "Meos_temporal_as_tsequence_13"}};
-constexpr std::array<std::string_view, 1> arguments1163_0{"TS2CELL_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1163_1{"TS2CELL", "VARSIZED"};
-constexpr std::array<MeosOverload, 2> overloads1163{MeosOverload{arguments1163_0, "TS2CELL", "Meos_tsequenceset_make_14"}, MeosOverload{arguments1163_1, "TS2CELL", "Meos_temporal_as_tsequenceset_13"}};
-constexpr std::array<std::string_view, 1> arguments1164_0{"DATESET"};
-constexpr std::array<MeosOverload, 1> overloads1164{MeosOverload{arguments1164_0, "TSTZSET", "Meos_dateset_to_tstzset_0"}};
-constexpr std::array<std::string_view, 1> arguments1165_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1165{MeosOverload{arguments1165_0, "TSTZSET", "Meos_set_from_wkb_46"}};
+constexpr std::array<MeosOverload, 1> overloads1114{MeosOverload{arguments1114_0, "TPOSE", "Meos_tpose_in_1"}};
+constexpr std::array<std::string_view, 1> arguments1115_0{"TPOSE"};
+constexpr std::array<MeosOverload, 1> overloads1115{MeosOverload{arguments1115_0, "TPOSE", "Meos_temporal_as_tinstant_10"}};
+constexpr std::array<std::string_view, 4> arguments1116_0{"TPOSE_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1116_1{"TPOSE_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1116_2{"TPOSE_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments1116_3{"TPOSE_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1116_4{"TPOSE", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads1116{MeosOverload{arguments1116_0, "TPOSE", "Meos_tsequence_make_10"}, MeosOverload{arguments1116_1, "TPOSE", "Meos_tsequence_make_10_3"}, MeosOverload{arguments1116_2, "TPOSE", "Meos_tsequence_make_10_2"}, MeosOverload{arguments1116_3, "TPOSE", "Meos_tsequence_make_10_1"}, MeosOverload{arguments1116_4, "TPOSE", "Meos_temporal_as_tsequence_10"}};
+constexpr std::array<std::string_view, 1> arguments1117_0{"TPOSE_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1117_1{"TPOSE", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads1117{MeosOverload{arguments1117_0, "TPOSE", "Meos_tsequenceset_make_10"}, MeosOverload{arguments1117_1, "TPOSE", "Meos_temporal_as_tsequenceset_10"}};
+constexpr std::array<std::string_view, 2> arguments1118_0{"POSECHAIN", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1118_1{"POSECHAIN", "TSTZSET"};
+constexpr std::array<std::string_view, 3> arguments1118_2{"POSECHAIN", "TSTZSPAN", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1118_3{"POSECHAIN", "TSTZSPAN"};
+constexpr std::array<std::string_view, 3> arguments1118_4{"POSECHAIN", "TSTZSPANSET", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1118_5{"POSECHAIN", "TSTZSPANSET"};
+constexpr std::array<MeosOverload, 6> overloads1118{MeosOverload{arguments1118_0, "TPOSECHAIN", "Meos_tposechaininst_make_0"}, MeosOverload{arguments1118_1, "TPOSECHAIN", "Meos_tposechainseq_from_base_tstzset_0"}, MeosOverload{arguments1118_2, "TPOSECHAIN", "Meos_tposechainseq_from_base_tstzspan_0"}, MeosOverload{arguments1118_3, "TPOSECHAIN", "Meos_tposechainseq_from_base_tstzspan_0_2"}, MeosOverload{arguments1118_4, "TPOSECHAIN", "Meos_tposechainseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1118_5, "TPOSECHAIN", "Meos_tposechainseqset_from_base_tstzspanset_0_2"}};
+constexpr std::array<std::string_view, 1> arguments1119_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1119{MeosOverload{arguments1119_0, "TPOSECHAIN", "Meos_temporal_from_wkb_40"}};
+constexpr std::array<std::string_view, 1> arguments1120_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1120{MeosOverload{arguments1120_0, "TPOSECHAIN", "Meos_temporal_from_wkb_41"}};
+constexpr std::array<std::string_view, 1> arguments1121_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1121{MeosOverload{arguments1121_0, "TPOSECHAIN", "Meos_tposechain_in_2"}};
+constexpr std::array<std::string_view, 1> arguments1122_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1122{MeosOverload{arguments1122_0, "TPOSECHAIN", "Meos_tposechain_from_geopose_0"}};
+constexpr std::array<std::string_view, 1> arguments1123_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1123{MeosOverload{arguments1123_0, "TPOSECHAIN", "Meos_temporal_from_hexwkb_22"}};
+constexpr std::array<std::string_view, 1> arguments1124_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1124{MeosOverload{arguments1124_0, "TPOSECHAIN", "Meos_temporal_from_hexwkb_21"}};
+constexpr std::array<std::string_view, 1> arguments1125_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1125{MeosOverload{arguments1125_0, "TPOSECHAIN", "Meos_tposechain_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments1126_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1126{MeosOverload{arguments1126_0, "TPOSECHAIN", "Meos_tposechain_in_1"}};
+constexpr std::array<std::string_view, 1> arguments1127_0{"TPOSECHAIN"};
+constexpr std::array<MeosOverload, 1> overloads1127{MeosOverload{arguments1127_0, "TPOSECHAIN", "Meos_temporal_as_tinstant_11"}};
+constexpr std::array<std::string_view, 4> arguments1128_0{"TPOSECHAIN_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1128_1{"TPOSECHAIN_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1128_2{"TPOSECHAIN_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments1128_3{"TPOSECHAIN_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1128_4{"TPOSECHAIN", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads1128{MeosOverload{arguments1128_0, "TPOSECHAIN", "Meos_tsequence_make_11"}, MeosOverload{arguments1128_1, "TPOSECHAIN", "Meos_tsequence_make_11_3"}, MeosOverload{arguments1128_2, "TPOSECHAIN", "Meos_tsequence_make_11_2"}, MeosOverload{arguments1128_3, "TPOSECHAIN", "Meos_tsequence_make_11_1"}, MeosOverload{arguments1128_4, "TPOSECHAIN", "Meos_temporal_as_tsequence_11"}};
+constexpr std::array<std::string_view, 1> arguments1129_0{"TPOSECHAIN_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1129_1{"TPOSECHAIN", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads1129{MeosOverload{arguments1129_0, "TPOSECHAIN", "Meos_tsequenceset_make_11"}, MeosOverload{arguments1129_1, "TPOSECHAIN", "Meos_temporal_as_tsequenceset_11"}};
+constexpr std::array<std::string_view, 2> arguments1130_0{"QUADBIN", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1130_1{"QUADBIN", "TSTZSET"};
+constexpr std::array<std::string_view, 2> arguments1130_2{"QUADBIN", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1130_3{"QUADBIN", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments1130_4{"TBIGINT"};
+constexpr std::array<std::string_view, 3> arguments1130_5{"TGEOGPOINT", "INT32", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1130_6{"TGEOGPOINT", "INT32"};
+constexpr std::array<std::string_view, 3> arguments1130_7{"TGEOMPOINT", "INT32", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1130_8{"TGEOMPOINT", "INT32"};
+constexpr std::array<MeosOverload, 9> overloads1130{MeosOverload{arguments1130_0, "TQUADBIN", "Meos_tquadbininst_make_0"}, MeosOverload{arguments1130_1, "TQUADBIN", "Meos_tquadbinseq_from_base_tstzset_0"}, MeosOverload{arguments1130_2, "TQUADBIN", "Meos_tquadbinseq_from_base_tstzspan_0"}, MeosOverload{arguments1130_3, "TQUADBIN", "Meos_tquadbinseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1130_4, "TQUADBIN", "Meos_tbigint_to_tquadbin_0"}, MeosOverload{arguments1130_5, "TQUADBIN", "Meos_tgeogpoint_to_tquadbin_0"}, MeosOverload{arguments1130_6, "TQUADBIN", "Meos_tgeogpoint_to_tquadbin_0_2"}, MeosOverload{arguments1130_7, "TQUADBIN", "Meos_tgeompoint_to_tquadbin_0"}, MeosOverload{arguments1130_8, "TQUADBIN", "Meos_tgeompoint_to_tquadbin_0_2"}};
+constexpr std::array<std::string_view, 1> arguments1131_0{"TQUADBIN"};
+constexpr std::array<MeosOverload, 1> overloads1131{MeosOverload{arguments1131_0, "TTEXT", "Meos_tquadbin_cell_to_quadkey_0"}};
+constexpr std::array<std::string_view, 1> arguments1132_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1132{MeosOverload{arguments1132_0, "TQUADBIN", "Meos_temporal_from_wkb_42"}};
+constexpr std::array<std::string_view, 1> arguments1133_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1133{MeosOverload{arguments1133_0, "TQUADBIN", "Meos_temporal_from_wkb_43"}};
+constexpr std::array<std::string_view, 1> arguments1134_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1134{MeosOverload{arguments1134_0, "TQUADBIN", "Meos_tquadbin_in_2"}};
+constexpr std::array<std::string_view, 1> arguments1135_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1135{MeosOverload{arguments1135_0, "TQUADBIN", "Meos_temporal_from_hexwkb_24"}};
+constexpr std::array<std::string_view, 1> arguments1136_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1136{MeosOverload{arguments1136_0, "TQUADBIN", "Meos_temporal_from_hexwkb_23"}};
+constexpr std::array<std::string_view, 1> arguments1137_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1137{MeosOverload{arguments1137_0, "TQUADBIN", "Meos_tquadbin_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments1138_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1138{MeosOverload{arguments1138_0, "TQUADBIN", "Meos_tquadbin_in_1"}};
+constexpr std::array<std::string_view, 2> arguments1139_0{"TQUADBIN", "TQUADBIN"};
+constexpr std::array<MeosOverload, 1> overloads1139{MeosOverload{arguments1139_0, "TBIGINT", "Meos_tquadbin_grid_distance_0"}};
+constexpr std::array<std::string_view, 1> arguments1140_0{"TQUADBIN"};
+constexpr std::array<MeosOverload, 1> overloads1140{MeosOverload{arguments1140_0, "TQUADBIN", "Meos_temporal_as_tinstant_12"}};
+constexpr std::array<std::string_view, 4> arguments1141_0{"TQUADBIN_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1141_1{"TQUADBIN_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1141_2{"TQUADBIN_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments1141_3{"TQUADBIN_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1141_4{"TQUADBIN", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads1141{MeosOverload{arguments1141_0, "TQUADBIN", "Meos_tsequence_make_12"}, MeosOverload{arguments1141_1, "TQUADBIN", "Meos_tsequence_make_12_3"}, MeosOverload{arguments1141_2, "TQUADBIN", "Meos_tsequence_make_12_2"}, MeosOverload{arguments1141_3, "TQUADBIN", "Meos_tsequence_make_12_1"}, MeosOverload{arguments1141_4, "TQUADBIN", "Meos_temporal_as_tsequence_12"}};
+constexpr std::array<std::string_view, 1> arguments1142_0{"TQUADBIN_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1142_1{"TQUADBIN", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads1142{MeosOverload{arguments1142_0, "TQUADBIN", "Meos_tsequenceset_make_12"}, MeosOverload{arguments1142_1, "TQUADBIN", "Meos_temporal_as_tsequenceset_12"}};
+constexpr std::array<std::string_view, 2> arguments1143_0{"TGEOMPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments1143_1{"TGEOMPOINT"};
+constexpr std::array<std::string_view, 2> arguments1143_2{"TGEOGPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments1143_3{"TGEOGPOINT"};
+constexpr std::array<std::string_view, 1> arguments1143_4{"TNPOINT"};
+constexpr std::array<std::string_view, 1> arguments1143_5{"TPOSE"};
+constexpr std::array<std::string_view, 2> arguments1143_6{"TPCPOINT", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments1143_7{"TPCPOINT"};
+constexpr std::array<MeosOverload, 8> overloads1143{MeosOverload{arguments1143_0, "GEOMETRY", "Meos_tpoint_trajectory_0"}, MeosOverload{arguments1143_1, "GEOMETRY", "Meos_tpoint_trajectory_0_1"}, MeosOverload{arguments1143_2, "GEOGRAPHY", "Meos_tpoint_trajectory_1"}, MeosOverload{arguments1143_3, "GEOGRAPHY", "Meos_tpoint_trajectory_1_1"}, MeosOverload{arguments1143_4, "GEOMETRY", "Meos_tnpoint_trajectory_0"}, MeosOverload{arguments1143_5, "GEOMETRY", "Meos_tpose_trajectory_0"}, MeosOverload{arguments1143_6, "GEOMETRY", "Meos_composition315"}, MeosOverload{arguments1143_7, "GEOMETRY", "Meos_composition315_1"}};
+constexpr std::array<std::string_view, 2> arguments1144_0{"TGEOMETRY", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments1144_1{"TGEOMETRY"};
+constexpr std::array<std::string_view, 2> arguments1144_2{"TGEOGRAPHY", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments1144_3{"TGEOGRAPHY"};
+constexpr std::array<std::string_view, 2> arguments1144_4{"TCBUFFER", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments1144_5{"TCBUFFER"};
+constexpr std::array<std::string_view, 2> arguments1144_6{"TRGEOMETRY", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments1144_7{"TRGEOMETRY"};
+constexpr std::array<MeosOverload, 8> overloads1144{MeosOverload{arguments1144_0, "GEOMETRY", "Meos_tgeo_traversed_area_0"}, MeosOverload{arguments1144_1, "GEOMETRY", "Meos_tgeo_traversed_area_0_1"}, MeosOverload{arguments1144_2, "GEOGRAPHY", "Meos_tgeo_traversed_area_1"}, MeosOverload{arguments1144_3, "GEOGRAPHY", "Meos_tgeo_traversed_area_1_1"}, MeosOverload{arguments1144_4, "GEOMETRY", "Meos_tcbuffer_traversed_area_0"}, MeosOverload{arguments1144_5, "GEOMETRY", "Meos_tcbuffer_traversed_area_0_1"}, MeosOverload{arguments1144_6, "GEOMETRY", "Meos_trgeometry_traversed_area_0"}, MeosOverload{arguments1144_7, "GEOMETRY", "Meos_trgeometry_traversed_area_0_1"}};
+constexpr std::array<std::string_view, 1> arguments1145_0{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments1145_1{"TINT"};
+constexpr std::array<std::string_view, 1> arguments1145_2{"TFLOAT"};
+constexpr std::array<MeosOverload, 3> overloads1145{MeosOverload{arguments1145_0, "TINT", "Meos_tnumber_trend_0"}, MeosOverload{arguments1145_1, "TINT", "Meos_tnumber_trend_1"}, MeosOverload{arguments1145_2, "TINT", "Meos_tnumber_trend_2"}};
+constexpr std::array<std::string_view, 2> arguments1146_0{"GEOMETRY", "TPOSE"};
+constexpr std::array<MeosOverload, 1> overloads1146{MeosOverload{arguments1146_0, "TRGEOMETRY", "Meos_geometry_tpose_to_trgeometry_0"}};
+constexpr std::array<std::string_view, 1> arguments1147_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1147{MeosOverload{arguments1147_0, "TRGEOMETRY", "Meos_temporal_from_wkb_44"}};
+constexpr std::array<std::string_view, 1> arguments1148_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1148{MeosOverload{arguments1148_0, "TRGEOMETRY", "Meos_temporal_from_wkb_45"}};
+constexpr std::array<std::string_view, 1> arguments1149_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1149{MeosOverload{arguments1149_0, "TRGEOMETRY", "Meos_trgeometry_in_2"}};
+constexpr std::array<std::string_view, 1> arguments1150_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1150{MeosOverload{arguments1150_0, "TRGEOMETRY", "Meos_temporal_from_hexwkb_26"}};
+constexpr std::array<std::string_view, 1> arguments1151_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1151{MeosOverload{arguments1151_0, "TRGEOMETRY", "Meos_temporal_from_hexwkb_25"}};
+constexpr std::array<std::string_view, 1> arguments1152_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1152{MeosOverload{arguments1152_0, "TRGEOMETRY", "Meos_trgeometry_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments1153_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1153{MeosOverload{arguments1153_0, "TRGEOMETRY", "Meos_trgeometry_in_1"}};
+constexpr std::array<std::string_view, 1> arguments1154_0{"TRGEOMETRY"};
+constexpr std::array<MeosOverload, 1> overloads1154{MeosOverload{arguments1154_0, "TRGEOMETRY", "Meos_trgeometry_as_tinstant_0"}};
+constexpr std::array<std::string_view, 4> arguments1155_0{"TRGEOMETRY_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1155_1{"TRGEOMETRY_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1155_2{"TRGEOMETRY_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments1155_3{"TRGEOMETRY_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1155_4{"TRGEOMETRY", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads1155{MeosOverload{arguments1155_0, "TRGEOMETRY", "Meos_tsequence_make_13"}, MeosOverload{arguments1155_1, "TRGEOMETRY", "Meos_tsequence_make_13_3"}, MeosOverload{arguments1155_2, "TRGEOMETRY", "Meos_tsequence_make_13_2"}, MeosOverload{arguments1155_3, "TRGEOMETRY", "Meos_tsequence_make_13_1"}, MeosOverload{arguments1155_4, "TRGEOMETRY", "Meos_trgeometry_as_tsequence_0"}};
+constexpr std::array<std::string_view, 1> arguments1156_0{"TRGEOMETRY_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1156_1{"TRGEOMETRY", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads1156{MeosOverload{arguments1156_0, "TRGEOMETRY", "Meos_tsequenceset_make_13"}, MeosOverload{arguments1156_1, "TRGEOMETRY", "Meos_trgeometry_as_tsequenceset_0"}};
+constexpr std::array<std::string_view, 4> arguments1157_0{"RASTER", "INT32", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1157_1{"RASTER", "INT32", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1157_2{"RASTER", "INT32"};
+constexpr std::array<std::string_view, 1> arguments1157_3{"RASTER"};
+constexpr std::array<std::string_view, 5> arguments1157_4{"RASTER", "INT32", "RASTER", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 4> arguments1157_5{"RASTER", "INT32", "RASTER", "VARSIZED"};
+constexpr std::array<std::string_view, 3> arguments1157_6{"RASTER", "INT32", "RASTER"};
+constexpr std::array<MeosOverload, 7> overloads1157{MeosOverload{arguments1157_0, "RASTER", "Meos_raster_tri_0"}, MeosOverload{arguments1157_1, "RASTER", "Meos_raster_tri_0_3"}, MeosOverload{arguments1157_2, "RASTER", "Meos_raster_tri_0_2"}, MeosOverload{arguments1157_3, "RASTER", "Meos_raster_tri_0_1"}, MeosOverload{arguments1157_4, "RASTER", "Meos_raster_tri_1"}, MeosOverload{arguments1157_5, "RASTER", "Meos_raster_tri_1_4"}, MeosOverload{arguments1157_6, "RASTER", "Meos_raster_tri_1_3"}};
+constexpr std::array<std::string_view, 1> arguments1158_0{"TS2CELL"};
+constexpr std::array<MeosOverload, 1> overloads1158{MeosOverload{arguments1158_0, "TTEXT", "Meos_ts2cell_cell_to_token_0"}};
+constexpr std::array<std::string_view, 2> arguments1159_0{"TS2CELL", "TS2CELL"};
+constexpr std::array<MeosOverload, 1> overloads1159{MeosOverload{arguments1159_0, "TBIGINT", "Meos_ts2cell_grid_distance_0"}};
+constexpr std::array<std::string_view, 2> arguments1160_0{"S2CELL", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1160_1{"S2CELL", "TSTZSET"};
+constexpr std::array<std::string_view, 2> arguments1160_2{"S2CELL", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1160_3{"S2CELL", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments1160_4{"TBIGINT"};
+constexpr std::array<std::string_view, 3> arguments1160_5{"TGEOGPOINT", "INT32", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1160_6{"TGEOGPOINT", "INT32"};
+constexpr std::array<std::string_view, 3> arguments1160_7{"TGEOMPOINT", "INT32", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1160_8{"TGEOMPOINT", "INT32"};
+constexpr std::array<MeosOverload, 9> overloads1160{MeosOverload{arguments1160_0, "TS2CELL", "Meos_ts2cellinst_make_0"}, MeosOverload{arguments1160_1, "TS2CELL", "Meos_ts2cellseq_from_base_tstzset_0"}, MeosOverload{arguments1160_2, "TS2CELL", "Meos_ts2cellseq_from_base_tstzspan_0"}, MeosOverload{arguments1160_3, "TS2CELL", "Meos_ts2cellseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1160_4, "TS2CELL", "Meos_tbigint_to_ts2cell_0"}, MeosOverload{arguments1160_5, "TS2CELL", "Meos_tgeogpoint_to_ts2cell_0"}, MeosOverload{arguments1160_6, "TS2CELL", "Meos_tgeogpoint_to_ts2cell_0_2"}, MeosOverload{arguments1160_7, "TS2CELL", "Meos_tgeompoint_to_ts2cell_0"}, MeosOverload{arguments1160_8, "TS2CELL", "Meos_tgeompoint_to_ts2cell_0_2"}};
+constexpr std::array<std::string_view, 1> arguments1161_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1161{MeosOverload{arguments1161_0, "TS2CELL", "Meos_temporal_from_wkb_46"}};
+constexpr std::array<std::string_view, 1> arguments1162_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1162{MeosOverload{arguments1162_0, "TS2CELL", "Meos_temporal_from_wkb_47"}};
+constexpr std::array<std::string_view, 1> arguments1163_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1163{MeosOverload{arguments1163_0, "TS2CELL", "Meos_ts2cell_in_2"}};
+constexpr std::array<std::string_view, 1> arguments1164_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1164{MeosOverload{arguments1164_0, "TS2CELL", "Meos_temporal_from_hexwkb_28"}};
+constexpr std::array<std::string_view, 1> arguments1165_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1165{MeosOverload{arguments1165_0, "TS2CELL", "Meos_temporal_from_hexwkb_27"}};
 constexpr std::array<std::string_view, 1> arguments1166_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1166{MeosOverload{arguments1166_0, "TSTZSET", "Meos_set_from_hexwkb_28"}};
+constexpr std::array<MeosOverload, 1> overloads1166{MeosOverload{arguments1166_0, "TS2CELL", "Meos_ts2cell_from_mfjson_0"}};
 constexpr std::array<std::string_view, 1> arguments1167_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1167{MeosOverload{arguments1167_0, "TSTZSET", "Meos_tstzset_in_1"}};
-constexpr std::array<std::string_view, 1> arguments1168_0{"DATESPAN"};
-constexpr std::array<MeosOverload, 1> overloads1168{MeosOverload{arguments1168_0, "TSTZSPAN", "Meos_datespan_to_tstzspan_0"}};
-constexpr std::array<std::string_view, 1> arguments1169_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1169{MeosOverload{arguments1169_0, "TSTZSPAN", "Meos_span_from_wkb_8"}};
-constexpr std::array<std::string_view, 1> arguments1170_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1170{MeosOverload{arguments1170_0, "TSTZSPAN", "Meos_span_from_hexwkb_3"}};
-constexpr std::array<std::string_view, 1> arguments1171_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1171{MeosOverload{arguments1171_0, "TSTZSPAN", "Meos_tstzspan_in_1"}};
-constexpr std::array<std::string_view, 1> arguments1172_0{"DATESPANSET"};
-constexpr std::array<MeosOverload, 1> overloads1172{MeosOverload{arguments1172_0, "TSTZSPANSET", "Meos_datespanset_to_tstzspanset_0"}};
-constexpr std::array<std::string_view, 1> arguments1173_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1173{MeosOverload{arguments1173_0, "TSTZSPANSET", "Meos_spanset_from_wkb_9"}};
+constexpr std::array<MeosOverload, 1> overloads1167{MeosOverload{arguments1167_0, "TS2CELL", "Meos_ts2cell_in_1"}};
+constexpr std::array<std::string_view, 1> arguments1168_0{"TS2CELL"};
+constexpr std::array<MeosOverload, 1> overloads1168{MeosOverload{arguments1168_0, "TS2CELL", "Meos_temporal_as_tinstant_13"}};
+constexpr std::array<std::string_view, 4> arguments1169_0{"TS2CELL_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1169_1{"TS2CELL_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1169_2{"TS2CELL_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments1169_3{"TS2CELL_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1169_4{"TS2CELL", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads1169{MeosOverload{arguments1169_0, "TS2CELL", "Meos_tsequence_make_14"}, MeosOverload{arguments1169_1, "TS2CELL", "Meos_tsequence_make_14_3"}, MeosOverload{arguments1169_2, "TS2CELL", "Meos_tsequence_make_14_2"}, MeosOverload{arguments1169_3, "TS2CELL", "Meos_tsequence_make_14_1"}, MeosOverload{arguments1169_4, "TS2CELL", "Meos_temporal_as_tsequence_13"}};
+constexpr std::array<std::string_view, 1> arguments1170_0{"TS2CELL_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1170_1{"TS2CELL", "VARSIZED"};
+constexpr std::array<MeosOverload, 2> overloads1170{MeosOverload{arguments1170_0, "TS2CELL", "Meos_tsequenceset_make_14"}, MeosOverload{arguments1170_1, "TS2CELL", "Meos_temporal_as_tsequenceset_13"}};
+constexpr std::array<std::string_view, 1> arguments1171_0{"DATESET"};
+constexpr std::array<MeosOverload, 1> overloads1171{MeosOverload{arguments1171_0, "TSTZSET", "Meos_dateset_to_tstzset_0"}};
+constexpr std::array<std::string_view, 1> arguments1172_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1172{MeosOverload{arguments1172_0, "TSTZSET", "Meos_set_from_wkb_46"}};
+constexpr std::array<std::string_view, 1> arguments1173_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1173{MeosOverload{arguments1173_0, "TSTZSET", "Meos_set_from_hexwkb_28"}};
 constexpr std::array<std::string_view, 1> arguments1174_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1174{MeosOverload{arguments1174_0, "TSTZSPANSET", "Meos_spanset_from_hexwkb_4"}};
-constexpr std::array<std::string_view, 1> arguments1175_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1175{MeosOverload{arguments1175_0, "TSTZSPANSET", "Meos_tstzspanset_in_1"}};
-constexpr std::array<std::string_view, 2> arguments1176_0{"VARSIZED", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1176_1{"VARSIZED", "TSTZSET"};
-constexpr std::array<std::string_view, 2> arguments1176_2{"VARSIZED", "TSTZSPAN"};
-constexpr std::array<std::string_view, 2> arguments1176_3{"VARSIZED", "TSTZSPANSET"};
-constexpr std::array<std::string_view, 1> arguments1176_4{"TJSONB"};
-constexpr std::array<std::string_view, 3> arguments1176_5{"TJSONB", "VARSIZED", "VARSIZED"};
-constexpr std::array<std::string_view, 2> arguments1176_6{"TJSONB", "VARSIZED"};
-constexpr std::array<MeosOverload, 7> overloads1176{MeosOverload{arguments1176_0, "TTEXT", "Meos_ttextinst_make_0"}, MeosOverload{arguments1176_1, "TTEXT", "Meos_ttextseq_from_base_tstzset_0"}, MeosOverload{arguments1176_2, "TTEXT", "Meos_ttextseq_from_base_tstzspan_0"}, MeosOverload{arguments1176_3, "TTEXT", "Meos_ttextseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1176_4, "TTEXT", "Meos_tjsonb_to_ttext_0"}, MeosOverload{arguments1176_5, "TTEXT", "Meos_tjsonb_to_ttext_key_0"}, MeosOverload{arguments1176_6, "TTEXT", "Meos_tjsonb_to_ttext_key_0_2"}};
-constexpr std::array<std::string_view, 1> arguments1177_0{"BYTEA"};
-constexpr std::array<MeosOverload, 1> overloads1177{MeosOverload{arguments1177_0, "TTEXT", "Meos_temporal_from_wkb_52"}};
+constexpr std::array<MeosOverload, 1> overloads1174{MeosOverload{arguments1174_0, "TSTZSET", "Meos_tstzset_in_1"}};
+constexpr std::array<std::string_view, 1> arguments1175_0{"DATESPAN"};
+constexpr std::array<MeosOverload, 1> overloads1175{MeosOverload{arguments1175_0, "TSTZSPAN", "Meos_datespan_to_tstzspan_0"}};
+constexpr std::array<std::string_view, 1> arguments1176_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1176{MeosOverload{arguments1176_0, "TSTZSPAN", "Meos_span_from_wkb_8"}};
+constexpr std::array<std::string_view, 1> arguments1177_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1177{MeosOverload{arguments1177_0, "TSTZSPAN", "Meos_span_from_hexwkb_3"}};
 constexpr std::array<std::string_view, 1> arguments1178_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1178{MeosOverload{arguments1178_0, "TTEXT", "Meos_temporal_from_hexwkb_33"}};
-constexpr std::array<std::string_view, 1> arguments1179_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1179{MeosOverload{arguments1179_0, "TTEXT", "Meos_ttext_from_mfjson_0"}};
-constexpr std::array<std::string_view, 1> arguments1180_0{"VARSIZED"};
-constexpr std::array<MeosOverload, 1> overloads1180{MeosOverload{arguments1180_0, "TTEXT", "Meos_ttext_in_1"}};
-constexpr std::array<std::string_view, 1> arguments1181_0{"TTEXT"};
-constexpr std::array<MeosOverload, 1> overloads1181{MeosOverload{arguments1181_0, "TTEXT", "Meos_temporal_as_tinstant_18"}};
-constexpr std::array<std::string_view, 4> arguments1182_0{"TTEXT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1182_1{"TTEXT_ARRAY", "VARSIZED", "BOOLEAN"};
-constexpr std::array<std::string_view, 2> arguments1182_2{"TTEXT_ARRAY", "VARSIZED"};
-constexpr std::array<std::string_view, 1> arguments1182_3{"TTEXT_ARRAY"};
-constexpr std::array<std::string_view, 2> arguments1182_4{"TTEXT", "VARSIZED"};
-constexpr std::array<MeosOverload, 5> overloads1182{MeosOverload{arguments1182_0, "TTEXT", "Meos_tsequence_make_19"}, MeosOverload{arguments1182_1, "TTEXT", "Meos_tsequence_make_19_3"}, MeosOverload{arguments1182_2, "TTEXT", "Meos_tsequence_make_19_2"}, MeosOverload{arguments1182_3, "TTEXT", "Meos_tsequence_make_19_1"}, MeosOverload{arguments1182_4, "TTEXT", "Meos_temporal_as_tsequence_18"}};
-constexpr std::array<std::string_view, 1> arguments1183_0{"TTEXT_ARRAY"};
-constexpr std::array<std::string_view, 1> arguments1183_1{"TTEXT"};
-constexpr std::array<MeosOverload, 2> overloads1183{MeosOverload{arguments1183_0, "TTEXT", "Meos_tsequenceset_make_19"}, MeosOverload{arguments1183_1, "TTEXT", "Meos_temporal_as_tsequenceset_18"}};
-constexpr std::array<std::string_view, 1> arguments1184_0{"TINT"};
-constexpr std::array<std::string_view, 1> arguments1184_1{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments1184_2{"TFLOAT"};
-constexpr std::array<MeosOverload, 3> overloads1184{MeosOverload{arguments1184_0, "FLOAT64", "Meos_tnumber_twavg_0"}, MeosOverload{arguments1184_1, "FLOAT64", "Meos_tnumber_twavg_1"}, MeosOverload{arguments1184_2, "FLOAT64", "Meos_tnumber_twavg_2"}};
-constexpr std::array<std::string_view, 1> arguments1185_0{"TGEOMPOINT"};
-constexpr std::array<std::string_view, 1> arguments1185_1{"TNPOINT"};
-constexpr std::array<std::string_view, 1> arguments1185_2{"TRGEOMETRY"};
-constexpr std::array<MeosOverload, 3> overloads1185{MeosOverload{arguments1185_0, "GEOMETRY", "Meos_tpoint_twcentroid_0"}, MeosOverload{arguments1185_1, "GEOMETRY", "Meos_tnpoint_twcentroid_0"}, MeosOverload{arguments1185_2, "GEOMETRY", "Meos_trgeometry_twcentroid_0"}};
-constexpr std::array<std::string_view, 1> arguments1186_0{"GEOMETRY"};
-constexpr std::array<MeosOverload, 1> overloads1186{MeosOverload{arguments1186_0, "GEOMETRY", "Meos_geom_unary_union_0"}};
-constexpr std::array<std::string_view, 2> arguments1187_0{"H3INDEXSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1187_1{"QUADBINSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1187_2{"S2CELLSET", "INT32"};
-constexpr std::array<MeosOverload, 3> overloads1187{MeosOverload{arguments1187_0, "H3INDEXSET", "Meos_h3_uncompact_cells_0"}, MeosOverload{arguments1187_1, "QUADBINSET", "Meos_quadbinset_uncompact_cells_0"}, MeosOverload{arguments1187_2, "S2CELLSET", "Meos_s2cellset_uncompact_cells_0"}};
-constexpr std::array<std::string_view, 1> arguments1188_0{"RASTER"};
-constexpr std::array<MeosOverload, 1> overloads1188{MeosOverload{arguments1188_0, "FLOAT64", "Meos_raster_upper_left_x_0"}};
-constexpr std::array<std::string_view, 1> arguments1189_0{"RASTER"};
-constexpr std::array<MeosOverload, 1> overloads1189{MeosOverload{arguments1189_0, "FLOAT64", "Meos_raster_upper_left_y_0"}};
-constexpr std::array<std::string_view, 2> arguments1190_0{"TBOOL", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_1{"TFLOAT", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_2{"TBIGINT", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_3{"TINT", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_4{"TTEXT", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_5{"TGEOMETRY", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_6{"TGEOGRAPHY", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_7{"TGEOMPOINT", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_8{"TGEOGPOINT", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_9{"TCBUFFER", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_10{"TH3INDEX", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_11{"TJSONB", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_12{"TNPOINT", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_13{"TPCPOINT", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_14{"TPCPATCH", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_15{"TPOSE", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_16{"TPOSECHAIN", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_17{"TQUADBIN", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_18{"TRGEOMETRY", "UINT64"};
-constexpr std::array<std::string_view, 2> arguments1190_19{"TS2CELL", "UINT64"};
-constexpr std::array<MeosOverload, 20> overloads1190{MeosOverload{arguments1190_0, "BOOLEAN", "Meos_tbool_value_at_timestamptz_0"}, MeosOverload{arguments1190_1, "FLOAT64", "Meos_tfloat_value_at_timestamptz_0"}, MeosOverload{arguments1190_2, "INT64", "Meos_tbigint_value_at_timestamptz_0"}, MeosOverload{arguments1190_3, "INT32", "Meos_tint_value_at_timestamptz_0"}, MeosOverload{arguments1190_4, "VARSIZED", "Meos_ttext_value_at_timestamptz_0"}, MeosOverload{arguments1190_5, "GEOMETRY", "Meos_tgeo_value_at_timestamptz_0"}, MeosOverload{arguments1190_6, "GEOGRAPHY", "Meos_tgeo_value_at_timestamptz_1"}, MeosOverload{arguments1190_7, "GEOMETRY", "Meos_tgeo_value_at_timestamptz_2"}, MeosOverload{arguments1190_8, "GEOGRAPHY", "Meos_tgeo_value_at_timestamptz_3"}, MeosOverload{arguments1190_9, "CBUFFER", "Meos_tcbuffer_value_at_timestamptz_0"}, MeosOverload{arguments1190_10, "H3INDEX", "Meos_th3index_value_at_timestamptz_0"}, MeosOverload{arguments1190_11, "JSONB", "Meos_tjsonb_value_at_timestamptz_0"}, MeosOverload{arguments1190_12, "NPOINT", "Meos_tnpoint_value_at_timestamptz_0"}, MeosOverload{arguments1190_13, "PCPOINT", "Meos_tpcpoint_value_at_timestamptz_0"}, MeosOverload{arguments1190_14, "PCPATCH", "Meos_tpcpatch_value_at_timestamptz_0"}, MeosOverload{arguments1190_15, "POSE", "Meos_tpose_value_at_timestamptz_0"}, MeosOverload{arguments1190_16, "POSECHAIN", "Meos_tposechain_value_at_timestamptz_0"}, MeosOverload{arguments1190_17, "QUADBIN", "Meos_tquadbin_value_at_timestamptz_0"}, MeosOverload{arguments1190_18, "GEOMETRY", "Meos_trgeometry_value_at_timestamptz_0"}, MeosOverload{arguments1190_19, "S2CELL", "Meos_ts2cell_value_at_timestamptz_0"}};
-constexpr std::array<std::string_view, 4> arguments1191_0{"TBIGINT", "INT64", "INT64", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1191_1{"TBIGINT", "INT64", "INT64"};
-constexpr std::array<std::string_view, 2> arguments1191_2{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 4> arguments1191_3{"TFLOAT", "FLOAT64", "FLOAT64", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1191_4{"TFLOAT", "FLOAT64", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments1191_5{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 4> arguments1191_6{"TINT", "INT32", "INT32", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1191_7{"TINT", "INT32", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1191_8{"TINT", "INT32"};
-constexpr std::array<MeosOverload, 9> overloads1191{MeosOverload{arguments1191_0, "BIGINTSPAN_ARRAY", "Meos_tbigint_value_bins_0"}, MeosOverload{arguments1191_1, "BIGINTSPAN_ARRAY", "Meos_tbigint_value_bins_0_3"}, MeosOverload{arguments1191_2, "BIGINTSPAN_ARRAY", "Meos_tbigint_value_bins_0_2"}, MeosOverload{arguments1191_3, "FLOATSPAN_ARRAY", "Meos_tfloat_value_bins_0"}, MeosOverload{arguments1191_4, "FLOATSPAN_ARRAY", "Meos_tfloat_value_bins_0_3"}, MeosOverload{arguments1191_5, "FLOATSPAN_ARRAY", "Meos_tfloat_value_bins_0_2"}, MeosOverload{arguments1191_6, "INTSPAN_ARRAY", "Meos_tint_value_bins_0"}, MeosOverload{arguments1191_7, "INTSPAN_ARRAY", "Meos_tint_value_bins_0_3"}, MeosOverload{arguments1191_8, "INTSPAN_ARRAY", "Meos_tint_value_bins_0_2"}};
-constexpr std::array<std::string_view, 4> arguments1192_0{"TBIGINT", "INT64", "INT64", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1192_1{"TBIGINT", "INT64", "INT64"};
-constexpr std::array<std::string_view, 2> arguments1192_2{"TBIGINT", "INT64"};
-constexpr std::array<std::string_view, 4> arguments1192_3{"TFLOAT", "FLOAT64", "FLOAT64", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1192_4{"TFLOAT", "FLOAT64", "FLOAT64"};
-constexpr std::array<std::string_view, 2> arguments1192_5{"TFLOAT", "FLOAT64"};
-constexpr std::array<std::string_view, 4> arguments1192_6{"TINT", "INT32", "INT32", "BOOLEAN"};
-constexpr std::array<std::string_view, 3> arguments1192_7{"TINT", "INT32", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1192_8{"TINT", "INT32"};
-constexpr std::array<MeosOverload, 9> overloads1192{MeosOverload{arguments1192_0, "TBOX_ARRAY", "Meos_tbigint_value_boxes_0"}, MeosOverload{arguments1192_1, "TBOX_ARRAY", "Meos_tbigint_value_boxes_0_3"}, MeosOverload{arguments1192_2, "TBOX_ARRAY", "Meos_tbigint_value_boxes_0_2"}, MeosOverload{arguments1192_3, "TBOX_ARRAY", "Meos_tfloat_value_boxes_0"}, MeosOverload{arguments1192_4, "TBOX_ARRAY", "Meos_tfloat_value_boxes_0_3"}, MeosOverload{arguments1192_5, "TBOX_ARRAY", "Meos_tfloat_value_boxes_0_2"}, MeosOverload{arguments1192_6, "TBOX_ARRAY", "Meos_tint_value_boxes_0"}, MeosOverload{arguments1192_7, "TBOX_ARRAY", "Meos_tint_value_boxes_0_3"}, MeosOverload{arguments1192_8, "TBOX_ARRAY", "Meos_tint_value_boxes_0_2"}};
-constexpr std::array<std::string_view, 2> arguments1193_0{"BIGINTSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_1{"FLOATSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_2{"INTSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_3{"TEXTSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_4{"TSTZSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_5{"TBOOL", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_6{"TFLOAT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_7{"TINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_8{"TBIGINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_9{"TTEXT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_10{"GEOMSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_11{"GEOGSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_12{"TGEOMETRY", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_13{"TGEOGRAPHY", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_14{"TGEOMPOINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_15{"TGEOGPOINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_16{"CBUFFERSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_17{"TCBUFFER", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_18{"TH3INDEX", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_19{"H3INDEXSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_20{"JSONBSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_21{"TJSONB", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_22{"NPOINTSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_23{"TNPOINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_24{"PCPOINTSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_25{"PCPATCHSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_26{"TPCPOINT", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_27{"TPCPATCH", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_28{"POSESET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_29{"TPOSE", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_30{"POSECHAINSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_31{"TPOSECHAIN", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_32{"QUADBINSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_33{"TQUADBIN", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_34{"TRGEOMETRY", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_35{"S2CELLSET", "INT32"};
-constexpr std::array<std::string_view, 2> arguments1193_36{"TS2CELL", "INT32"};
-constexpr std::array<MeosOverload, 37> overloads1193{MeosOverload{arguments1193_0, "INT64", "Meos_bigintset_value_n_0"}, MeosOverload{arguments1193_1, "FLOAT64", "Meos_floatset_value_n_0"}, MeosOverload{arguments1193_2, "INT32", "Meos_intset_value_n_0"}, MeosOverload{arguments1193_3, "VARSIZED", "Meos_textset_value_n_0"}, MeosOverload{arguments1193_4, "UINT64", "Meos_tstzset_value_n_0"}, MeosOverload{arguments1193_5, "BOOLEAN", "Meos_tbool_value_n_0"}, MeosOverload{arguments1193_6, "FLOAT64", "Meos_tfloat_value_n_0"}, MeosOverload{arguments1193_7, "INT32", "Meos_tint_value_n_0"}, MeosOverload{arguments1193_8, "INT64", "Meos_tbigint_value_n_0"}, MeosOverload{arguments1193_9, "VARSIZED", "Meos_ttext_value_n_0"}, MeosOverload{arguments1193_10, "GEOMETRY", "Meos_geoset_value_n_0"}, MeosOverload{arguments1193_11, "GEOGRAPHY", "Meos_geoset_value_n_1"}, MeosOverload{arguments1193_12, "GEOMETRY", "Meos_tgeo_value_n_0"}, MeosOverload{arguments1193_13, "GEOGRAPHY", "Meos_tgeo_value_n_1"}, MeosOverload{arguments1193_14, "GEOMETRY", "Meos_tgeo_value_n_2"}, MeosOverload{arguments1193_15, "GEOGRAPHY", "Meos_tgeo_value_n_3"}, MeosOverload{arguments1193_16, "CBUFFER", "Meos_cbufferset_value_n_0"}, MeosOverload{arguments1193_17, "CBUFFER", "Meos_tcbuffer_value_n_0"}, MeosOverload{arguments1193_18, "H3INDEX", "Meos_th3index_value_n_0"}, MeosOverload{arguments1193_19, "H3INDEX", "Meos_h3indexset_value_n_0"}, MeosOverload{arguments1193_20, "JSONB", "Meos_jsonbset_value_n_0"}, MeosOverload{arguments1193_21, "JSONB", "Meos_tjsonb_value_n_0"}, MeosOverload{arguments1193_22, "NPOINT", "Meos_npointset_value_n_0"}, MeosOverload{arguments1193_23, "NPOINT", "Meos_tnpoint_value_n_0"}, MeosOverload{arguments1193_24, "PCPOINT", "Meos_pcpointset_value_n_0"}, MeosOverload{arguments1193_25, "PCPATCH", "Meos_pcpatchset_value_n_0"}, MeosOverload{arguments1193_26, "PCPOINT", "Meos_tpcpoint_value_n_0"}, MeosOverload{arguments1193_27, "PCPATCH", "Meos_tpcpatch_value_n_0"}, MeosOverload{arguments1193_28, "POSE", "Meos_poseset_value_n_0"}, MeosOverload{arguments1193_29, "POSE", "Meos_tpose_value_n_0"}, MeosOverload{arguments1193_30, "POSECHAIN", "Meos_posechainset_value_n_0"}, MeosOverload{arguments1193_31, "POSECHAIN", "Meos_tposechain_value_n_0"}, MeosOverload{arguments1193_32, "QUADBIN", "Meos_quadbinset_value_n_0"}, MeosOverload{arguments1193_33, "QUADBIN", "Meos_tquadbin_value_n_0"}, MeosOverload{arguments1193_34, "GEOMETRY", "Meos_trgeometry_value_n_0"}, MeosOverload{arguments1193_35, "S2CELL", "Meos_s2cellset_value_n_0"}, MeosOverload{arguments1193_36, "S2CELL", "Meos_ts2cell_value_n_0"}};
-constexpr std::array<std::string_view, 1> arguments1194_0{"TINT"};
-constexpr std::array<std::string_view, 1> arguments1194_1{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments1194_2{"TFLOAT"};
-constexpr std::array<MeosOverload, 3> overloads1194{MeosOverload{arguments1194_0, "INTSET", "Meos_temporal_valueset_16"}, MeosOverload{arguments1194_1, "BIGINTSET", "Meos_temporal_valueset_17"}, MeosOverload{arguments1194_2, "FLOATSET", "Meos_temporal_valueset_18"}};
-constexpr std::array<std::string_view, 1> arguments1195_0{"TINT"};
-constexpr std::array<std::string_view, 1> arguments1195_1{"TBIGINT"};
-constexpr std::array<std::string_view, 1> arguments1195_2{"TFLOAT"};
-constexpr std::array<MeosOverload, 3> overloads1195{MeosOverload{arguments1195_0, "INTSPAN", "Meos_tnumber_to_span_0"}, MeosOverload{arguments1195_1, "BIGINTSPAN", "Meos_tnumber_to_span_1"}, MeosOverload{arguments1195_2, "FLOATSPAN", "Meos_tnumber_to_span_2"}};
-constexpr std::array<std::string_view, 1> arguments1196_0{"STBOX"};
-constexpr std::array<MeosOverload, 1> overloads1196{MeosOverload{arguments1196_0, "FLOAT64", "Meos_stbox_volume_0"}};
-constexpr std::array<std::string_view, 1> arguments1197_0{"TBOOL"};
-constexpr std::array<MeosOverload, 1> overloads1197{MeosOverload{arguments1197_0, "TSTZSPANSET", "Meos_tbool_when_true_0"}};
-constexpr std::array<std::string_view, 1> arguments1198_0{"BIGINTSPAN"};
-constexpr std::array<std::string_view, 2> arguments1198_1{"BIGINTSPANSET", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments1198_2{"BIGINTSPANSET"};
-constexpr std::array<std::string_view, 1> arguments1198_3{"FLOATSPAN"};
-constexpr std::array<std::string_view, 2> arguments1198_4{"FLOATSPANSET", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments1198_5{"FLOATSPANSET"};
-constexpr std::array<std::string_view, 1> arguments1198_6{"INTSPAN"};
-constexpr std::array<std::string_view, 2> arguments1198_7{"INTSPANSET", "BOOLEAN"};
-constexpr std::array<std::string_view, 1> arguments1198_8{"INTSPANSET"};
-constexpr std::array<MeosOverload, 9> overloads1198{MeosOverload{arguments1198_0, "INT64", "Meos_bigintspan_width_0"}, MeosOverload{arguments1198_1, "INT64", "Meos_bigintspanset_width_0"}, MeosOverload{arguments1198_2, "INT64", "Meos_bigintspanset_width_0_1"}, MeosOverload{arguments1198_3, "FLOAT64", "Meos_floatspan_width_0"}, MeosOverload{arguments1198_4, "FLOAT64", "Meos_floatspanset_width_0"}, MeosOverload{arguments1198_5, "FLOAT64", "Meos_floatspanset_width_0_1"}, MeosOverload{arguments1198_6, "INT32", "Meos_intspan_width_0"}, MeosOverload{arguments1198_7, "INT32", "Meos_intspanset_width_0"}, MeosOverload{arguments1198_8, "INT32", "Meos_intspanset_width_0_1"}};
-constexpr std::array<std::string_view, 1> arguments1199_0{"TBOX"};
-constexpr std::array<std::string_view, 1> arguments1199_1{"STBOX"};
-constexpr std::array<std::string_view, 1> arguments1199_2{"TPCBOX"};
-constexpr std::array<MeosOverload, 3> overloads1199{MeosOverload{arguments1199_0, "FLOAT64", "Meos_tbox_xmax_0"}, MeosOverload{arguments1199_1, "FLOAT64", "Meos_stbox_xmax_0"}, MeosOverload{arguments1199_2, "FLOAT64", "Meos_tpcbox_xmax_0"}};
-constexpr std::array<std::string_view, 1> arguments1200_0{"TBOX"};
-constexpr std::array<MeosOverload, 1> overloads1200{MeosOverload{arguments1200_0, "BOOLEAN", "Meos_tbox_xmax_inc_0"}};
-constexpr std::array<std::string_view, 1> arguments1201_0{"TBOX"};
-constexpr std::array<std::string_view, 1> arguments1201_1{"STBOX"};
-constexpr std::array<std::string_view, 1> arguments1201_2{"TPCBOX"};
-constexpr std::array<MeosOverload, 3> overloads1201{MeosOverload{arguments1201_0, "FLOAT64", "Meos_tbox_xmin_0"}, MeosOverload{arguments1201_1, "FLOAT64", "Meos_stbox_xmin_0"}, MeosOverload{arguments1201_2, "FLOAT64", "Meos_tpcbox_xmin_0"}};
-constexpr std::array<std::string_view, 1> arguments1202_0{"TBOX"};
-constexpr std::array<MeosOverload, 1> overloads1202{MeosOverload{arguments1202_0, "BOOLEAN", "Meos_tbox_xmin_inc_0"}};
+constexpr std::array<MeosOverload, 1> overloads1178{MeosOverload{arguments1178_0, "TSTZSPAN", "Meos_tstzspan_in_1"}};
+constexpr std::array<std::string_view, 1> arguments1179_0{"DATESPANSET"};
+constexpr std::array<MeosOverload, 1> overloads1179{MeosOverload{arguments1179_0, "TSTZSPANSET", "Meos_datespanset_to_tstzspanset_0"}};
+constexpr std::array<std::string_view, 1> arguments1180_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1180{MeosOverload{arguments1180_0, "TSTZSPANSET", "Meos_spanset_from_wkb_9"}};
+constexpr std::array<std::string_view, 1> arguments1181_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1181{MeosOverload{arguments1181_0, "TSTZSPANSET", "Meos_spanset_from_hexwkb_4"}};
+constexpr std::array<std::string_view, 1> arguments1182_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1182{MeosOverload{arguments1182_0, "TSTZSPANSET", "Meos_tstzspanset_in_1"}};
+constexpr std::array<std::string_view, 2> arguments1183_0{"VARSIZED", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1183_1{"VARSIZED", "TSTZSET"};
+constexpr std::array<std::string_view, 2> arguments1183_2{"VARSIZED", "TSTZSPAN"};
+constexpr std::array<std::string_view, 2> arguments1183_3{"VARSIZED", "TSTZSPANSET"};
+constexpr std::array<std::string_view, 1> arguments1183_4{"TJSONB"};
+constexpr std::array<std::string_view, 3> arguments1183_5{"TJSONB", "VARSIZED", "VARSIZED"};
+constexpr std::array<std::string_view, 2> arguments1183_6{"TJSONB", "VARSIZED"};
+constexpr std::array<MeosOverload, 7> overloads1183{MeosOverload{arguments1183_0, "TTEXT", "Meos_ttextinst_make_0"}, MeosOverload{arguments1183_1, "TTEXT", "Meos_ttextseq_from_base_tstzset_0"}, MeosOverload{arguments1183_2, "TTEXT", "Meos_ttextseq_from_base_tstzspan_0"}, MeosOverload{arguments1183_3, "TTEXT", "Meos_ttextseqset_from_base_tstzspanset_0"}, MeosOverload{arguments1183_4, "TTEXT", "Meos_tjsonb_to_ttext_0"}, MeosOverload{arguments1183_5, "TTEXT", "Meos_tjsonb_to_ttext_key_0"}, MeosOverload{arguments1183_6, "TTEXT", "Meos_tjsonb_to_ttext_key_0_2"}};
+constexpr std::array<std::string_view, 1> arguments1184_0{"BYTEA"};
+constexpr std::array<MeosOverload, 1> overloads1184{MeosOverload{arguments1184_0, "TTEXT", "Meos_temporal_from_wkb_52"}};
+constexpr std::array<std::string_view, 1> arguments1185_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1185{MeosOverload{arguments1185_0, "TTEXT", "Meos_temporal_from_hexwkb_33"}};
+constexpr std::array<std::string_view, 1> arguments1186_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1186{MeosOverload{arguments1186_0, "TTEXT", "Meos_ttext_from_mfjson_0"}};
+constexpr std::array<std::string_view, 1> arguments1187_0{"VARSIZED"};
+constexpr std::array<MeosOverload, 1> overloads1187{MeosOverload{arguments1187_0, "TTEXT", "Meos_ttext_in_1"}};
+constexpr std::array<std::string_view, 1> arguments1188_0{"TTEXT"};
+constexpr std::array<MeosOverload, 1> overloads1188{MeosOverload{arguments1188_0, "TTEXT", "Meos_temporal_as_tinstant_18"}};
+constexpr std::array<std::string_view, 4> arguments1189_0{"TTEXT_ARRAY", "VARSIZED", "BOOLEAN", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1189_1{"TTEXT_ARRAY", "VARSIZED", "BOOLEAN"};
+constexpr std::array<std::string_view, 2> arguments1189_2{"TTEXT_ARRAY", "VARSIZED"};
+constexpr std::array<std::string_view, 1> arguments1189_3{"TTEXT_ARRAY"};
+constexpr std::array<std::string_view, 2> arguments1189_4{"TTEXT", "VARSIZED"};
+constexpr std::array<MeosOverload, 5> overloads1189{MeosOverload{arguments1189_0, "TTEXT", "Meos_tsequence_make_19"}, MeosOverload{arguments1189_1, "TTEXT", "Meos_tsequence_make_19_3"}, MeosOverload{arguments1189_2, "TTEXT", "Meos_tsequence_make_19_2"}, MeosOverload{arguments1189_3, "TTEXT", "Meos_tsequence_make_19_1"}, MeosOverload{arguments1189_4, "TTEXT", "Meos_temporal_as_tsequence_18"}};
+constexpr std::array<std::string_view, 1> arguments1190_0{"TTEXT_ARRAY"};
+constexpr std::array<std::string_view, 1> arguments1190_1{"TTEXT"};
+constexpr std::array<MeosOverload, 2> overloads1190{MeosOverload{arguments1190_0, "TTEXT", "Meos_tsequenceset_make_19"}, MeosOverload{arguments1190_1, "TTEXT", "Meos_temporal_as_tsequenceset_18"}};
+constexpr std::array<std::string_view, 1> arguments1191_0{"TINT"};
+constexpr std::array<std::string_view, 1> arguments1191_1{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments1191_2{"TFLOAT"};
+constexpr std::array<MeosOverload, 3> overloads1191{MeosOverload{arguments1191_0, "FLOAT64", "Meos_tnumber_twavg_0"}, MeosOverload{arguments1191_1, "FLOAT64", "Meos_tnumber_twavg_1"}, MeosOverload{arguments1191_2, "FLOAT64", "Meos_tnumber_twavg_2"}};
+constexpr std::array<std::string_view, 1> arguments1192_0{"TGEOMPOINT"};
+constexpr std::array<std::string_view, 1> arguments1192_1{"TNPOINT"};
+constexpr std::array<std::string_view, 1> arguments1192_2{"TRGEOMETRY"};
+constexpr std::array<MeosOverload, 3> overloads1192{MeosOverload{arguments1192_0, "GEOMETRY", "Meos_tpoint_twcentroid_0"}, MeosOverload{arguments1192_1, "GEOMETRY", "Meos_tnpoint_twcentroid_0"}, MeosOverload{arguments1192_2, "GEOMETRY", "Meos_trgeometry_twcentroid_0"}};
+constexpr std::array<std::string_view, 1> arguments1193_0{"GEOMETRY"};
+constexpr std::array<MeosOverload, 1> overloads1193{MeosOverload{arguments1193_0, "GEOMETRY", "Meos_geom_unary_union_0"}};
+constexpr std::array<std::string_view, 2> arguments1194_0{"H3INDEXSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1194_1{"QUADBINSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1194_2{"S2CELLSET", "INT32"};
+constexpr std::array<MeosOverload, 3> overloads1194{MeosOverload{arguments1194_0, "H3INDEXSET", "Meos_h3_uncompact_cells_0"}, MeosOverload{arguments1194_1, "QUADBINSET", "Meos_quadbinset_uncompact_cells_0"}, MeosOverload{arguments1194_2, "S2CELLSET", "Meos_s2cellset_uncompact_cells_0"}};
+constexpr std::array<std::string_view, 1> arguments1195_0{"RASTER"};
+constexpr std::array<MeosOverload, 1> overloads1195{MeosOverload{arguments1195_0, "FLOAT64", "Meos_raster_upper_left_x_0"}};
+constexpr std::array<std::string_view, 1> arguments1196_0{"RASTER"};
+constexpr std::array<MeosOverload, 1> overloads1196{MeosOverload{arguments1196_0, "FLOAT64", "Meos_raster_upper_left_y_0"}};
+constexpr std::array<std::string_view, 2> arguments1197_0{"TBOOL", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_1{"TFLOAT", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_2{"TBIGINT", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_3{"TINT", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_4{"TTEXT", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_5{"TGEOMETRY", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_6{"TGEOGRAPHY", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_7{"TGEOMPOINT", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_8{"TGEOGPOINT", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_9{"TCBUFFER", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_10{"TH3INDEX", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_11{"TJSONB", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_12{"TNPOINT", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_13{"TPCPOINT", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_14{"TPCPATCH", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_15{"TPOSE", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_16{"TPOSECHAIN", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_17{"TQUADBIN", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_18{"TRGEOMETRY", "UINT64"};
+constexpr std::array<std::string_view, 2> arguments1197_19{"TS2CELL", "UINT64"};
+constexpr std::array<MeosOverload, 20> overloads1197{MeosOverload{arguments1197_0, "BOOLEAN", "Meos_tbool_value_at_timestamptz_0"}, MeosOverload{arguments1197_1, "FLOAT64", "Meos_tfloat_value_at_timestamptz_0"}, MeosOverload{arguments1197_2, "INT64", "Meos_tbigint_value_at_timestamptz_0"}, MeosOverload{arguments1197_3, "INT32", "Meos_tint_value_at_timestamptz_0"}, MeosOverload{arguments1197_4, "VARSIZED", "Meos_ttext_value_at_timestamptz_0"}, MeosOverload{arguments1197_5, "GEOMETRY", "Meos_tgeo_value_at_timestamptz_0"}, MeosOverload{arguments1197_6, "GEOGRAPHY", "Meos_tgeo_value_at_timestamptz_1"}, MeosOverload{arguments1197_7, "GEOMETRY", "Meos_tgeo_value_at_timestamptz_2"}, MeosOverload{arguments1197_8, "GEOGRAPHY", "Meos_tgeo_value_at_timestamptz_3"}, MeosOverload{arguments1197_9, "CBUFFER", "Meos_tcbuffer_value_at_timestamptz_0"}, MeosOverload{arguments1197_10, "H3INDEX", "Meos_th3index_value_at_timestamptz_0"}, MeosOverload{arguments1197_11, "JSONB", "Meos_tjsonb_value_at_timestamptz_0"}, MeosOverload{arguments1197_12, "NPOINT", "Meos_tnpoint_value_at_timestamptz_0"}, MeosOverload{arguments1197_13, "PCPOINT", "Meos_tpcpoint_value_at_timestamptz_0"}, MeosOverload{arguments1197_14, "PCPATCH", "Meos_tpcpatch_value_at_timestamptz_0"}, MeosOverload{arguments1197_15, "POSE", "Meos_tpose_value_at_timestamptz_0"}, MeosOverload{arguments1197_16, "POSECHAIN", "Meos_tposechain_value_at_timestamptz_0"}, MeosOverload{arguments1197_17, "QUADBIN", "Meos_tquadbin_value_at_timestamptz_0"}, MeosOverload{arguments1197_18, "GEOMETRY", "Meos_trgeometry_value_at_timestamptz_0"}, MeosOverload{arguments1197_19, "S2CELL", "Meos_ts2cell_value_at_timestamptz_0"}};
+constexpr std::array<std::string_view, 4> arguments1198_0{"TBIGINT", "INT64", "INT64", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1198_1{"TBIGINT", "INT64", "INT64"};
+constexpr std::array<std::string_view, 2> arguments1198_2{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 4> arguments1198_3{"TFLOAT", "FLOAT64", "FLOAT64", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1198_4{"TFLOAT", "FLOAT64", "FLOAT64"};
+constexpr std::array<std::string_view, 2> arguments1198_5{"TFLOAT", "FLOAT64"};
+constexpr std::array<std::string_view, 4> arguments1198_6{"TINT", "INT32", "INT32", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1198_7{"TINT", "INT32", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1198_8{"TINT", "INT32"};
+constexpr std::array<MeosOverload, 9> overloads1198{MeosOverload{arguments1198_0, "BIGINTSPAN_ARRAY", "Meos_tbigint_value_bins_0"}, MeosOverload{arguments1198_1, "BIGINTSPAN_ARRAY", "Meos_tbigint_value_bins_0_3"}, MeosOverload{arguments1198_2, "BIGINTSPAN_ARRAY", "Meos_tbigint_value_bins_0_2"}, MeosOverload{arguments1198_3, "FLOATSPAN_ARRAY", "Meos_tfloat_value_bins_0"}, MeosOverload{arguments1198_4, "FLOATSPAN_ARRAY", "Meos_tfloat_value_bins_0_3"}, MeosOverload{arguments1198_5, "FLOATSPAN_ARRAY", "Meos_tfloat_value_bins_0_2"}, MeosOverload{arguments1198_6, "INTSPAN_ARRAY", "Meos_tint_value_bins_0"}, MeosOverload{arguments1198_7, "INTSPAN_ARRAY", "Meos_tint_value_bins_0_3"}, MeosOverload{arguments1198_8, "INTSPAN_ARRAY", "Meos_tint_value_bins_0_2"}};
+constexpr std::array<std::string_view, 4> arguments1199_0{"TBIGINT", "INT64", "INT64", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1199_1{"TBIGINT", "INT64", "INT64"};
+constexpr std::array<std::string_view, 2> arguments1199_2{"TBIGINT", "INT64"};
+constexpr std::array<std::string_view, 4> arguments1199_3{"TFLOAT", "FLOAT64", "FLOAT64", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1199_4{"TFLOAT", "FLOAT64", "FLOAT64"};
+constexpr std::array<std::string_view, 2> arguments1199_5{"TFLOAT", "FLOAT64"};
+constexpr std::array<std::string_view, 4> arguments1199_6{"TINT", "INT32", "INT32", "BOOLEAN"};
+constexpr std::array<std::string_view, 3> arguments1199_7{"TINT", "INT32", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1199_8{"TINT", "INT32"};
+constexpr std::array<MeosOverload, 9> overloads1199{MeosOverload{arguments1199_0, "TBOX_ARRAY", "Meos_tbigint_value_boxes_0"}, MeosOverload{arguments1199_1, "TBOX_ARRAY", "Meos_tbigint_value_boxes_0_3"}, MeosOverload{arguments1199_2, "TBOX_ARRAY", "Meos_tbigint_value_boxes_0_2"}, MeosOverload{arguments1199_3, "TBOX_ARRAY", "Meos_tfloat_value_boxes_0"}, MeosOverload{arguments1199_4, "TBOX_ARRAY", "Meos_tfloat_value_boxes_0_3"}, MeosOverload{arguments1199_5, "TBOX_ARRAY", "Meos_tfloat_value_boxes_0_2"}, MeosOverload{arguments1199_6, "TBOX_ARRAY", "Meos_tint_value_boxes_0"}, MeosOverload{arguments1199_7, "TBOX_ARRAY", "Meos_tint_value_boxes_0_3"}, MeosOverload{arguments1199_8, "TBOX_ARRAY", "Meos_tint_value_boxes_0_2"}};
+constexpr std::array<std::string_view, 2> arguments1200_0{"BIGINTSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_1{"FLOATSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_2{"INTSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_3{"TEXTSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_4{"TSTZSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_5{"TBOOL", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_6{"TFLOAT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_7{"TINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_8{"TBIGINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_9{"TTEXT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_10{"GEOMSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_11{"GEOGSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_12{"TGEOMETRY", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_13{"TGEOGRAPHY", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_14{"TGEOMPOINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_15{"TGEOGPOINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_16{"CBUFFERSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_17{"TCBUFFER", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_18{"TH3INDEX", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_19{"H3INDEXSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_20{"JSONBSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_21{"TJSONB", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_22{"NPOINTSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_23{"TNPOINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_24{"PCPOINTSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_25{"PCPATCHSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_26{"TPCPOINT", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_27{"TPCPATCH", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_28{"POSESET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_29{"TPOSE", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_30{"POSECHAINSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_31{"TPOSECHAIN", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_32{"QUADBINSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_33{"TQUADBIN", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_34{"TRGEOMETRY", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_35{"S2CELLSET", "INT32"};
+constexpr std::array<std::string_view, 2> arguments1200_36{"TS2CELL", "INT32"};
+constexpr std::array<MeosOverload, 37> overloads1200{MeosOverload{arguments1200_0, "INT64", "Meos_bigintset_value_n_0"}, MeosOverload{arguments1200_1, "FLOAT64", "Meos_floatset_value_n_0"}, MeosOverload{arguments1200_2, "INT32", "Meos_intset_value_n_0"}, MeosOverload{arguments1200_3, "VARSIZED", "Meos_textset_value_n_0"}, MeosOverload{arguments1200_4, "UINT64", "Meos_tstzset_value_n_0"}, MeosOverload{arguments1200_5, "BOOLEAN", "Meos_tbool_value_n_0"}, MeosOverload{arguments1200_6, "FLOAT64", "Meos_tfloat_value_n_0"}, MeosOverload{arguments1200_7, "INT32", "Meos_tint_value_n_0"}, MeosOverload{arguments1200_8, "INT64", "Meos_tbigint_value_n_0"}, MeosOverload{arguments1200_9, "VARSIZED", "Meos_ttext_value_n_0"}, MeosOverload{arguments1200_10, "GEOMETRY", "Meos_geoset_value_n_0"}, MeosOverload{arguments1200_11, "GEOGRAPHY", "Meos_geoset_value_n_1"}, MeosOverload{arguments1200_12, "GEOMETRY", "Meos_tgeo_value_n_0"}, MeosOverload{arguments1200_13, "GEOGRAPHY", "Meos_tgeo_value_n_1"}, MeosOverload{arguments1200_14, "GEOMETRY", "Meos_tgeo_value_n_2"}, MeosOverload{arguments1200_15, "GEOGRAPHY", "Meos_tgeo_value_n_3"}, MeosOverload{arguments1200_16, "CBUFFER", "Meos_cbufferset_value_n_0"}, MeosOverload{arguments1200_17, "CBUFFER", "Meos_tcbuffer_value_n_0"}, MeosOverload{arguments1200_18, "H3INDEX", "Meos_th3index_value_n_0"}, MeosOverload{arguments1200_19, "H3INDEX", "Meos_h3indexset_value_n_0"}, MeosOverload{arguments1200_20, "JSONB", "Meos_jsonbset_value_n_0"}, MeosOverload{arguments1200_21, "JSONB", "Meos_tjsonb_value_n_0"}, MeosOverload{arguments1200_22, "NPOINT", "Meos_npointset_value_n_0"}, MeosOverload{arguments1200_23, "NPOINT", "Meos_tnpoint_value_n_0"}, MeosOverload{arguments1200_24, "PCPOINT", "Meos_pcpointset_value_n_0"}, MeosOverload{arguments1200_25, "PCPATCH", "Meos_pcpatchset_value_n_0"}, MeosOverload{arguments1200_26, "PCPOINT", "Meos_tpcpoint_value_n_0"}, MeosOverload{arguments1200_27, "PCPATCH", "Meos_tpcpatch_value_n_0"}, MeosOverload{arguments1200_28, "POSE", "Meos_poseset_value_n_0"}, MeosOverload{arguments1200_29, "POSE", "Meos_tpose_value_n_0"}, MeosOverload{arguments1200_30, "POSECHAIN", "Meos_posechainset_value_n_0"}, MeosOverload{arguments1200_31, "POSECHAIN", "Meos_tposechain_value_n_0"}, MeosOverload{arguments1200_32, "QUADBIN", "Meos_quadbinset_value_n_0"}, MeosOverload{arguments1200_33, "QUADBIN", "Meos_tquadbin_value_n_0"}, MeosOverload{arguments1200_34, "GEOMETRY", "Meos_trgeometry_value_n_0"}, MeosOverload{arguments1200_35, "S2CELL", "Meos_s2cellset_value_n_0"}, MeosOverload{arguments1200_36, "S2CELL", "Meos_ts2cell_value_n_0"}};
+constexpr std::array<std::string_view, 1> arguments1201_0{"TINT"};
+constexpr std::array<std::string_view, 1> arguments1201_1{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments1201_2{"TFLOAT"};
+constexpr std::array<MeosOverload, 3> overloads1201{MeosOverload{arguments1201_0, "INTSET", "Meos_temporal_valueset_16"}, MeosOverload{arguments1201_1, "BIGINTSET", "Meos_temporal_valueset_17"}, MeosOverload{arguments1201_2, "FLOATSET", "Meos_temporal_valueset_18"}};
+constexpr std::array<std::string_view, 1> arguments1202_0{"TINT"};
+constexpr std::array<std::string_view, 1> arguments1202_1{"TBIGINT"};
+constexpr std::array<std::string_view, 1> arguments1202_2{"TFLOAT"};
+constexpr std::array<MeosOverload, 3> overloads1202{MeosOverload{arguments1202_0, "INTSPAN", "Meos_tnumber_to_span_0"}, MeosOverload{arguments1202_1, "BIGINTSPAN", "Meos_tnumber_to_span_1"}, MeosOverload{arguments1202_2, "FLOATSPAN", "Meos_tnumber_to_span_2"}};
 constexpr std::array<std::string_view, 1> arguments1203_0{"STBOX"};
-constexpr std::array<std::string_view, 1> arguments1203_1{"TPCBOX"};
-constexpr std::array<MeosOverload, 2> overloads1203{MeosOverload{arguments1203_0, "FLOAT64", "Meos_stbox_ymax_0"}, MeosOverload{arguments1203_1, "FLOAT64", "Meos_tpcbox_ymax_0"}};
-constexpr std::array<std::string_view, 1> arguments1204_0{"STBOX"};
-constexpr std::array<std::string_view, 1> arguments1204_1{"TPCBOX"};
-constexpr std::array<MeosOverload, 2> overloads1204{MeosOverload{arguments1204_0, "FLOAT64", "Meos_stbox_ymin_0"}, MeosOverload{arguments1204_1, "FLOAT64", "Meos_tpcbox_ymin_0"}};
-constexpr std::array<std::string_view, 1> arguments1205_0{"POSE"};
-constexpr std::array<std::string_view, 1> arguments1205_1{"TPOSE"};
-constexpr std::array<std::string_view, 1> arguments1205_2{"TRGEOMETRY"};
-constexpr std::array<MeosOverload, 3> overloads1205{MeosOverload{arguments1205_0, "FLOAT64", "Meos_pose_yaw_0"}, MeosOverload{arguments1205_1, "TFLOAT", "Meos_tpose_yaw_0"}, MeosOverload{arguments1205_2, "TFLOAT", "Meos_trgeometry_yaw_0"}};
-constexpr std::array<std::string_view, 1> arguments1206_0{"STBOX"};
-constexpr std::array<std::string_view, 1> arguments1206_1{"TPCBOX"};
-constexpr std::array<MeosOverload, 2> overloads1206{MeosOverload{arguments1206_0, "FLOAT64", "Meos_stbox_zmax_0"}, MeosOverload{arguments1206_1, "FLOAT64", "Meos_tpcbox_zmax_0"}};
-constexpr std::array<std::string_view, 1> arguments1207_0{"STBOX"};
-constexpr std::array<std::string_view, 1> arguments1207_1{"TPCBOX"};
-constexpr std::array<MeosOverload, 2> overloads1207{MeosOverload{arguments1207_0, "FLOAT64", "Meos_stbox_zmin_0"}, MeosOverload{arguments1207_1, "FLOAT64", "Meos_tpcbox_zmin_0"}};
+constexpr std::array<MeosOverload, 1> overloads1203{MeosOverload{arguments1203_0, "FLOAT64", "Meos_stbox_volume_0"}};
+constexpr std::array<std::string_view, 1> arguments1204_0{"TBOOL"};
+constexpr std::array<MeosOverload, 1> overloads1204{MeosOverload{arguments1204_0, "TSTZSPANSET", "Meos_tbool_when_true_0"}};
+constexpr std::array<std::string_view, 1> arguments1205_0{"BIGINTSPAN"};
+constexpr std::array<std::string_view, 2> arguments1205_1{"BIGINTSPANSET", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments1205_2{"BIGINTSPANSET"};
+constexpr std::array<std::string_view, 1> arguments1205_3{"FLOATSPAN"};
+constexpr std::array<std::string_view, 2> arguments1205_4{"FLOATSPANSET", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments1205_5{"FLOATSPANSET"};
+constexpr std::array<std::string_view, 1> arguments1205_6{"INTSPAN"};
+constexpr std::array<std::string_view, 2> arguments1205_7{"INTSPANSET", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> arguments1205_8{"INTSPANSET"};
+constexpr std::array<MeosOverload, 9> overloads1205{MeosOverload{arguments1205_0, "INT64", "Meos_bigintspan_width_0"}, MeosOverload{arguments1205_1, "INT64", "Meos_bigintspanset_width_0"}, MeosOverload{arguments1205_2, "INT64", "Meos_bigintspanset_width_0_1"}, MeosOverload{arguments1205_3, "FLOAT64", "Meos_floatspan_width_0"}, MeosOverload{arguments1205_4, "FLOAT64", "Meos_floatspanset_width_0"}, MeosOverload{arguments1205_5, "FLOAT64", "Meos_floatspanset_width_0_1"}, MeosOverload{arguments1205_6, "INT32", "Meos_intspan_width_0"}, MeosOverload{arguments1205_7, "INT32", "Meos_intspanset_width_0"}, MeosOverload{arguments1205_8, "INT32", "Meos_intspanset_width_0_1"}};
+constexpr std::array<std::string_view, 1> arguments1206_0{"TBOX"};
+constexpr std::array<std::string_view, 1> arguments1206_1{"STBOX"};
+constexpr std::array<std::string_view, 1> arguments1206_2{"TPCBOX"};
+constexpr std::array<MeosOverload, 3> overloads1206{MeosOverload{arguments1206_0, "FLOAT64", "Meos_tbox_xmax_0"}, MeosOverload{arguments1206_1, "FLOAT64", "Meos_stbox_xmax_0"}, MeosOverload{arguments1206_2, "FLOAT64", "Meos_tpcbox_xmax_0"}};
+constexpr std::array<std::string_view, 1> arguments1207_0{"TBOX"};
+constexpr std::array<MeosOverload, 1> overloads1207{MeosOverload{arguments1207_0, "BOOLEAN", "Meos_tbox_xmax_inc_0"}};
+constexpr std::array<std::string_view, 1> arguments1208_0{"TBOX"};
+constexpr std::array<std::string_view, 1> arguments1208_1{"STBOX"};
+constexpr std::array<std::string_view, 1> arguments1208_2{"TPCBOX"};
+constexpr std::array<MeosOverload, 3> overloads1208{MeosOverload{arguments1208_0, "FLOAT64", "Meos_tbox_xmin_0"}, MeosOverload{arguments1208_1, "FLOAT64", "Meos_stbox_xmin_0"}, MeosOverload{arguments1208_2, "FLOAT64", "Meos_tpcbox_xmin_0"}};
+constexpr std::array<std::string_view, 1> arguments1209_0{"TBOX"};
+constexpr std::array<MeosOverload, 1> overloads1209{MeosOverload{arguments1209_0, "BOOLEAN", "Meos_tbox_xmin_inc_0"}};
+constexpr std::array<std::string_view, 1> arguments1210_0{"STBOX"};
+constexpr std::array<std::string_view, 1> arguments1210_1{"TPCBOX"};
+constexpr std::array<MeosOverload, 2> overloads1210{MeosOverload{arguments1210_0, "FLOAT64", "Meos_stbox_ymax_0"}, MeosOverload{arguments1210_1, "FLOAT64", "Meos_tpcbox_ymax_0"}};
+constexpr std::array<std::string_view, 1> arguments1211_0{"STBOX"};
+constexpr std::array<std::string_view, 1> arguments1211_1{"TPCBOX"};
+constexpr std::array<MeosOverload, 2> overloads1211{MeosOverload{arguments1211_0, "FLOAT64", "Meos_stbox_ymin_0"}, MeosOverload{arguments1211_1, "FLOAT64", "Meos_tpcbox_ymin_0"}};
+constexpr std::array<std::string_view, 1> arguments1212_0{"POSE"};
+constexpr std::array<std::string_view, 1> arguments1212_1{"TPOSE"};
+constexpr std::array<std::string_view, 1> arguments1212_2{"TRGEOMETRY"};
+constexpr std::array<MeosOverload, 3> overloads1212{MeosOverload{arguments1212_0, "FLOAT64", "Meos_pose_yaw_0"}, MeosOverload{arguments1212_1, "TFLOAT", "Meos_tpose_yaw_0"}, MeosOverload{arguments1212_2, "TFLOAT", "Meos_trgeometry_yaw_0"}};
+constexpr std::array<std::string_view, 1> arguments1213_0{"STBOX"};
+constexpr std::array<std::string_view, 1> arguments1213_1{"TPCBOX"};
+constexpr std::array<MeosOverload, 2> overloads1213{MeosOverload{arguments1213_0, "FLOAT64", "Meos_stbox_zmax_0"}, MeosOverload{arguments1213_1, "FLOAT64", "Meos_tpcbox_zmax_0"}};
+constexpr std::array<std::string_view, 1> arguments1214_0{"STBOX"};
+constexpr std::array<std::string_view, 1> arguments1214_1{"TPCBOX"};
+constexpr std::array<MeosOverload, 2> overloads1214{MeosOverload{arguments1214_0, "FLOAT64", "Meos_stbox_zmin_0"}, MeosOverload{arguments1214_1, "FLOAT64", "Meos_tpcbox_zmin_0"}};
 }
 
 std::span<const MeosFunction> meosFunctions()
 {
-    static constexpr std::array<MeosFunction, 1208> functions{{
+    static constexpr std::array<MeosFunction, 1215> functions{{
         MeosFunction{"SRID", overloads0},
         MeosFunction{"aContains", overloads1},
         MeosFunction{"aCovers", overloads2},
@@ -11109,412 +11125,419 @@ std::span<const MeosFunction> meosFunctions()
         MeosFunction{"stboxZ", overloads799},
         MeosFunction{"stboxZT", overloads800},
         MeosFunction{"stboxes", overloads801},
-        MeosFunction{"symDifference", overloads802},
-        MeosFunction{"tAdd", overloads803},
-        MeosFunction{"tAnd", overloads804},
-        MeosFunction{"tConcat", overloads805},
-        MeosFunction{"tContains", overloads806},
-        MeosFunction{"tCovers", overloads807},
-        MeosFunction{"tDisjoint", overloads808},
-        MeosFunction{"tDistance", overloads809},
-        MeosFunction{"tDiv", overloads810},
-        MeosFunction{"tDwithin", overloads811},
-        MeosFunction{"tEqual", overloads812},
-        MeosFunction{"tGreaterEqual", overloads813},
-        MeosFunction{"tGreaterThan", overloads814},
-        MeosFunction{"tIntersects", overloads815},
-        MeosFunction{"tLessEqual", overloads816},
-        MeosFunction{"tLessThan", overloads817},
-        MeosFunction{"tMax", overloads818},
-        MeosFunction{"tMaxInc", overloads819},
-        MeosFunction{"tMin", overloads820},
-        MeosFunction{"tMinInc", overloads821},
-        MeosFunction{"tMul", overloads822},
-        MeosFunction{"tNot", overloads823},
-        MeosFunction{"tNotEqual", overloads824},
-        MeosFunction{"tOr", overloads825},
-        MeosFunction{"tSub", overloads826},
-        MeosFunction{"tTouches", overloads827},
-        MeosFunction{"tbigint", overloads828},
-        MeosFunction{"tbigintFromBinary", overloads829},
-        MeosFunction{"tbigintFromHexWKB", overloads830},
-        MeosFunction{"tbigintFromMFJSON", overloads831},
-        MeosFunction{"tbigintFromText", overloads832},
-        MeosFunction{"tbigintInst", overloads833},
-        MeosFunction{"tbigintSeq", overloads834},
-        MeosFunction{"tbigintSeqSet", overloads835},
-        MeosFunction{"tbool", overloads836},
-        MeosFunction{"tboolFromBinary", overloads837},
-        MeosFunction{"tboolFromHexWKB", overloads838},
-        MeosFunction{"tboolFromMFJSON", overloads839},
-        MeosFunction{"tboolFromText", overloads840},
-        MeosFunction{"tboolInst", overloads841},
-        MeosFunction{"tboolSeq", overloads842},
-        MeosFunction{"tboolSeqSet", overloads843},
-        MeosFunction{"tbox", overloads844},
-        MeosFunction{"tboxAdjacent", overloads845},
-        MeosFunction{"tboxAfter", overloads846},
-        MeosFunction{"tboxBefore", overloads847},
-        MeosFunction{"tboxContained", overloads848},
-        MeosFunction{"tboxContains", overloads849},
-        MeosFunction{"tboxFromBinary", overloads850},
-        MeosFunction{"tboxFromHexWKB", overloads851},
-        MeosFunction{"tboxFromText", overloads852},
-        MeosFunction{"tboxHash", overloads853},
-        MeosFunction{"tboxHashExtended", overloads854},
-        MeosFunction{"tboxIntersection", overloads855},
-        MeosFunction{"tboxLeft", overloads856},
-        MeosFunction{"tboxOverafter", overloads857},
-        MeosFunction{"tboxOverbefore", overloads858},
-        MeosFunction{"tboxOverlaps", overloads859},
-        MeosFunction{"tboxOverleft", overloads860},
-        MeosFunction{"tboxOverright", overloads861},
-        MeosFunction{"tboxRight", overloads862},
-        MeosFunction{"tboxRound", overloads863},
-        MeosFunction{"tboxSame", overloads864},
-        MeosFunction{"tboxUnion", overloads865},
-        MeosFunction{"tboxes", overloads866},
-        MeosFunction{"tcbuffer", overloads867},
-        MeosFunction{"tcbufferFromBinary", overloads868},
-        MeosFunction{"tcbufferFromEWKB", overloads869},
-        MeosFunction{"tcbufferFromEWKT", overloads870},
-        MeosFunction{"tcbufferFromHexEWKB", overloads871},
-        MeosFunction{"tcbufferFromHexWKB", overloads872},
-        MeosFunction{"tcbufferFromMFJSON", overloads873},
-        MeosFunction{"tcbufferFromText", overloads874},
-        MeosFunction{"tcbufferInst", overloads875},
-        MeosFunction{"tcbufferSeq", overloads876},
-        MeosFunction{"tcbufferSeqSet", overloads877},
-        MeosFunction{"tempBasetype", overloads878},
-        MeosFunction{"tempSubtype", overloads879},
-        MeosFunction{"temporalHash", overloads880},
-        MeosFunction{"temporalHashExtended", overloads881},
-        MeosFunction{"temporalInsert", overloads882},
-        MeosFunction{"temporalLowerInc", overloads883},
-        MeosFunction{"temporalMerge", overloads884},
-        MeosFunction{"temporalUpdate", overloads885},
-        MeosFunction{"temporalUpperInc", overloads886},
-        MeosFunction{"textInitcap", overloads887},
-        MeosFunction{"textLower", overloads888},
-        MeosFunction{"textUpper", overloads889},
-        MeosFunction{"textset", overloads890},
-        MeosFunction{"textsetFromBinary", overloads891},
-        MeosFunction{"textsetFromHexWKB", overloads892},
-        MeosFunction{"textsetFromText", overloads893},
-        MeosFunction{"tfloat", overloads894},
-        MeosFunction{"tfloatFromBinary", overloads895},
-        MeosFunction{"tfloatFromHexWKB", overloads896},
-        MeosFunction{"tfloatFromMFJSON", overloads897},
-        MeosFunction{"tfloatFromText", overloads898},
-        MeosFunction{"tfloatInst", overloads899},
-        MeosFunction{"tfloatSeq", overloads900},
-        MeosFunction{"tfloatSeqSet", overloads901},
-        MeosFunction{"tgeogpoint", overloads902},
-        MeosFunction{"tgeogpointFromBinary", overloads903},
-        MeosFunction{"tgeogpointFromEWKB", overloads904},
-        MeosFunction{"tgeogpointFromEWKT", overloads905},
-        MeosFunction{"tgeogpointFromHexEWKB", overloads906},
-        MeosFunction{"tgeogpointFromHexWKB", overloads907},
-        MeosFunction{"tgeogpointFromMFJSON", overloads908},
-        MeosFunction{"tgeogpointFromText", overloads909},
-        MeosFunction{"tgeogpointInst", overloads910},
-        MeosFunction{"tgeogpointSeq", overloads911},
-        MeosFunction{"tgeogpointSeqSet", overloads912},
-        MeosFunction{"tgeography", overloads913},
-        MeosFunction{"tgeographyFromBinary", overloads914},
-        MeosFunction{"tgeographyFromEWKB", overloads915},
-        MeosFunction{"tgeographyFromEWKT", overloads916},
-        MeosFunction{"tgeographyFromHexEWKB", overloads917},
-        MeosFunction{"tgeographyFromHexWKB", overloads918},
-        MeosFunction{"tgeographyFromMFJSON", overloads919},
-        MeosFunction{"tgeographyFromText", overloads920},
-        MeosFunction{"tgeographyInst", overloads921},
-        MeosFunction{"tgeographySeq", overloads922},
-        MeosFunction{"tgeographySeqSet", overloads923},
-        MeosFunction{"tgeometry", overloads924},
-        MeosFunction{"tgeometryFromBinary", overloads925},
-        MeosFunction{"tgeometryFromEWKB", overloads926},
-        MeosFunction{"tgeometryFromEWKT", overloads927},
-        MeosFunction{"tgeometryFromHexEWKB", overloads928},
-        MeosFunction{"tgeometryFromHexWKB", overloads929},
-        MeosFunction{"tgeometryFromMFJSON", overloads930},
-        MeosFunction{"tgeometryFromText", overloads931},
-        MeosFunction{"tgeometryInst", overloads932},
-        MeosFunction{"tgeometrySeq", overloads933},
-        MeosFunction{"tgeometrySeqSet", overloads934},
-        MeosFunction{"tgeompoint", overloads935},
-        MeosFunction{"tgeompointFromBinary", overloads936},
-        MeosFunction{"tgeompointFromEWKB", overloads937},
-        MeosFunction{"tgeompointFromEWKT", overloads938},
-        MeosFunction{"tgeompointFromHexEWKB", overloads939},
-        MeosFunction{"tgeompointFromHexWKB", overloads940},
-        MeosFunction{"tgeompointFromMFJSON", overloads941},
-        MeosFunction{"tgeompointFromText", overloads942},
-        MeosFunction{"tgeompointInst", overloads943},
-        MeosFunction{"tgeompointSeq", overloads944},
-        MeosFunction{"tgeompointSeqSet", overloads945},
-        MeosFunction{"th3AreNeighborCells", overloads946},
-        MeosFunction{"th3CellToCenterChild", overloads947},
-        MeosFunction{"th3CellToChildPos", overloads948},
-        MeosFunction{"th3CellToLocalIj", overloads949},
-        MeosFunction{"th3CellToVertex", overloads950},
-        MeosFunction{"th3CellsToDirectedEdge", overloads951},
-        MeosFunction{"th3ChildPosToCell", overloads952},
-        MeosFunction{"th3DirectedEdgeToBoundary", overloads953},
-        MeosFunction{"th3EdgeLength", overloads954},
-        MeosFunction{"th3GetBaseCellNumber", overloads955},
-        MeosFunction{"th3GetDirectedEdgeDestination", overloads956},
-        MeosFunction{"th3GetDirectedEdgeOrigin", overloads957},
-        MeosFunction{"th3GridDistance", overloads958},
-        MeosFunction{"th3IsPentagon", overloads959},
-        MeosFunction{"th3IsResClassIii", overloads960},
-        MeosFunction{"th3LocalIjToCell", overloads961},
-        MeosFunction{"th3VertexToPoint", overloads962},
-        MeosFunction{"th3index", overloads963},
-        MeosFunction{"th3indexFromBinary", overloads964},
-        MeosFunction{"th3indexFromEWKB", overloads965},
-        MeosFunction{"th3indexFromEWKT", overloads966},
-        MeosFunction{"th3indexFromHexEWKB", overloads967},
-        MeosFunction{"th3indexFromHexWKB", overloads968},
-        MeosFunction{"th3indexFromMFJSON", overloads969},
-        MeosFunction{"th3indexFromText", overloads970},
-        MeosFunction{"th3indexInst", overloads971},
-        MeosFunction{"th3indexSeq", overloads972},
-        MeosFunction{"th3indexSeqSet", overloads973},
-        MeosFunction{"timeSpan", overloads974},
-        MeosFunction{"timestampN", overloads975},
-        MeosFunction{"timestamps", overloads976},
-        MeosFunction{"tint", overloads977},
-        MeosFunction{"tintFromBinary", overloads978},
-        MeosFunction{"tintFromHexWKB", overloads979},
-        MeosFunction{"tintFromMFJSON", overloads980},
-        MeosFunction{"tintFromText", overloads981},
-        MeosFunction{"tintInst", overloads982},
-        MeosFunction{"tintSeq", overloads983},
-        MeosFunction{"tintSeqSet", overloads984},
-        MeosFunction{"tjsonArrayElement", overloads985},
-        MeosFunction{"tjsonArrayLength", overloads986},
-        MeosFunction{"tjsonExtractPath", overloads987},
-        MeosFunction{"tjsonObjectField", overloads988},
-        MeosFunction{"tjsonStripNulls", overloads989},
-        MeosFunction{"tjsonb", overloads990},
-        MeosFunction{"tjsonbArrayElement", overloads991},
-        MeosFunction{"tjsonbArrayElementText", overloads992},
-        MeosFunction{"tjsonbArrayLength", overloads993},
-        MeosFunction{"tjsonbContained", overloads994},
-        MeosFunction{"tjsonbContains", overloads995},
-        MeosFunction{"tjsonbDelete", overloads996},
-        MeosFunction{"tjsonbDeleteArray", overloads997},
-        MeosFunction{"tjsonbDeleteIndex", overloads998},
-        MeosFunction{"tjsonbDeletePath", overloads999},
-        MeosFunction{"tjsonbExists", overloads1000},
-        MeosFunction{"tjsonbExistsAll", overloads1001},
-        MeosFunction{"tjsonbExistsAny", overloads1002},
-        MeosFunction{"tjsonbExtractPath", overloads1003},
-        MeosFunction{"tjsonbExtractPathText", overloads1004},
-        MeosFunction{"tjsonbFromBinary", overloads1005},
-        MeosFunction{"tjsonbFromHexWKB", overloads1006},
-        MeosFunction{"tjsonbFromMFJSON", overloads1007},
-        MeosFunction{"tjsonbFromText", overloads1008},
-        MeosFunction{"tjsonbInsert", overloads1009},
-        MeosFunction{"tjsonbInst", overloads1010},
-        MeosFunction{"tjsonbObjectField", overloads1011},
-        MeosFunction{"tjsonbObjectFieldText", overloads1012},
-        MeosFunction{"tjsonbPathExists", overloads1013},
-        MeosFunction{"tjsonbPathExistsTz", overloads1014},
-        MeosFunction{"tjsonbPathMatch", overloads1015},
-        MeosFunction{"tjsonbPathMatchTz", overloads1016},
-        MeosFunction{"tjsonbPathQueryArray", overloads1017},
-        MeosFunction{"tjsonbPathQueryArrayTz", overloads1018},
-        MeosFunction{"tjsonbPathQueryFirst", overloads1019},
-        MeosFunction{"tjsonbPathQueryFirstTz", overloads1020},
-        MeosFunction{"tjsonbPretty", overloads1021},
-        MeosFunction{"tjsonbSeq", overloads1022},
-        MeosFunction{"tjsonbSeqSet", overloads1023},
-        MeosFunction{"tjsonbSet", overloads1024},
-        MeosFunction{"tjsonbSetLax", overloads1025},
-        MeosFunction{"tjsonbStripNulls", overloads1026},
-        MeosFunction{"tnpoint", overloads1027},
-        MeosFunction{"tnpointFromBinary", overloads1028},
-        MeosFunction{"tnpointFromEWKB", overloads1029},
-        MeosFunction{"tnpointFromEWKT", overloads1030},
-        MeosFunction{"tnpointFromHexEWKB", overloads1031},
-        MeosFunction{"tnpointFromHexWKB", overloads1032},
-        MeosFunction{"tnpointFromMFJSON", overloads1033},
-        MeosFunction{"tnpointFromText", overloads1034},
-        MeosFunction{"tnpointInst", overloads1035},
-        MeosFunction{"tnpointSeq", overloads1036},
-        MeosFunction{"tnpointSeqSet", overloads1037},
-        MeosFunction{"tpcbox", overloads1038},
-        MeosFunction{"tpcboxAbove", overloads1039},
-        MeosFunction{"tpcboxAdjacent", overloads1040},
-        MeosFunction{"tpcboxAfter", overloads1041},
-        MeosFunction{"tpcboxBack", overloads1042},
-        MeosFunction{"tpcboxBefore", overloads1043},
-        MeosFunction{"tpcboxBelow", overloads1044},
-        MeosFunction{"tpcboxContained", overloads1045},
-        MeosFunction{"tpcboxContains", overloads1046},
-        MeosFunction{"tpcboxFromBinary", overloads1047},
-        MeosFunction{"tpcboxFromEWKB", overloads1048},
-        MeosFunction{"tpcboxFromEWKT", overloads1049},
-        MeosFunction{"tpcboxFromHexEWKB", overloads1050},
-        MeosFunction{"tpcboxFromHexWKB", overloads1051},
-        MeosFunction{"tpcboxFromText", overloads1052},
-        MeosFunction{"tpcboxFront", overloads1053},
-        MeosFunction{"tpcboxIntersection", overloads1054},
-        MeosFunction{"tpcboxLeft", overloads1055},
-        MeosFunction{"tpcboxOverabove", overloads1056},
-        MeosFunction{"tpcboxOverafter", overloads1057},
-        MeosFunction{"tpcboxOverback", overloads1058},
-        MeosFunction{"tpcboxOverbefore", overloads1059},
-        MeosFunction{"tpcboxOverbelow", overloads1060},
-        MeosFunction{"tpcboxOverfront", overloads1061},
-        MeosFunction{"tpcboxOverlaps", overloads1062},
-        MeosFunction{"tpcboxOverleft", overloads1063},
-        MeosFunction{"tpcboxOverright", overloads1064},
-        MeosFunction{"tpcboxRight", overloads1065},
-        MeosFunction{"tpcboxRound", overloads1066},
-        MeosFunction{"tpcboxSame", overloads1067},
-        MeosFunction{"tpcboxT", overloads1068},
-        MeosFunction{"tpcboxTransform", overloads1069},
-        MeosFunction{"tpcboxUnion", overloads1070},
-        MeosFunction{"tpcboxX", overloads1071},
-        MeosFunction{"tpcboxXT", overloads1072},
-        MeosFunction{"tpcboxZ", overloads1073},
-        MeosFunction{"tpcboxZT", overloads1074},
-        MeosFunction{"tpcboxes", overloads1075},
-        MeosFunction{"tpcpatch", overloads1076},
-        MeosFunction{"tpcpatchFromBinary", overloads1077},
-        MeosFunction{"tpcpatchFromEWKB", overloads1078},
-        MeosFunction{"tpcpatchFromEWKT", overloads1079},
-        MeosFunction{"tpcpatchFromHexEWKB", overloads1080},
-        MeosFunction{"tpcpatchFromHexWKB", overloads1081},
-        MeosFunction{"tpcpatchFromMFJSON", overloads1082},
-        MeosFunction{"tpcpatchFromText", overloads1083},
-        MeosFunction{"tpcpatchInst", overloads1084},
-        MeosFunction{"tpcpatchSeq", overloads1085},
-        MeosFunction{"tpcpatchSeqSet", overloads1086},
-        MeosFunction{"tpcpoint", overloads1087},
-        MeosFunction{"tpcpointFromBinary", overloads1088},
-        MeosFunction{"tpcpointFromEWKB", overloads1089},
-        MeosFunction{"tpcpointFromEWKT", overloads1090},
-        MeosFunction{"tpcpointFromHexEWKB", overloads1091},
-        MeosFunction{"tpcpointFromHexWKB", overloads1092},
-        MeosFunction{"tpcpointFromMFJSON", overloads1093},
-        MeosFunction{"tpcpointFromText", overloads1094},
-        MeosFunction{"tpcpointInst", overloads1095},
-        MeosFunction{"tpcpointSeq", overloads1096},
-        MeosFunction{"tpcpointSeqSet", overloads1097},
-        MeosFunction{"tpi", overloads1098},
-        MeosFunction{"tpose", overloads1099},
-        MeosFunction{"tposeFromBinary", overloads1100},
-        MeosFunction{"tposeFromEWKB", overloads1101},
-        MeosFunction{"tposeFromEWKT", overloads1102},
-        MeosFunction{"tposeFromGeoPose", overloads1103},
-        MeosFunction{"tposeFromHexEWKB", overloads1104},
-        MeosFunction{"tposeFromHexWKB", overloads1105},
-        MeosFunction{"tposeFromMFJSON", overloads1106},
-        MeosFunction{"tposeFromText", overloads1107},
-        MeosFunction{"tposeInst", overloads1108},
-        MeosFunction{"tposeSeq", overloads1109},
-        MeosFunction{"tposeSeqSet", overloads1110},
-        MeosFunction{"tposechain", overloads1111},
-        MeosFunction{"tposechainFromBinary", overloads1112},
-        MeosFunction{"tposechainFromEWKB", overloads1113},
-        MeosFunction{"tposechainFromEWKT", overloads1114},
-        MeosFunction{"tposechainFromGeoPose", overloads1115},
-        MeosFunction{"tposechainFromHexEWKB", overloads1116},
-        MeosFunction{"tposechainFromHexWKB", overloads1117},
-        MeosFunction{"tposechainFromMFJSON", overloads1118},
-        MeosFunction{"tposechainFromText", overloads1119},
-        MeosFunction{"tposechainInst", overloads1120},
-        MeosFunction{"tposechainSeq", overloads1121},
-        MeosFunction{"tposechainSeqSet", overloads1122},
-        MeosFunction{"tquadbin", overloads1123},
-        MeosFunction{"tquadbinCellToQuadkey", overloads1124},
-        MeosFunction{"tquadbinFromBinary", overloads1125},
-        MeosFunction{"tquadbinFromEWKB", overloads1126},
-        MeosFunction{"tquadbinFromEWKT", overloads1127},
-        MeosFunction{"tquadbinFromHexEWKB", overloads1128},
-        MeosFunction{"tquadbinFromHexWKB", overloads1129},
-        MeosFunction{"tquadbinFromMFJSON", overloads1130},
-        MeosFunction{"tquadbinFromText", overloads1131},
-        MeosFunction{"tquadbinGridDistance", overloads1132},
-        MeosFunction{"tquadbinInst", overloads1133},
-        MeosFunction{"tquadbinSeq", overloads1134},
-        MeosFunction{"tquadbinSeqSet", overloads1135},
-        MeosFunction{"trajectory", overloads1136},
-        MeosFunction{"traversedArea", overloads1137},
-        MeosFunction{"trend", overloads1138},
-        MeosFunction{"trgeometry", overloads1139},
-        MeosFunction{"trgeometryFromBinary", overloads1140},
-        MeosFunction{"trgeometryFromEWKB", overloads1141},
-        MeosFunction{"trgeometryFromEWKT", overloads1142},
-        MeosFunction{"trgeometryFromHexEWKB", overloads1143},
-        MeosFunction{"trgeometryFromHexWKB", overloads1144},
-        MeosFunction{"trgeometryFromMFJSON", overloads1145},
-        MeosFunction{"trgeometryFromText", overloads1146},
-        MeosFunction{"trgeometryInst", overloads1147},
-        MeosFunction{"trgeometrySeq", overloads1148},
-        MeosFunction{"trgeometrySeqSet", overloads1149},
-        MeosFunction{"tri", overloads1150},
-        MeosFunction{"ts2CellToToken", overloads1151},
-        MeosFunction{"ts2GridDistance", overloads1152},
-        MeosFunction{"ts2cell", overloads1153},
-        MeosFunction{"ts2cellFromBinary", overloads1154},
-        MeosFunction{"ts2cellFromEWKB", overloads1155},
-        MeosFunction{"ts2cellFromEWKT", overloads1156},
-        MeosFunction{"ts2cellFromHexEWKB", overloads1157},
-        MeosFunction{"ts2cellFromHexWKB", overloads1158},
-        MeosFunction{"ts2cellFromMFJSON", overloads1159},
-        MeosFunction{"ts2cellFromText", overloads1160},
-        MeosFunction{"ts2cellInst", overloads1161},
-        MeosFunction{"ts2cellSeq", overloads1162},
-        MeosFunction{"ts2cellSeqSet", overloads1163},
-        MeosFunction{"tstzset", overloads1164},
-        MeosFunction{"tstzsetFromBinary", overloads1165},
-        MeosFunction{"tstzsetFromHexWKB", overloads1166},
-        MeosFunction{"tstzsetFromText", overloads1167},
-        MeosFunction{"tstzspan", overloads1168},
-        MeosFunction{"tstzspanFromBinary", overloads1169},
-        MeosFunction{"tstzspanFromHexWKB", overloads1170},
-        MeosFunction{"tstzspanFromText", overloads1171},
-        MeosFunction{"tstzspanset", overloads1172},
-        MeosFunction{"tstzspansetFromBinary", overloads1173},
-        MeosFunction{"tstzspansetFromHexWKB", overloads1174},
-        MeosFunction{"tstzspansetFromText", overloads1175},
-        MeosFunction{"ttext", overloads1176},
-        MeosFunction{"ttextFromBinary", overloads1177},
-        MeosFunction{"ttextFromHexWKB", overloads1178},
-        MeosFunction{"ttextFromMFJSON", overloads1179},
-        MeosFunction{"ttextFromText", overloads1180},
-        MeosFunction{"ttextInst", overloads1181},
-        MeosFunction{"ttextSeq", overloads1182},
-        MeosFunction{"ttextSeqSet", overloads1183},
-        MeosFunction{"twAvg", overloads1184},
-        MeosFunction{"twCentroid", overloads1185},
-        MeosFunction{"unaryUnion", overloads1186},
-        MeosFunction{"uncompactCells", overloads1187},
-        MeosFunction{"upperLeftX", overloads1188},
-        MeosFunction{"upperLeftY", overloads1189},
-        MeosFunction{"valueAtTimestamp", overloads1190},
-        MeosFunction{"valueBins", overloads1191},
-        MeosFunction{"valueBoxes", overloads1192},
-        MeosFunction{"valueN", overloads1193},
-        MeosFunction{"valueSet", overloads1194},
-        MeosFunction{"valueSpan", overloads1195},
-        MeosFunction{"volume", overloads1196},
-        MeosFunction{"whenTrue", overloads1197},
-        MeosFunction{"width", overloads1198},
-        MeosFunction{"xMax", overloads1199},
-        MeosFunction{"xMaxInc", overloads1200},
-        MeosFunction{"xMin", overloads1201},
-        MeosFunction{"xMinInc", overloads1202},
-        MeosFunction{"yMax", overloads1203},
-        MeosFunction{"yMin", overloads1204},
-        MeosFunction{"yaw", overloads1205},
-        MeosFunction{"zMax", overloads1206},
-        MeosFunction{"zMin", overloads1207}
+        MeosFunction{"summaryStats", overloads802},
+        MeosFunction{"summarystatsCount", overloads803},
+        MeosFunction{"summarystatsMax", overloads804},
+        MeosFunction{"summarystatsMean", overloads805},
+        MeosFunction{"summarystatsMin", overloads806},
+        MeosFunction{"summarystatsStddev", overloads807},
+        MeosFunction{"summarystatsSum", overloads808},
+        MeosFunction{"symDifference", overloads809},
+        MeosFunction{"tAdd", overloads810},
+        MeosFunction{"tAnd", overloads811},
+        MeosFunction{"tConcat", overloads812},
+        MeosFunction{"tContains", overloads813},
+        MeosFunction{"tCovers", overloads814},
+        MeosFunction{"tDisjoint", overloads815},
+        MeosFunction{"tDistance", overloads816},
+        MeosFunction{"tDiv", overloads817},
+        MeosFunction{"tDwithin", overloads818},
+        MeosFunction{"tEqual", overloads819},
+        MeosFunction{"tGreaterEqual", overloads820},
+        MeosFunction{"tGreaterThan", overloads821},
+        MeosFunction{"tIntersects", overloads822},
+        MeosFunction{"tLessEqual", overloads823},
+        MeosFunction{"tLessThan", overloads824},
+        MeosFunction{"tMax", overloads825},
+        MeosFunction{"tMaxInc", overloads826},
+        MeosFunction{"tMin", overloads827},
+        MeosFunction{"tMinInc", overloads828},
+        MeosFunction{"tMul", overloads829},
+        MeosFunction{"tNot", overloads830},
+        MeosFunction{"tNotEqual", overloads831},
+        MeosFunction{"tOr", overloads832},
+        MeosFunction{"tSub", overloads833},
+        MeosFunction{"tTouches", overloads834},
+        MeosFunction{"tbigint", overloads835},
+        MeosFunction{"tbigintFromBinary", overloads836},
+        MeosFunction{"tbigintFromHexWKB", overloads837},
+        MeosFunction{"tbigintFromMFJSON", overloads838},
+        MeosFunction{"tbigintFromText", overloads839},
+        MeosFunction{"tbigintInst", overloads840},
+        MeosFunction{"tbigintSeq", overloads841},
+        MeosFunction{"tbigintSeqSet", overloads842},
+        MeosFunction{"tbool", overloads843},
+        MeosFunction{"tboolFromBinary", overloads844},
+        MeosFunction{"tboolFromHexWKB", overloads845},
+        MeosFunction{"tboolFromMFJSON", overloads846},
+        MeosFunction{"tboolFromText", overloads847},
+        MeosFunction{"tboolInst", overloads848},
+        MeosFunction{"tboolSeq", overloads849},
+        MeosFunction{"tboolSeqSet", overloads850},
+        MeosFunction{"tbox", overloads851},
+        MeosFunction{"tboxAdjacent", overloads852},
+        MeosFunction{"tboxAfter", overloads853},
+        MeosFunction{"tboxBefore", overloads854},
+        MeosFunction{"tboxContained", overloads855},
+        MeosFunction{"tboxContains", overloads856},
+        MeosFunction{"tboxFromBinary", overloads857},
+        MeosFunction{"tboxFromHexWKB", overloads858},
+        MeosFunction{"tboxFromText", overloads859},
+        MeosFunction{"tboxHash", overloads860},
+        MeosFunction{"tboxHashExtended", overloads861},
+        MeosFunction{"tboxIntersection", overloads862},
+        MeosFunction{"tboxLeft", overloads863},
+        MeosFunction{"tboxOverafter", overloads864},
+        MeosFunction{"tboxOverbefore", overloads865},
+        MeosFunction{"tboxOverlaps", overloads866},
+        MeosFunction{"tboxOverleft", overloads867},
+        MeosFunction{"tboxOverright", overloads868},
+        MeosFunction{"tboxRight", overloads869},
+        MeosFunction{"tboxRound", overloads870},
+        MeosFunction{"tboxSame", overloads871},
+        MeosFunction{"tboxUnion", overloads872},
+        MeosFunction{"tboxes", overloads873},
+        MeosFunction{"tcbuffer", overloads874},
+        MeosFunction{"tcbufferFromBinary", overloads875},
+        MeosFunction{"tcbufferFromEWKB", overloads876},
+        MeosFunction{"tcbufferFromEWKT", overloads877},
+        MeosFunction{"tcbufferFromHexEWKB", overloads878},
+        MeosFunction{"tcbufferFromHexWKB", overloads879},
+        MeosFunction{"tcbufferFromMFJSON", overloads880},
+        MeosFunction{"tcbufferFromText", overloads881},
+        MeosFunction{"tcbufferInst", overloads882},
+        MeosFunction{"tcbufferSeq", overloads883},
+        MeosFunction{"tcbufferSeqSet", overloads884},
+        MeosFunction{"tempBasetype", overloads885},
+        MeosFunction{"tempSubtype", overloads886},
+        MeosFunction{"temporalHash", overloads887},
+        MeosFunction{"temporalHashExtended", overloads888},
+        MeosFunction{"temporalInsert", overloads889},
+        MeosFunction{"temporalLowerInc", overloads890},
+        MeosFunction{"temporalMerge", overloads891},
+        MeosFunction{"temporalUpdate", overloads892},
+        MeosFunction{"temporalUpperInc", overloads893},
+        MeosFunction{"textInitcap", overloads894},
+        MeosFunction{"textLower", overloads895},
+        MeosFunction{"textUpper", overloads896},
+        MeosFunction{"textset", overloads897},
+        MeosFunction{"textsetFromBinary", overloads898},
+        MeosFunction{"textsetFromHexWKB", overloads899},
+        MeosFunction{"textsetFromText", overloads900},
+        MeosFunction{"tfloat", overloads901},
+        MeosFunction{"tfloatFromBinary", overloads902},
+        MeosFunction{"tfloatFromHexWKB", overloads903},
+        MeosFunction{"tfloatFromMFJSON", overloads904},
+        MeosFunction{"tfloatFromText", overloads905},
+        MeosFunction{"tfloatInst", overloads906},
+        MeosFunction{"tfloatSeq", overloads907},
+        MeosFunction{"tfloatSeqSet", overloads908},
+        MeosFunction{"tgeogpoint", overloads909},
+        MeosFunction{"tgeogpointFromBinary", overloads910},
+        MeosFunction{"tgeogpointFromEWKB", overloads911},
+        MeosFunction{"tgeogpointFromEWKT", overloads912},
+        MeosFunction{"tgeogpointFromHexEWKB", overloads913},
+        MeosFunction{"tgeogpointFromHexWKB", overloads914},
+        MeosFunction{"tgeogpointFromMFJSON", overloads915},
+        MeosFunction{"tgeogpointFromText", overloads916},
+        MeosFunction{"tgeogpointInst", overloads917},
+        MeosFunction{"tgeogpointSeq", overloads918},
+        MeosFunction{"tgeogpointSeqSet", overloads919},
+        MeosFunction{"tgeography", overloads920},
+        MeosFunction{"tgeographyFromBinary", overloads921},
+        MeosFunction{"tgeographyFromEWKB", overloads922},
+        MeosFunction{"tgeographyFromEWKT", overloads923},
+        MeosFunction{"tgeographyFromHexEWKB", overloads924},
+        MeosFunction{"tgeographyFromHexWKB", overloads925},
+        MeosFunction{"tgeographyFromMFJSON", overloads926},
+        MeosFunction{"tgeographyFromText", overloads927},
+        MeosFunction{"tgeographyInst", overloads928},
+        MeosFunction{"tgeographySeq", overloads929},
+        MeosFunction{"tgeographySeqSet", overloads930},
+        MeosFunction{"tgeometry", overloads931},
+        MeosFunction{"tgeometryFromBinary", overloads932},
+        MeosFunction{"tgeometryFromEWKB", overloads933},
+        MeosFunction{"tgeometryFromEWKT", overloads934},
+        MeosFunction{"tgeometryFromHexEWKB", overloads935},
+        MeosFunction{"tgeometryFromHexWKB", overloads936},
+        MeosFunction{"tgeometryFromMFJSON", overloads937},
+        MeosFunction{"tgeometryFromText", overloads938},
+        MeosFunction{"tgeometryInst", overloads939},
+        MeosFunction{"tgeometrySeq", overloads940},
+        MeosFunction{"tgeometrySeqSet", overloads941},
+        MeosFunction{"tgeompoint", overloads942},
+        MeosFunction{"tgeompointFromBinary", overloads943},
+        MeosFunction{"tgeompointFromEWKB", overloads944},
+        MeosFunction{"tgeompointFromEWKT", overloads945},
+        MeosFunction{"tgeompointFromHexEWKB", overloads946},
+        MeosFunction{"tgeompointFromHexWKB", overloads947},
+        MeosFunction{"tgeompointFromMFJSON", overloads948},
+        MeosFunction{"tgeompointFromText", overloads949},
+        MeosFunction{"tgeompointInst", overloads950},
+        MeosFunction{"tgeompointSeq", overloads951},
+        MeosFunction{"tgeompointSeqSet", overloads952},
+        MeosFunction{"th3AreNeighborCells", overloads953},
+        MeosFunction{"th3CellToCenterChild", overloads954},
+        MeosFunction{"th3CellToChildPos", overloads955},
+        MeosFunction{"th3CellToLocalIj", overloads956},
+        MeosFunction{"th3CellToVertex", overloads957},
+        MeosFunction{"th3CellsToDirectedEdge", overloads958},
+        MeosFunction{"th3ChildPosToCell", overloads959},
+        MeosFunction{"th3DirectedEdgeToBoundary", overloads960},
+        MeosFunction{"th3EdgeLength", overloads961},
+        MeosFunction{"th3GetBaseCellNumber", overloads962},
+        MeosFunction{"th3GetDirectedEdgeDestination", overloads963},
+        MeosFunction{"th3GetDirectedEdgeOrigin", overloads964},
+        MeosFunction{"th3GridDistance", overloads965},
+        MeosFunction{"th3IsPentagon", overloads966},
+        MeosFunction{"th3IsResClassIii", overloads967},
+        MeosFunction{"th3LocalIjToCell", overloads968},
+        MeosFunction{"th3VertexToPoint", overloads969},
+        MeosFunction{"th3index", overloads970},
+        MeosFunction{"th3indexFromBinary", overloads971},
+        MeosFunction{"th3indexFromEWKB", overloads972},
+        MeosFunction{"th3indexFromEWKT", overloads973},
+        MeosFunction{"th3indexFromHexEWKB", overloads974},
+        MeosFunction{"th3indexFromHexWKB", overloads975},
+        MeosFunction{"th3indexFromMFJSON", overloads976},
+        MeosFunction{"th3indexFromText", overloads977},
+        MeosFunction{"th3indexInst", overloads978},
+        MeosFunction{"th3indexSeq", overloads979},
+        MeosFunction{"th3indexSeqSet", overloads980},
+        MeosFunction{"timeSpan", overloads981},
+        MeosFunction{"timestampN", overloads982},
+        MeosFunction{"timestamps", overloads983},
+        MeosFunction{"tint", overloads984},
+        MeosFunction{"tintFromBinary", overloads985},
+        MeosFunction{"tintFromHexWKB", overloads986},
+        MeosFunction{"tintFromMFJSON", overloads987},
+        MeosFunction{"tintFromText", overloads988},
+        MeosFunction{"tintInst", overloads989},
+        MeosFunction{"tintSeq", overloads990},
+        MeosFunction{"tintSeqSet", overloads991},
+        MeosFunction{"tjsonArrayElement", overloads992},
+        MeosFunction{"tjsonArrayLength", overloads993},
+        MeosFunction{"tjsonExtractPath", overloads994},
+        MeosFunction{"tjsonObjectField", overloads995},
+        MeosFunction{"tjsonStripNulls", overloads996},
+        MeosFunction{"tjsonb", overloads997},
+        MeosFunction{"tjsonbArrayElement", overloads998},
+        MeosFunction{"tjsonbArrayElementText", overloads999},
+        MeosFunction{"tjsonbArrayLength", overloads1000},
+        MeosFunction{"tjsonbContained", overloads1001},
+        MeosFunction{"tjsonbContains", overloads1002},
+        MeosFunction{"tjsonbDelete", overloads1003},
+        MeosFunction{"tjsonbDeleteArray", overloads1004},
+        MeosFunction{"tjsonbDeleteIndex", overloads1005},
+        MeosFunction{"tjsonbDeletePath", overloads1006},
+        MeosFunction{"tjsonbExists", overloads1007},
+        MeosFunction{"tjsonbExistsAll", overloads1008},
+        MeosFunction{"tjsonbExistsAny", overloads1009},
+        MeosFunction{"tjsonbExtractPath", overloads1010},
+        MeosFunction{"tjsonbExtractPathText", overloads1011},
+        MeosFunction{"tjsonbFromBinary", overloads1012},
+        MeosFunction{"tjsonbFromHexWKB", overloads1013},
+        MeosFunction{"tjsonbFromMFJSON", overloads1014},
+        MeosFunction{"tjsonbFromText", overloads1015},
+        MeosFunction{"tjsonbInsert", overloads1016},
+        MeosFunction{"tjsonbInst", overloads1017},
+        MeosFunction{"tjsonbObjectField", overloads1018},
+        MeosFunction{"tjsonbObjectFieldText", overloads1019},
+        MeosFunction{"tjsonbPathExists", overloads1020},
+        MeosFunction{"tjsonbPathExistsTz", overloads1021},
+        MeosFunction{"tjsonbPathMatch", overloads1022},
+        MeosFunction{"tjsonbPathMatchTz", overloads1023},
+        MeosFunction{"tjsonbPathQueryArray", overloads1024},
+        MeosFunction{"tjsonbPathQueryArrayTz", overloads1025},
+        MeosFunction{"tjsonbPathQueryFirst", overloads1026},
+        MeosFunction{"tjsonbPathQueryFirstTz", overloads1027},
+        MeosFunction{"tjsonbPretty", overloads1028},
+        MeosFunction{"tjsonbSeq", overloads1029},
+        MeosFunction{"tjsonbSeqSet", overloads1030},
+        MeosFunction{"tjsonbSet", overloads1031},
+        MeosFunction{"tjsonbSetLax", overloads1032},
+        MeosFunction{"tjsonbStripNulls", overloads1033},
+        MeosFunction{"tnpoint", overloads1034},
+        MeosFunction{"tnpointFromBinary", overloads1035},
+        MeosFunction{"tnpointFromEWKB", overloads1036},
+        MeosFunction{"tnpointFromEWKT", overloads1037},
+        MeosFunction{"tnpointFromHexEWKB", overloads1038},
+        MeosFunction{"tnpointFromHexWKB", overloads1039},
+        MeosFunction{"tnpointFromMFJSON", overloads1040},
+        MeosFunction{"tnpointFromText", overloads1041},
+        MeosFunction{"tnpointInst", overloads1042},
+        MeosFunction{"tnpointSeq", overloads1043},
+        MeosFunction{"tnpointSeqSet", overloads1044},
+        MeosFunction{"tpcbox", overloads1045},
+        MeosFunction{"tpcboxAbove", overloads1046},
+        MeosFunction{"tpcboxAdjacent", overloads1047},
+        MeosFunction{"tpcboxAfter", overloads1048},
+        MeosFunction{"tpcboxBack", overloads1049},
+        MeosFunction{"tpcboxBefore", overloads1050},
+        MeosFunction{"tpcboxBelow", overloads1051},
+        MeosFunction{"tpcboxContained", overloads1052},
+        MeosFunction{"tpcboxContains", overloads1053},
+        MeosFunction{"tpcboxFromBinary", overloads1054},
+        MeosFunction{"tpcboxFromEWKB", overloads1055},
+        MeosFunction{"tpcboxFromEWKT", overloads1056},
+        MeosFunction{"tpcboxFromHexEWKB", overloads1057},
+        MeosFunction{"tpcboxFromHexWKB", overloads1058},
+        MeosFunction{"tpcboxFromText", overloads1059},
+        MeosFunction{"tpcboxFront", overloads1060},
+        MeosFunction{"tpcboxIntersection", overloads1061},
+        MeosFunction{"tpcboxLeft", overloads1062},
+        MeosFunction{"tpcboxOverabove", overloads1063},
+        MeosFunction{"tpcboxOverafter", overloads1064},
+        MeosFunction{"tpcboxOverback", overloads1065},
+        MeosFunction{"tpcboxOverbefore", overloads1066},
+        MeosFunction{"tpcboxOverbelow", overloads1067},
+        MeosFunction{"tpcboxOverfront", overloads1068},
+        MeosFunction{"tpcboxOverlaps", overloads1069},
+        MeosFunction{"tpcboxOverleft", overloads1070},
+        MeosFunction{"tpcboxOverright", overloads1071},
+        MeosFunction{"tpcboxRight", overloads1072},
+        MeosFunction{"tpcboxRound", overloads1073},
+        MeosFunction{"tpcboxSame", overloads1074},
+        MeosFunction{"tpcboxT", overloads1075},
+        MeosFunction{"tpcboxTransform", overloads1076},
+        MeosFunction{"tpcboxUnion", overloads1077},
+        MeosFunction{"tpcboxX", overloads1078},
+        MeosFunction{"tpcboxXT", overloads1079},
+        MeosFunction{"tpcboxZ", overloads1080},
+        MeosFunction{"tpcboxZT", overloads1081},
+        MeosFunction{"tpcboxes", overloads1082},
+        MeosFunction{"tpcpatch", overloads1083},
+        MeosFunction{"tpcpatchFromBinary", overloads1084},
+        MeosFunction{"tpcpatchFromEWKB", overloads1085},
+        MeosFunction{"tpcpatchFromEWKT", overloads1086},
+        MeosFunction{"tpcpatchFromHexEWKB", overloads1087},
+        MeosFunction{"tpcpatchFromHexWKB", overloads1088},
+        MeosFunction{"tpcpatchFromMFJSON", overloads1089},
+        MeosFunction{"tpcpatchFromText", overloads1090},
+        MeosFunction{"tpcpatchInst", overloads1091},
+        MeosFunction{"tpcpatchSeq", overloads1092},
+        MeosFunction{"tpcpatchSeqSet", overloads1093},
+        MeosFunction{"tpcpoint", overloads1094},
+        MeosFunction{"tpcpointFromBinary", overloads1095},
+        MeosFunction{"tpcpointFromEWKB", overloads1096},
+        MeosFunction{"tpcpointFromEWKT", overloads1097},
+        MeosFunction{"tpcpointFromHexEWKB", overloads1098},
+        MeosFunction{"tpcpointFromHexWKB", overloads1099},
+        MeosFunction{"tpcpointFromMFJSON", overloads1100},
+        MeosFunction{"tpcpointFromText", overloads1101},
+        MeosFunction{"tpcpointInst", overloads1102},
+        MeosFunction{"tpcpointSeq", overloads1103},
+        MeosFunction{"tpcpointSeqSet", overloads1104},
+        MeosFunction{"tpi", overloads1105},
+        MeosFunction{"tpose", overloads1106},
+        MeosFunction{"tposeFromBinary", overloads1107},
+        MeosFunction{"tposeFromEWKB", overloads1108},
+        MeosFunction{"tposeFromEWKT", overloads1109},
+        MeosFunction{"tposeFromGeoPose", overloads1110},
+        MeosFunction{"tposeFromHexEWKB", overloads1111},
+        MeosFunction{"tposeFromHexWKB", overloads1112},
+        MeosFunction{"tposeFromMFJSON", overloads1113},
+        MeosFunction{"tposeFromText", overloads1114},
+        MeosFunction{"tposeInst", overloads1115},
+        MeosFunction{"tposeSeq", overloads1116},
+        MeosFunction{"tposeSeqSet", overloads1117},
+        MeosFunction{"tposechain", overloads1118},
+        MeosFunction{"tposechainFromBinary", overloads1119},
+        MeosFunction{"tposechainFromEWKB", overloads1120},
+        MeosFunction{"tposechainFromEWKT", overloads1121},
+        MeosFunction{"tposechainFromGeoPose", overloads1122},
+        MeosFunction{"tposechainFromHexEWKB", overloads1123},
+        MeosFunction{"tposechainFromHexWKB", overloads1124},
+        MeosFunction{"tposechainFromMFJSON", overloads1125},
+        MeosFunction{"tposechainFromText", overloads1126},
+        MeosFunction{"tposechainInst", overloads1127},
+        MeosFunction{"tposechainSeq", overloads1128},
+        MeosFunction{"tposechainSeqSet", overloads1129},
+        MeosFunction{"tquadbin", overloads1130},
+        MeosFunction{"tquadbinCellToQuadkey", overloads1131},
+        MeosFunction{"tquadbinFromBinary", overloads1132},
+        MeosFunction{"tquadbinFromEWKB", overloads1133},
+        MeosFunction{"tquadbinFromEWKT", overloads1134},
+        MeosFunction{"tquadbinFromHexEWKB", overloads1135},
+        MeosFunction{"tquadbinFromHexWKB", overloads1136},
+        MeosFunction{"tquadbinFromMFJSON", overloads1137},
+        MeosFunction{"tquadbinFromText", overloads1138},
+        MeosFunction{"tquadbinGridDistance", overloads1139},
+        MeosFunction{"tquadbinInst", overloads1140},
+        MeosFunction{"tquadbinSeq", overloads1141},
+        MeosFunction{"tquadbinSeqSet", overloads1142},
+        MeosFunction{"trajectory", overloads1143},
+        MeosFunction{"traversedArea", overloads1144},
+        MeosFunction{"trend", overloads1145},
+        MeosFunction{"trgeometry", overloads1146},
+        MeosFunction{"trgeometryFromBinary", overloads1147},
+        MeosFunction{"trgeometryFromEWKB", overloads1148},
+        MeosFunction{"trgeometryFromEWKT", overloads1149},
+        MeosFunction{"trgeometryFromHexEWKB", overloads1150},
+        MeosFunction{"trgeometryFromHexWKB", overloads1151},
+        MeosFunction{"trgeometryFromMFJSON", overloads1152},
+        MeosFunction{"trgeometryFromText", overloads1153},
+        MeosFunction{"trgeometryInst", overloads1154},
+        MeosFunction{"trgeometrySeq", overloads1155},
+        MeosFunction{"trgeometrySeqSet", overloads1156},
+        MeosFunction{"tri", overloads1157},
+        MeosFunction{"ts2CellToToken", overloads1158},
+        MeosFunction{"ts2GridDistance", overloads1159},
+        MeosFunction{"ts2cell", overloads1160},
+        MeosFunction{"ts2cellFromBinary", overloads1161},
+        MeosFunction{"ts2cellFromEWKB", overloads1162},
+        MeosFunction{"ts2cellFromEWKT", overloads1163},
+        MeosFunction{"ts2cellFromHexEWKB", overloads1164},
+        MeosFunction{"ts2cellFromHexWKB", overloads1165},
+        MeosFunction{"ts2cellFromMFJSON", overloads1166},
+        MeosFunction{"ts2cellFromText", overloads1167},
+        MeosFunction{"ts2cellInst", overloads1168},
+        MeosFunction{"ts2cellSeq", overloads1169},
+        MeosFunction{"ts2cellSeqSet", overloads1170},
+        MeosFunction{"tstzset", overloads1171},
+        MeosFunction{"tstzsetFromBinary", overloads1172},
+        MeosFunction{"tstzsetFromHexWKB", overloads1173},
+        MeosFunction{"tstzsetFromText", overloads1174},
+        MeosFunction{"tstzspan", overloads1175},
+        MeosFunction{"tstzspanFromBinary", overloads1176},
+        MeosFunction{"tstzspanFromHexWKB", overloads1177},
+        MeosFunction{"tstzspanFromText", overloads1178},
+        MeosFunction{"tstzspanset", overloads1179},
+        MeosFunction{"tstzspansetFromBinary", overloads1180},
+        MeosFunction{"tstzspansetFromHexWKB", overloads1181},
+        MeosFunction{"tstzspansetFromText", overloads1182},
+        MeosFunction{"ttext", overloads1183},
+        MeosFunction{"ttextFromBinary", overloads1184},
+        MeosFunction{"ttextFromHexWKB", overloads1185},
+        MeosFunction{"ttextFromMFJSON", overloads1186},
+        MeosFunction{"ttextFromText", overloads1187},
+        MeosFunction{"ttextInst", overloads1188},
+        MeosFunction{"ttextSeq", overloads1189},
+        MeosFunction{"ttextSeqSet", overloads1190},
+        MeosFunction{"twAvg", overloads1191},
+        MeosFunction{"twCentroid", overloads1192},
+        MeosFunction{"unaryUnion", overloads1193},
+        MeosFunction{"uncompactCells", overloads1194},
+        MeosFunction{"upperLeftX", overloads1195},
+        MeosFunction{"upperLeftY", overloads1196},
+        MeosFunction{"valueAtTimestamp", overloads1197},
+        MeosFunction{"valueBins", overloads1198},
+        MeosFunction{"valueBoxes", overloads1199},
+        MeosFunction{"valueN", overloads1200},
+        MeosFunction{"valueSet", overloads1201},
+        MeosFunction{"valueSpan", overloads1202},
+        MeosFunction{"volume", overloads1203},
+        MeosFunction{"whenTrue", overloads1204},
+        MeosFunction{"width", overloads1205},
+        MeosFunction{"xMax", overloads1206},
+        MeosFunction{"xMaxInc", overloads1207},
+        MeosFunction{"xMin", overloads1208},
+        MeosFunction{"xMinInc", overloads1209},
+        MeosFunction{"yMax", overloads1210},
+        MeosFunction{"yMin", overloads1211},
+        MeosFunction{"yaw", overloads1212},
+        MeosFunction{"zMax", overloads1213},
+        MeosFunction{"zMin", overloads1214}
     }};
     return functions;
 }

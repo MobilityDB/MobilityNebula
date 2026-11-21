@@ -1,0 +1,39 @@
+# name: MEOS_SummaryStats
+# description: What the pixels of a raster band amount to, as summaryStats answers it, carried as the summarystats type, read and written in the text PostgreSQL writes for the summarystats record of PostGIS: the two 2x2 8BUI rasters of meos_raster_series.test, a band of 1 and a band of 5, read alone, field by field with the accessors summarystatsCount to summarystatsMax, and together with summaryStatsAgg over a window. A summarystats column is read from that text, and its mean read back. The answers are those of libmeos over the same values (raster_summary_stats, raster_summary_stats_transfn and _finalfn, bandstats_out, bandstats_in and the accessors).
+# groups: [Function, Aggregation, MEOS, Raster]
+CREATE LOGICAL SOURCE bands(id UINT32, rast RASTER, ts UINT64);
+CREATE PHYSICAL SOURCE FOR bands TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|0100000100000000000000F03F000000000000F0BF0000000000000000000000000000004000000000000000000000000000000000E610000002000200440001010101|1000
+2|0100000100000000000000F03F000000000000F0BF0000000000000000000000000000004000000000000000000000000000000000E610000002000200440005050505|2000
+
+CREATE SINK stats(id UINT32, stats SUMMARYSTATS) TYPE File;
+SELECT id, summaryStats(rast) AS stats FROM bands INTO stats;
+----
+1,(4,4,1,0,1,1)
+2,(4,20,5,0,5,5)
+
+CREATE SINK fields(id UINT32, n INT64, total FLOAT64, average FLOAT64, spread FLOAT64, low FLOAT64, high FLOAT64) TYPE File;
+SELECT id, summarystatsCount(summaryStats(rast)) AS n, summarystatsSum(summaryStats(rast)) AS total,
+       summarystatsMean(summaryStats(rast)) AS average, summarystatsStddev(summaryStats(rast)) AS spread,
+       summarystatsMin(summaryStats(rast)) AS low, summarystatsMax(summaryStats(rast)) AS high
+FROM bands INTO fields;
+----
+1,4,4,1,0,1,1
+2,4,20,5,0,5,5
+
+CREATE SINK together(start UINT64 NOT NULL, end UINT64 NOT NULL, stats SUMMARYSTATS) TYPE File;
+SELECT start, end, summaryStatsAgg(rast, INT32(1), BOOLEAN(TRUE)) AS stats
+FROM bands WINDOW TUMBLING(ts, size 1 minute) INTO together;
+----
+0,60000,(8,24,3,2,1,5)
+
+CREATE LOGICAL SOURCE records(id UINT32, stats SUMMARYSTATS);
+CREATE PHYSICAL SOURCE FOR records TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|(8,430,53.75,24.968730444297723,10,90)
+
+CREATE SINK read(id UINT32, average FLOAT64, n INT64) TYPE File;
+SELECT id, summarystatsMean(stats) AS average, summarystatsCount(stats) AS n FROM records INTO read;
+----
+1,53.75,8

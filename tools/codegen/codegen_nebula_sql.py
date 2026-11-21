@@ -895,6 +895,13 @@ class FunctionLayer:
         # the length of an array answer (shape.arrayReturn), which the answer reads
         returned = ((shape.get('arrayReturn') or {}).get('lengthFrom') or {}).get('name') \
             if ret and ret.endswith('[]') else None
+        # a bool+result function answers the value written to its one out parameter, its last parameter,
+        # or no value where it answers false, as JMEOS's #_ret reads it
+        value_out = outs[0] if (len(outs) == 1 and c_spelling(f['returnType']['canonical']) == 'bool'
+                                and c_spelling(outs[0]['canonical']) != 'size_t*'
+                                and f['params'][-1]['name'] == outs[0]['name']) else None
+        if value_out:
+            outs = []
         if [p for p in outs if c_spelling(p['canonical']) != 'size_t*' and p['name'] != returned]:
             return 'out parameters'
         # the length of an input array (shape.inputArrays) is read off the array, as #_inputs reads it
@@ -929,13 +936,16 @@ class FunctionLayer:
         for variant in self.cj._default_variants(args, defaults, len(args)):
             left = len(variant) if variant else 0
             why = self.emit(f, idx, name, args, types, rtype, ret, vis, outs, bound, walk, variant or [], left,
-                            arrays, counts) or why
+                            arrays, counts, value_out) or why
         return why
 
-    def emit(self, f, idx, name, args, types, rtype, ret, vis, outs, bound, walk, variant, left, arrays, counts):
+    def emit(self, f, idx, name, args, types, rtype, ret, vis, outs, bound, walk, variant, left, arrays, counts,
+             value_out=None):
         """The overload and kernel of the call of signature `idx` of f leaving its last `left` arguments to
         the defaults `variant`, as JMEOS's #_sql_overloads emits one eval per call; or the reason it is
-        left out"""
+        left out. The answer of a bool+result function is the value written to its out parameter
+        `value_out`, answered as a result of the type it points to, or no value where the call answers
+        false, as JMEOS's #_ret reads it"""
         stated = len(args) - left
         nes_args = tuple(t for t, _ in types[:stated])
         if any(o[0] == nes_args for o in self.overloads.get(name, [])):
@@ -969,13 +979,20 @@ class FunctionLayer:
         for j, p in enumerate(outs):
             pre.append(f'    {c_spelling(p["canonical"])[:-1]} length{j} = 0;')
             call.append(f'&length{j}')
+        if value_out:
+            pre.append(f'    {c_spelling(value_out["canonical"])[:-1]} value{{}};')
+            call.append('&value')
         length = 'length0' if outs else None
         # an array answer as long as an input array (stboxarr_round answers count boxes) reads the count
         # off that array, as the call passes it
         lf = ((f.get('shape') or {}).get('arrayReturn') or {}).get('lengthFrom') or {}
         if lf.get('kind') == 'param' and counts.get(lf.get('name')) in passed:
             length = f'v{passed[counts[lf["name"]]]}.count()'
-        got = self.answer(ret, f, length)
+        pointed = None
+        if value_out:
+            canonical = value_out['canonical'].rstrip()
+            pointed = dict(f, returnType=dict(f['returnType'], canonical=canonical[:-1].rstrip()))
+        got = self.answer(ret, pointed or f, length)
         if got is None:
             return f'result {ret} as {c_spelling(f["returnType"]["canonical"])}'
         answer, none = got
@@ -986,8 +1003,13 @@ class FunctionLayer:
         if 'MeosRuntime::number<' not in ''.join(answer) + none:
             body.append('    static_cast<void>(out);')
         body += [line.replace('@NONE@', none) for line in pre]
-        body.append(f'    auto r = {f["name"]}({", ".join(c for c in call if c is not None)});')
-        body += post
+        if value_out:
+            body.append(f'    const bool found = {f["name"]}({", ".join(c for c in call if c is not None)});')
+            body += post
+            body += ['    if (!found)\n' + no_value(none), '    auto r = value;']
+        else:
+            body.append(f'    auto r = {f["name"]}({", ".join(c for c in call if c is not None)});')
+            body += post
         body += answer
         body.append('}')
         self.kernels.append((key, '\n'.join(body), [pt for _, pt in types[:stated]], rtype[1]))

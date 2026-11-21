@@ -2510,6 +2510,19 @@ std::vector<std::byte> GeometryArrayFromText(std::string_view text)
 
 constexpr ExtensionType GeometryArrayType{.name = "GEOMETRY_ARRAY", .fromText = GeometryArrayFromText, .element = &GeometryType};
 
+/* h3index[]: an array of h3index, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of h3index */
+std::string H3indexArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, H3indexToText);
+}
+
+std::vector<std::byte> H3indexArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "h3index[]", H3indexFromText);
+}
+
+constexpr ExtensionType H3indexArrayType{.name = "H3INDEX_ARRAY", .fromText = H3indexArrayFromText, .element = &H3indexType};
+
 /* intspan[]: an array of intspan, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of intspan */
 std::string IntspanArrayToText(std::span<const std::byte> bytes)
 {
@@ -2614,6 +2627,19 @@ std::vector<std::byte> PosechainArrayFromText(std::string_view text)
 
 constexpr ExtensionType PosechainArrayType{.name = "POSECHAIN_ARRAY", .fromText = PosechainArrayFromText, .element = &PosechainType};
 
+/* quadbin[]: an array of quadbin, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of quadbin */
+std::string QuadbinArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, QuadbinToText);
+}
+
+std::vector<std::byte> QuadbinArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "quadbin[]", QuadbinFromText);
+}
+
+constexpr ExtensionType QuadbinArrayType{.name = "QUADBIN_ARRAY", .fromText = QuadbinArrayFromText, .element = &QuadbinType};
+
 /* raquet[]: an array of raquet, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of raquet */
 std::string RaquetArrayToText(std::span<const std::byte> bytes)
 {
@@ -2639,6 +2665,19 @@ std::vector<std::byte> RasterArrayFromText(std::string_view text)
 }
 
 constexpr ExtensionType RasterArrayType{.name = "RASTER_ARRAY", .fromText = RasterArrayFromText, .element = &RasterType};
+
+/* s2cell[]: an array of s2cell, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of s2cell */
+std::string S2cellArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, S2cellToText);
+}
+
+std::vector<std::byte> S2cellArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "s2cell[]", S2cellFromText);
+}
+
+constexpr ExtensionType S2cellArrayType{.name = "S2CELL_ARRAY", .fromText = S2cellArrayFromText, .element = &S2cellType};
 
 /* stbox[]: an array of stbox, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of stbox */
 std::string StboxArrayToText(std::span<const std::byte> bytes)
@@ -3213,7 +3252,7 @@ namespace NES
 
 std::span<const MeosType> meosTypes()
 {
-    static constexpr std::array<MeosType, 119> types{{
+    static constexpr std::array<MeosType, 122> types{{
     MeosType{&BigintsetType, BigintsetToText},
     MeosType{&BigintspanType, BigintspanToText},
     MeosType{&BigintspansetType, BigintspansetToText},
@@ -3291,6 +3330,7 @@ std::span<const MeosType> meosTypes()
     MeosType{&FloatspanArrayType, FloatspanArrayToText},
     MeosType{&GeographyArrayType, GeographyArrayToText},
     MeosType{&GeometryArrayType, GeometryArrayToText},
+    MeosType{&H3indexArrayType, H3indexArrayToText},
     MeosType{&IntspanArrayType, IntspanArrayToText},
     MeosType{&JsonbArrayType, JsonbArrayToText},
     MeosType{&NpointArrayType, NpointArrayToText},
@@ -3299,8 +3339,10 @@ std::span<const MeosType> meosTypes()
     MeosType{&PcpointArrayType, PcpointArrayToText},
     MeosType{&PoseArrayType, PoseArrayToText},
     MeosType{&PosechainArrayType, PosechainArrayToText},
+    MeosType{&QuadbinArrayType, QuadbinArrayToText},
     MeosType{&RaquetArrayType, RaquetArrayToText},
     MeosType{&RasterArrayType, RasterArrayToText},
+    MeosType{&S2cellArrayType, S2cellArrayToText},
     MeosType{&StboxArrayType, StboxArrayToText},
     MeosType{&TbigintArrayType, TbigintArrayToText},
     MeosType{&TboolArrayType, TboolArrayToText},

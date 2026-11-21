@@ -37,6 +37,8 @@ extern "C" {
 #include <meos_quadbin.h>
 #include <meos_raster.h>
 #include <meos_s2cell.h>
+#include <pg_float.h>
+#include <pg_int.h>
 }
 
 #include <array>
@@ -2919,6 +2921,260 @@ std::vector<std::byte> TtextArrayFromText(std::string_view text)
 
 constexpr ExtensionType TtextArrayType{.name = "TTEXT_ARRAY", .fromText = TtextArrayFromText, .element = &TtextType};
 
+/* bigint[]: an array of bigint, each element carried as its C value (int64_t), read and written by int64_in and int64_out */
+std::string BigintElementToText(std::span<const std::byte> bytes)
+{
+    int64_t value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = int64_out(value, &size);
+    if (written == nullptr) { cannotWrite("bigint"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> BigintElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    int64_t value = int64_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string BigintArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, BigintElementToText);
+}
+
+std::vector<std::byte> BigintArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "bigint[]", BigintElementFromText);
+}
+
+constexpr ExtensionType BigintArrayType{.name = "BIGINT_ARRAY", .fromText = BigintArrayFromText};
+
+/* boolean[]: an array of boolean, each element carried as its C value (bool), read and written by bool_in and bool_out */
+std::string BooleanElementToText(std::span<const std::byte> bytes)
+{
+    bool value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = bool_out(value, &size);
+    if (written == nullptr) { cannotWrite("boolean"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> BooleanElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    bool value = bool_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string BooleanArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, BooleanElementToText);
+}
+
+std::vector<std::byte> BooleanArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "boolean[]", BooleanElementFromText);
+}
+
+constexpr ExtensionType BooleanArrayType{.name = "BOOLEAN_ARRAY", .fromText = BooleanArrayFromText};
+
+/* date[]: an array of date, each element carried as its C value (DateADT), read and written by date_in and date_out */
+std::string DateElementToText(std::span<const std::byte> bytes)
+{
+    DateADT value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = date_out(value, &size);
+    if (written == nullptr) { cannotWrite("date"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> DateElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    DateADT value = date_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string DateArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, DateElementToText);
+}
+
+std::vector<std::byte> DateArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "date[]", DateElementFromText);
+}
+
+constexpr ExtensionType DateArrayType{.name = "DATE_ARRAY", .fromText = DateArrayFromText};
+
+/* double precision[]: an array of double precision, each element carried as its C value (double), read and written by float8_in and float8_out */
+std::string DoublePrecisionElementToText(std::span<const std::byte> bytes)
+{
+    double value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = float8_out(value, 15, &size);
+    if (written == nullptr) { cannotWrite("double precision"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> DoublePrecisionElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    double value = float8_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string DoublePrecisionArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, DoublePrecisionElementToText);
+}
+
+std::vector<std::byte> DoublePrecisionArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "double precision[]", DoublePrecisionElementFromText);
+}
+
+constexpr ExtensionType DoublePrecisionArrayType{.name = "DOUBLE_PRECISION_ARRAY", .fromText = DoublePrecisionArrayFromText};
+
+/* float[]: an array of float, each element carried as its C value (double), read and written by float8_in and float8_out */
+std::string FloatElementToText(std::span<const std::byte> bytes)
+{
+    double value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = float8_out(value, 15, &size);
+    if (written == nullptr) { cannotWrite("float"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> FloatElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    double value = float8_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string FloatArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, FloatElementToText);
+}
+
+std::vector<std::byte> FloatArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "float[]", FloatElementFromText);
+}
+
+constexpr ExtensionType FloatArrayType{.name = "FLOAT_ARRAY", .fromText = FloatArrayFromText};
+
+/* integer[]: an array of integer, each element carried as its C value (int), read and written by int32_in and int32_out */
+std::string IntegerElementToText(std::span<const std::byte> bytes)
+{
+    int value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = int32_out(value, &size);
+    if (written == nullptr) { cannotWrite("integer"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> IntegerElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    int value = int32_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string IntegerArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, IntegerElementToText);
+}
+
+std::vector<std::byte> IntegerArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "integer[]", IntegerElementFromText);
+}
+
+constexpr ExtensionType IntegerArrayType{.name = "INTEGER_ARRAY", .fromText = IntegerArrayFromText};
+
+/* text[]: an array of text, each element carried as its C value (text *), read and written by text_in and text_out */
+std::string TextElementToText(std::span<const std::byte> bytes)
+{
+    return textOf(bytes);
+}
+
+std::vector<std::byte> TextElementFromText(std::string_view text)
+{
+    return bytesOf(std::span{text});
+}
+
+std::string TextArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, TextElementToText);
+}
+
+std::vector<std::byte> TextArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "text[]", TextElementFromText);
+}
+
+constexpr ExtensionType TextArrayType{.name = "TEXT_ARRAY", .fromText = TextArrayFromText};
+
+/* timestamptz[]: an array of timestamptz, each element carried as its C value (TimestampTz), read and written by timestamptz_in and timestamptz_out */
+std::string TimestamptzElementToText(std::span<const std::byte> bytes)
+{
+    TimestampTz value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = timestamptz_out(value, &size);
+    if (written == nullptr) { cannotWrite("timestamptz"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> TimestamptzElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    TimestampTz value = timestamptz_in(terminated.c_str(), -1);
+    return image(&value, sizeof(value));
+}
+
+std::string TimestamptzArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, TimestamptzElementToText);
+}
+
+std::vector<std::byte> TimestamptzArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "timestamptz[]", TimestamptzElementFromText);
+}
+
+constexpr ExtensionType TimestamptzArrayType{.name = "TIMESTAMPTZ_ARRAY", .fromText = TimestamptzArrayFromText};
+
 }
 
 namespace NES
@@ -2926,7 +3182,7 @@ namespace NES
 
 std::span<const MeosType> meosTypes()
 {
-    static constexpr std::array<MeosType, 110> types{{
+    static constexpr std::array<MeosType, 118> types{{
     MeosType{&BigintsetType, BigintsetToText},
     MeosType{&BigintspanType, BigintspanToText},
     MeosType{&BigintspansetType, BigintspansetToText},
@@ -3036,7 +3292,15 @@ std::span<const MeosType> meosTypes()
     MeosType{&TrgeometryArrayType, TrgeometryArrayToText},
     MeosType{&Ts2cellArrayType, Ts2cellArrayToText},
     MeosType{&TstzspanArrayType, TstzspanArrayToText},
-    MeosType{&TtextArrayType, TtextArrayToText}
+    MeosType{&TtextArrayType, TtextArrayToText},
+    MeosType{&BigintArrayType, BigintArrayToText},
+    MeosType{&BooleanArrayType, BooleanArrayToText},
+    MeosType{&DateArrayType, DateArrayToText},
+    MeosType{&DoublePrecisionArrayType, DoublePrecisionArrayToText},
+    MeosType{&FloatArrayType, FloatArrayToText},
+    MeosType{&IntegerArrayType, IntegerArrayToText},
+    MeosType{&TextArrayType, TextArrayToText},
+    MeosType{&TimestamptzArrayType, TimestamptzArrayToText}
     }};
     return types;
 }

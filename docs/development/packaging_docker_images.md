@@ -39,9 +39,3 @@ registered. When configuring inside the development container, mount the Docker 
 > The binaries are copied into the image, not rebuilt, so they must be ABI compatible with the runtime base
 > image (glibc, libc++ / libstdc++ versions). Binaries built with the NES development image use the expected
 > toolchain.
-
-## CI
-
-The published images are built by `.github/workflows/create_executable_images.yml`, which runs the
-`package-docker-images-all` target inside the development container and pushes the results. The nightly and the
-on-demand image workflows both call into it, so a local run and a CI run produce the images the same way.

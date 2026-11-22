@@ -1,0 +1,93 @@
+/*
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
+#include <Runner/DataStaging.hpp>
+
+#include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <memory>
+#include <stop_token>
+#include <string>
+#include <thread>
+#include <utility>
+#include <variant>
+#include <vector>
+
+#include <Model/RunnableTestFile.hpp>
+#include <Rewriter/Constants.hpp>
+#include <Rewriter/SourceRewriting.hpp>
+#include <Util/Files.hpp>
+#include <Util/Overloaded.hpp>
+#include <ErrorHandling.hpp>
+#include <TCPDataServer.hpp>
+
+namespace NES
+{
+
+void writeInlineData(const InlineData& data)
+{
+    std::filesystem::create_directories(data.path.parent_path());
+    std::ofstream file{data.path};
+    for (const auto& row : data.rows)
+    {
+        file << row << '\n';
+    }
+    /// A source that cannot open this file reports only that the path does not resolve.
+    /// Failing here reports the write that did not happen.
+    file.flush();
+    if (not file)
+    {
+        throw TestException("could not write the inline data of a source to {}: {}", data.path.string(), getErrorMessageFromERRNO());
+    }
+}
+
+RunningServer serve(ServedData data)
+{
+    /// The server binds in its constructor, so the port in the options is the one that the source connects to.
+    auto server = std::visit(
+        [](auto&& content) { return std::make_unique<TCPDataServer>(std::forward<decltype(content)>(content)); }, std::move(data.content));
+    const auto port = server->getPort();
+
+    return {
+        .thread = std::jthread{[owned = std::move(server)](const std::stop_token& stopToken) { owned->run(stopToken); }},
+        .options
+        = {SourceOption{.group = Sql::Source, .key = Sql::SocketHost, .value = "localhost"},
+           SourceOption{.group = Sql::Source, .key = Sql::SocketPort, .value = int64_t{port}},
+           /// The test data sets are small, so a source would otherwise wait on a partial buffer for rows that never come.
+           SourceOption{.group = Sql::Source, .key = Sql::FlushIntervalMs, .value = int64_t{100}}}};
+}
+
+StagedSetup stage(const RunnableTestFile& runnable)
+{
+    StagedSetup staged;
+    for (auto setup : runnable.setupStatements)
+    {
+        std::visit(
+            Overloaded{
+                [](const PlainStatement&) { },
+                [](const StatementWithInlineData& withInline) { writeInlineData(withInline.data); },
+                [&](StatementWithServedData& withServed)
+                {
+                    auto [thread, options] = serve(std::move(withServed.data));
+                    withServed.sql = addSourceOptions(withServed.sql, options);
+                    staged.servers.push_back(std::move(thread));
+                }},
+            setup);
+        staged.sql.push_back(getSqlOf(setup));
+    }
+    return staged;
+}
+
+}

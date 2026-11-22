@@ -12,20 +12,40 @@
     limitations under the License.
 */
 
-#include <cstdint>
-#include <utility>
-#include <DataTypes/TimeUnit.hpp>
-#include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/Interface/Record.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
-#include <Nautilus/Interface/TimestampRef.hpp>
-#include <Time/Timestamp.hpp>
 #include <Watermark/TimeFunction.hpp>
+
+#include <cstdint>
+#include <memory>
+#include <utility>
+#include <variant>
+#include <DataTypes/TimeUnit.hpp>
+#include <Functions/FieldAccessPhysicalFunction.hpp>
+#include <Functions/PhysicalFunction.hpp>
+#include <Interface/Record.hpp>
+#include <Interface/RecordBuffer.hpp>
+#include <Interface/TimestampRef.hpp>
+#include <Time/Timestamp.hpp>
+#include <Util/Overloaded.hpp>
+#include <WindowTypes/Measures/TimeCharacteristic.hpp>
 #include <ExecutionContext.hpp>
 #include <val.hpp>
 
 namespace NES
 {
+
+std::unique_ptr<TimeFunction> TimeFunction::create(const Windowing::BoundTimeCharacteristic& timeCharacteristic)
+{
+    return std::visit(
+        Overloaded{
+            [](const Windowing::IngestionTimeCharacteristic&) -> std::unique_ptr<TimeFunction>
+            { return std::make_unique<IngestionTimeFunction>(); },
+            [](const Windowing::BoundEventTimeCharacteristic& eventTime) -> std::unique_ptr<TimeFunction>
+            {
+                return std::make_unique<EventTimeFunction>(
+                    FieldAccessPhysicalFunction{eventTime.field->getField().getLastName()}, eventTime.unit);
+            }},
+        timeCharacteristic);
+}
 
 void EventTimeFunction::open(ExecutionContext&, RecordBuffer&) const
 {
@@ -33,13 +53,13 @@ void EventTimeFunction::open(ExecutionContext&, RecordBuffer&) const
 }
 
 EventTimeFunction::EventTimeFunction(PhysicalFunction timestampFunction, const Windowing::TimeUnit& unit)
-    : unit(unit), timestampFunction(std::move(std::move(timestampFunction)))
+    : unit(unit), timestampFunction(std::move(timestampFunction))
 {
 }
 
 nautilus::val<Timestamp> EventTimeFunction::getTs(ExecutionContext& ctx, Record& record) const
 {
-    const auto ts = this->timestampFunction.execute(record, ctx.pipelineMemoryProvider.arena).cast<nautilus::val<uint64_t>>();
+    const auto ts = this->timestampFunction.execute(record, ctx.pipelineMemoryProvider.arena).getRawValueAs<nautilus::val<uint64_t>>();
     const auto timeMultiplier = nautilus::val<uint64_t>(unit.getMillisecondsConversionMultiplier());
     const auto tsInMs = nautilus::val<Timestamp>(ts * timeMultiplier);
     ctx.currentTs = tsInMs;

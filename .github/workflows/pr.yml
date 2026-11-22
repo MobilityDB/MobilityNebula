@@ -1,27 +1,29 @@
 name: NES PR CI
-
-# Orchestrator for every pull request, on the structure of NebulaStream's current pr.yml: classify
-# the diff once, run the code pipeline (pr_code.yml) unless only documentation changed, and report
-# one required status, "Code CI Done". Every job runs on a GitHub-hosted runner.
+description: |
+  Orchestrator for every pull request. Runs the classify gate once, then dispatches the reusable
+  code pipeline (pr_code.yml) and/or docs pipeline (pr_docs.yml) depending on what changed, and owns
+  the two required-status gates ("Code CI Done" / "Docs CI Done").
 on:
   pull_request:
     types: [ synchronize, opened, reopened ]
   merge_group:
     branches: [ main ]
 
-# Cancel previous runs of the same PR. In merge_group runs github.head_ref is empty, so fall back to
-# github.ref, the unique gh-readonly-queue ref.
+# cancel previous runs of same PR / branch.
+# In merge_group runs github.head_ref is empty, so fall back to github.ref (the unique
+# gh-readonly-queue ref) to avoid queued runs cancelling each other.
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}-pr
   cancel-in-progress: true
 
 jobs:
-  # Classify the diff (see .github/ci/full-ci-skip-paths.txt): a documentation-only PR skips the
-  # code pipeline.
+  # Classify the PR diff once (see .github/ci/full-ci-skip-paths.txt) and hand the result to the two
+  # pipelines below. A docs-only PR skips pr_code.yml; a code-only PR skips pr_docs.yml.
   classify:
     runs-on: ubuntu-24.04
     outputs:
       hasCodeChanges: ${{ steps.classify.outputs.hasCodeChanges }}
+      hasDocChanges: ${{ steps.classify.outputs.hasDocChanges }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -33,12 +35,24 @@ jobs:
           base-sha: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
           head-sha: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}
 
+  # Dispatch each pipeline only when the classify gate found changes of that kind.
   code:
     needs: [ classify ]
     if: ${{ needs.classify.outputs.hasCodeChanges == 'true' }}
     uses: ./.github/workflows/pr_code.yml
+    secrets: inherit
 
-  # The one required status check. It always runs and reads the result of the jobs it gates.
+  docs:
+    needs: [ classify ]
+    if: ${{ needs.classify.outputs.hasDocChanges == 'true' }}
+    uses: ./.github/workflows/pr_docs.yml
+    secrets: inherit
+
+  # --- Required-check gates ---------------------------------------------------------------------
+  # One required status check per pipeline. Each always runs (if: always()) so the context is always
+  # created under a stable, top-level name — set "Code CI Done" / "Docs CI Done" as the required
+  # status checks. Because they are top-level jobs here (not inside the reusable workflows) the
+  # context names stay unprefixed; the reusable workflows' own jobs show up as "code / ..." etc.
   code-ci-done:
     name: Code CI Done
     needs: [ classify, code ]
@@ -62,3 +76,26 @@ jobs:
             echo "Code CI succeeded."; exit 0
           fi
           echo "::error::Code CI did not succeed: $CODE_RESULT"; exit 1
+
+  docs-ci-done:
+    name: Docs CI Done
+    needs: [ classify, docs ]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Gate
+        env:
+          CLASSIFY_RESULT: ${{ needs.classify.result }}
+          HAS_DOCS: ${{ needs.classify.outputs.hasDocChanges }}
+          DOCS_RESULT: ${{ needs.docs.result }}
+        run: |
+          if [ "$CLASSIFY_RESULT" != "success" ]; then
+            echo "::error::classify did not succeed: $CLASSIFY_RESULT"; exit 1
+          fi
+          if [ "$HAS_DOCS" != "true" ]; then
+            echo "No doc changes — docs CI legitimately skipped; passing."; exit 0
+          fi
+          if [ "$DOCS_RESULT" = "success" ]; then
+            echo "Docs CI succeeded."; exit 0
+          fi
+          echo "::error::Docs CI did not succeed: $DOCS_RESULT"; exit 1

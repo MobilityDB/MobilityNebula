@@ -16,6 +16,8 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -25,27 +27,49 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
-#include <Configurations/Descriptor.hpp>
 #include <DataTypes/TimeUnit.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
-#include <Serialization/FunctionSerializationUtil.hpp>
-#include <Serialization/SchemaSerializationUtil.hpp>
+#include <Operators/LogicalOperatorFwd.hpp>
+#include <Schema/Binder.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Traits/Trait.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <folly/hash/Hash.h>
 #include <ErrorHandling.hpp>
-#include <LogicalOperatorRegistry.hpp>
-#include <SerializableOperator.pb.h>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
 EventTimeWatermarkAssignerLogicalOperator::EventTimeWatermarkAssignerLogicalOperator(
-    LogicalFunction onField, const Windowing::TimeUnit& unit, const uint64_t allowedLateness)
-    : onField(std::move(onField)), unit(unit), allowedLateness(allowedLateness)
+    WeakLogicalOperator self, LogicalFunction onField, const Windowing::TimeUnit& unit, const uint64_t allowedLateness)
+    : ManagedByOperator(std::move(self)), unit(unit), onField(std::move(onField)), allowedLateness(allowedLateness)
 {
+}
+
+EventTimeWatermarkAssignerLogicalOperator::EventTimeWatermarkAssignerLogicalOperator(
+    WeakLogicalOperator self, LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit, const uint64_t allowedLateness)
+    : ManagedByOperator(std::move(self)), unit(unit), onField(std::move(onField)), allowedLateness(allowedLateness), child(std::move(child))
+{
+    inferLocalSchema();
+}
+
+TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>
+EventTimeWatermarkAssignerLogicalOperator::create(LogicalFunction onField, const Windowing::TimeUnit& unit, const uint64_t allowedLateness)
+{
+    return TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>{std::move(onField), unit, allowedLateness};
+}
+
+TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>
+EventTimeWatermarkAssignerLogicalOperator::create(
+    LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit, const uint64_t allowedLateness)
+{
+    return TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>{std::move(child), std::move(onField), unit, allowedLateness};
 }
 
 std::string_view EventTimeWatermarkAssignerLogicalOperator::getName() const noexcept
@@ -58,12 +82,11 @@ std::string EventTimeWatermarkAssignerLogicalOperator::explain(ExplainVerbosity 
     if (verbosity == ExplainVerbosity::Debug)
     {
         return fmt::format(
-            "EVENT_TIME_WATERMARK_ASSIGNER(opId: {}, onField: {}, unit: {}, allowedLatenessMs: {}, inputSchema: {}, traitSet: {})",
+            "EVENT_TIME_WATERMARK_ASSIGNER(opId: {}, onField: {}, unit: {}, allowedLateness: {}, traitSet: {})",
             id,
             onField.explain(verbosity),
             unit.getMillisecondsConversionMultiplier(),
             allowedLateness,
-            inputSchema,
             traitSet.explain(verbosity));
     }
     return "WATERMARK_ASSIGNER(Event time)";
@@ -71,22 +94,24 @@ std::string EventTimeWatermarkAssignerLogicalOperator::explain(ExplainVerbosity 
 
 bool EventTimeWatermarkAssignerLogicalOperator::operator==(const EventTimeWatermarkAssignerLogicalOperator& rhs) const
 {
-    return onField == rhs.onField && unit == rhs.unit && allowedLateness == rhs.allowedLateness && getOutputSchema() == rhs.getOutputSchema()
-        && getInputSchemas() == rhs.getInputSchemas() && getTraitSet() == rhs.getTraitSet();
+    return onField == rhs.onField && unit == rhs.unit && allowedLateness == rhs.allowedLateness && outputSchema == rhs.outputSchema
+        && traitSet == rhs.traitSet;
 }
 
-EventTimeWatermarkAssignerLogicalOperator
-EventTimeWatermarkAssignerLogicalOperator::withInferredSchema(std::vector<Schema> inputSchemas) const
+void EventTimeWatermarkAssignerLogicalOperator::inferLocalSchema()
 {
+    PRECONDITION(child.has_value(), "Child not set when calling schema inference");
+    const auto& inputSchema = child->getOutputSchema();
+    onField = onField.withInferredDataType(inputSchema);
+    outputSchema = unbind(inputSchema);
+}
+
+EventTimeWatermarkAssignerLogicalOperator EventTimeWatermarkAssignerLogicalOperator::withInferredSchema() const
+{
+    PRECONDITION(child.has_value(), "Child not set when calling schema inference");
     auto copy = *this;
-    if (inputSchemas.size() != 1)
-    {
-        throw CannotDeserialize("Watermark assigner should have only one input");
-    }
-    const auto& inputSchema = inputSchemas[0];
-    copy.onField = onField.withInferredDataType(inputSchema);
-    copy.inputSchema = inputSchema;
-    copy.outputSchema = inputSchema;
+    copy.child = copy.child->withInferredSchema();
+    copy.inferLocalSchema();
     return copy;
 }
 
@@ -103,86 +128,90 @@ EventTimeWatermarkAssignerLogicalOperator EventTimeWatermarkAssignerLogicalOpera
 }
 
 EventTimeWatermarkAssignerLogicalOperator
-EventTimeWatermarkAssignerLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
+EventTimeWatermarkAssignerLogicalOperator::withChildrenUnsafe(std::vector<LogicalOperator> children) const
 {
+    PRECONDITION(children.size() == 1, "Can only set exactly one child for eventTimeWatermarkAssigner, got {}", children.size());
     auto copy = *this;
-    copy.children = std::move(children);
+    copy.child = std::move(children.at(0));
     return copy;
 }
 
-std::vector<Schema> EventTimeWatermarkAssignerLogicalOperator::getInputSchemas() const
+EventTimeWatermarkAssignerLogicalOperator
+EventTimeWatermarkAssignerLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
 {
-    return {inputSchema};
-};
+    PRECONDITION(children.size() == 1, "Can only set exactly one child for eventTimeWatermarkAssigner, got {}", children.size());
+    auto copy = *this;
+    copy.child = std::move(children.at(0));
+    copy.inferLocalSchema();
+    return copy;
+}
 
-Schema EventTimeWatermarkAssignerLogicalOperator::getOutputSchema() const
+Schema<Field, Unordered> EventTimeWatermarkAssignerLogicalOperator::getOutputSchema() const
 {
-    return outputSchema;
+    PRECONDITION(outputSchema.has_value(), "Accessed output schema before calling schema inference");
+    return NES::bindToOperator(self.lock(), outputSchema.value());
 }
 
 std::vector<LogicalOperator> EventTimeWatermarkAssignerLogicalOperator::getChildren() const
 {
-    return children;
+    if (child.has_value())
+    {
+        return {*child};
+    }
+    return {};
 }
 
-void EventTimeWatermarkAssignerLogicalOperator::serialize(SerializableOperator& serializableOperator) const
+LogicalFunction EventTimeWatermarkAssignerLogicalOperator::getOnField() const
 {
-    SerializableLogicalOperator proto;
-
-    proto.set_operator_type(NAME);
-
-    for (const auto& inputSchema : getInputSchemas())
-    {
-        auto* schProto = proto.add_input_schemas();
-        SchemaSerializationUtil::serializeSchema(inputSchema, schProto);
-    }
-
-    auto* outSch = proto.mutable_output_schema();
-    SchemaSerializationUtil::serializeSchema(outputSchema, outSch);
-
-    for (auto& child : getChildren())
-    {
-        serializableOperator.add_children_ids(child.getId().getRawValue());
-    }
-
-    FunctionList funcList;
-    *funcList.add_functions() = onField.serialize();
-    const DescriptorConfig::ConfigType funcVariant = std::move(funcList);
-    (*serializableOperator.mutable_config())[ConfigParameters::FUNCTION] = descriptorConfigTypeToProto(funcVariant);
-
-    const DescriptorConfig::ConfigType timeVariant = unit.getMillisecondsConversionMultiplier();
-    (*serializableOperator.mutable_config())[ConfigParameters::TIME_MS] = descriptorConfigTypeToProto(timeVariant);
-
-    const DescriptorConfig::ConfigType latenessVariant = allowedLateness;
-    (*serializableOperator.mutable_config())[ConfigParameters::ALLOWED_LATENESS_MS] = descriptorConfigTypeToProto(latenessVariant);
-
-    serializableOperator.mutable_operator_()->CopyFrom(proto);
+    return onField;
 }
 
-LogicalOperatorRegistryReturnType
-LogicalOperatorGeneratedRegistrar::RegisterEventTimeWatermarkAssignerLogicalOperator(LogicalOperatorRegistryArguments arguments)
+Windowing::TimeUnit EventTimeWatermarkAssignerLogicalOperator::getUnit() const
 {
-    auto timeVariant = arguments.config.at(EventTimeWatermarkAssignerLogicalOperator::ConfigParameters::TIME_MS);
-    auto functionVariant = arguments.config.at(EventTimeWatermarkAssignerLogicalOperator::ConfigParameters::FUNCTION);
-
-    if (std::holds_alternative<uint64_t>(timeVariant) and std::holds_alternative<FunctionList>(functionVariant))
-    {
-        const auto functions = std::get<FunctionList>(functionVariant).functions();
-        const auto time = Windowing::TimeUnit(std::get<uint64_t>(timeVariant));
-
-        if (functions.size() != 1)
-        {
-            throw CannotDeserialize("Expected exactly one function");
-        }
-        auto function = FunctionSerializationUtil::deserializeFunction(functions[0]);
-
-        /// a plan serialized with no lateness reads none
-        const auto lateness = arguments.config.find(EventTimeWatermarkAssignerLogicalOperator::ConfigParameters::ALLOWED_LATENESS_MS);
-        const uint64_t allowedLateness
-            = lateness != arguments.config.end() and std::holds_alternative<uint64_t>(lateness->second) ? std::get<uint64_t>(lateness->second) : 0;
-        auto logicalOperator = EventTimeWatermarkAssignerLogicalOperator(function, time, allowedLateness);
-        return logicalOperator.withInferredSchema(arguments.inputSchemas);
-    }
-    throw UnknownLogicalOperator();
+    return unit;
 }
+
+uint64_t EventTimeWatermarkAssignerLogicalOperator::getAllowedLateness() const
+{
+    return allowedLateness;
+}
+
+Reflected Reflector<TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>>::operator()(
+    const TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>& op, const ReflectionContext& context) const
+{
+    return context.reflect(
+        detail::ReflectedEventTimeWatermarkAssignerLogicalOperator{
+            .operatorId = op.getId(), .onField = op->getOnField(), .timeUnit = op->getUnit(), .allowedLateness = op->getAllowedLateness()});
+}
+
+Unreflector<TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>>::Unreflector(ContextType operatorMapping)
+    : plan(std::move(operatorMapping))
+{
+}
+
+TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>
+Unreflector<TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>>::operator()(
+    const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [id, onField, timeUnit, allowedLateness] = context.unreflect<detail::ReflectedEventTimeWatermarkAssignerLogicalOperator>(reflected);
+    auto children = plan->getChildrenFor(id, context);
+    if (children.size() != 1)
+    {
+        throw CannotDeserialize("EventTimeWatermarkAssignerLogicalOperator requires exactly one child, but got {}", children.size());
+    }
+    return EventTimeWatermarkAssignerLogicalOperator::create(children.at(0), onField, timeUnit, allowedLateness);
+}
+
+LogicalOperator EventTimeWatermarkAssignerLogicalOperator::getChild() const
+{
+    PRECONDITION(child.has_value(), "Child not set when trying to retrieve child");
+    return child.value();
+}
+}
+
+uint64_t std::hash<NES::EventTimeWatermarkAssignerLogicalOperator>::operator()(
+    const NES::EventTimeWatermarkAssignerLogicalOperator& eventTimeWatermarkAssignerOperator) const noexcept
+{
+    return folly::hash::hash_combine(
+        eventTimeWatermarkAssignerOperator.unit, eventTimeWatermarkAssignerOperator.onField, eventTimeWatermarkAssignerOperator.allowedLateness);
 }

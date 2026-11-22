@@ -11,45 +11,57 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+#include <WindowTypes/Types/TumblingWindow.hpp>
 
+#include <cstddef>
+#include <functional>
+#include <ostream>
 #include <string>
 #include <utility>
+#include <Util/Reflection.hpp>
 #include <WindowTypes/Measures/TimeCharacteristic.hpp>
 #include <WindowTypes/Measures/TimeMeasure.hpp>
-#include <WindowTypes/Types/TimeBasedWindowType.hpp>
-#include <WindowTypes/Types/TumblingWindow.hpp>
-#include <WindowTypes/Types/WindowType.hpp>
 #include <fmt/format.h>
 
 namespace NES::Windowing
 {
 
-TumblingWindow::TumblingWindow(TimeCharacteristic timeCharacteristic, TimeMeasure size)
-    : TimeBasedWindowType(std::move(timeCharacteristic)), size(std::move(size))
+TumblingWindow::TumblingWindow(TimeMeasure size) : size(std::move(size))
 {
 }
 
-TimeMeasure TumblingWindow::getSize()
+TimeMeasure TumblingWindow::getSize() const
 {
     return size;
 }
 
-TimeMeasure TumblingWindow::getSlide()
+std::ostream& operator<<(std::ostream& os, const TumblingWindow& tumblingWindow)
 {
-    return getSize();
+    return os << fmt::format("TumblingWindow: size={}", tumblingWindow.getSize());
 }
 
-std::string TumblingWindow::toString() const
-{
-    return fmt::format("TumblingWindow: size={} timeCharacteristic={}", size.getTime(), timeCharacteristic);
+bool TumblingWindow::operator==(const TumblingWindow& otherWindowType) const = default;
+
 }
 
-bool TumblingWindow::operator==(const WindowType& otherWindowType) const
+namespace NES
 {
-    if (const auto* other = dynamic_cast<const TumblingWindow*>(&otherWindowType))
-    {
-        return (this->size == other->size) && (this->timeCharacteristic == (other->timeCharacteristic));
-    }
-    return false;
+
+Reflected
+Reflector<Windowing::TumblingWindow>::operator()(const Windowing::TumblingWindow& tumblingWindow, const ReflectionContext& context) const
+{
+    return context.reflect(tumblingWindow.getSize());
 }
+
+Windowing::TumblingWindow
+Unreflector<Windowing::TumblingWindow>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto size = context.unreflect<Windowing::TimeMeasure>(reflected);
+    return Windowing::TumblingWindow{size};
+}
+}
+
+std::size_t std::hash<NES::Windowing::TumblingWindow>::operator()(const NES::Windowing::TumblingWindow& window) const noexcept
+{
+    return std::hash<NES::Windowing::TimeMeasure>{}(window.getSize());
 }

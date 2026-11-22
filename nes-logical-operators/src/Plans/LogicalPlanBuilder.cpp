@@ -14,131 +14,135 @@
 
 #include <Plans/LogicalPlanBuilder.hpp>
 
+#include <algorithm>
 #include <array>
 #include <memory>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
 
-#include <Configurations/Descriptor.hpp>
-#include <DataTypes/Schema.hpp>
-#include <Functions/ConstantValueLogicalFunction.hpp>
-#include <Functions/FieldAccessLogicalFunction.hpp>
+#include <DataTypes/UnboundField.hpp>
 #include <Functions/LogicalFunction.hpp>
-#include <Functions/RenameLogicalFunction.hpp>
-#include <Iterators/BFSIterator.hpp>
+#include <Functions/UnboundFieldAccessLogicalFunction.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Operators/EventTimeWatermarkAssignerLogicalOperator.hpp>
+#include <Operators/InferModelNameLogicalOperator.hpp>
 #include <Operators/IngestionTimeWatermarkAssignerLogicalOperator.hpp>
+#include <Operators/LogicalOperator.hpp>
+#include <Operators/LogicalOperatorFwd.hpp>
 #include <Operators/ProjectionLogicalOperator.hpp>
 #include <Operators/SelectionLogicalOperator.hpp>
 #include <Operators/InlineTableJoinLogicalOperator.hpp>
 #include <Operators/UnnestLogicalOperator.hpp>
-#include <Operators/Sinks/InlineSinkLogicalOperator.hpp>
+#include <Operators/Sinks/AnonymousSinkLogicalOperator.hpp>
 #include <Operators/Sinks/SinkLogicalOperator.hpp>
-#include <Operators/Sources/InlineSourceLogicalOperator.hpp>
+#include <Operators/Sources/AnonymousSourceLogicalOperator.hpp>
 #include <Operators/Sources/SourceNameLogicalOperator.hpp>
 #include <Operators/UnionLogicalOperator.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <Operators/Windows/JoinLogicalOperator.hpp>
 #include <Operators/Windows/WindowedAggregationLogicalOperator.hpp>
 #include <Plans/LogicalPlan.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Util/Common.hpp>
 #include <Util/Logger/Logger.hpp>
+#include <Util/Overloaded.hpp>
 #include <WindowTypes/Measures/TimeCharacteristic.hpp>
 #include <WindowTypes/Types/TimeBasedWindowType.hpp>
-#include <WindowTypes/Types/WindowType.hpp>
 #include <ErrorHandling.hpp>
+#include <QueryId.hpp>
 
 namespace NES
 {
-LogicalPlan LogicalPlanBuilder::createLogicalPlan(std::string logicalSourceName)
+namespace
+{
+LogicalPlan promoteOperatorToRoot(const LogicalPlan& plan, const LogicalOperator& newRoot)
+{
+    auto root = newRoot.withChildrenUnsafe(plan.getRootOperators());
+    return LogicalPlan(plan.getQueryId(), {std::move(root)}, plan.getOriginalSql());
+}
+}
+
+LogicalPlan LogicalPlanBuilder::createLogicalPlan(Identifier logicalSourceName)
 {
     NES_TRACE("LogicalPlanBuilder: create query plan for input source  {}", logicalSourceName);
-    const DescriptorConfig::Config sourceDescriptorConfig{};
-    return LogicalPlan(SourceNameLogicalOperator(logicalSourceName));
+    return LogicalPlan(INVALID_QUERY_ID, {SourceNameLogicalOperator::create(std::move(logicalSourceName))});
 }
 
 LogicalPlan LogicalPlanBuilder::createLogicalPlan(
-    std::string inlineSourceType,
-    const Schema& schema,
-    std::unordered_map<std::string, std::string> sourceConfig,
-    std::unordered_map<std::string, std::string> parserConfig)
+    Identifier anonymousSourceType,
+    Schema<UnqualifiedUnboundField, Ordered> schema,
+    std::unordered_map<Identifier, std::string> sourceConfig,
+    std::unordered_map<Identifier, std::string> parserConfig)
 {
-    return LogicalPlan(InlineSourceLogicalOperator{std::move(inlineSourceType), schema, std::move(sourceConfig), std::move(parserConfig)});
+    return LogicalPlan(
+        INVALID_QUERY_ID,
+        {AnonymousSourceLogicalOperator::create(
+            std::move(anonymousSourceType), std::move(schema), std::move(sourceConfig), std::move(parserConfig))});
 }
 
 LogicalPlan LogicalPlanBuilder::addProjection(
-    std::vector<ProjectionLogicalOperator::Projection> projections, bool asterisk, const LogicalPlan& queryPlan)
+    std::vector<ProjectionLogicalOperator::UnboundProjection> projections, bool asterisk, const LogicalPlan& queryPlan)
 {
     NES_TRACE("LogicalPlanBuilder: add projection operator to query plan");
     return promoteOperatorToRoot(
-        queryPlan, ProjectionLogicalOperator(std::move(projections), ProjectionLogicalOperator::Asterisk(asterisk)));
+        queryPlan, ProjectionLogicalOperator::create(std::move(projections), ProjectionLogicalOperator::Asterisk(asterisk)));
 }
 
 LogicalPlan LogicalPlanBuilder::addSelection(LogicalFunction selectionFunction, const LogicalPlan& queryPlan)
 {
     NES_TRACE("LogicalPlanBuilder: add selection operator to query plan");
-    if (selectionFunction.tryGet<RenameLogicalFunction>())
-    {
-        throw UnsupportedQuery("Selection predicate cannot have a FieldRenameFunction");
-    }
-    return promoteOperatorToRoot(queryPlan, SelectionLogicalOperator(std::move(selectionFunction)));
+    return promoteOperatorToRoot(queryPlan, SelectionLogicalOperator::create(std::move(selectionFunction)));
 }
 
-LogicalPlan LogicalPlanBuilder::addUnnest(LogicalFunction arrayFunction, std::string elementFieldName, const LogicalPlan& queryPlan)
+LogicalPlan LogicalPlanBuilder::addUnnest(LogicalFunction array, Identifier alias, Identifier element, const LogicalPlan& queryPlan)
 {
     NES_TRACE("LogicalPlanBuilder: add unnest operator to query plan");
-    return promoteOperatorToRoot(queryPlan, UnnestLogicalOperator(std::move(arrayFunction), std::move(elementFieldName)));
+    return promoteOperatorToRoot(queryPlan, UnnestLogicalOperator::create(std::move(array), std::move(alias), std::move(element)));
 }
 
-LogicalPlan
-LogicalPlanBuilder::addInlineTableJoin(std::vector<LogicalFunction> values, std::vector<std::string> fieldNames, const LogicalPlan& queryPlan)
+LogicalPlan LogicalPlanBuilder::addInlineTableJoin(
+    std::vector<LogicalFunction> values, Identifier alias, std::vector<Identifier> fields, const LogicalPlan& queryPlan)
 {
-    NES_TRACE("LogicalPlanBuilder: add the cross join with an inline table to query plan");
-    return promoteOperatorToRoot(queryPlan, InlineTableJoinLogicalOperator(std::move(values), std::move(fieldNames)));
+    NES_TRACE("LogicalPlanBuilder: add inline table join operator to query plan");
+    return promoteOperatorToRoot(
+        queryPlan, InlineTableJoinLogicalOperator::create(std::move(values), std::move(alias), std::move(fields)));
 }
 
 LogicalPlan LogicalPlanBuilder::addWindowAggregation(
     LogicalPlan queryPlan,
-    const std::shared_ptr<Windowing::WindowType>& windowType,
-    std::vector<std::shared_ptr<WindowAggregationLogicalFunction>> windowAggs,
-    std::vector<FieldAccessLogicalFunction> onKeys)
+    const Windowing::TimeBasedWindowType& windowType,
+    std::vector<WindowedAggregationLogicalOperator::ProjectedAggregation> windowAggs,
+    std::vector<UnboundFieldAccessLogicalFunction> onKeys,
+    Windowing::TimeCharacteristic timeCharacteristic)
 {
     PRECONDITION(not queryPlan.getRootOperators().empty(), "invalid query plan, as the root operator is empty");
 
-    if (auto* timeBasedWindowType = dynamic_cast<Windowing::TimeBasedWindowType*>(windowType.get()))
-    {
-        switch (timeBasedWindowType->getTimeCharacteristic().getType())
-        {
-            case Windowing::TimeCharacteristic::Type::IngestionTime:
-                queryPlan = promoteOperatorToRoot(queryPlan, IngestionTimeWatermarkAssignerLogicalOperator());
-                break;
-            case Windowing::TimeCharacteristic::Type::EventTime:
-                queryPlan = promoteOperatorToRoot(
-                    queryPlan,
-                    EventTimeWatermarkAssignerLogicalOperator(
-                        FieldAccessLogicalFunction(timeBasedWindowType->getTimeCharacteristic().field.name),
-                        timeBasedWindowType->getTimeCharacteristic().getTimeUnit(),
-                        timeBasedWindowType->getTimeCharacteristic().getAllowedLateness()));
-                break;
-        }
-    }
-    else
-    {
-        throw NotImplemented("Only TimeBasedWindowType is supported for now");
-    }
+    queryPlan = checkAndAddWatermarkAssigner(queryPlan, timeCharacteristic);
 
-    auto inputSchema = queryPlan.getRootOperators().front().getOutputSchema();
-    return promoteOperatorToRoot(queryPlan, WindowedAggregationLogicalOperator(std::move(onKeys), std::move(windowAggs), windowType));
+    auto keysWithNames = onKeys
+        | std::views::transform(
+                             [](const UnboundFieldAccessLogicalFunction& key)
+                             {
+                                 return std::make_pair(
+                                     TypedLogicalFunction<UnboundFieldAccessLogicalFunction>{key}, std::make_optional(key.getFieldName()));
+                             })
+        | std::ranges::to<std::vector>();
+    return promoteOperatorToRoot(
+        queryPlan,
+        WindowedAggregationLogicalOperator::create(
+            std::move(keysWithNames), std::move(windowAggs), windowType, std::move(timeCharacteristic)));
 }
 
 LogicalPlan LogicalPlanBuilder::addUnion(LogicalPlan leftLogicalPlan, LogicalPlan rightLogicalPlan)
 {
     NES_TRACE("LogicalPlanBuilder: unionWith the subQuery to current query plan");
-    leftLogicalPlan = addBinaryOperatorAndUpdateSource(UnionLogicalOperator(), leftLogicalPlan, std::move(rightLogicalPlan));
+    leftLogicalPlan = addBinaryOperatorAndUpdateSource(UnionLogicalOperator::create(), leftLogicalPlan, rightLogicalPlan);
     return leftLogicalPlan;
 }
 
@@ -146,90 +150,75 @@ LogicalPlan LogicalPlanBuilder::addJoin(
     LogicalPlan leftLogicalPlan,
     LogicalPlan rightLogicalPlan,
     const LogicalFunction& joinFunction,
-    std::shared_ptr<Windowing::WindowType> windowType,
-    JoinLogicalOperator::JoinType joinType)
+    Windowing::TimeBasedWindowType windowType,
+    JoinLogicalOperator::JoinType joinType,
+    Windowing::TimeCharacteristic leftCharacteristic,
+    Windowing::TimeCharacteristic rightCharacteristic)
 {
-    NES_TRACE("LogicalPlanBuilder: Iterate over all ExpressionNode to check join field.");
-    std::unordered_set<LogicalFunction> visitedFunctions;
-    /// We are iterating over all binary functions and check if each side's leaf is a constant value, as we are supposedly not supporting this
-    /// I am not sure why this is the case, but I will keep it for now. IMHO, the whole LogicalPlanBuilder should be refactored to be more readable and
-    /// also to be more maintainable. TODO #506
-    for (const LogicalFunction& itr : BFSRange(joinFunction))
-    {
-        if (itr.getChildren().size() == 2)
-        {
-            auto leftVisitingOp = itr.getChildren()[0];
-            if (leftVisitingOp.getChildren().size() == 1)
-            {
-                if (visitedFunctions.find(leftVisitingOp) == visitedFunctions.end())
-                {
-                    visitedFunctions.insert(leftVisitingOp);
-                    auto leftChild = leftVisitingOp.getChildren().at(0);
-                    auto rightChild = leftVisitingOp.getChildren().at(1);
-                    /// ensure that the child nodes are not binary
-                    if ((leftChild.getChildren().size() == 1) && (rightChild.getChildren().size() == 1))
-                    {
-                        if (leftChild.tryGet<ConstantValueLogicalFunction>() || rightChild.tryGet<ConstantValueLogicalFunction>())
-                        {
-                            throw InvalidQuerySyntax("One of the join keys does only consist of a constant function. Use WHERE instead.");
-                        }
-                        auto leftKeyFieldAccess = leftChild.get<FieldAccessLogicalFunction>();
-                        auto rightKeyFieldAccess = rightChild.get<FieldAccessLogicalFunction>();
-                    }
-                }
-            }
-        }
-    }
+    /// check if query contain watermark assigner, and add if missing (as default behaviour)
+    leftLogicalPlan = checkAndAddWatermarkAssigner(leftLogicalPlan, leftCharacteristic);
+    rightLogicalPlan = checkAndAddWatermarkAssigner(rightLogicalPlan, rightCharacteristic);
+    auto joinTimeCharacteristicOpt
+        = JoinLogicalOperator::createJoinTimeCharacteristic({std::move(leftCharacteristic), std::move(rightCharacteristic)});
+    PRECONDITION(joinTimeCharacteristicOpt.has_value(), "Join time characteristics must be either both bound or unbound");
 
 
     INVARIANT(!rightLogicalPlan.getRootOperators().empty(), "RootOperators of rightLogicalPlan are empty");
     auto rootOperatorRhs = rightLogicalPlan.getRootOperators().front();
-    auto leftJoinType = leftLogicalPlan.getRootOperators().front().getOutputSchema();
-    auto rightLogicalPlanJoinType = rootOperatorRhs.getOutputSchema();
-
-    /// check if query contain watermark assigner, and add if missing (as default behaviour)
-    leftLogicalPlan = checkAndAddWatermarkAssigner(leftLogicalPlan, windowType);
-    rightLogicalPlan = checkAndAddWatermarkAssigner(rightLogicalPlan, windowType);
 
     NES_TRACE("LogicalPlanBuilder: add join operator to query plan");
     leftLogicalPlan = addBinaryOperatorAndUpdateSource(
-        JoinLogicalOperator(joinFunction, std::move(windowType), joinType), leftLogicalPlan, rightLogicalPlan);
+        JoinLogicalOperator::create(joinFunction, std::move(windowType), joinType, std::move(joinTimeCharacteristicOpt).value()),
+        leftLogicalPlan,
+        rightLogicalPlan);
     return leftLogicalPlan;
 }
 
-LogicalPlan LogicalPlanBuilder::addSink(std::string sinkName, const LogicalPlan& queryPlan)
+LogicalPlan LogicalPlanBuilder::addInferModel(Identifier modelName, const LogicalPlan& childPlan)
 {
-    return promoteOperatorToRoot(queryPlan, SinkLogicalOperator(std::move(sinkName)));
+    NES_TRACE("LogicalPlanBuilder: add infer model operator to query plan for model {}", modelName);
+    return promoteOperatorToRoot(childPlan, TypedLogicalOperator<InferModelNameLogicalOperator>{modelName.asCanonicalString()});
 }
 
-LogicalPlan LogicalPlanBuilder::addInlineSink(
-    std::string type, const Schema& schema, std::unordered_map<std::string, std::string> sinkConfig, const LogicalPlan& queryPlan)
+LogicalPlan LogicalPlanBuilder::addSink(Identifier sinkName, const LogicalPlan& queryPlan)
 {
-    return promoteOperatorToRoot(queryPlan, InlineSinkLogicalOperator(std::move(type), schema, std::move(sinkConfig)));
+    return promoteOperatorToRoot(queryPlan, SinkLogicalOperator::create(std::move(sinkName)));
 }
 
-LogicalPlan
-LogicalPlanBuilder::checkAndAddWatermarkAssigner(LogicalPlan queryPlan, const std::shared_ptr<Windowing::WindowType>& windowType)
+LogicalPlan LogicalPlanBuilder::addAnonymousSink(
+    Identifier type,
+    std::optional<Schema<UnqualifiedUnboundField, Ordered>> schema,
+    std::unordered_map<Identifier, std::string> sinkConfig,
+    std::unordered_map<Identifier, std::string> formatConfig,
+    const LogicalPlan& queryPlan)
+{
+    return promoteOperatorToRoot(
+        queryPlan,
+        AnonymousSinkLogicalOperator::create(std::move(type), std::move(schema), std::move(sinkConfig), std::move(formatConfig)));
+}
+
+LogicalPlan LogicalPlanBuilder::checkAndAddWatermarkAssigner(LogicalPlan queryPlan, const Windowing::TimeCharacteristic& timeCharacteristic)
 {
     NES_TRACE("LogicalPlanBuilder: checkAndAddWatermarkAssigner for a (sub)query plan");
-    auto timeBasedWindowType = Util::as<Windowing::TimeBasedWindowType>(windowType);
-
     if (getOperatorByType<IngestionTimeWatermarkAssignerLogicalOperator>(queryPlan).empty()
         and getOperatorByType<EventTimeWatermarkAssignerLogicalOperator>(queryPlan).empty())
     {
-        if (timeBasedWindowType->getTimeCharacteristic().getType() == Windowing::TimeCharacteristic::Type::IngestionTime)
-        {
-            return promoteOperatorToRoot(queryPlan, IngestionTimeWatermarkAssignerLogicalOperator());
-        }
-        if (timeBasedWindowType->getTimeCharacteristic().getType() == Windowing::TimeCharacteristic::Type::EventTime)
-        {
-            auto logicalFunction = FieldAccessLogicalFunction(timeBasedWindowType->getTimeCharacteristic().field.name);
-            auto assigner = EventTimeWatermarkAssignerLogicalOperator(
-                logicalFunction,
-                timeBasedWindowType->getTimeCharacteristic().getTimeUnit(),
-                timeBasedWindowType->getTimeCharacteristic().getAllowedLateness());
-            return promoteOperatorToRoot(queryPlan, assigner);
-        }
+        return std::visit(
+            [&queryPlan](const auto& unboundBound)
+            {
+                return std::visit(
+                    Overloaded{
+                        [&queryPlan](const Windowing::IngestionTimeCharacteristic&)
+                        { return promoteOperatorToRoot(queryPlan, IngestionTimeWatermarkAssignerLogicalOperator::create()); },
+                        [&queryPlan](const auto& eventTime)
+                        {
+                            return promoteOperatorToRoot(
+                                queryPlan, EventTimeWatermarkAssignerLogicalOperator::create(eventTime.field, eventTime.unit, eventTime.allowedLateness));
+                        },
+                    },
+                    unboundBound);
+            },
+            timeCharacteristic);
     }
     return queryPlan;
 }

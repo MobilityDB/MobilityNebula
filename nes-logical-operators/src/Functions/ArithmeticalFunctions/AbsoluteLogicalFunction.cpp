@@ -14,24 +14,31 @@
 
 #include <Functions/ArithmeticalFunctions/AbsoluteLogicalFunction.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
+#include <magic_enum/magic_enum.hpp>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-AbsoluteLogicalFunction::AbsoluteLogicalFunction(const LogicalFunction& child) : dataType(child.getDataType()), child(child)
+AbsoluteLogicalFunction::AbsoluteLogicalFunction(LogicalFunction child) : child(std::move(child))
 {
 }
 
@@ -40,21 +47,53 @@ DataType AbsoluteLogicalFunction::getDataType() const
     return dataType;
 };
 
-LogicalFunction AbsoluteLogicalFunction::withDataType(const DataType& dataType) const
+namespace
 {
-    auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
-LogicalFunction AbsoluteLogicalFunction::withInferredDataType(const Schema& schema) const
+/// SQL semantics for ABS() result types (nullability is propagated by the caller):
+/// - Floating-point input keeps its type (magnitude is always representable).
+/// - Unsigned integer input keeps its type (the operation is a no-op).
+/// - Signed integer input is widened by one rank so the absolute value of the type's minimum value is representable
+///   (e.g. ABS(INT8 -128) = INT16 128). INT64 has no wider type, so it stays INT64 and ABS(INT64_MIN) overflows at runtime.
+DataType::Type inferAbsoluteResultType(const DataType::Type inputType)
 {
-    std::vector<LogicalFunction> newChildren;
-    for (auto& child : getChildren())
+    switch (inputType)
     {
-        newChildren.push_back(child.withInferredDataType(schema));
+        case DataType::Type::INT8:
+            return DataType::Type::INT16;
+        case DataType::Type::INT16:
+            return DataType::Type::INT32;
+        case DataType::Type::INT32:
+            return DataType::Type::INT64;
+        case DataType::Type::INT64:
+            /// INT64 cannot be widened further; unsigned integers and floats keep their type.
+        case DataType::Type::UINT8:
+        case DataType::Type::UINT16:
+        case DataType::Type::UINT32:
+        case DataType::Type::UINT64:
+        case DataType::Type::FLOAT32:
+        case DataType::Type::FLOAT64:
+            return inputType;
+        case DataType::Type::BOOLEAN:
+        case DataType::Type::CHAR:
+        case DataType::Type::UNDEFINED:
+        case DataType::Type::VARSIZED:
+            throw InferenceRuntimeFailure("Should not infer absolute type for {}", magic_enum::enum_name(inputType));
     }
-    return this->withChildren(newChildren);
+}
+}
+
+LogicalFunction AbsoluteLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
+{
+    AbsoluteLogicalFunction copy = *this;
+    copy.child = child.withInferredDataType(schema);
+    if (!copy.child.getDataType().isNumeric())
+    {
+        throw CannotInferStamp("Cannot apply absolute function on non-numeric input function {}", copy.child);
+    }
+    copy.dataType = copy.child.getDataType();
+    /// Widen signed-integer result types by one rank so ABS() of the minimum value is representable.
+    copy.dataType.type = inferAbsoluteResultType(copy.dataType.type);
+    return copy;
 };
 
 std::vector<LogicalFunction> AbsoluteLogicalFunction::getChildren() const
@@ -62,7 +101,7 @@ std::vector<LogicalFunction> AbsoluteLogicalFunction::getChildren() const
     return {child};
 };
 
-LogicalFunction AbsoluteLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+AbsoluteLogicalFunction AbsoluteLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 1, "AbsoluteLogicalFunction requires exactly one child, but got {}", children.size());
     auto copy = *this;
@@ -75,13 +114,9 @@ std::string_view AbsoluteLogicalFunction::getType() const
     return NAME;
 }
 
-bool AbsoluteLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool AbsoluteLogicalFunction::operator==(const AbsoluteLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const AbsoluteLogicalFunction*>(&rhs))
-    {
-        return child == other->child;
-    }
-    return false;
+    return child == rhs.child;
 }
 
 std::string AbsoluteLogicalFunction::explain(ExplainVerbosity verbosity) const
@@ -93,17 +128,18 @@ std::string AbsoluteLogicalFunction::explain(ExplainVerbosity verbosity) const
     return fmt::format("ABS({})", child.explain(verbosity));
 }
 
-SerializableFunction AbsoluteLogicalFunction::serialize() const
+Reflected Reflector<AbsoluteLogicalFunction>::operator()(const AbsoluteLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(child.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedAbsoluteLogicalFunction{.child = function.child});
 }
 
-LogicalFunctionRegistryReturnType
-LogicalFunctionGeneratedRegistrar::RegisterAbsoluteLogicalFunction(LogicalFunctionRegistryArguments arguments)
+AbsoluteLogicalFunction Unreflector<AbsoluteLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [child] = context.unreflect<detail::ReflectedAbsoluteLogicalFunction>(reflected);
+    return AbsoluteLogicalFunction(std::move(child));
+}
+
+LogicalFunctionRegistryReturnType AbsoluteLogicalFunction::createAbs(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 1)
     {

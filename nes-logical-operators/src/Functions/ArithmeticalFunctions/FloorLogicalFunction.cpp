@@ -14,45 +14,50 @@
 
 #include <Functions/ArithmeticalFunctions/FloorLogicalFunction.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataTypeProvider.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-FloorLogicalFunction::FloorLogicalFunction(const LogicalFunction& child) : dataType(child.getDataType()), child(child) { };
+FloorLogicalFunction::FloorLogicalFunction(LogicalFunction child) : child(std::move(child)) { };
 
 DataType FloorLogicalFunction::getDataType() const
 {
     return dataType;
 };
 
-LogicalFunction FloorLogicalFunction::withDataType(const DataType& dataType) const
+LogicalFunction FloorLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
     auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
-LogicalFunction FloorLogicalFunction::withInferredDataType(const Schema& schema) const
-{
-    std::vector<LogicalFunction> newChildren;
-    for (auto& child : getChildren())
+    copy.child = child.withInferredDataType(schema);
+    if (!copy.child.getDataType().isNumeric())
     {
-        newChildren.push_back(child.withInferredDataType(schema));
+        throw CannotInferStamp("Cannot apply floor function on non-numeric input function {}", copy.child);
     }
-    return this->withChildren(newChildren);
+    /// ISO/IEC 9075-2 (<numeric value function>): FLOOR of an exact numeric type is exact numeric, FLOOR of an approximate numeric
+    /// type is approximate numeric. PostgreSQL, MySQL, and SQLite implement this by preserving the input type: floats stay floats and
+    /// integers pass through unchanged (FLOOR of an integer is the identity), so we do the same and never cast to INT64.
+    copy.dataType = copy.child.getDataType();
+    return copy;
 };
 
 std::vector<LogicalFunction> FloorLogicalFunction::getChildren() const
@@ -60,7 +65,7 @@ std::vector<LogicalFunction> FloorLogicalFunction::getChildren() const
     return {child};
 };
 
-LogicalFunction FloorLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+FloorLogicalFunction FloorLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 1, "FloorLogicalFunction requires exactly one child, but got {}", children.size());
     auto copy = *this;
@@ -73,13 +78,9 @@ std::string_view FloorLogicalFunction::getType() const
     return NAME;
 }
 
-bool FloorLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool FloorLogicalFunction::operator==(const FloorLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const FloorLogicalFunction*>(&rhs))
-    {
-        return child == other->child;
-    }
-    return false;
+    return child == rhs.child;
 }
 
 std::string FloorLogicalFunction::explain(ExplainVerbosity verbosity) const
@@ -91,17 +92,18 @@ std::string FloorLogicalFunction::explain(ExplainVerbosity verbosity) const
     return fmt::format("FLOOR({})", child.explain(verbosity));
 }
 
-SerializableFunction FloorLogicalFunction::serialize() const
+Reflected Reflector<FloorLogicalFunction>::operator()(const FloorLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(child.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedFloorLogicalFunction{.child = function.child});
 }
 
-LogicalFunctionRegistryReturnType
-LogicalFunctionGeneratedRegistrar::RegisterFloorLogicalFunction(LogicalFunctionRegistryArguments arguments)
+FloorLogicalFunction Unreflector<FloorLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [child] = context.unreflect<detail::ReflectedFloorLogicalFunction>(reflected);
+    return FloorLogicalFunction(std::move(child));
+}
+
+LogicalFunctionRegistryReturnType FloorLogicalFunction::createFloor(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 1)
     {

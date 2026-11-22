@@ -20,11 +20,11 @@
 #include <vector>
 #include <Identifiers/Identifiers.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
-#include <Util/ExecutionMode.hpp>
+#include <Util/ExecutionConfiguration.hpp>
 #include <Util/Logger/Formatter.hpp>
 #include <PhysicalOperator.hpp>
 #include <SinkPhysicalOperator.hpp>
-#include <SourcePhysicalOperator.hpp>
+#include <SourceDescriptorPhysicalOperator.hpp>
 
 namespace NES
 {
@@ -43,8 +43,8 @@ struct Pipeline
     /// Constructs a pipeline with the given PhysicalOperator as its root.
     explicit Pipeline(PhysicalOperator op);
 
-    /// Constructs a pipeline explicitly rooted with a SourcePhysicalOperator.
-    explicit Pipeline(const SourcePhysicalOperator& op);
+    /// Constructs a pipeline explicitly rooted with a SourceDescriptorPhysicalOperator.
+    explicit Pipeline(const SourceDescriptorPhysicalOperator& op);
 
     /// Constructs a pipeline explicitly rooted with a SinkPhysicalOperator.
     explicit Pipeline(const SinkPhysicalOperator& op);
@@ -59,8 +59,8 @@ struct Pipeline
 
     friend std::ostream& operator<<(std::ostream& os, const Pipeline&);
 
-    [[nodiscard]] std::optional<ExecutionMode> getExecutionMode() const;
-    void setExecutionMode(ExecutionMode mode);
+    [[nodiscard]] std::optional<ExecutionConfiguration> getExecutionConfiguration() const;
+    void setExecutionConfiguration(ExecutionConfiguration executionConfiguration);
 
     [[nodiscard]] const PhysicalOperator& getRootOperator() const;
     void setRootOperator(const PhysicalOperator& op);
@@ -80,7 +80,7 @@ struct Pipeline
     void removeSuccessor(const Pipeline& pipeline);
 
 private:
-    std::optional<ExecutionMode> executionMode;
+    std::optional<ExecutionConfiguration> executionConfiguration;
     PhysicalOperator rootOperator;
     const PipelineId pipelineId;
     std::unordered_map<OperatorHandlerId, std::shared_ptr<OperatorHandler>> operatorHandlers;

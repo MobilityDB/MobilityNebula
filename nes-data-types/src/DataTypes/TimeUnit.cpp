@@ -17,13 +17,13 @@
 #include <cstdint>
 #include <ostream>
 #include <string>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 
 namespace NES::Windowing
 {
 
 TimeUnit::TimeUnit(const uint64_t offset) : multiplier(offset) { };
-TimeUnit::TimeUnit(const TimeUnit& timeUnit) = default;
 
 uint64_t TimeUnit::getMillisecondsConversionMultiplier() const
 {
@@ -34,11 +34,6 @@ std::ostream& operator<<(std::ostream& os, const TimeUnit& timeUnit)
 {
     os << fmt::format("TimeUnit: multiplier= {}", std::to_string(timeUnit.multiplier));
     return os;
-}
-
-bool TimeUnit::operator==(const TimeUnit& other) const
-{
-    return this->multiplier == other.multiplier;
 }
 
 TimeUnit TimeUnit::Milliseconds()
@@ -66,4 +61,18 @@ TimeUnit TimeUnit::Days()
     return TimeUnit(1000 * 60 * 60 * 24);
 }
 
+}
+
+namespace NES
+{
+Reflected Reflector<Windowing::TimeUnit>::operator()(const Windowing::TimeUnit& timeUnit, const ReflectionContext& context) const
+{
+    return context.reflect(timeUnit.getMillisecondsConversionMultiplier());
+}
+
+Windowing::TimeUnit Unreflector<Windowing::TimeUnit>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    const auto multiplier = context.unreflect<uint64_t>(reflected);
+    return Windowing::TimeUnit{multiplier};
+}
 }

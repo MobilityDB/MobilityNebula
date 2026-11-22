@@ -19,9 +19,13 @@
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <DataTypes/DataType.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <Interface/NautilusBuffer.hpp>
+#include <Interface/Record.hpp>
 #include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/TupleBuffer.hpp>
+#include <AggregationPhysicalFunctionRegistry.hpp>
 #include <val_concepts.hpp>
+#include <val_ptr.hpp>
 
 namespace NES
 {
@@ -30,23 +34,27 @@ class MaxAggregationPhysicalFunction : public AggregationPhysicalFunction
 {
 public:
     MaxAggregationPhysicalFunction(
-        DataType inputType,
-        DataType resultType,
-        PhysicalFunction inputFunction,
-        Nautilus::Record::RecordFieldIdentifier resultFieldIdentifier);
+        DataType inputType, DataType resultType, PhysicalFunction inputFunction, Record::RecordFieldIdentifier resultFieldIdentifier);
     void lift(
         const nautilus::val<AggregationState*>& aggregationState,
+        BorrowedNautilusBuffer,
         PipelineMemoryProvider& pipelineMemoryProvider,
         const Record& record) override;
     void combine(
         nautilus::val<AggregationState*> aggregationState1,
+        BorrowedNautilusBuffer,
         nautilus::val<AggregationState*> aggregationState2,
+        BorrowedNautilusBuffer,
         PipelineMemoryProvider& pipelineMemoryProvider) override;
-    Record lower(nautilus::val<AggregationState*> aggregationState, PipelineMemoryProvider& pipelineMemoryProvider) override;
-    void reset(nautilus::val<AggregationState*> aggregationState, PipelineMemoryProvider& pipelineMemoryProvider) override;
+    Record lower(
+        nautilus::val<AggregationState*> aggregationState, BorrowedNautilusBuffer, PipelineMemoryProvider& pipelineMemoryProvider) override;
+    void reset(
+        nautilus::val<AggregationState*> aggregationState, BorrowedNautilusBuffer, PipelineMemoryProvider& pipelineMemoryProvider) override;
     void cleanup(nautilus::val<AggregationState*> aggregationState) override;
     [[nodiscard]] size_t getSizeOfStateInBytes() const override;
     ~MaxAggregationPhysicalFunction() override = default;
+
+    static AggregationPhysicalFunctionRegistryReturnType create(AggregationPhysicalFunctionRegistryArguments arguments);
 };
 
 }

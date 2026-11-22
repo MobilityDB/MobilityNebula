@@ -14,35 +14,48 @@
 
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
 #include <Functions/FieldAccessLogicalFunction.hpp>
+#include <Functions/LogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
-#include <Util/Registry.hpp>
+#include <Util/Reflection.hpp>
+#include <Util/RuntimeRegistry.hpp>
 
 namespace NES
 {
 
-using AggregationLogicalFunctionRegistryReturnType = std::shared_ptr<WindowAggregationLogicalFunction>;
+using AggregationLogicalFunctionRegistryReturnType = WindowAggregationLogicalFunction;
 
 struct AggregationLogicalFunctionRegistryArguments
 {
-    std::vector<FieldAccessLogicalFunction> fields;
-    /// Query-literal constants of a parameterized aggregation, read from
-    /// SerializableAggregationFunction.literals. Empty for a field-only aggregation.
-    std::vector<std::string> literals;
+    std::vector<AggregationFieldAccess> on;
+    bool includeNullValues;
+    /// The constants a query passes after the aggregated field, as in `aggregation(field, constant, ...)`; none
+    /// for an aggregation over its field alone
+    std::vector<LogicalFunction> literals{};
 };
 
-class AggregationLogicalFunctionRegistry : public BaseRegistry<
+using AggregationLogicalFunctionFn
+    = std::function<AggregationLogicalFunctionRegistryReturnType(AggregationLogicalFunctionRegistryArguments)>;
+
+/// Filled by loadBuiltinPlugins() / plugin registration (see cmake/RuntimeRegistrationUtil.cmake).
+/// Entries are static create members on the aggregation function classes (constructor
+/// signatures differ between aggregations). Enables name-based construction of aggregation
+/// functions, e.g. for parser-side extensibility.
+/// Case-insensitive to mirror the retired BaseRegistry.
+class AggregationLogicalFunctionRegistry : public RuntimeRegistry<
                                                AggregationLogicalFunctionRegistry,
                                                std::string,
-                                               AggregationLogicalFunctionRegistryReturnType,
-                                               AggregationLogicalFunctionRegistryArguments>
+                                               AggregationLogicalFunctionFn,
+                                               /*CaseSensitive*/ false>
 {
+public:
+    /// Defined out-of-line (AggregationLogicalFunctionRegistry.cpp) so exactly one instance
+    /// exists process-wide even with plugins loaded as shared objects.
+    static AggregationLogicalFunctionRegistry& instance();
 };
-}
 
-#define INCLUDED_FROM_REGISTRY_WINDOW_AGGREGATION_FUNCTION
-#include <AggregationLogicalFunctionGeneratedRegistrar.inc>
-#undef INCLUDED_FROM_REGISTRY_WINDOW_AGGREGATION_FUNCTION
+}

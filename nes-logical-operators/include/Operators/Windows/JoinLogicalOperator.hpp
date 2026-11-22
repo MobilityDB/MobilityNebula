@@ -14,112 +14,178 @@
 
 #pragma once
 
+#include <array>
+#include <cstddef>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <variant>
 #include <vector>
-#include <Configurations/Descriptor.hpp>
+
 #include <Configurations/Enums/EnumWrapper.hpp>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataType.hpp>
+#include <DataTypes/UnboundField.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
+#include <Operators/LogicalOperatorFwd.hpp>
 #include <Operators/OriginIdAssigner.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/ReflectedOperator.hpp>
 #include <Traits/Trait.hpp>
 #include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <WindowTypes/Types/WindowType.hpp>
-#include <Windowing/WindowMetaData.hpp>
-#include <SerializableVariantDescriptor.pb.h>
+#include <Util/Reflection.hpp>
+#include <Util/Variant.hpp>
+#include <WindowTypes/Measures/TimeCharacteristic.hpp>
+#include <WindowTypes/Types/TimeBasedWindowType.hpp>
 
 namespace NES
 {
 class SerializableOperator;
 
-class JoinLogicalOperator final : public OriginIdAssigner
+namespace detail
+{
+template <typename T>
+using ArrayOfTwo = std::array<T, 2>;
+}
+
+using JoinTimeCharacteristic = NES::VariantContainerFrom<NES::detail::ArrayOfTwo, Windowing::TimeCharacteristic>;
+
+class JoinLogicalOperator final : public OriginIdAssigner, public ManagedByOperator
 {
 public:
     enum class JoinType : uint8_t
     {
         INNER_JOIN,
-        CARTESIAN_PRODUCT
+        CARTESIAN_PRODUCT,
+        OUTER_LEFT_JOIN,
+        OUTER_RIGHT_JOIN,
+        OUTER_FULL_JOIN
     };
 
-    explicit JoinLogicalOperator(LogicalFunction joinFunction, std::shared_ptr<Windowing::WindowType> windowType, JoinType joinType);
+    explicit JoinLogicalOperator(
+        WeakLogicalOperator self,
+        LogicalFunction joinFunction,
+        Windowing::TimeBasedWindowType windowType,
+        JoinType joinType,
+        JoinTimeCharacteristic timeCharacteristics);
+
+    explicit JoinLogicalOperator(
+        WeakLogicalOperator self,
+        std::array<LogicalOperator, 2> children,
+        LogicalFunction joinFunction,
+        Windowing::TimeBasedWindowType windowType,
+        JoinType joinType,
+        JoinTimeCharacteristic timeCharacteristics);
+
+    static TypedLogicalOperator<JoinLogicalOperator> create(
+        LogicalFunction joinFunction,
+        Windowing::TimeBasedWindowType windowType,
+        JoinType joinType,
+        JoinTimeCharacteristic timeCharacteristics);
+
+    static TypedLogicalOperator<JoinLogicalOperator> create(
+        std::array<LogicalOperator, 2> children,
+        LogicalFunction joinFunction,
+        Windowing::TimeBasedWindowType windowType,
+        JoinType joinType,
+        JoinTimeCharacteristic timeCharacteristics);
+
+    static std::optional<JoinTimeCharacteristic> createJoinTimeCharacteristic(
+        const std::array<std::variant<Windowing::UnboundTimeCharacteristic, Windowing::BoundTimeCharacteristic>, 2>& timestampFields);
 
     [[nodiscard]] LogicalFunction getJoinFunction() const;
-    [[nodiscard]] Schema getLeftSchema() const;
-    [[nodiscard]] Schema getRightSchema() const;
-    [[nodiscard]] std::shared_ptr<Windowing::WindowType> getWindowType() const;
-    [[nodiscard]] std::string getWindowStartFieldName() const;
-    [[nodiscard]] std::string getWindowEndFieldName() const;
-    [[nodiscard]] const WindowMetaData& getWindowMetaData() const;
+    [[nodiscard]] Windowing::TimeBasedWindowType getWindowType() const;
+    [[nodiscard]] const UnqualifiedUnboundField& getStartField() const;
+    [[nodiscard]] const UnqualifiedUnboundField& getEndField() const;
+    [[nodiscard]] JoinTimeCharacteristic getJoinTimeCharacteristics() const;
+    [[nodiscard]] JoinType getJoinType() const;
 
 
     [[nodiscard]] bool operator==(const JoinLogicalOperator& rhs) const;
-    void serialize(SerializableOperator&) const;
 
     [[nodiscard]] JoinLogicalOperator withTraitSet(TraitSet traitSet) const;
     [[nodiscard]] TraitSet getTraitSet() const;
 
+    [[nodiscard]] Schema<Field, Unordered> getOutputSchema() const;
+    [[nodiscard]] JoinLogicalOperator withChildrenUnsafe(std::vector<LogicalOperator> children) const;
     [[nodiscard]] JoinLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
     [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
-
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
-    [[nodiscard]] Schema getOutputSchema() const;
+    [[nodiscard]] std::array<LogicalOperator, 2> getBothChildren() const;
 
     [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId) const;
     [[nodiscard]] std::string_view getName() const noexcept;
 
-    [[nodiscard]] JoinLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
-
-    struct ConfigParameters
-    {
-        static inline const DescriptorConfig::ConfigParameter<EnumWrapper, JoinType> JOIN_TYPE{
-            "joinType",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(JOIN_TYPE, config); }};
-
-        static inline const DescriptorConfig::ConfigParameter<EnumWrapper, FunctionList> JOIN_FUNCTION{
-            "joinFunctionName",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(JOIN_TYPE, config); }};
-
-        static inline const DescriptorConfig::ConfigParameter<std::string> WINDOW_START_FIELD_NAME{
-            "windowStartFieldName",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return DescriptorConfig::tryGet(WINDOW_START_FIELD_NAME, config); }};
-
-        static inline const DescriptorConfig::ConfigParameter<std::string> WINDOW_END_FIELD_NAME{
-            "windowEndFieldName",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return DescriptorConfig::tryGet(WINDOW_END_FIELD_NAME, config); }};
-
-        static inline const DescriptorConfig::ConfigParameter<WindowInfos> WINDOW_INFOS{
-            "windowInfo",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(WINDOW_INFOS, config); }};
-
-        static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
-            = DescriptorConfig::createConfigParameterContainerMap(
-                JOIN_TYPE, JOIN_FUNCTION, WINDOW_INFOS, WINDOW_START_FIELD_NAME, WINDOW_END_FIELD_NAME);
-    };
+    [[nodiscard]] JoinLogicalOperator withInferredSchema() const;
 
 private:
-    static constexpr std::string_view NAME = "Join";
-    LogicalFunction joinFunction;
-    std::shared_ptr<Windowing::WindowType> windowType;
-    WindowMetaData windowMetaData;
-    JoinType joinType;
+    friend struct detail::ErasedLogicalOperator;
 
-    std::vector<LogicalOperator> children;
+    static constexpr std::string_view NAME = "Join";
+
+    Windowing::TimeBasedWindowType windowType;
+    JoinType joinType;
+    std::optional<std::array<LogicalOperator, 2>> children;
+    LogicalFunction joinFunction;
+
+    void inferLocalSchema();
+    /// Set during schema inference
+    std::optional<Schema<UnqualifiedUnboundField, Unordered>> outputSchema;
+    JoinTimeCharacteristic timestampFields;
+
+    std::array<UnqualifiedUnboundField, 2> startEndFields = std::array{
+        UnqualifiedUnboundField{Identifier::parse("start"), DataType::Type::UINT64},
+        UnqualifiedUnboundField{Identifier::parse("end"), DataType::Type::UINT64}};
+
     TraitSet traitSet;
-    Schema leftInputSchema, rightInputSchema, outputSchema;
+    friend struct std::hash<JoinLogicalOperator>;
 };
 
 static_assert(LogicalOperatorConcept<JoinLogicalOperator>);
+
+[[nodiscard]] inline bool isOuterJoin(JoinLogicalOperator::JoinType joinType) noexcept
+{
+    return joinType == JoinLogicalOperator::JoinType::OUTER_LEFT_JOIN || joinType == JoinLogicalOperator::JoinType::OUTER_RIGHT_JOIN
+        || joinType == JoinLogicalOperator::JoinType::OUTER_FULL_JOIN;
 }
+
+template <>
+struct Reflector<TypedLogicalOperator<JoinLogicalOperator>>
+{
+    Reflected operator()(const TypedLogicalOperator<JoinLogicalOperator>& op, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<TypedLogicalOperator<JoinLogicalOperator>>
+{
+    using ContextType = std::shared_ptr<ReflectedPlan>;
+    ContextType plan;
+    explicit Unreflector(ContextType operatorMapping);
+    TypedLogicalOperator<JoinLogicalOperator> operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
+
+namespace detail
+{
+struct ReflectedJoinLogicalOperator
+{
+    OperatorId operatorId{OperatorId::INVALID};
+    LogicalFunction joinFunction;
+    Windowing::TimeBasedWindowType windowType;
+    JoinTimeCharacteristic timestampFields;
+    JoinLogicalOperator::JoinType joinType = JoinLogicalOperator::JoinType::INNER_JOIN;
+};
+}
+}
+
+template <>
+struct std::hash<NES::JoinLogicalOperator>
+{
+    std::size_t operator()(const NES::JoinLogicalOperator& joinLogicalOperator) const noexcept;
+};

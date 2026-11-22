@@ -14,271 +14,92 @@
 
 #pragma once
 
+#include <chrono>
 #include <cstdint>
-#include <atomic>
+#include <expected>
 #include <memory>
-#include <optional>
 #include <ostream>
-#include <random>
 #include <string>
-#include <unordered_map>
+#include <string_view>
 
-#include <mqtt/async_client.h>
-
-#include <Configurations/Descriptor.hpp>
-#include <Identifiers/Identifiers.hpp>
+#include <Configurations/ConfigField.hpp>
+#include <Configurations/InstantiatedConfigValue.hpp>
 #include <Runtime/TupleBuffer.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Sinks/BackpressureHandler.hpp>
 #include <Sinks/Sink.hpp>
 #include <Sinks/SinkDescriptor.hpp>
-#include <SinksParsing/CSVFormat.hpp>
-#include <Util/Logger/Logger.hpp>
+#include <Util/Logger/Formatter.hpp>
+#include <folly/Synchronized.h>
+#include <mqtt/async_client.h>
+#include <nes-network-bindings/lib.h>
+#include <BackpressureChannel.hpp>
+#include <ErrorHandling.hpp>
 #include <PipelineExecutionContext.hpp>
 
 namespace NES
 {
 
-class MQTTSink : public Sink
-{
-public:
-    static inline std::string NAME = "MQTT";
-    explicit MQTTSink(const SinkDescriptor& sinkDescriptor);
-    ~MQTTSink() override = default;
+constexpr std::string_view GENERATE_CLIENT_ID_TOKEN = "HACK_GENERATED_TOKEN_SENTINEL_VALUE";
 
-    MQTTSink(const MQTTSink&) = delete;
-    MQTTSink& operator=(const MQTTSink&) = delete;
-    MQTTSink(MQTTSink&&) = delete;
-    MQTTSink& operator=(MQTTSink&&) = delete;
-
-    void start(PipelineExecutionContext& pipelineExecutionContext) override;
-    void execute(const TupleBuffer& inputBuffer, PipelineExecutionContext& pipelineExecutionContext) override;
-    void stop(PipelineExecutionContext& pipelineExecutionContext) override;
-
-    static DescriptorConfig::Config validateAndFormat(std::unordered_map<std::string, std::string> config);
-
-protected:
-    std::ostream& toString(std::ostream& str) const override;
-
-private:
-    class Callback;
-
-    std::string serverUri;
-    std::string clientId;
-    std::string topic;
-    std::optional<std::string> username;
-    std::optional<std::string> password;
-    int32_t qos;
-    bool cleanSession;
-    std::optional<std::string> persistenceDir;
-    std::optional<int32_t> maxInflight;
-    bool useTls;
-    std::optional<std::string> tlsCaCertPath;
-    std::optional<std::string> tlsClientCertPath;
-    std::optional<std::string> tlsClientKeyPath;
-    bool tlsAllowInsecure;
-
-    std::unique_ptr<mqtt::async_client> client;
-    std::shared_ptr<Callback> clientCallback;
-
-    std::unique_ptr<Format> formatter;
-
-    static constexpr int32_t DEFAULT_MAX_INFLIGHT_QOS2 = 20;
-};
-
-class MQTTSink::Callback : public mqtt::callback
-{
-public:
-    explicit Callback(std::string serverUri);
-
-    void connected(const std::string& cause) override;
-    void connection_lost(const std::string& cause) override;
-    void delivery_complete(mqtt::delivery_token_ptr token) override;
-
-private:
-    std::string targetServerUri;
-    std::atomic<uint64_t> deliveredCount{0};
-};
-
-namespace detail::uuid
-{
-static std::random_device rd;
-static std::mt19937 gen(rd());
-static std::uniform_int_distribution<> dis(0, 15);
-static std::uniform_int_distribution<> dis2(8, 11);
-
-inline std::string generateUUID()
-{
-    std::stringstream ss;
-    ss << std::hex;
-    for (int i = 0; i < 8; i++)
-    {
-        ss << dis(gen);
-    }
-    ss << "-";
-    for (int i = 0; i < 4; i++)
-    {
-        ss << dis(gen);
-    }
-    ss << "-4";
-    for (int i = 0; i < 3; i++)
-    {
-        ss << dis(gen);
-    }
-    ss << "-";
-    ss << dis2(gen);
-    for (int i = 0; i < 3; i++)
-    {
-        ss << dis(gen);
-    }
-    ss << "-";
-    for (int i = 0; i < 12; i++)
-    {
-        ss << dis(gen);
-    }
-    return ss.str();
-}
-}
-
-// Note: Avoid name clash with MQTT Source config (which also used ConfigParametersMQTT).
-// Using a distinct name ensures the correct validator is instantiated and used.
 struct MQTTSinkConfig
 {
-    static inline const DescriptorConfig::ConfigParameter<std::string> SERVER_URI{
-        "serverURI",
-        std::nullopt,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return DescriptorConfig::tryGet(SERVER_URI, config); }};
+    std::string serverURI;
+    std::string clientId;
+    std::string topic;
+    int64_t qos{};
+    bool retained{};
+    int64_t maxOutstandingMessages{};
 
-    static inline const DescriptorConfig::ConfigParameter<std::string> CLIENT_ID{
-        "clientId",
-        "generated",
-        [](const std::unordered_map<std::string, std::string>& config) -> std::optional<std::string>
-        {
-            if (auto it = config.find(CLIENT_ID); it != config.end())
-            {
-                return it->second;
-            }
-            return detail::uuid::generateUUID();
-        }};
+    static std::expected<MQTTSinkConfig, Exception> fromConfig(const InstantiatedConfig& config);
+};
 
-    static inline const DescriptorConfig::ConfigParameter<std::string> TOPIC{
-        "topic",
-        std::nullopt,
-        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(TOPIC, config); }};
+class MQTTSink final : public Sink
+{
+public:
+    static constexpr std::string_view NAME = "MQTT";
+    static constexpr auto BACKPRESSURE_RETRY_INTERVAL = std::chrono::milliseconds(10);
 
-    static inline const DescriptorConfig::ConfigParameter<std::string> USERNAME{
-        "username",
-        std::string{},
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return DescriptorConfig::tryGet(USERNAME, config); }};
+    explicit MQTTSink(BackpressureController backpressureController, const MQTTSinkConfig& config, const SinkDescriptor& sinkDescriptor);
 
-    static inline const DescriptorConfig::ConfigParameter<std::string> PASSWORD{
-        "password",
-        std::string{},
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return DescriptorConfig::tryGet(PASSWORD, config); }};
+    void start(PipelineExecutionContext&) override;
+    void stop(PipelineExecutionContext&) override;
+    void execute(const TupleBuffer& inputTupleBuffer, PipelineExecutionContext&) override;
 
-    static inline const DescriptorConfig::ConfigParameter<int32_t> QOS{
-        "qos",
-        1,
-        [](const std::unordered_map<std::string, std::string>& config) -> std::optional<int32_t>
-        {
-            // Check if qos is present in config, if not use default value
-            if (auto it = config.find("qos"); it != config.end()) {
-                int32_t qos = std::stoi(it->second);
-                if (qos != 0 && qos != 1 && qos != 2)
-                {
-                    NES_ERROR("MQTTSink: QualityOfService is: {}, but must be 0, 1, or 2.", qos);
-                    return std::nullopt;
-                }
-                return qos;
-            }
-            return 1; // Default QOS value
-        }};
+    static Schema<QualifiedErasedConfigField, Ordered> getConfigSchema();
 
-    static inline const DescriptorConfig::ConfigParameter<bool> CLEAN_SESSION{
-        "cleanSession",
-        true,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return DescriptorConfig::tryGet(CLEAN_SESSION, config); }};
+protected:
+    std::ostream& toString(std::ostream& os) const override;
 
-    static inline const DescriptorConfig::ConfigParameter<std::string> PERSISTENCE_DIR{
-        "persistenceDir",
-        "",
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return DescriptorConfig::tryGet(PERSISTENCE_DIR, config); }};
+private:
+    /// Reports connection loss reported by paho outside of a publish() call. paho only calls
+    /// connection_lost() for an unexpected drop, not for a clean disconnect() in stop().
+    class ConnectionCallback final : public mqtt::callback
+    {
+    public:
+        void connection_lost(const std::string& cause) override;
+        folly::Synchronized<std::string> lostCause;
+    };
 
-    static inline const DescriptorConfig::ConfigParameter<int32_t> MAX_INFLIGHT{
-        "maxInflight",
-        0,
-        [](const std::unordered_map<std::string, std::string>& config) -> std::optional<int32_t>
-        {
-            if (auto it = config.find("maxInflight"); it != config.end())
-            {
-                int value = std::stoi(it->second);
-                if (value <= 0)
-                {
-                    NES_ERROR("MQTTSink: maxInflight must be greater than zero when provided, but was {}", value);
-                    return std::nullopt;
-                }
-                return value;
-            }
-            return 0;
-        }};
+    /// Outcome of a single publish attempt:
+    ///   Ok     - paho accepted the message into its outbound queue.
+    ///   Closed - non-recoverable paho error (disconnected, protocol, etc.); caller should fail the query.
+    ///   Full   - paho's outbound queue is at capacity; caller should buffer & retry.
+    SendResult tryPublish(const TupleBuffer& buffer);
 
-    static inline const DescriptorConfig::ConfigParameter<bool> USE_TLS{
-        "useTls",
-        false,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return DescriptorConfig::tryGet(USE_TLS, config); }};
+    std::string serverURI;
+    std::string clientId;
+    std::string topic;
+    int32_t qos;
+    bool retained;
+    int32_t maxOutstandingMessages;
 
-    static inline const DescriptorConfig::ConfigParameter<std::string> TLS_CA_CERT{
-        "tlsCaCertPath",
-        "",
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return DescriptorConfig::tryGet(TLS_CA_CERT, config); }};
-
-    static inline const DescriptorConfig::ConfigParameter<std::string> TLS_CLIENT_CERT{
-        "tlsClientCertPath",
-        "",
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return DescriptorConfig::tryGet(TLS_CLIENT_CERT, config); }};
-
-    static inline const DescriptorConfig::ConfigParameter<std::string> TLS_CLIENT_KEY{
-        "tlsClientKeyPath",
-        "",
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return DescriptorConfig::tryGet(TLS_CLIENT_KEY, config); }};
-
-    static inline const DescriptorConfig::ConfigParameter<bool> TLS_ALLOW_INSECURE{
-        "tlsAllowInsecure",
-        false,
-        [](const std::unordered_map<std::string, std::string>& config)
-        { return DescriptorConfig::tryGet(TLS_ALLOW_INSECURE, config); }};
-
-    static inline const DescriptorConfig::ConfigParameter<EnumWrapper, InputFormat>
-        INPUT_FORMAT{
-            "inputFormat",
-            EnumWrapper(InputFormat::CSV),
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return DescriptorConfig::tryGet(INPUT_FORMAT, config); }};
-
-    static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
-        = DescriptorConfig::createConfigParameterContainerMap(
-            SERVER_URI,
-            CLIENT_ID,
-            QOS,
-            TOPIC,
-            USERNAME,
-            PASSWORD,
-            CLEAN_SESSION,
-            PERSISTENCE_DIR,
-            MAX_INFLIGHT,
-            USE_TLS,
-            TLS_CA_CERT,
-            TLS_CLIENT_CERT,
-            TLS_CLIENT_KEY,
-            TLS_ALLOW_INSECURE,
-            INPUT_FORMAT);
+    ConnectionCallback connectionCallback;
+    std::unique_ptr<mqtt::async_client> client;
+    BackpressureHandler backpressureHandler;
 };
 
 }
+
+FMT_OSTREAM(NES::MQTTSink);

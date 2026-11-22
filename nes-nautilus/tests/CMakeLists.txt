@@ -16,6 +16,9 @@ add_subdirectory(TestUtils)
 add_nes_unit_test(paged-vector-unit-tests "UnitTests/PagedVectorTest.cpp")
 target_link_libraries(paged-vector-unit-tests nes-nautilus-test-util)
 
+add_nes_unit_test(nautilus-buffer-unit-tests "UnitTests/NautilusBufferTest.cpp")
+target_link_libraries(nautilus-buffer-unit-tests nes-nautilus-test-util)
+
 add_nes_unit_test(variable-sized-data-unit-tests "UnitTests/VariableSizedDataTest.cpp")
 target_link_libraries(variable-sized-data-unit-tests nes-nautilus-test-util)
 
@@ -25,5 +28,15 @@ target_link_libraries(var-val-unit-tests nes-nautilus-test-util)
 add_nes_unit_test(chained-hashmap-unit-tests "UnitTests/ChainedHashMapTest.cpp")
 target_link_libraries(chained-hashmap-unit-tests nes-nautilus-test-util)
 
-add_nes_unit_test(chained-hashmap-unit-tests-custom-value "UnitTests/ChainedHashMapCustomValueTest.cpp")
-target_link_libraries(chained-hashmap-unit-tests-custom-value nes-nautilus-test-util)
+add_nes_unit_test(nautilus-exception-unit-tests "UnitTests/ExceptionTest.cpp")
+target_link_libraries(nautilus-exception-unit-tests nes-nautilus-test-util)
+
+if(ALL_HASHMAP_TESTS)
+    target_compile_definitions(chained-hashmap-unit-tests PRIVATE ALL_HASHMAP_TESTS)
+endif()
+
+add_nes_unit_test(TestTupleBufferTest "TestTupleBufferTest.cpp")
+target_link_libraries(TestTupleBufferTest nes-nautilus-test-util)
+
+add_nes_unit_test(bloom-filter-unit-tests "UnitTests/BloomFilterTest.cpp")
+target_link_libraries(bloom-filter-unit-tests nes-nautilus-test-util)

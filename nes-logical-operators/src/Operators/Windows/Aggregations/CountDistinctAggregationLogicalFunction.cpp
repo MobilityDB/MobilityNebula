@@ -14,95 +14,102 @@
 
 #include <Operators/Windows/Aggregations/CountDistinctAggregationLogicalFunction.hpp>
 
+#include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <DataTypes/DataTypeProvider.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <fmt/format.h>
 #include <ErrorHandling.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 #include <utility>
+#include <variant>
+#include <DataTypes/DataType.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <folly/hash/Hash.h>
 #include <AggregationLogicalFunctionRegistry.hpp>
 
 namespace NES
 {
-CountDistinctAggregationLogicalFunction::CountDistinctAggregationLogicalFunction(const FieldAccessLogicalFunction& field)
-    : WindowAggregationLogicalFunction(
-          field.getDataType(),
-          DataTypeProvider::provideDataType(partialAggregateStampType),
-          DataTypeProvider::provideDataType(finalAggregateStampType),
-          field)
+CountDistinctAggregationLogicalFunction::CountDistinctAggregationLogicalFunction(AggregationFieldAccess inputFunction)
+    : inputFunction(std::move(inputFunction))
 {
 }
 
-CountDistinctAggregationLogicalFunction::CountDistinctAggregationLogicalFunction(
-    const FieldAccessLogicalFunction& field, FieldAccessLogicalFunction asField)
-    : WindowAggregationLogicalFunction(
-          field.getDataType(),
-          DataTypeProvider::provideDataType(partialAggregateStampType),
-          DataTypeProvider::provideDataType(finalAggregateStampType),
-          field,
-          std::move(asField))
-{
-}
-
-std::string_view CountDistinctAggregationLogicalFunction::getName() const noexcept
+std::string_view CountDistinctAggregationLogicalFunction::getName() noexcept
 {
     return NAME;
 }
 
-void CountDistinctAggregationLogicalFunction::inferStamp(const Schema& schema)
+DataType CountDistinctAggregationLogicalFunction::getAggregateType() const
 {
-    /// The values of the input field are compared, so they keep the type of the field; the count is a UINT64
-    onField = onField.withInferredDataType(schema).get<FieldAccessLogicalFunction>();
-
-    ///Set fully qualified name for the as Field
-    const auto onFieldName = onField.getFieldName();
-    const auto asFieldName = asField.getFieldName();
-
-    const auto attributeNameResolver = onFieldName.substr(0, onFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR) + 1);
-    ///If on and as field name are different then append the attribute name resolver from on field to the as field
-    if (asFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR) == std::string::npos)
-    {
-        asField = asField.withFieldName(attributeNameResolver + asFieldName).get<FieldAccessLogicalFunction>();
-    }
-    else
-    {
-        const auto fieldName = asFieldName.substr(asFieldName.find_last_of(Schema::ATTRIBUTE_NAME_SEPARATOR) + 1);
-        asField = asField.withFieldName(attributeNameResolver + fieldName).get<FieldAccessLogicalFunction>();
-    }
-    inputStamp = onField.getDataType();
-    finalAggregateStamp = DataTypeProvider::provideDataType(DataType::Type::UINT64);
-    asField = asField.withDataType(getFinalAggregateStamp()).get<FieldAccessLogicalFunction>();
+    /// A window holds at least one record, and a count of none of its values is zero
+    return DataTypeProvider::provideDataType(finalAggregateStampType, DataType::NULLABLE::NOT_NULLABLE);
 }
 
-SerializableAggregationFunction CountDistinctAggregationLogicalFunction::serialize() const
+bool CountDistinctAggregationLogicalFunction::shallIncludeNullValues() noexcept
 {
-    SerializableAggregationFunction serializedAggregationFunction;
-    serializedAggregationFunction.set_type(NAME);
-
-    auto onFieldFuc = SerializableFunction();
-    onFieldFuc.CopyFrom(onField.serialize());
-
-    auto asFieldFuc = SerializableFunction();
-    asFieldFuc.CopyFrom(asField.serialize());
-
-    serializedAggregationFunction.mutable_as_field()->CopyFrom(asFieldFuc);
-    serializedAggregationFunction.mutable_on_field()->CopyFrom(onFieldFuc);
-    return serializedAggregationFunction;
+    return false;
 }
 
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterCountDistinctAggregationLogicalFunction(
-    AggregationLogicalFunctionRegistryArguments arguments)
+AggregationFieldAccess CountDistinctAggregationLogicalFunction::getInputFunction() const
 {
-    if (arguments.fields.size() != 2)
+    return inputFunction;
+}
+
+std::string CountDistinctAggregationLogicalFunction::explain(ExplainVerbosity verbosity) const
+{
+    if (verbosity == ExplainVerbosity::Short)
     {
-        throw CannotDeserialize("CountDistinctAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
+        return fmt::format("{}()", NAME);
     }
-    return std::make_shared<CountDistinctAggregationLogicalFunction>(arguments.fields[0], arguments.fields[1]);
+    auto inputExplain = std::visit([verbosity](const auto& input) { return input->explain(verbosity); }, inputFunction);
+    return fmt::format("{}({})", NAME, inputExplain);
 }
+
+bool CountDistinctAggregationLogicalFunction::operator==(const CountDistinctAggregationLogicalFunction& other) const
+{
+    return inputFunction == other.inputFunction;
+}
+
+CountDistinctAggregationLogicalFunction CountDistinctAggregationLogicalFunction::withInferredType(const Schema<Field, Unordered>& schema) const
+{
+    return CountDistinctAggregationLogicalFunction{inferFieldAccess(inputFunction, schema)};
+}
+
+Reflected Reflector<CountDistinctAggregationLogicalFunction>::operator()(
+    const CountDistinctAggregationLogicalFunction& function, const ReflectionContext& context) const
+{
+    return context.reflect(function.getInputFunction());
+}
+
+CountDistinctAggregationLogicalFunction
+Unreflector<CountDistinctAggregationLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    return CountDistinctAggregationLogicalFunction{context.unreflect<AggregationFieldAccess>(reflected)};
+}
+
+AggregationLogicalFunctionRegistryReturnType CountDistinctAggregationLogicalFunction::create(AggregationLogicalFunctionRegistryArguments arguments)
+{
+    if (arguments.on.size() != 1)
+    {
+        throw CannotDeserialize("CountDistinctAggregationLogicalFunction requires exactly one field, but got {}", arguments.on.size());
+    }
+    return CountDistinctAggregationLogicalFunction{arguments.on.at(0)};
+}
+}
+
+size_t std::hash<NES::CountDistinctAggregationLogicalFunction>::operator()(
+    const NES::CountDistinctAggregationLogicalFunction& aggregationFunction) const noexcept
+{
+    return folly::hash::hash_combine(aggregationFunction.getInputFunction(), NES::CountDistinctAggregationLogicalFunction::getName());
 }

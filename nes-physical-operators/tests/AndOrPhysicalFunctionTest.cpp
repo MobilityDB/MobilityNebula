@@ -1,0 +1,120 @@
+/*
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
+
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <memory>
+#include <unordered_map>
+#include <DataTypes/VarVal.hpp>
+#include <Functions/BooleanFunctions/AndPhysicalFunction.hpp>
+#include <Functions/BooleanFunctions/OrPhysicalFunction.hpp>
+#include <Functions/FieldAccessPhysicalFunction.hpp>
+#include <Identifiers/Identifier.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/Allocator/NesDefaultMemoryAllocator.hpp>
+#include <Runtime/BufferManager.hpp>
+#include <Runtime/TupleBuffer.hpp>
+#include <Util/Logger/LogLevel.hpp>
+#include <Util/Logger/Logger.hpp>
+#include <Util/Logger/impl/NesLogger.hpp>
+#include <gtest/gtest.h>
+#include <Arena.hpp>
+#include <BaseUnitTest.hpp>
+#include <val_bool.hpp>
+
+namespace NES
+{
+namespace
+{
+constexpr uint32_t POOLED_BUFFER_SIZE = 8192;
+constexpr uint32_t NUMBER_OF_POOLED_BUFFERS = 1024;
+constexpr NES::BufferAlignment BUFFER_ALIGNMENT{64};
+constexpr double UNPOOLED_MEMORY_FRACTION = 0.9;
+constexpr size_t TOTAL_MEMORY_IN_BYTES = 10 * static_cast<size_t>(NUMBER_OF_POOLED_BUFFERS) * POOLED_BUFFER_SIZE;
+}
+
+class AndOrLogicalFunctionTest : public Testing::BaseUnitTest
+{
+public:
+    static void SetUpTestSuite()
+    {
+        Logger::setupLogging("AndOrLogicalFunctionTest.log", LogLevel::LOG_DEBUG);
+        NES_DEBUG("Setup AndOrLogicalFunctionTest test class.");
+    }
+
+    void SetUp() override
+    {
+        BaseUnitTest::SetUp();
+        bufferManager = BufferManager::create(
+            TOTAL_MEMORY_IN_BYTES,
+            UNPOOLED_MEMORY_FRACTION,
+            BUFFER_ALIGNMENT,
+            POOLED_BUFFER_SIZE,
+            std::make_shared<NesDefaultMemoryAllocator>());
+
+        /// Creating record under test with all four possible combinations of (true/false)x(null/not null)
+        constexpr auto isNullable = true;
+        const nautilus::val<bool> isNull = true;
+        const nautilus::val<bool> isNotNull = false;
+        record = Record{std::unordered_map<Record::RecordFieldIdentifier, VarVal>{
+            {Identifier::parse("true"), VarVal{nautilus::val<bool>{true}, isNullable, isNotNull}},
+            {Identifier::parse("false"), VarVal{nautilus::val<bool>{false}, isNullable, isNotNull}},
+            {Identifier::parse("null"), VarVal{nautilus::val<bool>{true}, isNullable, isNull}}}};
+    }
+
+    Record record;
+    FieldAccessPhysicalFunction readTrue{Identifier::parse("true")};
+    FieldAccessPhysicalFunction readFalse{Identifier::parse("false")};
+    FieldAccessPhysicalFunction readNull{Identifier::parse("null")};
+    std::shared_ptr<AbstractBufferProvider> bufferManager;
+};
+
+/// We test here if our AndPhysicalFunction performs and with null correctly.
+/// Any expression involving null results in NULL, expect for (NULL and False), as (NULL and False) can be determined without evaluation the NULL value
+TEST_F(AndOrLogicalFunctionTest, NullTestAnd)
+{
+    Arena arena{bufferManager};
+    ArenaRef arenaRef{&arena};
+    const auto trueAndFalse = AndPhysicalFunction{readTrue, readFalse}.execute(record, arenaRef);
+    EXPECT_EQ(trueAndFalse.getRawValueAs<nautilus::val<bool>>(), false);
+    EXPECT_EQ(trueAndFalse.isNull(), false);
+
+    const auto trueAndNull = AndPhysicalFunction{readTrue, readNull}.execute(record, arenaRef);
+    EXPECT_EQ(trueAndNull.isNull(), true);
+
+    const auto falseAndNull = AndPhysicalFunction{readFalse, readNull}.execute(record, arenaRef);
+    EXPECT_EQ(falseAndNull.getRawValueAs<nautilus::val<bool>>(), false);
+    EXPECT_EQ(falseAndNull.isNull(), false);
+}
+
+/// We test here if our OrPhysicalFunction performs or with null correctly.
+/// Any expression involving null results in NULL, expect for (NULL or True), as (NULL or True) can be determined without evaluation the NULL value
+TEST_F(AndOrLogicalFunctionTest, NullTestOr)
+{
+    Arena arena{bufferManager};
+    ArenaRef arenaRef{&arena};
+    const auto trueOrFalse = OrPhysicalFunction{readTrue, readFalse}.execute(record, arenaRef);
+    EXPECT_EQ(trueOrFalse.getRawValueAs<nautilus::val<bool>>(), true);
+    EXPECT_EQ(trueOrFalse.isNull(), false);
+
+    const auto trueOrNull = OrPhysicalFunction{readTrue, readNull}.execute(record, arenaRef);
+    EXPECT_EQ(trueOrNull.isNull(), false);
+
+    const auto falseOrNull = OrPhysicalFunction{readFalse, readNull}.execute(record, arenaRef);
+    EXPECT_EQ(falseOrNull.getRawValueAs<nautilus::val<bool>>(), false);
+    EXPECT_EQ(falseOrNull.isNull(), true);
+}
+}

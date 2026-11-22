@@ -15,8 +15,8 @@
 #include <Functions/BooleanFunctions/EqualsPhysicalFunction.hpp>
 
 #include <utility>
-#include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <DataTypes/VarVal.hpp>
+#include <Interface/Record.hpp>
 #include <ErrorHandling.hpp>
 #include <ExecutionContext.hpp>
 #include <PhysicalFunctionRegistry.hpp>
@@ -37,10 +37,9 @@ EqualsPhysicalFunction::EqualsPhysicalFunction(PhysicalFunction leftPhysicalFunc
 {
 }
 
-PhysicalFunctionRegistryReturnType
-PhysicalFunctionGeneratedRegistrar::RegisterEqualsPhysicalFunction(PhysicalFunctionRegistryArguments physicalFunctionRegistryArguments)
+PhysicalFunctionRegistryReturnType EqualsPhysicalFunction::createEquals(PhysicalFunctionRegistryArguments physicalFunctionRegistryArguments)
 {
-    PRECONDITION(physicalFunctionRegistryArguments.childFunctions.size() == 2, "Equals function must have exactly two sub-functions");
+    PRECONDITION(physicalFunctionRegistryArguments.childFunctions.size() == 2, "Equals function must have exactly two child functions");
     return EqualsPhysicalFunction(physicalFunctionRegistryArguments.childFunctions[0], physicalFunctionRegistryArguments.childFunctions[1]);
 }
 

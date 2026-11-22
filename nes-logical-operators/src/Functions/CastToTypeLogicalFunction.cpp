@@ -19,14 +19,18 @@
 #include <utility>
 #include <vector>
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Functions/VarSizedToNumericLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
@@ -36,26 +40,9 @@ CastToTypeLogicalFunction::CastToTypeLogicalFunction(const DataType dataType, Lo
 {
 }
 
-SerializableFunction CastToTypeLogicalFunction::serialize() const
+bool CastToTypeLogicalFunction::operator==(const CastToTypeLogicalFunction& rhs) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    DataTypeSerializationUtil::serializeDataType(castToType, serializedFunction.mutable_data_type());
-    return serializedFunction;
-}
-
-bool CastToTypeLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
-{
-    if (const auto* other = dynamic_cast<const CastToTypeLogicalFunction*>(&rhs))
-    {
-        return *this == *other;
-    }
-    return false;
-}
-
-bool operator==(const CastToTypeLogicalFunction& lhs, const CastToTypeLogicalFunction& rhs)
-{
-    return rhs.castToType == lhs.castToType;
+    return this->castToType == rhs.castToType;
 }
 
 DataType CastToTypeLogicalFunction::getDataType() const
@@ -63,16 +50,27 @@ DataType CastToTypeLogicalFunction::getDataType() const
     return castToType;
 }
 
-LogicalFunction CastToTypeLogicalFunction::withDataType(const DataType& dataType) const
+CastToTypeLogicalFunction CastToTypeLogicalFunction::withDataType(const DataType& dataType) const
 {
     auto copy = *this;
     copy.castToType = dataType;
     return copy;
 }
 
-LogicalFunction CastToTypeLogicalFunction::withInferredDataType(const Schema&) const
+LogicalFunction CastToTypeLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
-    return *this;
+    auto inferredChild = child.withInferredDataType(schema);
+    auto childDataType = inferredChild.getDataType();
+
+    /// If the child is VARSIZED and the target is numeric, delegate to VarSizedToNumericLogicalFunction
+    if (childDataType.type == DataType::Type::VARSIZED && castToType.isNumeric())
+    {
+        return VarSizedToNumericLogicalFunction{inferredChild, castToType}.withInferredDataType(schema);
+    }
+
+    auto copy = *this;
+    copy.child = inferredChild;
+    return copy;
 }
 
 std::vector<LogicalFunction> CastToTypeLogicalFunction::getChildren() const
@@ -80,7 +78,7 @@ std::vector<LogicalFunction> CastToTypeLogicalFunction::getChildren() const
     return {child};
 }
 
-LogicalFunction CastToTypeLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+CastToTypeLogicalFunction CastToTypeLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 1, "CastToTypeLogicalFunction requires exactly one child, but got {}", children.size());
     auto copy = *this;
@@ -98,14 +96,31 @@ std::string CastToTypeLogicalFunction::explain(ExplainVerbosity) const
     return fmt::format("Cast to {})", castToType);
 }
 
-LogicalFunctionRegistryReturnType
-LogicalFunctionGeneratedRegistrar::RegisterCastToTypeLogicalFunction(LogicalFunctionRegistryArguments arguments)
+LogicalFunctionRegistryReturnType CastToTypeLogicalFunction::createCastToType(const LogicalFunctionRegistryArguments& arguments)
 {
     if (arguments.children.size() != 1)
     {
         throw CannotDeserialize("CastToTypeLogicalFunction requires exactly one child, but got {}", arguments.children.size());
     }
-    return CastToTypeLogicalFunction(arguments.dataType, arguments.children[0]);
+    PRECONDITION(false, "Operator is only build directly via parser or via reflection, not using the registry");
+    std::unreachable();
+}
+
+Reflected
+Reflector<CastToTypeLogicalFunction>::operator()(const CastToTypeLogicalFunction& function, const ReflectionContext& context) const
+{
+    return context.reflect(
+        detail::ReflectedCastToTypeLogicalFunction{
+            .child = function.getChildren()[0],
+            .castToType = function.getDataType(),
+        });
+}
+
+CastToTypeLogicalFunction
+Unreflector<CastToTypeLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [childFunction, castToType] = context.unreflect<detail::ReflectedCastToTypeLogicalFunction>(reflected);
+    return CastToTypeLogicalFunction{castToType, childFunction};
 }
 
 }

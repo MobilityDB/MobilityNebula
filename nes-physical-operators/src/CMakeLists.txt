@@ -23,7 +23,7 @@ add_source_files(nes-physical-operators
         EmitOperatorHandler.cpp
         ScanPhysicalOperator.cpp
         HashMapSlice.cpp
-        SourcePhysicalOperator.cpp
+        SourceDescriptorPhysicalOperator.cpp
         SinkPhysicalOperator.cpp
         WindowBasedOperatorHandler.cpp
         WindowBuildPhysicalOperator.cpp
@@ -34,3 +34,4 @@ add_subdirectory(Watermark)
 add_subdirectory(Join)
 add_subdirectory(SliceStore)
 add_subdirectory(Functions)
+add_subdirectory(Inference)

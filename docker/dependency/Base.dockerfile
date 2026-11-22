@@ -1,13 +1,13 @@
+# syntax=docker/dockerfile:1
 # The Base Dockerfile installs and configures all relevant tooling to build the dependencies and NebulaStream.
-# Currently our compiler toolchain is based on llvm-18 using libc++.
+# Currently our compiler toolchain is based on llvm-22 using libc++.
 # Additionally we install a recent CMake version and the mold linker.
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
-ARG LLVM_TOOLCHAIN_VERSION=19
-ARG MOLD_VERSION=2.37.1
-ARG CMAKE_VERSION=3.31.6
+ARG LLVM_TOOLCHAIN_VERSION=22
+ARG MOLD_VERSION=2.41.0
+ARG CMAKE_VERSION=4.3.3-0kitware1ubuntu26.04.1
 ENV LLVM_TOOLCHAIN_VERSION=${LLVM_TOOLCHAIN_VERSION}
-ENV CMAKE_VERSION=${CMAKE_VERSION}
 
 RUN apt update -y && apt install \
     wget \
@@ -20,23 +20,26 @@ RUN apt update -y && apt install \
     ca-certificates \
     linux-libc-dev \
     build-essential \
-    g++-14 \
+    g++-15 \
     make \
     libssl-dev \
     openssl \
+    python3 \
+    python3-pip \
+    python3-venv \
     ccache \
     ninja-build \
     pkg-config \
-    bison \
-    pipx \
-    -y
+    -y \
+    && apt clean && rm -rf /var/lib/apt/lists/*
 
 # install llvm based toolchain
 RUN curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /etc/apt/keyrings/llvm-snapshot.gpg \
     && chmod a+r /etc/apt/keyrings/llvm-snapshot.gpg \
     && echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/llvm-snapshot.gpg] http://apt.llvm.org/"$(. /etc/os-release && echo "$VERSION_CODENAME")"/ llvm-toolchain-"$(. /etc/os-release && echo "$VERSION_CODENAME")"-${LLVM_TOOLCHAIN_VERSION} main" > /etc/apt/sources.list.d/llvm-snapshot.list \
     && echo "deb-src [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/llvm-snapshot.gpg] http://apt.llvm.org/"$(. /etc/os-release && echo "$VERSION_CODENAME")"/ llvm-toolchain-"$(. /etc/os-release && echo "$VERSION_CODENAME")"-${LLVM_TOOLCHAIN_VERSION} main" >> /etc/apt/sources.list.d/llvm-snapshot.list \
-    && apt update -y && apt install clang-${LLVM_TOOLCHAIN_VERSION} libc++-${LLVM_TOOLCHAIN_VERSION}-dev libc++abi-${LLVM_TOOLCHAIN_VERSION}-dev libclang-rt-${LLVM_TOOLCHAIN_VERSION}-dev -y
+    && apt update -y && apt install clang-${LLVM_TOOLCHAIN_VERSION} llvm-${LLVM_TOOLCHAIN_VERSION} libc++-${LLVM_TOOLCHAIN_VERSION}-dev libc++abi-${LLVM_TOOLCHAIN_VERSION}-dev libclang-rt-${LLVM_TOOLCHAIN_VERSION}-dev -y \
+    && apt clean && rm -rf /var/lib/apt/lists/*
 
 # install recent version of the mold linker
 RUN wget https://github.com/rui314/mold/releases/download/v${MOLD_VERSION}/mold-${MOLD_VERSION}-$(uname -m)-linux.tar.gz \
@@ -45,38 +48,14 @@ RUN wget https://github.com/rui314/mold/releases/download/v${MOLD_VERSION}/mold-
     && rm -rf mold-${MOLD_VERSION}-$(uname -m)-linux mold-${MOLD_VERSION}-$(uname -m)-linux.tar.gz \
     && mold --version
 
-# install recent version of cmake
-RUN wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz \
-    && tar -xf cmake-${CMAKE_VERSION}.tar.gz \
-    && cd cmake-${CMAKE_VERSION} \
-    && ./configure --parallel=$(nproc) --prefix=/usr \
-    && make install -j $(nproc)\
-    && cd .. \
-    && rm -rf cmake-${CMAKE_VERSION}.tar.gz cmake-${CMAKE_VERSION} \
-    && cmake --version
-
-# Install MEOS/MobilityDB build dependencies
-RUN apt update -y && apt install -y \
-    postgresql-server-dev-all \
-    postgresql-common \
-    postgresql-client \
-    postgis \
-    libproj-dev \
-    libjson-c-dev \
-    libxml2-dev \
-    zlib1g-dev \
-    libh3-dev \
-    libgdal-dev
-
-# Build MobilityDB with MEOS and every family using GCC, as the CI's nix build does: the H3 family
-# reads libh3, the raster family GDAL, and the point-cloud family libxml2 and zlib.
-RUN git clone https://github.com/MobilityDB/MobilityDB.git -b master /usr/local/src/MobilityDB \
-    && mkdir -p /usr/local/src/MobilityDB/build \
-    && cd /usr/local/src/MobilityDB/build \
-    && cmake -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ .. \
-    && make -j$(nproc) \
-    && make install \
-    && ldconfig
+# install cmake from kitware apt repository
+RUN curl -fsSL https://apt.kitware.com/keys/kitware-archive-latest.asc | gpg --dearmor -o /etc/apt/keyrings/kitware-archive-keyring.gpg \
+    && chmod a+r /etc/apt/keyrings/kitware-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(. /etc/os-release && echo "$VERSION_CODENAME") main" > /etc/apt/sources.list.d/kitware.list \
+    && apt update -y \
+    && apt install cmake=${CMAKE_VERSION} cmake-data=${CMAKE_VERSION} -y \
+    && cmake --version \
+    && apt clean && rm -rf /var/lib/apt/lists/*
 
 # default cmake generator is ninja
 ENV CMAKE_GENERATOR=Ninja

@@ -15,35 +15,134 @@
 #include <MQTTSource.hpp>
 
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
+#include <expected>
+#include <limits>
 #include <memory>
+#include <optional>
 #include <ostream>
+#include <ranges>
 #include <stop_token>
 #include <string>
 #include <string_view>
 #include <utility>
 
-#include <mqtt/connect_options.h>
-#include <mqtt/exception.h>
-
-#include <Configurations/Descriptor.hpp>
+#include <Configurations/ConfigField.hpp>
+#include <Configurations/ConfigLiteral.hpp>
+#include <Configurations/InstantiatedConfigValue.hpp>
+#include <Identifiers/Identifier.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
 #include <Runtime/TupleBuffer.hpp>
-#include <Sources/SourceDescriptor.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Sources/Source.hpp>
+#include <Util/Logger/Logger.hpp>
+#include <Util/UUID.hpp>
+#include <Util/Variant.hpp>
+#include <fmt/ranges.h>
+#include <magic_enum/magic_enum.hpp>
+#include <mqtt/client.h>
+#include <mqtt/exception.h>
+#include <mqtt/message.h>
+#include <mqtt/reason_code.h>
 #include <ErrorHandling.hpp>
-#include <SourceRegistry.hpp>
-#include <SourceValidationRegistry.hpp>
 
 namespace NES
 {
 
-MQTTSource::MQTTSource(const SourceDescriptor& sourceDescriptor)
-    : serverURI(sourceDescriptor.getFromConfig(ConfigParametersMQTT::SERVER_URI))
-    , clientId(sourceDescriptor.getFromConfig(ConfigParametersMQTT::CLIENT_ID))
-    , topic(sourceDescriptor.getFromConfig(ConfigParametersMQTT::TOPIC))
-    , qos(sourceDescriptor.getFromConfig(ConfigParametersMQTT::QOS))
-    , flushingInterval(std::chrono::duration_cast<std::chrono::milliseconds>(
-          std::chrono::duration<float, std::milli>(sourceDescriptor.getFromConfig(ConfigParametersMQTT::FLUSH_INTERVAL_MS))))
+namespace
+{
+std::string generateClientId(std::string clientId)
+{
+    if (clientId == GENERATE_CLIENT_ID_TOKEN)
+    {
+        return UUIDToString(generateUUID());
+    }
+    return clientId;
+}
+
+std::optional<std::chrono::milliseconds> parseFlushingInterval(int64_t flushingIntervalMs)
+{
+    if (flushingIntervalMs == 0)
+    {
+        return std::nullopt;
+    }
+    return std::chrono::milliseconds(flushingIntervalMs);
+}
+
+/// NOLINTBEGIN(bugprone-throwing-static-initialization)
+const ConfigField<std::string> SERVER_URI{Identifier::parse("SERVER_URI"), "The MQTT broker URI"};
+
+const ConfigField<std::string> CLIENT_ID{
+    Identifier::parse("CLIENT_ID"), "The MQTT client ID (leave default to auto-generate)", std::string{GENERATE_CLIENT_ID_TOKEN}};
+
+const ConfigField<std::string> TOPIC{Identifier::parse("TOPIC"), "The MQTT topic to subscribe to"};
+
+const ConfigField<int64_t> FLUSH_INTERVAL_MS{
+    Identifier::parse("FLUSH_INTERVAL_MS"),
+    "Interval in ms between tuple buffer flushes; 0 disables periodic flushing",
+    [](const ConfigLiteral& literal)
+    {
+        return tryGetOr<int64_t>(literal, expectedType<int64_t>())
+            .and_then(narrowConfigValue<int64_t, int64_t, std::numeric_limits<int64_t>::max(), 0>);
+    },
+    int64_t{0}};
+
+const ConfigField<int64_t> QOS{
+    Identifier::parse("QOS"),
+    "MQTT QoS level (0, 1, or 2)",
+    [](const ConfigLiteral& literal) -> std::expected<int64_t, Exception>
+    {
+        auto value = tryGetOr<int64_t>(literal, expectedType<int64_t>());
+        if (!value)
+        {
+            return std::unexpected{value.error()};
+        }
+        if (*value != 0 && *value != 1 && *value != 2)
+        {
+            return std::unexpected{InvalidConfigParameter("MQTTSource: QoS must be 0, 1, or 2")};
+        }
+        return value;
+    },
+    int64_t{1}};
+
+const ConfigField<std::string> IMPLICIT_MESSAGE_DELIMITER{
+    Identifier::parse("IMPLICIT_MESSAGE_DELIMITER"), "Delimiter appended to each received message", std::string{"\n"}};
+
+const ConfigField<bool> LOG_MESSAGES{Identifier::parse("LOG_MESSAGES"), "Log received messages", false};
+/// NOLINTEND(bugprone-throwing-static-initialization)
+}
+
+Schema<QualifiedErasedConfigField, Ordered> MQTTSource::getConfigSchema()
+{
+    return createConfigSchema(
+        Identifier::parse("MQTT_SOURCE"), SERVER_URI, CLIENT_ID, TOPIC, FLUSH_INTERVAL_MS, QOS, IMPLICIT_MESSAGE_DELIMITER, LOG_MESSAGES);
+}
+
+std::expected<MQTTSourceConfig, Exception> MQTTSourceConfig::fromConfig(const InstantiatedConfig& config)
+{
+    return MQTTSourceConfig{
+        .serverURI = config.get(SERVER_URI),
+        .clientId = config.get(CLIENT_ID),
+        .topic = config.get(TOPIC),
+        .qos = config.get(QOS),
+        .flushIntervalMs = config.get(FLUSH_INTERVAL_MS),
+        .implicitMessageDelimiter = config.get(IMPLICIT_MESSAGE_DELIMITER),
+        .logMessages = config.get(LOG_MESSAGES),
+    };
+}
+
+MQTTSource::MQTTSource(const MQTTSourceConfig& config)
+    : serverURI(config.serverURI)
+    , clientId(generateClientId(config.clientId))
+    , topic(config.topic)
+    , qos(static_cast<int32_t>(config.qos))
+    , flushingInterval(parseFlushingInterval(config.flushIntervalMs))
+    , implicitMessageDelimiter(config.implicitMessageDelimiter)
+    , logMessages(config.logMessages)
 {
 }
 
@@ -58,22 +157,22 @@ std::ostream& MQTTSource::toString(std::ostream& str) const
     return str;
 }
 
-void MQTTSource::open()
+void MQTTSource::open(std::shared_ptr<AbstractBufferProvider>)
 {
-    client = std::make_unique<mqtt::async_client>(serverURI, clientId);
+    NES_INFO("Opening MQTTSource at {} using clientId: {}.", serverURI, clientId);
+    client = std::make_unique<mqtt::client>(serverURI, clientId);
 
     try
     {
-        const auto connectOptions = mqtt::connect_options_builder().automatic_reconnect(true).clean_session(false).finalize();
-
         client->start_consuming();
 
-        const auto token = client->connect(connectOptions);
+        const auto connectResponse = client->connect();
+        NES_INFO("Connected to MQTT broker: {}. Version: {}", connectResponse.get_server_uri(), connectResponse.get_mqtt_version());
 
-        if (const auto response = token->get_connect_response(); !response.is_session_present())
-        {
-            client->subscribe(topic, qos)->wait();
-        }
+        const auto subscribeResponse = client->subscribe(topic, qos);
+        auto codes = subscribeResponse.get_reason_codes()
+            | std::views::transform([](const mqtt::ReasonCode& code) { return magic_enum::enum_name(code); });
+        NES_INFO("Subscribed to topic response codes: [\"{}\"]", fmt::join(codes, ","));
     }
     catch (const mqtt::exception& e)
     {
@@ -81,12 +180,12 @@ void MQTTSource::open()
     }
 }
 
-size_t MQTTSource::fillTupleBuffer(TupleBuffer& tupleBuffer, const std::stop_token& stopToken)
+Source::FillTupleBufferResult MQTTSource::fillTupleBuffer(NES::TupleBuffer& tupleBuffer, const std::stop_token& stopToken)
 {
     size_t tbOffset = 0;
     const auto tbSize = tupleBuffer.getBufferSize();
     std::string_view payload;
-    auto nextFlush = std::chrono::system_clock::now() + std::chrono::milliseconds(flushingInterval);
+    auto nextFlush = flushingInterval.transform([](auto flush) { return std::chrono::system_clock::now() + flush; });
 
     /// If there is a stashed payload, consume it first
     if (!payloadStash.empty())
@@ -98,11 +197,11 @@ size_t MQTTSource::fillTupleBuffer(TupleBuffer& tupleBuffer, const std::stop_tok
     /// When the stashed payload is larger than a single TB, we skip the loop
     while (tbOffset < tbSize && !stopToken.stop_requested())
     {
-        if (nextFlush < std::chrono::system_clock::now())
+        if (nextFlush.transform([](auto flush) { return flush < std::chrono::system_clock::now(); }).value_or(true))
         {
             if (tbOffset == 0)
             {
-                nextFlush = std::chrono::system_clock::now() + std::chrono::milliseconds(flushingInterval);
+                nextFlush = flushingInterval.transform([](auto flush) { return std::chrono::system_clock::now() + flush; });
             }
             else
             {
@@ -110,16 +209,52 @@ size_t MQTTSource::fillTupleBuffer(TupleBuffer& tupleBuffer, const std::stop_tok
             }
         }
 
-        const auto message = client->try_consume_message_until(nextFlush);
+        if (!client->is_connected())
+        {
+            throw CannotReadFromSource("Connection lost");
+        }
+
+        mqtt::const_message_ptr message;
+        if (nextFlush.has_value())
+        {
+            /// Interrupt the read
+            const std::stop_callback stopCallback(stopToken, [&]() { client->stop_consuming(); });
+            if (!client->try_consume_message_until(&message, *nextFlush))
+            {
+                continue;
+            }
+        }
+        else
+        {
+            /// Interrupt the read
+            const std::stop_callback stopCallback(stopToken, [&]() { client->stop_consuming(); });
+            message = client->consume_message();
+        }
+
         if (!message)
         {
+            NES_DEBUG("Wakeup Signal received");
             continue;
         }
 
-        payload = message->get_payload();
-        writePayloadToBuffer(payload, tupleBuffer, tbOffset);
+        const auto& receivedPayload = message->get_payload();
+        if (logMessages)
+        {
+            NES_INFO("Received MQTT message on topic '{}': '{}'", message->get_topic(), receivedPayload);
+        }
+        if (!implicitMessageDelimiter.empty())
+        {
+            auto delimitedPayload = receivedPayload;
+            delimitedPayload.append(implicitMessageDelimiter);
+            writePayloadToBuffer(delimitedPayload, tupleBuffer, tbOffset);
+        }
+        else
+        {
+            payload = receivedPayload;
+            writePayloadToBuffer(payload, tupleBuffer, tbOffset);
+        }
     }
-    return std::min(tbOffset, tbSize);
+    return FillTupleBufferResult::withBytes(std::min(tbOffset, tbSize));
 }
 
 /// Write the message payload to the tuple buffer
@@ -127,18 +262,17 @@ size_t MQTTSource::fillTupleBuffer(TupleBuffer& tupleBuffer, const std::stop_tok
 void MQTTSource::writePayloadToBuffer(const std::string_view payload, TupleBuffer& tb, size_t& tbOffset)
 {
     const auto tbSize = tb.getBufferSize();
-    auto bytes = tb.getAvailableMemoryArea<uint8_t>();
     /// If the payload fits into the TB, write it
     if (tbOffset + payload.size() <= tbSize)
     {
-        std::memcpy(bytes.data() + tbOffset, payload.data(), payload.size());
+        std::memcpy(tb.getAvailableMemoryArea().data() + tbOffset, payload.data(), payload.size());
         tbOffset += payload.size();
         return;
     }
 
     /// Otherwise, split. Write the prefix to the TB and stash the remainder
     const auto prefixSize = tbSize - tbOffset;
-    std::memcpy(bytes.data() + tbOffset, payload.data(), prefixSize);
+    std::memcpy(tb.getAvailableMemoryArea().data() + tbOffset, payload.data(), prefixSize);
 
     payloadStash.stash(std::string_view{payload.data() + prefixSize, payload.size() - prefixSize});
     tbOffset = tbSize;
@@ -146,30 +280,19 @@ void MQTTSource::writePayloadToBuffer(const std::string_view payload, TupleBuffe
 
 void MQTTSource::close()
 {
+    if (!client->is_connected())
+    {
+        return;
+    }
     try
     {
-        client->unsubscribe(topic)->wait();
-        client->disconnect()->wait();
+        client->unsubscribe(topic);
+        client->disconnect();
     }
     catch (const mqtt::exception& e)
     {
-        throw CannotOpenSource("When closing mqtt source: {}", e.what());
+        NES_WARNING("{}", e.what());
     }
-}
-
-DescriptorConfig::Config MQTTSource::validateAndFormat(std::unordered_map<std::string, std::string> config)
-{
-    return DescriptorConfig::validateAndFormat<ConfigParametersMQTT>(std::move(config), NAME);
-}
-
-SourceValidationRegistryReturnType RegisterMQTTSourceValidation(SourceValidationRegistryArguments sourceConfig)
-{
-    return MQTTSource::validateAndFormat(std::move(sourceConfig.config));
-}
-
-SourceRegistryReturnType SourceGeneratedRegistrar::RegisterMQTTSource(SourceRegistryArguments sourceRegistryArguments)
-{
-    return std::make_unique<MQTTSource>(sourceRegistryArguments.sourceDescriptor);
 }
 
 }

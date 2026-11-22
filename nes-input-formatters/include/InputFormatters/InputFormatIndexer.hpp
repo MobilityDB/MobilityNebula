@@ -1,0 +1,88 @@
+/*
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
+#pragma once
+
+#include <memory>
+#include <ostream>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
+
+#include <magic_enum/magic_enum.hpp>
+
+#include <DataTypes/DataType.hpp>
+#include <Interface/Record.hpp>
+#include <ErrorHandling.hpp>
+#include <RawBufferIndex.hpp>
+
+namespace NES
+{
+
+/// Implements format-specific (CSV, JSON, XML, etc.) indexing of raw buffers.
+/// The InputFormatIndexerTask uses the InputFormatIndexer to determine byte offsets of all fields of a given tuple and all tuples of a given buffer.
+/// The offsets allow the InputFormatIndexerTask to parse only the fields that it needs to for the particular query.
+/// @Note All InputFormatIndexer implementations must be thread-safe. NebulaStream's query engine concurrently executes InputFormatIndexerTasks.
+///       Thus, the InputFormatIndexerTask calls the interface functions of the InputFormatIndexer concurrently.
+class InputFormatIndexer
+{
+public:
+    explicit InputFormatIndexer() = default;
+    virtual ~InputFormatIndexer() = default;
+
+    [[nodiscard]] virtual std::unique_ptr<RawBufferIndex> indexRawBuffer(std::string_view rawBuffer) const = 0;
+
+    [[nodiscard]] virtual std::string_view getTupleDelimitingBytes() const = 0;
+    [[nodiscard]] virtual std::string_view getFieldDelimitingBytes() const = 0;
+    [[nodiscard]] virtual const std::vector<std::string>& getNullValues() const = 0;
+
+    /// Get the deserializer type for a specific field of the given data type. A field of a type a plugin adds over VARSIZED is
+    /// read by the deserializer the plugin registers under the name of the type, unless the user overrides it for this field.
+    [[nodiscard]] std::string getDeserializerType(const Record::RecordFieldIdentifier& fieldName, const DataType& dataType) const
+    {
+        if (dataType.extension != nullptr and not fieldDeserializerTypes.contains(fieldName))
+        {
+            return std::string{dataType.extension->name};
+        }
+        return getDeserializerType(fieldName, dataType.type);
+    }
+
+    /// Get the deserializer type for a specific field. The datatype of the field determines the default, which the user may
+    /// override for this particular field.
+    [[nodiscard]] const std::string&
+    getDeserializerType(const Record::RecordFieldIdentifier& fieldName, const DataType::Type& dataType) const
+    {
+        if (const auto it = fieldDeserializerTypes.find(fieldName); it != fieldDeserializerTypes.end())
+        {
+            return it->second;
+        }
+        if (const auto it = deserializerTypes.find(dataType); it != deserializerTypes.end())
+        {
+            return it->second;
+        }
+        throw UnknownValueDeserializerType("No ValueDeserializer configured for DataType {}", magic_enum::enum_name(dataType));
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const InputFormatIndexer& indexer);
+
+protected:
+    /// Implemented by children of InputFormatIndexer. Called by '<<'. Allows to use '<<' on abstract InputFormatIndexer.
+    [[nodiscard]] virtual std::ostream& toString(std::ostream& str) const = 0;
+    /// Stores the default deserializer type for each datatype.
+    std::unordered_map<DataType::Type, std::string> deserializerTypes;
+    /// Stores the deserializer type that the user configured for a specific field. Takes precedence over the datatype default.
+    std::unordered_map<Record::RecordFieldIdentifier, std::string> fieldDeserializerTypes;
+};
+}

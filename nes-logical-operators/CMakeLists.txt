@@ -10,16 +10,54 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Set Sources and Headers
-add_subdirectory(src)
-get_source(nes-logical-operators NES_LOGICAL_OPERATORS_SOURCE_FILES)
+include(${PROJECT_SOURCE_DIR}/cmake/UnreflectionRegistrationUtil.cmake)
 
-# Add Library
-add_library(nes-logical-operators ${NES_LOGICAL_OPERATORS_SOURCE_FILES})
-target_link_libraries(nes-logical-operators PUBLIC nes-sources nes-sinks nes-query-optimizer nes-data-types)
+# Declare the library up front so create_unreflection_registry can attach the
+# WHOLE_ARCHIVE INTERFACE link, and so add_subdirectory(src) can add to its
+# target_sources. Sources are populated below via add_source_files / target_sources.
+add_library(nes-logical-operators STATIC)
+set_target_properties(nes-logical-operators PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(nes-logical-operators PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include/nebulastream/>)
 
-create_registries_for_component(LogicalOperator LogicalFunction AggregationLogicalFunction)
+# Unreflection registries — must be declared after the parent target exists and
+# before add_subdirectory(src) so subdir add_unreflection_entry calls find them.
+create_unreflection_registry(LogicalFunction nes-logical-operators
+        "\${PLUGIN_NAME}LogicalFunction"
+        "\${PLUGIN_NAME}LogicalFunction.hpp")
+create_unreflection_registry(LogicalOperator nes-logical-operators
+        "TypedLogicalOperator<\${PLUGIN_NAME}LogicalOperator>"
+        "\${PLUGIN_NAME}LogicalOperator.hpp")
+create_unreflection_registry(AggregationLogicalFunction nes-logical-operators
+        "\${PLUGIN_NAME}AggregationLogicalFunction"
+        "\${PLUGIN_NAME}AggregationLogicalFunction.hpp")
+
+# Set Sources and Headers
+add_subdirectory(src)
+get_source(nes-logical-operators NES_LOGICAL_OPERATORS_SOURCE_FILES)
+target_sources(nes-logical-operators PRIVATE ${NES_LOGICAL_OPERATORS_SOURCE_FILES})
+
+find_package(reflectcpp REQUIRED)
+
+target_link_libraries(nes-logical-operators PUBLIC nes-schema nes-sources nes-sinks nes-query-optimizer nes-data-types nes-inference PRIVATE reflectcpp::reflectcpp)
+
+# Factory registries
+# Runtime registries: entries are static create members on the plugin classes.
+create_runtime_registry(AggregationLogicalFunction nes-logical-operators
+        ENTRY_TEMPLATE "&\${PLUGIN_NAME}AggregationLogicalFunction::create"
+        HEADER_TEMPLATE "\${PLUGIN_NAME}AggregationLogicalFunction.hpp")
+
+# Name-based construction surface for logical operators; no entries yet (operators gain one by
+# implementing a static create member and registering it).
+create_runtime_registry(LogicalOperator nes-logical-operators
+        ENTRY_TEMPLATE "&\${PLUGIN_NAME}LogicalOperator::create"
+        HEADER_TEMPLATE "\${PLUGIN_NAME}LogicalOperator.hpp")
+
+# Name + Key based registry for logical functions, one logical function might want to register itself for multiple keys
+# For example, ExtractFromTimestampLogicalFunction as Day_Of, Month_Of and Year_Of
+create_runtime_registry(LogicalFunction nes-logical-operators
+        ENTRY_TEMPLATE "&\${PLUGIN_NAME}LogicalFunction::create\${KEY}"
+        HEADER_TEMPLATE "\${PLUGIN_NAME}LogicalFunction.hpp")
+
 add_tests_if_enabled(tests)

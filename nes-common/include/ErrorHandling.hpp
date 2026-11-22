@@ -15,7 +15,9 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
+#include <expected>
 #include <optional>
 #include <ostream>
 #include <string>
@@ -27,6 +29,7 @@
 #include <cpptrace/basic.hpp>
 #include <cpptrace/cpptrace.hpp>
 #include <cpptrace/exceptions.hpp>
+#include <cpptrace/formatting.hpp>
 #include <fmt/core.h>
 #include <fmt/format.h>
 
@@ -38,11 +41,13 @@ namespace NES
 /// We use a trick to keep the shorthand version of error code (e.g., `return ErrorCode::UnknownException;`) via the following using.
 namespace ErrorCodeDetail
 {
-enum ErrorCode
+enum ErrorCode : uint16_t
 {
 
 #define EXCEPTION(name, code, msg) name = (code),
 #include <ExceptionDefinitions.inc>
+
+
 #undef EXCEPTION
 };
 }
@@ -71,6 +76,17 @@ private:
     ErrorCode errorCode;
 };
 
+/// helper function for formatting stacktraces
+/// currently only filters cpptrace's internal stackframes; can be extended later
+inline std::string formatStacktrace(const cpptrace::stacktrace& stacktrace, const bool color)
+{
+    static const cpptrace::formatter Formatter
+        = cpptrace::formatter{}
+              .filter([](const cpptrace::stacktrace_frame& frame) { return !frame.symbol.contains("try_catch_impl"); })
+              .filtered_frame_placeholders(false);
+    return Formatter.format(stacktrace, color);
+}
+
 /// This macro is used to define exceptions in <ExceptionDefinitions.hpp>
 /// @param name The name of the exception
 /// @param code The code of the exception
@@ -87,7 +103,7 @@ private:
         return Exception(fmt::format("{}; {}\n", message, msg), code); \
     } \
     template <typename... Args> \
-    inline Exception name(fmt::format_string<Args...> fmt_msg, Args&&... args) \
+    Exception name(fmt::format_string<Args...> fmt_msg, Args&&... args) \
     { \
         return Exception(fmt::format("{}; {}\n", message, fmt::format(fmt_msg, std::forward<Args>(args)...)), code); \
     }
@@ -99,8 +115,14 @@ private:
     #define USED_IN_DEBUG [[maybe_unused]]
     #define PRECONDITION(condition, formatString, ...) ((void)0)
     #define INVARIANT(condition, formatString, ...) ((void)0)
+    /// Expands to nothing when assertions are disabled. Use to drop code that only exists for a PRECONDITION/INVARIANT,
+    /// e.g. a parameter name that would otherwise trip -Wunused-parameter: `void f(const uint64_t IF_INVARIANT(bits))`.
+    #define IF_PRECONDITION(...)
+    #define IF_INVARIANT(...)
 #else
     #define USED_IN_DEBUG
+    #define IF_PRECONDITION(...) __VA_ARGS__
+    #define IF_INVARIANT(...) __VA_ARGS__
     /// Note:
     /// - it is not possible to use positional args since formatString is combined with the fmt string containing {}
     /// - \u001B[0m is the ANSI escape code for "color reset"
@@ -109,16 +131,21 @@ private:
     /// This documents (and checks) requirements for calling a function. If violated, the function was called incorrectly.
     /// @param condition must be true to correctly call function guarded by precondition
     /// @param formatString can contain `{}` to reference varargs. Must not contain positional reference like `{0}`.
-    /// TODO #1035: remove namespace NES::Logger
+    /// Log the marker before generating the (potentially slow) symbolized stacktrace so it reaches
+    /// the log even if the process is killed mid-symbolization (e.g. a `timeout` SIGKILL at startup).
     #define PRECONDITION(condition, formatString, ...) \
         do \
         { \
             if (!(condition)) \
             { \
-                auto trace = cpptrace::generate_trace().to_string(true); \
-                NES_ERROR("Precondition violated: ({}): " formatString "\u001B[0m\n\n{}", #condition __VA_OPT__(, ) __VA_ARGS__, trace); \
+                NES_ERROR("Precondition violated: ({}): " formatString, #condition __VA_OPT__(, ) __VA_ARGS__); \
+                NES_ERROR("\u001B[0m\n\n{}", NES::formatStacktrace(cpptrace::generate_trace(), true)); \
                 if (auto logger = ::NES::Logger::getInstance()) \
                 { \
+                    if (!logger->isConsoleLoggingEnabled()) \
+                    { \
+                        fmt::print(stderr, "Precondition violated: ({}): " formatString "\n", #condition __VA_OPT__(, ) __VA_ARGS__); \
+                    } \
                     logger->shutdown(); \
                 } \
                 std::terminate(); \
@@ -128,16 +155,21 @@ private:
     /// This documents what is assumed to be true at this particular point in a program. If violated, there is a misunderstanding and maybe a bug.
     /// @param condition is assumed to be true
     /// @param formatString can contain `{}` to reference varargs. Must not contain positional referencen like `{0}`.
-    /// TODO #1035: remove namespace NES::Logger
+    /// Log the marker before generating the (potentially slow) symbolized stacktrace so it reaches
+    /// the log even if the process is killed mid-symbolization (e.g. a `timeout` SIGKILL at startup)
     #define INVARIANT(condition, formatString, ...) \
         do \
         { \
             if (!(condition)) \
             { \
-                auto trace = cpptrace::generate_trace().to_string(true); \
-                NES_ERROR("Invariant violated: ({}): " formatString "\u001B[0m\n\n{}", #condition __VA_OPT__(, ) __VA_ARGS__, trace); \
+                NES_ERROR("Invariant violated: ({}): " formatString, #condition __VA_OPT__(, ) __VA_ARGS__); \
+                NES_ERROR("\u001B[0m\n\n{}", NES::formatStacktrace(cpptrace::generate_trace(), true)); \
                 if (auto logger = ::NES::Logger::getInstance()) \
                 { \
+                    if (!logger->isConsoleLoggingEnabled()) \
+                    { \
+                        fmt::print(stderr, "Invariant violated: ({}): " formatString "\n", #condition __VA_OPT__(, ) __VA_ARGS__); \
+                    } \
                     logger->shutdown(); \
                 } \
                 std::terminate(); \
@@ -161,6 +193,40 @@ Exception wrapExternalException(std::string contextMsg);
 
 [[nodiscard]] std::optional<ErrorCode> errorCodeExists(uint64_t code) noexcept;
 [[nodiscard]] std::optional<ErrorCode> errorTypeExists(std::string_view name) noexcept;
+
+template <typename T>
+T unwrapOrThrow(std::expected<T, Exception> expected)
+{
+    if (expected.has_value())
+    {
+        return std::move(expected).value();
+    }
+    throw std::move(expected).error();
+}
+
+template <typename T>
+T unwrapOrAbort(std::expected<T, Exception> expected)
+{
+    if (!expected.has_value())
+    {
+        NES_ERROR("{}", expected.error().what());
+        std::abort();
+    }
+    return std::move(expected).value();
+}
+
+template <typename T, typename E>
+T unwrapOrAbort(std::expected<T, E> expected)
+{
+    if (!expected.has_value())
+    {
+        NES_ERROR("{}", expected.error())
+        std::abort();
+    }
+    return std::move(expected).value();
+}
+
+
 }
 
 namespace fmt

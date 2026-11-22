@@ -20,84 +20,120 @@
 #include <utility>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <DataTypes/DataType.hpp>
+#include <DataTypes/UnboundSchema.hpp>
+#include <DataTypes/VarVal.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
-#include <Nautilus/Interface/PagedVector/PagedVector.hpp>
-#include <Nautilus/Interface/PagedVector/PagedVectorRef.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <Interface/NautilusBuffer.hpp>
+#include <Interface/PagedVector/PagedVector.hpp>
+#include <Interface/PagedVector/PagedVectorRef.hpp>
+#include <Interface/Record.hpp>
 #include <nautilus/function.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/TupleBuffer.hpp>
 #include <AggregationPhysicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
 #include <ExecutionContext.hpp>
 #include <val.hpp>
+#include <val_arith.hpp>
+#include <val_bool.hpp>
 #include <val_ptr.hpp>
 
 namespace NES
 {
 
+namespace
+{
+/// The paged vector of the window, a child of the hash map's buffer whose index the state holds
+OwnedNautilusBuffer loadPagedVector(const nautilus::val<AggregationState*>& aggregationState, BorrowedNautilusBuffer parentBuffer)
+{
+    OwnedNautilusBuffer pagedVecBuffer;
+    nautilus::invoke(
+        +[](TupleBuffer* parent, TupleBuffer* out, const uint32_t* indexPtr) { *out = parent->loadChildBuffer(ChildBufferIndex{*indexPtr}); },
+        parentBuffer.asArg(),
+        pagedVecBuffer.asArg(),
+        static_cast<nautilus::val<uint32_t*>>(aggregationState));
+    return pagedVecBuffer;
+}
+}
+
 CountDistinctAggregationPhysicalFunction::CountDistinctAggregationPhysicalFunction(
     DataType inputType,
     DataType resultType,
     PhysicalFunction inputFunction,
-    Nautilus::Record::RecordFieldIdentifier resultFieldIdentifier,
-    std::shared_ptr<Nautilus::Interface::BufferRef::TupleBufferRef> bufferRefPagedVector)
+    Record::RecordFieldIdentifier resultFieldIdentifier,
+    std::shared_ptr<PagedVectorTupleLayout> tupleLayout)
     : AggregationPhysicalFunction(std::move(inputType), std::move(resultType), std::move(inputFunction), std::move(resultFieldIdentifier))
-    , bufferRefPagedVector(std::move(bufferRefPagedVector))
+    , tupleLayout(std::move(tupleLayout))
 {
 }
 
 void CountDistinctAggregationPhysicalFunction::lift(
-    const nautilus::val<AggregationState*>& aggregationState, PipelineMemoryProvider& pipelineMemoryProvider, const Record& record)
+    const nautilus::val<AggregationState*>& aggregationState,
+    BorrowedNautilusBuffer parentBuffer,
+    PipelineMemoryProvider& pipelineMemoryProvider,
+    const Record& record)
 {
-    /// Adding the record to the paged vector. We are storing the full record in the paged vector for now.
-    const auto memArea = static_cast<nautilus::val<int8_t*>>(aggregationState);
-    const Interface::PagedVectorRef pagedVectorRef(memArea, bufferRefPagedVector);
-    pagedVectorRef.writeRecord(record, pipelineMemoryProvider.bufferProvider);
+    /// SQL-standard: a null is no value, so COUNT(DISTINCT x) does not count it
+    const auto value = inputFunction.execute(record, pipelineMemoryProvider.arena);
+    if (not value.isNull())
+    {
+        auto pagedVecBuffer = loadPagedVector(aggregationState, parentBuffer);
+        PagedVectorRef pagedVectorRef(BorrowedNautilusBuffer::from(pagedVecBuffer.asArg()), tupleLayout);
+        pagedVectorRef.pushBack(record, pipelineMemoryProvider.bufferProvider);
+    }
 }
 
 void CountDistinctAggregationPhysicalFunction::combine(
     const nautilus::val<AggregationState*> aggregationState1,
+    BorrowedNautilusBuffer parentBuffer1,
     const nautilus::val<AggregationState*> aggregationState2,
-    PipelineMemoryProvider&)
+    BorrowedNautilusBuffer parentBuffer2,
+    PipelineMemoryProvider& pipelineMemoryProvider)
 {
-    /// Getting the paged vectors from the aggregation states
-    const auto memArea1 = static_cast<nautilus::val<Interface::PagedVector*>>(aggregationState1);
-    const auto memArea2 = static_cast<nautilus::val<Interface::PagedVector*>>(aggregationState2);
-
-    /// Calling the copyFrom function of the paged vector to combine the two paged vectors by copying the content of the second paged vector to the first paged vector
+    /// Copying the pages of the second paged vector into the first, as the median combines its records
     nautilus::invoke(
-        +[](Interface::PagedVector* vector1, const Interface::PagedVector* vector2) -> void { vector1->copyFrom(*vector2); },
-        memArea1,
-        memArea2);
+        +[](AbstractBufferProvider* bufferProvider,
+            TupleBuffer* parent1,
+            const uint32_t* indexPtr1,
+            TupleBuffer* parent2,
+            const uint32_t* indexPtr2) -> void
+        {
+            const TupleBuffer vec1Buf = parent1->loadChildBuffer(ChildBufferIndex{*indexPtr1});
+            const TupleBuffer vec2Buf = parent2->loadChildBuffer(ChildBufferIndex{*indexPtr2});
+            auto vector1 = PagedVector::load(vec1Buf);
+            const auto vector2 = PagedVector::load(vec2Buf);
+            vector1.copyPagesFrom(*bufferProvider, vector2);
+        },
+        pipelineMemoryProvider.bufferProvider,
+        parentBuffer1.asArg(),
+        static_cast<nautilus::val<uint32_t*>>(aggregationState1),
+        parentBuffer2.asArg(),
+        static_cast<nautilus::val<uint32_t*>>(aggregationState2));
 }
 
-Nautilus::Record CountDistinctAggregationPhysicalFunction::lower(
-    const nautilus::val<AggregationState*> aggregationState, PipelineMemoryProvider& pipelineMemoryProvider)
+Record CountDistinctAggregationPhysicalFunction::lower(
+    const nautilus::val<AggregationState*> aggregationState,
+    BorrowedNautilusBuffer parentBuffer,
+    PipelineMemoryProvider& pipelineMemoryProvider)
 {
-    /// Getting the paged vector from the aggregation state
-    const auto pagedVectorPtr = static_cast<nautilus::val<Interface::PagedVector*>>(aggregationState);
-    const Interface::PagedVectorRef pagedVectorRef(pagedVectorPtr, bufferRefPagedVector);
-    const auto allFieldNames = bufferRefPagedVector->getMemoryLayout()->getSchema().getFieldNames();
+    auto pagedVecBuffer = loadPagedVector(aggregationState, parentBuffer);
+    const PagedVectorRef pagedVectorRef(BorrowedNautilusBuffer::from(pagedVecBuffer.asArg()), tupleLayout);
+    const auto pagedVectorEnd = pagedVectorRef.end();
 
-    /// The number of distinct values the state holds: a value counts once, at the first position that holds it. The scan
-    /// is quadratic, as the median's is.
+    /// A value is counted at the first position that holds it: a candidate counts when no record before it holds the same value
     nautilus::val<uint64_t> distinct = 0;
     nautilus::val<uint64_t> candidatePos = 0;
-    const auto endIt = pagedVectorRef.end(allFieldNames);
-    for (auto candidateIt = pagedVectorRef.begin(allFieldNames); candidateIt != endIt; ++candidateIt)
+    for (auto candidateIt = pagedVectorRef.begin(); candidateIt != pagedVectorEnd; ++candidateIt)
     {
         const auto candidateValue = inputFunction.execute(*candidateIt, pipelineMemoryProvider.arena);
-        nautilus::val<bool> seenBefore(false);
+        nautilus::val<bool> seenBefore{false};
         nautilus::val<uint64_t> itemPos = 0;
-        for (auto itemIt = pagedVectorRef.begin(allFieldNames); itemIt != endIt; ++itemIt)
+        for (auto itemIt = pagedVectorRef.begin(); itemIt != pagedVectorEnd and itemPos < candidatePos; ++itemIt)
         {
-            if (itemPos < candidatePos)
+            const auto itemValue = inputFunction.execute(*itemIt, pipelineMemoryProvider.arena);
+            if (itemValue == candidateValue)
             {
-                const auto itemValue = inputFunction.execute(*itemIt, pipelineMemoryProvider.arena);
-                if (itemValue == candidateValue)
-                {
-                    seenBefore = true;
-                }
+                seenBefore = true;
             }
             itemPos = itemPos + 1;
         }
@@ -109,50 +145,56 @@ Nautilus::Record CountDistinctAggregationPhysicalFunction::lower(
     }
 
     Record resultRecord;
-    resultRecord.write(resultFieldIdentifier, VarVal(distinct).castToType(resultType.type));
+    resultRecord.write(resultFieldIdentifier, VarVal{distinct});
     return resultRecord;
 }
 
-void CountDistinctAggregationPhysicalFunction::reset(const nautilus::val<AggregationState*> aggregationState, PipelineMemoryProvider&)
+void CountDistinctAggregationPhysicalFunction::reset(
+    const nautilus::val<AggregationState*> aggregationState,
+    BorrowedNautilusBuffer parentBuffer,
+    PipelineMemoryProvider& pipelineMemoryProvider)
 {
-    nautilus::invoke(
-        +[](AggregationState* pagedVectorMemArea) -> void
+    const nautilus::val<uint64_t> tupleSize = getSizeInBytes(tupleLayout->getSchema());
+    const nautilus::val<uint32_t> childBufferIndexVal = nautilus::invoke(
+        +[](TupleBuffer* parentBuffer, AbstractBufferProvider* bufferProvider, uint64_t tupleSize)
         {
-            /// Allocates a new PagedVector in the memory area provided by the pointer to the pagedvector
-            auto* pagedVector = reinterpret_cast<Nautilus::Interface::PagedVector*>(pagedVectorMemArea);
-            new (pagedVector) Nautilus::Interface::PagedVector();
+            if (auto pagedVectorBufferOpt = bufferProvider->getUnpooledBuffer(PagedVector::getMainBufferSize()))
+            {
+                auto pagedVectorBuffer = pagedVectorBufferOpt.value();
+                PagedVector::init(pagedVectorBuffer, bufferProvider->getBufferSize(), tupleSize);
+                auto childBufferIndex = parentBuffer->storeChildBuffer(pagedVectorBuffer);
+                return childBufferIndex.getRawValue();
+            }
+            throw BufferAllocationFailure("No unpooled TupleBuffer available for count distinct aggregation paged vector!");
         },
-        aggregationState);
+        parentBuffer.asArg(),
+        pipelineMemoryProvider.bufferProvider,
+        tupleSize);
+    *static_cast<nautilus::val<uint32_t*>>(aggregationState) = childBufferIndexVal;
 }
 
-void CountDistinctAggregationPhysicalFunction::cleanup(nautilus::val<AggregationState*> aggregationState)
+void CountDistinctAggregationPhysicalFunction::cleanup(nautilus::val<AggregationState*> /*aggregationState*/)
 {
-    invoke(
-        +[](AggregationState* pagedVectorMemArea) -> void
-        {
-            /// Calls the destructor of the PagedVector
-            auto* pagedVector
-                = reinterpret_cast<Interface::PagedVector*>(pagedVectorMemArea); /// NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-            pagedVector->~PagedVector();
-        },
-        aggregationState);
+    /// No-op: the paged vector buffer is stored as a child of the parent hash map TupleBuffer and
+    /// is released automatically when the parent is released.
 }
 
 size_t CountDistinctAggregationPhysicalFunction::getSizeOfStateInBytes() const
 {
-    return sizeof(Interface::PagedVector);
+    /// uint32_t child buffer index (4B); the answer is never null, so the state holds no null flag
+    return sizeof(uint32_t);
 }
 
-AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::RegisterCountDistinctAggregationPhysicalFunction(
-    AggregationPhysicalFunctionRegistryArguments arguments)
+AggregationPhysicalFunctionRegistryReturnType
+CountDistinctAggregationPhysicalFunction::create(AggregationPhysicalFunctionRegistryArguments arguments)
 {
-    INVARIANT(arguments.bufferRefPagedVector.has_value(), "Memory provider paged vector not set");
+    INVARIANT(arguments.tupleLayout.has_value(), "Tuple layout paged vector not set");
     return std::make_shared<CountDistinctAggregationPhysicalFunction>(
         std::move(arguments.inputType),
         std::move(arguments.resultType),
         arguments.inputFunction,
         arguments.resultFieldIdentifier,
-        arguments.bufferRefPagedVector.value());
+        arguments.tupleLayout.value());
 }
 
 }

@@ -1,0 +1,230 @@
+/*
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+#include <Interface/HashMap/ChainedHashMap/ChainedEntryMemoryProvider.hpp>
+
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <span>
+#include <utility>
+#include <vector>
+
+#include <DataTypes/DataTypesUtil.hpp>
+#include <DataTypes/UnboundField.hpp>
+#include <DataTypes/VarVal.hpp>
+#include <DataTypes/VariableSizedData.hpp>
+#include <Interface/HashMap/ChainedHashMap/ChainedHashMap.hpp>
+#include <Interface/NautilusBuffer.hpp>
+#include <Interface/Record.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/TupleBuffer.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <nautilus/val_ptr.hpp>
+#include <ErrorHandling.hpp>
+#include <function.hpp>
+#include <static.hpp>
+#include <val.hpp>
+#include <val_arith.hpp>
+#include <val_bool.hpp>
+
+namespace NES
+{
+
+std::pair<std::vector<FieldOffsets>, std::vector<FieldOffsets>> ChainedEntryMemoryProvider::createFieldOffsets(
+    const Schema<QualifiedUnboundField, Ordered>& schema,
+    const std::vector<Record::RecordFieldIdentifier>& fieldNameKeys,
+    const std::vector<Record::RecordFieldIdentifier>& fieldNameValues)
+{
+    /// For now, we assume that we the fields lie consecutively in the memory like in a row layout.
+    /// First, the key fields and then the value fields.
+    /// The key and values start after the ChainedHashMapEntry and its hash, see @ref ChainedHashMapEntry
+    std::vector<FieldOffsets> fieldsKey;
+    std::vector<FieldOffsets> fieldsValue;
+    uint64_t offset = sizeof(ChainedHashMapEntry);
+    for (const auto& fieldName : fieldNameKeys)
+    {
+        const auto field = schema[fieldName];
+        INVARIANT(field.has_value(), "Field {} not found in schema", fieldName);
+        const auto& fieldValue = field.value();
+        fieldsKey.emplace_back(
+            FieldOffsets{.fieldIdentifier = fieldValue.getFullyQualifiedName(), .type = fieldValue.getDataType(), .fieldOffset = offset});
+        offset += fieldValue.getDataType().getSizeInBytesWithNull();
+    }
+
+    for (const auto& fieldName : fieldNameValues)
+    {
+        const auto field = schema[fieldName];
+        INVARIANT(field.has_value(), "Field {} not found in schema", fieldName);
+        const auto& fieldValue = field.value();
+        fieldsValue.emplace_back(
+            FieldOffsets{.fieldIdentifier = fieldValue.getFullyQualifiedName(), .type = fieldValue.getDataType(), .fieldOffset = offset});
+        offset += fieldValue.getDataType().getSizeInBytesWithNull();
+    }
+    return {fieldsKey, fieldsValue};
+}
+
+VarVal ChainedEntryMemoryProvider::readVarVal(
+    const nautilus::val<ChainedHashMapEntry*>& entryRef, const Record::RecordFieldIdentifier& fieldName) const
+{
+    for (const auto& [fieldIdentifier, type, fieldOffset] : nautilus::static_iterable(fields))
+    {
+        if (fieldIdentifier == fieldName)
+        {
+            /// For now, we store the null byte before the actual VarVal
+            nautilus::val<bool> null = false;
+            const auto& entryRefCopy = entryRef;
+            auto castedEntryAddress = static_cast<nautilus::val<int8_t*>>(entryRefCopy);
+            auto memoryAddress = castedEntryAddress + fieldOffset;
+            if (type.nullable)
+            {
+                /// Reading the first byte (null) and then incrementing the castedEntryAddress by 1 byte to read the actual value
+                null = readValueFromMemRef<bool>(memoryAddress);
+                memoryAddress += 1;
+            }
+
+            if (type.isType(DataType::Type::VARSIZED))
+            {
+                const auto varSizedDataPtr = nautilus::invoke(
+                    +[](const int8_t** memoryAddressInEntry) { return *memoryAddressInEntry; },
+                    static_cast<nautilus::val<const int8_t**>>(memoryAddress));
+                const auto sizeOfVarSized = readValueFromMemRef<uint32_t>(varSizedDataPtr);
+                const auto payloadOffset = nautilus::val<uint32_t>{sizeof(uint32_t)};
+                const auto varSizedPayloadPtr = varSizedDataPtr + payloadOffset;
+                VariableSizedData varSizedData(static_cast<nautilus::val<int8_t*>>(varSizedPayloadPtr), sizeOfVarSized);
+                return VarVal{varSizedData, type.nullable, null};
+            }
+
+            const auto varVal = VarVal::readVarValFromMemory(memoryAddress, type, null);
+            return varVal;
+        }
+    }
+    throw FieldNotFound("Field {} not found in ChainedEntryMemoryProvider", fieldName);
+}
+
+Record ChainedEntryMemoryProvider::readRecord(const nautilus::val<ChainedHashMapEntry*>& entryRef) const
+{
+    Record record;
+    for (const auto& [fieldIdentifier, type, fieldOffset] : nautilus::static_iterable(fields))
+    {
+        const auto value = readVarVal(entryRef, fieldIdentifier);
+        record.write(fieldIdentifier, value);
+    }
+
+    return record;
+}
+
+namespace
+{
+void storeVarSized(
+    const BorrowedNautilusBuffer& tupleBuffer,
+    const nautilus::val<AbstractBufferProvider*>& bufferProviderRef,
+    const nautilus::val<int8_t*>& memoryAddress,
+    const VariableSizedData& variableSizedData)
+{
+    nautilus::invoke(
+        +[](const TupleBuffer* tupleBuffer,
+            AbstractBufferProvider* bufferProvider,
+            const int8_t** memoryAddressInEntry,
+            const int8_t* varSizedData,
+            const uint64_t varSizedDataSize)
+        {
+            constexpr size_t sizeOfIndex = sizeof(uint32_t);
+            auto chm = ChainedHashMap::load(*tupleBuffer);
+            auto spaceForVarSizedData = chm.allocateSpaceForVarSized(bufferProvider, varSizedDataSize + sizeOfIndex);
+            const std::span<const int8_t> varSizedSpan{varSizedData, varSizedData + varSizedDataSize};
+            *reinterpret_cast<uint32_t*>(spaceForVarSizedData.data()) = varSizedDataSize;
+            std::ranges::copy(std::as_bytes(varSizedSpan), spaceForVarSizedData.begin() + sizeOfIndex);
+            *memoryAddressInEntry = reinterpret_cast<const signed char*>(spaceForVarSizedData.data());
+        },
+        tupleBuffer.asArg(),
+        bufferProviderRef,
+        static_cast<nautilus::val<const int8_t**>>(memoryAddress),
+        variableSizedData.getContent(),
+        variableSizedData.getSize());
+}
+
+void writeVarVal(
+    const VarVal& value,
+    const nautilus::val<int8_t*>& fieldAddress,
+    const DataType& type,
+    const BorrowedNautilusBuffer& hashMapTupleBuffer,
+    const nautilus::val<AbstractBufferProvider*>& bufferProvider)
+{
+    /// For now, we store the null byte before the actual VarVal
+    auto memoryAddress = fieldAddress;
+    if (type.nullable)
+    {
+        /// Writing the null value to the first byte and then incrementing the castedEntryAddress by 1 byte to store the actual value
+        VarVal{value.isNull()}.writeToMemory(memoryAddress);
+        memoryAddress += 1;
+    }
+
+    if (type.isType(DataType::Type::VARSIZED))
+    {
+        const auto varSizedValue = value.getRawValueAs<VariableSizedData>();
+        storeVarSized(hashMapTupleBuffer, bufferProvider, memoryAddress, varSizedValue);
+    }
+    else
+    {
+        value.writeToMemory(memoryAddress);
+    }
+}
+}
+
+void ChainedEntryMemoryProvider::writeRecord(
+    const nautilus::val<ChainedHashMapEntry*>& entryRef,
+    const BorrowedNautilusBuffer& hashMapBuffer,
+    const nautilus::val<AbstractBufferProvider*>& bufferProvider,
+    const Record& record) const
+{
+    for (const auto& [fieldIdentifier, type, fieldOffset] : nautilus::static_iterable(fields))
+    {
+        const auto& value = record.read(fieldIdentifier);
+        auto castedEntryAddress = static_cast<nautilus::val<int8_t*>>(entryRef);
+        writeVarVal(value, castedEntryAddress + fieldOffset, type, hashMapBuffer, bufferProvider);
+    }
+}
+
+void ChainedEntryMemoryProvider::writeEntryRef(
+    const nautilus::val<ChainedHashMapEntry*>& entryRef,
+    const BorrowedNautilusBuffer& hashMapBuffer,
+    const nautilus::val<AbstractBufferProvider*>& bufferProvider,
+    const nautilus::val<ChainedHashMapEntry*>& otherEntryRef) const
+{
+    for (const auto& [fieldIdentifier, type, fieldOffset] : nautilus::static_iterable(fields))
+    {
+        const auto value = readVarVal(otherEntryRef, fieldIdentifier);
+        auto castedEntryAddress = static_cast<nautilus::val<int8_t*>>(entryRef);
+        writeVarVal(value, castedEntryAddress + fieldOffset, type, hashMapBuffer, bufferProvider);
+    }
+}
+
+std::vector<Record::RecordFieldIdentifier> ChainedEntryMemoryProvider::getAllFieldIdentifiers() const
+{
+    std::vector<Record::RecordFieldIdentifier> fieldIdentifiers;
+    fieldIdentifiers.reserve(fields.size());
+    for (const auto& [fieldIdentifier, type, fieldOffset] : fields)
+    {
+        fieldIdentifiers.push_back(fieldIdentifier);
+    }
+    return fieldIdentifiers;
+}
+
+const std::vector<FieldOffsets>& ChainedEntryMemoryProvider::getAllFields() const
+{
+    return fields;
+}
+
+}

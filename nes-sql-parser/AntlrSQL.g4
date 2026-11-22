@@ -58,45 +58,65 @@ singleStatement: statement ';'? EOF;
 
 terminatedStatement: statement ';';
 multipleStatements: (statement (';' statement)* ';'?)? EOF;
-statement: query | createStatement | dropStatement | showStatement;
+statement: queryWithOptions | createStatement | dropStatement | showStatement | explainStatement;
+
+explainStatement: EXPLAIN ('(' explainStages ')')? (FORMAT explainFormat)? query;
+explainStages: explainStage (',' explainStage)*;
+explainStage: identifier | LOGICAL;
+explainFormat: identifier | TEXT;
 
 createStatement: CREATE createDefinition;
-createDefinition: createLogicalSourceDefinition | createPhysicalSourceDefinition | createSinkDefinition;
+createDefinition: createLogicalSourceDefinition | createPhysicalSourceDefinition | createSinkDefinition | createWorkerDefinition | createModelDefinition;
 createLogicalSourceDefinition: LOGICAL SOURCE sourceName=identifier schemaDefinition fromQuery?;
 
 createPhysicalSourceDefinition: PHYSICAL SOURCE FOR logicalSource=identifier
                                 TYPE type=identifier
-                                (SET '(' options=namedConfigExpressionSeq ')')?;
+                                optionsClause?;
+optionsClause: (SET '(' options=namedConfigExpressionSeq ')');
 
-createSinkDefinition: SINK sinkName=identifier schemaDefinition TYPE type=identifier (SET '(' options=namedConfigExpressionSeq ')')?;
+createSinkDefinition: SINK sinkName=identifier schemaDefinition TYPE type=identifier optionsClause?;
 
+createWorkerDefinition: WORKER hostaddr=STRING optionsClause?;
+
+createModelDefinition: MODEL modelName=identifier '(' modelPath=STRING ')'
+                       INPUT '(' modelInputField (',' modelInputField)* ')'
+                       OUTPUT '(' modelOutputField (',' modelOutputField)* ')';
+modelInputField: identifier typeDefinition;
+modelOutputField: identifier typeDefinition;
 
 schemaDefinition: '(' columnDefinition (',' columnDefinition)* ')';
-columnDefinition: identifierChain typeDefinition;
+columnDefinition: strictIdentifier typeDefinition nullableDefinition?;
 
-/// A type a plugin adds is named by an identifier, which the binder resolves in the data type registry
 typeDefinition: DATA_TYPE | IDENTIFIER;
+nullableDefinition: NOT NULLTOKEN;
 
 fromQuery: AS query;
 
-dropStatement: DROP dropSubject;
-dropSubject: dropQuery | dropSource | dropSink;
-dropQuery: QUERY id=unsignedIntegerLiteral;
+dropStatement: DROP dropSubject WHERE dropFilter;
+dropSubject: dropQuery | dropSource | dropSink | dropWorker | dropModel;
+dropModel: MODEL;
+dropQuery: QUERY;
 dropSource: dropLogicalSourceSubject | dropPhysicalSourceSubject;
-dropLogicalSourceSubject: LOGICAL SOURCE name=strictIdentifier;
-dropPhysicalSourceSubject: PHYSICAL SOURCE id=unsignedIntegerLiteral;
-dropSink: SINK name=strictIdentifier;
+dropLogicalSourceSubject: LOGICAL SOURCE;
+dropPhysicalSourceSubject: PHYSICAL SOURCE;
+dropWorker: WORKER;
+dropSink: SINK;
+
+dropFilter: attr=strictIdentifier EQ value=constant;
 
 showStatement: SHOW showSubject (WHERE showFilter)? (FORMAT showFormat)?;
 showFormat: TEXT | JSON;
 showSubject: QUERIES #showQueriesSubject
     | LOGICAL SOURCES #showLogicalSourcesSubject
     | PHYSICAL SOURCES (FOR logicalSourceName=strictIdentifier)? #showPhysicalSourcesSubject
-    | SINKS #showSinksSubject;
+    | SINKS #showSinksSubject
+    | MODELS #showModelsSubject
+    | VERSION #showVersionSubject;
 
 showFilter: attr=strictIdentifier EQ value=constant;
 
-query : queryTerm queryOrganization;
+queryWithOptions: query optionsClause?;
+query: queryTerm queryOrganization ;
 
 queryOrganization:
          (ORDER BY order+=sortItem (',' order+=sortItem)*)?
@@ -145,6 +165,9 @@ joinRelation
 
 joinType
     : INNER?
+    | LEFT OUTER?
+    | RIGHT OUTER?
+    | FULL OUTER?
     ;
 
 joinCriteria
@@ -152,14 +175,25 @@ joinCriteria
     ;
 
 relationPrimary
-    : multipartIdentifier tableAlias          #tableName
-    | '(' query ')'  tableAlias               #aliasedQuery
-    | '(' relation ')' tableAlias             #aliasedRelation
+    : multipartIdentifier (AS alias=identifier)? #namedSource
+    | '(' query ')'                           #aliasedQuery
+    | '(' relation ')'                        #aliasedRelation
     | inlineTable                             #inlineTableDefault2
-    | inlineSource                            #inlineDefinedSource
+    | anonymousSource                         #anonymousDefinedSource
+    | modelInferenceSource                    #modelInferenceRelation
     ;
 
-inlineSource
+modelInferenceSource
+    : MODEL_INFERENCE '(' modelName=identifier ',' modelInferenceInput ')'
+    ;
+
+modelInferenceInput
+    : multipartIdentifier                     #modelInferenceStreamName
+    | '(' query ')'                           #modelInferenceSubquery
+    | modelInferenceSource                    #modelInferenceNested
+    ;
+
+anonymousSource
     : type=identifier '(' parameters=namedConfigExpressionSeq ')'
     ;
 
@@ -177,11 +211,7 @@ whereClause: WHERE booleanExpression;
 havingClause: HAVING booleanExpression;
 
 inlineTable
-    : VALUES expression (',' expression)* tableAlias
-    ;
-
-tableAlias
-    : (AS? identifier identifierList?)?
+    : VALUES expression (',' expression)*
     ;
 
 multipartIdentifier
@@ -206,7 +236,7 @@ quotedIdentifier
     ;
 
 BACKQUOTED_IDENTIFIER
-    : '`' ( ~'`' | '``' )* '`'
+    : '"' ( ~'"' )* '"'
     ;
 
 identifierChain: strictIdentifier ('.' strictIdentifier)*;
@@ -241,11 +271,31 @@ expression
     ;
 
 booleanExpression
-    : NOT booleanExpression                                        #logicalNot
-    | EXISTS '(' query ')'                                         #exists
-    | valueExpression predicate?                                   #predicated
-    | left=booleanExpression op=AND right=booleanExpression  #logicalBinary
-    | left=booleanExpression op=OR right=booleanExpression   #logicalBinary
+    : NOT booleanExpression                                  #logicalNot
+    | EXISTS '(' query ')'                                   #exists
+    | predicate                                              #predicateExpression
+    ;
+
+predicate
+    : orPredicate
+    ;
+
+orPredicate
+    : andPredicate (OR andPredicate)*
+    ;
+
+andPredicate
+    : notPredicate (AND notPredicate)*
+    ;
+
+notPredicate
+    : NOT notPredicate                                       #logicalNotPredicate
+    | predicatePrimary                                      #predicatePrimaryExpression
+    ;
+
+predicatePrimary
+    : '(' predicate ')'                                      #parenthesizedPredicate
+    | valueExpression booleanComparison?                     #boolComparison
     ;
 
 /// Problem fixed that the querySpecification rule could match an empty string
@@ -281,10 +331,12 @@ windowSpec:
     ;
 
 timeWindow
-    : TUMBLING '(' (timestampParameter ',')?  sizeParameter ')'                       #tumblingWindow
+    : TUMBLING '(' (timestampParameter ',')? sizeParameter ')'                       #tumblingWindow
     | SLIDING '(' (timestampParameter ',')? sizeParameter ',' advancebyParameter ')' #slidingWindow
     | SESSION '(' timestampParameter ',' gapParameter ')'                             #sessionWindow
     ;
+
+timestampParameter: name+=identifier (',' name+=identifier)?;
 
 countWindow:
     TUMBLING '(' INTEGER_VALUE ')'    #countBasedTumbling
@@ -310,20 +362,23 @@ timeUnit: MS
         | DAY
         ;
 
-timestampParameter: name=identifier;
 
-functionName:  IDENTIFIER | AVG | MAX | MIN | SUM | COUNT | MEDIAN | ARRAY_AGG | VAR | TEMPORAL_SEQUENCE | TEMPORAL_LENGTH | PAIR_MEETING | CROSS_DISTANCE | TGEO_AT_STBOX;
+functionName:  IDENTIFIER | AVG | MAX | MIN | SUM | COUNT | MEDIAN;
 
 sinkClause: INTO sink (',' sink)*;
 
-sink: identifier | inlineSink;
+sink: identifier | anonymousSink;
 
-inlineSink
+anonymousSink
     : type=identifier '(' parameters=namedConfigExpressionSeq ')'
     ;
 
 nullNotnull
     : NOT? NULLTOKEN
+    ;
+
+nanNotNan
+    : NOT? NANTOKEN
     ;
 
 streamName: IDENTIFIER;
@@ -334,7 +389,7 @@ sortItem
     : expression ordering=(ASC | DESC)? (NULLS nullOrder=(LAST | FIRST))?
     ;
 
-predicate
+booleanComparison
     : NOT? kind=BETWEEN lower=valueExpression AND upper=valueExpression
     | NOT? kind=IN '(' expression (',' expression)* ')'
     | NOT? kind=IN '(' query ')'
@@ -342,13 +397,15 @@ predicate
     | NOT? kind=LIKE quantifier=(ANY | SOME | ALL) ('('')' | '(' expression (',' expression)* ')')
     | NOT? kind=LIKE pattern=valueExpression (ESCAPE escapeChar=STRING)?
     | IS nullNotnull
+    | IS nanNotNan
     | IS NOT? kind=(TRUE | FALSE | UNKNOWN)
     | IS NOT? kind=DISTINCT FROM right=valueExpression
     ;
 
 
 valueExpression
-    : (functionName | typeDefinition) '(' (setQuantifier=DISTINCT? argument+=expression (',' argument+=expression)*)? ')'                 #functionCall
+    : CAST '(' expression AS targetType=typeDefinition ')'                                    #castExpression
+    | (functionName | typeDefinition) '(' (starArg=ASTERISK | setQuantifier=DISTINCT? argument+=expression (',' argument+=expression)*)? ')'  #functionCall
     | op=(MINUS | PLUS | TILDE) valueExpression                                        #arithmeticUnary
     | left=valueExpression op=(ASTERISK | SLASH | PERCENT | DIV) right=valueExpression #arithmeticBinary
     | left=valueExpression op=(PLUS | MINUS | CONCAT_PIPE) right=valueExpression       #arithmeticBinary
@@ -378,7 +435,8 @@ primaryExpression
     | base=primaryExpression '.' fieldName=identifier                                          #dereference
     | '(' query ')'                                                                            #subqueryExpression
     | '(' namedExpression (',' namedExpression)+ ')'                                           #rowConstructor
-    | '(' expression ')'                                                                       #parenthesizedExpression
+    | '(' valueExpression ')'                                                                  #parenthesizedExpression
+    | '(' predicate ')'                                                                        #parenthesizedPredicateExpression
     | constant                                                                                 #constantDefault
     | identifier                                                                               #columnReference
     ;
@@ -405,10 +463,12 @@ constant
     ;
 
 booleanValue
-    : TRUE | FALSE
+    : TRUE | FALSE | BOOLEAN_VALUE
     ;
 
-
+///****************************
+/// Start of the keywords list
+///****************************
 ALL: 'ALL' | 'all';
 AND: 'AND' | 'and';
 ANY: 'ANY';
@@ -417,6 +477,7 @@ ASC: 'ASC' | 'asc';
 AT: 'AT';
 BETWEEN: 'BETWEEN' | 'between';
 BY: 'BY' | 'by';
+CAST: 'CASTTOTYPE' | 'casttotype';
 COMMENT: 'COMMENT';
 CUBE: 'CUBE';
 DELETE: 'DELETE';
@@ -432,7 +493,7 @@ FALSE: 'FALSE';
 FIRST: 'FIRST';
 FOR: 'FOR';
 FROM: 'FROM' | 'from';
-FULL: 'FULL';
+FULL: 'FULL' | 'full';
 GROUP: 'GROUP' | 'group';
 GROUPING: 'GROUPING';
 HAVING: 'HAVING' | 'having';
@@ -441,16 +502,17 @@ IN: 'IN' | 'in';
 INNER: 'INNER' | 'inner';
 INSERT: 'INSERT' | 'insert';
 INTO: 'INTO' | 'into';
-IS: 'IS'  'is';
+IS: 'IS' | 'is';
 JOIN: 'JOIN' | 'join';
 CROSS: 'CROSS' | 'cross';
 UNNEST: 'UNNEST' | 'unnest';
 LAST: 'LAST';
-LEFT: 'LEFT';
+LEFT: 'LEFT' | 'left';
 LIKE: 'LIKE';
 LIMIT: 'LIMIT' | 'limit';
 LIST: 'LIST';
 MERGE: 'MERGE' | 'merge';
+NANTOKEN: 'NAN' | 'nan' | 'NaN';
 NATURAL: 'NATURAL';
 NOT: 'NOT' | 'not' | '!';
 NULLTOKEN:'NULL';
@@ -459,9 +521,10 @@ OF: 'OF';
 ON: 'ON' | 'on';
 OR: 'OR' | 'or';
 ORDER: 'ORDER' | 'order';
+OUTER: 'OUTER' | 'outer';
 QUERY: 'QUERY';
 RECOVER: 'RECOVER';
-RIGHT: 'RIGHT';
+RIGHT: 'RIGHT' | 'right';
 RLIKE: 'RLIKE' | 'REGEXP';
 ROLLUP: 'ROLLUP';
 SCHEMA: 'SCHEMA';
@@ -501,21 +564,20 @@ AVG: 'AVG' | 'avg';
 SUM: 'SUM' | 'sum';
 COUNT: 'COUNT' | 'count';
 MEDIAN: 'MEDIAN' | 'median';
-VAR: 'VAR' | 'var';
-ARRAY_AGG: 'ARRAY_AGG' | 'array_agg';
-TEMPORAL_SEQUENCE: 'TEMPORAL_SEQUENCE' | 'temporal_sequence';
-TEMPORAL_LENGTH: 'TEMPORAL_LENGTH' | 'temporal_length';
-PAIR_MEETING: 'PAIR_MEETING' | 'pair_meeting';
-CROSS_DISTANCE: 'CROSS_DISTANCE' | 'cross_distance';
-TGEO_AT_STBOX: 'TGEO_AT_STBOX' | 'tgeo_at_stbox';
 WATERMARK: 'WATERMARK' | 'watermark';
 OFFSET: 'OFFSET' | 'offset';
-LOCALHOST: 'LOCALHOST' | 'localhost';
 CSV_FORMAT : 'CSV_FORMAT';
 AT_MOST_ONCE : 'AT_MOST_ONCE';
 AT_LEAST_ONCE : 'AT_LEAST_ONCE';
 JSON: 'JSON';
 TEXT: 'TEXT';
+EXPLAIN: 'EXPLAIN' | 'explain';
+MODEL: 'MODEL';
+MODELS: 'MODELS';
+MODEL_INFERENCE: 'MODEL_INFERENCE';
+INPUT: 'INPUT';
+OUTPUT: 'OUTPUT';
+
 ///--NebulaSQL-KEYWORD-LIST-END
 ///****************************
 /// End of the keywords list
@@ -546,7 +608,6 @@ HAT: '^';
 
 STRING
     : '\'' ( ~('\''|'\\') | ('\\' .) )* '\''
-    | '"' ( ~('"'|'\\') | ('\\' .) )* '"'
     ;
 
 INTEGER_VALUE
@@ -605,12 +666,14 @@ UNSIGNED_TYPE_QUALIFIER: 'UNSIGNED ';
 
 
 SHOW : 'SHOW';
-FORMAT : 'FORMAT';
+FORMAT : 'FORMAT' | 'format';
 CREATE : 'CREATE';
 SOURCE : 'SOURCE';
-LOGICAL: 'LOGICAL';
+LOGICAL: 'LOGICAL' | 'logical';
 PHYSICAL: 'PHYSICAL';
+WORKER: 'WORKER';
 SINK : 'SINK';
+VERSION : 'VERSION' | 'version';
 
 //Make sure that you add lexer rules for keywords before the identifier rule,
 //otherwise it will take priority and your grammars will not work

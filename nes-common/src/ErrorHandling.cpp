@@ -26,7 +26,6 @@
 #include <cpptrace/from_current.hpp>
 #include <fmt/base.h>
 #include <fmt/format.h>
-#include <magic_enum/magic_enum.hpp>
 
 /// formater for cpptrace::nullable
 namespace fmt
@@ -107,7 +106,7 @@ std::string formatLogMessage(const Exception& e)
     if (!e.where())
     {
         return fmt::format(
-            "failed to process with error code ({}) : {}\n\n{}{}\n", e.code(), e.what(), ansiColorReset, e.trace().to_string(true));
+            "failed to process with error code ({}) : {}\n\n{}{}\n", e.code(), e.what(), ansiColorReset, formatStacktrace(e.trace(), true));
     }
 
     auto exceptionLocation = e.where().value();
@@ -120,7 +119,7 @@ std::string formatLogMessage(const Exception& e)
         exceptionLocation.column,
         exceptionLocation.symbol,
         ansiColorReset,
-        e.trace().to_string(true));
+        formatStacktrace(e.trace(), true));
 }
 
 std::string formatLogMessage(const std::exception& e)
@@ -130,27 +129,52 @@ std::string formatLogMessage(const std::exception& e)
         return fmt::format("failed to process with error : {}", e.what());
     }
     constexpr auto ansiColorReset = "\u001B[0m";
-    const auto& trace = cpptrace::from_current_exception().to_string(true);
+    const auto& trace = formatStacktrace(cpptrace::from_current_exception(), true);
     return fmt::format("failed to process with error : {}\n{}{}", e.what(), ansiColorReset, trace);
 }
 
 void tryLogCurrentException()
 {
+    /// Log the concise error headline (code + message) BEFORE resolving the stacktrace. Symbolizing a trace against a
+    /// large, statically linked binary can take many seconds; emitting the headline first guarantees the error marker
+    /// reaches the log even if the process is terminated (e.g. a `timeout` SIGKILL) part-way through symbolization.
     try
     {
         throw;
     }
     catch (const Exception& e)
     {
-        NES_ERROR("{}", formatLogMessage(e))
+        const auto headline = fmt::format("failed to process with error code ({}) : {}", e.code(), e.what());
+        NES_ERROR("{}", headline)
+        if (auto logger = Logger::getInstance(); logger && !logger->isConsoleLoggingEnabled())
+        {
+            fmt::print(stderr, "{}\n", headline);
+        }
+        if constexpr (logWithStacktrace)
+        {
+            NES_ERROR("{}{}", ansiColorReset, formatStacktrace(e.trace(), true))
+        }
     }
     catch (const std::exception& e)
     {
-        NES_ERROR("{}", formatLogMessage(e));
+        const auto headline = fmt::format("failed to process with error : {}", e.what());
+        NES_ERROR("{}", headline);
+        if (auto logger = Logger::getInstance(); logger && !logger->isConsoleLoggingEnabled())
+        {
+            fmt::print(stderr, "{}\n", headline);
+        }
+        if constexpr (logWithStacktrace)
+        {
+            NES_ERROR("{}{}", ansiColorReset, formatStacktrace(cpptrace::from_current_exception(), true));
+        }
     }
     catch (...) /// NOLINT(no-raw-catch-all)
     {
         NES_ERROR("failed to process with unknown error\n")
+        if (auto logger = Logger::getInstance(); logger && !logger->isConsoleLoggingEnabled())
+        {
+            fmt::print(stderr, "failed to process with unknown error\n");
+        }
     }
 }
 
@@ -215,28 +239,38 @@ ErrorCode getCurrentErrorCode()
 
 }
 
-/// errorCodeExists() and errorTypeExists() use internally magic_enum. To work with our generated error code enum we have to define
-/// min and max in advance
-namespace magic_enum::customize
-{
-template <>
-struct enum_range<NES::ErrorCode>
-{
-    static constexpr int min = 1000;
-    static constexpr int max = 10000;
-};
-}
-
+/// errorCodeExists() and errorTypeExists() resolve a numeric code / a type name against the ErrorCode
+/// enum using the same X-macro the enum is generated from (ExceptionDefinitions.inc). This replaces
+/// magic_enum::enum_cast, which needs an enum_range spanning the sparse [1000, 10000] code space and
+/// then instantiates compile-time machinery for all ~9000 candidate values — a giant AST that makes
+/// clang-tidy's whole-AST checks take tens of minutes on this TU.
 namespace NES
 {
 
 std::optional<ErrorCode> errorCodeExists(uint64_t code) noexcept
 {
-    return magic_enum::enum_cast<ErrorCode>(code);
+    switch (code)
+    {
+/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage): X-macro table expansion over ExceptionDefinitions.inc; it generates case labels, which a constexpr template cannot.
+#define EXCEPTION(name, codeValue, message) \
+    case (codeValue): \
+        return static_cast<ErrorCode>(codeValue);
+#include <ExceptionDefinitions.inc>
+#undef EXCEPTION
+        default:
+            return std::nullopt;
+    }
 }
 
 std::optional<ErrorCode> errorTypeExists(std::string_view codeOrTypeStr) noexcept
 {
-    return magic_enum::enum_cast<ErrorCode>(codeOrTypeStr);
+#define EXCEPTION(name, codeValue, message) \
+    if (codeOrTypeStr == #name) \
+    { \
+        return static_cast<ErrorCode>(codeValue); \
+    }
+#include <ExceptionDefinitions.inc>
+#undef EXCEPTION
+    return std::nullopt;
 }
 }

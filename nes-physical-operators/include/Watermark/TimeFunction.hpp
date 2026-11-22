@@ -15,12 +15,13 @@
 
 #include <memory>
 #include <DataTypes/TimeUnit.hpp>
+#include <DataTypes/VarVal.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/Interface/Record.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
-#include <Nautilus/Interface/TimestampRef.hpp>
+#include <Interface/Record.hpp>
+#include <Interface/RecordBuffer.hpp>
+#include <Interface/TimestampRef.hpp>
 #include <Time/Timestamp.hpp>
+#include <WindowTypes/Measures/TimeCharacteristic.hpp>
 
 namespace NES
 {
@@ -29,7 +30,6 @@ struct ExecutionContext;
 
 namespace NES
 {
-using namespace Nautilus;
 
 /// @brief A time function, infers the timestamp of an record.
 /// For ingestion time, this is determined by the creation ts in the buffer.
@@ -42,6 +42,7 @@ public:
     virtual ~TimeFunction() = default;
 
     [[nodiscard]] virtual std::unique_ptr<TimeFunction> clone() const = 0;
+    [[nodiscard]] static std::unique_ptr<TimeFunction> create(const Windowing::BoundTimeCharacteristic& timeCharacteristic);
 };
 
 class EventTimeFunction final : public TimeFunction

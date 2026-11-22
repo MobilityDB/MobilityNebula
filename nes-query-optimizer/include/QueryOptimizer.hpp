@@ -14,10 +14,20 @@
 
 #pragma once
 
-#include <utility>
+#include <memory>
+
+#include <Phases/OperatorPlacer.hpp>
+#include <Phases/RuleBasedOptimizer.hpp>
 #include <Plans/LogicalPlan.hpp>
-#include <PhysicalPlan.hpp>
-#include <QueryExecutionConfiguration.hpp>
+#include <Util/Pointers.hpp>
+#include <DistributedLogicalPlan.hpp>
+#include <QueryOptimizerConfiguration.hpp>
+#include <WorkerCatalog.hpp>
+
+namespace NES
+{
+class ModelCatalog;
+}
 
 namespace NES
 {
@@ -25,14 +35,20 @@ namespace NES
 class QueryOptimizer final
 {
 public:
-    explicit QueryOptimizer(QueryExecutionConfiguration defaultQueryExecution)
-        : defaultQueryExecution(std::move(defaultQueryExecution)) { };
-    /// Takes the query plan as a logical plan and returns a fully physical plan
-    [[nodiscard]] PhysicalPlan optimize(const LogicalPlan& plan) const;
-    [[nodiscard]] static PhysicalPlan optimize(const LogicalPlan& plan, const QueryExecutionConfiguration& defaultQueryExecution);
+    explicit QueryOptimizer(
+        const QueryOptimizerConfiguration& defaultQueryOptimization,
+        const std::shared_ptr<const SourceCatalog>& sourceCatalog,
+        const std::shared_ptr<const SinkCatalog>& sinkCatalog,
+        const std::shared_ptr<const WorkerCatalog>& workerCatalog,
+        const std::shared_ptr<const ModelCatalog>& modelCatalog)
+        : ruleBasedOptimization(defaultQueryOptimization, sourceCatalog, sinkCatalog, modelCatalog)
+        , operatorPlacement(defaultQueryOptimization, sourceCatalog, sinkCatalog, workerCatalog) { };
+
+    [[nodiscard]] DistributedLogicalPlan optimize(LogicalPlan plan) const;
 
 private:
-    QueryExecutionConfiguration defaultQueryExecution;
+    RuleBasedOptimizer ruleBasedOptimization;
+    OperatorPlacer operatorPlacement;
 };
 
 }

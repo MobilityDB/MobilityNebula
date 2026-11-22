@@ -41,6 +41,10 @@ add_custom_command(
         "${PROTO_FILE_PATH}"
         DEPENDS "${PROTO_FILES}")
 
+# The command above also writes the .pb.h/.grpc.pb.h headers, so depending on the sources is enough.
+add_custom_target(nes-grpc-codegen DEPENDS ${OUTPUT_SOURCES})
+add_dependencies(nes-codegen nes-grpc-codegen)
+
 macro(target_public_headers TARGET)
     set_target_properties(${TARGET} PROPERTIES PUBLIC_HEADER "${ARGN}")
 endmacro()
@@ -53,10 +57,16 @@ target_include_directories(nes-grpc PUBLIC
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/grpc_generated_src>
         $<INSTALL_INTERFACE:include/nebulastream/>)
 
+# BuildInfo.hpp contains build metadata used by the --version flag.
+include(BuildInfo)
+set(NES_BUILD_INFO_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+
 get_source(nes-common NES_COMMON_SOURCE_FILES)
 
 # Add Library
 add_library(nes-common ${NES_COMMON_SOURCE_FILES})
+# Version.cpp includes <BuildInfo.hpp> from the active configuration's generated directory.
+target_include_directories(nes-common PRIVATE "${NES_BUILD_INFO_DIR}/$<CONFIG>")
 
 find_package(cpptrace   CONFIG REQUIRED)
 find_package(fmt        CONFIG REQUIRED)
@@ -65,14 +75,32 @@ find_package(magic_enum CONFIG REQUIRED)
 find_package(spdlog     CONFIG REQUIRED)
 find_package(yaml-cpp   CONFIG REQUIRED)
 find_package(folly      CONFIG REQUIRED)
-target_link_libraries(nes-common PUBLIC nes-grpc cpptrace::cpptrace fmt::fmt libcuckoo::libcuckoo magic_enum::magic_enum spdlog::spdlog yaml-cpp::yaml-cpp folly::folly)
+find_package(boost_url CONFIG REQUIRED)
+
+find_package(PkgConfig)
+pkg_check_modules(uuid REQUIRED IMPORTED_TARGET GLOBAL uuid)
+
+target_link_libraries(nes-common PUBLIC nes-grpc cpptrace::cpptrace fmt::fmt libcuckoo::libcuckoo magic_enum::magic_enum spdlog::spdlog yaml-cpp::yaml-cpp folly::folly Boost::url PkgConfig::uuid nes-logger-bindings)
+target_link_rust_lib(nes-common spdlog_bindings)
+
+add_subdirectory(rust/spdlog-bindings)
 
 target_include_directories(nes-common PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include/nebulastream/>)
 
-if (NES_ENABLE_PRECOMPILED_HEADERS)
-    target_precompile_headers(nes-common PRIVATE "include/PrecompiledHeaders.hpp")
-endif ()
+
+# Generate BuildInfo.hpp after nes-common is fully configured so its target properties can be evaluated.
+generate_build_info(nes-common "${NES_BUILD_INFO_DIR}")
+
+# The Schema headers live in their own include directory behind a dedicated target on purpose:
+# Schema is meant for the logical/frontend layers, not for components that operate on
+# TupleBufferRefs or MemoryLayouts (e.g. nes-memory, nes-query-engine). Requiring an explicit
+# nes-schema dependency keeps those components from picking up Schema by accident via nes-common.
+add_library(nes-schema INTERFACE)
+target_link_libraries(nes-schema INTERFACE nes-common)
+target_include_directories(nes-schema INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/schema/include>
+        $<INSTALL_INTERFACE:include/nebulastream/>)
 
 add_tests_if_enabled(tests)

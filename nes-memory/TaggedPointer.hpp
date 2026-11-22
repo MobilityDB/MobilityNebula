@@ -52,55 +52,60 @@ public:
      * @brief negate operator, true if pointer is not valid
      * @return
      */
-    inline bool operator!() { return get() == nullptr; }
+    bool operator!() { return get() == nullptr; }
 
     /**
      * @brief returns the de-tagged pointer casted to T*
      * @return
      */
-    inline T* get() { return static_cast<T*>(pointer()); }
+    T* get() { return static_cast<T*>(pointer()); }
 
     /**
      * @brief returns the de-tagged pointer casted to const T*
      * @return
      */
-    inline const T* get() const { return static_cast<const T*>(pointer()); }
+    const T* get() const { return static_cast<const T*>(pointer()); }
 
     /**
      * @brief returns the de-tagged pointer casted to T&
      * @return
      */
-    inline const T& operator*() const { return *get(); }
+    const T& operator*() const { return *get(); }
 
     /**
      * @brief returns the de-tagged pointer casted to const T&
      * @return
      */
-    inline T& operator*() { return *get(); }
+    T& operator*() { return *get(); }
 
     /**
      * @brief returns the de-tagged pointer casted to const T*
      * @return
      */
-    inline const T* operator->() const { return get(); }
+    const T* operator->() const { return get(); }
 
     /**
      * @brief returns the de-tagged pointer casted to T*
      * @return
      */
-    inline T* operator->() { return get(); }
+    T* operator->() { return get(); }
 
     /**
      * @brief returns the companion tag
      * @return
      */
-    inline uint16_t tag() const { return data >> 48; }
+    [[nodiscard]] uint16_t tag() const { return data >> 48; }
 
     /**
      * @brief returns the de-tagged pointer casted to void*
      * @return
      */
-    inline void* pointer() const { return reinterpret_cast<void*>(data & ((1ULL << 48) - 1)); }
+    [[nodiscard]] void* pointer() const
+    {
+        /// NOLINTBEGIN(performance-no-int-to-ptr, cppcoreguidelines-pro-type-reinterpret-cast, hicpp-signed-bitwise, readability-magic-numbers) - intentional tagged pointer manipulation
+        return reinterpret_cast<void*>(data & ((1ULL << 48) - 1));
+        /// NOLINTEND(performance-no-int-to-ptr, cppcoreguidelines-pro-type-reinterpret-cast, hicpp-signed-bitwise, readability-magic-numbers) - intentional tagged pointer manipulation
+    }
 
     /**
      * @brief reset by mutating the internal pointer and the tag

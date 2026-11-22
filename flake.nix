@@ -4,62 +4,511 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { self, nixpkgs, flake-utils, ... }:
+    { nixpkgs, flake-utils, rust-overlay, ... }:
     flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (
       system:
       let
-        pkgs = import nixpkgs { inherit system; };
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ (import rust-overlay) ];
+        };
         lib = pkgs.lib;
-        llvm = pkgs.llvmPackages_19;
+        rustToolchain = pkgs.rust-bin.stable.latest.default;
+        # The single place to change when upgrading the compiler toolchain or the prebuilt MLIR binaries.
+        # The MLIR hashes in .nix/mlir/package.nix belong to mlirRelease.
+        llvmToolchain = rec {
+          llvmToolchainVersion = "22";
+          llvmPackages = pkgs.${"llvmPackages_${llvmToolchainVersion}"};
+          mlirVersion = "22";
+          mlirBuild = "clang${llvmToolchainVersion}-v2";
+          mlirRelease = "vmlir-${mlirVersion}-${mlirBuild}";
+          mlirAssetPrefix = "nes-llvm-${mlirVersion}-${mlirBuild}";
+        };
+        llvm = llvmToolchain.llvmPackages;
+        packageToolchainArgs = { inherit (llvmToolchain) llvmPackages; };
+        inherit (llvmToolchain) llvmToolchainVersion;
+        clangTidyDiffCommand = "clang-tidy-diff-${llvmToolchainVersion}.py";
         clangStdenv = llvm.stdenv;
-        mkShellClang = pkgs.mkShell.override { stdenv = clangStdenv; };
+        libcxxStdenv = llvm.libcxxStdenv;
+        stdenvForStdlib = stdlib:
+          if stdlib.name == "libcxx" then llvm.libcxxStdenv else clangStdenv;
+        mkShellForStdlib = stdlib: pkgs.mkShell.override { stdenv = stdenvForStdlib stdlib; };
 
-        nautilusPackages = import ./.nix/nautilus/package.nix { inherit pkgs; };
-        mlirBinary = nautilusPackages.mlirBinary;
-        nautilusPkg = nautilusPackages.nautilus;
+        sanitizerOptions = {
+          none = {
+            name = "none";
+            cmakeValue = "none";
+            envValue = "none";
+            extraEnv = { };
+            extraPackages = [ ];
+            compilerFlags = [ ];
+            linkerFlags = [ ];
+          };
+          address = {
+            name = "asan";
+            cmakeValue = "address";
+            envValue = "address";
+            extraEnv = {
+              ASAN_OPTIONS = "detect_leaks=1";
+            };
+            extraPackages = [ llvm.compiler-rt llvm.compiler-rt.dev ];
+            compilerFlags = [ "-fsanitize=address" "-fno-omit-frame-pointer" ];
+            linkerFlags = [ "-fsanitize=address" ];
+          };
+          thread = {
+            name = "tsan";
+            cmakeValue = "thread";
+            envValue = "thread";
+            extraEnv = {
+              TSAN_OPTIONS = "halt_on_error=1";
+            };
+            extraPackages = [ llvm.compiler-rt llvm.compiler-rt.dev ];
+            compilerFlags = [ "-fsanitize=thread" ];
+            linkerFlags = [ "-fsanitize=thread" ];
+          };
+          undefined = {
+            name = "ubsan";
+            cmakeValue = "undefined";
+            envValue = "undefined";
+            extraEnv = {
+              UBSAN_OPTIONS = "print_stacktrace=1";
+            };
+            extraPackages = [ llvm.compiler-rt llvm.compiler-rt.dev ];
+            compilerFlags = [ "-fsanitize=undefined" ];
+            linkerFlags = [ "-fsanitize=undefined" ];
+          };
+        };
 
-        nlohmann_jsonPkg = pkgs.callPackage ./.nix/nlohmann_json/package.nix { };
-        cpptracePkg = pkgs.callPackage ./.nix/cpptrace/package.nix { };
-        argparsePkg = pkgs.callPackage ./.nix/argparse/package.nix { };
-        libcuckooPkg = pkgs.callPackage ./.nix/libcuckoo/package.nix { };
+        sanitizerNames = builtins.attrNames sanitizerOptions;
 
-        fmtPkg = pkgs.fmt_11;
-        spdlogPkg = pkgs.spdlog.override { fmt = fmtPkg; };
-        follyPkg = import ./.nix/folly/package.nix { inherit pkgs; };
-        antlr4Pkg = import ./.nix/antlr4/package.nix { inherit pkgs; };
+        stdlibOptions = {
+          libstdcxx = {
+            name = "libstdcxx";
+            cmakeValue = "OFF";
+            envValue = "libstdcxx";
+            extraEnv = { };
+            extraPackages = [ pkgs.stdenv.cc.cc.lib ];
+          };
+          libcxx = {
+            name = "libcxx";
+            cmakeValue = "ON";
+            envValue = "libcxx";
+            extraEnv = { };
+            extraPackages = [ llvm.libcxx pkgs.stdenv.cc.cc.lib ];
+          };
+        };
 
-        baseThirdPartyDeps = (with pkgs; [
-          fmtPkg
-          spdlogPkg
-          grpc
-          protobuf
-          abseil-cpp
-          yaml-cpp
-          replxx
-          magic-enum
-          boost
-          openssl.dev
-          zstd.dev
-          zlib.dev
-          libdwarf.dev
-          libffi
-          libxml2
-          gdb
-          gflags
-          glog
-          gtest
-          tbb
-          python3
-          openjdk21
-          paho-mqtt-c
-          paho-mqtt-cpp
-        ]) ++ [ follyPkg antlr4Pkg ];
+        stdlibNames = builtins.attrNames stdlibOptions;
+        defaultStdlibName = "libstdcxx";
+
+        antlr4Version = "4.13.2";
+        simdjsonBasePkg =
+          let
+            version = "4.0.7";
+          in
+          pkgs.simdjson.overrideAttrs (_: {
+            inherit version;
+            src = pkgs.fetchFromGitHub {
+              owner = "simdjson";
+              repo = "simdjson";
+              rev = "v${version}";
+              hash = "sha256-8pmFtMpML7tTXbH1E3aIpSTQkNF8TFcIPOm2nwnKxkA=";
+            };
+          });
+
+        packagesForStdlib = { stdlib, extraInputs ? [ ], sanitizer ? sanitizerOptions.none }:
+          let
+            useLibcxx = stdlib.name == "libcxx";
+            overrideStdenv = pkg:
+              if useLibcxx then pkg.override { stdenv = libcxxStdenv; }
+              else pkg;
+            fmtPkg = overrideStdenv pkgs.fmt_11;
+            spdlogPkg = spdlogPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx fmtPkg;
+              compilerFlags = sanitizer.compilerFlags;
+              linkerFlags = sanitizer.linkerFlags;
+            };
+            gflagsPkg = overrideStdenv pkgs.gflags;
+            glogBase = pkgs.glog.override (
+              {
+                gflags = gflagsPkg;
+                gtest = gtestPkg;
+              }
+              // lib.optionalAttrs useLibcxx { stdenv = libcxxStdenv; }
+            );
+            glogPkg =
+              if useLibcxx then glogBase.overrideAttrs (old: old // { doCheck = false; })
+              else glogBase;
+            abseilPkg = abseilPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx;
+              compilerFlags = sanitizer.compilerFlags;
+            };
+            protobufPkg = protobufPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx;
+              abseil = abseilPkg;
+              compilerFlags = sanitizer.compilerFlags;
+              linkerFlags = sanitizer.linkerFlags;
+            };
+            gtestPkg = overrideStdenv pkgs.gtest;
+            rapidcheckPkg = (overrideStdenv pkgs.rapidcheck).overrideAttrs (old: {
+              outputs = [ "out" ];
+              buildInputs = lib.unique ((old.buildInputs or [ ]) ++ extraInputs);
+            });
+            re2Pkg = re2Packages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx;
+              abseil = abseilPkg;
+              gtest = gtestPkg;
+              compilerFlags = sanitizer.compilerFlags;
+              linkerFlags = sanitizer.linkerFlags;
+            };
+            grpcPkg = grpcPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx;
+              protobuf = protobufPkg;
+              abseil = abseilPkg;
+              re2 = re2Pkg;
+              compilerFlags = sanitizer.compilerFlags;
+              linkerFlags = sanitizer.linkerFlags;
+            };
+            yamlPkg = overrideStdenv pkgs.yaml-cpp;
+            replxxPkg = overrideStdenv pkgs.replxx;
+            magicEnumPkg = magicEnumPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx;
+            };
+            boostPkg = overrideStdenv pkgs.boost;
+            pugixmlPkg = overrideStdenv pkgs.pugixml;
+            xbyakPkg = overrideStdenv xbyakBasePkg;
+            simdjsonPkg = overrideStdenv simdjsonBasePkg;
+            nlohmannJsonPkg = nlohmannJsonPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx;
+            };
+            reflectCppPkg = reflectCppPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx;
+            };
+            nameofPkg = nameofPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx;
+            };
+            scopeGuardPkg = scopeGuardPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx;
+            };
+            follyPkg = follyPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx fmtPkg;
+              compilerFlags = sanitizer.compilerFlags;
+              linkerFlags = sanitizer.linkerFlags;
+            };
+            pahoMqttPkg = pahoMqttPackages.withSanitizer {
+              extraPackages = extraInputs;
+              inherit useLibcxx;
+              compilerFlags = sanitizer.compilerFlags;
+              linkerFlags = sanitizer.linkerFlags;
+            };
+            openvinoPkg = openvinoPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit
+                useLibcxx
+                nlohmannJsonPkg
+                pugixmlPkg
+                xbyakPkg
+                ;
+              compilerFlags = sanitizer.compilerFlags;
+              linkerFlags = sanitizer.linkerFlags;
+            };
+            baseThirdPartyDeps =
+              [
+                fmtPkg
+                spdlogPkg
+                simdjsonPkg
+                nlohmannJsonPkg
+                grpcPkg
+                protobufPkg
+                abseilPkg
+                yamlPkg
+                replxxPkg
+                magicEnumPkg
+                boostPkg
+                gflagsPkg
+                glogPkg
+                gtestPkg
+                rapidcheckPkg
+                pugixmlPkg
+                xbyakPkg
+                follyPkg
+                re2Pkg
+                reflectCppPkg
+                nameofPkg
+                scopeGuardPkg
+                openvinoPkg
+              ]
+              ++ [
+                pkgs.highs
+                pkgs.openssl.dev
+                pkgs.zstd.dev
+                pkgs.zlib.dev
+                pkgs.libdwarf.dev
+                pkgs.libffi
+                pkgs.libxml2
+                pkgs.python3
+                pkgs.openjdk21
+                pkgs.howard-hinnant-date
+                pkgs.libuuid
+                pahoMqttPkg.c
+                pahoMqttPkg.cpp
+                pkgs.rdkafka
+                pkgs.curl
+                pkgs.c-ares
+                pkgs.cyrus_sasl
+              ];
+          in {
+            inherit fmtPkg spdlogPkg follyPkg baseThirdPartyDeps;
+          };
+
+        nlohmannJsonPackages = pkgs.callPackage ./.nix/nlohmann_json/package.nix packageToolchainArgs;
+        abseilPackages = pkgs.callPackage ./.nix/abseil/package.nix (packageToolchainArgs // { abseil-cpp = pkgs.abseil-cpp_202608; });
+        re2Packages = pkgs.callPackage ./.nix/re2/package.nix packageToolchainArgs;
+        protobufPackages = pkgs.callPackage ./.nix/protobuf/package.nix packageToolchainArgs;
+        grpcPackages = pkgs.callPackage ./.nix/grpc/package.nix packageToolchainArgs;
+        # OpenVINO 2025.3.0 uses CPU feature flags that newer xbyak releases removed; this is the version vcpkg builds it with.
+        xbyakBasePkg = pkgs.xbyak.overrideAttrs (_: rec {
+          version = "7.28";
+          src = pkgs.fetchFromGitHub {
+            owner = "herumi";
+            repo = "xbyak";
+            rev = "v${version}";
+            hash = "sha256-jBxpNeA2Ed13zpJ++ODsjKgSC14z/RTFX3px4SapeS0=";
+          };
+        });
+        openvinoPackages = pkgs.callPackage ./.nix/openvino/package.nix (packageToolchainArgs // { xbyak = xbyakBasePkg; });
+
+        ccacheFlags = [
+          "-DCMAKE_C_COMPILER_LAUNCHER=ccache"
+          "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+        ];
+
+        ccacheShellHook = ''
+          export CCACHE_DIR="''${CCACHE_DIR:-$PWD/.ccache}"
+          export CCACHE_BASEDIR="$PWD"
+          mkdir -p "$CCACHE_DIR"
+          export CMAKE_C_COMPILER_LAUNCHER=ccache
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+        '';
+
+        antlr4Packages = pkgs.callPackage ./.nix/antlr4/package.nix packageToolchainArgs;
+        cpptracePackages = pkgs.callPackage ./.nix/cpptrace/package.nix packageToolchainArgs;
+        argparsePackages = pkgs.callPackage ./.nix/argparse/package.nix packageToolchainArgs;
+        libcuckooPackages = pkgs.callPackage ./.nix/libcuckoo/package.nix packageToolchainArgs;
+        magicEnumPackages = pkgs.callPackage ./.nix/magic_enum/package.nix packageToolchainArgs;
+        reflectCppPackages = pkgs.callPackage ./.nix/reflect_cpp/package.nix packageToolchainArgs;
+        nameofPackages = pkgs.callPackage ./.nix/nameof/package.nix packageToolchainArgs;
+        scopeGuardPackages = pkgs.callPackage ./.nix/scope_guard/package.nix packageToolchainArgs;
+        spdlogPackages = pkgs.callPackage ./.nix/spdlog/package.nix packageToolchainArgs;
+        follyPackages = pkgs.callPackage ./.nix/folly/package.nix packageToolchainArgs;
+        pahoMqttPackages = pkgs.callPackage ./.nix/paho_mqtt/package.nix packageToolchainArgs;
+
+        mlirPackages = import ./.nix/mlir/package.nix {
+          inherit pkgs;
+          inherit (llvmToolchain) mlirVersion mlirRelease mlirAssetPrefix;
+        };
+        mlirBinaryFor = cfg: mlirPackages.forOptions cfg;
+
+        # nautilus must see the same fmt and spdlog as NebulaStream, their headers are part of its interface.
+        nautilusPackagesFor = { mlirBinary, packageSet }:
+          import ./.nix/nautilus/package.nix {
+            inherit pkgs mlirBinary;
+            inherit (llvmToolchain) llvmPackages;
+            inherit (packageSet) fmtPkg spdlogPkg;
+          };
+
+        sanitizerPackageSet = {
+          antlr4 = antlr4Packages;
+          cpptrace = cpptracePackages;
+          argparse = argparsePackages;
+          libcuckoo = libcuckooPackages;
+          nlohmann_json = nlohmannJsonPackages;
+        };
+
+        sanitizerPackages = lib.attrValues sanitizerPackageSet;
+
+        mkThirdPartyDeps = combo:
+          let
+            sanitizer = combo.sanitizer;
+            stdlib = combo.stdlib;
+            mlirBinary = combo.mlirBinary;
+            extraInputs = sanitizer.extraPackages ++ stdlib.extraPackages;
+            packageSet = packagesForStdlib {
+              inherit stdlib extraInputs sanitizer;
+            };
+            baseThirdPartyDeps = packageSet.baseThirdPartyDeps;
+            baseWithDev = lib.unique (baseThirdPartyDeps ++ map lib.getDev baseThirdPartyDeps);
+            useLibcxx = stdlib.name == "libcxx";
+            sanitizerArgs = {
+              extraPackages = extraInputs;
+              inherit useLibcxx;
+              compilerFlags = sanitizer.compilerFlags;
+              linkerFlags = sanitizer.linkerFlags;
+            };
+            sanitizedDeps = map (pkg: pkg.withSanitizer sanitizerArgs) sanitizerPackages;
+            nautilusPackages = nautilusPackagesFor { inherit mlirBinary packageSet; };
+            sanitizedNautilus = nautilusPackages.withSanitizer {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx;
+            };
+          in
+          baseWithDev
+          ++ sanitizedDeps
+          ++ [ sanitizedNautilus ];
+
+        # The libraries libmeos links when MobilityDB builds it with every family (-DALL=ON), which
+        # cmake/Findmeos.cmake finds through pkg-config and the MEOS headers include: PROJ and json-c
+        # always, h3 for the H3 family, GDAL for raster. GDAL is the minimal build: the full one links
+        # TileDB, which carries its own spdlog over fmt 10 into a process whose spdlog uses fmt 11. They
+        # reach the search paths alone (mkCmakeContext), never the shell's buildInputs: each input there
+        # adds its -isystem to NIX_CFLAGS_COMPILE, which the compiler wrapper passes as one string, and
+        # these push it past the kernel's limit of one string ("mktemp: Argument list too long").
+        meosDeps = with pkgs; [
+          proj
+          proj.dev
+          json_c
+          json_c.dev
+          h3_4
+          h3_4.dev
+          gdalMinimal
+          # proj.pc names sqlite3, libtiff-4 and libcurl in Requires.private, which pkg-config
+          # resolves on every lookup of proj, and libtiff-4.pc names Lerc.
+          sqlite.dev
+          libtiff.dev
+          curl.dev
+          lerc.dev
+        ];
+
+        mkCmakeContext = combo:
+          let
+            sanitizer = combo.sanitizer;
+            stdlib = combo.stdlib;
+            mlirBinary = combo.mlirBinary;
+            thirdPartyDeps = mkThirdPartyDeps combo;
+            cmakeInputs = [ mlirBinary libdwarfModule ] ++ thirdPartyDeps ++ meosDeps;
+            cmakePrefixPath = lib.makeSearchPath "" cmakeInputs;
+            pkgConfigPath = lib.concatStringsSep ":" (
+              map (dir: lib.makeSearchPath dir (thirdPartyDeps ++ meosDeps)) [
+                "lib/pkgconfig"
+                "share/pkgconfig"
+              ]
+            );
+            includeRoots = lib.unique (map (dep: "${dep}/include") (thirdPartyDeps ++ meosDeps ++ sanitizer.extraPackages ++ stdlib.extraPackages ++ [ mlirBinary ]));
+            includePath = lib.concatStringsSep ":" includeRoots;
+            includePathCMake = lib.concatStringsSep ";" includeRoots;
+            libraryRoots = lib.unique (map (dep: "${dep}/lib") (thirdPartyDeps ++ meosDeps ++ sanitizer.extraPackages ++ stdlib.extraPackages ++ [ mlirBinary ]));
+            libraryPath = lib.concatStringsSep ":" libraryRoots;
+            includeFlags = lib.concatStringsSep " " (map (path: "-isystem ${path}") includeRoots);
+            libcxxLinkerFlags = lib.optionals (stdlib.name == "libcxx") [
+              "-L${llvm.libcxx}/lib"
+              "-L${pkgs.stdenv.cc.cc.lib}/lib"
+              "-lc++abi"
+              "-Wl,--no-as-needed"
+              "-lstdc++"
+              "-Wl,--as-needed"
+            ];
+            linkerFlags = lib.concatStringsSep " " libcxxLinkerFlags;
+            baseEnv = rec {
+              CMAKE_PREFIX_PATH = cmakePrefixPath;
+              PKG_CONFIG_PATH = pkgConfigPath;
+              MLIR_DIR = "${mlirBinary}/lib/cmake/mlir";
+              LLVM_DIR = "${mlirBinary}/lib/cmake/llvm";
+              CMAKE_MODULE_PATH = lib.makeSearchPath "share/cmake/Modules" [ libdwarfModule ];
+              CPATH = includePath;
+              CPLUS_INCLUDE_PATH = CPATH;
+              C_INCLUDE_PATH = CPATH;
+              LIBRARY_PATH = libraryPath;
+              CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES = includePathCMake;
+              # cargo links through `cc` by default, which is gcc here. gcc hands its options to collect2 in a
+              # single environment variable, which exceeds the kernel's per-string limit with this many inputs.
+              CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER = "clang";
+              CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER = "clang";
+            };
+            extraEnv = lib.optionalAttrs (linkerFlags != "") {
+              LDFLAGS = linkerFlags;
+              CMAKE_EXE_LINKER_FLAGS = linkerFlags;
+              CMAKE_SHARED_LINKER_FLAGS = linkerFlags;
+              CMAKE_MODULE_LINKER_FLAGS = linkerFlags;
+            };
+            commonCmakeEnv = baseEnv // extraEnv;
+          in {
+            inherit thirdPartyDeps cmakeInputs cmakePrefixPath pkgConfigPath commonCmakeEnv;
+          };
+
+        cmakeCommonFlags = combo: [
+          "-DUSE_LOCAL_MLIR=ON"
+          "-DUSE_LIBCXX_IF_AVAILABLE=${combo.stdlib.cmakeValue}"
+          "-DNES_USE_SYSTEM_DEPS=ON"
+          "-DLLVM_TOOLCHAIN_VERSION=${llvmToolchainVersion}"
+          "-DMLIR_DIR=${combo.mlirBinary}/lib/cmake/mlir"
+          "-DLLVM_DIR=${combo.mlirBinary}/lib/cmake/llvm"
+          "-DANTLR4_JAR_LOCATION=${antlr4Jar}"
+          "-DCMAKE_MODULE_PATH=${libdwarfModule}/share/cmake/Modules"
+          "-DUSE_SANITIZER=${combo.sanitizer.cmakeValue}"
+        ];
+
+        mkVariantAttrset = builder:
+          let
+            combos =
+              lib.listToAttrs (
+                lib.concatMap
+                  (sanName:
+                    let
+                      sanitizer = sanitizerOptions.${sanName};
+                    in
+                    map (stdName:
+                      let
+                        stdlib = stdlibOptions.${stdName};
+                        comboName = "${sanitizer.name}-${stdlib.name}";
+                      in {
+                        name = comboName;
+                        value = builder {
+                          sanitizerName = sanName;
+                          stdlibName = stdName;
+                          inherit sanitizer stdlib;
+                        };
+                      }
+                    ) stdlibNames
+                  )
+                  sanitizerNames
+              );
+            addAliases =
+              lib.foldl'
+                (acc: sanName:
+                  let
+                    sanitizer = sanitizerOptions.${sanName};
+                    defaultStdlib = stdlibOptions.${defaultStdlibName};
+                    defaultKey = "${sanitizer.name}-${defaultStdlib.name}";
+                    defaultValue = acc.${defaultKey};
+                  in
+                  acc
+                  // { ${sanName} = defaultValue; }
+                  // { ${sanitizer.name} = defaultValue; }
+                )
+                combos
+                sanitizerNames;
+          in addAliases;
 
         antlr4Jar = pkgs.fetchurl {
-          url = "https://www.antlr.org/download/antlr-${antlr4Pkg.version}-complete.jar";
+          url = "https://www.antlr.org/download/antlr-${antlr4Version}-complete.jar";
           hash = "sha256-6uLfoRmmQydERnKv9j6ew1ogGA3FuAkLemq4USXfTXY=";
         };
 
@@ -115,51 +564,126 @@
           '';
         };
 
-        # The libraries libmeos links when MobilityDB master builds it with every family (-DALL=ON):
-        # PROJ and json-c always, h3 for the H3 family, GDAL for raster; libxml2 and zlib are
-        # already in baseThirdPartyDeps. GDAL is the minimal build: the full one links TileDB, which
-        # carries its own spdlog over fmt 10 into a process whose spdlog uses fmt 11.
-        meosDeps = with pkgs; [
-          proj
-          proj.dev
-          json_c
-          json_c.dev
-          h3_4
-          h3_4.dev
-          gdalMinimal
-          # proj.pc names sqlite3, libtiff-4 and libcurl in Requires.private, which pkg-config
-          # resolves on every lookup of proj, and libtiff-4.pc names Lerc.
-          sqlite.dev
-          libtiff.dev
-          curl.dev
-          lerc.dev
-        ];
+        formatRunner = pkgs.writeShellApplication {
+          name = "nes-format";
+          runtimeInputs =
+            [
+              pkgs.git
+              pkgs.coreutils
+              pkgs.findutils
+              pkgs.gnugrep
+              pkgs.gawk
+              pkgs.python3
+              pkgs.rustfmt
+              pkgs.util-linux
+            ]
+            ++ llvmTools;
+          text = ''
+            set -euo pipefail
+            if [ ! -x ./scripts/format.sh ]; then
+              echo "nes-format: run this command from the NebulaStream repository root" >&2
+              exit 1
+            fi
+            if [ "$#" -gt 0 ]; then
+              echo "nes-format: always runs with -i; ignoring extra arguments: $*" >&2
+            fi
+            ./scripts/format.sh -i
+          '';
+        };
 
-        thirdPartyDeps = baseThirdPartyDeps ++ meosDeps ++ [
-          cpptracePkg
-          argparsePkg
-          libcuckooPkg
-          nautilusPkg
-          nlohmann_jsonPkg
-        ];
+        clangTidyDiffScript = "${llvm.clang-unwrapped.src}/clang-tools-extra/clang-tidy/tool/clang-tidy-diff.py";
 
-        cmakeInputs = [ mlirBinary libdwarfModule ] ++ thirdPartyDeps;
+        clangTidyDiffRunner = pkgs.writeShellApplication {
+          name = clangTidyDiffCommand;
+          runtimeInputs = [ pkgs.python3 ];
+          text = ''
+            exec python3 ${clangTidyDiffScript} "$@"
+          '';
+        };
 
-        cmakePrefixPath = lib.makeSearchPath "" cmakeInputs;
+        clangTidyFixRunner = pkgs.writeShellApplication {
+          name = "nes-clang-tidy-fix";
+          runtimeInputs = llvmTools;
+          text = ''
+            exec clang-tidy --fix-errors --fix-notes "$@"
+          '';
+        };
 
-        pkgConfigPath = lib.concatStringsSep ":" (
-          map (dir: lib.makeSearchPath dir thirdPartyDeps) [
-            "lib/pkgconfig"
-            "share/pkgconfig"
-          ]
-        );
+        clangTidyRunner = pkgs.writeShellApplication {
+          name = "nes-clang-tidy";
+          runtimeInputs = [ pkgs.coreutils pkgs.git pkgs.gnugrep pkgs.nix ];
+          text = ''
+            set -euo pipefail
 
-        commonCmakeEnv = {
-          CMAKE_PREFIX_PATH = cmakePrefixPath;
-          PKG_CONFIG_PATH = pkgConfigPath;
-          MLIR_DIR = "${mlirBinary}/lib/cmake/mlir";
-          LLVM_DIR = "${mlirBinary}/lib/cmake/llvm";
-          CMAKE_MODULE_PATH = lib.makeSearchPath "share/cmake/Modules" [ libdwarfModule ];
+            usage() {
+              printf '%s\n' 'Run the official clang-tidy-diff.py workflow inside the Nix development shell and apply fixes in place.'
+              printf '\n'
+              printf '%s\n' 'Usage:' '  nix run .#clang-tidy -- [<base-ref>]'
+              printf '\n'
+              printf '%s\n' 'Defaults:' '  <base-ref> = origin/main'
+              printf '\n'
+              printf '%s\n' 'Behavior:' '  Runs clang-tidy-diff.py with --fix and clang-tidy with --fix-errors --fix-notes'
+            }
+
+            if [ ! -x ./.nix/nix-cmake.sh ] || [ ! -x ./.nix/nix-run.sh ]; then
+              echo "nes-clang-tidy: run this command from the NebulaStream repository root" >&2
+              exit 1
+            fi
+
+            if [ "$#" -gt 1 ]; then
+              usage >&2
+              exit 1
+            fi
+
+            if [ "$#" -eq 1 ] && { [ "$1" = "-h" ] || [ "$1" = "--help" ]; }; then
+              usage
+              exit 0
+            fi
+
+            base_ref="''${1:-origin/main}"
+            jobs="$(nproc)"
+
+            if ! git diff --name-only "$base_ref" -- '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' ':!*.inc' | grep -q .; then
+              echo "nes-clang-tidy: no changed C/C++ files relative to $base_ref"
+              exit 0
+            fi
+
+            # shellcheck disable=SC2016
+            exec ./.nix/nix-run.sh bash -lc '
+              set -euo pipefail
+              base_ref="$1"
+              jobs="$2"
+
+              echo "nes-clang-tidy: configuring build/"
+              ./.nix/nix-cmake.sh -GNinja -B build -DUSE_SANITIZER=none -DCMAKE_BUILD_TYPE=Debug -DNES_LOG_LEVEL=DEBUG
+
+              echo "nes-clang-tidy: building generated headers"
+              ./.nix/nix-cmake.sh --build build -j -- -k 0
+
+              echo "nes-clang-tidy: running readability-duplicate-include pre-check with fixes against $base_ref"
+              git diff -U0 "$base_ref" -- ":!*.inc" | \
+                ${clangTidyDiffRunner}/bin/${clangTidyDiffCommand} \
+                  -clang-tidy-binary ${clangTidyFixRunner}/bin/nes-clang-tidy-fix \
+                  -p1 \
+                  -path build \
+                  -checks="-*,readability-duplicate-include" \
+                  -config-file .clang-tidy \
+                  -use-color \
+                  -fix \
+                  -j "$jobs"
+
+              echo "nes-clang-tidy: running full clang-tidy diff with fixes against $base_ref"
+              git diff -U0 "$base_ref" -- ":!*.inc" | \
+                ${clangTidyDiffRunner}/bin/${clangTidyDiffCommand} \
+                  -clang-tidy-binary ${clangTidyFixRunner}/bin/nes-clang-tidy-fix \
+                  -p1 \
+                  -path build \
+                  -config-file .clang-tidy \
+                  -use-color \
+                  -fix \
+                  -j "$jobs"
+            ' bash "$base_ref" "$jobs"
+          '';
         };
 
         clionSetupScript = pkgs.writeShellApplication {
@@ -202,6 +726,18 @@
           '';
         };
 
+        # Corrosion uses a cxxbridge on PATH if its version matches the cxx crate in Cargo.lock, and runs
+        # `cargo install` otherwise, which does not link inside the dev shell.
+        cxxbridgeCmd = pkgs.rustPlatform.buildRustPackage rec {
+          pname = "cxxbridge-cmd";
+          version = "1.0.197";
+          src = pkgs.fetchCrate {
+            inherit pname version;
+            hash = "sha256-YwSq6RUf/owLyB7UUEltxlV/SqdFufglKRUPPQi+f8c=";
+          };
+          cargoHash = "sha256-TWue1RHti+L23txZF/82NhWL7vi6gew3mQTRfGgKaMQ=";
+        };
+
         # Core development tools
         buildTools = with pkgs; [
           cmake
@@ -209,179 +745,267 @@
           pkg-config
           git
           ccache
+          mold
+          rustToolchain
+          cxxbridgeCmd
         ];
 
-        # LLVM 19 toolchain with versioned symlinks for vcpkg
-        clangWithVersions = pkgs.symlinkJoin {
+        # LLVM toolchain with versioned symlinks for vcpkg
+        clangWithVersionsDefault = pkgs.symlinkJoin {
           name = "clang-with-versions";
           paths = [ llvm.clang ];
           postBuild = ''
-            ln -s $out/bin/clang $out/bin/clang-19
-            ln -s $out/bin/clang++ $out/bin/clang++-19
+            ln -s $out/bin/clang $out/bin/clang-${llvmToolchainVersion}
+            ln -s $out/bin/clang++ $out/bin/clang++-${llvmToolchainVersion}
           '';
         };
 
-        # LLVM 19 toolchain
-        llvmTools = [
-          llvm.llvm
-          clangWithVersions
-          llvm.lld
-          llvm.libcxx
-          llvm.clang-tools # clang-format, clang-tidy
-        ];
+        clangWithVersionsLibcxx = pkgs.symlinkJoin {
+          name = "clang-with-versions-libcxx";
+          paths = [ llvm.libcxxClang ];
+          postBuild = ''
+            ln -s $out/bin/clang $out/bin/clang-${llvmToolchainVersion}
+            ln -s $out/bin/clang++ $out/bin/clang++-${llvmToolchainVersion}
+          '';
+        };
+
+        # LLVM toolchain
+        toolchainFor = stdlib:
+          let
+            clangWithVersions =
+              if stdlib.name == "libcxx"
+              then clangWithVersionsLibcxx
+              else clangWithVersionsDefault;
+          in {
+            inherit clangWithVersions;
+            tools = [
+              llvm.llvm
+              clangWithVersions
+              llvm.libcxx
+              llvm.clang-tools # clang-format, clang-tidy
+            ];
+          };
+        llvmTools = (toolchainFor stdlibOptions.${defaultStdlibName}).tools;
 
         # Development tools
         devTools = with pkgs; [
           gdb
           llvm.lldb
           python3
+          jq
+          (bats.withLibraries (p: [ p.bats-support p.bats-assert p.bats-file ]))
         ];
 
-        defaultPackage = clangStdenv.mkDerivation rec {
-          pname = "nebulastream";
-          version = "unstable";
-          src = ./.;
+        packageInstallPhase = ''
+          runHook preInstall
 
-          nativeBuildInputs = buildTools;
-          buildInputs = llvmTools ++ thirdPartyDeps ++ [ mlirBinary ];
-          patches = nebulastreamPatches;
+          mkdir -p $out/bin
+          for binary in \
+            nes-single-node-worker/nes-single-node-worker \
+            nes-frontend/nes-frontend \
+            nes-frontend/nes-frontend-embedded \
+            nes-systests/systest/systest
+          do
+            if [ -x "$binary" ]; then
+              install -Dm755 "$binary" "$out/bin/$(basename "$binary")"
+            fi
+          done
 
-          CMAKE_PREFIX_PATH = cmakePrefixPath;
-          PKG_CONFIG_PATH = pkgConfigPath;
+          mkdir -p $out/lib
+          find nes-* -maxdepth 1 -type f \( -name 'lib*.a' -o -name 'lib*.so' -o -name 'lib*.so.*' \) \
+            -exec sh -c 'for lib; do install -Dm644 "$lib" "$out/lib/$(basename "$lib")"; done' sh {} +
 
-          postPatch = ''
-            substituteInPlace CMakeLists.txt --replace "find_package(Protobuf REQUIRED)" "find_package(Protobuf CONFIG REQUIRED)"
-          '';
+          runHook postInstall
+        '';
 
-          cmakeFlags = [
-            "-DCMAKE_C_COMPILER_LAUNCHER=ccache"
-            "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
-            "-DCMAKE_BUILD_TYPE=Release"
-            "-DUSE_LOCAL_MLIR=ON"
-            "-DUSE_LIBCXX_IF_AVAILABLE=OFF"
-            "-DNES_USE_SYSTEM_DEPS=ON"
-            "-DLLVM_TOOLCHAIN_VERSION=19"
-            "-DMLIR_DIR=${commonCmakeEnv.MLIR_DIR}"
-            "-DLLVM_DIR=${commonCmakeEnv.LLVM_DIR}"
-            "-DNES_ENABLES_TESTS=ON"
-            "-DCMAKE_MODULE_PATH=${libdwarfModule}/share/cmake/Modules"
-            "-DANTLR4_JAR_LOCATION=${antlr4Jar}"
-            "-DNES_ENABLE_MEOS=OFF"
-          ];
+        mkPackage = { sanitizerName, sanitizer, stdlibName, stdlib }:
+          let
+            mlirBinary = mlirBinaryFor {
+              sanitizer = sanitizer.cmakeValue;
+              stdlib = stdlib.name;
+            };
+            combo = {
+              inherit sanitizer stdlib mlirBinary;
+            };
+            cmakeCtx = mkCmakeContext combo;
+            toolchain = toolchainFor stdlib;
+            llvmToolsVariant = toolchain.tools;
+            clangWithVersionsPath = toolchain.clangWithVersions;
+            cmakeFlagsList =
+              [
+                "-DCMAKE_BUILD_TYPE=Release"
+                "-DNES_ENABLES_TESTS=ON"
+                "-DUSE_BUILD_CACHE=OFF"
+                "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON"
+              ]
+              ++ cmakeCommonFlags combo;
+            envVars =
+              sanitizer.extraEnv
+              // stdlib.extraEnv
+              // {
+                NES_SANITIZER = sanitizer.envValue;
+                NES_STDLIB = stdlib.envValue;
+                NES_USE_LIBCXX = stdlib.cmakeValue;
+                CC = "${clangWithVersionsPath}/bin/clang";
+                CXX = "${clangWithVersionsPath}/bin/clang++";
+              };
+          in
+          (stdenvForStdlib stdlib).mkDerivation ((rec {
+            pname = "nebulastream";
+            version = "unstable";
+            src = ./.;
 
-          enableParallelBuilding = true;
-          strictDeps = true;
+            nativeBuildInputs = buildTools;
+            buildInputs =
+              llvmToolsVariant
+              ++ cmakeCtx.thirdPartyDeps
+              ++ [ mlirBinary ]
+              ++ sanitizer.extraPackages
+              ++ stdlib.extraPackages;
+            patches = nebulastreamPatches;
 
-          installPhase = ''
-            runHook preInstall
+            CMAKE_PREFIX_PATH = cmakeCtx.cmakePrefixPath;
+            PKG_CONFIG_PATH = cmakeCtx.pkgConfigPath;
 
-            mkdir -p $out/bin
-            for binary in \
-              nes-single-node-worker/nes-single-node-worker \
-              nes-nebuli/nes-nebuli \
-              nes-nebuli/nes-nebuli-embedded \
-              nes-systests/systest/systest
-            do
-              if [ -x "$binary" ]; then
-                install -Dm755 "$binary" "$out/bin/$(basename "$binary")"
-              fi
-            done
+            cmakeFlags = cmakeFlagsList;
 
-            mkdir -p $out/lib
-            find nes-* -maxdepth 1 -type f \( -name 'lib*.a' -o -name 'lib*.so' -o -name 'lib*.so.*' \) \
-              -exec sh -c 'for lib; do install -Dm644 "$lib" "$out/lib/$(basename "$lib")"; done' sh {} +
+            enableParallelBuilding = true;
+            strictDeps = true;
+            installPhase = packageInstallPhase;
+          }) // envVars);
 
-            runHook postInstall
-          '';
+        mkDevShell = { sanitizerName, sanitizer, stdlibName, stdlib }:
+          let
+            mlirBinary = mlirBinaryFor {
+              sanitizer = sanitizer.cmakeValue;
+              stdlib = stdlib.name;
+            };
+            combo = {
+              inherit sanitizer stdlib mlirBinary;
+            };
+            cmakeCtx = mkCmakeContext combo;
+            toolchain = toolchainFor stdlib;
+            llvmToolsVariant = toolchain.tools;
+            clangWithVersionsPath = toolchain.clangWithVersions;
+            cmakeFlagsList = ccacheFlags
+              ++ [
+                "-DCMAKE_PROJECT_INCLUDE=${devCmakePrelude}"
+                "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON"
+                "-DCMAKE_BUILD_RPATH=${runtimeLibraryPathCMake}"
+              ]
+              ++ cmakeCommonFlags combo;
+            allBuildInputs =
+              cmakeCtx.thirdPartyDeps
+              ++ [ mlirBinary ]
+              ++ sanitizer.extraPackages
+              ++ stdlib.extraPackages;
+            transitiveRuntimeDeps = [
+              pkgs.icu
+              pkgs.zlib.out
+              pkgs.c-ares
+              pkgs.openssl.out
+              pkgs.libuuid.lib
+            ];
+            runtimeLibraryPath = lib.makeLibraryPath (allBuildInputs ++ transitiveRuntimeDeps ++ meosDeps);
+            runtimeLibraryPathCMake = lib.concatStringsSep ";" (
+              lib.unique (map (dep: "${lib.getLib dep}/lib") (allBuildInputs ++ transitiveRuntimeDeps ++ meosDeps))
+            );
+            envVars =
+              sanitizer.extraEnv
+              // stdlib.extraEnv
+              // {
+                NES_SANITIZER = sanitizer.envValue;
+                NES_STDLIB = stdlib.envValue;
+                NES_USE_LIBCXX = stdlib.cmakeValue;
+                NES_USE_SYSTEM_DEPS = "ON";
+                CC = "${clangWithVersionsPath}/bin/clang";
+                CXX = "${clangWithVersionsPath}/bin/clang++";
+              };
+          in
+          (mkShellForStdlib stdlib) (
+            cmakeCtx.commonCmakeEnv
+            // envVars
+            // {
+              name = "nebula-stream-${sanitizer.name}-${stdlib.name}";
+              buildInputs = allBuildInputs;
+              nativeBuildInputs = buildTools ++ llvmToolsVariant;
+              packages = devTools;
+              LLVM_TOOLCHAIN_VERSION = llvmToolchainVersion;
+              CMAKE_GENERATOR = "Ninja";
+              VCPKG_ENV_PASSTHROUGH = "MLIR_DIR;LLVM_DIR;CMAKE_PREFIX_PATH";
+              cmakeFlags = cmakeFlagsList;
+              shellHook = ''
+                unset NES_PREBUILT_VCPKG_ROOT
+                export LD_LIBRARY_PATH="${runtimeLibraryPath}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+              '' + ccacheShellHook;
+            }
+          );
+
+      in
+      let
+        packageVariants = mkVariantAttrset mkPackage;
+        devShellVariants = mkVariantAttrset mkDevShell;
+        defaultOpenvino = openvinoPackages.withSanitizer {
+          extraBuildInputs = stdlibOptions.${defaultStdlibName}.extraPackages;
+          useLibcxx = false;
         };
-
       in
       {
         formatter = pkgs.nixfmt-tree;
 
-        packages.default = defaultPackage;
-
-        checks = {
-          antlr4 = antlr4Pkg;
-          cpptrace = cpptracePkg;
-          nautilus = nautilusPkg;
+        packages = packageVariants // {
+          default = packageVariants.none;
+          openvino = defaultOpenvino;
         };
 
-        apps =
+        checks =
           let
-            formatRunner = pkgs.writeShellApplication {
-              name = "nes-format";
-              runtimeInputs =
-                [
-                  pkgs.git
-                  pkgs.coreutils
-                  pkgs.findutils
-                  pkgs.gnugrep
-                  pkgs.gawk
-                  pkgs.python3
-                  pkgs.util-linux
-                ]
-                ++ llvmTools;
-              text = ''
-                set -euo pipefail
-                if [ ! -x ./scripts/format.sh ]; then
-                  echo "nes-format: run this command from the NebulaStream repository root" >&2
-                  exit 1
-                fi
-                if [ "$#" -gt 0 ]; then
-                  echo "nes-format: always runs with -i; ignoring extra arguments: $*" >&2
-                fi
-                ./scripts/format.sh -i
-              '';
+            defaultStdlib = stdlibOptions.${defaultStdlibName};
+            defaultSanitizer = sanitizerOptions.none;
+            extraInputs = defaultSanitizer.extraPackages ++ defaultStdlib.extraPackages;
+            useLibcxx = defaultStdlib.name == "libcxx";
+            sanitizerArgs = {
+              extraBuildInputs = extraInputs;
+              inherit useLibcxx;
             };
-          in
-          {
-            clion-setup = {
-              type = "app";
-              program = "${clionSetupScript}/bin/clion-setup";
+            defaultMlirBinary = mlirBinaryFor {
+              sanitizer = defaultSanitizer.cmakeValue;
+              stdlib = defaultStdlib.name;
             };
-            format = {
-              type = "app";
-              program = "${formatRunner}/bin/nes-format";
+            nautilusPackages = nautilusPackagesFor {
+              mlirBinary = defaultMlirBinary;
+              packageSet = packagesForStdlib {
+                stdlib = defaultStdlib;
+                sanitizer = defaultSanitizer;
+                inherit extraInputs;
+              };
             };
+          in {
+            antlr4 = antlr4Packages.withSanitizer sanitizerArgs;
+            cpptrace = cpptracePackages.withSanitizer sanitizerArgs;
+            argparse = argparsePackages.withSanitizer sanitizerArgs;
+            libcuckoo = libcuckooPackages.withSanitizer sanitizerArgs;
+            nlohmann_json = nlohmannJsonPackages.withSanitizer sanitizerArgs;
+            nautilus = nautilusPackages.withSanitizer sanitizerArgs;
+            openvino = openvinoPackages.withSanitizer sanitizerArgs;
           };
 
-        devShells.default = mkShellClang (
-          commonCmakeEnv
-          // {
-            name = "nebula-stream";
-            buildInputs = thirdPartyDeps ++ [ mlirBinary ];
-            nativeBuildInputs = buildTools ++ llvmTools;
-            packages = devTools;
-            LLVM_TOOLCHAIN_VERSION = "19";
-            CMAKE_GENERATOR = "Ninja";
-            VCPKG_ENV_PASSTHROUGH = "MLIR_DIR;LLVM_DIR;CMAKE_PREFIX_PATH";
-            NES_USE_SYSTEM_DEPS = "ON";
-            cmakeFlags = [
-              "-DCMAKE_C_COMPILER_LAUNCHER=ccache"
-              "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
-              "-DCMAKE_PROJECT_INCLUDE=${devCmakePrelude}"
-              "-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON"
-              "-DNES_USE_SYSTEM_DEPS=ON"
-              "-DUSE_LOCAL_MLIR=ON"
-              "-DUSE_LIBCXX_IF_AVAILABLE=OFF"
-              "-DLLVM_TOOLCHAIN_VERSION=19"
-              "-DMLIR_DIR=${commonCmakeEnv.MLIR_DIR}"
-              "-DLLVM_DIR=${commonCmakeEnv.LLVM_DIR}"
-              "-DANTLR4_JAR_LOCATION=${antlr4Jar}"
-              "-DCMAKE_MODULE_PATH=${libdwarfModule}/share/cmake/Modules"
-              "-DNES_ENABLE_MEOS=OFF"
-            ];
-            shellHook = ''
-              unset NES_PREBUILT_VCPKG_ROOT
-              export CCACHE_DIR="$PWD/.ccache"
-              export CCACHE_BASEDIR="$PWD"
-              mkdir -p "$CCACHE_DIR"
-              export CMAKE_C_COMPILER_LAUNCHER=ccache
-              export CMAKE_CXX_COMPILER_LAUNCHER=ccache
-            '';
-          }
-        );
+        apps = {
+          clang-tidy = {
+            type = "app";
+            program = "${clangTidyRunner}/bin/nes-clang-tidy";
+          };
+          clion-setup = {
+            type = "app";
+            program = "${clionSetupScript}/bin/clion-setup";
+          };
+          format = {
+            type = "app";
+            program = "${formatRunner}/bin/nes-format";
+          };
+        };
+
+        devShells = devShellVariants // { default = devShellVariants.none; };
       }
     );
 }

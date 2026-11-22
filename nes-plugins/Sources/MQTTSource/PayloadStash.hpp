@@ -17,8 +17,9 @@
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <ErrorHandling.hpp>
 
-namespace NES::Sources
+namespace NES
 {
 
 static constexpr size_t STASH_TARGET_CAPACITY = 1024;
@@ -44,6 +45,7 @@ class PayloadStash
 {
 public:
     PayloadStash() { buf.reserve(STASH_TARGET_CAPACITY); }
+
     ~PayloadStash() = default;
 
     /// No copying or moving necessary.

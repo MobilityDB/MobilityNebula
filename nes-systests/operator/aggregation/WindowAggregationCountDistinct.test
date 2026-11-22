@@ -12,7 +12,7 @@ ATTACH INLINE
 30,120,2,4b1814
 30,160,1,3c6444
 
-CREATE SINK sinkDistinct(stream.start UINT64, stream.end UINT64, stream.valueCount UINT64, stream.distinctCount UINT64) TYPE File;
+CREATE SINK sinkDistinct(start UINT64 NOT NULL, end UINT64 NOT NULL, valueCount UINT64 NOT NULL, distinctCount UINT64 NOT NULL) TYPE File;
 SELECT start, end, COUNT(value) AS valueCount, COUNT(DISTINCT value) AS distinctCount
 FROM stream WINDOW TUMBLING(ts, size 100 ms)
 INTO sinkDistinct;
@@ -20,7 +20,7 @@ INTO sinkDistinct;
 0,100,3,2
 100,200,3,1
 
-CREATE SINK sinkDistinctKeyed(stream.start UINT64, stream.end UINT64, stream.id INT32, stream.distinctCount UINT64) TYPE File;
+CREATE SINK sinkDistinctKeyed(start UINT64 NOT NULL, end UINT64 NOT NULL, id INT32, distinctCount UINT64 NOT NULL) TYPE File;
 SELECT start, end, id, COUNT(DISTINCT value) AS distinctCount
 FROM stream GROUP BY (id) WINDOW TUMBLING(ts, size 100 ms)
 INTO sinkDistinctKeyed;
@@ -30,7 +30,7 @@ INTO sinkDistinctKeyed;
 100,200,1,1
 100,200,2,1
 
-CREATE SINK sinkDistinctSliding(stream.start UINT64, stream.end UINT64, stream.valueCount UINT64, stream.distinctCount UINT64) TYPE File;
+CREATE SINK sinkDistinctSliding(start UINT64 NOT NULL, end UINT64 NOT NULL, valueCount UINT64 NOT NULL, distinctCount UINT64 NOT NULL) TYPE File;
 SELECT start, end, COUNT(value) AS valueCount, COUNT(DISTINCT value) AS distinctCount
 FROM stream WINDOW SLIDING(ts, size 100 ms, advance by 50 ms)
 INTO sinkDistinctSliding;
@@ -40,7 +40,7 @@ INTO sinkDistinctSliding;
 100,200,3,1
 150,250,1,1
 
-CREATE SINK sinkDistinctAircraft(stream.start UINT64, stream.end UINT64, stream.aircraft UINT64) TYPE File;
+CREATE SINK sinkDistinctAircraft(start UINT64 NOT NULL, end UINT64 NOT NULL, aircraft UINT64 NOT NULL) TYPE File;
 SELECT start, end, COUNT(DISTINCT icao) AS aircraft
 FROM stream WINDOW TUMBLING(ts, size 100 ms)
 INTO sinkDistinctAircraft;

@@ -14,29 +14,68 @@
 
 #pragma once
 
+#include <cstddef>
+#include <functional>
 #include <memory>
+#include <string>
 #include <string_view>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataType.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <AggregationLogicalFunctionRegistry.hpp>
 #include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-class SumAggregationLogicalFunction : public WindowAggregationLogicalFunction
+class SumAggregationLogicalFunction
 {
 public:
-    SumAggregationLogicalFunction(const FieldAccessLogicalFunction& onField, const FieldAccessLogicalFunction& asField);
-    explicit SumAggregationLogicalFunction(const FieldAccessLogicalFunction& onField);
-    ~SumAggregationLogicalFunction() override = default;
+    explicit SumAggregationLogicalFunction(AggregationFieldAccess inputFunction);
+    SumAggregationLogicalFunction(AggregationFieldAccess inputFunction, DataType aggregateType);
 
-    void inferStamp(const Schema& schema) override;
-    [[nodiscard]] SerializableAggregationFunction serialize() const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
+    [[nodiscard]] SumAggregationLogicalFunction withInferredType(const Schema<Field, Unordered>& schema) const;
+    [[nodiscard]] std::string_view getName() const noexcept;
+    [[nodiscard]] DataType getAggregateType() const;
+    [[nodiscard]] static bool shallIncludeNullValues() noexcept;
+    [[nodiscard]] AggregationFieldAccess getInputFunction() const;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
+    [[nodiscard]] bool operator==(const SumAggregationLogicalFunction& other) const;
+
+    static AggregationLogicalFunctionRegistryReturnType create(AggregationLogicalFunctionRegistryArguments arguments);
 
 private:
+    [[nodiscard]] static DataType inferFromInput(DataType inputType, const Identifier& inputFieldName);
+
+    AggregationFieldAccess inputFunction;
+    DataType aggregateType;
     static constexpr std::string_view NAME = "Sum";
 };
+
+template <>
+struct Reflector<SumAggregationLogicalFunction>
+{
+    Reflected operator()(const SumAggregationLogicalFunction& function, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<SumAggregationLogicalFunction>
+{
+    SumAggregationLogicalFunction operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
 }
+
+template <>
+struct std::hash<NES::SumAggregationLogicalFunction>
+{
+    size_t operator()(const NES::SumAggregationLogicalFunction& aggregationFunction) const noexcept;
+};
+
+static_assert(NES::WindowAggregationFunctionConcept<NES::SumAggregationLogicalFunction>);

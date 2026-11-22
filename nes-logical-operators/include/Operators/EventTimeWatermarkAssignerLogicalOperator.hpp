@@ -15,81 +15,120 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
-#include <Configurations/Descriptor.hpp>
-#include <DataTypes/Schema.hpp>
 #include <DataTypes/TimeUnit.hpp>
+#include <DataTypes/UnboundField.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
+#include <Operators/LogicalOperatorFwd.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/LogicalOperatorReflection.hpp>
+#include <Serialization/ReflectedOperator.hpp>
 #include <Traits/Trait.hpp>
 #include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <SerializableOperator.pb.h>
+#include <Util/Reflection.hpp>
 #include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-class EventTimeWatermarkAssignerLogicalOperator
+class EventTimeWatermarkAssignerLogicalOperator : public ManagedByOperator
 {
 public:
     /// The watermark trails the largest event time read by the allowed lateness, in milliseconds
-    EventTimeWatermarkAssignerLogicalOperator(LogicalFunction onField, const Windowing::TimeUnit& unit, uint64_t allowedLateness = 0);
+    EventTimeWatermarkAssignerLogicalOperator(
+        WeakLogicalOperator self, LogicalFunction onField, const Windowing::TimeUnit& unit, uint64_t allowedLateness = 0);
+    EventTimeWatermarkAssignerLogicalOperator(
+        WeakLogicalOperator self, LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit, uint64_t allowedLateness = 0);
 
-    LogicalFunction onField;
-    Windowing::TimeUnit unit;
-    uint64_t allowedLateness;
+    static TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>
+    create(LogicalFunction onField, const Windowing::TimeUnit& unit, uint64_t allowedLateness = 0);
+    static TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>
+    create(LogicalOperator child, LogicalFunction onField, const Windowing::TimeUnit& unit, uint64_t allowedLateness = 0);
+
 
     [[nodiscard]] bool operator==(const EventTimeWatermarkAssignerLogicalOperator& rhs) const;
-    void serialize(SerializableOperator&) const;
 
     [[nodiscard]] EventTimeWatermarkAssignerLogicalOperator withTraitSet(TraitSet traitSet) const;
     [[nodiscard]] TraitSet getTraitSet() const;
 
+    [[nodiscard]] EventTimeWatermarkAssignerLogicalOperator withChildrenUnsafe(std::vector<LogicalOperator> children) const;
     [[nodiscard]] EventTimeWatermarkAssignerLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
     [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
+    [[nodiscard]] LogicalOperator getChild() const;
 
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
-    [[nodiscard]] Schema getOutputSchema() const;
+    [[nodiscard]] Schema<Field, Unordered> getOutputSchema() const;
 
     [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId) const;
     [[nodiscard]] std::string_view getName() const noexcept;
 
-    [[nodiscard]] EventTimeWatermarkAssignerLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
-
-    struct ConfigParameters
-    {
-        static inline const DescriptorConfig::ConfigParameter<uint64_t> TIME_MS{
-            "TimeMs",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(TIME_MS, config); }};
-        static inline const DescriptorConfig::ConfigParameter<FunctionList> FUNCTION{
-            "Function",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(FUNCTION, config); }};
-
-        static inline const DescriptorConfig::ConfigParameter<uint64_t> ALLOWED_LATENESS_MS{
-            "AllowedLatenessMs",
-            0,
-            [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(ALLOWED_LATENESS_MS, config); }};
-
-        static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
-            = DescriptorConfig::createConfigParameterContainerMap(TIME_MS, FUNCTION, ALLOWED_LATENESS_MS);
-    };
+    [[nodiscard]] EventTimeWatermarkAssignerLogicalOperator withInferredSchema() const;
+    [[nodiscard]] LogicalFunction getOnField() const;
+    [[nodiscard]] Windowing::TimeUnit getUnit() const;
+    [[nodiscard]] uint64_t getAllowedLateness() const;
 
 private:
     static constexpr std::string_view NAME = "EventTimeWatermarkAssigner";
 
-    std::vector<LogicalOperator> children;
+    Windowing::TimeUnit unit;
+    LogicalFunction onField;
+    uint64_t allowedLateness;
+
+    std::optional<LogicalOperator> child;
+
+    void inferLocalSchema();
+    /// Set during schema inference
+    std::optional<Schema<UnqualifiedUnboundField, Unordered>> outputSchema;
+
     TraitSet traitSet;
-    Schema inputSchema, outputSchema;
+
+    friend struct std::hash<EventTimeWatermarkAssignerLogicalOperator>;
+
+    friend Reflector<TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>>;
+};
+
+namespace detail
+{
+struct ReflectedEventTimeWatermarkAssignerLogicalOperator
+{
+    OperatorId operatorId{OperatorId::INVALID};
+    LogicalFunction onField;
+    Windowing::TimeUnit timeUnit;
+    uint64_t allowedLateness{0};
+};
+}
+
+template <>
+struct Reflector<TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>>
+{
+    Reflected operator()(const TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>& op, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>>
+{
+    using ContextType = std::shared_ptr<ReflectedPlan>;
+    ContextType plan;
+    explicit Unreflector(ContextType operatorMapping);
+    TypedLogicalOperator<EventTimeWatermarkAssignerLogicalOperator>
+    operator()(const Reflected& reflected, const ReflectionContext& context) const;
 };
 
 static_assert(LogicalOperatorConcept<EventTimeWatermarkAssignerLogicalOperator>);
-
 }
+
+template <>
+struct std::hash<NES::EventTimeWatermarkAssignerLogicalOperator>
+{
+    uint64_t operator()(const NES::EventTimeWatermarkAssignerLogicalOperator& eventTimeWatermarkAssignerOperator) const noexcept;
+};

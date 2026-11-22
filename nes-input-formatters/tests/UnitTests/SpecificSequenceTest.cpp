@@ -12,17 +12,20 @@
     limitations under the License.
 */
 
+#include <cstddef>
 #include <cstdint>
+#include <string>
 #include <tuple>
 
 #include <Identifiers/Identifiers.hpp>
+#include <Interface/BufferRef/LowerSchemaProvider.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <Util/Logger/impl/NesLogger.hpp>
 #include <gtest/gtest.h>
 #include <BaseUnitTest.hpp>
 #include <InputFormatterTestUtil.hpp>
 
-/// NOLINTBEGIN(readability-magic-numbers)
+/// NOLINTBEGIN(readability-magic-numbers, bugprone-unchecked-optional-access, google-build-using-namespace)
 namespace NES
 {
 
@@ -51,12 +54,13 @@ TEST_F(SpecificSequenceTest, oneTupleWithTupleDelimiters)
         .numRequiredBuffers = 3, /// 2 buffer for raw data, 1 buffer for results
         .sizeOfRawBuffers = 16,
         .sizeOfFormattedBuffers = 20,
-        .parserConfig = {.parserType = "CSV", .tupleDelimiter = "\n", .fieldDelimiter = ","},
+        .parserConfig
+        = InputFormatterTestUtil::provideInputFormatterDescriptor("CSV", {{"TUPLE_DELIMITER", "\n"}, {"FIELD_DELIMITER", ","}}),
         .testSchema = {INT32, INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
         .expectedResults = {WorkerThreadResults<TestTuple>{{{TestTuple(123456789, 123456789)}}}},
-        .rawBytesPerThread
-        = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "123456789,123456"},
-           /* buffer 2 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "789\n"}}});
+        .rawBytesPerThread = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "123456789,123456"},
+                              /* buffer 2 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "789\n"}}});
 }
 
 /// Threads may process buffers out of order. This test simulates a scenario where the second thread process the second buffer first.
@@ -69,12 +73,13 @@ TEST_F(SpecificSequenceTest, testTaskPipelineExecutingOutOfOrder)
         .numRequiredBuffers = 3, /// 2 buffers for raw data, 1 buffer for results
         .sizeOfRawBuffers = 16,
         .sizeOfFormattedBuffers = 20,
-        .parserConfig = {.parserType = "CSV", .tupleDelimiter = "\n", .fieldDelimiter = ","},
+        .parserConfig
+        = InputFormatterTestUtil::provideInputFormatterDescriptor("CSV", {{"TUPLE_DELIMITER", "\n"}, {"FIELD_DELIMITER", ","}}),
         .testSchema = {INT32, INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
         .expectedResults = {WorkerThreadResults<TestTuple>{{{TestTuple(123456789, 123456789)}}}},
-        .rawBytesPerThread
-        = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "789\n"},
-           /* buffer 2 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "123456789,123456"}}});
+        .rawBytesPerThread = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "789\n"},
+                              /* buffer 2 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "123456789,123456"}}});
 }
 
 /// Threads may process buffers out of order. This test simulates a scenario where the second thread process the second buffer first.
@@ -87,15 +92,17 @@ TEST_F(SpecificSequenceTest, testTwoFullTuplesInFirstAndLastBuffer)
         .numRequiredBuffers = 4, /// 2 buffers for raw data, two buffers for results
         .sizeOfRawBuffers = 16,
         .sizeOfFormattedBuffers = 20, /// 8 bytes metadata, 12 bytes per formatted tuple
-        .parserConfig = {.parserType = "CSV", .tupleDelimiter = "\n", .fieldDelimiter = ","},
+        .parserConfig
+        = InputFormatterTestUtil::provideInputFormatterDescriptor("CSV", {{"TUPLE_DELIMITER", "\n"}, {"FIELD_DELIMITER", ","}}),
         .testSchema = {INT32, INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
         .expectedResults = {WorkerThreadResults<TestTuple>{{{TestTuple(123456789, 12345)}, {TestTuple{12345, 123456789}}}}},
-        .rawBytesPerThread
-        = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "123456789,12345\n"},
-           /* buffer 2 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "12345,123456789\n"}}});
+        .rawBytesPerThread = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "123456789,12345\n"},
+                              /* buffer 2 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "12345,123456789\n"}}});
 }
 
-TEST_F(SpecificSequenceTest, testDelimiterThatIsMoreThanOneCharacter)
+/// TODO #1154: We currently don't support delimiters that are larger than one byte
+TEST_F(SpecificSequenceTest, DISABLED_testDelimiterThatIsMoreThanOneCharacter)
 {
     using namespace InputFormatterTestUtil;
     using enum TestDataTypes;
@@ -104,12 +111,13 @@ TEST_F(SpecificSequenceTest, testDelimiterThatIsMoreThanOneCharacter)
         .numRequiredBuffers = 4, /// 2 buffers for raw data, two buffers for results
         .sizeOfRawBuffers = 16,
         .sizeOfFormattedBuffers = 20,
-        .parserConfig = {.parserType = "CSV", .tupleDelimiter = "--", .fieldDelimiter = ","},
+        .parserConfig
+        = InputFormatterTestUtil::provideInputFormatterDescriptor("CSV", {{"TUPLE_DELIMITER", "--"}, {"FIELD_DELIMITER", ","}}),
         .testSchema = {INT32, INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
         .expectedResults = {WorkerThreadResults<TestTuple>{{{TestTuple(123456789, 1234)}, {TestTuple{12345, 12345678}}}}},
-        .rawBytesPerThread
-        = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "123456789,1234--"},
-           /* buffer 2 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "12345,12345678--"}}});
+        .rawBytesPerThread = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "123456789,1234--"},
+                              /* buffer 2 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "12345,12345678--"}}});
 }
 
 /// Index buffer can only represent a single tuple. Requires 7 (nested) index buffers for first buffer ("1\n2\n3\n4\n5\n6\n7\n8\n").
@@ -123,15 +131,16 @@ TEST_F(SpecificSequenceTest, testMultipleTuplesInOneBuffer)
         .sizeOfRawBuffers = 16,
         .sizeOfFormattedBuffers
         = 16, /// size of formatted tuple: 4 bytes, size of indexes: 8 bytes <-- 8 bytes metadata: 1 tuple per index buffer, 4 formatted buffers, 12 index buffers
-        .parserConfig = {.parserType = "CSV", .tupleDelimiter = "\n", .fieldDelimiter = ","},
+        .parserConfig
+        = InputFormatterTestUtil::provideInputFormatterDescriptor("CSV", {{"TUPLE_DELIMITER", "\n"}, {"FIELD_DELIMITER", ","}}),
         .testSchema = {INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
         .expectedResults = {WorkerThreadResults<TestTuple>{
             {{TestTuple{1}, TestTuple{2}, TestTuple{3}, TestTuple{4}},
              {TestTuple{5}, TestTuple{6}, TestTuple{7}, TestTuple{8}},
              {TestTuple{1234}, TestTuple{5678}, TestTuple{1001}}}}},
-        .rawBytesPerThread
-        = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "1\n2\n3\n4\n5\n6\n7\n8\n"},
-           /* buffer 2 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "1234\n5678\n1001\n"}}});
+        .rawBytesPerThread = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "1\n2\n3\n4\n5\n6\n7\n8\n"},
+                              /* buffer 2 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "1234\n5678\n1001\n"}}});
 }
 
 /// The third buffer has sequence number 2, connecting the first buffer (implicit delimiter) and the third (explicit delimiter)
@@ -145,8 +154,10 @@ TEST_F(SpecificSequenceTest, triggerSpanningTupleWithThirdBufferWithoutDelimiter
         .numRequiredBuffers = 4, /// 3 buffers for raw data, 1 buffer from results
         .sizeOfRawBuffers = 16,
         .sizeOfFormattedBuffers = 28,
-        .parserConfig = {.parserType = "CSV", .tupleDelimiter = "\n", .fieldDelimiter = ","},
+        .parserConfig
+        = InputFormatterTestUtil::provideInputFormatterDescriptor("CSV", {{"TUPLE_DELIMITER", "\n"}, {"FIELD_DELIMITER", ","}}),
         .testSchema = {INT32, INT32, INT32, INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
         .expectedResults = {WorkerThreadResults<TestTuple>{{{TestTuple(123456789, 123456789, 123456789, 123456789)}}}},
         /// The third buffer has sequence number 2, connecting the first buffer (implicit delimiter) and the third (explicit delimiter)
         .rawBytesPerThread
@@ -165,8 +176,10 @@ TEST_F(SpecificSequenceTest, testMultiplePartiallyFilledBuffers)
         .numRequiredBuffers = 6, /// 4 buffers for raw data, 2 buffer from results
         .sizeOfRawBuffers = 16,
         .sizeOfFormattedBuffers = 28,
-        .parserConfig = {.parserType = "CSV", .tupleDelimiter = "\n", .fieldDelimiter = ","},
+        .parserConfig
+        = InputFormatterTestUtil::provideInputFormatterDescriptor("CSV", {{"TUPLE_DELIMITER", "\n"}, {"FIELD_DELIMITER", ","}}),
         .testSchema = {INT32, INT32, INT32, INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
         .expectedResults
         = {WorkerThreadResults<TestTuple>{{{TestTuple(123, 124, 125, 126)}}},
            WorkerThreadResults<TestTuple>{{{TestTuple(127, 128, 129, 456789)}}}},
@@ -177,6 +190,103 @@ TEST_F(SpecificSequenceTest, testMultiplePartiallyFilledBuffers)
            {.sequenceNumber = SequenceNumber(3), .rawBytes = ",129"}}});
 }
 
+/// Constructs an empty spanning tuple, since it starts with a '\n' (and the SequenceShredder contains a buffer '0' containing a '\n'
+TEST_F(SpecificSequenceTest, simdJSONFirstObjectEndsAtBufferBoundary)
+{
+    using namespace InputFormatterTestUtil;
+    using enum TestDataTypes;
+    using TestTuple = std::tuple<int32_t>;
+    runTest<TestTuple>(TestConfig<TestTuple>{
+        .numRequiredBuffers = 3, /// 2 buffer for raw data, 1 buffer for results
+        .sizeOfRawBuffers = 128,
+        .sizeOfFormattedBuffers = 16,
+        .parserConfig = InputFormatterTestUtil::provideInputFormatterDescriptor("JSON", {{"TUPLE_DELIMITER", "\n"}}),
+        .testSchema = {INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
+        .expectedResults = {WorkerThreadResults<TestTuple>{{{TestTuple(12)}}}},
+        .rawBytesPerThread = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "\n{\"FIELD_0\":12}\n"}}});
 }
 
-/// NOLINTEND(readability-magic-numbers)
+TEST_F(SpecificSequenceTest, simdJSONObjectsInsideRequiredTailPaddingWithoutNextBuffer)
+{
+    using namespace InputFormatterTestUtil;
+    using enum TestDataTypes;
+    using TestTuple = std::tuple<int32_t>;
+    constexpr size_t rawBufferSize = 128;
+    const auto tuplesInUnsafeTail = "\n" + std::string(90, ' ') + "{\"FIELD_0\":1}\n{\"FIELD_0\":12}\n";
+
+    runTest<TestTuple>(TestConfig<TestTuple>{
+        .numRequiredBuffers = 3,
+        .sizeOfRawBuffers = rawBufferSize,
+        .sizeOfFormattedBuffers = 16,
+        .parserConfig = InputFormatterTestUtil::provideInputFormatterDescriptor("JSON", {{"TUPLE_DELIMITER", "\n"}}),
+        .testSchema = {INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
+        .expectedResults = {WorkerThreadResults<TestTuple>{{{TestTuple(1), TestTuple(12)}}}},
+        .rawBytesPerThread = {{.sequenceNumber = SequenceNumber(1), .rawBytes = tuplesInUnsafeTail}}});
+}
+
+TEST_F(SpecificSequenceTest, simdJSONFirstDelimiterInsideRequiredTailPadding)
+{
+    using namespace InputFormatterTestUtil;
+    using enum TestDataTypes;
+    using TestTuple = std::tuple<int32_t>;
+    constexpr size_t rawBufferSize = 128;
+    const auto tuplesInUnsafeTail = std::string(70, ' ') + "{\"FIELD_0\":1}\n{\"FIELD_0\":2}\n";
+
+    runTest<TestTuple>(TestConfig<TestTuple>{
+        .numRequiredBuffers = 3,
+        .sizeOfRawBuffers = rawBufferSize,
+        .sizeOfFormattedBuffers = 16,
+        .parserConfig = InputFormatterTestUtil::provideInputFormatterDescriptor("JSON", {{"TUPLE_DELIMITER", "\n"}}),
+        .testSchema = {INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
+        .expectedResults = {WorkerThreadResults<TestTuple>{{{TestTuple(1), TestTuple(2)}}}},
+        .rawBytesPerThread = {{.sequenceNumber = SequenceNumber(1), .rawBytes = tuplesInUnsafeTail}}});
+}
+
+/// SIMDJSON detects a complete tuple '{"Field_0":567}' in buffer 2, this leads to an empty spanning tuple between the ending '}'-byte
+/// of buffer 2 and the starting '\n'-byte of buffer 3 (leading spanning tuple)
+TEST_F(SpecificSequenceTest, simdJSONObjectEndsAtBufferBoundaryLeading)
+{
+    using namespace InputFormatterTestUtil;
+    using enum TestDataTypes;
+    using TestTuple = std::tuple<int32_t>;
+    runTest<TestTuple>(TestConfig<TestTuple>{
+        .numRequiredBuffers = 3, /// 2 buffer for raw data, 1 buffer for results
+        .sizeOfRawBuffers = 128,
+        .sizeOfFormattedBuffers = 20,
+        .parserConfig = InputFormatterTestUtil::provideInputFormatterDescriptor("JSON", {{"TUPLE_DELIMITER", "\n"}}),
+        .testSchema = {INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
+        .expectedResults
+        = {WorkerThreadResults<TestTuple>{{{TestTuple(1234)}}}, WorkerThreadResults<TestTuple>{{{TestTuple(567), TestTuple(89)}}}},
+        .rawBytesPerThread = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "{\"FIELD_0\":1234}"},
+                              /* buffer 2 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "\n{\"FIELD_0\":567}"},
+                              /* buffer 3 */ {.sequenceNumber = SequenceNumber(3), .rawBytes = "\n{\"FIELD_0\":89}\n"}}});
+}
+
+/// SIMDJSON detects a complete tuple '{"Field_0":567}' in buffer 3, this leads to an empty spanning tuple between the ending '}'-byte
+/// of buffer 2 and the starting '\n'-byte of buffer 3 (trailing spanning tuple)
+TEST_F(SpecificSequenceTest, simdJSONObjectEndsAtBufferBoundaryTrailing)
+{
+    using namespace InputFormatterTestUtil;
+    using enum TestDataTypes;
+    using TestTuple = std::tuple<int32_t>;
+    runTest<TestTuple>(TestConfig<TestTuple>{
+        .numRequiredBuffers = 3, /// 2 buffer for raw data, 1 buffer for results
+        .sizeOfRawBuffers = 128,
+        .sizeOfFormattedBuffers = 20,
+        .parserConfig = InputFormatterTestUtil::provideInputFormatterDescriptor("JSON", {{"TUPLE_DELIMITER", "\n"}}),
+        .testSchema = {INT32},
+        .memoryLayoutType = MemoryLayoutType::ROW_LAYOUT,
+        .expectedResults
+        = {WorkerThreadResults<TestTuple>{{{TestTuple(89)}}}, WorkerThreadResults<TestTuple>{{{TestTuple(1234), TestTuple(567)}}}},
+
+        .rawBytesPerThread = {/* buffer 1 */ {.sequenceNumber = SequenceNumber(1), .rawBytes = "{\"FIELD_0\":1234}"},
+                              /* buffer 3 */ {.sequenceNumber = SequenceNumber(3), .rawBytes = "\n{\"FIELD_0\":89}\n"},
+                              /* buffer 2 */ {.sequenceNumber = SequenceNumber(2), .rawBytes = "\n{\"FIELD_0\":567}"}}});
+}
+}
+
+/// NOLINTEND(readability-magic-numbers, bugprone-unchecked-optional-access, google-build-using-namespace)

@@ -20,20 +20,43 @@
 #include <optional>
 #include <utility>
 #include <vector>
-#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
-#include <Nautilus/Interface/Record.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
-#include <Util/StdInt.hpp>
+
+#include <Interface/BufferRef/TupleBufferRef.hpp>
+#include <Interface/Record.hpp>
+#include <Interface/RecordBuffer.hpp>
 #include <ExecutionContext.hpp>
+#include <InputFormatter.hpp>
 #include <PhysicalOperator.hpp>
+#include <val.hpp>
+#include <val_arith.hpp>
 
 namespace NES
 {
 
 ScanPhysicalOperator::ScanPhysicalOperator(
-    std::shared_ptr<Interface::BufferRef::TupleBufferRef> bufferRef, std::vector<Record::RecordFieldIdentifier> projections)
-    : bufferRef(std::move(bufferRef)), projections(std::move(projections))
+    std::shared_ptr<TupleBufferRef> bufferRef, std::vector<Record::RecordFieldIdentifier> projections)
+    : bufferRef(std::move(bufferRef))
+    , projections(std::move(projections))
+    , isRawScan(std::dynamic_pointer_cast<InputFormatter>(this->bufferRef) != nullptr)
 {
+}
+
+void ScanPhysicalOperator::rawScan(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const
+{
+    auto inputFormatterBufferRef = std::dynamic_pointer_cast<InputFormatter>(this->bufferRef);
+
+    if (not inputFormatterBufferRef->indexBuffer(recordBuffer, executionCtx.pipelineMemoryProvider.arena))
+    {
+        executionCtx.setOpenReturnState(OpenReturnState::REPEAT);
+        return;
+    }
+
+    /// call open on all child operators
+    openChild(executionCtx, recordBuffer);
+
+    /// process buffer
+    const auto executeChildLambda = [this](ExecutionContext& executionCtx, Record& record) { executeChild(executionCtx, record); };
+    inputFormatterBufferRef->readBuffer(executionCtx, recordBuffer, executeChildLambda);
 }
 
 void ScanPhysicalOperator::open(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const
@@ -45,11 +68,17 @@ void ScanPhysicalOperator::open(ExecutionContext& executionCtx, RecordBuffer& re
     executionCtx.sequenceNumber = recordBuffer.getSequenceNumber();
     executionCtx.chunkNumber = recordBuffer.getChunkNumber();
     executionCtx.lastChunk = recordBuffer.isLastChunk();
+
+    if (isRawScan)
+    {
+        rawScan(executionCtx, recordBuffer);
+        return;
+    }
     /// call open on all child operators
     openChild(executionCtx, recordBuffer);
     /// iterate over records in buffer
     auto numberOfRecords = recordBuffer.getNumRecords();
-    for (nautilus::val<uint64_t> i = 0_u64; i < numberOfRecords; i = i + 1_u64)
+    for (nautilus::val<uint64_t> i = uint64_t{0}; i < numberOfRecords; i = i + uint64_t{1})
     {
         auto record = bufferRef->readRecord(projections, recordBuffer, i);
         executeChild(executionCtx, record);

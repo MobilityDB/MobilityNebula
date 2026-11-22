@@ -1,10 +1,10 @@
 name: Calculating Development Metrics
-
-# The following pipeline is meant to be run per milestone by a workflow dispatch call via the Github website.
-# It will calculate the development metrics for the milestone.
-# For example, the number of PRs, the number of commits, the number of issues, PR turnaround time, etc.
-# To count the changed no. files, insertions and deletions, one can use the following command:
-# git diff --shortstat <SHA FROM> <SHA TO>
+description: | 
+ The following pipeline is meant to be run per milestone by a workflow dispatch call via the Github website.
+ It will calculate the development metrics for the milestone.
+ For example, the number of PRs, the number of commits, the number of issues, PR turnaround time, etc.
+ To count the changed no. files, insertions and deletions, one can use the following command:
+ git diff --shortstat <SHA FROM> <SHA TO>
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Get dates for period
         shell: bash
@@ -62,7 +62,7 @@ jobs:
           echo "$metrics_for_issues" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Markdown to Artefacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: repo-metrics
           path: ./metrics

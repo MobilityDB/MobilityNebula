@@ -14,263 +14,271 @@
 
 #include <MQTTSink.hpp>
 
+#include <cstddef>
+#include <cstdint>
+#include <expected>
 #include <memory>
-#include <filesystem>
+#include <mutex>
+#include <optional>
 #include <ostream>
 #include <string>
-#include <unordered_map>
 #include <utility>
-
-#include <fmt/format.h>
-#include <mqtt/async_client.h>
-#include <mqtt/exception.h>
-#include <mqtt/message.h>
-
-#include <Configurations/Descriptor.hpp>
+#include <MQTTAsync.h>
+#include <Configurations/ConfigField.hpp>
+#include <Configurations/ConfigLiteral.hpp>
+#include <Configurations/InstantiatedConfigValue.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Runtime/TupleBuffer.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Sinks/Sink.hpp>
 #include <Sinks/SinkDescriptor.hpp>
-#include <SinksParsing/JSONFormat.hpp>
+#include <Util/Logger/Logger.hpp>
+#include <Util/UUID.hpp>
+#include <Util/Variant.hpp>
+#include <mqtt/async_client.h>
+#include <mqtt/buffer_ref.h>
+#include <mqtt/connect_options.h>
+#include <mqtt/exception.h>
+#include <mqtt/message.h>
+#include <mqtt/types.h>
+#include <BackpressureChannel.hpp>
 #include <ErrorHandling.hpp>
 #include <PipelineExecutionContext.hpp>
-#include <SinkRegistry.hpp>
-#include <SinkValidationRegistry.hpp>
 
 namespace NES
 {
 
-MQTTSink::Callback::Callback(std::string serverUri) : targetServerUri(std::move(serverUri))
+void MQTTSink::ConnectionCallback::connection_lost(const std::string& cause)
 {
+    *lostCause.wlock() = cause;
 }
 
-void MQTTSink::Callback::connected(const std::string& cause)
+namespace
 {
-    NES_INFO("MQTTSink: Connected to {}{}.", targetServerUri, cause.empty() ? "" : fmt::format(" (cause: {})", cause));
-}
-
-void MQTTSink::Callback::connection_lost(const std::string& cause)
+std::string generateClientId(std::string clientId)
 {
-    NES_WARNING("MQTTSink: Connection to {} lost (cause: {}).", targetServerUri, cause.empty() ? "<unknown>" : cause);
-}
-
-void MQTTSink::Callback::delivery_complete(mqtt::delivery_token_ptr token)
-{
-    const auto count = ++deliveredCount;
-    if (token)
+    if (clientId == GENERATE_CLIENT_ID_TOKEN)
     {
-        NES_DEBUG(
-            "MQTTSink: delivery {} completed (token id: {}, message size: {}).",
-            count,
-            token->get_message_id(),
-            token->get_message() ? token->get_message()->to_string().size() : 0);
+        return UUIDToString(generateUUID());
     }
-    else
-    {
-        NES_DEBUG("MQTTSink: delivery {} completed (token unavailable).", count);
-    }
+    return clientId;
 }
 
-MQTTSink::MQTTSink(const SinkDescriptor& sinkDescriptor)
-    : Sink()
-    , serverUri(sinkDescriptor.getFromConfig(MQTTSinkConfig::SERVER_URI))
-    , clientId(sinkDescriptor.getFromConfig(MQTTSinkConfig::CLIENT_ID))
-    , topic(sinkDescriptor.getFromConfig(MQTTSinkConfig::TOPIC))
-    , username(sinkDescriptor.tryGetFromConfig(MQTTSinkConfig::USERNAME))
-    , password(sinkDescriptor.tryGetFromConfig(MQTTSinkConfig::PASSWORD))
-    , qos(sinkDescriptor.getFromConfig(MQTTSinkConfig::QOS))
-    , cleanSession(sinkDescriptor.getFromConfig(MQTTSinkConfig::CLEAN_SESSION))
-    , persistenceDir(sinkDescriptor.tryGetFromConfig(MQTTSinkConfig::PERSISTENCE_DIR))
-    , maxInflight(sinkDescriptor.tryGetFromConfig(MQTTSinkConfig::MAX_INFLIGHT))
-    , useTls(sinkDescriptor.getFromConfig(MQTTSinkConfig::USE_TLS))
-    , tlsCaCertPath(sinkDescriptor.tryGetFromConfig(MQTTSinkConfig::TLS_CA_CERT))
-    , tlsClientCertPath(sinkDescriptor.tryGetFromConfig(MQTTSinkConfig::TLS_CLIENT_CERT))
-    , tlsClientKeyPath(sinkDescriptor.tryGetFromConfig(MQTTSinkConfig::TLS_CLIENT_KEY))
-    , tlsAllowInsecure(sinkDescriptor.getFromConfig(MQTTSinkConfig::TLS_ALLOW_INSECURE))
-{
-    // Resolve input format (default provided by validator is CSV)
-    switch (const auto inputFormat = sinkDescriptor.getFromConfig(MQTTSinkConfig::INPUT_FORMAT))
+/// NOLINTBEGIN(bugprone-throwing-static-initialization)
+const ConfigField<std::string> SERVER_URI{Identifier::parse("SERVER_URI"), "The MQTT broker URI"};
+
+const ConfigField<std::string> CLIENT_ID{
+    Identifier::parse("CLIENT_ID"), "The MQTT client ID (leave default to auto-generate)", std::string{GENERATE_CLIENT_ID_TOKEN}};
+
+const ConfigField<std::string> TOPIC{Identifier::parse("TOPIC"), "The MQTT topic to publish to"};
+
+const ConfigField<int64_t> QOS{
+    Identifier::parse("QOS"),
+    "MQTT QoS level (0, 1, or 2)",
+    [](const ConfigLiteral& literal) -> std::expected<int64_t, Exception>
     {
-        case InputFormat::CSV:
-            formatter = std::make_unique<CSVFormat>(*sinkDescriptor.getSchema());
-            break;
-        case InputFormat::JSON:
-            formatter = std::make_unique<JSONFormat>(*sinkDescriptor.getSchema());
-            break;
-        default:
-            throw UnknownSinkFormat(fmt::format("Sink format: {} not supported.", magic_enum::enum_name(inputFormat)));
-    }
+        auto value = tryGetOr<int64_t>(literal, expectedType<int64_t>());
+        if (!value)
+        {
+            return std::unexpected{value.error()};
+        }
+        if (*value != 0 && *value != 1 && *value != 2)
+        {
+            return std::unexpected{InvalidConfigParameter("MQTTSink: QoS must be 0, 1, or 2")};
+        }
+        return value;
+    },
+    int64_t{1}};
+
+const ConfigField<bool> RETAINED{Identifier::parse("RETAINED"), "Whether published messages should be retained by the broker", false};
+
+const ConfigField<int64_t> MAX_OUTSTANDING_MESSAGES{
+    Identifier::parse("MAX_OUTSTANDING_MESSAGES"),
+    "Maximum number of unacknowledged QoS>=1 messages; no effect under QoS 0",
+    [](const ConfigLiteral& literal) { return tryGetOr<int64_t>(literal, expectedType<int64_t>()); },
+    int64_t{128}};
+/// NOLINTEND(bugprone-throwing-static-initialization)
 }
 
-std::ostream& MQTTSink::toString(std::ostream& str) const
+Schema<QualifiedErasedConfigField, Ordered> MQTTSink::getConfigSchema()
 {
-    str << fmt::format("MQTTSink(serverURI: {}, clientId: {}, topic: {}, qos: {})", serverUri, clientId, topic, qos);
-    return str;
+    return createConfigSchema(
+        Identifier::parse("MQTT_SINK"),
+        SERVER_URI,
+        CLIENT_ID,
+        TOPIC,
+        QOS,
+        RETAINED,
+        MAX_OUTSTANDING_MESSAGES,
+        SinkDescriptor::BACKPRESSURE_UPPER_THRESHOLD,
+        SinkDescriptor::BACKPRESSURE_LOWER_THRESHOLD);
+}
+
+std::expected<MQTTSinkConfig, Exception> MQTTSinkConfig::fromConfig(const InstantiatedConfig& config)
+{
+    return MQTTSinkConfig{
+        .serverURI = config.get(SERVER_URI),
+        .clientId = config.get(CLIENT_ID),
+        .topic = config.get(TOPIC),
+        .qos = config.get(QOS),
+        .retained = config.get(RETAINED),
+        .maxOutstandingMessages = config.get(MAX_OUTSTANDING_MESSAGES),
+    };
+}
+
+MQTTSink::MQTTSink(BackpressureController backpressureController, const MQTTSinkConfig& config, const SinkDescriptor& sinkDescriptor)
+    : Sink(std::move(backpressureController))
+    , serverURI(config.serverURI)
+    , clientId(generateClientId(config.clientId))
+    , topic(config.topic)
+    , qos(static_cast<int32_t>(config.qos))
+    , retained(config.retained)
+    , maxOutstandingMessages(static_cast<int32_t>(config.maxOutstandingMessages))
+    , backpressureHandler(sinkDescriptor.getBackpressureUpperThreshold(), sinkDescriptor.getBackpressureLowerThreshold())
+{
+}
+
+std::ostream& MQTTSink::toString(std::ostream& os) const
+{
+    os << "\nMQTTSink(";
+    os << "\n  serverURI: " << serverURI;
+    os << "\n  clientId: " << clientId;
+    os << "\n  topic: " << topic;
+    os << "\n  qos: " << qos;
+    os << "\n  retained: " << retained;
+    os << "\n  maxOutstandingMessages: " << maxOutstandingMessages;
+    os << ")\n";
+    return os;
 }
 
 void MQTTSink::start(PipelineExecutionContext&)
 {
-    if (persistenceDir.has_value() && !persistenceDir->empty())
+    NES_INFO("Opening MQTTSink at {} using clientId: {}.", serverURI, clientId);
+    client = std::make_unique<mqtt::async_client>(serverURI, clientId, maxOutstandingMessages);
+    client->set_callback(connectionCallback);
+    try
     {
-        std::error_code ec;
-        std::filesystem::create_directories(*persistenceDir, ec);
-        if (ec)
+        mqtt::connect_options connectOptions;
+        connectOptions.set_max_inflight(maxOutstandingMessages);
+        auto connectToken = [&]()
         {
-            NES_WARNING("MQTTSink: Failed creating persistence directory '{}': {}", *persistenceDir, ec.message());
-        }
-        client = std::make_unique<mqtt::async_client>(serverUri, clientId, *persistenceDir);
+            /// apparently, MQTT connect requires synchronization, with concurrent connects (multiple mqtt sinks).
+            static std::mutex mqttConnectLock;
+            const std::scoped_lock lock(mqttConnectLock);
+            return client->connect(std::move(connectOptions));
+        }();
+        connectToken->wait();
+        const auto connectResponse = connectToken->get_connect_response();
+        NES_INFO("Connected to MQTT broker: {}. Version: {}", connectResponse.get_server_uri(), connectResponse.get_mqtt_version());
     }
-    else
+    catch (const mqtt::exception& e)
     {
-        client = std::make_unique<mqtt::async_client>(serverUri, clientId);
+        throw CannotOpenSink("Failed to connect to MQTT broker {}: {}", serverURI, e.what());
+    }
+}
+
+SendResult MQTTSink::tryPublish(const TupleBuffer& buffer)
+{
+    size_t messageSize = buffer.getNumberOfTuples();
+    for (size_t index = 0; index < buffer.getNumberOfChildBuffers(); index++)
+    {
+        messageSize += buffer.loadChildBuffer(ChildBufferIndex(index)).getNumberOfTuples();
+    }
+    mqtt::binary payload;
+    payload.reserve(messageSize);
+    auto data = buffer.getAvailableMemoryArea<char>().first(buffer.getNumberOfTuples());
+    payload.append(data.begin(), data.end());
+    for (size_t index = 0; index < buffer.getNumberOfChildBuffers(); index++)
+    {
+        auto child = buffer.loadChildBuffer(ChildBufferIndex(index));
+        auto childData = child.getAvailableMemoryArea<char>().first(child.getNumberOfTuples());
+        payload.append(childData.begin(), childData.end());
     }
 
     try
     {
-        const bool effectiveCleanSession = qos == 2 ? false : cleanSession;
-        if (qos == 2 && cleanSession)
-        {
-            NES_WARNING("MQTTSink: Overriding cleanSession=true to false for QoS2 to ensure persistent session completion.");
-        }
-        auto optionsBuilder = mqtt::connect_options_builder()
-            .automatic_reconnect(true)
-            .clean_session(effectiveCleanSession);
-
-        const int32_t configuredMaxInflight = maxInflight.value_or(0);
-        if (configuredMaxInflight > 0)
-        {
-            optionsBuilder.max_inflight(configuredMaxInflight);
-        }
-        else if (qos == 2)
-        {
-            optionsBuilder.max_inflight(DEFAULT_MAX_INFLIGHT_QOS2);
-            NES_INFO(
-                "MQTTSink: QoS2 enabled without 'maxInflight'; applying default {} inflight messages.",
-                DEFAULT_MAX_INFLIGHT_QOS2);
-        }
-
-        // Add authentication if username is provided
-        if (username.has_value() && !username->empty()) {
-            optionsBuilder.user_name(*username);
-            if (password.has_value()) {
-                optionsBuilder.password(*password);
-            }
-        }
-
-        if (useTls)
-        {
-            auto sslBuilder = mqtt::ssl_options_builder();
-            if (tlsCaCertPath && !tlsCaCertPath->empty())
-            {
-                sslBuilder.trust_store(*tlsCaCertPath);
-            }
-            if (tlsClientCertPath && !tlsClientCertPath->empty())
-            {
-                sslBuilder.key_store(*tlsClientCertPath);
-            }
-            if (tlsClientKeyPath && !tlsClientKeyPath->empty())
-            {
-                sslBuilder.private_key(*tlsClientKeyPath);
-            }
-            sslBuilder.enable_server_cert_auth(!tlsAllowInsecure);
-            optionsBuilder.ssl(sslBuilder.finalize());
-        }
-
-        const auto connectOptions = optionsBuilder.finalize();
-
-        clientCallback = std::make_shared<Callback>(serverUri);
-        client->set_callback(*clientCallback);
-        client->connect(connectOptions)->wait();
+        client->publish(mqtt::make_message(topic, mqtt::binary_ref(std::move(payload)), qos, retained));
     }
     catch (const mqtt::exception& e)
     {
-        throw CannotOpenSink(e.what());
+        if (e.get_return_code() == MQTTASYNC_MAX_BUFFERED_MESSAGES)
+        {
+            return SendResult::Full;
+        }
+        throw CannotWriteToSink("MQTTSink publish to topic {} failed: {}", topic, e.what());
+    }
+    return SendResult::Ok;
+}
+
+void MQTTSink::execute(const TupleBuffer& inputTupleBuffer, PipelineExecutionContext& pec)
+{
+    PRECONDITION(client, "MQTTSink client is not initialized");
+    PRECONDITION(inputTupleBuffer, "Invalid input buffer in MQTTSink.");
+
+    if (const auto cause = *connectionCallback.lostCause.rlock(); !cause.empty())
+    {
+        throw CannotWriteToSink("MQTTSink lost connection to broker {}: {}", serverURI, cause);
+    }
+
+    auto currentBuffer = std::optional(inputTupleBuffer);
+    while (currentBuffer)
+    {
+        switch (tryPublish(*currentBuffer))
+        {
+            case SendResult::Ok: {
+                currentBuffer = backpressureHandler.onSuccess(*currentBuffer, backpressureController);
+                continue;
+            }
+            case SendResult::Full: {
+                if (const auto emit = backpressureHandler.onFull(*currentBuffer, backpressureController))
+                {
+                    pec.repeatTask(*emit, BACKPRESSURE_RETRY_INTERVAL);
+                }
+                return;
+            }
+            case SendResult::Closed: {
+                /// tryPublish() can only return SendResult::Full or SendResult::Ok. If this point is reached, it means something went wrong.
+                INVARIANT(false, "tryPublish unexpectedly returned SendResult::Closed");
+            }
+        }
     }
 }
 
-void MQTTSink::stop(PipelineExecutionContext&)
+void MQTTSink::stop(PipelineExecutionContext& pec)
 {
-    try
-    {
-        client->disconnect()->wait();
-        clientCallback.reset();
-    }
-    catch (const mqtt::exception& e)
-    {
-        throw CannotOpenSink("When closing mqtt sink: {}", e.what());
-    }
-}
-
-void MQTTSink::execute(const TupleBuffer& inputBuffer, PipelineExecutionContext&)
-{
-    if (inputBuffer.getNumberOfTuples() == 0)
+    if (!client)
     {
         return;
     }
-
-    // Check connection state before attempting to publish
-    if (!client->is_connected())
+    INVARIANT(backpressureHandler.empty(), "BackpressureHandler is not empty");
+    if (const auto cause = *connectionCallback.lostCause.rlock(); !cause.empty())
     {
-        throw CannotOpenSink("MQTT client is not connected to server {}", serverUri);
+        NES_WARNING("lost connection to broker {}: {}", serverURI, cause);
     }
-
-    const std::string fBuf = formatter->getFormattedBuffer(inputBuffer);
-    const mqtt::message_ptr message = mqtt::make_message(topic, fBuf);
-    message->set_qos(qos);
-
     try
     {
-        auto token = client->publish(message);
-        // Only wait for acknowledgment if QoS > 0
-        // QoS 0 is fire-and-forget and doesn't require acknowledgment
-        if (qos > 0)
+        /// Wait for all in-flight QoS>=1 messages to be acknowledged before disconnecting.
+        /// QoS 0 messages have no pending token; nothing to wait for.
+        for (const auto& token : client->get_pending_delivery_tokens())
         {
-            token->wait();
+            if (!token->is_complete())
+            {
+                pec.repeatTask({}, BACKPRESSURE_RETRY_INTERVAL);
+                return;
+            }
+        }
+        if (client->is_connected())
+        {
+            client->disconnect()->wait();
         }
     }
     catch (const mqtt::exception& e)
     {
-        // Handle specific MQTT exceptions with error code
-        throw CannotOpenSink("MQTT publish failed with error [{}]: {}", e.get_reason_code(), e.what());
+        NES_WARNING("{}", e.what());
     }
-    catch (const std::exception& e)
-    {
-        throw CannotOpenSink("Failed to publish to MQTT: {}", e.what());
-    }
-    catch (...)
-    {
-        throw wrapExternalException();
-    }
-}
-
-DescriptorConfig::Config MQTTSink::validateAndFormat(std::unordered_map<std::string, std::string> config)
-{
-    const bool cleanSessionProvided = config.contains(std::string(MQTTSinkConfig::CLEAN_SESSION));
-    auto validated = DescriptorConfig::validateAndFormat<MQTTSinkConfig>(std::move(config), NAME);
-
-    if (!cleanSessionProvided)
-    {
-        const auto qosIt = validated.find(std::string(MQTTSinkConfig::QOS));
-        if (qosIt != validated.end())
-        {
-            const auto qosValue = std::get<int32_t>(qosIt->second);
-            if (qosValue == 2)
-            {
-                validated[std::string(MQTTSinkConfig::CLEAN_SESSION)] = false;
-            }
-        }
-    }
-
-    return validated;
-}
-
-SinkValidationRegistryReturnType RegisterMQTTSinkValidation(SinkValidationRegistryArguments sinkConfig)
-{
-    return MQTTSink::validateAndFormat(std::move(sinkConfig.config));
-}
-
-SinkRegistryReturnType RegisterMQTTSink(SinkRegistryArguments sinkRegistryArguments)
-{
-    return std::make_unique<MQTTSink>(sinkRegistryArguments.sinkDescriptor);
+    NES_INFO("MQTT Sink completed.");
+    client.reset();
 }
 
 }

@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(${CMAKE_CURRENT_LIST_DIR}/DependencyHash.cmake)
+
 SET(VCPKG_OVERLAY_TRIPLETS "${CMAKE_SOURCE_DIR}/vcpkg/custom-triplets")
 SET(VCPKG_OVERLAY_PORTS "${CMAKE_SOURCE_DIR}/vcpkg/vcpkg-registry/ports")
 SET(VCPKG_MANIFEST_DIR "${CMAKE_SOURCE_DIR}/vcpkg")
@@ -46,10 +48,7 @@ if (NOT NES_SKIP_VCPKG)
     # where an exported vcpkg sdk was prepared. This means we will not run in manifest mode,
     # We check if the VCPKG_DEPENDENCY_HASH environment matches the current hash
     message(STATUS "NES_PREBUILT_VCPKG_ROOT Environment is set: Assuming Docker Development Environment with pre-built dependencies at $ENV{NES_PREBUILT_VCPKG_ROOT}")
-    execute_process(COMMAND ${CMAKE_SOURCE_DIR}/docker/dependency/hash_dependencies.sh
-                    OUTPUT_VARIABLE VCPKG_HASH
-                    OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+    get_nes_dependency_hash(VCPKG_HASH)
     if ((NOT DEFINED ENV{VCPKG_DEPENDENCY_HASH}) OR (NOT $ENV{VCPKG_DEPENDENCY_HASH} STREQUAL "${VCPKG_HASH}"))
         message(WARNING
                 "VCPKG Hash does not match, this is most likely due to an outdated development image. "
@@ -123,22 +122,8 @@ if (NOT NES_SKIP_VCPKG)
         SET(VCPKG_STDLIB "local")
     endif ()
 
-    execute_process(COMMAND uname -m OUTPUT_VARIABLE VCPKG_HOST_PROCESSOR)
-    if (VCPKG_HOST_PROCESSOR MATCHES "x86_64")
-        set(VCPKG_HOST_PROCESSOR "x64")
-    elseif (VCPKG_HOST_PROCESSOR MATCHES "arm64" OR VCPKG_HOST_PROCESSOR MATCHES "aarch64")
-        set(VCPKG_HOST_PROCESSOR "arm64")
-    else ()
-        message(FATAL_ERROR "Only x86_64 and arm64 supported")
-    endif ()
-
-    execute_process(COMMAND uname -s OUTPUT_VARIABLE VCPKG_HOST_OS)
-    if (NOT VCPKG_HOST_OS MATCHES "Linux")
-        message(FATAL_ERROR "Only linux is supported. Use the nebulastream/nes-development:latest docker image, check the docs: https://github.com/nebulastream/nebulastream-public/blob/main/docs/development.md")
-    endif ()
-
-    SET(VCPKG_TARGET_TRIPLET "${VCPKG_HOST_PROCESSOR}-linux-${SANITIZER_OPTION}-${VCPKG_STDLIB}")
-    SET(VCPKG_HOST_TRIPLET "${VCPKG_HOST_PROCESSOR}-linux-none-${VCPKG_STDLIB}")
+    SET(VCPKG_TARGET_TRIPLET "${NES_ARCH}-linux-${SANITIZER_OPTION}-${VCPKG_STDLIB}")
+    SET(VCPKG_HOST_TRIPLET "${NES_ARCH}-linux-none-${VCPKG_STDLIB}")
 
     message(STATUS "VPCKG target triplet: ${VCPKG_TARGET_TRIPLET}")
     message(STATUS "VPCKG host triplet: ${VCPKG_HOST_TRIPLET}")

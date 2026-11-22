@@ -14,33 +14,67 @@
 
 #pragma once
 
+#include <cstddef>
+#include <functional>
 #include <memory>
+#include <optional>
+#include <string>
 #include <string_view>
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
 
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <AggregationLogicalFunctionRegistry.hpp>
 #include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-class CountAggregationLogicalFunction : public WindowAggregationLogicalFunction
+class CountAggregationLogicalFunction
 {
 public:
-    CountAggregationLogicalFunction(FieldAccessLogicalFunction onField, FieldAccessLogicalFunction asField);
-    explicit CountAggregationLogicalFunction(const FieldAccessLogicalFunction& onField);
-    ~CountAggregationLogicalFunction() override = default;
+    explicit CountAggregationLogicalFunction(AggregationFieldAccess inputFunction, bool includeNullValues);
 
-    void inferStamp(const Schema& schema) override;
-    [[nodiscard]] SerializableAggregationFunction serialize() const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
+    [[nodiscard]] CountAggregationLogicalFunction withInferredType(const Schema<Field, Unordered>& schema) const;
+    [[nodiscard]] std::string_view getName() const noexcept;
+    [[nodiscard]] static DataType getAggregateType();
+    [[nodiscard]] AggregationFieldAccess getInputFunction() const;
+    [[nodiscard]] bool shallIncludeNullValues() const noexcept;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
+    [[nodiscard]] bool operator==(const CountAggregationLogicalFunction& other) const;
+
+    static AggregationLogicalFunctionRegistryReturnType create(AggregationLogicalFunctionRegistryArguments arguments);
 
 private:
+    AggregationFieldAccess inputFunction;
+    bool includeNullValues = false;
     static constexpr std::string_view NAME = "Count";
-    static constexpr DataType::Type inputAggregateStampType = DataType::Type::UINT64;
-    static constexpr DataType::Type partialAggregateStampType = DataType::Type::FLOAT64;
-    static constexpr DataType::Type finalAggregateStampType = DataType::Type::FLOAT64;
+    static constexpr DataType::Type finalAggregateStampType = DataType::Type::UINT64;
 };
+
+template <>
+struct Reflector<CountAggregationLogicalFunction>
+{
+    Reflected operator()(const CountAggregationLogicalFunction& function, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<CountAggregationLogicalFunction>
+{
+    CountAggregationLogicalFunction operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
+
 }
+
+template <>
+struct std::hash<NES::CountAggregationLogicalFunction>
+{
+    size_t operator()(const NES::CountAggregationLogicalFunction& aggregationFunction) const noexcept;
+};
+
+static_assert(NES::WindowAggregationFunctionConcept<NES::CountAggregationLogicalFunction>);

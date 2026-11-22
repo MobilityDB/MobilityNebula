@@ -18,14 +18,8 @@ get_source(nes-nautilus NES_NAUTILUS_SOURCE_FILES)
 
 # Add Library
 add_library(nes-nautilus ${NES_NAUTILUS_SOURCE_FILES})
-target_link_libraries(nes-nautilus PUBLIC nes-memory)
-
-
-if (NES_ENABLE_PRECOMPILED_HEADERS)
-    target_precompile_headers(nes-nautilus REUSE_FROM nes-common)
-    # We need to compile with -fPIC to include with nes-common compiled headers as it uses PIC
-    target_compile_options(nes-nautilus PUBLIC "-fPIC")
-endif ()
+target_link_libraries(nes-nautilus PUBLIC nes-schema nes-memory nes-output-formatters)
+nautilus_inline(nes-nautilus)
 
 add_tests_if_enabled(tests)
 
@@ -41,12 +35,15 @@ find_package(MLIR REQUIRED CONFIG)
 find_package(nautilus REQUIRED CONFIG)
 
 # We have to set the nes-nautilus to public to use the nautilus library in other modules
+# nautilus::nautilus-std provides the implementations of the nautilus/std/* wrappers (memcmp, cmath, ...)
 target_link_libraries(nes-nautilus PUBLIC nautilus::nautilus
+        nautilus::nautilus-std
         MLIRExecutionEngine
         MLIRFuncAllExtensions
 
         # Dialects
         MLIRSCFDialect
         MLIRFuncToLLVM
+        MLIRMathToLLVM
         MLIRSCFToControlFlow
 )

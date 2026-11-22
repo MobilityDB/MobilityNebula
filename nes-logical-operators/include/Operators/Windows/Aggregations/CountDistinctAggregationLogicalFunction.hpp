@@ -14,38 +14,66 @@
 
 #pragma once
 
-#include <memory>
+
+#include <cstddef>
+#include <functional>
+#include <string>
 #include <string_view>
 
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <AggregationLogicalFunctionRegistry.hpp>
 #include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-class CountDistinctAggregationLogicalFunction : public WindowAggregationLogicalFunction
+/// COUNT(DISTINCT x): the number of distinct non-null values of x in a window, as SQL states it. Two values are the same
+/// when they compare equal, as a variable-sized value compares its bytes, so x may be of any type.
+class CountDistinctAggregationLogicalFunction
 {
 public:
-    /// Creates a new CountDistinctAggregationLogicalFunction
-    /// @param onField field on which the aggregation should be performed
-    /// @param asField function describing how the aggregated field should be called
-    CountDistinctAggregationLogicalFunction(const FieldAccessLogicalFunction& onField, FieldAccessLogicalFunction asField);
-    explicit CountDistinctAggregationLogicalFunction(const FieldAccessLogicalFunction& onField);
+    explicit CountDistinctAggregationLogicalFunction(AggregationFieldAccess inputFunction);
 
-    void inferStamp(const Schema& schema) override;
+    [[nodiscard]] CountDistinctAggregationLogicalFunction withInferredType(const Schema<Field, Unordered>& schema) const;
+    [[nodiscard]] static std::string_view getName() noexcept;
+    [[nodiscard]] DataType getAggregateType() const;
+    [[nodiscard]] static bool shallIncludeNullValues() noexcept;
+    [[nodiscard]] AggregationFieldAccess getInputFunction() const;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
+    [[nodiscard]] bool operator==(const CountDistinctAggregationLogicalFunction& other) const;
 
-    ~CountDistinctAggregationLogicalFunction() override = default;
-
-    [[nodiscard]] SerializableAggregationFunction serialize() const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
-
+    static AggregationLogicalFunctionRegistryReturnType create(AggregationLogicalFunctionRegistryArguments arguments);
 
 private:
+    AggregationFieldAccess inputFunction;
     static constexpr std::string_view NAME = "CountDistinct";
-    static constexpr DataType::Type partialAggregateStampType = DataType::Type::UINT64;
     static constexpr DataType::Type finalAggregateStampType = DataType::Type::UINT64;
 };
+
+template <>
+struct Reflector<CountDistinctAggregationLogicalFunction>
+{
+    Reflected operator()(const CountDistinctAggregationLogicalFunction& function, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<CountDistinctAggregationLogicalFunction>
+{
+    CountDistinctAggregationLogicalFunction operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
 }
+
+template <>
+struct std::hash<NES::CountDistinctAggregationLogicalFunction>
+{
+    size_t operator()(const NES::CountDistinctAggregationLogicalFunction& aggregationFunction) const noexcept;
+};
+
+static_assert(NES::WindowAggregationFunctionConcept<NES::CountDistinctAggregationLogicalFunction>);

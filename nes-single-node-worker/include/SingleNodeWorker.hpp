@@ -14,39 +14,44 @@
 
 #pragma once
 
+#include <chrono>
 #include <expected>
 #include <memory>
 #include <optional>
+#include <string_view>
 #include <Identifiers/Identifiers.hpp>
 #include <Listeners/QueryLog.hpp>
 #include <Plans/LogicalPlan.hpp>
-#include <Runtime/Execution/QueryStatus.hpp>
 #include <Runtime/NodeEngine.hpp>
-#include <Runtime/QueryTerminationType.hpp>
+
 #include <Util/Pointers.hpp>
 #include <CompositeStatisticListener.hpp>
 #include <ErrorHandling.hpp>
 #include <QueryCompiler.hpp>
-#include <QueryOptimizer.hpp>
+#include <QueryId.hpp>
+#include <QueryStatus.hpp>
 #include <SingleNodeWorkerConfiguration.hpp>
+#include <WorkerStatus.hpp>
 
 namespace NES
 {
 
+/// Binary name reported by `nes-single-node-worker --version` and by the RequestVersion RPC.
+/// Both have to agree, so the literal lives in exactly one place.
+inline constexpr std::string_view SingleNodeWorkerBinaryName{"nes-single-node-worker"};
+
 /// @brief The SingleNodeWorker is a compiling StreamProcessingEngine, working alone on local sources and sinks, without external
-/// coordination. The SingleNodeWorker can register LogicalQueryPlans which are lowered into an executable format, by the
-/// QueryCompiler. The user can manage the lifecycle of queries inside the NodeEngine using the SingleNodeWorkers interface.
+/// coordination. The SingleNodeWorker compiles and immediately starts LogicalQueryPlans via the QueryCompiler and NodeEngine.
 /// The Class itself is NonCopyable, but Movable, it owns the QueryCompiler and the NodeEngine.
 class SingleNodeWorker
 {
     SharedPtr<CompositeStatisticListener> listener;
     SharedPtr<NodeEngine> nodeEngine;
-    UniquePtr<QueryOptimizer> optimizer;
     UniquePtr<QueryCompilation::QueryCompiler> compiler;
     SingleNodeWorkerConfiguration configuration;
 
 public:
-    explicit SingleNodeWorker(const SingleNodeWorkerConfiguration&);
+    explicit SingleNodeWorker(const SingleNodeWorkerConfiguration&, const Host& = Host("SingleNodeWorker"));
     ~SingleNodeWorker();
     /// Non-Copyable
     SingleNodeWorker(const SingleNodeWorker& other) = delete;
@@ -56,30 +61,18 @@ public:
     SingleNodeWorker(SingleNodeWorker&& other) noexcept;
     SingleNodeWorker& operator=(SingleNodeWorker&& other) noexcept;
 
-    /// Registers a DecomposedQueryPlan which internally triggers the QueryCompiler and registers the executable query plan. Once
-    /// returned the query can be started with the QueryId. The registered Query will be in the StoppedState
+    /// Compiles the LogicalPlan and immediately starts the query asynchronously. Query execution errors are only reported
+    /// during runtime of the query.
     /// @param plan Fully Specified LogicalQueryPlan.
-    /// @return QueryId which identifies the registered Query
-    [[nodiscard]] std::expected<QueryId, Exception> registerQuery(LogicalPlan plan) noexcept;
+    /// @return QueryId which identifies the started query
+    [[nodiscard]] std::expected<QueryId, Exception> startQuery(LogicalPlan plan) noexcept;
 
-    /// Starts the Query asynchronously and moves it into the RunningState. Query execution error are only reported during runtime
-    /// of the query.
+    /// Stops the Query and moves it into the StoppedState.
     /// @param queryId identifies the registered query
-    std::expected<void, Exception> startQuery(QueryId queryId) noexcept;
+    std::expected<void, Exception> stopQuery(QueryId queryId) noexcept;
 
-    /// Stops the Query and moves it into the StoppedState. The exact semantics and guarantees depend on the chosen
-    ///  QueryTerminationType
-    /// @param queryId identifies the registered query
-    /// @param terminationType dictates what happens with in in-flight data
-    std::expected<void, Exception> stopQuery(QueryId queryId, QueryTerminationType terminationType) noexcept;
-
-    /// Unregisters a stopped Query.
-    /// @param queryId identifies the registered stopped query
-    std::expected<void, Exception> unregisterQuery(QueryId queryId) noexcept;
-
-    /// Complete history of query status changes.
-    [[nodiscard]] std::optional<QueryLog::Log> getQueryLog(QueryId queryId) const;
     /// Summary structure for query.
-    [[nodiscard]] std::expected<LocalQueryStatus, Exception> getQueryStatus(QueryId queryId) const noexcept;
+    [[nodiscard]] std::expected<LocalQueryStatusSnapshot, Exception> getQueryStatus(QueryId queryId) const noexcept;
+    [[nodiscard]] WorkerStatus getWorkerStatus(std::chrono::system_clock::time_point after) const;
 };
 }

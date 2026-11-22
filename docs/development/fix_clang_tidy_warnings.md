@@ -6,7 +6,60 @@ For building it locally with vcpkg, the commands should be quite similar.
 This document provides a good starting point for fixing clang-tidy warnings.
 As every setup is different, it might be necessary to adjust the commands to your setup.
 
-# Fixing clang-tidy warnings for a PR / compared to a branch
+# Running clang-tidy via CMake targets (recommended)
+Just like `clang-format` is available as the `format` / `check-format` CMake targets, clang-tidy on your diff is
+available as CMake targets. These wrap `clang-tidy-diff.py` so you no longer need the hand-written `git diff | clang-tidy-diff-22.py ...`
+command below. There are five targets:
+
+| Target | Scope | Mode |
+| --- | --- | --- |
+| `tidy-diff` | `NES_TIDY_DIFF_BASE` (default `HEAD`, i.e. all uncommitted changes) | check |
+| `tidy-diff-fix` | same as above | applies `-fix` |
+| `tidy-diff-to-main` | `origin/main` (whole branch) | check |
+| `tidy-diff-to-main-fix` | `origin/main` (whole branch) | applies `-fix` |
+| `tidy-full` | every translation unit (what nightly CI runs) | check |
+
+For reviewing a PR, the usual command is to fix everything on your branch relative to `origin/main`:
+```bash
+cmake --build build --target tidy-diff-to-main-fix
+```
+Or, wrapped in the development container (the `-to-main` targets pin the base internally, so no `-e NES_TIDY_DIFF_BASE=...`
+plumbing is needed):
+```bash
+docker run \
+    --workdir $(pwd) \
+    -v $(pwd):$(pwd) \
+    nebulastream/nes-development:local \
+    cmake --build build-docker --target tidy-diff-to-main-fix
+```
+In CLion these appear in the target dropdown, so you can run them like any other build target — no need to edit the
+Docker toolchain environment.
+
+Notes:
+- Some headers (gRPC/protobuf stubs, ANTLR, cxxbridge) only exist once they have been generated; without them
+  clang-tidy reports spurious `file not found` errors. The targets depend on `nes-codegen`, which produces exactly
+  those files without compiling or linking anything, so a configured build tree is enough — no full build needed.
+- The targets are only registered when `CMAKE_EXPORT_COMPILE_COMMANDS=ON` (on by default) — clang-tidy needs the
+  `compile_commands.json`.
+- `tidy-full` writes its report to `<build-dir>/clang-tidy.log`; the diff targets write to
+  `<build-dir>/clang-tidy-diff-report.txt`.
+- To compare against an arbitrary base (a branch or commit other than `origin/main`), set `NES_TIDY_DIFF_BASE` and use
+  the plain `tidy-diff` / `tidy-diff-fix` targets, e.g. `NES_TIDY_DIFF_BASE=origin/some-branch cmake --build build --target tidy-diff-fix`.
+
+# Running the clang-tidy diff workflow with Nix
+If you want to reproduce the current clang-tidy diff workflow locally with the Nix toolchain, run the following command
+from the repository root.
+```bash
+nix run .#clang-tidy
+```
+By default, the command compares the current checkout to `origin/main`.
+To use another branch or commit, pass it after `--`, for example `nix run .#clang-tidy -- upstream/main`.
+The command uses the official `clang-tidy-diff.py` workflow, applies fixes in place, and configures and builds
+`build/`.
+
+# Manual invocation (fallback / custom setups)
+The CMake targets above are preferred. Use the manual commands below only for custom bases or non-CMake setups.
+
 As a pre-requisite, you need to have the docker image built and your git repository updated.
 Before running clang-tidy, we must create a running container from the image.
 If possible, you should run the Docker container in rootless mode. 
@@ -21,23 +74,23 @@ If you want run clang-tidy on the diff to another branch, please change `origin/
 The below command assumes that NebulaStream is mounted under `/tmp/nebulastream` in the docker image.
 We exclude '*.inc' files, since '*.inc' files are dependent header files that other header files include and that therefore don't need to compile on their own.
 ```bash
-export LLVM_SYMBOLIZER_PATH=llvm-symbolizer-19 && \
+export LLVM_SYMBOLIZER_PATH=llvm-symbolizer-22 && \
     git config --global --add safe.directory /tmp/nebulastream && \
     cd /tmp/nebulastream && \
     rm -rf build/ && mkdir build && \
     cmake -GNinja -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && \
-    git diff -U0 origin/main -- ':!*.inc' | clang-tidy-diff-19.py -clang-tidy-binary clang-tidy-19 -p1 -path build -fix -config-file .clang-tidy -use-color -j <no. threads>
+    git diff -U0 origin/main -- ':!*.inc' | clang-tidy-diff-22.py -clang-tidy-binary clang-tidy-22 -p1 -path build -fix -config-file .clang-tidy -use-color -j <no. threads>
 ```
 Since we generate some header files in the build process, clang-tidy might complain about missing header files.
 In this case, you have to build `NebulaStream` before running the clang-tidy check to create the missing header files.
 ```bash
-export LLVM_SYMBOLIZER_PATH=llvm-symbolizer-19 && \
+export LLVM_SYMBOLIZER_PATH=llvm-symbolizer-22 && \
     git config --global --add safe.directory /tmp/nebulastream && \
     cd /tmp/nebulastream && \
     rm -rf build/ && mkdir build && \
     cmake -GNinja -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && \
     cmake --build build -j -- -k 0 && \
-    git diff -U0 origin/main -- ':!*.inc' | clang-tidy-diff-19.py -clang-tidy-binary clang-tidy-19 -p1 -path build -fix -config-file .clang-tidy -use-color -j <no. threads>
+    git diff -U0 origin/main -- ':!*.inc' | clang-tidy-diff-22.py -clang-tidy-binary clang-tidy-22 -p1 -path build -fix -config-file .clang-tidy -use-color -j <no. threads>
 ```
 
 # Fixing clang-tidy warnings compared to a commit hash

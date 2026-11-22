@@ -14,11 +14,9 @@
 
 # Build files
 /build
-/.ccache
 /build-docker*
 /cmake-build*
 CMakeUserPresets.json
-*.o
 debug*
 vcpkg-repository
 
@@ -28,6 +26,9 @@ docker/executableImage/resources/NebulaStream*.deb
 
 # Python virtual environment
 venv
+
+# Rust target dir
+target/
 
 # Nes files
 .z3-trace
@@ -45,6 +46,7 @@ nes-asp/data/*.csv
 *.undo
 
 scripts/__pycache__
+.ccache
 
 # Ignore nix symlinks
 .nix/clang
@@ -54,3 +56,9 @@ scripts/__pycache__
 .nix/ctest
 .nix/ninja
 .nix/gdb
+
+
+# Ignore Claude/Codex specific files and all possible combinations of Claude/Agents.md
+.claude/
+.codex/
+[Cc][Ll][Aa][Uu][Dd][Ee].md

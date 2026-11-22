@@ -19,8 +19,8 @@
 #include <optional>
 #include <utility>
 #include <vector>
-#include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <DataTypes/VarVal.hpp>
+#include <Interface/Record.hpp>
 #include <ExecutionContext.hpp>
 #include <PhysicalOperator.hpp>
 #include <val.hpp>
@@ -37,9 +37,9 @@ void InlineTableJoinPhysicalOperator::execute(ExecutionContext& ctx, Record& rec
     {
         table.push_back(value.execute(record, ctx.pipelineMemoryProvider.arena));
     }
-    /// One loop over the rows, which passes a record of its own for each row on from one place, as a scan passes its
-    /// records on; the record of row r takes the values of row r
-    const auto numberOfFields = fieldNames.size();
+    /// One loop over the rows, which passes a record of its own for each row on from one place, as a scan passes its records
+    /// on; the record of row r takes the values of row r
+    const auto numberOfFields = fields.size();
     const auto numberOfRows = values.size() / numberOfFields;
     for (nautilus::val<uint64_t> row = 0; row < nautilus::val<uint64_t>(numberOfRows); row = row + nautilus::val<uint64_t>(1))
     {
@@ -52,10 +52,10 @@ void InlineTableJoinPhysicalOperator::execute(ExecutionContext& ctx, Record& rec
             {
                 if (row == nautilus::val<uint64_t>(other))
                 {
-                    fieldValue = table[other * numberOfFields + field];
+                    fieldValue = table[(other * numberOfFields) + field];
                 }
             }
-            joined.write(fieldNames[field], fieldValue);
+            joined.write(fields[field], fieldValue);
         }
         executeChild(ctx, joined);
     }

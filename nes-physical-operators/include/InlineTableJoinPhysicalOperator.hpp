@@ -15,31 +15,31 @@
 #pragma once
 
 #include <optional>
-#include <string>
 #include <utility>
 #include <vector>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <Interface/Record.hpp>
 #include <PhysicalOperator.hpp>
 
 namespace NES
 {
 
-/// Passes each record on once per row of an inline table, the values of the row in its fields. The rows are known when
-/// the query is compiled, so the operator passes the records of a row one after the other, a record of its own for each.
+/// Passes each record on once per row of a table of values, the values of the row in the table's fields. The values are
+/// computed once for the record, row after row, and one loop passes a record of its own on for each row.
 class InlineTableJoinPhysicalOperator final : public PhysicalOperatorConcept
 {
 public:
-    InlineTableJoinPhysicalOperator(std::vector<PhysicalFunction> values, std::vector<std::string> fieldNames)
-        : values(std::move(values)), fieldNames(std::move(fieldNames)) { };
+    InlineTableJoinPhysicalOperator(std::vector<PhysicalFunction> values, std::vector<Record::RecordFieldIdentifier> fields)
+        : values(std::move(values)), fields(std::move(fields)) { };
     void execute(ExecutionContext& ctx, Record& record) const override;
+
     [[nodiscard]] std::optional<PhysicalOperator> getChild() const override;
     void setChild(PhysicalOperator child) override;
 
 private:
+    /// The values of the table, row after row
     const std::vector<PhysicalFunction> values;
-    const std::vector<std::string> fieldNames;
+    const std::vector<Record::RecordFieldIdentifier> fields;
     std::optional<PhysicalOperator> child;
 };
-
 }

@@ -14,28 +14,44 @@
 
 #include <Operators/Windows/Aggregations/MinAggregationLogicalFunction.hpp>
 
+#include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
-#include <DataTypes/Schema.hpp>
+#include <variant>
+#include <DataTypes/DataType.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <fmt/format.h>
+#include <folly/hash/Hash.h>
+#include <magic_enum/magic_enum.hpp>
 #include <AggregationLogicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
-MinAggregationLogicalFunction::MinAggregationLogicalFunction(const FieldAccessLogicalFunction& field)
-    : WindowAggregationLogicalFunction(field.getDataType(), field.getDataType(), field.getDataType(), field)
+MinAggregationLogicalFunction::MinAggregationLogicalFunction(AggregationFieldAccess inputFunction)
+    : inputFunction(inputFunction), aggregateType(std::visit([](const auto& input) { return input->getDataType(); }, inputFunction))
 {
 }
 
-MinAggregationLogicalFunction::MinAggregationLogicalFunction(const FieldAccessLogicalFunction& field, FieldAccessLogicalFunction asField)
-    : WindowAggregationLogicalFunction(field.getDataType(), field.getDataType(), field.getDataType(), field, std::move(asField))
+MinAggregationLogicalFunction::MinAggregationLogicalFunction(AggregationFieldAccess inputFunction, DataType aggregateType)
+    : inputFunction(std::move(inputFunction)), aggregateType(aggregateType)
 {
+}
+
+bool MinAggregationLogicalFunction::shallIncludeNullValues() noexcept
+{
+    return true;
 }
 
 std::string_view MinAggregationLogicalFunction::getName() const noexcept
@@ -43,58 +59,69 @@ std::string_view MinAggregationLogicalFunction::getName() const noexcept
     return NAME;
 }
 
-void MinAggregationLogicalFunction::inferStamp(const Schema& schema)
+DataType MinAggregationLogicalFunction::getAggregateType() const
 {
-    /// We first infer the dataType of the input field and set the output dataType as the same.
-    onField = onField.withInferredDataType(schema).get<FieldAccessLogicalFunction>();
-    if (not onField.getDataType().isNumeric())
-    {
-        throw CannotDeserialize("aggregations on non numeric fields is not supported, but got {}", onField.getDataType());
-    }
-
-    ///Set fully qualified name for the as Field
-    const auto onFieldName = onField.getFieldName();
-    const auto asFieldName = asField.getFieldName();
-
-    const auto attributeNameResolver = onFieldName.substr(0, onFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR) + 1);
-    ///If on and as field name are different then append the attribute name resolver from on field to the as field
-    if (asFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR) == std::string::npos)
-    {
-        asField = asField.withFieldName(attributeNameResolver + asFieldName).get<FieldAccessLogicalFunction>();
-    }
-    else
-    {
-        const auto fieldName = asFieldName.substr(asFieldName.find_last_of(Schema::ATTRIBUTE_NAME_SEPARATOR) + 1);
-        asField = asField.withFieldName(attributeNameResolver + fieldName).get<FieldAccessLogicalFunction>();
-    }
-    inputStamp = onField.getDataType();
-    finalAggregateStamp = onField.getDataType();
-    this->asField = asField.withDataType(getFinalAggregateStamp()).get<FieldAccessLogicalFunction>();
+    return aggregateType;
 }
 
-SerializableAggregationFunction MinAggregationLogicalFunction::serialize() const
+AggregationFieldAccess MinAggregationLogicalFunction::getInputFunction() const
 {
-    SerializableAggregationFunction serializedAggregationFunction;
-    serializedAggregationFunction.set_type(NAME);
-
-    auto onFieldFuc = SerializableFunction();
-    onFieldFuc.CopyFrom(onField.serialize());
-
-    auto asFieldFuc = SerializableFunction();
-    asFieldFuc.CopyFrom(asField.serialize());
-
-    serializedAggregationFunction.mutable_as_field()->CopyFrom(asFieldFuc);
-    serializedAggregationFunction.mutable_on_field()->CopyFrom(onFieldFuc);
-    return serializedAggregationFunction;
+    return inputFunction;
 }
 
-AggregationLogicalFunctionRegistryReturnType
-AggregationLogicalFunctionGeneratedRegistrar::RegisterMinAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
+std::string MinAggregationLogicalFunction::explain(ExplainVerbosity verbosity) const
 {
-    if (arguments.fields.size() != 2)
+    if (verbosity == ExplainVerbosity::Short)
     {
-        throw CannotDeserialize("MinAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
+        return fmt::format("{}()", NAME);
     }
-    return std::make_shared<MinAggregationLogicalFunction>(arguments.fields[0], arguments.fields[1]);
+    auto inputExplain = std::visit([verbosity](const auto& input) { return input->explain(verbosity); }, inputFunction);
+    return fmt::format("{}({})", NAME, inputExplain);
 }
+
+bool MinAggregationLogicalFunction::operator==(const MinAggregationLogicalFunction& other) const
+{
+    return inputFunction == other.inputFunction && aggregateType == other.aggregateType;
+}
+
+MinAggregationLogicalFunction MinAggregationLogicalFunction::withInferredType(const Schema<Field, Unordered>& schema) const
+{
+    auto newInputFunction = inferFieldAccess(inputFunction, schema);
+    if (!newInputFunction->getDataType().isNumeric())
+    {
+        throw UnsupportedQuery(
+            "{} is only supported on numeric fields, but field {} has type {}",
+            NAME,
+            newInputFunction->getField().getLastName(),
+            magic_enum::enum_name(newInputFunction->getDataType().type));
+    }
+    return MinAggregationLogicalFunction{newInputFunction, newInputFunction->getDataType()};
+}
+
+Reflected
+Reflector<MinAggregationLogicalFunction>::operator()(const MinAggregationLogicalFunction& function, const ReflectionContext& context) const
+{
+    return context.reflect(function.getInputFunction());
+}
+
+MinAggregationLogicalFunction
+Unreflector<MinAggregationLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    return MinAggregationLogicalFunction{context.unreflect<AggregationFieldAccess>(reflected)};
+}
+
+AggregationLogicalFunctionRegistryReturnType MinAggregationLogicalFunction::create(AggregationLogicalFunctionRegistryArguments arguments)
+{
+    if (arguments.on.size() != 1)
+    {
+        throw CannotDeserialize("MinAggregationLogicalFunction requires exactly one field, but got {}", arguments.on.size());
+    }
+    return MinAggregationLogicalFunction{arguments.on.at(0)};
+}
+}
+
+size_t
+std::hash<NES::MinAggregationLogicalFunction>::operator()(const NES::MinAggregationLogicalFunction& aggregationFunction) const noexcept
+{
+    return folly::hash::hash_combine(aggregationFunction.getInputFunction(), aggregationFunction.getName());
 }

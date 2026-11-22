@@ -13,16 +13,53 @@
 add_subdirectory(BooleanFunctions)
 add_subdirectory(ArithmeticalFunctions)
 add_subdirectory(ComparisonFunctions)
-add_subdirectory(Meos)
 
 add_source_files(nes-logical-operators
-        LogicalFunction.cpp
+        LogicalFunctionRegistry.cpp
         LogicalFunctionProvider.cpp
+        ConstantValueLogicalFunction.cpp
+        FieldAccessLogicalFunction.cpp
+        ConcatLogicalFunction.cpp
+        OctetLengthLogicalFunction.cpp
+        CharLengthLogicalFunction.cpp
+        FromBase64LogicalFunction.cpp
+        ToBase64LogicalFunction.cpp
+        CastToTypeLogicalFunction.cpp
+        UnboundFieldAccessLogicalFunction.cpp
+        CastToUnixTimestampLogicalFunction.cpp
+        CastFromUnixTimestampLogicalFunction.cpp
+        VarSizedToNumericLogicalFunction.cpp
+        ExtractFromTimestampLogicalFunction.cpp
 )
 
-add_plugin(ConstantValue LogicalFunction nes-logical-operators ConstantValueLogicalFunction.cpp)
-add_plugin(FieldAccess LogicalFunction nes-logical-operators FieldAccessLogicalFunction.cpp)
-add_plugin(FieldAssignment LogicalFunction nes-logical-operators FieldAssignmentLogicalFunction.cpp)
-add_plugin(Rename LogicalFunction nes-logical-operators RenameLogicalFunction.cpp)
-add_plugin(Concat LogicalFunction nes-logical-operators ConcatLogicalFunction.cpp)
-add_plugin(CastToType LogicalFunction nes-logical-operators CastToTypeLogicalFunction.cpp)
+
+add_unreflection_entry(LogicalFunction ConstantValue)
+add_unreflection_entry(LogicalFunction FieldAccess)
+add_unreflection_entry(LogicalFunction Concat)
+add_unreflection_entry(LogicalFunction CharLength KEY CHAR_LENGTH)
+add_unreflection_entry(LogicalFunction OctetLength KEY OCTET_LENGTH)
+add_unreflection_entry(LogicalFunction FromBase64 KEY FROM_BASE64)
+add_unreflection_entry(LogicalFunction ToBase64 KEY TO_BASE64)
+add_unreflection_entry(LogicalFunction CastToType)
+add_unreflection_entry(LogicalFunction CastToUnixTimestamp KEY CastToUnixTs)
+add_unreflection_entry(LogicalFunction CastFromUnixTimestamp KEY CastFromUnixTs)
+add_unreflection_entry(LogicalFunction VarSizedToNumeric)
+add_unreflection_entry(LogicalFunction ExtractFromTimestamp KEY Day_Of)
+add_unreflection_entry(LogicalFunction ExtractFromTimestamp KEY Month_Of)
+add_unreflection_entry(LogicalFunction ExtractFromTimestamp KEY Year_Of)
+
+add_registry_entry(LogicalFunction CastFromUnixTimestamp KEY CastFromUnixTs)
+add_registry_entry(LogicalFunction CastToType)
+add_registry_entry(LogicalFunction CastToUnixTimestamp KEY CastToUnixTs)
+add_registry_entry(LogicalFunction CharLength KEY CHAR_LENGTH)
+add_registry_entry(LogicalFunction Concat)
+add_registry_entry(LogicalFunction ConstantValue)
+add_registry_entry(LogicalFunction ExtractFromTimestamp KEY Day_Of)
+add_registry_entry(LogicalFunction ExtractFromTimestamp KEY Month_Of)
+add_registry_entry(LogicalFunction ExtractFromTimestamp KEY Year_Of)
+add_registry_entry(LogicalFunction FieldAccess)
+add_registry_entry(LogicalFunction FromBase64 KEY FROM_BASE64)
+add_registry_entry(LogicalFunction OctetLength KEY OCTET_LENGTH)
+add_registry_entry(LogicalFunction ToBase64 KEY TO_BASE64)
+add_registry_entry(LogicalFunction UnboundFieldAccess)
+add_registry_entry(LogicalFunction VarSizedToNumeric)

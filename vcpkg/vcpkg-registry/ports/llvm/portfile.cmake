@@ -25,7 +25,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO llvm/llvm-project
     REF "llvmorg-${VERSION}"
-    SHA512 3670f05f51637426c612d4d603a5bb896fbd56ead9e2fbabf974541db2b50ac885dc84648d3f45f291a8986efe5b504cb68cb4cec6f90d84d4291e95319bcce8
+    SHA512 5669b5722e6e829001d7227bfdc61b910e1d7784fe366a9cbcea96a0957fee7dfaa7bdaecc64c8dadfddc2fce91372f66628006f974611adf9415d2fbc156ede
     HEAD_REF main
     PATCHES
         0001-fix-install-package-dir.patch
@@ -33,7 +33,6 @@ vcpkg_from_github(
         0003-fix-llvm-config.patch
         0004-disable-libomp-aliases.patch
         0005-create-destination-mlir-directory.patch
-        82407.patch # [Clang][Sema] Fix incorrect rejection default construction of union with nontrivial member #82407
 )
 
 vcpkg_check_features(

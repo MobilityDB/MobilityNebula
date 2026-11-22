@@ -14,20 +14,33 @@
 add_subdirectory(src)
 include(GNUInstallDirs)
 
+add_library(nes-single-node-worker-interface interface/SingleNodeWorkerConfiguration.cpp interface/WorkerStatus.cpp)
+target_include_directories(nes-single-node-worker-interface PUBLIC interface)
+target_link_libraries(nes-single-node-worker-interface PUBLIC nes-common nes-grpc nes-configurations nes-runtime-interface nes-logical-operators)
+
 # Add nes-worker library
 get_source(nes-single-node-worker NES_WORKER_SOURCE_FILES)
 add_library(nes-single-node-worker-lib ${NES_WORKER_SOURCE_FILES})
 
-target_include_directories(nes-single-node-worker-lib PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include/nebulastream/>)
+target_include_directories(nes-single-node-worker-lib PUBLIC include)
 
 target_link_libraries(nes-single-node-worker-lib
         PUBLIC
         nes-grpc
         nes-query-compiler
         nes-query-optimizer
+        nes-single-node-worker-interface
 )
 
 add_executable(nes-single-node-worker src/SingleNodeWorkerStarter.cpp)
-target_link_libraries(nes-single-node-worker PRIVATE nes-single-node-worker-lib)
+find_package(argparse CONFIG REQUIRED)
+target_link_libraries(nes-single-node-worker PRIVATE nes-single-node-worker-lib argparse::argparse)
+if (ENABLE_BATS_TESTS)
+    add_test(
+            NAME worker-offline-test
+            COMMAND
+            env NES_WORKER=$<TARGET_FILE:nes-single-node-worker>
+            env NES_WORKER_TESTDATA=${CMAKE_CURRENT_SOURCE_DIR}/tests
+            ${BATS} -x --verbose-run ${CMAKE_CURRENT_SOURCE_DIR}/tests/offline.bats
+    )
+endif ()

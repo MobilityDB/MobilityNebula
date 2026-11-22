@@ -1,0 +1,232 @@
+name: Container Build
+
+# Builds in NebulaStream's prebuilt CI image and runs the unit tests and the system tests. The image carries
+# every dependency, so no dependency is built here: its tag is the hash of the dependency files
+# (scripts/hash_dependencies.sh), the tag NebulaStream publishes on Docker Hub, and a dependency change no
+# published image matches fails the job instead of building one.
+#
+# The MEOS plugin is built over libmeos of the MobilityDB commit nes-plugins/MEOS/MEOS_COMMIT names, the
+# commit of the MEOS catalog the plugin is generated from. libmeos is built once per commit, in the image
+# with the libraries it links (.github/ci/meos.dockerfile), and kept: in the runner's volume on the
+# self-hosted runner, in the Actions cache on a GitHub-hosted one. H3 is the one release that commit
+# requires (H3_REQUIRED_VERSION of its CMakeLists.txt, which refuses any other), built from its tag by the
+# commit's own .github/scripts/install-h3.sh into the prefix of libmeos, never the image's package.
+#
+# The build of a push, and of a pull request an owner, a member or a collaborator of the repository opens,
+# runs on the self-hosted runner labelled `nebula` while .github/ci/runner reads self-hosted; the build of any
+# other pull request, and every build while the file reads github-hosted, runs on a GitHub-hosted runner. The
+# choice is a file of the commit built, not a repository variable, since a pull request from a fork is given
+# no repository variable: a pull request that changes the file is built where the file it carries says.
+# The self-hosted runner is a container of that image with the libraries libmeos links, so the job compiles
+# in it directly, keeps its compiler cache in the runner's volume, and refuses a branch whose dependency
+# hash is not the one the runner's image is built from (/etc/nes-ci-hash). A GitHub-hosted runner runs the
+# image in Docker; without the S3 credentials of the remote compiler cache, sccache keeps a local cache in
+# the workspace, carried from run to run: a pull request restores the newest cache of its own head or of
+# the branch it targets, and every push to next saves the cache the next pull requests start from.
+on:
+  push:
+    branches: [ next ]
+  workflow_call:
+    inputs:
+      head_sha:
+        type: string
+        required: true
+        description: "ref of the branch"
+  workflow_dispatch:
+    inputs:
+      head_sha:
+        type: string
+        required: false
+        description: "ref of the branch"
+
+permissions:
+  contents: read
+
+jobs:
+  dev-image:
+    name: "Find the CI image"
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.lookup.outputs.tag }}
+      meos: ${{ steps.lookup.outputs.meos }}
+      runner: ${{ steps.lookup.outputs.runner }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.head_sha || github.sha }}
+      - name: Look the image of the dependency hash up on Docker Hub
+        id: lookup
+        run: |
+          HASH=$(scripts/hash_dependencies.sh)
+          echo "tag=$HASH" >> "$GITHUB_OUTPUT"
+          echo "meos=$(cat nes-plugins/MEOS/MEOS_COMMIT)" >> "$GITHUB_OUTPUT"
+          echo "runner=$(cat .github/ci/runner)" >> "$GITHUB_OUTPUT"
+          code=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            "https://hub.docker.com/v2/namespaces/nebulastream/repositories/nes-ci/tags/$HASH-libstdcxx-none")
+          if [ "$code" != 200 ]; then
+            echo "::error::nebulastream/nes-ci:$HASH-libstdcxx-none is not on Docker Hub (HTTP $code): the dependency files differ from every image NebulaStream published"
+            exit 1
+          fi
+          echo "Using nebulastream/nes-ci:$HASH-libstdcxx-none and libmeos of MobilityDB $(cat nes-plugins/MEOS/MEOS_COMMIT)"
+
+  container-build:
+    name: "Container Build"
+    needs: [ dev-image ]
+    # A build that restores no cache compiles every source
+    timeout-minutes: 180
+    # .github/ci/runner reading self-hosted sends the builds of the repository's own members to the self-hosted runner;
+    # github-hosted sends every build to a GitHub-hosted runner, as while the self-hosted one is offline
+    runs-on: ${{ (needs.dev-image.outputs.runner == 'self-hosted' && (github.event_name != 'pull_request' || contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association))) && fromJSON('["self-hosted", "nebula"]') || 'ubuntu-24.04' }}
+    env:
+      IMAGE: nebulastream/nes-ci:${{ needs.dev-image.outputs.tag }}-libstdcxx-none
+      MEOS_COMMIT: ${{ needs.dev-image.outputs.meos }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.head_sha || github.sha }}
+
+      # On the self-hosted runner: in the runner's own container, the image the dependency hash names
+      - name: Check the runner's image against the dependency hash
+        if: ${{ runner.environment == 'self-hosted' }}
+        run: |
+          if [ "$(cat /etc/nes-ci-hash)" != "${{ needs.dev-image.outputs.tag }}" ]; then
+            echo "::error::the runner is built from nes-ci $(cat /etc/nes-ci-hash), this branch needs ${{ needs.dev-image.outputs.tag }}: rebuild the runner's image"
+            exit 1
+          fi
+
+      - name: Build libmeos (self-hosted)
+        if: ${{ runner.environment == 'self-hosted' }}
+        run: |
+          prefix="$(realpath "$RUNNER_WORKSPACE/../..")/meos/$MEOS_COMMIT"
+          if [ ! -f "$prefix/lib/libmeos.so" ]; then
+            src=$(mktemp -d)
+            git -C "$src" init -q
+            git -C "$src" fetch -q --depth 1 https://github.com/MobilityDB/MobilityDB.git "$MEOS_COMMIT"
+            git -C "$src" checkout -q FETCH_HEAD
+            "$src/.github/scripts/install-h3.sh" "$prefix"
+            cmake -S "$src" -B "$src/build" -G Ninja -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$prefix" \
+              -DH3_LIBRARY="$prefix/lib/libh3.so" -DH3_INCLUDE_DIR="$prefix/include/h3"
+            cmake --build "$src/build" -j
+            cmake --install "$src/build"
+            rm -rf "$src"
+          fi
+          echo "MEOS_ROOT=$prefix" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$prefix/lib" >> "$GITHUB_ENV"
+
+      - name: CMake Build (self-hosted)
+        if: ${{ runner.environment == 'self-hosted' }}
+        run: |
+          export SCCACHE_DIR="$RUNNER_WORKSPACE/../../sccache" SCCACHE_CACHE_SIZE=20G
+          sccache --start-server
+          cmake -GNinja -B build -DCMAKE_BUILD_TYPE=Debug -DNES_SPLIT_TEST_BINARIES=OFF -DNES_ENABLE_MEOS=ON -DMEOS_ROOT="$MEOS_ROOT"
+          cmake --build build -j -- -k 0
+          sccache --show-stats
+          sccache --stop-server
+
+      - name: Run Unit Tests (self-hosted)
+        if: ${{ runner.environment == 'self-hosted' }}
+        run: |
+          source .github/.env/test-none.env
+          ctest --test-dir build --no-tests=error -j -LE "Systest|DockerCompose" --output-on-failure --output-junit build/junit-unit.xml --timeout 2400 ${ADDITIONAL_CTEST_ARGS}
+
+      - name: Run System Tests (self-hosted)
+        if: ${{ runner.environment == 'self-hosted' }}
+        run: |
+          source .github/.env/test-none.env
+          ctest --test-dir build --no-tests=error -j -L Systest --output-on-failure --output-junit build/junit-systest.xml --timeout 4800 ${ADDITIONAL_CTEST_ARGS}
+
+      # On a GitHub-hosted runner: the image with the libraries libmeos links run in Docker, the compiler cache
+      # and libmeos carried in the Actions cache
+      - name: Restore the local compiler cache
+        if: ${{ runner.environment == 'github-hosted' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: .sccache
+          key: sccache-ci-${{ needs.dev-image.outputs.tag }}-${{ inputs.head_sha || github.sha }}
+          restore-keys: sccache-ci-${{ needs.dev-image.outputs.tag }}-
+
+      - uses: ./.github/steps/prepare-github
+        if: ${{ runner.environment == 'github-hosted' }}
+        name: Preparing Github Runners
+        with:
+          images: ${{ env.IMAGE }}
+
+      - name: Add the libraries libmeos links to the image
+        if: ${{ runner.environment == 'github-hosted' }}
+        run: docker build -t nes-ci-meos --build-arg IMAGE="$IMAGE" -f .github/ci/meos.dockerfile .github/ci
+
+      - name: Restore libmeos
+        id: meos-cache
+        if: ${{ runner.environment == 'github-hosted' }}
+        uses: actions/cache@v4
+        with:
+          path: .meos
+          key: meos-${{ needs.dev-image.outputs.meos }}-${{ needs.dev-image.outputs.tag }}
+
+      - uses: ./.github/steps/run-in-container
+        if: ${{ runner.environment == 'github-hosted' && steps.meos-cache.outputs.cache-hit != 'true' }}
+        name: Build libmeos
+        with:
+          image_name: nes-ci-meos
+          run: |
+            git init -q .meos-src
+            git -C .meos-src fetch -q --depth 1 https://github.com/MobilityDB/MobilityDB.git "$(cat nes-plugins/MEOS/MEOS_COMMIT)"
+            git -C .meos-src checkout -q FETCH_HEAD
+            .meos-src/.github/scripts/install-h3.sh "$PWD/.meos"
+            cmake -S .meos-src -B .meos-src/build -G Ninja -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PWD/.meos" \
+              -DH3_LIBRARY="$PWD/.meos/lib/libh3.so" -DH3_INCLUDE_DIR="$PWD/.meos/include/h3"
+            cmake --build .meos-src/build -j
+            cmake --install .meos-src/build
+            rm -rf .meos-src
+
+      - uses: ./.github/steps/run-in-container
+        if: ${{ runner.environment == 'github-hosted' }}
+        name: CMake Build
+        with:
+          image_name: nes-ci-meos
+          run: |
+            export SCCACHE_DIR="$PWD/.sccache" SCCACHE_CACHE_SIZE=5G
+            sccache --start-server
+            sccache --show-stats
+            cmake -GNinja -B build -DCMAKE_BUILD_TYPE=Debug -DNES_SPLIT_TEST_BINARIES=OFF -DNES_ENABLE_MEOS=ON -DMEOS_ROOT="$PWD/.meos"
+            cmake --build build -j -- -k 0
+            sccache --show-stats
+            sccache --stop-server
+
+      - uses: ./.github/steps/run-in-container
+        if: ${{ runner.environment == 'github-hosted' }}
+        name: Run Unit Tests
+        with:
+          image_name: nes-ci-meos
+          run: |
+            source .github/.env/test-none.env
+            export LD_LIBRARY_PATH="$PWD/.meos/lib"
+            ctest --test-dir build --no-tests=error -j -LE "Systest|DockerCompose" --output-on-failure --output-junit build/junit-unit.xml --timeout 2400 ${ADDITIONAL_CTEST_ARGS}
+
+      - uses: ./.github/steps/run-in-container
+        if: ${{ runner.environment == 'github-hosted' }}
+        name: Run System Tests
+        with:
+          image_name: nes-ci-meos
+          run: |
+            source .github/.env/test-none.env
+            export LD_LIBRARY_PATH="$PWD/.meos/lib"
+            ctest --test-dir build --no-tests=error -j -L Systest --output-on-failure --output-junit build/junit-systest.xml --timeout 4800 ${ADDITIONAL_CTEST_ARGS}
+
+      # Saved after a passing or a failing build, since a failing build is the one a developer reruns
+      # and an implicit post-job save would skip it; a cancelled run holds a partial cache and saves none.
+      - name: Save the local compiler cache
+        if: ${{ runner.environment == 'github-hosted' && !cancelled() }}
+        uses: actions/cache/save@v4
+        with:
+          path: .sccache
+          key: sccache-ci-${{ needs.dev-image.outputs.tag }}-${{ inputs.head_sha || github.sha }}
+
+      - name: Upload test logs on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: container-build-logs
+          path: |
+            build/**/*.log
+          retention-days: 7

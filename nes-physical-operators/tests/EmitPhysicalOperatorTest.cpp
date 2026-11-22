@@ -34,10 +34,12 @@
 #include <DataTypes/DataType.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Identifiers/NESStrongType.hpp>
-#include <MemoryLayout/RowLayout.hpp>
-#include <Nautilus/Interface/BufferRef/RowTupleBufferRef.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
+#include <Interface/BufferRef/LowerSchemaProvider.hpp>
+#include <Interface/BufferRef/RowTupleBufferRef.hpp>
+#include <Interface/NautilusBuffer.hpp>
+#include <Interface/RecordBuffer.hpp>
 #include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/Allocator/NesDefaultMemoryAllocator.hpp>
 #include <Runtime/BufferManager.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <Runtime/TupleBuffer.hpp>
@@ -48,6 +50,11 @@
 #include <fmt/format.h>
 #include <folly/Synchronized.h>
 #include <gtest/gtest.h>
+
+#include <DataTypes/UnboundField.hpp>
+#include <Identifiers/Identifier.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <BaseUnitTest.hpp>
 #include <EmitPhysicalOperator.hpp>
 #include <ErrorHandling.hpp>
@@ -56,6 +63,15 @@
 
 namespace NES
 {
+
+namespace
+{
+constexpr uint32_t POOLED_BUFFER_SIZE = 512;
+constexpr uint32_t NUMBER_OF_POOLED_BUFFERS = 100000;
+constexpr NES::BufferAlignment BUFFER_ALIGNMENT{64};
+constexpr double UNPOOLED_MEMORY_FRACTION = 0.9;
+constexpr size_t TOTAL_MEMORY_IN_BYTES = 10 * static_cast<size_t>(NUMBER_OF_POOLED_BUFFERS) * POOLED_BUFFER_SIZE;
+}
 
 class EmitPhysicalOperatorTest : public Testing::BaseUnitTest
 {
@@ -69,7 +85,7 @@ class EmitPhysicalOperatorTest : public Testing::BaseUnitTest
 
         TupleBuffer allocateTupleBuffer() override { return bufferManager->getBufferBlocking(); }
 
-        [[nodiscard]] WorkerThreadId getId() const override { return INITIAL<WorkerThreadId>; }
+        [[nodiscard]] WorkerThreadId getWorkerThreadId() const override { return INITIAL<WorkerThreadId>; }
 
         [[nodiscard]] uint64_t getNumberOfWorkerThreads() const override { return 1; }
 
@@ -115,10 +131,10 @@ public:
 
     EmitPhysicalOperator createUUT()
     {
-        auto schema = Schema{}.addField("A_FIELD", DataType::Type::UINT32);
-        auto layout = std::make_shared<RowLayout>(512, schema);
-        EmitPhysicalOperator emit{OperatorHandlerId(0), std::make_shared<Interface::BufferRef::RowTupleBufferRef>(layout)};
-        handlers.emplace(OperatorHandlerId(0), std::make_shared<EmitOperatorHandler>());
+        auto schema = Schema<QualifiedUnboundField, Ordered>{QualifiedUnboundField{Identifier::parse("A_FIELD"), DataType::Type::UINT32}};
+        auto bufferRef = LowerSchemaProvider::lowerSchema(512, schema, MemoryLayoutType::ROW_LAYOUT);
+        EmitPhysicalOperator emit{OperatorHandlerId(0), std::move(bufferRef)};
+        handlers.insert_or_assign(OperatorHandlerId(0), std::make_shared<EmitOperatorHandler>());
         return emit;
     }
 
@@ -133,7 +149,7 @@ public:
         executionContext.sequenceNumber = buffer.getSequenceNumber(), executionContext.lastChunk = buffer.isLastChunk();
         executionContext.originId = buffer.getOriginId();
 
-        RecordBuffer recordBuffer(std::addressof(buffer));
+        RecordBuffer recordBuffer{BorrowedNautilusBuffer::from(std::addressof(buffer))};
         test(executionContext, recordBuffer);
     }
 
@@ -179,13 +195,18 @@ public:
     void checkLastChunks(std::source_location location = std::source_location::current())
     {
         const testing::ScopedTrace scopedTrace(location.file_name(), static_cast<int>(location.line()), "checkForLastChunks");
-        std::unordered_map<SequenceNumber, std::tuple<size_t, ChunkNumber::Underlying, bool>> sequenceNumberTerminations;
+        std::unordered_map<SequenceNumber, std::tuple<size_t, ChunkNumber::Underlying, bool, ChunkNumber::Underlying>>
+            sequenceNumberTerminations;
 
         for (const auto& buffer : *buffers.rlock())
         {
-            auto& [seen, maxChunkNumber, termination] = sequenceNumberTerminations[buffer.getSequenceNumber()];
+            auto& [seen, maxChunkNumber, termination, terminationAt] = sequenceNumberTerminations[buffer.getSequenceNumber()];
             seen++;
             maxChunkNumber = std::max(maxChunkNumber, buffer.getChunkNumber().getRawValue());
+            if (buffer.isLastChunk())
+            {
+                terminationAt = buffer.getChunkNumber().getRawValue();
+            }
             EXPECT_FALSE(termination && buffer.isLastChunk())
                 << fmt::format("Sequence {} has multiple last chunks", buffer.getSequenceNumber());
             termination |= buffer.isLastChunk();
@@ -193,8 +214,9 @@ public:
 
         for (const auto& [seq, t] : sequenceNumberTerminations)
         {
-            const auto& [seen, max, terminated] = t;
+            const auto& [seen, max, terminated, terminationAt] = t;
             EXPECT_TRUE(terminated) << fmt::format("Sequence {} is not terminated", seq);
+            EXPECT_EQ(terminationAt, max) << fmt::format("Sequence {} Non Max Chunk Number has Last Flag", seq);
             EXPECT_EQ(seen, max) << fmt::format("Sequence {}: The maximum chunk number is {}, but we only saw {} chunks", seq, max, seen);
         }
     }
@@ -204,7 +226,7 @@ public:
         ChunkNumber::Underlying chunkNumber,
         bool isLastChunk = false,
         OriginId originId = INITIAL<OriginId>,
-        size_t numberOfTuples = 0)
+        size_t numberOfTuples = 0) const
     {
         auto buffer = bm->getBufferBlocking();
         buffer.setNumberOfTuples(numberOfTuples);
@@ -221,7 +243,12 @@ public:
     void reset() { buffers.wlock()->clear(); }
 
     folly::Synchronized<std::vector<TupleBuffer>> buffers;
-    std::shared_ptr<BufferManager> bm = BufferManager::create(512, 100000);
+    std::shared_ptr<BufferManager> bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
     std::unordered_map<OperatorHandlerId, std::shared_ptr<OperatorHandler>> handlers;
 
     std::random_device rd;

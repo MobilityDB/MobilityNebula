@@ -18,9 +18,11 @@
 #include <utility>
 #include <vector>
 #include <Identifiers/Identifiers.hpp>
+#include <Interface/HashMap/ChainedHashMap/ChainedHashMap.hpp>
+#include <Interface/HashMap/HashMap.hpp>
 #include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/HashMap/ChainedHashMap/ChainedHashMap.hpp>
-#include <Nautilus/Interface/HashMap/HashMap.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/TupleBuffer.hpp>
 #include <SliceStore/Slice.hpp>
 #include <ErrorHandling.hpp>
 #include <HashMapSlice.hpp>
@@ -33,49 +35,42 @@ HJSlice::HJSlice(
 {
 }
 
-Nautilus::Interface::HashMap* HJSlice::getHashMapPtr(const WorkerThreadId workerThreadId, const JoinBuildSideType& buildSide) const
+[[nodiscard]] const TupleBuffer*
+HJSlice::getHashMapBufferRefForSide(const WorkerThreadId workerThreadId, const JoinBuildSideType& buildSide) const
 {
     /// Hashmaps of the left build side come before right
-    auto pos = (workerThreadId % numberOfHashMapsPerInputStream)
-        + ((static_cast<uint64_t>(buildSide == JoinBuildSideType::Right) * numberOfHashMapsPerInputStream));
-
+    auto pos = (workerThreadId % getNumHashMapsPerInputStream())
+        + (static_cast<uint64_t>(buildSide == JoinBuildSideType::Right) * getNumHashMapsPerInputStream());
+    const auto numHashMaps = getNumberOfHashMaps();
     INVARIANT(
-        not hashMaps.empty() and pos < hashMaps.size(),
+        numHashMaps > 0 and pos < numHashMaps,
         "No hashmap found for workerThreadId {} at pos {} for {} hashmaps",
         workerThreadId,
         pos,
-        hashMaps.size());
-    return hashMaps[pos].get();
+        numHashMaps);
+    return getHashMapBufferRef(ChildBufferIndex(pos));
 }
 
-Nautilus::Interface::HashMap* HJSlice::getHashMapPtrOrCreate(const WorkerThreadId workerThreadId, const JoinBuildSideType& buildSide)
+[[nodiscard]] const TupleBuffer* HJSlice::getOrCreateHashMapBufferRefForSide(
+    WorkerThreadId workerThreadId, const JoinBuildSideType& buildSide, AbstractBufferProvider& bufferProvider)
 {
     /// Hashmaps of the left build side come before right
-    auto pos = (workerThreadId % numberOfHashMapsPerInputStream)
-        + ((static_cast<uint64_t>(buildSide == JoinBuildSideType::Right) * numberOfHashMapsPerInputStream));
-
+    auto pos = (workerThreadId % getNumHashMapsPerInputStream())
+        + (static_cast<uint64_t>(buildSide == JoinBuildSideType::Right) * getNumHashMapsPerInputStream());
+    const auto numHashMaps = getNumberOfHashMaps();
     INVARIANT(
-        not hashMaps.empty() and pos < hashMaps.size(),
+        numHashMaps > 0 and pos < numHashMaps,
         "No hashmap found for workerThreadId {} at pos {} for {} hashmaps",
         workerThreadId,
         pos,
-        hashMaps.size());
-
-    if (hashMaps.at(pos) == nullptr)
-    {
-        /// Hashmap at pos has not been initialized
-        hashMaps.at(pos) = std::make_unique<Nautilus::Interface::ChainedHashMap>(
-            createNewHashMapSliceArgs.keySize,
-            createNewHashMapSliceArgs.valueSize,
-            createNewHashMapSliceArgs.numberOfBuckets,
-            createNewHashMapSliceArgs.pageSize);
-    }
-    return hashMaps.at(pos).get();
+        numHashMaps);
+    const ChildBufferIndex bufferIndex(pos);
+    return getOrCreateHashMapBufferRef(bufferProvider, bufferIndex);
 }
 
 uint64_t HJSlice::getNumberOfHashMapsForSide() const
 {
-    return numberOfHashMapsPerInputStream;
+    return getNumHashMapsPerInputStream();
 }
 
 }

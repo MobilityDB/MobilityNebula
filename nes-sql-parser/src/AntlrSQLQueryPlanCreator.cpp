@@ -14,16 +14,18 @@
 
 #include <AntlrSQLParser/AntlrSQLQueryPlanCreator.hpp>
 
+#include <algorithm>
+#include <array>
+#include <cctype>
 #include <cstddef>
 #include <cstdint>
-#include <limits>
 #include <memory>
-#include <algorithm>
 #include <optional>
 #include <ranges>
 #include <string>
 #include <utility>
 #include <variant>
+#include <vector>
 
 #include <AntlrSQLBaseListener.h>
 #include <AntlrSQLLexer.h>
@@ -32,7 +34,6 @@
 #include <AntlrSQLParser/AntlrSQLHelper.hpp>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/ArithmeticalFunctions/AddLogicalFunction.hpp>
 #include <Functions/ArithmeticalFunctions/DivLogicalFunction.hpp>
 #include <Functions/ArithmeticalFunctions/ModuloLogicalFunction.hpp>
@@ -40,43 +41,37 @@
 #include <Functions/ArithmeticalFunctions/SubLogicalFunction.hpp>
 #include <Functions/BooleanFunctions/AndLogicalFunction.hpp>
 #include <Functions/BooleanFunctions/EqualsLogicalFunction.hpp>
+#include <Functions/BooleanFunctions/IsNaNLogicalFunction.hpp>
+#include <Functions/BooleanFunctions/IsNullCheckLogicalFunction.hpp>
 #include <Functions/BooleanFunctions/NegateLogicalFunction.hpp>
 #include <Functions/BooleanFunctions/OrLogicalFunction.hpp>
+#include <Functions/CastToTypeLogicalFunction.hpp>
 #include <Functions/ComparisonFunctions/GreaterEqualsLogicalFunction.hpp>
 #include <Functions/ComparisonFunctions/GreaterLogicalFunction.hpp>
 #include <Functions/ComparisonFunctions/LessEqualsLogicalFunction.hpp>
 #include <Functions/ComparisonFunctions/LessLogicalFunction.hpp>
 #include <Functions/ConcatLogicalFunction.hpp>
 #include <Functions/ConstantValueLogicalFunction.hpp>
-#include <Functions/FieldAccessLogicalFunction.hpp>
-#include <Functions/FieldAssignmentLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Functions/LogicalFunctionProvider.hpp>
-#include <Operators/Windows/Aggregations/AggregationLogicalFunctionProvider.hpp>
-#include <Operators/Windows/Aggregations/ArrayAggregationLogicalFunction.hpp>
+#include <Functions/UnboundFieldAccessLogicalFunction.hpp>
+#include <Identifiers/Identifier.hpp>
+#include <Iterators/BFSIterator.hpp>
+#include <Operators/ProjectionLogicalOperator.hpp>
 #include <Operators/Windows/Aggregations/AvgAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/CountAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/CountDistinctAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/MaxAggregationLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/MedianAggregationLogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/Meos/VarAggregationLogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/Meos/TemporalSequenceAggregationLogicalFunctionV2.hpp>
 #include <Operators/Windows/Aggregations/MinAggregationLogicalFunction.hpp>
-#include <Functions/Meos/TemporalEContainsGeometryLogicalFunction.hpp>
-#include <Functions/Meos/TemporalIntersectsFunction.hpp>
 #include <Operators/Windows/Aggregations/SumAggregationLogicalFunction.hpp>
+#include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <Operators/Windows/JoinLogicalOperator.hpp>
-#include <Operators/Windows/Aggregations/Meos/VarAggregationLogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/Meos/TemporalLengthAggregationLogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/Meos/PairMeetingAggregationLogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/Meos/CrossDistanceAggregationLogicalFunction.hpp>
-#include <Functions/Meos/TemporalIntersectsGeometryLogicalFunction.hpp>
-#include <Functions/Meos/TemporalAIntersectsGeometryLogicalFunction.hpp>
-#include <Functions/Meos/TemporalEDWithinGeometryLogicalFunction.hpp>
-#include <Functions/Meos/TemporalAtStBoxLogicalFunction.hpp>
+#include <Operators/Windows/WindowedAggregationLogicalOperator.hpp>
 #include <Plans/LogicalPlan.hpp>
 #include <Plans/LogicalPlanBuilder.hpp>
 #include <Util/Overloaded.hpp>
+#include <Util/PlanRenderer.hpp>
 #include <Util/Strings.hpp>
 #include <WindowTypes/Measures/TimeCharacteristic.hpp>
 #include <WindowTypes/Measures/TimeMeasure.hpp>
@@ -85,141 +80,38 @@
 #include <WindowTypes/Types/TumblingWindow.hpp>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <AggregationLogicalFunctionRegistry.hpp>
 #include <CommonParserFunctions.hpp>
 #include <ErrorHandling.hpp>
 #include <ParserUtil.hpp>
 
 namespace NES::Parsers
 {
+
 namespace
 {
-/// The constant an argument of a call is, when the whole argument is one, which the parser keeps in the
-/// constant builder (exitConstantDefault)
-AntlrSQLParser::ConstantDefaultContext* literalOf(antlr4::tree::ParseTree* argument)
+/// Renders an aggregation back as SQL (COUNT(VALUE)) so error messages quote the caller's own expression.
+/// An argument that was desugared into a pre-aggregation projection is rendered as the expression the caller wrote,
+/// not as the generated _AGG_INPUT_N field.
+std::string
+describeAggregation(const WindowAggregationLogicalFunction& aggregation, const std::vector<AntlrSQLHelper::Projection>& desugaredArguments)
 {
-    while (argument != nullptr)
+    const auto input = aggregation.getInputFunction();
+    const auto field = [&]
     {
-        if (auto* constant = dynamic_cast<AntlrSQLParser::ConstantDefaultContext*>(argument))
+        if (const auto* unbound = std::get_if<TypedLogicalFunction<UnboundFieldAccessLogicalFunction>>(&input))
         {
-            return constant;
-        }
-        if (argument->children.size() != 1)
-        {
-            return nullptr;
-        }
-        argument = argument->children.front();
-    }
-    return nullptr;
-}
-
-bool isLiteral(AntlrSQLParser::ExpressionContext* argument)
-{
-    return literalOf(argument) != nullptr;
-}
-
-/// The values of a row of an inline table: the expressions of a row constructor (a, b), or the row itself when it
-/// holds one value, as literalOf walks down to the constant an argument is
-std::vector<AntlrSQLParser::ExpressionContext*> rowValues(AntlrSQLParser::ExpressionContext* row)
-{
-    antlr4::tree::ParseTree* node = row;
-    while (node != nullptr)
-    {
-        if (auto* constructor = dynamic_cast<AntlrSQLParser::RowConstructorContext*>(node))
-        {
-            std::vector<AntlrSQLParser::ExpressionContext*> values;
-            for (auto* named : constructor->namedExpression())
+            const auto desugared = std::ranges::find_if(
+                desugaredArguments, [&unbound](const auto& projection) { return projection.first == (*unbound)->getFieldName(); });
+            if (desugared != std::ranges::end(desugaredArguments))
             {
-                values.push_back(named->expression());
+                return desugared->second.explain(ExplainVerbosity::Short);
             }
-            return values;
         }
-        if (node->children.size() != 1)
-        {
-            break;
-        }
-        node = node->children.front();
-    }
-    return {row};
-}
-
-/// The constant a literal argument states: a string VARSIZED, a boolean BOOLEAN, a number with a fraction
-/// FLOAT64, an integer INT32 where it fits and INT64 otherwise
-LogicalFunction literalConstant(AntlrSQLParser::ExpressionContext* argument, std::string value)
-{
-    auto* constant = literalOf(argument)->constant();
-    const auto type = [&]
-    {
-        if (dynamic_cast<AntlrSQLParser::BooleanLiteralContext*>(constant) != nullptr)
-        {
-            return DataType::Type::BOOLEAN;
-        }
-        if (auto* numeric = dynamic_cast<AntlrSQLParser::NumericLiteralContext*>(constant))
-        {
-            if (dynamic_cast<AntlrSQLParser::FloatLiteralContext*>(numeric->number()) != nullptr)
-            {
-                return DataType::Type::FLOAT64;
-            }
-            const auto digits = value.starts_with('-') ? value.substr(1) : value;
-            const bool fitsInt32 = digits.size() < 10 or (digits.size() == 10 and digits <= "2147483647");
-            return fitsInt32 ? DataType::Type::INT32 : DataType::Type::INT64;
-        }
-        return DataType::Type::VARSIZED;
+        return std::visit([](const auto& access) { return access->explain(ExplainVerbosity::Short); }, input);
     }();
-    return ConstantValueLogicalFunction(DataTypeProvider::provideDataType(type), std::move(value));
+    return fmt::format("{}({})", toUpperCase(aggregation.getName()), field);
 }
-}
-
-std::vector<LogicalFunction> AntlrSQLQueryPlanCreator::callArguments(AntlrSQLParser::FunctionCallContext* context) const
-{
-    const auto& helper = helpers.top();
-    const auto literals = static_cast<size_t>(std::ranges::count_if(context->argument, isLiteral));
-    const auto expressions = context->argument.size() - literals;
-    if (helper.functionBuilder.size() < expressions or helper.constantBuilder.size() < literals)
-    {
-        return {};
-    }
-    auto expression = helper.functionBuilder.end() - static_cast<std::ptrdiff_t>(expressions);
-    auto literal = helper.constantBuilder.end() - static_cast<std::ptrdiff_t>(literals);
-    std::vector<LogicalFunction> arguments;
-    arguments.reserve(context->argument.size());
-    for (auto* argument : context->argument)
-    {
-        if (isLiteral(argument))
-        {
-            arguments.push_back(literalConstant(argument, *literal++));
-        }
-        else
-        {
-            arguments.push_back(*expression++);
-        }
-    }
-    return arguments;
-}
-
-std::optional<std::shared_ptr<WindowAggregationLogicalFunction>>
-AntlrSQLQueryPlanCreator::aggregationOverField(AntlrSQLParser::FunctionCallContext* context, const std::string& name) const
-{
-    /// The aggregation named over the field of the first argument, the others being literals
-    const auto& helper = helpers.top();
-    const auto& arguments = context->argument;
-    if (arguments.empty() or isLiteral(arguments.front())
-        or not std::all_of(arguments.begin() + 1, arguments.end(), isLiteral)
-        or helper.functionBuilder.empty() or not helper.functionBuilder.back().tryGet<FieldAccessLogicalFunction>()
-        or helper.constantBuilder.size() < arguments.size() - 1)
-    {
-        return std::nullopt;
-    }
-    const std::vector<std::string> literals(
-        helper.constantBuilder.end() - static_cast<std::ptrdiff_t>(arguments.size() - 1), helper.constantBuilder.end());
-    return AggregationLogicalFunctionProvider::tryProvide(name, helper.functionBuilder.back().get<FieldAccessLogicalFunction>(), literals);
-}
-
-void AntlrSQLQueryPlanCreator::takeCallArguments(AntlrSQLParser::FunctionCallContext* context)
-{
-    auto& helper = helpers.top();
-    const auto literals = static_cast<size_t>(std::ranges::count_if(context->argument, isLiteral));
-    helper.functionBuilder.resize(helper.functionBuilder.size() - (context->argument.size() - literals));
-    helper.constantBuilder.resize(helper.constantBuilder.size() - literals);
 }
 
 LogicalPlan AntlrSQLQueryPlanCreator::getQueryPlan() const
@@ -232,25 +124,25 @@ LogicalPlan AntlrSQLQueryPlanCreator::getQueryPlan() const
     {
         throw InvalidQuerySyntax("Query could not be parsed");
     }
-    /// Todo #421: support multiple sinks
+    /// TODO #421: support multiple sinks
     INVARIANT(!sinks.empty(), "Need at least one sink!");
     return std::visit(
         Overloaded{
-            [&](const std::string& sinkName) { return LogicalPlanBuilder::addSink(sinkName, queryPlans.top()); },
-            [&](const std::pair<std::string, ConfigMap>& inlineSink)
+            [&](const Identifier& sinkName) { return LogicalPlanBuilder::addSink(sinkName, queryPlans.top()); },
+            [&](const std::pair<Identifier, ConfigMap>& anonymousSink)
             {
-                const auto& [type, configOptions] = inlineSink;
+                const auto& [type, configOptions] = anonymousSink;
                 const auto sinkConfig = getSinkConfig(configOptions);
+                const auto formatConfig = parseOutputFormatterConfig(configOptions);
                 const auto schemaOpt = getSinkSchema(configOptions);
-                const Schema schema = (schemaOpt.has_value() ? schemaOpt.value() : Schema{});
-                return LogicalPlanBuilder::addInlineSink(type, schema, sinkConfig, queryPlans.top());
+                return LogicalPlanBuilder::addAnonymousSink(type, schemaOpt, sinkConfig, formatConfig, queryPlans.top());
             }},
         sinks.front());
 }
 
 Windowing::TimeMeasure buildTimeMeasure(const int size, const uint64_t timebase)
 {
-    switch (timebase) /// TODO #619: improve this switch case
+    switch (timebase)
     {
         case AntlrSQLLexer::MS:
             return API::Milliseconds(size);
@@ -271,7 +163,7 @@ Windowing::TimeMeasure buildTimeMeasure(const int size, const uint64_t timebase)
 
 static LogicalFunction createFunctionFromOpBoolean(LogicalFunction leftFunction, LogicalFunction rightFunction, const uint64_t tokenType)
 {
-    switch (tokenType) /// TODO #619: improve this switch case
+    switch (tokenType)
     {
         case AntlrSQLLexer::EQ:
             return EqualsLogicalFunction(std::move(leftFunction), std::move(rightFunction));
@@ -294,7 +186,7 @@ static LogicalFunction createFunctionFromOpBoolean(LogicalFunction leftFunction,
 
 static LogicalFunction createLogicalBinaryFunction(LogicalFunction leftFunction, LogicalFunction rightFunction, const uint64_t tokenType)
 {
-    switch (tokenType) /// TODO #619: improve this switch case
+    switch (tokenType)
     {
         case AntlrSQLLexer::AND:
             return AndLogicalFunction(std::move(leftFunction), std::move(rightFunction));
@@ -309,6 +201,169 @@ static LogicalFunction createLogicalBinaryFunction(LogicalFunction leftFunction,
                 std::move(leftFunction),
                 std::move(rightFunction));
     }
+}
+
+namespace
+{
+
+bool isInsideDataTypeConstructorArgument(antlr4::ParserRuleContext* context)
+{
+    for (auto* parent = dynamic_cast<antlr4::ParserRuleContext*>(context->parent); parent != nullptr;
+         parent = dynamic_cast<antlr4::ParserRuleContext*>(parent->parent))
+    {
+        if (auto* const functionCall = dynamic_cast<AntlrSQLParser::FunctionCallContext*>(parent))
+        {
+            return functionCall->typeDefinition() != nullptr;
+        }
+    }
+    return false;
+}
+
+LogicalFunction createRawLiteralFunction(std::string literal)
+{
+    return ConstantValueLogicalFunction(DataTypeProvider::provideDataType(DataType::Type::UNDEFINED), std::move(literal));
+}
+
+LogicalFunction createNegatedNumericLiteralFunction(const ConstantValueLogicalFunction& constantFunction)
+{
+    auto constantValue = constantFunction.getConstantValue();
+    if (constantValue.starts_with('-'))
+    {
+        constantValue.erase(0, 1);
+    }
+    else
+    {
+        constantValue.insert(0, 1, '-');
+    }
+
+    return ConstantValueLogicalFunction(constantFunction.getDataType(), std::move(constantValue));
+}
+
+LogicalFunction createBetweenFunction(const LogicalFunction& valueFunction, LogicalFunction lowerFunction, LogicalFunction upperFunction)
+{
+    return AndLogicalFunction(
+        GreaterEqualsLogicalFunction(valueFunction, std::move(lowerFunction)),
+        LessEqualsLogicalFunction(valueFunction, std::move(upperFunction)));
+}
+
+LogicalFunction createInFunction(const LogicalFunction& valueFunction, std::vector<LogicalFunction> candidateFunctions)
+{
+    if (candidateFunctions.empty())
+    {
+        throw InvalidQuerySyntax("IN predicate requires at least one candidate value");
+    }
+
+    LogicalFunction function = EqualsLogicalFunction(valueFunction, std::move(candidateFunctions.front()));
+    for (auto& candidateFunction : candidateFunctions | std::views::drop(1))
+    {
+        function = OrLogicalFunction(std::move(function), EqualsLogicalFunction(valueFunction, std::move(candidateFunction)));
+    }
+    return function;
+}
+
+bool isSourceQualifier(AntlrSQLParser::IdentifierContext* context)
+{
+    const auto* column = dynamic_cast<AntlrSQLParser::ColumnReferenceContext*>(context->parent);
+    const auto* dereference = column == nullptr ? nullptr : dynamic_cast<AntlrSQLParser::DereferenceContext*>(column->parent);
+    return dereference != nullptr && dereference->base == column;
+}
+
+void validateSourceQualifiers(const AntlrSQLHelper& helper)
+{
+    const auto& qualifiers = helper.getSourceQualifiers();
+    if (qualifiers.empty())
+    {
+        return;
+    }
+
+    auto expectedQualifier = helper.getSourceAlias();
+    if (!expectedQualifier.has_value())
+    {
+        expectedQualifier = helper.getSource();
+    }
+    if (!expectedQualifier.has_value())
+    {
+        throw InvalidQuerySyntax("Qualified field references require a named source");
+    }
+
+    for (const auto& qualifier : qualifiers)
+    {
+        if (qualifier != expectedQualifier.value())
+        {
+            throw InvalidQuerySyntax("Unknown source qualifier {}, expected {}", qualifier, expectedQualifier.value());
+        }
+    }
+}
+
+void validateAggregatedSelectList(AntlrSQLHelper& helper)
+{
+    const auto isAvailableAfterAggregation = [&helper](const Identifier& field)
+    {
+        return field == Identifier::parse("start") or field == Identifier::parse("end")
+            or std::ranges::any_of(helper.groupByFields, [&field](const auto& key) { return key.getFieldName() == field; })
+            or std::ranges::any_of(
+                   helper.windowAggs, [&field](const auto& agg) { return agg.second.has_value() and agg.second.value() == field; });
+    };
+
+    for (const auto& projection : helper.getProjections() | std::views::values)
+    {
+        for (const auto& function : BFSRange{projection})
+        {
+            if (const auto access = function.tryGetAs<UnboundFieldAccessLogicalFunction>();
+                access.has_value() and not isAvailableAfterAggregation(access.value()->getFieldName()))
+            {
+                throw InvalidQuerySyntax(
+                    R"(column "{}" must appear in the GROUP BY clause or be used in an aggregate function)",
+                    access.value()->getFieldName().getOriginalString());
+            }
+        }
+    }
+}
+
+/// Child predicates are visited first and append one function each. This folds
+/// the last numberOfFunctionsToCombine entries into one logical function.
+void combineLogicalFunctions(
+    std::vector<LogicalFunction>& functions,
+    const size_t numberOfFunctionsToCombine,
+    const uint64_t logicalOperatorTokenType,
+    const std::string& expressionText)
+{
+    if (numberOfFunctionsToCombine < 2)
+    {
+        return;
+    }
+    if (functions.size() < numberOfFunctionsToCombine)
+    {
+        throw InvalidQuerySyntax(
+            "Expected {} operands for logical expression, got {}: {}", numberOfFunctionsToCombine, functions.size(), expressionText);
+    }
+
+    const auto firstFunctionToCombine = functions.size() - numberOfFunctionsToCombine;
+    auto function = std::move(functions[firstFunctionToCombine]);
+    for (auto functionIndex = firstFunctionToCombine + 1; functionIndex < functions.size(); ++functionIndex)
+    {
+        function = createLogicalBinaryFunction(std::move(function), std::move(functions[functionIndex]), logicalOperatorTokenType);
+    }
+    functions.resize(firstFunctionToCombine);
+    functions.emplace_back(std::move(function));
+}
+
+void negateTopFunction(std::stack<AntlrSQLHelper>& helpers, const std::string& expressionText)
+{
+    if (helpers.empty())
+    {
+        throw InvalidQuerySyntax("Parser is confused at {}", expressionText);
+    }
+
+    if (helpers.top().functionBuilder.empty())
+    {
+        throw InvalidQuerySyntax("Negate requires child op at {}", expressionText);
+    }
+    auto innerFunction = std::move(helpers.top().functionBuilder.back());
+    helpers.top().functionBuilder.pop_back();
+    helpers.top().functionBuilder.emplace_back(NegateLogicalFunction(std::move(innerFunction)));
+}
+
 }
 
 void AntlrSQLQueryPlanCreator::enterSelectClause(AntlrSQLParser::SelectClauseContext* context)
@@ -326,7 +381,9 @@ void AntlrSQLQueryPlanCreator::enterFromClause(AntlrSQLParser::FromClauseContext
 void AntlrSQLQueryPlanCreator::enterSinkClause(AntlrSQLParser::SinkClauseContext* context)
 {
     if (context->sink().empty())
+    {
         throw InvalidQuerySyntax("INTO must be followed by at least one sink-identifier.");
+    }
     /// Store all specified sinks.
     for (const auto& sink : context->sink())
     {
@@ -334,33 +391,123 @@ void AntlrSQLQueryPlanCreator::enterSinkClause(AntlrSQLParser::SinkClauseContext
         {
             sinks.emplace_back(bindIdentifier(sink->identifier()));
         }
-        else if (sink->inlineSink() != nullptr)
+        else if (sink->anonymousSink() != nullptr)
         {
-            const auto& sinkInlineSink = sink->inlineSink();
+            const auto& anonymousSink = sink->anonymousSink();
 
-            const auto type = bindIdentifier(sinkInlineSink->type);
-            const auto configOptions = bindConfigOptions(sinkInlineSink->parameters->namedConfigExpression());
+            const auto type = bindIdentifier(anonymousSink->type);
+            const auto configOptions = bindConfigOptions(anonymousSink->parameters->namedConfigExpression());
 
             sinks.emplace_back(std::make_pair(type, configOptions));
         }
     }
 }
 
-void AntlrSQLQueryPlanCreator::exitLogicalBinary(AntlrSQLParser::LogicalBinaryContext* context)
+void AntlrSQLQueryPlanCreator::exitOrPredicate(AntlrSQLParser::OrPredicateContext* context)
 {
-    if (helpers.top().functionBuilder.size() < 2)
-    {
-        throw InvalidQuerySyntax(
-            "Expected two operands for binary op, got {}: {}", helpers.top().functionBuilder.size(), context->getText());
-    }
-    const auto rightFunction = helpers.top().functionBuilder.back();
-    helpers.top().functionBuilder.pop_back();
-    const auto leftFunction = helpers.top().functionBuilder.back();
-    helpers.top().functionBuilder.pop_back();
+    auto& functions = helpers.top().functionBuilder;
+    combineLogicalFunctions(functions, context->andPredicate().size(), AntlrSQLLexer::OR, context->getText());
+    AntlrSQLBaseListener::exitOrPredicate(context);
+}
 
-    const auto opTokenType = context->op->getType();
-    const auto function = createLogicalBinaryFunction(leftFunction, rightFunction, opTokenType);
-    helpers.top().functionBuilder.push_back(function);
+void AntlrSQLQueryPlanCreator::exitAndPredicate(AntlrSQLParser::AndPredicateContext* context)
+{
+    auto& functions = helpers.top().functionBuilder;
+    combineLogicalFunctions(functions, context->notPredicate().size(), AntlrSQLLexer::AND, context->getText());
+    AntlrSQLBaseListener::exitAndPredicate(context);
+}
+
+void AntlrSQLQueryPlanCreator::exitBoolComparison(AntlrSQLParser::BoolComparisonContext* context)
+{
+    auto* comparison = context->booleanComparison();
+    if (comparison == nullptr)
+    {
+        AntlrSQLBaseListener::exitBoolComparison(context);
+        return;
+    }
+
+    auto& functions = helpers.top().functionBuilder;
+    const auto popFunction = [&functions, comparison]()
+    {
+        if (functions.empty())
+        {
+            throw InvalidQuerySyntax("Predicate {} is missing an operand", comparison->getText());
+        }
+        auto function = std::move(functions.back());
+        functions.pop_back();
+        return function;
+    };
+
+    LogicalFunction function;
+    if (comparison->BETWEEN() != nullptr)
+    {
+        if (functions.size() < 3)
+        {
+            throw InvalidQuerySyntax("BETWEEN predicate requires a value, lower bound, and upper bound: {}", comparison->getText());
+        }
+        auto upperFunction = popFunction();
+        auto lowerFunction = popFunction();
+        auto valueFunction = popFunction();
+        function = createBetweenFunction(valueFunction, std::move(lowerFunction), std::move(upperFunction));
+        if (comparison->NOT() != nullptr)
+        {
+            function = NegateLogicalFunction(std::move(function));
+        }
+    }
+    else if (comparison->IN() != nullptr)
+    {
+        if (comparison->query() != nullptr)
+        {
+            throw UnsupportedQuery("IN subqueries are currently not supported: {}", comparison->getText());
+        }
+        const auto candidateCount = comparison->expression().size();
+        if (candidateCount == 0)
+        {
+            throw InvalidQuerySyntax("IN predicate requires at least one candidate value: {}", comparison->getText());
+        }
+        if (functions.size() < candidateCount + 1)
+        {
+            throw InvalidQuerySyntax("IN predicate {} is missing operands", comparison->getText());
+        }
+        const auto candidatesBegin = functions.end() - static_cast<std::ptrdiff_t>(candidateCount);
+        std::vector<LogicalFunction> candidateFunctions(candidatesBegin, functions.end());
+        functions.erase(candidatesBegin, functions.end());
+        auto valueFunction = popFunction();
+        function = createInFunction(valueFunction, std::move(candidateFunctions));
+        if (comparison->NOT() != nullptr)
+        {
+            function = NegateLogicalFunction(std::move(function));
+        }
+    }
+    else if (comparison->IS() != nullptr && comparison->nullNotnull() != nullptr)
+    {
+        function = IsNullCheckLogicalFunction(popFunction());
+        if (comparison->nullNotnull()->NOT() != nullptr)
+        {
+            function = NegateLogicalFunction(std::move(function));
+        }
+    }
+    else if (comparison->IS() != nullptr && comparison->nanNotNan() != nullptr)
+    {
+        function = IsNaNLogicalFunction(popFunction());
+        if (comparison->nanNotNan()->NOT() != nullptr)
+        {
+            function = NegateLogicalFunction(std::move(function));
+        }
+    }
+    else
+    {
+        /// `kind` stores the operator token (LIKE, RLIKE, DISTINCT, ...) to include in the error output.
+        INVARIANT(comparison->kind != nullptr, "Predicates without a kind token are handled above, but got {}", comparison->getText());
+        const auto keyword = toUpperCase(comparison->kind->getText());
+        const auto* const isPrefix = comparison->IS() != nullptr ? "IS " : "";
+        const auto* const negation = comparison->NOT() != nullptr ? "NOT " : "";
+        const auto* const distinctSuffix = comparison->DISTINCT() != nullptr ? " FROM" : "";
+        throw UnsupportedQuery("{}{}{}{} is not supported: {}", isPrefix, negation, keyword, distinctSuffix, comparison->getText());
+    }
+
+    functions.push_back(std::move(function));
+    AntlrSQLBaseListener::exitBoolComparison(context);
 }
 
 void AntlrSQLQueryPlanCreator::exitSelectClause(AntlrSQLParser::SelectClauseContext* context)
@@ -374,6 +521,15 @@ void AntlrSQLQueryPlanCreator::exitFromClause(AntlrSQLParser::FromClauseContext*
 {
     helpers.top().isFrom = false;
     AntlrSQLBaseListener::exitFromClause(context);
+}
+
+void AntlrSQLQueryPlanCreator::exitNamedSource(AntlrSQLParser::NamedSourceContext* context)
+{
+    if (context->alias != nullptr && !helpers.top().isJoinRelation)
+    {
+        helpers.top().setSourceAlias(bindIdentifier(context->alias));
+    }
+    AntlrSQLBaseListener::exitNamedSource(context);
 }
 
 void AntlrSQLQueryPlanCreator::enterWhereClause(AntlrSQLParser::WhereClauseContext* context)
@@ -395,12 +551,12 @@ void AntlrSQLQueryPlanCreator::exitWhereClause(AntlrSQLParser::WhereClauseContex
 }
 
 /// The array of CROSS JOIN UNNEST is an expression over the fields of the relation before, read as a WHERE clause reads
-/// its predicate; its alias u(x) names the field of the elements, u$x
+/// its predicate; its alias u(x) names the field of the elements
 void AntlrSQLQueryPlanCreator::enterUnnestRelation(AntlrSQLParser::UnnestRelationContext* context)
 {
-    if (helpers.top().unnest.has_value())
+    if (helpers.top().unnest.has_value() or helpers.top().inlineTable.has_value())
     {
-        throw InvalidQuerySyntax("A query takes one CROSS JOIN UNNEST, but got another at {}", context->getText());
+        throw InvalidQuerySyntax("A query takes one cross join with UNNEST or an inline table, but got another at {}", context->getText());
     }
     helpers.top().isUnnest = true;
     helpers.top().isWhereOrHaving = true;
@@ -415,21 +571,42 @@ void AntlrSQLQueryPlanCreator::exitUnnestRelation(AntlrSQLParser::UnnestRelation
     {
         throw InvalidQuerySyntax("UNNEST takes one array, but got {} at {}", helpers.top().functionBuilder.size(), context->getText());
     }
-    helpers.top().unnest.emplace(
-        helpers.top().functionBuilder.back(),
-        bindIdentifier(context->alias) + Schema::ATTRIBUTE_NAME_SEPARATOR + bindIdentifier(context->element));
+    helpers.top().unnest.emplace(AntlrSQLHelper::Unnest{
+        .array = helpers.top().functionBuilder.back(), .alias = bindIdentifier(context->alias), .element = bindIdentifier(context->element)});
     helpers.top().functionBuilder.clear();
     AntlrSQLBaseListener::exitUnnestRelation(context);
 }
 
-/// The values of the inline table of a cross join are expressions read as a WHERE clause reads its predicate; a literal
-/// value stays in the constant builder and takes the type literalConstant gives it, and every other value is a function
-/// of the function builder. The alias f(x, y) names the fields of the values, f$x and f$y
+namespace
+{
+/// The number of values a row of an inline table holds: those of a row constructor (a, b), or one, as a row of one value
+/// is its value
+size_t numberOfRowValues(AntlrSQLParser::ExpressionContext* row)
+{
+    antlr4::tree::ParseTree* node = row;
+    while (node != nullptr)
+    {
+        if (auto* constructor = dynamic_cast<AntlrSQLParser::RowConstructorContext*>(node))
+        {
+            return constructor->namedExpression().size();
+        }
+        if (node->children.size() != 1)
+        {
+            break;
+        }
+        node = node->children.front();
+    }
+    return 1;
+}
+}
+
+/// The values of the inline table of a cross join are expressions read as a WHERE clause reads its predicate, a literal
+/// among them as any literal of an expression; the alias f(x, y) names the fields of the values
 void AntlrSQLQueryPlanCreator::enterInlineTableRelation(AntlrSQLParser::InlineTableRelationContext* context)
 {
-    if (helpers.top().inlineTable.has_value() or helpers.top().unnest.has_value())
+    if (helpers.top().unnest.has_value() or helpers.top().inlineTable.has_value())
     {
-        throw InvalidQuerySyntax("A query takes one cross join with an inline table or UNNEST, but got another at {}", context->getText());
+        throw InvalidQuerySyntax("A query takes one cross join with UNNEST or an inline table, but got another at {}", context->getText());
     }
     helpers.top().isInlineTable = true;
     helpers.top().isWhereOrHaving = true;
@@ -442,46 +619,28 @@ void AntlrSQLQueryPlanCreator::exitInlineTableRelation(AntlrSQLParser::InlineTab
     helper.isWhereOrHaving = false;
     helper.isInlineTable = false;
     const auto alias = bindIdentifier(context->alias);
-    std::vector<std::string> fields;
+    std::vector<Identifier> fields;
     for (auto* column : context->columns)
     {
-        fields.push_back(alias + Schema::ATTRIBUTE_NAME_SEPARATOR + bindIdentifier(column));
+        fields.push_back(bindIdentifier(column));
     }
-    std::vector<AntlrSQLParser::ExpressionContext*> cells;
+    size_t numberOfValues = 0;
     for (auto* row : context->rows)
     {
-        const auto values = rowValues(row);
-        if (values.size() != fields.size())
+        const auto rowValues = numberOfRowValues(row);
+        if (rowValues != fields.size())
         {
-            throw InvalidQuerySyntax("A row of {} holds {} values, but {} names {}", alias, values.size(), alias, fields.size());
+            throw InvalidQuerySyntax("A row of {} holds {} values, but {} names {} fields", alias, rowValues, alias, fields.size());
         }
-        cells.insert(cells.end(), values.begin(), values.end());
+        numberOfValues += rowValues;
     }
-    /// The builders hold the values in the order of the cells, the literals in one and the functions in the other
-    std::vector<LogicalFunction> values(cells.size());
-    for (auto cell = cells.size(); cell-- > 0;)
+    /// Each value leaves one function, in the order the rows state them
+    if (helper.functionBuilder.size() != numberOfValues)
     {
-        if (isLiteral(cells[cell]))
-        {
-            if (helper.constantBuilder.empty())
-            {
-                throw InvalidQuerySyntax("A literal of {} is missing at {}", alias, context->getText());
-            }
-            values[cell] = literalConstant(cells[cell], std::move(helper.constantBuilder.back()));
-            helper.constantBuilder.pop_back();
-        }
-        else
-        {
-            if (helper.functionBuilder.empty())
-            {
-                throw InvalidQuerySyntax("A value of {} is missing at {}", alias, context->getText());
-            }
-            values[cell] = std::move(helper.functionBuilder.back());
-            helper.functionBuilder.pop_back();
-        }
+        throw InvalidQuerySyntax("The inline table {} states {} values, but {} were read at {}", alias, numberOfValues, helper.functionBuilder.size(), context->getText());
     }
-    helper.inlineTable.emplace(std::move(values), std::move(fields));
-    helper.hasUnnamedAggregation = false;
+    helper.inlineTable.emplace(AntlrSQLHelper::InlineTable{.values = std::move(helper.functionBuilder), .alias = alias, .fields = std::move(fields)});
+    helper.functionBuilder.clear();
     AntlrSQLBaseListener::exitInlineTableRelation(context);
 }
 
@@ -517,7 +676,7 @@ void AntlrSQLQueryPlanCreator::exitArithmeticBinary(AntlrSQLParser::ArithmeticBi
     const auto leftFunction = helpers.top().functionBuilder.back();
     helpers.top().functionBuilder.pop_back();
     auto opTokenType = context->op->getType();
-    switch (opTokenType) /// TODO #619: improve this switch case
+    switch (opTokenType)
     {
         case AntlrSQLLexer::ASTERISK:
             function = MulLogicalFunction(leftFunction, rightFunction);
@@ -546,44 +705,82 @@ void AntlrSQLQueryPlanCreator::exitArithmeticUnary(AntlrSQLParser::ArithmeticUna
     {
         throw InvalidQuerySyntax("Parser is confused at {}", context->getText());
     }
-    LogicalFunction function;
+    auto opTokenType = context->op->getType();
+    if (context->valueExpression() != nullptr && !helpers.top().constantBuilder.empty())
+    {
+        auto& constant = helpers.top().constantBuilder.back();
+        if (constant == context->valueExpression()->getText())
+        {
+            switch (opTokenType)
+            {
+                case AntlrSQLLexer::PLUS:
+                    return;
+                case AntlrSQLLexer::MINUS:
+                    if (!constant.empty() && constant.front() == '-')
+                    {
+                        constant.erase(0, 1);
+                    }
+                    else
+                    {
+                        constant.insert(0, 1, '-');
+                    }
+                    return;
+                default:
+                    break;
+            }
+        }
+    }
 
-    if (helpers.top().functionBuilder.empty())
+    auto& functions = helpers.top().functionBuilder;
+    if (functions.empty())
     {
         throw InvalidQuerySyntax("Expected unary operator, got nothing: {}", context->getText());
     }
-    const auto innerFunction = helpers.top().functionBuilder.back();
-    helpers.top().functionBuilder.pop_back();
-    auto opTokenType = context->op->getType();
-    switch (opTokenType) /// TODO #619: improve this switch case
+    LogicalFunction function;
+    const auto innerFunction = functions.back();
+    functions.pop_back();
+    switch (opTokenType)
     {
         case AntlrSQLLexer::PLUS:
             function = innerFunction;
             break;
         case AntlrSQLLexer::MINUS:
+            if (const auto constantFunction = innerFunction.tryGetAs<ConstantValueLogicalFunction>(); constantFunction.has_value()
+                and (constantFunction->get().getDataType().isNumeric()
+                     or constantFunction->get().getDataType().isType(DataType::Type::UNDEFINED))
+                and constantFunction->get().getConstantValue() == context->valueExpression()->getText())
+            {
+                function = createNegatedNumericLiteralFunction(constantFunction->get());
+                break;
+            }
             function = MulLogicalFunction(
-                ConstantValueLogicalFunction(DataTypeProvider::provideDataType(DataType::Type::UINT64), "-1"), innerFunction);
+                ConstantValueLogicalFunction(DataTypeProvider::provideDataType(DataType::Type::INT64), "-1"), innerFunction);
             break;
         default:
             throw InvalidQuerySyntax("Unknown Arithmetic Binary Operator: {} of type: {}", context->op->getText(), opTokenType);
     }
-    helpers.top().functionBuilder.push_back(function);
+    functions.push_back(function);
 }
 
-void AntlrSQLQueryPlanCreator::enterUnquotedIdentifier(AntlrSQLParser::UnquotedIdentifierContext* context)
+void AntlrSQLQueryPlanCreator::exitStar(AntlrSQLParser::StarContext* context)
 {
-    /// Get Index of Parent Rule to check type of parent rule in conditions
-    const auto parentContext = dynamic_cast<antlr4::ParserRuleContext*>(context->parent);
-    const bool isParentRuleTableAlias = (parentContext != nullptr) && parentContext->getRuleIndex() == AntlrSQLParser::RuleTableAlias;
-    if (helpers.top().isFrom && !helpers.top().isJoinRelation && !helpers.top().isUnnest && !helpers.top().isInlineTable)
+    if (!helpers.top().isSelect)
     {
-        helpers.top().newSourceName = context->getText();
+        AntlrSQLBaseListener::exitStar(context);
+        return;
     }
-    else if (helpers.top().isJoinRelation && isParentRuleTableAlias)
+
+    if (auto* const qualifiedName = context->qualifiedName(); qualifiedName != nullptr)
     {
-        helpers.top().joinSourceRenames.emplace_back(context->getText());
+        const auto identifiers = qualifiedName->identifier();
+        if (identifiers.size() != 1)
+        {
+            throw InvalidQuerySyntax("Source-qualified asterisk requires exactly one qualifier at {}", context->getText());
+        }
+        helpers.top().addSourceQualifier(bindIdentifier(identifiers.front()));
     }
-    AntlrSQLBaseListener::enterUnquotedIdentifier(context);
+    helpers.top().asterisk = true;
+    AntlrSQLBaseListener::exitStar(context);
 }
 
 void AntlrSQLQueryPlanCreator::enterIdentifier(AntlrSQLParser::IdentifierContext* context)
@@ -594,6 +791,15 @@ void AntlrSQLQueryPlanCreator::enterIdentifier(AntlrSQLParser::IdentifierContext
     {
         parentRuleIndex = parentContext->getRuleIndex();
     }
+    auto& helper = helpers.top();
+    if (!helper.isJoinRelation && (helper.isSelect || helper.isWhereOrHaving || helper.isWindow || helper.isGroupBy)
+        && isSourceQualifier(context))
+    {
+        helper.addSourceQualifier(bindIdentifier(context));
+        AntlrSQLBaseListener::enterIdentifier(context);
+        return;
+    }
+
     if (helpers.top().isGroupBy)
     {
         helpers.top().groupByFields.emplace_back(bindIdentifier(context));
@@ -602,10 +808,11 @@ void AntlrSQLQueryPlanCreator::enterIdentifier(AntlrSQLParser::IdentifierContext
         (helpers.top().isWhereOrHaving || helpers.top().isSelect || helpers.top().isWindow || helpers.top().isJoinCriteria)
         && AntlrSQLParser::RulePrimaryExpression == parentRuleIndex)
     {
-        helpers.top().functionBuilder.emplace_back(FieldAccessLogicalFunction(bindIdentifier(context)));
+        helpers.top().functionBuilder.emplace_back(UnboundFieldAccessLogicalFunction(bindIdentifier(context)));
     }
     else if (
-        helpers.top().isFrom and not helpers.top().isJoinRelation and not helpers.top().isUnnest and not helpers.top().isInlineTable
+        helpers.top().isFrom and not helpers.top().isJoinRelation and not helpers.top().isModelInference and not helpers.top().isUnnest
+        and not helpers.top().isInlineTable
         and AntlrSQLParser::RuleErrorCapturingIdentifier == parentRuleIndex)
     {
         /// get main source name
@@ -613,7 +820,7 @@ void AntlrSQLQueryPlanCreator::enterIdentifier(AntlrSQLParser::IdentifierContext
     }
     else if (
         AntlrSQLParser::RuleNamedExpression == parentRuleIndex and helpers.top().isInFunctionCall() and not helpers.top().isJoinRelation
-        and not helpers.top().isInAggFunction())
+        and not helpers.top().hasUnnamedAggregation)
     {
         /// handle renames of identifiers
         if (helpers.top().isArithmeticBinary)
@@ -626,29 +833,31 @@ void AntlrSQLQueryPlanCreator::enterIdentifier(AntlrSQLParser::IdentifierContext
             /// (we handle cases where the user did not specify a name via 'AS' in 'exitNamedExpression')
             const auto attribute = std::move(helpers.top().functionBuilder.back());
             helpers.top().functionBuilder.pop_back();
-            helpers.top().addProjection(FieldIdentifier(bindIdentifier(context)), attribute);
+            helpers.top().addProjection(bindIdentifier(context), attribute);
         }
     }
-    else if (helpers.top().isInAggFunction() and AntlrSQLParser::RuleNamedExpression == parentRuleIndex)
+    else if (helpers.top().hasUnnamedAggregation and AntlrSQLParser::RuleNamedExpression == parentRuleIndex)
     {
-        auto aggFunc = helpers.top().windowAggs.back();
-        helpers.top().windowAggs.pop_back();
-        aggFunc->asField = (FieldAccessLogicalFunction(bindIdentifier(context)));
-        helpers.top().windowAggs.push_back(aggFunc);
-        INVARIANT(
-            std::nullopt != helpers.top().functionBuilder.back().tryGet<FieldAccessLogicalFunction>(),
-            "The functionBuilder should hold the AccessFunction of the name of the field the aggregation is executed on.");
+        const auto expression = helpers.top().functionBuilder.back();
         helpers.top().functionBuilder.pop_back();
-        helpers.top().addProjection(std::nullopt, aggFunc->asField);
+        if (expression.tryGetAs<UnboundFieldAccessLogicalFunction>())
+        {
+            auto aggFunc = helpers.top().windowAggs.back();
+            helpers.top().windowAggs.pop_back();
+            aggFunc.second = bindIdentifier(context);
+            helpers.top().windowAggs.push_back(aggFunc);
+            helpers.top().userAggregationAliases.push_back(aggFunc.second.value());
+            helpers.top().addProjection(aggFunc.second, UnboundFieldAccessLogicalFunction{aggFunc.second.value()});
+        }
+        else
+        {
+            helpers.top().addProjection(bindIdentifier(context), expression);
+        }
         helpers.top().hasUnnamedAggregation = false;
     }
     else if (helpers.top().isJoinRelation and AntlrSQLParser::RuleErrorCapturingIdentifier == parentRuleIndex)
     {
         helpers.top().joinSources.push_back(bindIdentifier(context));
-    }
-    else if (helpers.top().isJoinRelation and AntlrSQLParser::RuleTableAlias == parentRuleIndex)
-    {
-        helpers.top().joinSourceRenames.push_back(bindIdentifier(context));
     }
 }
 
@@ -666,42 +875,43 @@ void AntlrSQLQueryPlanCreator::enterPrimaryQuery(AntlrSQLParser::PrimaryQueryCon
 
 void AntlrSQLQueryPlanCreator::exitPrimaryQuery(AntlrSQLParser::PrimaryQueryContext* context)
 {
-    LogicalPlan queryPlan;
-
-    if (not helpers.top().queryPlans.empty())
+    validateSourceQualifiers(helpers.top());
+    LogicalPlan queryPlan = [&]
     {
-        queryPlan = std::move(helpers.top().queryPlans[0]);
-    }
-    else
-    {
-        if (helpers.top().getSource().empty())
+        if (not helpers.top().queryPlans.empty())
         {
-            const auto [type, configOptions] = helpers.top().getInlineSourceConfig();
-            const auto parserConfig = getParserConfig(configOptions);
+            return std::move(helpers.top().queryPlans[0]);
+        }
+        if (!helpers.top().getSource().has_value())
+        {
+            const auto anonymousSourceConfig = helpers.top().getAnonymousSourceConfig();
+            if (!anonymousSourceConfig.has_value())
+            {
+                throw InvalidQuerySyntax("Neither named source or anonymous source specified");
+            }
+            const auto [type, configOptions] = anonymousSourceConfig.value();
+            const auto parserConfig = parseInputFormatterConfig(configOptions);
             const auto sourceConfig = getSourceConfig(configOptions);
             const auto schema = getSourceSchema(configOptions);
             if (!schema.has_value())
             {
-                throw InvalidConfigParameter("Inline Source is missing schema definition");
+                throw InvalidConfigParameter("Anonymous Source is missing schema definition");
             }
 
-            queryPlan = LogicalPlanBuilder::createLogicalPlan(type, schema.value(), sourceConfig, parserConfig);
+            return LogicalPlanBuilder::createLogicalPlan(type, schema.value(), sourceConfig, parserConfig);
         }
-        else
-        {
-            queryPlan = LogicalPlanBuilder::createLogicalPlan(helpers.top().getSource());
-        }
-    }
+        return LogicalPlanBuilder::createLogicalPlan(helpers.top().getSource().value());
+    }();
 
     if (helpers.top().unnest.has_value())
     {
-        auto [array, elementField] = std::move(*helpers.top().unnest);
-        queryPlan = LogicalPlanBuilder::addUnnest(std::move(array), std::move(elementField), queryPlan);
+        auto [array, alias, element] = std::move(*helpers.top().unnest);
+        queryPlan = LogicalPlanBuilder::addUnnest(std::move(array), std::move(alias), std::move(element), queryPlan);
     }
     if (helpers.top().inlineTable.has_value())
     {
-        auto [values, fields] = std::move(*helpers.top().inlineTable);
-        queryPlan = LogicalPlanBuilder::addInlineTableJoin(std::move(values), std::move(fields), queryPlan);
+        auto [values, alias, fields] = std::move(*helpers.top().inlineTable);
+        queryPlan = LogicalPlanBuilder::addInlineTableJoin(std::move(values), std::move(alias), std::move(fields), queryPlan);
     }
 
     for (auto whereExpr = helpers.top().getWhereClauses().rbegin(); whereExpr != helpers.top().getWhereClauses().rend(); ++whereExpr)
@@ -709,15 +919,67 @@ void AntlrSQLQueryPlanCreator::exitPrimaryQuery(AntlrSQLParser::PrimaryQueryCont
         queryPlan = LogicalPlanBuilder::addSelection(std::move(*whereExpr), queryPlan);
     }
 
-    if (helpers.top().isInAggFunction())
+    /// Insert pre-aggregation projections for desugared expression arguments (e.g., AVG(i + UINT64(1))).
+    if (!helpers.top().preAggregationProjections.empty())
     {
-        queryPlan = LogicalPlanBuilder::addWindowAggregation(
-            queryPlan, helpers.top().windowType, helpers.top().windowAggs, helpers.top().groupByFields);
+        auto verifiedProjections = helpers.top().preAggregationProjections
+            | std::views::transform(
+                                       [](const auto& pair)
+                                       {
+                                           if (!pair.first.has_value())
+                                           {
+                                               throw InvalidQuerySyntax("Projection must have a name.");
+                                           }
+                                           return ProjectionLogicalOperator::UnboundProjection{pair.first.value(), pair.second};
+                                       });
+        queryPlan = LogicalPlanBuilder::addProjection(verifiedProjections | std::ranges::to<std::vector>(), /*asterisk=*/true, queryPlan);
     }
 
-    queryPlan = LogicalPlanBuilder::addProjection(helpers.top().getProjections(), helpers.top().asterisk, queryPlan);
+    auto windowTypeOpt = helpers.top().windowType;
+    if (windowTypeOpt.has_value() && helpers.top().joinKeyRelationHelper.empty())
+    {
+        const auto currentWindowTimestampOpt = helpers.top().windowTimestamp;
+        if (!currentWindowTimestampOpt.has_value()
+            || !std::holds_alternative<Windowing::UnboundTimeCharacteristic>(currentWindowTimestampOpt.value()))
+        {
+            throw InvalidQuerySyntax(
+                "windowed aggregation requires exactly one time characteristic, got {}",
+                currentWindowTimestampOpt.has_value() ? "two" : "none");
+        }
+        auto characteristic = std::get<Windowing::UnboundTimeCharacteristic>(currentWindowTimestampOpt.value());
+        validateAggregatedSelectList(helpers.top());
+        auto aggregations = helpers.top().windowAggs
+            | std::views::transform(
+                                [](auto& agg)
+                                {
+                                    if (!agg.second.has_value())
+                                    {
+                                        throw InvalidQuerySyntax("Aggregation function must have a name.");
+                                    }
+                                    return WindowedAggregationLogicalOperator::ProjectedAggregation{agg.first, agg.second.value()};
+                                });
+        queryPlan = LogicalPlanBuilder::addWindowAggregation(
+            queryPlan,
+            windowTypeOpt.value(),
+            aggregations | std::ranges::to<std::vector>(),
+            helpers.top().groupByFields,
+            std::move(characteristic));
+    }
 
-    if (helpers.top().windowType != nullptr)
+    auto projections = helpers.top().getProjections()
+        | std::views::transform(
+                           [](const auto& pair)
+                           {
+                               if (!pair.first.has_value())
+                               {
+                                   return ProjectionLogicalOperator::UnboundProjection{
+                                       bindIdentifier(pair.second.explain(ExplainVerbosity::Short)), pair.second};
+                               }
+                               return ProjectionLogicalOperator::UnboundProjection{pair.first.value(), pair.second};
+                           });
+    queryPlan = LogicalPlanBuilder::addProjection(projections | std::ranges::to<std::vector>(), helpers.top().asterisk, queryPlan);
+
+    if (windowTypeOpt.has_value())
     {
         for (auto havingExpr = helpers.top().getHavingClauses().rbegin(); havingExpr != helpers.top().getHavingClauses().rend();
              ++havingExpr)
@@ -803,46 +1065,44 @@ void AntlrSQLQueryPlanCreator::exitGapParameter(AntlrSQLParser::GapParameterCont
 
 void AntlrSQLQueryPlanCreator::exitTimestampParameter(AntlrSQLParser::TimestampParameterContext* context)
 {
-    helpers.top().timestamp = bindIdentifier(context->name);
+    PRECONDITION(
+        context->name.size() == 1 || context->name.size() == 2,
+        "TimestampParameter must have either one or two identifiers, is the binder in sync with the grammar?");
+    if (context->name.size() == 1)
+    {
+        helpers.top().windowTimestamp
+            = Windowing::UnboundEventTimeCharacteristic{.field = UnboundFieldAccessLogicalFunction{bindIdentifier(context->name.at(0))}};
+    }
+    else if (context->name.size() == 2)
+    {
+        helpers.top().windowTimestamp = std::array<Windowing::UnboundTimeCharacteristic, 2>{
+            Windowing::UnboundEventTimeCharacteristic{.field = UnboundFieldAccessLogicalFunction{bindIdentifier(context->name.at(0))}},
+            Windowing::UnboundEventTimeCharacteristic{.field = UnboundFieldAccessLogicalFunction{bindIdentifier(context->name.at(1))}}};
+    }
+    AntlrSQLBaseListener::exitTimestampParameter(context);
 }
 
 /// WINDOWS
 void AntlrSQLQueryPlanCreator::exitTumblingWindow(AntlrSQLParser::TumblingWindowContext* context)
 {
     const auto timeMeasure = buildTimeMeasure(helpers.top().size, helpers.top().timeUnit);
-    /// We use the ingestion time if the query does not have a timestamp fieldname specified
-    if (helpers.top().timestamp.empty())
+    helpers.top().windowType.emplace(Windowing::TimeBasedWindowType{Windowing::TumblingWindow{timeMeasure}});
+    /// No explicit timestamp parameter was given (e.g. TUMBLING(SIZE 1000 MS) without an ON <field> clause), so default to ingestion time.
+    /// A join window needs two time characteristics (one per input); a plain windowed aggregation needs exactly one. The timestampParameter
+    /// child is absent here (it would have set windowTimestamp via exitTimestampParameter), so the arity is derived from the join context.
+    if (!helpers.top().windowTimestamp.has_value())
     {
-        helpers.top().windowType = std::make_shared<Windowing::TumblingWindow>(API::IngestionTime(), timeMeasure);
-    }
-    else
-    {
-        helpers.top().windowType = std::make_shared<Windowing::TumblingWindow>(
-            Windowing::TimeCharacteristic::createEventTime(FieldAccessLogicalFunction(helpers.top().timestamp)), timeMeasure);
+        if (helpers.top().isJoinRelation)
+        {
+            helpers.top().windowTimestamp = std::array<Windowing::UnboundTimeCharacteristic, 2>{
+                Windowing::IngestionTimeCharacteristic{}, Windowing::IngestionTimeCharacteristic{}};
+        }
+        else
+        {
+            helpers.top().windowTimestamp = Windowing::IngestionTimeCharacteristic{};
+        }
     }
     AntlrSQLBaseListener::exitTumblingWindow(context);
-}
-
-void AntlrSQLQueryPlanCreator::exitWatermarkParameters(AntlrSQLParser::WatermarkParametersContext* context)
-{
-    /// WATERMARK(field, n unit) after the window: the watermark of the window's event time trails the largest event
-    /// time read by n units, as Flink's WATERMARK FOR field AS field - INTERVAL 'n' unit does
-    auto* timeWindow = dynamic_cast<Windowing::TimeBasedWindowType*>(helpers.top().windowType.get());
-    if (timeWindow == nullptr
-        or timeWindow->getTimeCharacteristic().getType() != Windowing::TimeCharacteristic::Type::EventTime)
-    {
-        throw InvalidQuerySyntax("A watermark needs a window over an event time at {}", context->getText());
-    }
-    const auto field = bindIdentifier(context->watermarkIdentifier);
-    if (field != helpers.top().timestamp)
-    {
-        throw InvalidQuerySyntax(
-            "The watermark is on {}, the window on the event time {}, at {}", field, helpers.top().timestamp, context->getText());
-    }
-    const auto lateness
-        = buildTimeMeasure(std::stoi(context->watermark->getText()), context->watermarkTimeUnit->getStop()->getType());
-    timeWindow->setAllowedLateness(lateness.getTime());
-    AntlrSQLBaseListener::exitWatermarkParameters(context);
 }
 
 void AntlrSQLQueryPlanCreator::exitSlidingWindow(AntlrSQLParser::SlidingWindowContext* context)
@@ -850,17 +1110,7 @@ void AntlrSQLQueryPlanCreator::exitSlidingWindow(AntlrSQLParser::SlidingWindowCo
     const auto timeMeasure = buildTimeMeasure(helpers.top().size, helpers.top().timeUnit);
     const auto slidingLength = buildTimeMeasure(helpers.top().advanceBy, helpers.top().timeUnitAdvanceBy);
     /// We use the ingestion time if the query does not have a timestamp fieldname specified
-    if (helpers.top().timestamp.empty())
-    {
-        helpers.top().windowType = Windowing::SlidingWindow::of(API::IngestionTime(), timeMeasure, slidingLength);
-    }
-    else
-    {
-        helpers.top().windowType = Windowing::SlidingWindow::of(
-            Windowing::TimeCharacteristic::createEventTime(FieldAccessLogicalFunction(helpers.top().timestamp)),
-            timeMeasure,
-            slidingLength);
-    }
+    helpers.top().windowType.emplace(Windowing::TimeBasedWindowType{Windowing::SlidingWindow(timeMeasure, slidingLength)});
     AntlrSQLBaseListener::exitSlidingWindow(context);
 }
 
@@ -872,9 +1122,31 @@ void AntlrSQLQueryPlanCreator::exitSessionWindow(AntlrSQLParser::SessionWindowCo
     {
         throw InvalidQuerySyntax("The gap of a session window must be positive.");
     }
-    helpers.top().windowType = std::make_shared<Windowing::SessionWindow>(
-        Windowing::TimeCharacteristic::createEventTime(FieldAccessLogicalFunction(helpers.top().timestamp)), gap);
+    helpers.top().windowType.emplace(Windowing::TimeBasedWindowType{Windowing::SessionWindow{gap}});
     AntlrSQLBaseListener::exitSessionWindow(context);
+}
+
+void AntlrSQLQueryPlanCreator::exitWatermarkParameters(AntlrSQLParser::WatermarkParametersContext* context)
+{
+    /// WATERMARK(field, n unit) after the window: the watermark of the window's event time trails the largest event time read
+    /// by n units, as Flink's WATERMARK FOR field AS field - INTERVAL 'n' unit does
+    auto& windowTimestamp = helpers.top().windowTimestamp;
+    auto* const characteristic
+        = windowTimestamp.has_value() ? std::get_if<Windowing::UnboundTimeCharacteristic>(&windowTimestamp.value()) : nullptr;
+    auto* const eventTime = characteristic != nullptr ? std::get_if<Windowing::UnboundEventTimeCharacteristic>(characteristic) : nullptr;
+    if (eventTime == nullptr)
+    {
+        throw InvalidQuerySyntax("A watermark needs a window over an event time at {}", context->getText());
+    }
+    const auto field = bindIdentifier(context->watermarkIdentifier);
+    if (field != eventTime->field->getFieldName())
+    {
+        throw InvalidQuerySyntax(
+            "The watermark is on {}, the window on the event time {}, at {}", field, eventTime->field->getFieldName(), context->getText());
+    }
+    const auto lateness = buildTimeMeasure(std::stoi(context->watermark->getText()), context->watermarkTimeUnit->getStop()->getType());
+    eventTime->allowedLateness = lateness.getTime();
+    AntlrSQLBaseListener::exitWatermarkParameters(context);
 }
 
 void AntlrSQLQueryPlanCreator::exitNamedExpression(AntlrSQLParser::NamedExpressionContext* context)
@@ -887,29 +1159,21 @@ void AntlrSQLQueryPlanCreator::exitNamedExpression(AntlrSQLParser::NamedExpressi
         return;
     }
     if (context->name == nullptr and helper.functionBuilder.size() == 1
-        and helper.functionBuilder.back().tryGet<FieldAccessLogicalFunction>() and not helpers.top().hasUnnamedAggregation)
+        and helper.functionBuilder.back().tryGetAs<UnboundFieldAccessLogicalFunction>() and not helpers.top().hasUnnamedAggregation)
     {
+        auto fieldName = helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>()->getFieldName();
         /// Project onto the specified field and remove the field access from the active functions.
-        helpers.top().addProjection(std::nullopt, std::move(helpers.top().functionBuilder.back()));
+        helpers.top().addProjection(std::make_optional(fieldName), std::move(helpers.top().functionBuilder.back()));
         helpers.top().functionBuilder.pop_back();
     }
-    else if (helper.isSelect && context->getText() == "*" && helper.functionBuilder.empty())
-    {
-        helper.asterisk = true;
-    }
-    /// The user did not specify a new name (... AS THE_NAME) for the aggregation function and we need to generate one.
+    /// The user did not specify a new name (... AS THE_NAME) for the aggregation function.
+    /// The aggregation's asField is already set in exitFunctionCall. Project the expression directly,
+    /// which may be a plain field access (MEDIAN(i8)) or an arithmetic expression (MEDIAN(i8) + UINT64(1)).
     else if (context->name == nullptr and not helpers.top().functionBuilder.empty() and helpers.top().hasUnnamedAggregation)
     {
-        const auto accessFunction = helpers.top().functionBuilder.back();
+        const auto expression = helpers.top().functionBuilder.back();
         helpers.top().functionBuilder.pop_back();
-        const auto fieldAccessNode = accessFunction.get<FieldAccessLogicalFunction>();
-        const auto lastAggregation = helpers.top().windowAggs.back();
-        const auto newName = fmt::format("{}_{}", fieldAccessNode.getFieldName(), Util::toUpperCase(lastAggregation->getName()));
-        const auto asField = FieldAccessLogicalFunction(newName);
-        lastAggregation->asField = asField;
-        helpers.top().windowAggs.pop_back();
-        helpers.top().windowAggs.push_back(lastAggregation);
-        helpers.top().addProjection(std::nullopt, asField);
+        helpers.top().addProjection(std::nullopt, expression);
         helpers.top().hasUnnamedAggregation = false;
     }
     AntlrSQLBaseListener::exitNamedExpression(context);
@@ -920,15 +1184,56 @@ void AntlrSQLQueryPlanCreator::enterFunctionCall(AntlrSQLParser::FunctionCallCon
     AntlrSQLBaseListener::enterFunctionCall(context);
 }
 
+void AntlrSQLQueryPlanCreator::exitCastExpression(AntlrSQLParser::CastExpressionContext* context)
+{
+    const auto targetDataType = bindDataType(context->targetType, DataType::NULLABLE::NOT_NULLABLE);
+    if (helpers.top().functionBuilder.empty())
+    {
+        throw InvalidQuerySyntax("CAST requires exactly one child expression at {}", context->getText());
+    }
+    auto child = std::move(helpers.top().functionBuilder.back());
+    helpers.top().functionBuilder.pop_back();
+    helpers.top().functionBuilder.emplace_back(CastToTypeLogicalFunction{targetDataType, child});
+}
+
 void AntlrSQLQueryPlanCreator::enterHavingClause(AntlrSQLParser::HavingClauseContext* context)
 {
     helpers.top().isWhereOrHaving = true;
+    helpers.top().aggCountBeforeHaving = helpers.top().windowAggs.size();
     AntlrSQLBaseListener::enterHavingClause(context);
 }
 
 void AntlrSQLQueryPlanCreator::exitHavingClause(AntlrSQLParser::HavingClauseContext* context)
 {
     helpers.top().isWhereOrHaving = false;
+    /// An aggregation written inside HAVING is a second aggregation, not a reference to the projected one.
+    /// Refuse it and report the alias that already exists.
+    const auto& aggregations = helpers.top().windowAggs;
+    if (aggregations.size() > helpers.top().aggCountBeforeHaving)
+    {
+        const auto& havingAggregation = aggregations[helpers.top().aggCountBeforeHaving].first;
+        const auto expression = describeAggregation(havingAggregation, helpers.top().preAggregationProjections);
+        const auto projectedAlias = [&]() -> std::optional<Identifier>
+        {
+            for (const auto& [aggregation, alias] : aggregations | std::views::take(helpers.top().aggCountBeforeHaving))
+            {
+                if (aggregation == havingAggregation and alias.has_value()
+                    and std::ranges::contains(helpers.top().userAggregationAliases, alias.value()))
+                {
+                    return alias;
+                }
+            }
+            return std::nullopt;
+        }();
+        if (projectedAlias.has_value())
+        {
+            throw InvalidQuerySyntax(
+                "HAVING must use the projected alias: write {} instead of {}", projectedAlias.value().getOriginalString(), expression);
+        }
+        throw InvalidQuerySyntax(
+            "HAVING can only use fields the SELECT list projects: add {} AS <alias> to the SELECT list and use <alias> in HAVING",
+            expression);
+    }
     if (helpers.top().functionBuilder.size() != 1)
     {
         throw InvalidQuerySyntax("There was more than one function in the functionBuilder in exitHavingClause.");
@@ -962,7 +1267,7 @@ void AntlrSQLQueryPlanCreator::enterJoinRelation(AntlrSQLParser::JoinRelationCon
 }
 
 /// The ON condition of a join is built as a WHERE condition is, in functionBuilder, so it holds every function a WHERE
-/// condition holds; the one function it builds is the join function
+/// condition holds, a call of a function included; the one function it builds is the join function
 void AntlrSQLQueryPlanCreator::enterJoinCriteria(AntlrSQLParser::JoinCriteriaContext* context)
 {
     INVARIANT(helpers.top().isJoinRelation, "Join criteria must be inside a join relation.");
@@ -977,8 +1282,10 @@ void AntlrSQLQueryPlanCreator::exitJoinCriteria(AntlrSQLParser::JoinCriteriaCont
     helper.isJoinCriteria = false;
     if (helper.functionBuilder.size() != helper.joinCriteriaStart + 1)
     {
-        throw InvalidQuerySyntax("The join condition must be one function, but got {} at {}",
-            helper.functionBuilder.size() - helper.joinCriteriaStart, context->getText());
+        throw InvalidQuerySyntax(
+            "The join condition must be one function, but got {} at {}",
+            helper.functionBuilder.size() - helper.joinCriteriaStart,
+            context->getText());
     }
     helper.joinKeyRelationHelper.push_back(helper.functionBuilder.back());
     helper.functionBuilder.pop_back();
@@ -996,16 +1303,21 @@ void AntlrSQLQueryPlanCreator::enterJoinType(AntlrSQLParser::JoinTypeContext* co
 
 void AntlrSQLQueryPlanCreator::exitJoinType(AntlrSQLParser::JoinTypeContext* context)
 {
-    const auto joinType = context->getText();
-    auto tokenType = context->getStop()->getType();
-
-    if (joinType.empty() || tokenType == AntlrSQLLexer::INNER)
+    if (context->LEFT() != nullptr)
     {
-        helpers.top().joinType = JoinLogicalOperator::JoinType::INNER_JOIN;
+        helpers.top().joinType = JoinLogicalOperator::JoinType::OUTER_LEFT_JOIN;
+    }
+    else if (context->RIGHT() != nullptr)
+    {
+        helpers.top().joinType = JoinLogicalOperator::JoinType::OUTER_RIGHT_JOIN;
+    }
+    else if (context->FULL() != nullptr)
+    {
+        helpers.top().joinType = JoinLogicalOperator::JoinType::OUTER_FULL_JOIN;
     }
     else
     {
-        throw InvalidQuerySyntax("Unknown join type: {}, resolved to token type: {}", joinType, tokenType);
+        helpers.top().joinType = JoinLogicalOperator::JoinType::INNER_JOIN;
     }
     AntlrSQLBaseListener::exitJoinType(context);
 }
@@ -1013,10 +1325,6 @@ void AntlrSQLQueryPlanCreator::exitJoinType(AntlrSQLParser::JoinTypeContext* con
 void AntlrSQLQueryPlanCreator::exitJoinRelation(AntlrSQLParser::JoinRelationContext* context)
 {
     helpers.top().isJoinRelation = false;
-    if (helpers.top().joinSources.size() == helpers.top().joinSourceRenames.size() + 1)
-    {
-        helpers.top().joinSourceRenames.emplace_back("");
-    }
 
     /// we assume that the left query plan is the first element in the queryPlans vector and the right query plan is the second element
     if (helpers.top().queryPlans.size() != 2)
@@ -1032,16 +1340,32 @@ void AntlrSQLQueryPlanCreator::exitJoinRelation(AntlrSQLParser::JoinRelationCont
     {
         throw InvalidQuerySyntax("joinFunction is required but empty at {}", context->getText());
     }
-    if (!helpers.top().windowType)
+    auto windowTypeOpt = helpers.top().windowType;
+    if (!windowTypeOpt)
     {
         throw InvalidQuerySyntax("windowType is required but empty at {}", context->getText());
     }
-    if (std::dynamic_pointer_cast<Windowing::SessionWindow>(helpers.top().windowType))
+    if (std::holds_alternative<Windowing::SessionWindow>(windowTypeOpt->getUnderlying()))
     {
         throw InvalidQuerySyntax("A join cannot use a session window, only a tumbling or a sliding one, at {}", context->getText());
     }
+
+    const auto currentWindowTimestampOpt = helpers.top().windowTimestamp;
+    if (!currentWindowTimestampOpt.has_value()
+        || !std::holds_alternative<std::array<Windowing::UnboundTimeCharacteristic, 2>>(currentWindowTimestampOpt.value()))
+    {
+        throw InvalidQuerySyntax("join requires two timestamps, but got {}", currentWindowTimestampOpt.has_value() ? "only one" : "none");
+    }
+
+    auto joinTimeCharacteristics = std::get<std::array<Windowing::UnboundTimeCharacteristic, 2>>(currentWindowTimestampOpt.value());
     const auto queryPlan = LogicalPlanBuilder::addJoin(
-        leftQueryPlan, rightQueryPlan, helpers.top().joinKeyRelationHelper.at(0), helpers.top().windowType, helpers.top().joinType);
+        leftQueryPlan,
+        rightQueryPlan,
+        helpers.top().joinKeyRelationHelper.at(0),
+        windowTypeOpt.value(),
+        helpers.top().joinType,
+        joinTimeCharacteristics[0],
+        joinTimeCharacteristics[1]);
     if (not helpers.empty())
     {
         /// we are in a subquery
@@ -1058,19 +1382,14 @@ void AntlrSQLQueryPlanCreator::exitJoinRelation(AntlrSQLParser::JoinRelationCont
 
 void AntlrSQLQueryPlanCreator::exitLogicalNot(AntlrSQLParser::LogicalNotContext* context)
 {
-    if (helpers.empty())
-    {
-        throw InvalidQuerySyntax("Parser is confused at {}", context->getText());
-    }
-
-    if (helpers.top().functionBuilder.empty())
-    {
-        throw InvalidQuerySyntax("Negate requires child op at {}", context->getText());
-    }
-    const auto innerFunction = helpers.top().functionBuilder.back();
-    helpers.top().functionBuilder.pop_back();
-    helpers.top().functionBuilder.emplace_back(NegateLogicalFunction(innerFunction));
+    negateTopFunction(helpers, context->getText());
     AntlrSQLBaseListener::exitLogicalNot(context);
+}
+
+void AntlrSQLQueryPlanCreator::exitLogicalNotPredicate(AntlrSQLParser::LogicalNotPredicateContext* context)
+{
+    negateTopFunction(helpers, context->getText());
+    AntlrSQLBaseListener::exitLogicalNotPredicate(context);
 }
 
 void AntlrSQLQueryPlanCreator::exitConstantDefault(AntlrSQLParser::ConstantDefaultContext* context)
@@ -1079,6 +1398,15 @@ void AntlrSQLQueryPlanCreator::exitConstantDefault(AntlrSQLParser::ConstantDefau
     {
         throw InvalidQuerySyntax("When exiting a constant, there must be exactly one children in the context {}", context->getText());
     }
+
+    const auto insideDataTypeConstructorArgument = isInsideDataTypeConstructorArgument(context);
+    if (dynamic_cast<AntlrSQLParser::NumericLiteralContext*>(context->constant()) != nullptr and !insideDataTypeConstructorArgument)
+    {
+        auto& functionBuilder = helpers.top().functionBuilder;
+        functionBuilder.emplace_back(createRawLiteralFunction(context->getText()));
+        return;
+    }
+
     if (const auto stringLiteralContext = dynamic_cast<AntlrSQLParser::StringLiteralContext*>(context->children.at(0)))
     {
         if (!(stringLiteralContext->getText().size() > 2))
@@ -1086,7 +1414,18 @@ void AntlrSQLQueryPlanCreator::exitConstantDefault(AntlrSQLParser::ConstantDefau
             throw InvalidQuerySyntax(
                 "A constant string literal must contain at least two quotes and must not be empty at {}", context->getText());
         }
+        if (!insideDataTypeConstructorArgument)
+        {
+            auto& functionBuilder = helpers.top().functionBuilder;
+            functionBuilder.emplace_back(createRawLiteralFunction(context->getText()));
+            return;
+        }
         helpers.top().constantBuilder.push_back(context->getText().substr(1, stringLiteralContext->getText().size() - 2));
+    }
+    else if (dynamic_cast<AntlrSQLParser::BooleanLiteralContext*>(context->constant()) != nullptr and !insideDataTypeConstructorArgument)
+    {
+        auto& functionBuilder = helpers.top().functionBuilder;
+        functionBuilder.emplace_back(createRawLiteralFunction(context->getText()));
     }
     else
     {
@@ -1096,539 +1435,129 @@ void AntlrSQLQueryPlanCreator::exitConstantDefault(AntlrSQLParser::ConstantDefau
 
 void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallContext* context)
 {
-    const auto funcName = Util::toUpperCase(context->children[0]->getText());
-    /// The MEOS spatiotemporal relationships are called by the names the MEOS catalog states for them (eIntersects,
-    /// aIntersects, eContains, eDwithin). The lexer reads those names as identifiers, so they reserve no word and match
-    /// regardless of case. Over coordinates and timestamps, 4 or 6 arguments (5 with eDwithin's distance), each takes a
-    /// case label of its own, past the lexer's token types; over MEOS values they are the generated MEOS functions.
-    constexpr size_t MeosEIntersects = std::numeric_limits<size_t>::max();
-    constexpr size_t MeosAIntersects = MeosEIntersects - 1;
-    constexpr size_t MeosEContains = MeosEIntersects - 2;
-    constexpr size_t MeosEDwithin = MeosEIntersects - 3;
-    const auto arguments = context->argument.size();
-    const bool overCoordinates = arguments == 4 or arguments == 6;
-    const auto tokenType = [&]() -> size_t
+    const auto funcName = toUpperCase(context->children[0]->getText());
+    const auto tokenType = context->getStart()->getType();
+
+    /// Ensures the current aggregation argument is a direct field access.
+    /// If the argument is an expression (e.g. i + UINT64(1)), desugars it into a pre-aggregation
+    /// projection so that the aggregation operates on a simple field reference.
+    const auto ensureFieldAccessArgument = [&]()
     {
-        if (funcName == "EINTERSECTS" and overCoordinates) { return MeosEIntersects; }
-        if (funcName == "AINTERSECTS" and overCoordinates) { return MeosAIntersects; }
-        if (funcName == "ECONTAINS" and overCoordinates) { return MeosEContains; }
-        if (funcName == "EDWITHIN" and arguments == 5) { return MeosEDwithin; }
-        return context->getStart()->getType();
-    }();
+        if (helpers.top().functionBuilder.empty())
+        {
+            throw InvalidQuerySyntax("Aggregation requires argument at {}", context->getText());
+        }
+        if (!helpers.top().functionBuilder.back().tryGetAs<UnboundFieldAccessLogicalFunction>())
+        {
+            /// Desugar: pop the expression, create a temp field, store a pre-aggregation projection,
+            /// and push a FieldAccess to the temp field back onto functionBuilder.
+            auto expression = std::move(helpers.top().functionBuilder.back());
+            helpers.top().functionBuilder.pop_back();
+            const auto tempName = bindIdentifier(fmt::format("_agg_input_{}", helpers.top().aggExprCounter++));
+            helpers.top().preAggregationProjections.emplace_back(tempName, std::move(expression));
+            helpers.top().functionBuilder.emplace_back(UnboundFieldAccessLogicalFunction(tempName));
+        }
+    };
 
     /// Only COUNT takes DISTINCT
     if (context->setQuantifier != nullptr and tokenType != AntlrSQLLexer::COUNT)
     {
         throw InvalidQuerySyntax("DISTINCT applies to COUNT only, but got {}", context->getText());
     }
-    helpers.top().hasUnnamedAggregation = true;
-    switch (tokenType) /// TODO #619: improve this switch case
+
+    auto isAggregation = false;
+    switch (tokenType)
     {
-        case AntlrSQLLexer::COUNT:
-            if (helpers.top().functionBuilder.empty())
+        case AntlrSQLLexer::COUNT: {
+            const auto includeNullValues = (context->starArg != nullptr);
+            if (includeNullValues)
             {
-                throw InvalidQuerySyntax("Aggregation requires argument at {}", context->getText());
+                /// COUNT(*) — no field argument needed; use a dummy * field
+                helpers.top().functionBuilder.emplace_back(UnboundFieldAccessLogicalFunction(Identifier::parse("*")));
+            }
+            else
+            {
+                ensureFieldAccessArgument();
             }
             /// COUNT(DISTINCT x) counts the distinct values of x, as SQL states it
             if (context->setQuantifier != nullptr)
             {
-                helpers.top().windowAggs.push_back(std::make_shared<CountDistinctAggregationLogicalFunction>(
-                    helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
+                helpers.top().windowAggs.emplace_back(
+                    CountDistinctAggregationLogicalFunction{helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>()},
+                    std::nullopt);
             }
             else
             {
-                helpers.top().windowAggs.push_back(
-                    std::make_shared<CountAggregationLogicalFunction>(helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
+                helpers.top().windowAggs.emplace_back(
+                    CountAggregationLogicalFunction{
+                        helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>(), includeNullValues},
+                    std::nullopt);
             }
+            isAggregation = true;
             break;
+        }
         case AntlrSQLLexer::AVG:
-            if (helpers.top().functionBuilder.empty())
-            {
-                throw InvalidQuerySyntax("Aggregation requires argument at {}", context->getText());
-            }
-            helpers.top().windowAggs.push_back(
-                std::make_shared<AvgAggregationLogicalFunction>(helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
+            ensureFieldAccessArgument();
+            helpers.top().windowAggs.emplace_back(
+                AvgAggregationLogicalFunction{helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>()},
+                std::nullopt);
+            isAggregation = true;
             break;
         case AntlrSQLLexer::MAX:
-            if (helpers.top().functionBuilder.empty())
-            {
-                throw InvalidQuerySyntax("Aggregation requires argument at {}", context->getText());
-            }
-            helpers.top().windowAggs.push_back(
-                std::make_shared<MaxAggregationLogicalFunction>(helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
+            ensureFieldAccessArgument();
+            helpers.top().windowAggs.emplace_back(
+                MaxAggregationLogicalFunction{helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>()},
+                std::nullopt);
+            isAggregation = true;
             break;
         case AntlrSQLLexer::MIN:
-            if (helpers.top().functionBuilder.empty())
-            {
-                throw InvalidQuerySyntax("Aggregation requires argument at {}", context->getText());
-            }
-            helpers.top().windowAggs.push_back(
-                std::make_shared<MinAggregationLogicalFunction>(helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
+            ensureFieldAccessArgument();
+            helpers.top().windowAggs.emplace_back(
+                MinAggregationLogicalFunction{helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>()},
+                std::nullopt);
+            isAggregation = true;
             break;
         case AntlrSQLLexer::SUM:
-            if (helpers.top().functionBuilder.empty())
-            {
-                throw InvalidQuerySyntax("Aggregation requires argument at {}", context->getText());
-            }
-            helpers.top().windowAggs.push_back(
-                std::make_shared<SumAggregationLogicalFunction>(helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
+            ensureFieldAccessArgument();
+            helpers.top().windowAggs.emplace_back(
+                SumAggregationLogicalFunction{helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>()},
+                std::nullopt);
+            isAggregation = true;
             break;
         case AntlrSQLLexer::MEDIAN:
-            if (helpers.top().functionBuilder.empty())
-            {
-                throw InvalidQuerySyntax("Aggregation requires argument at {}", context->getText());
-            }
-            helpers.top().windowAggs.push_back(
-                std::make_shared<MedianAggregationLogicalFunction>(helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
+            ensureFieldAccessArgument();
+            helpers.top().windowAggs.emplace_back(
+                MedianAggregationLogicalFunction{helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>()},
+                std::nullopt);
+            isAggregation = true;
             break;
-                case AntlrSQLLexer::ARRAY_AGG:
-            helpers.top().windowAggs.push_back(
-                ArrayAggregationLogicalFunction::create(helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
-            break;
-        case AntlrSQLLexer::VAR:
-            if (helpers.top().functionBuilder.empty())
-            {
-                throw InvalidQuerySyntax("Aggregation requires argument at {}", context->getText());
-            }
-            helpers.top().windowAggs.push_back(
-                VarAggregationLogicalFunction::create(helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>()));
-            break;
-        case AntlrSQLLexer::TEMPORAL_SEQUENCE:
-            if (helpers.top().functionBuilder.size() != 3) {
-                throw InvalidQuerySyntax("TEMPORAL_SEQUENCE requires exactly three arguments (longitude, latitude, timestamp), but got {}", helpers.top().functionBuilder.size());
-            }
-            {
-                const auto timestampFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto latitudeFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto longitudeFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-
-                // Verify all arguments are field access functions
-                if (!longitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
-                    !latitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
-                    !timestampFunction.tryGet<FieldAccessLogicalFunction>()) {
-                    throw InvalidQuerySyntax("TEMPORAL_SEQUENCE arguments must be field references");
-                }
-
-                helpers.top().windowAggs.push_back(
-                    TemporalSequenceAggregationLogicalFunctionV2::create(longitudeFunction.get<FieldAccessLogicalFunction>(),
-                                                                        latitudeFunction.get<FieldAccessLogicalFunction>(),
-                                                                        timestampFunction.get<FieldAccessLogicalFunction>()));
-                // Push back one field access function to satisfy parser expectations
-                // This prevents the functionBuilder from being empty when processing the identifier
-                helpers.top().functionBuilder.push_back(longitudeFunction);
-            }
-            break;
-        case AntlrSQLLexer::TEMPORAL_LENGTH:
-            // Same three-input shape as TEMPORAL_SEQUENCE; differs only in the
-            // result type (FLOAT64 instead of VARSIZED).
-            if (helpers.top().functionBuilder.size() != 3) {
-                throw InvalidQuerySyntax("TEMPORAL_LENGTH requires exactly three arguments (longitude, latitude, timestamp), but got {}", helpers.top().functionBuilder.size());
-            }
-            {
-                const auto timestampFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto latitudeFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto longitudeFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-
-                if (!longitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
-                    !latitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
-                    !timestampFunction.tryGet<FieldAccessLogicalFunction>()) {
-                    throw InvalidQuerySyntax("TEMPORAL_LENGTH arguments must be field references");
-                }
-
-                helpers.top().windowAggs.push_back(
-                    TemporalLengthAggregationLogicalFunction::create(longitudeFunction.get<FieldAccessLogicalFunction>(),
-                                                                     latitudeFunction.get<FieldAccessLogicalFunction>(),
-                                                                     timestampFunction.get<FieldAccessLogicalFunction>()));
-                helpers.top().functionBuilder.push_back(longitudeFunction);
-            }
-            break;
-        case AntlrSQLLexer::PAIR_MEETING:
-            // Five-arg aggregation: lon, lat, ts, vehicle_id (FieldAccess) + dMeet
-            // (numeric constant — meeting-distance threshold in metres). The first four
-            // are pulled from functionBuilder; the fifth is pulled from constantBuilder
-            // (the parser parks numeric/string literals there).
-            {
-                if (helpers.top().constantBuilder.empty()) {
-                    throw InvalidQuerySyntax(
-                        "PAIR_MEETING requires a numeric constant fifth argument (dMeet metres), "
-                        "e.g. PAIR_MEETING(lon, lat, timestamp, vehicle_id, 200.0)");
-                }
-                auto dMeetString = std::move(helpers.top().constantBuilder.back());
-                helpers.top().constantBuilder.pop_back();
-                double dMeetMetres;
-                try {
-                    dMeetMetres = std::stod(dMeetString);
-                } catch (const std::exception&) {
-                    throw InvalidQuerySyntax(
-                        "PAIR_MEETING fifth argument must be a numeric constant (dMeet metres), got `{}`",
-                        dMeetString);
-                }
-
-                if (helpers.top().functionBuilder.size() != 4) {
-                    throw InvalidQuerySyntax(
-                        "PAIR_MEETING requires exactly five arguments (lon, lat, timestamp, vehicle_id, dMeet), "
-                        "got {} field args + 1 constant",
-                        helpers.top().functionBuilder.size());
-                }
-
-                const auto vidFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto timestampFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto latitudeFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto longitudeFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-
-                if (!longitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
-                    !latitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
-                    !timestampFunction.tryGet<FieldAccessLogicalFunction>() ||
-                    !vidFunction.tryGet<FieldAccessLogicalFunction>()) {
-                    throw InvalidQuerySyntax("PAIR_MEETING field arguments (lon, lat, timestamp, vehicle_id) must be field references");
-                }
-
-                helpers.top().windowAggs.push_back(
-                    PairMeetingAggregationLogicalFunction::create(longitudeFunction.get<FieldAccessLogicalFunction>(),
-                                                                  latitudeFunction.get<FieldAccessLogicalFunction>(),
-                                                                  timestampFunction.get<FieldAccessLogicalFunction>(),
-                                                                  vidFunction.get<FieldAccessLogicalFunction>(),
-                                                                  dMeetMetres));
-                helpers.top().functionBuilder.push_back(longitudeFunction);
-            }
-            break;
-        case AntlrSQLLexer::CROSS_DISTANCE:
-            // Six-arg aggregation: lon, lat, ts, vehicle_id (FieldAccess) + vidA, vidB
-            // (numeric constants — target vehicle IDs). The first four are pulled from
-            // functionBuilder; the fifth and sixth are pulled from constantBuilder, as
-            // PAIR_MEETING pulls its dMeet constant.
-            {
-                // Pull the two vid constants from constantBuilder. Note: the constants
-                // are pushed in source order, so the LAST one pushed (vidB in the SQL
-                // call) is on top of the stack — pop in reverse order.
-                if (helpers.top().constantBuilder.size() < 2) {
-                    throw InvalidQuerySyntax(
-                        "CROSS_DISTANCE requires two numeric constant arguments (vidA, vidB), "
-                        "e.g. CROSS_DISTANCE(lon, lat, timestamp, vehicle_id, 100, 200)");
-                }
-                auto vidBString = std::move(helpers.top().constantBuilder.back());
-                helpers.top().constantBuilder.pop_back();
-                auto vidAString = std::move(helpers.top().constantBuilder.back());
-                helpers.top().constantBuilder.pop_back();
-                uint64_t vidA, vidB;
-                try {
-                    vidA = std::stoull(vidAString);
-                    vidB = std::stoull(vidBString);
-                } catch (const std::exception&) {
-                    throw InvalidQuerySyntax(
-                        "CROSS_DISTANCE constant arguments must be unsigned integers (vidA, vidB), got `{}` and `{}`",
-                        vidAString, vidBString);
-                }
-
-                if (helpers.top().functionBuilder.size() != 4) {
-                    throw InvalidQuerySyntax(
-                        "CROSS_DISTANCE requires exactly six arguments (lon, lat, timestamp, vehicle_id, vidA, vidB), "
-                        "got {} field args + 2 constants",
-                        helpers.top().functionBuilder.size());
-                }
-
-                const auto vidFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto timestampFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto latitudeFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto longitudeFunction = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-
-                if (!longitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
-                    !latitudeFunction.tryGet<FieldAccessLogicalFunction>() ||
-                    !timestampFunction.tryGet<FieldAccessLogicalFunction>() ||
-                    !vidFunction.tryGet<FieldAccessLogicalFunction>()) {
-                    throw InvalidQuerySyntax("CROSS_DISTANCE field arguments (lon, lat, timestamp, vehicle_id) must be field references");
-                }
-
-                helpers.top().windowAggs.push_back(
-                    CrossDistanceAggregationLogicalFunction::create(longitudeFunction.get<FieldAccessLogicalFunction>(),
-                                                                    latitudeFunction.get<FieldAccessLogicalFunction>(),
-                                                                    timestampFunction.get<FieldAccessLogicalFunction>(),
-                                                                    vidFunction.get<FieldAccessLogicalFunction>(),
-                                                                    vidA, vidB));
-                helpers.top().functionBuilder.push_back(longitudeFunction);
-            }
-            break;
-        case MeosEIntersects:
-            {
-                // Convert constants from constantBuilder to ConstantValueLogicalFunction objects
-                while (!helpers.top().constantBuilder.empty()) {
-                    auto constantValue = std::move(helpers.top().constantBuilder.back());
-                    helpers.top().constantBuilder.pop_back();
-                    // Assume string constants are VARSIZED (WKT strings)
-                    auto dataType = DataTypeProvider::provideDataType(DataType::Type::VARSIZED);
-                    auto constFunction = ConstantValueLogicalFunction(dataType, std::move(constantValue));
-                    helpers.top().functionBuilder.push_back(constFunction);
-                }
-
-                const auto argCount = helpers.top().functionBuilder.size();
-                if (argCount != 4 && argCount != 6) {
-                    throw InvalidQuerySyntax("eIntersects requires either 4 arguments (lon1, lat1, timestamp1, static_geometry) or 6 arguments (lon1, lat1, timestamp1, lon2, lat2, timestamp2), but got {}", argCount);
-                }
-
-                if (argCount == 4) {
-                    // 4-parameter case: temporal-static intersection (lon1, lat1, timestamp1, static_geometry)
-                    const auto staticGeometryFunction = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto timestamp1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lat1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lon1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    
-                    const auto function = TemporalIntersectsGeometryLogicalFunction(lon1Function, lat1Function, timestamp1Function, staticGeometryFunction);
-                    helpers.top().functionBuilder.push_back(function);
-                } else {
-                    // 6-parameter case: temporal-temporal intersection (lon1, lat1, timestamp1, lon2, lat2, timestamp2)
-                    const auto timestamp2Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lat2Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lon2Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto timestamp1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lat1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lon1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    
-                    const auto function = TemporalIntersectsGeometryLogicalFunction(lon1Function, lat1Function, timestamp1Function, lon2Function, lat2Function, timestamp2Function);
-                    helpers.top().functionBuilder.push_back(function);
-                }
-            }
-            break;
-        case MeosAIntersects:
-            {
-                // Convert constants from constantBuilder to ConstantValueLogicalFunction objects
-                while (!helpers.top().constantBuilder.empty()) {
-                    auto constantValue = std::move(helpers.top().constantBuilder.back());
-                    helpers.top().constantBuilder.pop_back();
-                    // Assume string constants are VARSIZED (WKT strings)
-                    auto dataType = DataTypeProvider::provideDataType(DataType::Type::VARSIZED);
-                    auto constFunction = ConstantValueLogicalFunction(dataType, std::move(constantValue));
-                    helpers.top().functionBuilder.push_back(constFunction);
-                }
-                const auto argCount = helpers.top().functionBuilder.size();
-                if (argCount != 4 && argCount != 6) {
-                    throw InvalidQuerySyntax("aIntersects requires either 4 arguments (lon1, lat1, timestamp1, static_geometry) or 6 arguments (lon1, lat1, timestamp1, lon2, lat2, timestamp2), but got {}", argCount);
-                }
-                if (argCount == 4) {
-                    // 4-parameter case: temporal-static intersection (lon1, lat1, timestamp1, static_geometry)
-                    const auto staticGeometryFunction = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto timestamp1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lat1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lon1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    
-                    const auto function = TemporalAIntersectsGeometryLogicalFunction(lon1Function, lat1Function, timestamp1Function, staticGeometryFunction);
-                    helpers.top().functionBuilder.push_back(function);
-                } else {
-                    // 6-parameter case: temporal-temporal intersection (lon1, lat1, timestamp1, lon2, lat2, timestamp2)
-                    const auto timestamp2Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lat2Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lon2Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto timestamp1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lat1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    const auto lon1Function = helpers.top().functionBuilder.back();
-                    helpers.top().functionBuilder.pop_back();
-                    
-                    const auto function = TemporalAIntersectsGeometryLogicalFunction(lon1Function, lat1Function, timestamp1Function, lon2Function, lat2Function, timestamp2Function);
-                    helpers.top().functionBuilder.push_back(function);
-                }
-            }
-            break;
-        case MeosEContains: 
-        {
-            // move any literal WKT that’s still on constantBuilder into functionBuilder
-            while(!helpers.top().constantBuilder.empty()){
-                auto v = std::move(helpers.top().constantBuilder.back());
-                helpers.top().constantBuilder.pop_back();
-                helpers.top().functionBuilder.emplace_back(
-                    ConstantValueLogicalFunction(
-                        DataTypeProvider::provideDataType(DataType::Type::VARSIZED), std::move(v)));
-            }
-
-            const auto n = helpers.top().functionBuilder.size();
-            if(n==6){
-                auto ts2 = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                auto lat2= helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                auto lon2= helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                auto ts1 = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                auto lat1= helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                auto lon1= helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                helpers.top().functionBuilder.emplace_back(
-                    TemporalEContainsGeometryLogicalFunction(lon1,lat1,ts1,lon2,lat2,ts2));
-            } else if(n==4){
-                /* decide order by data-type of first arg */
-                auto last = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                auto third= helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                auto second= helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                auto first = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-
-                if(first.getDataType().isType(DataType::Type::VARSIZED)) // static,tgeo
-                    helpers.top().functionBuilder.emplace_back(
-                        TemporalEContainsGeometryLogicalFunction(first,second,third,last));
-                else                                                      // tgeo,static
-                    helpers.top().functionBuilder.emplace_back(
-                        TemporalEContainsGeometryLogicalFunction(first,second,third,last));
-            } else {
-                throw InvalidQuerySyntax("eContains expects 4 or 6 arguments");
-            }
-        }
-        break;
-        case MeosEDwithin:
-        {
-            const auto argCount = context->expression().size();
-            if (argCount != 5)
-            {
-                throw InvalidQuerySyntax("eDwithin requires exactly five arguments (lon, lat, timestamp, geometry, distance), but got {}", argCount);
-            }
-
-            // Move pending constants into the function builder (WKT last)
-            while (!helpers.top().constantBuilder.empty())
-            {
-                auto constantValue = std::move(helpers.top().constantBuilder.back());
-                helpers.top().constantBuilder.pop_back();
-
-                DataType dataType;
-                const auto upperValue = Util::toUpperCase(constantValue);
-                if (upperValue == "TRUE" || upperValue == "FALSE")
-                {
-                    dataType = DataTypeProvider::provideDataType(DataType::Type::BOOLEAN);
-                }
-                else
-                {
-                    char* endPtr = nullptr;
-                    std::strtod(constantValue.c_str(), &endPtr);
-                    if (endPtr != nullptr && *endPtr == '\0')
-                    {
-                        dataType = DataTypeProvider::provideDataType(DataType::Type::FLOAT64);
-                    }
-                    else
-                    {
-                        dataType = DataTypeProvider::provideDataType(DataType::Type::VARSIZED);
-                    }
-                }
-                helpers.top().functionBuilder.emplace_back(ConstantValueLogicalFunction(dataType, std::move(constantValue)));
-            }
-
-            const auto total = helpers.top().functionBuilder.size();
-            PRECONDITION(total >= 5, "eDwithin requires (lon, lat, timestamp, geometry, distance), but got {}", total);
-
-            // Order after move: [lon, lat, ts, distance, geometry]
-            auto geometryFunction = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
-            auto distanceFunction = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
-            auto timestampFunction = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
-            auto latFunction = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
-            auto lonFunction = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
-
-            helpers.top().functionBuilder.emplace_back(
-                TemporalEDWithinGeometryLogicalFunction(lonFunction, latFunction, timestampFunction, geometryFunction, distanceFunction));
-        }
-        break;
-        case AntlrSQLLexer::TGEO_AT_STBOX:
-        {
-            const auto argCount = context->expression().size();
-            if (argCount != 4 && argCount != 5)
-            {
-                throw InvalidQuerySyntax("TGEO_AT_STBOX requires four arguments (lon, lat, timestamp, stbox) with an optional fifth border_inc flag, but got {}", argCount);
-            }
-
-            // Move pending constants into the function builder (border first if present, STBOX last)
-            while (!helpers.top().constantBuilder.empty())
-            {
-                auto constantValue = std::move(helpers.top().constantBuilder.back());
-                helpers.top().constantBuilder.pop_back();
-
-                DataType dataType;
-                const auto upperValue = Util::toUpperCase(constantValue);
-                if (upperValue == "TRUE" || upperValue == "FALSE")
-                {
-                    dataType = DataTypeProvider::provideDataType(DataType::Type::BOOLEAN);
-                }
-                else
-                {
-                    char* endPtr = nullptr;
-                    std::strtod(constantValue.c_str(), &endPtr);
-                    if (endPtr != nullptr && *endPtr == '\0')
-                    {
-                        dataType = DataTypeProvider::provideDataType(DataType::Type::FLOAT64);
-                    }
-                    else
-                    {
-                        dataType = DataTypeProvider::provideDataType(DataType::Type::VARSIZED);
-                    }
-                }
-                helpers.top().functionBuilder.emplace_back(ConstantValueLogicalFunction(dataType, std::move(constantValue)));
-            }
-
-            const auto total = helpers.top().functionBuilder.size();
-            PRECONDITION(total >= 4, "TGEO_AT_STBOX requires (lon, lat, timestamp, stbox) with optional border flag, but got {}", total);
-
-            auto stboxFunction = helpers.top().functionBuilder.back();
-            helpers.top().functionBuilder.pop_back();
-
-            LogicalFunction borderFlag = ConstantValueLogicalFunction(
-                DataTypeProvider::provideDataType(DataType::Type::BOOLEAN), "TRUE");
-            if (!helpers.top().functionBuilder.empty() && helpers.top().functionBuilder.back().getDataType().isType(DataType::Type::BOOLEAN))
-            {
-                borderFlag = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-            }
-
-            auto timestampFunction = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
-            auto latFunction = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
-            auto lonFunction = helpers.top().functionBuilder.back(); helpers.top().functionBuilder.pop_back();
-
-            helpers.top().functionBuilder.emplace_back(
-                TemporalAtStBoxLogicalFunction(lonFunction, latFunction, timestampFunction, stboxFunction, borderFlag));
-        }
-        break;
-
         default:
-            /// Check if the function is a constructor for a datatype: a type named on one literal, as FLOAT64(0.2) or
-            /// TGEOMPOINT('012E...'). A type a function shares its name with, as the cast geography(stbox), names the
-            /// function on any other argument.
-            if (const auto dataType = DataTypeProvider::tryProvideDataType(funcName);
-                dataType.has_value()
-                and (not LogicalFunctionProvider::contains(funcName)
-                     or (context->argument.size() == 1 and isLiteral(context->argument.front()))))
+            helpers.top().hasUnnamedAggregation = false;
+            /// Check if the function is a constructor for a datatype
+            if (const auto dataType = DataTypeProvider::tryProvideDataType(funcName); dataType.has_value())
             {
-                if (helpers.top().constantBuilder.empty())
+                /// The type constructor takes one literal, which the listener of a constant places in constantBuilder
+                const auto numArgs = context->argument.size();
+                if (numArgs != 1 or helpers.top().constantBuilder.empty())
                 {
+                    /// A function a plugin registers under the name of a type, as the MEOS plugin registers
+                    /// tgeompoint(point, time) and tgeogpoint(tgeompoint), is called as any function is
+                    if (numArgs >= 1 and numArgs <= helpers.top().functionBuilder.size())
+                    {
+                        auto argsBegin = helpers.top().functionBuilder.end() - static_cast<std::ptrdiff_t>(numArgs);
+                        std::vector<LogicalFunction> funcArgs(argsBegin, helpers.top().functionBuilder.end());
+                        if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, funcArgs))
+                        {
+                            helpers.top().functionBuilder.resize(helpers.top().functionBuilder.size() - numArgs);
+                            helpers.top().functionBuilder.push_back(*logicalFunction);
+                            break;
+                        }
+                    }
+                    if (numArgs != 1)
+                    {
+                        throw InvalidQuerySyntax(
+                            "Type constructor {} expects exactly 1 argument, got {} at {}", funcName, numArgs, context->getText());
+                    }
                     throw InvalidQuerySyntax("Expected constant, got nothing at {}", context->getText());
                 }
                 helpers.top().hasUnnamedAggregation = false;
@@ -1637,143 +1566,70 @@ void AntlrSQLQueryPlanCreator::exitFunctionCall(AntlrSQLParser::FunctionCallCont
                 auto constFunctionItem = ConstantValueLogicalFunction(*dataType, std::move(value));
                 helpers.top().functionBuilder.emplace_back(constFunctionItem);
             }
-            else if (funcName == "VAR")
-            {
-                if (helpers.top().functionBuilder.empty())
-                {
-                    throw InvalidQuerySyntax("Aggregation requires argument at {}", context->getText());
-                }
-                const auto& lastArg = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().windowAggs.push_back(std::make_shared<VarAggregationLogicalFunction>(lastArg));
-            }
-            else if (funcName == "TEMPORAL_SEQUENCE")
-            {
-                if (helpers.top().functionBuilder.size() < 3)
-                {
-                    throw InvalidQuerySyntax("TEMPORAL_SEQUENCE requires three arguments at {}", context->getText());
-                }
-                const auto ts = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto lat = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                helpers.top().windowAggs.push_back(TemporalSequenceAggregationLogicalFunctionV2::create(lon, lat, ts));
-            }
-            else if (funcName == "TEMPORAL_LENGTH")
-            {
-                if (helpers.top().functionBuilder.size() < 3)
-                {
-                    throw InvalidQuerySyntax("TEMPORAL_LENGTH requires three arguments at {}", context->getText());
-                }
-                const auto ts = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto lat = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                helpers.top().windowAggs.push_back(TemporalLengthAggregationLogicalFunction::create(lon, lat, ts));
-            }
-            else if (funcName == "PAIR_MEETING")
-            {
-                // Five-arg shape: 4 FieldAccess + 1 numeric constant (dMeet metres).
-                if (helpers.top().constantBuilder.empty())
-                {
-                    throw InvalidQuerySyntax(
-                        "PAIR_MEETING requires a numeric constant fifth argument (dMeet metres) at {}",
-                        context->getText());
-                }
-                auto dMeetString = std::move(helpers.top().constantBuilder.back());
-                helpers.top().constantBuilder.pop_back();
-                double dMeetMetres;
-                try { dMeetMetres = std::stod(dMeetString); }
-                catch (const std::exception&) {
-                    throw InvalidQuerySyntax(
-                        "PAIR_MEETING fifth argument must be a numeric constant (dMeet metres), got `{}` at {}",
-                        dMeetString, context->getText());
-                }
-                if (helpers.top().functionBuilder.size() < 4)
-                {
-                    throw InvalidQuerySyntax(
-                        "PAIR_MEETING requires four field args + 1 constant at {}", context->getText());
-                }
-                const auto vid = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto ts = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto lat = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                helpers.top().windowAggs.push_back(PairMeetingAggregationLogicalFunction::create(lon, lat, ts, vid, dMeetMetres));
-            }
-            else if (funcName == "CROSS_DISTANCE")
-            {
-                // Six-arg shape: 4 FieldAccess + 2 numeric constants (vidA, vidB).
-                if (helpers.top().constantBuilder.size() < 2)
-                {
-                    throw InvalidQuerySyntax(
-                        "CROSS_DISTANCE requires two numeric constant arguments (vidA, vidB) at {}",
-                        context->getText());
-                }
-                auto vidBString = std::move(helpers.top().constantBuilder.back());
-                helpers.top().constantBuilder.pop_back();
-                auto vidAString = std::move(helpers.top().constantBuilder.back());
-                helpers.top().constantBuilder.pop_back();
-                uint64_t vidA, vidB;
-                try {
-                    vidA = std::stoull(vidAString);
-                    vidB = std::stoull(vidBString);
-                } catch (const std::exception&) {
-                    throw InvalidQuerySyntax(
-                        "CROSS_DISTANCE constant arguments must be unsigned integers (vidA, vidB), got `{}` and `{}` at {}",
-                        vidAString, vidBString, context->getText());
-                }
-                if (helpers.top().functionBuilder.size() < 4)
-                {
-                    throw InvalidQuerySyntax(
-                        "CROSS_DISTANCE requires four field args + 2 constants at {}", context->getText());
-                }
-                const auto vid = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto ts = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto lat = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                const auto lon = helpers.top().functionBuilder.back().get<FieldAccessLogicalFunction>();
-                helpers.top().functionBuilder.pop_back();
-                helpers.top().windowAggs.push_back(CrossDistanceAggregationLogicalFunction::create(lon, lat, ts, vid, vidA, vidB));
-            }
-            else if (auto aggregation = aggregationOverField(context, funcName))
-            {
-                /// An aggregation over one field, as COUNT is, and the literals following it; the field is left for
-                /// the result's name
-                helpers.top().constantBuilder.resize(helpers.top().constantBuilder.size() - (context->argument.size() - 1));
-                helpers.top().windowAggs.push_back(*aggregation);
-            }
-            else if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, callArguments(context)))
-            {
-                /// The call's arguments are taken from the builders and replaced by the function
-                takeCallArguments(context);
-                helpers.top().functionBuilder.push_back(*logicalFunction);
-            }
-            else if (funcName == "TEMPORAL_INTERSECTS")
-            {
-                if (helpers.top().functionBuilder.size() != 3) {
-                    throw InvalidQuerySyntax("TEMPORAL_INTERSECTS requires exactly three arguments (lon, lat, timestamp), but got {}", helpers.top().functionBuilder.size());
-                }
-                const auto ts = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto lat = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                const auto lon = helpers.top().functionBuilder.back();
-                helpers.top().functionBuilder.pop_back();
-                helpers.top().functionBuilder.emplace_back(TemporalIntersectsFunction(lon, lat, ts));
-            }
             else
             {
-                throw InvalidQuerySyntax("Unknown (aggregation) function: {}, resolved to token type: {}", funcName, tokenType);
+                const auto numArgs = context->argument.size();
+                if (numArgs > helpers.top().functionBuilder.size())
+                {
+                    throw InvalidQuerySyntax(
+                        "Function '{}' expects {} arguments but only {} are available",
+                        funcName,
+                        numArgs,
+                        helpers.top().functionBuilder.size());
+                }
+                auto argsBegin = helpers.top().functionBuilder.end() - static_cast<std::ptrdiff_t>(numArgs);
+                std::vector<LogicalFunction> funcArgs(argsBegin, helpers.top().functionBuilder.end());
+                if (auto logicalFunction = LogicalFunctionProvider::tryProvide(funcName, funcArgs))
+                {
+                    helpers.top().functionBuilder.resize(helpers.top().functionBuilder.size() - numArgs);
+                    helpers.top().functionBuilder.push_back(*logicalFunction);
+                }
+                else if (const auto aggregation = AggregationLogicalFunctionRegistry::instance().find(funcName);
+                         aggregation.has_value() and numArgs >= 1 and funcArgs.front().tryGetAs<UnboundFieldAccessLogicalFunction>()
+                         and std::ranges::all_of(
+                             funcArgs | std::views::drop(1),
+                             [](const LogicalFunction& argument)
+                             { return argument.tryGetAs<ConstantValueLogicalFunction>().has_value(); }))
+                {
+                    /// An aggregation a plugin registers, over the field of its first argument and the constants after it,
+                    /// as COUNT is over its field; the field stays for the name of the result
+                    std::vector<LogicalFunction> literals(funcArgs.begin() + 1, funcArgs.end());
+                    helpers.top().functionBuilder.resize(helpers.top().functionBuilder.size() - (numArgs - 1));
+                    helpers.top().windowAggs.emplace_back(
+                        (*aggregation)(AggregationLogicalFunctionRegistryArguments{
+                            .on = {helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>()},
+                            .includeNullValues = false,
+                            .literals = std::move(literals)}),
+                        std::nullopt);
+                    isAggregation = true;
+                }
+                else
+                {
+                    auto registeredNamesAggregation
+                        = AggregationLogicalFunctionRegistry::instance().getRegisteredNames() | std::ranges::to<std::vector>();
+                    std::ranges::sort(registeredNamesAggregation);
+                    throw InvalidQuerySyntax(
+                        "Unknown function: {}. Supported aggregation functions are {}.",
+                        funcName,
+                        fmt::join(registeredNamesAggregation, ", "));
+                }
             }
+    }
+
+    /// For aggregation functions, generate an auto-name for the result field and replace the raw
+    /// field access in functionBuilder with a reference to the aggregation output. This enables
+    /// post-aggregation arithmetic like MEDIAN(i8) + UINT64(1).
+    if (isAggregation)
+    {
+        helpers.top().hasUnnamedAggregation = true;
+        const auto onField = helpers.top().functionBuilder.back().getAs<UnboundFieldAccessLogicalFunction>().get();
+        helpers.top().functionBuilder.pop_back();
+        const auto autoName = fmt::format("{}_{}", onField.getFieldName(), funcName);
+        const auto asField = bindIdentifier(autoName);
+        const auto [aggFunc, asName] = helpers.top().windowAggs.back();
+        helpers.top().windowAggs.pop_back();
+        helpers.top().windowAggs.emplace_back(aggFunc, std::optional{asField});
+        helpers.top().functionBuilder.emplace_back(UnboundFieldAccessLogicalFunction(asField));
     }
 }
 
@@ -1782,13 +1638,13 @@ void AntlrSQLQueryPlanCreator::exitThresholdMinSizeParameter(AntlrSQLParser::Thr
     helpers.top().minimumCount = std::stoi(context->getText());
 }
 
-void AntlrSQLQueryPlanCreator::enterInlineSource(AntlrSQLParser::InlineSourceContext* context)
+void AntlrSQLQueryPlanCreator::enterAnonymousSource(AntlrSQLParser::AnonymousSourceContext* context)
 {
     const auto type = bindIdentifier(context->type);
 
     const auto parameters = bindConfigOptions(context->parameters->namedConfigExpression());
 
-    helpers.top().setInlineSource(type, parameters);
+    helpers.top().setAnonymousSource(type, parameters);
 }
 
 void AntlrSQLQueryPlanCreator::enterSetOperation(AntlrSQLParser::SetOperationContext*)
@@ -1837,5 +1693,65 @@ void AntlrSQLQueryPlanCreator::exitGroupByClause(AntlrSQLParser::GroupByClauseCo
 {
     helpers.top().isGroupBy = false;
     AntlrSQLBaseListener::exitGroupByClause(context);
+}
+
+void AntlrSQLQueryPlanCreator::enterModelInferenceRelation(AntlrSQLParser::ModelInferenceRelationContext* context)
+{
+    helpers.top().isModelInference = true;
+    AntlrSQLBaseListener::enterModelInferenceRelation(context);
+}
+
+namespace
+{
+/// Recursively build a LogicalPlan from a modelInferenceSource context.
+/// For subquery inputs, the inner query plan is already on the queryPlans vector (processed by the listener).
+LogicalPlan buildModelInferencePlan(AntlrSQLParser::ModelInferenceSourceContext* ctx, std::vector<LogicalPlan>& queryPlans)
+{
+    auto modelName = bindIdentifier(ctx->modelName);
+
+    auto* input = ctx->modelInferenceInput();
+    const LogicalPlan childPlan = [&]() -> LogicalPlan
+    {
+        if (auto* streamName = dynamic_cast<AntlrSQLParser::ModelInferenceStreamNameContext*>(input))
+        {
+            std::string name;
+            for (auto* part : streamName->multipartIdentifier()->parts)
+            {
+                if (!name.empty())
+                {
+                    name += "$";
+                }
+                name += fmt::format("{}", bindIdentifier(part->identifier()));
+            }
+            return LogicalPlanBuilder::createLogicalPlan(bindIdentifier(std::move(name)));
+        }
+        if (auto* nested = dynamic_cast<AntlrSQLParser::ModelInferenceNestedContext*>(input))
+        {
+            return buildModelInferencePlan(nested->modelInferenceSource(), queryPlans);
+        }
+        if (dynamic_cast<AntlrSQLParser::ModelInferenceSubqueryContext*>(input))
+        {
+            /// The subquery has already been processed by the listener; its plan is on the queryPlans vector.
+            if (queryPlans.empty())
+            {
+                throw InvalidQuerySyntax("MODEL_INFERENCE subquery plan not found");
+            }
+            auto plan = std::move(queryPlans.back());
+            queryPlans.pop_back();
+            return plan;
+        }
+        throw InvalidQuerySyntax("MODEL_INFERENCE: unrecognized input type");
+    }();
+
+    return LogicalPlanBuilder::addInferModel(std::move(modelName), childPlan);
+}
+}
+
+void AntlrSQLQueryPlanCreator::exitModelInferenceRelation(AntlrSQLParser::ModelInferenceRelationContext* context)
+{
+    auto plan = buildModelInferencePlan(context->modelInferenceSource(), helpers.top().queryPlans);
+    helpers.top().queryPlans.push_back(std::move(plan));
+    helpers.top().isModelInference = false;
+    AntlrSQLBaseListener::exitModelInferenceRelation(context);
 }
 }

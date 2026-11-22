@@ -1,0 +1,48 @@
+# name: guide/guide11.test
+# description: Inner join between two streams with tumbling window
+# groups: [Window, Join, InnerJoin, Tumbling]
+
+CREATE LOGICAL SOURCE s(
+    sid INT64 NOT NULL,
+    sval INT64 NOT NULL,
+    ts_s   INT64 NOT NULL
+);
+
+CREATE LOGICAL SOURCE t(
+    tid INT64 NOT NULL,
+    tval INT64 NOT NULL,
+    ts_t   INT64 NOT NULL
+);
+
+CREATE PHYSICAL SOURCE FOR s TYPE File;
+ATTACH INLINE
+1,10,5
+2,20,10
+3,30,15
+
+CREATE PHYSICAL SOURCE FOR t TYPE File;
+ATTACH INLINE
+1,100,6
+2,200,11
+4,400,20
+
+CREATE SINK sink(
+    start UINT64 NOT NULL,
+    end   UINT64 NOT NULL,
+    sid  INT64 NOT NULL,
+    sval INT64 NOT NULL,
+    ts_s   INT64 NOT NULL,
+    tid  INT64 NOT NULL,
+    tval INT64 NOT NULL,
+    ts_t   INT64 NOT NULL
+) TYPE File;
+
+SELECT *
+FROM (SELECT * FROM s)
+INNER JOIN (SELECT * FROM t)
+ON sid = tid
+WINDOW TUMBLING(ts_s, ts_t, SIZE 1 MINUTES)
+INTO sink;
+----
+0,60000,1,10,5,1,100,6
+0,60000,2,20,10,2,200,11

@@ -19,6 +19,7 @@
 #include <cassert>
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <exception>
 #include <functional>
 #include <future>
@@ -33,15 +34,17 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <Configurations/Util.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/Allocator/NesDefaultMemoryAllocator.hpp>
 #include <Runtime/BufferManager.hpp>
-#include <Runtime/Execution/QueryStatus.hpp>
 #include <Runtime/QueryTerminationType.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Sequencing/SequenceData.hpp>
 #include <Sources/SourceHandle.hpp>
 #include <Util/Overloaded.hpp>
+#include <Util/UUID.hpp>
 #include <fmt/format.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -51,10 +54,20 @@
 #include <ExecutableQueryPlan.hpp>
 #include <QueryEngine.hpp>
 #include <QueryEngineConfiguration.hpp>
+#include <QueryId.hpp>
+#include <QueryStatus.hpp>
 #include <TestSource.hpp>
 
-namespace NES::Testing
+namespace NES
 {
+
+namespace
+{
+QueryId randomQueryId()
+{
+    return QueryId::createLocal(LocalQueryId(generateUUID()));
+}
+}
 
 std::vector<std::byte> identifiableData(size_t identifier)
 {
@@ -124,9 +137,9 @@ std::ostream& TestSink::toString(std::ostream& os) const
 }
 
 std::tuple<std::shared_ptr<ExecutablePipeline>, std::shared_ptr<TestSinkController>>
-createSinkPipeline(PipelineId id, std::shared_ptr<AbstractBufferProvider> bm)
+createSinkPipeline(PipelineId id, BackpressureController backpressureController, std::shared_ptr<AbstractBufferProvider> bm)
 {
-    auto sinkController = std::make_shared<TestSinkController>();
+    auto sinkController = std::make_shared<TestSinkController>(std::move(backpressureController));
     auto stage = std::make_unique<TestSink>(std::move(bm), sinkController);
     auto pipeline = ExecutablePipeline::create(id, std::move(stage), {});
     return {pipeline, sinkController};
@@ -192,6 +205,8 @@ QueryPlanBuilder::TestPlanCtrl QueryPlanBuilder::build(QueryId queryId, std::sha
     std::unordered_map<identifier_t, std::shared_ptr<TestSinkController>> sinkCtrls;
     std::unordered_map<identifier_t, std::shared_ptr<TestPipelineController>> pipelineCtrls;
     std::unordered_map<identifier_t, std::shared_ptr<ExecutablePipeline>> cache{};
+
+    auto [backpressureController, backpressureListener] = createBackpressureChannel();
     std::function<std::shared_ptr<ExecutablePipeline>(identifier_t)> getOrCreatePipeline = [&](identifier_t identifier)
     {
         if (auto it = cache.find(identifier); it != cache.end())
@@ -208,7 +223,7 @@ QueryPlanBuilder::TestPlanCtrl QueryPlanBuilder::build(QueryId queryId, std::sha
                 },
                 [&](SinkDescriptor descriptor) -> std::shared_ptr<ExecutablePipeline>
                 {
-                    auto [sink, ctrl] = createSinkPipeline(descriptor.pipelineId, bm);
+                    auto [sink, ctrl] = createSinkPipeline(descriptor.pipelineId, std::move(backpressureController), bm);
                     pipelines.push_back(sink);
                     stages[identifier] = sink->stage.get();
                     sinkCtrls[identifier] = ctrl;
@@ -236,7 +251,7 @@ QueryPlanBuilder::TestPlanCtrl QueryPlanBuilder::build(QueryId queryId, std::sha
     {
         std::vector<std::weak_ptr<ExecutablePipeline>> successors;
         std::ranges::transform(forwardRelations.at(source.first), std::back_inserter(successors), getOrCreatePipeline);
-        auto [s, ctrl] = getTestSource(std::get<SourceDescriptor>(source.second).sourceId, bm);
+        auto [s, ctrl] = getTestSource(backpressureListener, std::get<SourceDescriptor>(source.second).sourceId, bm);
         sourceIds.emplace(source.first, s->getSourceId());
         sources.emplace_back(std::move(s), std::move(successors));
         sourceCtrls[source.first] = ctrl;
@@ -259,7 +274,13 @@ QueryPlanBuilder::QueryPlanBuilder(
 }
 
 TestingHarness::TestingHarness(size_t numberOfThreads, size_t numberOfBuffers)
-    : bm(BufferManager::create(DEFAULT_BUFFER_SIZE, numberOfBuffers)), numberOfThreads(numberOfThreads)
+    : bm(BufferManager::create(
+          10 * numberOfBuffers * DEFAULT_BUFFER_SIZE,
+          UNPOOLED_MEMORY_FRACTION,
+          BUFFER_ALIGNMENT,
+          static_cast<uint32_t>(DEFAULT_BUFFER_SIZE),
+          std::make_shared<NesDefaultMemoryAllocator>()))
+    , numberOfThreads(numberOfThreads)
 {
 }
 
@@ -274,7 +295,8 @@ QueryPlanBuilder TestingHarness::buildNewQuery() const
 
 std::unique_ptr<ExecutableQueryPlan> TestingHarness::addNewQuery(QueryPlanBuilder&& builder)
 {
-    const auto queryId = QueryId(queryIdCounter++);
+    const auto queryId = randomQueryId();
+    queryIds.push_back(queryId);
     lastIdentifier = builder.nextIdentifier;
     lastOriginIdCounter = builder.originIdCounter;
     lastPipelineIdCounter = builder.pipelineIdCounter;
@@ -289,54 +311,57 @@ std::unique_ptr<ExecutableQueryPlan> TestingHarness::addNewQuery(QueryPlanBuilde
     return std::move(plan);
 }
 
-void TestingHarness::expectQueryStatusEvents(QueryId id, std::initializer_list<QueryState> states)
+void TestingHarness::expectQueryStatusEvents(const QueryId& id, std::initializer_list<QueryStatus> states)
 {
     for (auto state : states)
     {
         switch (state)
         {
-            case QueryState::Registered:
-                EXPECT_CALL(*status, logQueryStatusChange(id, QueryState::Registered, ::testing::_)).Times(1);
+            case QueryStatus::Registered:
+                EXPECT_CALL(*status, logQueryStatusChange(id, QueryStatus::Registered, ::testing::_)).Times(1);
                 break;
-            case QueryState::Started:
-                EXPECT_CALL(*status, logQueryStatusChange(id, QueryState::Started, ::testing::_))
+            case QueryStatus::Started:
+                EXPECT_CALL(*status, logQueryStatusChange(id, QueryStatus::Started, ::testing::_))
                     .Times(1)
                     .WillOnce(::testing::Invoke([](auto, auto, auto) { return true; }));
                 break;
-            case QueryState::Running:
+            case QueryStatus::Running:
                 queryRunning.emplace(id, std::make_unique<std::promise<void>>());
-                EXPECT_CALL(*status, logQueryStatusChange(id, QueryState::Running, ::testing::_))
+                EXPECT_CALL(*status, logQueryStatusChange(id, QueryStatus::Running, ::testing::_))
                     .Times(1)
-                    .WillOnce(::testing::Invoke(
-                        [this](auto id, auto, auto)
-                        {
-                            queryRunning.at(id)->set_value();
-                            return true;
-                        }));
+                    .WillOnce(
+                        ::testing::Invoke(
+                            [this](const auto& id, auto, auto)
+                            {
+                                queryRunning.at(id)->set_value();
+                                return true;
+                            }));
                 break;
-            case QueryState::Stopped:
+            case QueryStatus::Stopped:
                 ASSERT_TRUE(queryTermination.try_emplace(id, std::make_unique<std::promise<void>>()).second)
                     << "Registered multiple query terminations";
-                EXPECT_CALL(*status, logQueryStatusChange(id, QueryState::Stopped, ::testing::_))
+                EXPECT_CALL(*status, logQueryStatusChange(id, QueryStatus::Stopped, ::testing::_))
                     .Times(1)
-                    .WillOnce(::testing::Invoke(
-                        [this](auto id, auto, auto)
-                        {
-                            queryTermination.at(id)->set_value();
-                            return true;
-                        }));
+                    .WillOnce(
+                        ::testing::Invoke(
+                            [this](const auto& id, auto, auto)
+                            {
+                                queryTermination.at(id)->set_value();
+                                return true;
+                            }));
                 break;
-            case QueryState::Failed:
+            case QueryStatus::Failed:
                 ASSERT_TRUE(queryTermination.try_emplace(id, std::make_unique<std::promise<void>>()).second)
                     << "Registered multiple query terminations";
                 EXPECT_CALL(*status, logQueryFailure(id, ::testing::_, ::testing::_))
                     .Times(1)
-                    .WillOnce(::testing::Invoke(
-                        [this](const auto& id, const auto&, auto)
-                        {
-                            queryTermination.at(id)->set_value();
-                            return true;
-                        }));
+                    .WillOnce(
+                        ::testing::Invoke(
+                            [this](const auto& id, const auto&, auto)
+                            {
+                                queryTermination.at(id)->set_value();
+                                return true;
+                            }));
                 break;
         }
     }
@@ -357,9 +382,9 @@ void TestingHarness::start()
     {
         queryRunningFutures[queryRunning.first] = queryRunning.second->get_future().share();
     }
-    QueryEngineConfiguration configuration{};
-    configuration.numberOfWorkerThreads.setValue(numberOfThreads);
-    qm = std::make_unique<QueryEngine>(configuration, this->statListener, this->status, this->bm);
+    auto configuration = defaultConfiguration<QueryEngineConfiguration>();
+    configuration.numberOfWorkerThreads = numberOfThreads;
+    qm = std::make_unique<QueryEngine>(configuration, this->statListener, this->status, this->bm, Host("test"));
 }
 
 void TestingHarness::startQuery(std::unique_ptr<ExecutableQueryPlan> query) const

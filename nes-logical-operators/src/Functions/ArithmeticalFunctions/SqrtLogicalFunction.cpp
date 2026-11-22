@@ -14,33 +14,35 @@
 
 #include <Functions/ArithmeticalFunctions/SqrtLogicalFunction.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataTypeProvider.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-SqrtLogicalFunction::SqrtLogicalFunction(const LogicalFunction& child) : dataType(child.getDataType()), child(child) { };
+SqrtLogicalFunction::SqrtLogicalFunction(LogicalFunction child) : child(std::move(child)) { };
 
-bool SqrtLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool SqrtLogicalFunction::operator==(const SqrtLogicalFunction& rhs) const
 {
-    const auto* other = dynamic_cast<const SqrtLogicalFunction*>(&rhs);
-    if (other != nullptr)
-    {
-        return child == other->child;
-    }
-    return false;
+    return child == rhs.child;
 }
 
 std::string SqrtLogicalFunction::explain(ExplainVerbosity verbosity) const
@@ -57,21 +59,17 @@ DataType SqrtLogicalFunction::getDataType() const
     return dataType;
 };
 
-LogicalFunction SqrtLogicalFunction::withDataType(const DataType& dataType) const
+LogicalFunction SqrtLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
     auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
-LogicalFunction SqrtLogicalFunction::withInferredDataType(const Schema& schema) const
-{
-    std::vector<LogicalFunction> newChildren;
-    for (auto& child : getChildren())
+    copy.child = child.withInferredDataType(schema);
+    if (!copy.child.getDataType().isNumeric())
     {
-        newChildren.push_back(child.withInferredDataType(schema));
+        throw CannotInferStamp("Cannot apply sqrt function on non-numeric input function {}", copy.child);
     }
-    return withChildren(newChildren);
+    copy.dataType = DataTypeProvider::provideDataType(DataType::Type::FLOAT64);
+    copy.dataType.nullable = std::ranges::any_of(copy.getChildren(), [](const auto& child) { return child.getDataType().nullable; });
+    return copy;
 };
 
 std::vector<LogicalFunction> SqrtLogicalFunction::getChildren() const
@@ -79,7 +77,7 @@ std::vector<LogicalFunction> SqrtLogicalFunction::getChildren() const
     return {child};
 };
 
-LogicalFunction SqrtLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+SqrtLogicalFunction SqrtLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 1, "SqrtLogicalFunction requires exactly one child, but got {}", children.size());
     auto copy = *this;
@@ -92,16 +90,18 @@ std::string_view SqrtLogicalFunction::getType() const
     return NAME;
 }
 
-SerializableFunction SqrtLogicalFunction::serialize() const
+Reflected Reflector<SqrtLogicalFunction>::operator()(const SqrtLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(child.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedSqrtLogicalFunction{.child = function.child});
 }
 
-LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterSqrtLogicalFunction(LogicalFunctionRegistryArguments arguments)
+SqrtLogicalFunction Unreflector<SqrtLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [child] = context.unreflect<detail::ReflectedSqrtLogicalFunction>(reflected);
+    return SqrtLogicalFunction(std::move(child));
+}
+
+LogicalFunctionRegistryReturnType SqrtLogicalFunction::createSqrt(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 1)
     {

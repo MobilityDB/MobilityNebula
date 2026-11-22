@@ -14,79 +14,110 @@
 
 #pragma once
 
+#include <cstdint>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <vector>
-#include <Configurations/Descriptor.hpp>
-#include <DataTypes/Schema.hpp>
+
+#include <DataTypes/UnboundField.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
+#include <Operators/LogicalOperatorFwd.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/ReflectedOperator.hpp>
 #include <Traits/Trait.hpp>
 #include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <SerializableOperator.pb.h>
+#include <Util/Reflection.hpp>
 
 namespace NES
 {
 
-/// The rows of FROM t CROSS JOIN UNNEST(array) AS u(x): each row of its input once per element of the array the function
-/// answers for it, with the element in the field x of u. The array is of a type a plugin adds over VARSIZED that states
-/// the type of its elements (ExtensionType::element), and an array of no element gives no row.
-class UnnestLogicalOperator
+/// CROSS JOIN UNNEST(array) AS alias(element): each record of the child, once per element of the array the function answers
+/// for it, the element in the field `element`, as SQL:2003 writes it and PostgreSQL, DuckDB and Flink read it. The array is
+/// a value of an array type a plugin adds over VARSIZED, whose ExtensionType::element is the type of its elements; an array
+/// of no element gives no record. The output holds the child's fields and the element's.
+class UnnestLogicalOperator : public ManagedByOperator
 {
 public:
-    UnnestLogicalOperator(LogicalFunction array, std::string elementFieldName);
+    UnnestLogicalOperator(WeakLogicalOperator self, LogicalFunction array, Identifier alias, Identifier element);
+    UnnestLogicalOperator(WeakLogicalOperator self, LogicalOperator child, LogicalFunction array, Identifier alias, Identifier element);
+
+    static TypedLogicalOperator<UnnestLogicalOperator> create(LogicalFunction array, Identifier alias, Identifier element);
+    static TypedLogicalOperator<UnnestLogicalOperator>
+    create(LogicalOperator child, LogicalFunction array, Identifier alias, Identifier element);
 
     [[nodiscard]] LogicalFunction getArray() const;
-    [[nodiscard]] const std::string& getElementFieldName() const;
+    [[nodiscard]] Identifier getAlias() const;
+    [[nodiscard]] Identifier getElement() const;
 
     [[nodiscard]] bool operator==(const UnnestLogicalOperator& rhs) const;
-    void serialize(SerializableOperator&) const;
 
     [[nodiscard]] UnnestLogicalOperator withTraitSet(TraitSet traitSet) const;
     [[nodiscard]] TraitSet getTraitSet() const;
 
+    [[nodiscard]] UnnestLogicalOperator withChildrenUnsafe(std::vector<LogicalOperator> children) const;
     [[nodiscard]] UnnestLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
     [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
-
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
-    [[nodiscard]] Schema getOutputSchema() const;
+    [[nodiscard]] LogicalOperator getChild() const;
+    [[nodiscard]] Schema<Field, Unordered> getOutputSchema() const;
 
     [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId) const;
     [[nodiscard]] std::string_view getName() const noexcept;
 
-    [[nodiscard]] UnnestLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
-
-    struct ConfigParameters
-    {
-        static inline const DescriptorConfig::ConfigParameter<std::string> UNNEST_ARRAY_FUNCTION{
-            "unnestArrayFunction",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return DescriptorConfig::tryGet(UNNEST_ARRAY_FUNCTION, config); }};
-
-        static inline const DescriptorConfig::ConfigParameter<std::string> UNNEST_ELEMENT_FIELD{
-            "unnestElementField",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return DescriptorConfig::tryGet(UNNEST_ELEMENT_FIELD, config); }};
-
-        static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
-            = DescriptorConfig::createConfigParameterContainerMap(UNNEST_ARRAY_FUNCTION, UNNEST_ELEMENT_FIELD);
-    };
+    [[nodiscard]] UnnestLogicalOperator withInferredSchema() const;
 
 private:
     static constexpr std::string_view NAME = "Unnest";
+    std::optional<LogicalOperator> child;
     LogicalFunction array;
-    std::string elementFieldName;
+    Identifier alias;
+    Identifier element;
 
-    std::vector<LogicalOperator> children;
+    void inferLocalSchema();
+    /// Set during schema inference
+    std::optional<Schema<UnqualifiedUnboundField, Unordered>> outputSchema;
+
     TraitSet traitSet;
-    Schema inputSchema, outputSchema;
+    friend struct std::hash<UnnestLogicalOperator>;
+};
+
+namespace detail
+{
+struct ReflectedUnnestLogicalOperator
+{
+    OperatorId operatorId{OperatorId::INVALID};
+    LogicalFunction array;
+    Identifier alias;
+    Identifier element;
+};
+}
+
+template <>
+struct Reflector<TypedLogicalOperator<UnnestLogicalOperator>>
+{
+    Reflected operator()(const TypedLogicalOperator<UnnestLogicalOperator>& op, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<TypedLogicalOperator<UnnestLogicalOperator>>
+{
+    using ContextType = std::shared_ptr<ReflectedPlan>;
+    ContextType plan;
+    explicit Unreflector(ContextType operatorMapping);
+    TypedLogicalOperator<UnnestLogicalOperator> operator()(const Reflected& rfl, const ReflectionContext& context) const;
 };
 
 static_assert(LogicalOperatorConcept<UnnestLogicalOperator>);
 }
+
+template <>
+struct std::hash<NES::UnnestLogicalOperator>
+{
+    uint64_t operator()(const NES::UnnestLogicalOperator& op) const noexcept;
+};

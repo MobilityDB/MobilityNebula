@@ -12,10 +12,7 @@
 .github/
 
 # Build files
-# Keep the host build tree available when constructing the runtime image
 build
-!build/
-!build/**
 cmake-build*
 debug*
 

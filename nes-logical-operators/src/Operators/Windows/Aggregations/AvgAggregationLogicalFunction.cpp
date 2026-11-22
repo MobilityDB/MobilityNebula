@@ -14,117 +14,113 @@
 
 #include <Operators/Windows/Aggregations/AvgAggregationLogicalFunction.hpp>
 
+#include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <utility>
+#include <variant>
+#include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <fmt/format.h>
+#include <folly/hash/Hash.h>
+#include <magic_enum/magic_enum.hpp>
 #include <AggregationLogicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
-AvgAggregationLogicalFunction::AvgAggregationLogicalFunction(const FieldAccessLogicalFunction& field)
-    : WindowAggregationLogicalFunction(
-          field.getDataType(),
-          DataTypeProvider::provideDataType(partialAggregateStampType),
-          DataTypeProvider::provideDataType(finalAggregateStampType),
-          field)
+AvgAggregationLogicalFunction::AvgAggregationLogicalFunction(AggregationFieldAccess inputFunction) : inputFunction(std::move(inputFunction))
 {
 }
 
-AvgAggregationLogicalFunction::AvgAggregationLogicalFunction(
-    const FieldAccessLogicalFunction& field, const FieldAccessLogicalFunction& asField)
-    : WindowAggregationLogicalFunction(
-          field.getDataType(),
-          DataTypeProvider::provideDataType(partialAggregateStampType),
-          DataTypeProvider::provideDataType(finalAggregateStampType),
-          field,
-          asField)
+DataType AvgAggregationLogicalFunction::getAggregateType() const
 {
+    return DataTypeProvider::provideDataType(
+        finalAggregateStampType, nullable ? DataType::NULLABLE::IS_NULLABLE : DataType::NULLABLE::NOT_NULLABLE);
 }
 
-std::string_view AvgAggregationLogicalFunction::getName() const noexcept
+bool AvgAggregationLogicalFunction::shallIncludeNullValues() noexcept
+{
+    return true;
+}
+
+AggregationFieldAccess AvgAggregationLogicalFunction::getInputFunction() const
+{
+    return inputFunction;
+}
+
+std::string_view AvgAggregationLogicalFunction::getName() noexcept
 {
     return NAME;
 }
 
-void AvgAggregationLogicalFunction::inferStamp(const Schema& schema)
+std::string AvgAggregationLogicalFunction::explain(ExplainVerbosity verbosity) const
+{
+    if (verbosity == ExplainVerbosity::Short)
+    {
+        return fmt::format("{}()", NAME);
+    }
+    auto inputExplain = std::visit([verbosity](const auto& input) { return input->explain(verbosity); }, inputFunction);
+    return fmt::format("{}({})", NAME, inputExplain);
+}
+
+bool AvgAggregationLogicalFunction::operator==(const AvgAggregationLogicalFunction& other) const
+{
+    return inputFunction == other.inputFunction;
+}
+
+AvgAggregationLogicalFunction AvgAggregationLogicalFunction::withInferredType(const Schema<Field, Unordered>& schema) const
 {
     /// We first infer the dataType of the input field and set the output dataType as the same.
-    auto newOnField = onField.withInferredDataType(schema).get<FieldAccessLogicalFunction>();
-    if (not newOnField.getDataType().isNumeric())
+    const auto newInputFunction = inferFieldAccess(inputFunction, schema);
+    if (!newInputFunction->getDataType().isNumeric())
     {
-        throw CannotDeserialize("aggregations on non numeric fields is not supported.");
+        throw UnsupportedQuery(
+            "{} is only supported on numeric fields, but field {} has type {}",
+            NAME,
+            newInputFunction->getField().getLastName(),
+            magic_enum::enum_name(newInputFunction->getDataType().type));
     }
-
-    /// As we are performing essentially a sum and a count, we need to cast the sum to either uint64_t, int64_t or double to avoid overflow
-    if (onField.getDataType().isInteger())
-    {
-        if (onField.getDataType().isSignedInteger())
-        {
-            newOnField
-                = newOnField.withDataType(DataTypeProvider::provideDataType(DataType::Type::INT64)).get<FieldAccessLogicalFunction>();
-        }
-        else
-        {
-            newOnField
-                = newOnField.withDataType(DataTypeProvider::provideDataType(DataType::Type::UINT64)).get<FieldAccessLogicalFunction>();
-        }
-    }
-    else
-    {
-        newOnField = newOnField.withDataType(DataTypeProvider::provideDataType(DataType::Type::FLOAT64)).get<FieldAccessLogicalFunction>();
-    }
-
-    ///Set fully qualified name for the as Field
-    const auto onFieldName = newOnField.getFieldName();
-    const auto asFieldName = asField.getFieldName();
-
-    const auto attributeNameResolver = onFieldName.substr(0, onFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR) + 1);
-    ///If on and as field name are different then append the attribute name resolver from on field to the as field
-    if (asFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR) == std::string::npos)
-    {
-        asField = asField.withFieldName(attributeNameResolver + asFieldName).get<FieldAccessLogicalFunction>();
-    }
-    else
-    {
-        const auto fieldName = asFieldName.substr(asFieldName.find_last_of(Schema::ATTRIBUTE_NAME_SEPARATOR) + 1);
-        asField = asField.withFieldName(attributeNameResolver + fieldName).get<FieldAccessLogicalFunction>();
-    }
-    auto newAsField = asField.withDataType(getFinalAggregateStamp());
-    asField = newAsField.get<FieldAccessLogicalFunction>();
-    onField = newOnField;
-    inputStamp = newOnField.getDataType();
+    auto newAggFunction = AvgAggregationLogicalFunction{newInputFunction};
+    newAggFunction.nullable = newInputFunction->getDataType().nullable;
+    return newAggFunction;
 }
 
-SerializableAggregationFunction AvgAggregationLogicalFunction::serialize() const
+Reflected
+Reflector<AvgAggregationLogicalFunction>::operator()(const AvgAggregationLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableAggregationFunction serializedAggregationFunction;
-    serializedAggregationFunction.set_type(NAME);
-
-    auto onFieldFuc = SerializableFunction();
-    onFieldFuc.CopyFrom(onField.serialize());
-
-    auto asFieldFuc = SerializableFunction();
-    asFieldFuc.CopyFrom(asField.serialize());
-
-    serializedAggregationFunction.mutable_as_field()->CopyFrom(asFieldFuc);
-    serializedAggregationFunction.mutable_on_field()->CopyFrom(onFieldFuc);
-    return serializedAggregationFunction;
+    return context.reflect(function.getInputFunction());
 }
 
-AggregationLogicalFunctionRegistryReturnType
-AggregationLogicalFunctionGeneratedRegistrar::RegisterAvgAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
+AvgAggregationLogicalFunction
+Unreflector<AvgAggregationLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
 {
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("AvgAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<AvgAggregationLogicalFunction>(arguments.fields[0], arguments.fields[1]);
+    return AvgAggregationLogicalFunction{context.unreflect<AggregationFieldAccess>(reflected)};
 }
+
+AggregationLogicalFunctionRegistryReturnType AvgAggregationLogicalFunction::create(AggregationLogicalFunctionRegistryArguments arguments)
+{
+    if (arguments.on.size() != 1)
+    {
+        throw CannotDeserialize("AvgAggregationLogicalFunction requires exactly one field, but got {}", arguments.on.size());
+    }
+    return AvgAggregationLogicalFunction{arguments.on.at(0)};
+}
+}
+
+size_t
+std::hash<NES::AvgAggregationLogicalFunction>::operator()(const NES::AvgAggregationLogicalFunction& aggregationFunction) const noexcept
+{
+    return folly::hash::hash_combine(aggregationFunction.getInputFunction(), NES::AvgAggregationLogicalFunction::getName());
 }

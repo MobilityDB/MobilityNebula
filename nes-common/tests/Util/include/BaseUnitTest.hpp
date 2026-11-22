@@ -14,11 +14,13 @@
 
 #pragma once
 #include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <future>
 #include <thread>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
+#include <sys/prctl.h>
 
 namespace NES::Testing
 {
@@ -64,8 +66,22 @@ namespace NES::Testing
         } while (0)
 #else
     /// In Debug-Modus: Use regular EXPECT_DEATH
-    #define EXPECT_DEATH_DEBUG(statement, regex) EXPECT_DEATH(statement, regex)
-    #define ASSERT_DEATH_DEBUG(statement, regex) ASSERT_DEATH(statement, regex)
+    /// The expected crash must not write a core dump, as each one can be very large. This only applies to the statement,
+    /// which gtest runs in a child process, so an unexpected crash anywhere else still writes one.
+    #define EXPECT_DEATH_DEBUG(statement, regex) \
+        EXPECT_DEATH( \
+            { \
+                prctl(PR_SET_DUMPABLE, 0); \
+                statement; \
+            }, \
+            regex)
+    #define ASSERT_DEATH_DEBUG(statement, regex) \
+        ASSERT_DEATH( \
+            { \
+                prctl(PR_SET_DUMPABLE, 0); \
+                statement; \
+            }, \
+            regex)
 #endif
 
 #define ASSERT_EXCEPTION_ERRORCODE(statement, errorCode) \
@@ -93,7 +109,15 @@ private:
     std::unique_ptr<std::thread> waitThread;
     std::shared_ptr<std::promise<bool>> testCompletion;
     std::atomic<bool> testCompletionSet{false};
-    static constexpr uint64_t WAIT_TIME_SETUP = 5;
+
+#if defined(__has_feature) && __has_feature(thread_sanitizer)
+    /// We double the timeout for tests when running with the thread sanitizer, as it significantly slows down execution for some tests
+    static constexpr std::chrono::minutes WAIT_TIME_SETUP{16};
+#else
+    /// 8 minutes leaves headroom for the slowest parameterized tests (e.g. ChainedHashMapCustomValueTest,
+    /// ~6 min on CI) so they don't trip the deadline spuriously when CI machines run slow.
+    static constexpr std::chrono::minutes WAIT_TIME_SETUP{12};
+#endif
 };
 
 /**

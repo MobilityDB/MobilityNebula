@@ -14,11 +14,13 @@
 
 #pragma once
 
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <iosfwd>
 #include <memory>
 #include <memory_resource>
+#include <optional>
 #include <thread>
 #include <unordered_map>
 #include <utility>
@@ -43,6 +45,16 @@ class UnpooledChunksManager
     /// Needed for allocating and deallocating memory
     std::shared_ptr<std::pmr::memory_resource> memoryResource;
 
+    /// Hard cap on the total bytes that may be allocated for unpooled chunks. Once exceeded, getUnpooledBuffer
+    /// returns std::nullopt instead of allocating, so the requesting query fails cleanly (via the callers'
+    /// CannotAllocateBuffer/BufferAllocationFailure paths) rather than the worker running out of physical memory.
+    /// std::numeric_limits<size_t>::max() means "unbounded" (the historic behaviour, e.g. for tests).
+    size_t unpooledMemoryBudgetInBytes;
+
+    /// Total bytes currently allocated across all unpooled chunks. Held via shared_ptr so the per-segment recycle
+    /// callback can decrement it even if this manager has been destroyed in the meantime.
+    std::shared_ptr<std::atomic<size_t>> currentlyAllocatedUnpooledBytes = std::make_shared<std::atomic<size_t>>(0);
+
     /// Helper struct that stores necessary information for accessing unpooled chunks
     /// Instead of allocating the exact needed space, we allocate a chunk of a space calculated by a rolling average of the last n sizes.
     /// Thus, we (pre-)allocate potentially multiple buffers. At least, there is a high chance that one chunk contains multiple tuple buffers
@@ -51,9 +63,10 @@ class UnpooledChunksManager
         struct ChunkControlBlock
         {
             size_t totalSize = 0;
+            size_t budgetedSize = 0;
             size_t usedSize = 0;
             uint8_t* startOfChunk = nullptr;
-            std::vector<std::unique_ptr<detail::MemorySegment>> unpooledMemorySegments;
+            std::vector<std::unique_ptr<NES::detail::MemorySegment>> unpooledMemorySegments;
             uint64_t activeMemorySegments = 0;
 
             friend std::ostream& operator<<(std::ostream& os, const ChunkControlBlock& chunkControlBlock)
@@ -68,7 +81,7 @@ class UnpooledChunksManager
         };
 
         explicit UnpooledChunk(uint64_t windowSize);
-        void emplaceChunkControlBlock(uint8_t* chunkKey, std::unique_ptr<detail::MemorySegment> newMemorySegment);
+        void emplaceChunkControlBlock(uint8_t* chunkKey, std::unique_ptr<NES::detail::MemorySegment> newMemorySegment);
         std::unordered_map<uint8_t*, ChunkControlBlock> chunks;
         uint8_t* lastAllocateChunkKey;
         RollingAverage<size_t> rollingAverage;
@@ -79,15 +92,18 @@ class UnpooledChunksManager
 
     /// Returns two pointers wrapped in a pair
     /// std::get<0>: the key that is being used in the unordered_map of a ChunkControlBlock
-    /// std::get<1>: pointer to the memory address that is large enough for neededSize
-    std::pair<uint8_t*, uint8_t*> allocateSpace(std::thread::id threadId, size_t neededSize, size_t alignment);
+    /// std::get<1>: pointer to the memory address that is large enough for payloadSize plus redzoneSize
+    std::pair<uint8_t*, uint8_t*> allocateSpace(std::thread::id threadId, size_t payloadSize, size_t redzoneSize, size_t alignment);
 
     std::shared_ptr<folly::Synchronized<UnpooledChunk>> getChunk(std::thread::id threadId);
 
 public:
-    explicit UnpooledChunksManager(std::shared_ptr<std::pmr::memory_resource> memoryResource);
+    explicit UnpooledChunksManager(std::shared_ptr<std::pmr::memory_resource> memoryResource, size_t unpooledMemoryBudgetInBytes);
     size_t getNumberOfUnpooledBuffers() const;
-    TupleBuffer getUnpooledBuffer(size_t neededSize, size_t alignment, const std::shared_ptr<BufferRecycler>& bufferRecycler);
+
+    /// Returns std::nullopt if the unpooled memory budget would be exceeded or the underlying allocation fails.
+    std::optional<TupleBuffer>
+    getUnpooledBuffer(size_t neededSize, size_t alignment, const std::shared_ptr<BufferRecycler>& bufferRecycler);
 };
 
 }

@@ -14,35 +14,35 @@
 
 #include <Functions/ArithmeticalFunctions/PowLogicalFunction.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataTypeProvider.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-PowLogicalFunction::PowLogicalFunction(const LogicalFunction& left, const LogicalFunction& right)
-    : dataType(left.getDataType().join(right.getDataType()).value_or(DataType{DataType::Type::UNDEFINED})), left(left), right(right) { };
+PowLogicalFunction::PowLogicalFunction(LogicalFunction left, LogicalFunction right) : left(std::move(left)), right(std::move(right)) { };
 
-bool PowLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool PowLogicalFunction::operator==(const PowLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const PowLogicalFunction*>(&rhs))
-    {
-        const bool simpleMatch = left == other->left and right == other->right;
-        const bool commutativeMatch = left == other->right and right == other->left;
-        return simpleMatch or commutativeMatch;
-    }
-    return false;
+    return left == rhs.left and right == rhs.right;
 }
 
 std::string PowLogicalFunction::explain(ExplainVerbosity verbosity) const
@@ -55,21 +55,18 @@ DataType PowLogicalFunction::getDataType() const
     return dataType;
 };
 
-LogicalFunction PowLogicalFunction::withDataType(const DataType& dataType) const
+LogicalFunction PowLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
     auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
-LogicalFunction PowLogicalFunction::withInferredDataType(const Schema& schema) const
-{
-    std::vector<LogicalFunction> newChildren;
-    for (auto& child : getChildren())
+    copy.left = left.withInferredDataType(schema);
+    copy.right = right.withInferredDataType(schema);
+    if ((!copy.left.getDataType().isNumeric()) || (!copy.right.getDataType().isNumeric()))
     {
-        newChildren.push_back(child.withInferredDataType(schema));
+        throw CannotInferStamp("Can only apply pow to two numeric input function, but got left: {}, right: {}", copy.left, copy.right);
     }
-    return withChildren(newChildren);
+    copy.dataType = DataTypeProvider::provideDataType(DataType::Type::FLOAT64);
+    copy.dataType.nullable = std::ranges::any_of(copy.getChildren(), [](const auto& child) { return child.getDataType().nullable; });
+    return copy;
 };
 
 std::vector<LogicalFunction> PowLogicalFunction::getChildren() const
@@ -77,12 +74,11 @@ std::vector<LogicalFunction> PowLogicalFunction::getChildren() const
     return {left, right};
 };
 
-LogicalFunction PowLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+PowLogicalFunction PowLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     auto copy = *this;
     copy.left = children[0];
     copy.right = children[1];
-    copy.dataType = children[0].getDataType().join(children[1].getDataType()).value_or(DataType{DataType::Type::UNDEFINED});
     return copy;
 };
 
@@ -91,17 +87,18 @@ std::string_view PowLogicalFunction::getType() const
     return NAME;
 }
 
-SerializableFunction PowLogicalFunction::serialize() const
+Reflected Reflector<PowLogicalFunction>::operator()(const PowLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(left.serialize());
-    serializedFunction.add_children()->CopyFrom(right.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedPowLogicalFunction{.left = function.left, .right = function.right});
 }
 
-LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterPowLogicalFunction(LogicalFunctionRegistryArguments arguments)
+PowLogicalFunction Unreflector<PowLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [left, right] = context.unreflect<detail::ReflectedPowLogicalFunction>(reflected);
+    return PowLogicalFunction{left, right};
+}
+
+LogicalFunctionRegistryReturnType PowLogicalFunction::createPow(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 2)
     {

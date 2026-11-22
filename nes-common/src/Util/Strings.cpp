@@ -20,6 +20,7 @@
 #include <optional>
 #include <ranges>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -27,7 +28,7 @@
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 
-namespace NES::Util
+namespace NES
 {
 
 template <>
@@ -36,7 +37,13 @@ std::optional<float> from_chars<float>(const std::string_view input)
     const std::string str(trimWhiteSpaces(input));
     try
     {
-        return std::stof(str);
+        std::size_t pos = 0;
+        const auto value = std::stof(str, &pos);
+        if (pos != str.size())
+        {
+            return {};
+        }
+        return value;
     }
     catch (...) /// NOLINT(no-raw-catch-all)
     {
@@ -47,7 +54,7 @@ std::optional<float> from_chars<float>(const std::string_view input)
 template <>
 std::optional<bool> from_chars<bool>(const std::string_view input)
 {
-    auto trimmed = trimWhiteSpaces(input);
+    const auto trimmed = trimWhiteSpaces(input);
     if (toLowerCase(trimmed) == "true" || trimmed == "1")
     {
         return true;
@@ -63,46 +70,6 @@ template <>
 std::optional<char> from_chars<char>(const std::string_view input)
 {
     return (input.size() == 1) ? std::optional(input.front()) : std::nullopt;
-}
-
-template <>
-bool from_chars_with_exception<bool>(std::string_view input)
-{
-    if (const auto boolValue = from_chars<bool>(input); boolValue.has_value())
-    {
-        return boolValue.value();
-    }
-    throw CannotFormatMalformedStringValue("'{}' is not a supported boolean value.", input);
-}
-
-template <>
-float from_chars_with_exception<float>(std::string_view input)
-{
-    if (const auto floatValue = from_chars<float>(input); floatValue.has_value())
-    {
-        return floatValue.value();
-    }
-    throw CannotFormatMalformedStringValue("'{}' is not a supported float value.", input);
-}
-
-template <>
-double from_chars_with_exception<double>(std::string_view input)
-{
-    if (const auto doubleValue = from_chars<double>(input); doubleValue.has_value())
-    {
-        return doubleValue.value();
-    }
-    throw CannotFormatMalformedStringValue("'{}' is not a supported double value.", input);
-}
-
-template <>
-char from_chars_with_exception<char>(std::string_view input)
-{
-    if (const auto charValue = from_chars<char>(input); charValue.has_value())
-    {
-        return charValue.value();
-    }
-    throw CannotFormatMalformedStringValue("'{}' is not a supported char value.", input);
 }
 
 std::string formatFloat(std::floating_point auto value)
@@ -129,7 +96,13 @@ std::optional<double> from_chars<double>(const std::string_view input)
     const std::string str(trimWhiteSpaces(input));
     try
     {
-        return std::stod(str);
+        std::size_t pos = 0;
+        const auto value = std::stod(str, &pos);
+        if (pos != str.size())
+        {
+            return {};
+        }
+        return value;
     }
     catch (...) /// NOLINT(no-raw-catch-all)
     {
@@ -216,11 +189,71 @@ std::string escapeSpecialCharacters(const std::string_view input)
             case '\v':
                 result += "\\v";
                 break;
+            case '\\':
+                result += "\\\\";
+                break;
             default:
                 result += character;
                 break;
         }
     }
+    return result;
+}
+
+std::string unescapeSpecialCharacters(std::string_view input)
+{
+    std::string result;
+    result.reserve(input.size()); /// Result will be at most as long as input
+
+    for (size_t i = 0; i < input.size(); ++i)
+    {
+        if (input[i] == '\\' && i + 1 < input.size())
+        {
+            switch (input[i + 1])
+            {
+                case 'a':
+                    result.push_back('\a');
+                    ++i;
+                    break;
+                case 'b':
+                    result.push_back('\b');
+                    ++i;
+                    break;
+                case 'f':
+                    result.push_back('\f');
+                    ++i;
+                    break;
+                case 'n':
+                    result.push_back('\n');
+                    ++i;
+                    break;
+                case 'r':
+                    result.push_back('\r');
+                    ++i;
+                    break;
+                case 't':
+                    result.push_back('\t');
+                    ++i;
+                    break;
+                case 'v':
+                    result.push_back('\v');
+                    ++i;
+                    break;
+                case '\\':
+                    result.push_back('\\');
+                    ++i;
+                    break;
+                default:
+                    result.push_back(input[i]);
+                    break;
+            }
+        }
+        else
+        {
+            result.push_back(input[i]);
+        }
+    }
+
     return result;
 }
 
@@ -283,6 +316,52 @@ std::vector<std::string_view> splitOnMultipleDelimiters(std::string_view input, 
             | std::views::join | std::ranges::to<std::vector<std::string_view>>();
     }
 
+    return result;
+}
+
+std::vector<std::string_view>
+splitOnMultipleDelimiters(std::string_view input, const std::vector<char>& delimiters, const std::vector<char>& encapsulators)
+{
+    /// Delimiters and encapsulators should not intersect.
+    if (std::ranges::any_of(delimiters, [&](char delim) { return std::ranges::find(encapsulators, delim) != encapsulators.end(); }))
+    {
+        throw std::invalid_argument("The vectors of delimiters and encapsulators must not intersect.");
+    }
+
+    std::vector<std::string_view> result;
+
+    const auto isDelimiter = [&delimiters](const char character) { return std::ranges::contains(delimiters, character); };
+    const auto isEncapsulator = [&encapsulators](const char character) { return std::ranges::contains(encapsulators, character); };
+
+    size_t tokenStart = 0;
+    std::optional<char> openEncapsulator;
+    for (std::size_t pos = 0; pos < input.size(); ++pos)
+    {
+        const char current = input[pos];
+        if (openEncapsulator.has_value())
+        {
+            if (current == *openEncapsulator)
+            {
+                openEncapsulator.reset();
+            }
+        }
+        else if (isEncapsulator(current))
+        {
+            openEncapsulator = current;
+        }
+        else if (isDelimiter(current))
+        {
+            if (pos > tokenStart)
+            {
+                result.emplace_back(input.substr(tokenStart, pos - tokenStart));
+            }
+            tokenStart = pos + 1;
+        }
+    }
+    if (tokenStart < input.size())
+    {
+        result.emplace_back(input.substr(tokenStart));
+    }
     return result;
 }
 

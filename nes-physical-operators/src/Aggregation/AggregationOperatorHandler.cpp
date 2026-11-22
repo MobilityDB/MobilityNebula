@@ -22,17 +22,19 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <tuple>
 #include <utility>
 #include <vector>
 #include <Aggregation/AggregationSlice.hpp>
 #include <Identifiers/Identifiers.hpp>
-#include <Nautilus/Interface/HashMap/ChainedHashMap/ChainedHashMap.hpp>
-#include <Nautilus/Interface/HashMap/HashMap.hpp>
+#include <Interface/HashMap/ChainedHashMap/ChainedHashMap.hpp>
+#include <Interface/HashMap/HashMap.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <SliceStore/Slice.hpp>
 #include <SliceStore/WindowSlicesStoreInterface.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <ErrorHandling.hpp>
+#include <HashMapSlice.hpp>
 #include <PipelineExecutionContext.hpp>
 #include <WindowBasedOperatorHandler.hpp>
 
@@ -42,12 +44,8 @@ namespace NES
 AggregationOperatorHandler::AggregationOperatorHandler(
     const std::vector<OriginId>& inputOrigins,
     const OriginId outputOriginId,
-    std::unique_ptr<WindowSlicesStoreInterface> sliceAndWindowStore,
-    const uint64_t maxNumberOfBuckets)
-    : WindowBasedOperatorHandler(inputOrigins, outputOriginId, std::move(sliceAndWindowStore))
-    , setupAlreadyCalled(false)
-    , rollingAverageNumberOfKeys(RollingAverage<uint64_t>{100})
-    , maxNumberOfBuckets(maxNumberOfBuckets)
+    std::unique_ptr<WindowSlicesStoreInterface> sliceAndWindowStore)
+    : WindowBasedOperatorHandler(inputOrigins, outputOriginId, std::move(sliceAndWindowStore)), setupAlreadyCalled(false)
 {
 }
 
@@ -56,8 +54,7 @@ AggregationOperatorHandler::getCreateNewSlicesFunction(const CreateNewSlicesArgu
 {
     PRECONDITION(
         numberOfWorkerThreads > 0, "Number of worker threads not set for window based operator. Was setWorkerThreads() being called?");
-    auto newHashMapArgs = dynamic_cast<const CreateNewHashMapSliceArgs&>(newSlicesArguments);
-    newHashMapArgs.numberOfBuckets = std::clamp(rollingAverageNumberOfKeys.rlock()->getAverage(), 1UL, maxNumberOfBuckets);
+    const auto& newHashMapArgs = dynamic_cast<const CreateNewHashMapSliceArgs&>(newSlicesArguments);
     return std::function(
         [outputOriginId = outputOriginId, numberOfWorkerThreads = numberOfWorkerThreads, copyOfNewHashMapArgs = newHashMapArgs](
             SliceStart sliceStart, SliceEnd sliceEnd) -> std::vector<std::shared_ptr<Slice>>
@@ -74,43 +71,43 @@ void AggregationOperatorHandler::triggerSlices(
     for (const auto& [windowInfo, allSlices] : slicesAndWindowInfo)
     {
         /// Getting all hashmaps for each slice that has at least one tuple
-        std::unique_ptr<Nautilus::Interface::ChainedHashMap> finalHashMap;
-        std::vector<Nautilus::Interface::HashMap*> allHashMaps;
+        std::vector<TupleBuffer> allHashMapBuffers;
         uint64_t totalNumberOfTuples = 0;
         for (const auto& slice : allSlices)
         {
             const auto aggregationSlice = std::dynamic_pointer_cast<AggregationSlice>(slice);
             for (uint64_t hashMapIdx = 0; hashMapIdx < aggregationSlice->getNumberOfHashMaps(); ++hashMapIdx)
             {
-                if (auto* hashMap = aggregationSlice->getHashMapPtr(WorkerThreadId(hashMapIdx));
-                    (hashMap != nullptr) and hashMap->getNumberOfTuples() > 0)
+                /// Read-only: a hash map no build worker ever touched for this slice is simply skipped rather than
+                /// lazily created here. Trigger-time must never allocate, since that would race with a build worker
+                /// concurrently first-touching the same slot (see HashMapSlice::getOrCreateHashMapBufferRef).
+                const TupleBuffer* hashMapBuffer = aggregationSlice->getHashMapBufferRefForWorker(WorkerThreadId(hashMapIdx));
+                if (hashMapBuffer == nullptr)
                 {
-                    /// As the hashmap has one value per key, we can use the number of tuples for the number of keys
-                    rollingAverageNumberOfKeys.wlock()->add(hashMap->getNumberOfTuples());
-
-                    allHashMaps.emplace_back(hashMap);
-                    totalNumberOfTuples += hashMap->getNumberOfTuples();
-                    if (not finalHashMap)
-                    {
-                        finalHashMap = Nautilus::Interface::ChainedHashMap::createNewMapWithSameConfiguration(
-                            *dynamic_cast<Nautilus::Interface::ChainedHashMap*>(hashMap));
-                    }
+                    continue;
+                }
+                if (const ChainedHashMap hashMap = ChainedHashMap::load(*hashMapBuffer); hashMap.getTotalNumberOfRecords() > 0)
+                {
+                    allHashMapBuffers.emplace_back(*hashMapBuffer);
+                    totalNumberOfTuples += hashMap.getTotalNumberOfRecords();
                 }
             }
         }
 
 
-        /// We need a buffer that is large enough to store:
-        /// - all pointers to all hashmaps of the window to be triggered
-        /// - a new hashmap for the probe operator, so that we are not overwriting the thread local hashmaps
-        /// - size of EmittedAggregationWindow
-        const auto neededBufferSize = sizeof(EmittedAggregationWindow) + (allHashMaps.size() * sizeof(Nautilus::Interface::HashMap*));
+        /// We need a buffer that is large enough to store an EmittedAggregationWindow
+        constexpr auto neededBufferSize = sizeof(EmittedAggregationWindow);
         const auto tupleBufferVal = pipelineCtx->getBufferManager()->getUnpooledBuffer(neededBufferSize);
         if (not tupleBufferVal.has_value())
         {
             throw CannotAllocateBuffer("{}B for the hash join window trigger were requested", neededBufferSize);
         }
         auto tupleBuffer = tupleBufferVal.value();
+        /// Store each hash map buffer as a child so the probe can load them via loadChildBuffer(i)
+        for (auto hashMapBuffer : allHashMapBuffers)
+        {
+            std::ignore = tupleBuffer.storeChildBuffer(hashMapBuffer);
+        }
 
         /// It might be that the buffer is not zeroed out.
         std::ranges::fill(tupleBuffer.getAvailableMemoryArea(), std::byte{0});
@@ -129,7 +126,7 @@ void AggregationOperatorHandler::triggerSlices(
 
         /// Writing all necessary information for the aggregation probe to the buffer via the placement new constructor
         auto tmp = tupleBuffer.getAvailableMemoryArea();
-        new (tmp.data()) EmittedAggregationWindow{windowInfo.windowInfo, std::move(finalHashMap), allHashMaps};
+        new (tmp.data()) EmittedAggregationWindow{windowInfo.windowInfo, allHashMapBuffers.size()};
 
 
         /// Dispatching the buffer to the probe operator via the task queue.

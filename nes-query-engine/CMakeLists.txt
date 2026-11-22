@@ -10,11 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_library(nes-query-engine QueryEngine.cpp RunningQueryPlan.cpp RunningSource.cpp QueryEngineConfiguration.cpp Task.cpp)
+# Add interface library
+add_library(nes-query-engine-interface interface/QueryEngineConfiguration.cpp)
+target_include_directories(nes-query-engine-interface PUBLIC interface)
+target_link_libraries(nes-query-engine-interface PUBLIC nes-common nes-configurations nes-query-optimizer-interface)
+
+add_library(nes-query-engine Callback.cpp QueryEngine.cpp RunningQueryPlan.cpp RunningSource.cpp Task.cpp)
 target_include_directories(nes-query-engine
         PUBLIC include
         PRIVATE .
 )
+
+nautilus_inline(nes-query-engine)
 
 # Set default ENGINE_LOG_LEVEL to ERROR if not specified. Set via: -DENGINE_LOG_LEVEL=TRACE
 if(NOT DEFINED ENGINE_LOG_LEVEL)

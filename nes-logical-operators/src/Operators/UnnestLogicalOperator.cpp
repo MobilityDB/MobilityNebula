@@ -14,34 +14,61 @@
 
 #include <Operators/UnnestLogicalOperator.hpp>
 
+#include <cstdint>
+#include <functional>
+#include <optional>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <utility>
-#include <variant>
 #include <vector>
 
-#include <fmt/format.h>
-
-#include <Configurations/Descriptor.hpp>
-#include <DataTypes/DataTypeProvider.hpp>
+#include <DataTypes/DataType.hpp>
+#include <DataTypes/UnboundField.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
-#include <Serialization/FunctionSerializationUtil.hpp>
-#include <Serialization/SchemaSerializationUtil.hpp>
+#include <Operators/LogicalOperatorFwd.hpp>
+#include <Schema/Binder.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Traits/Trait.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <fmt/format.h>
+#include <folly/hash/Hash.h>
 #include <ErrorHandling.hpp>
-#include <LogicalOperatorRegistry.hpp>
-#include <SerializableOperator.pb.h>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
-
-UnnestLogicalOperator::UnnestLogicalOperator(LogicalFunction array, std::string elementFieldName)
-    : array(std::move(array)), elementFieldName(std::move(elementFieldName))
+UnnestLogicalOperator::UnnestLogicalOperator(WeakLogicalOperator self, LogicalFunction array, Identifier alias, Identifier element)
+    : ManagedByOperator(std::move(self)), array(std::move(array)), alias(std::move(alias)), element(std::move(element))
 {
+}
+
+UnnestLogicalOperator::UnnestLogicalOperator(
+    WeakLogicalOperator self, LogicalOperator child, LogicalFunction array, Identifier alias, Identifier element)
+    : ManagedByOperator(std::move(self))
+    , child(std::move(child))
+    , array(std::move(array))
+    , alias(std::move(alias))
+    , element(std::move(element))
+{
+    inferLocalSchema();
+}
+
+TypedLogicalOperator<UnnestLogicalOperator> UnnestLogicalOperator::create(LogicalFunction array, Identifier alias, Identifier element)
+{
+    return TypedLogicalOperator<UnnestLogicalOperator>{std::move(array), std::move(alias), std::move(element)};
+}
+
+TypedLogicalOperator<UnnestLogicalOperator>
+UnnestLogicalOperator::create(LogicalOperator child, LogicalFunction array, Identifier alias, Identifier element)
+{
+    return TypedLogicalOperator<UnnestLogicalOperator>{std::move(child), std::move(array), std::move(alias), std::move(element)};
 }
 
 std::string_view UnnestLogicalOperator::getName() const noexcept
@@ -54,15 +81,20 @@ LogicalFunction UnnestLogicalOperator::getArray() const
     return array;
 }
 
-const std::string& UnnestLogicalOperator::getElementFieldName() const
+Identifier UnnestLogicalOperator::getAlias() const
 {
-    return elementFieldName;
+    return alias;
+}
+
+Identifier UnnestLogicalOperator::getElement() const
+{
+    return element;
 }
 
 bool UnnestLogicalOperator::operator==(const UnnestLogicalOperator& rhs) const
 {
-    return array == rhs.array && elementFieldName == rhs.elementFieldName && getOutputSchema() == rhs.getOutputSchema()
-        && getInputSchemas() == rhs.getInputSchemas() && getTraitSet() == rhs.getTraitSet();
+    return array == rhs.array && alias == rhs.alias && element == rhs.element && outputSchema == rhs.outputSchema
+        && traitSet == rhs.traitSet;
 };
 
 std::string UnnestLogicalOperator::explain(ExplainVerbosity verbosity, OperatorId opId) const
@@ -70,43 +102,48 @@ std::string UnnestLogicalOperator::explain(ExplainVerbosity verbosity, OperatorI
     if (verbosity == ExplainVerbosity::Debug)
     {
         return fmt::format(
-            "UNNEST(opId: {}, array: {}, element: {}, traitSet: {})",
+            "UNNEST(opId: {}, array: {}, alias: {}, element: {}, traitSet: {})",
             opId,
             array.explain(verbosity),
-            elementFieldName,
+            alias,
+            element,
             traitSet.explain(verbosity));
     }
-    return fmt::format("UNNEST({} AS {})", array.explain(verbosity), elementFieldName);
+    return fmt::format("UNNEST({} AS {}({}))", array.explain(verbosity), alias, element);
 }
 
-UnnestLogicalOperator UnnestLogicalOperator::withInferredSchema(std::vector<Schema> inputSchemas) const
+void UnnestLogicalOperator::inferLocalSchema()
 {
-    auto copy = *this;
-    if (inputSchemas.empty())
+    PRECONDITION(child.has_value(), "Child not set when calling schema inference");
+    const auto inputSchema = child->getOutputSchema();
+    array = array.withInferredDataType(inputSchema);
+    const auto arrayType = array.getDataType();
+    if (not arrayType.isExtension() or arrayType.extension->element == nullptr)
     {
-        throw CannotDeserialize("Unnest should have at least one input");
+        throw CannotInferSchema("UNNEST takes an array, but got a value of type {}", arrayType);
     }
-
-    const auto& firstSchema = inputSchemas.at(0);
-    for (const auto& schema : inputSchemas)
-    {
-        if (schema != firstSchema)
-        {
-            throw CannotInferSchema("All input schemas must be equal for Unnest operator");
-        }
-    }
-
-    copy.array = array.withInferredDataType(firstSchema);
-    const auto arrayType = copy.array.getDataType();
-    if (arrayType.extension == nullptr or arrayType.extension->element == nullptr)
-    {
-        throw CannotInferSchema("UNNEST takes an array, not {}", arrayType);
-    }
+    /// The element is a variable-sized value of the array's element type
     auto elementType = arrayType;
     elementType.extension = arrayType.extension->element;
-    copy.inputSchema = firstSchema;
-    copy.outputSchema = firstSchema;
-    copy.outputSchema = copy.outputSchema.addField(elementFieldName, elementType);
+
+    auto fields = unbind(inputSchema) | std::ranges::to<std::vector>();
+    fields.emplace_back(element, elementType);
+    auto outputSchemaOpt = Schema<UnqualifiedUnboundField, Unordered>::tryCreateCollisionFree(std::move(fields));
+    if (!outputSchemaOpt.has_value())
+    {
+        throw CannotInferSchema(
+            "The element of UNNEST collides with a field of its input: {}",
+            Schema<UnqualifiedUnboundField, Unordered>::createCollisionString(outputSchemaOpt.error()));
+    }
+    outputSchema = std::move(outputSchemaOpt).value();
+}
+
+UnnestLogicalOperator UnnestLogicalOperator::withInferredSchema() const
+{
+    PRECONDITION(child.has_value(), "Child not set when calling schema inference");
+    auto copy = *this;
+    copy.child = copy.child->withInferredSchema();
+    copy.inferLocalSchema();
     return copy;
 }
 
@@ -122,74 +159,69 @@ UnnestLogicalOperator UnnestLogicalOperator::withTraitSet(TraitSet traitSet) con
     return copy;
 }
 
-UnnestLogicalOperator UnnestLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
+UnnestLogicalOperator UnnestLogicalOperator::withChildrenUnsafe(std::vector<LogicalOperator> children) const
 {
+    PRECONDITION(children.size() == 1, "Can only set exactly one child for unnest, got {}", children.size());
     auto copy = *this;
-    copy.children = std::move(children);
+    copy.child = std::move(children.at(0));
     return copy;
 }
 
-std::vector<Schema> UnnestLogicalOperator::getInputSchemas() const
+UnnestLogicalOperator UnnestLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
 {
-    return {inputSchema};
-};
+    PRECONDITION(children.size() == 1, "Can only set exactly one child for unnest, got {}", children.size());
+    auto copy = *this;
+    copy.child = std::move(children.at(0));
+    copy.inferLocalSchema();
+    return copy;
+}
 
-Schema UnnestLogicalOperator::getOutputSchema() const
+Schema<Field, Unordered> UnnestLogicalOperator::getOutputSchema() const
 {
-    return outputSchema;
+    INVARIANT(outputSchema.has_value(), "Accessed output schema before calling schema inference");
+    return NES::bindToOperator(self.lock(), outputSchema.value());
 }
 
 std::vector<LogicalOperator> UnnestLogicalOperator::getChildren() const
 {
-    return children;
+    if (child.has_value())
+    {
+        return {*child};
+    }
+    return {};
 }
 
-void UnnestLogicalOperator::serialize(SerializableOperator& serializableOperator) const
+LogicalOperator UnnestLogicalOperator::getChild() const
 {
-    SerializableLogicalOperator proto;
-
-    proto.set_operator_type(NAME);
-
-    for (const auto& input : getInputSchemas())
-    {
-        auto* schProto = proto.add_input_schemas();
-        SchemaSerializationUtil::serializeSchema(input, schProto);
-    }
-
-    auto* outSch = proto.mutable_output_schema();
-    SchemaSerializationUtil::serializeSchema(outputSchema, outSch);
-
-    for (auto& child : getChildren())
-    {
-        serializableOperator.add_children_ids(child.getId().getRawValue());
-    }
-
-    FunctionList funcList;
-    *funcList.add_functions() = array.serialize();
-    const DescriptorConfig::ConfigType funcVariant = std::move(funcList);
-    (*serializableOperator.mutable_config())[ConfigParameters::UNNEST_ARRAY_FUNCTION] = descriptorConfigTypeToProto(funcVariant);
-
-    const DescriptorConfig::ConfigType fieldVariant = elementFieldName;
-    (*serializableOperator.mutable_config())[ConfigParameters::UNNEST_ELEMENT_FIELD] = descriptorConfigTypeToProto(fieldVariant);
-
-    serializableOperator.mutable_operator_()->CopyFrom(proto);
+    PRECONDITION(child.has_value(), "Child not set when trying to retrieve child");
+    return child.value();
 }
 
-LogicalOperatorRegistryReturnType LogicalOperatorGeneratedRegistrar::RegisterUnnestLogicalOperator(LogicalOperatorRegistryArguments arguments)
+Reflected Reflector<TypedLogicalOperator<UnnestLogicalOperator>>::operator()(
+    const TypedLogicalOperator<UnnestLogicalOperator>& op, const ReflectionContext& context) const
 {
-    auto functionVariant = arguments.config.at(UnnestLogicalOperator::ConfigParameters::UNNEST_ARRAY_FUNCTION);
-    auto fieldVariant = arguments.config.at(UnnestLogicalOperator::ConfigParameters::UNNEST_ELEMENT_FIELD);
-    if (std::holds_alternative<FunctionList>(functionVariant) and std::holds_alternative<std::string>(fieldVariant))
-    {
-        const auto functions = std::get<FunctionList>(functionVariant).functions();
-        if (functions.size() != 1)
-        {
-            throw CannotDeserialize("Expected exactly one function but got {}", functions.size());
-        }
-        auto function = FunctionSerializationUtil::deserializeFunction(functions[0]);
-        auto logicalOperator = UnnestLogicalOperator(function, std::get<std::string>(fieldVariant));
-        return logicalOperator.withInferredSchema(arguments.inputSchemas);
-    }
-    throw UnknownLogicalOperator();
+    return context.reflect(detail::ReflectedUnnestLogicalOperator{
+        .operatorId = op.getId(), .array = op->getArray(), .alias = op->getAlias(), .element = op->getElement()});
 }
+
+Unreflector<TypedLogicalOperator<UnnestLogicalOperator>>::Unreflector(ContextType operatorMapping) : plan(std::move(operatorMapping))
+{
+}
+
+TypedLogicalOperator<UnnestLogicalOperator>
+Unreflector<TypedLogicalOperator<UnnestLogicalOperator>>::operator()(const Reflected& rfl, const ReflectionContext& context) const
+{
+    auto [id, array, alias, element] = context.unreflect<detail::ReflectedUnnestLogicalOperator>(rfl);
+    auto children = plan->getChildrenFor(id, context);
+    if (children.size() != 1)
+    {
+        throw CannotDeserialize("UnnestLogicalOperator requires exactly one child, but got {}", children.size());
+    }
+    return UnnestLogicalOperator::create(children.at(0), array, alias, element);
+}
+}
+
+uint64_t std::hash<NES::UnnestLogicalOperator>::operator()(const NES::UnnestLogicalOperator& op) const noexcept
+{
+    return folly::hash::hash_combine(op.getArray(), op.getAlias(), op.getElement());
 }

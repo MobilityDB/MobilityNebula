@@ -16,9 +16,11 @@
 
 #include <cstdint>
 #include <memory>
+
+#include <Interface/PagedVector/PagedVectorRef.hpp>
 #include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
+#include <SliceStore/SliceStoreRef.hpp>
 #include <Watermark/TimeFunction.hpp>
 #include <WindowBuildPhysicalOperator.hpp>
 
@@ -32,14 +34,16 @@ public:
         OperatorHandlerId operatorHandlerId,
         JoinBuildSideType joinBuildSide,
         std::unique_ptr<TimeFunction> timeFunction,
-        std::shared_ptr<Interface::BufferRef::TupleBufferRef> memoryProvider);
+        std::shared_ptr<PagedVectorTupleLayout> tupleLayout,
+        std::unique_ptr<SliceStoreRef> sliceStoreRef);
     ~StreamJoinBuildPhysicalOperator() override = default;
 
     StreamJoinBuildPhysicalOperator(const StreamJoinBuildPhysicalOperator& other) = default;
 
 protected:
     const JoinBuildSideType joinBuildSide;
-    const std::shared_ptr<Interface::BufferRef::TupleBufferRef> bufferRef;
+    /// NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members): immutable layout shared with derived build/probe operators.
+    const std::shared_ptr<PagedVectorTupleLayout> tupleLayout;
 };
 
 }

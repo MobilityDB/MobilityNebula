@@ -16,12 +16,12 @@
 #include <optional>
 #include <utility>
 #include <Identifiers/Identifiers.hpp>
+#include <Interface/RecordBuffer.hpp>
 #include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
+#include <Operators/Windows/WindowMetaData.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <Runtime/QueryTerminationType.hpp>
 #include <Time/Timestamp.hpp>
-#include <Windowing/WindowMetaData.hpp>
 #include <CompilationContext.hpp>
 #include <ErrorHandling.hpp>
 #include <ExecutionContext.hpp>
@@ -43,8 +43,10 @@ void garbageCollectSlicesProxy(
     const OriginId originId)
 {
     PRECONDITION(ptrOpHandler != nullptr, "opHandler context should not be null!");
+    INVARIANT(
+        watermarkTs.getRawValue() != Timestamp::INVALID_VALUE, "Window probe received a buffer of origin {} without a watermark", originId);
 
-    const auto* opHandler = dynamic_cast<WindowBasedOperatorHandler*>(ptrOpHandler);
+    auto* opHandler = dynamic_cast<WindowBasedOperatorHandler*>(ptrOpHandler);
     const BufferMetaData bufferMetaData(watermarkTs, SequenceData(sequenceNumber, chunkNumber, lastChunk), originId);
 
     opHandler->garbageCollectSlicesAndWindows(bufferMetaData);
@@ -56,8 +58,7 @@ void setupProxy(OperatorHandler* ptrOpHandler, PipelineExecutionContext* pipelin
     PRECONDITION(pipelineCtx != nullptr, "pipeline context should not be null!");
 
     auto* opHandler = dynamic_cast<WindowBasedOperatorHandler*>(ptrOpHandler);
-    opHandler->start(*pipelineCtx, 0);
-    opHandler->setWorkerThreads(pipelineCtx->getNumberOfWorkerThreads());
+    opHandler->start(*pipelineCtx);
 }
 
 void terminateProxy(OperatorHandler* ptrOpHandler, PipelineExecutionContext* pipelineCtx)
@@ -71,7 +72,7 @@ void terminateProxy(OperatorHandler* ptrOpHandler, PipelineExecutionContext* pip
 }
 
 WindowProbePhysicalOperator::WindowProbePhysicalOperator(OperatorHandlerId operatorHandlerId, WindowMetaData windowMetaData)
-    : operatorHandlerId(operatorHandlerId), windowMetaData(std::move(std::move(windowMetaData)))
+    : operatorHandlerId(operatorHandlerId), windowMetaData(std::move(windowMetaData))
 {
 }
 
@@ -82,9 +83,25 @@ void WindowProbePhysicalOperator::setup(ExecutionContext& executionCtx, Compilat
     invoke(setupProxy, executionCtx.getGlobalOperatorHandler(operatorHandlerId), executionCtx.pipelineContext);
 }
 
+void WindowProbePhysicalOperator::open(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const
+{
+    executionCtx.watermarkTs = recordBuffer.getWatermarkTs();
+    executionCtx.currentTs = recordBuffer.getCreatingTs();
+    executionCtx.sequenceNumber = recordBuffer.getSequenceNumber();
+    executionCtx.chunkNumber = recordBuffer.getChunkNumber();
+    executionCtx.lastChunk = recordBuffer.isLastChunk();
+    executionCtx.originId = recordBuffer.getOriginId();
+    openChild(executionCtx, recordBuffer);
+
+    if (recordBuffer.getNumRecords() != nautilus::val<uint64_t>{0})
+    {
+        probeWindow(executionCtx, recordBuffer);
+    }
+}
+
 void WindowProbePhysicalOperator::close(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const
 {
-    /// Update the watermark for the probe and delete all slices that can be deleted
+    /// Update the watermark for the probe and delete all slices and windows that are no longer needed.
     const auto operatorHandlerMemRef = executionCtx.getGlobalOperatorHandler(operatorHandlerId);
     invoke(
         garbageCollectSlicesProxy,

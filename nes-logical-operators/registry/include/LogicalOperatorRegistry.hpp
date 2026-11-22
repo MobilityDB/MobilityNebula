@@ -14,14 +14,13 @@
 
 #pragma once
 
-#include <optional>
+#include <functional>
 #include <string>
 #include <vector>
-#include <Configurations/Descriptor.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
-#include <Util/Registry.hpp>
+#include <Util/Reflection.hpp>
+#include <Util/RuntimeRegistry.hpp>
 
 namespace NES
 {
@@ -30,17 +29,19 @@ using LogicalOperatorRegistryReturnType = LogicalOperator;
 
 struct LogicalOperatorRegistryArguments
 {
-    std::vector<Schema> inputSchemas;
-    Schema outputSchema;
-    DescriptorConfig::Config config;
+    std::vector<LogicalOperator> children;
+    Reflected reflected;
 };
 
-class LogicalOperatorRegistry
-    : public BaseRegistry<LogicalOperatorRegistry, std::string, LogicalOperatorRegistryReturnType, LogicalOperatorRegistryArguments>
+using LogicalOperatorFn = std::function<LogicalOperatorRegistryReturnType(LogicalOperatorRegistryArguments)>;
+
+/// Name-based construction surface for logical operators. Currently has no entries: operators
+/// gain one by implementing a static create member and adding an
+/// add_registry_entry(LogicalOperator <name>) line.
+class LogicalOperatorRegistry : public RuntimeRegistry<LogicalOperatorRegistry, std::string, LogicalOperatorFn, /*CaseSensitive*/ false>
 {
+public:
+    static LogicalOperatorRegistry& instance();
 };
-}
 
-#define INCLUDED_FROM_REGISTRY_LOGICAL_OPERATOR
-#include <LogicalOperatorGeneratedRegistrar.inc>
-#undef INCLUDED_FROM_REGISTRY_LOGICAL_OPERATOR
+}

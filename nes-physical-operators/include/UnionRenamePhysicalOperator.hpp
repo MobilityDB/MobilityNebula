@@ -15,8 +15,10 @@
 
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
-#include <Nautilus/Interface/Record.hpp>
+#include <Identifiers/QualifiedIdentifier.hpp>
+#include <Interface/Record.hpp>
 #include <PhysicalOperator.hpp>
 
 namespace NES
@@ -24,7 +26,7 @@ namespace NES
 class UnionRenamePhysicalOperator final : public PhysicalOperatorConcept
 {
 public:
-    UnionRenamePhysicalOperator(std::vector<std::string> inputFields, std::vector<std::string> outputFields);
+    UnionRenamePhysicalOperator(const std::vector<QualifiedIdentifier>& inputFields, std::vector<QualifiedIdentifier> outputFields);
 
     [[nodiscard]] std::optional<PhysicalOperator> getChild() const override;
     void setChild(PhysicalOperator child) override;
@@ -32,8 +34,8 @@ public:
     void execute(ExecutionContext& ctx, Record& record) const override;
 
 private:
-    std::vector<std::string> inputFields;
-    std::vector<std::string> outputFields;
+    std::vector<QualifiedIdentifier> outputFields;
+    std::unordered_map<QualifiedIdentifier, QualifiedIdentifier> identifierMap;
     std::optional<PhysicalOperator> child;
 };
 }

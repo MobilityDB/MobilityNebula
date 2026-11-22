@@ -15,15 +15,43 @@ function(add_nes_test_systest)
     set(TARGET_NAME ${ARGV0})
     target_link_libraries(${TARGET_NAME} nes-systest-lib)
     target_include_directories(${TARGET_NAME}
-            PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
+            PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../private>
+            PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
     target_compile_definitions(${TARGET_NAME} PRIVATE SYSTEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/testdata/")
 endfunction()
 
+add_nes_test_systest(systest-test-discovery-test
+        "Discovery/TestDiscoveryTests.cpp")
+
+add_nes_test_systest(systest-run-policy-test
+        "Config/RunPolicyTests.cpp"
+        "Config/ClusterConfigTests.cpp")
+
 add_nes_test_systest(slt-parser-test
-        "SystestParserTests.cpp"
-        "SystestParserInvalidTestFilesTests.cpp"
-        "SystestParserValidTestFilesTests.cpp"
-        "SystestRunnerTest.cpp")
+        "Parser/SystestParserTests.cpp"
+        "Parser/SystestParserInvalidTestFilesTests.cpp"
+        "Parser/SystestParserValidTestFilesTests.cpp"
+        "ResultChecker/ResultCheckerTests.cpp"
+        "ResultChecker/OutcomeCheckerTests.cpp"
+        "Model/KeepSelectedStatementsTests.cpp"
+        "Model/TestCaseIdTests.cpp"
+        "WorkingDirectoryGuardTests.cpp")
+
+add_nes_test_systest(testfile-builder-test
+        "Parser/TestFileBuilderTests.cpp"
+        "Parser/TestFilePartitionTests.cpp")
+
+add_nes_test_systest(systest-name-prefixer-test
+        "Rewriter/NamePrefixerTests.cpp")
+
+add_nes_test_systest(systest-test-file-rewriter-test
+        "Rewriter/TestFilePreparerTests.cpp")
+
+add_nes_test_systest(systest-benchmark-test
+        "BenchmarkTests.cpp")
+
+add_nes_test_systest(systest-executor-test
+        "ExecutorTests.cpp")
 
 add_nes_test_systest(slt-e2e-test
         "SystestE2ETests.cpp")

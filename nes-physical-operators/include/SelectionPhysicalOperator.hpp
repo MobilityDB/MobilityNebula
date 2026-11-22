@@ -16,7 +16,7 @@
 #include <optional>
 #include <utility>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <Interface/Record.hpp>
 #include <PhysicalOperator.hpp>
 
 namespace NES
@@ -26,7 +26,7 @@ namespace NES
 class SelectionPhysicalOperator final : public PhysicalOperatorConcept
 {
 public:
-    explicit SelectionPhysicalOperator(PhysicalFunction function) : function(std::move(std::move(function))) { };
+    explicit SelectionPhysicalOperator(PhysicalFunction function) : function(std::move(function)) { };
     void execute(ExecutionContext& ctx, Record& record) const override;
 
     [[nodiscard]] std::optional<PhysicalOperator> getChild() const override;

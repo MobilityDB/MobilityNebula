@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <ostream>
 #include <span>
@@ -25,7 +26,7 @@
 #include <string>
 #include <utility>
 #include <Identifiers/Identifiers.hpp>
-#include <MemoryLayout/VariableSizedAccess.hpp>
+#include <Identifiers/NESStrongType.hpp>
 #include <Runtime/BufferRecycler.hpp>
 #include <Time/Timestamp.hpp>
 #include <ErrorHandling.hpp>
@@ -33,6 +34,9 @@
 namespace NES
 {
 class UnpooledChunksManager;
+
+/// @brief Identifies a child TupleBuffer attached to a parent TupleBuffer by its position among the parent's children.
+using ChildBufferIndex = NESStrongType<uint32_t, struct ChildBufferIndex_Tag, std::numeric_limits<uint32_t>::max(), 0>;
 }
 
 namespace NES
@@ -81,6 +85,10 @@ class TupleBuffer
     }
 
 public:
+    /// @brief Flag value for uninitialized child buffers.
+    /// NOLINTNEXTLINE(bugprone-throwing-static-initialization)
+    inline static const ChildBufferIndex INVALID_CHILD_BUFFER_INDEX_VALUE{std::numeric_limits<ChildBufferIndex::Underlying>::max()};
+
     /// @brief Default constructor creates an empty wrapper around nullptr without controlBlock (nullptr) and size 0.
     [[nodiscard]] TupleBuffer() noexcept = default;
 
@@ -102,9 +110,6 @@ public:
 
     /// @brief Assign the `other` resource to this TupleBuffer; Might release the resource this currently points to.
     TupleBuffer& operator=(TupleBuffer&& other) noexcept;
-
-    /// @brief Delete address-of operator to make it harder to circumvent reference counting mechanism with an l-value.
-    TupleBuffer* operator&() = delete;
 
     /// @brief Return if this is not valid.
     [[nodiscard]] auto operator!() const noexcept -> bool { return ptr == nullptr; }
@@ -174,10 +179,10 @@ public:
     void setOriginId(OriginId id) noexcept;
 
     ///@brief attach a child tuple buffer to the parent. the child tuple buffer is then identified via NestedTupleBufferKey
-    [[nodiscard]] VariableSizedAccess::Index storeChildBuffer(TupleBuffer& buffer) noexcept;
+    [[nodiscard]] ChildBufferIndex storeChildBuffer(TupleBuffer& buffer) noexcept;
 
     ///@brief retrieve a child tuple buffer via its NestedTupleBufferKey
-    [[nodiscard]] TupleBuffer loadChildBuffer(VariableSizedAccess::Index bufferIndex) const noexcept;
+    [[nodiscard]] TupleBuffer loadChildBuffer(ChildBufferIndex bufferIndex) const noexcept;
 
     [[nodiscard]] uint32_t getNumberOfChildBuffers() const noexcept;
 
@@ -192,9 +197,4 @@ private:
     uint32_t size = 0;
 };
 
-/**
- * @brief This method determines the control block based on the ptr to the data region and decrements the reference counter.
- * @param bufferPointer pointer to the data region of an buffer.
- */
-[[maybe_unused]] bool recycleTupleBuffer(void* bufferPointer);
 }

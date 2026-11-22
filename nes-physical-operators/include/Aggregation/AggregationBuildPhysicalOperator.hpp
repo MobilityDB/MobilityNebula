@@ -14,50 +14,45 @@
 
 #pragma once
 
-
+#include <cstdint>
 #include <memory>
 #include <vector>
-#include <Aggregation/AggregationOperatorHandler.hpp>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
-#include <Identifiers/Identifiers.hpp>
-#include <Nautilus/Interface/HashMap/HashMap.hpp>
-#include <Runtime/Execution/OperatorHandler.hpp>
-#include <Time/Timestamp.hpp>
+#include <Aggregation/SessionAggregationOperatorHandler.hpp>
+#include <Functions/PhysicalFunction.hpp>
+#include <Interface/HashMap/ChainedHashMap/ChainedHashMapConfig.hpp>
+#include <SliceStore/SliceStoreRef.hpp>
 #include <Watermark/TimeFunction.hpp>
 #include <CompilationContext.hpp>
-#include <HashMapOptions.hpp>
 #include <WindowBuildPhysicalOperator.hpp>
 
 namespace NES
 {
-class AggregationBuildPhysicalOperator;
-Interface::HashMap* getAggHashMapProxy(
-    const AggregationOperatorHandler* operatorHandler,
-    Timestamp timestamp,
-    WorkerThreadId workerThreadId,
-    const AggregationBuildPhysicalOperator* buildOperator);
 
 class AggregationBuildPhysicalOperator final : public WindowBuildPhysicalOperator
 {
 public:
-    friend Interface::HashMap* getAggHashMapProxy(
-        const AggregationOperatorHandler* operatorHandler,
-        Timestamp timestamp,
-        WorkerThreadId workerThreadId,
-        const AggregationBuildPhysicalOperator* buildOperator);
-
     AggregationBuildPhysicalOperator(
         OperatorHandlerId operatorHandlerId,
         std::unique_ptr<TimeFunction> timeFunction,
+        std::unique_ptr<SliceStoreRef> sliceStoreRef,
         std::vector<std::shared_ptr<AggregationPhysicalFunction>> aggregationFunctions,
-        HashMapOptions hashMapOptions);
+        ChainedHashMapConfig hashMapConfig,
+        std::vector<PhysicalFunction> keyFunctions,
+        std::shared_ptr<SessionFunctions> sessionFunctions = nullptr,
+        uint64_t sessionGapInMilliseconds = 0);
     void setup(ExecutionContext& executionCtx, CompilationContext& compilationContext) const override;
     void execute(ExecutionContext& ctx, Record& record) const override;
 
 private:
     /// The aggregation function is a shared_ptr, because it is used in the aggregation build and in the getSliceCleanupFunction()
     std::vector<std::shared_ptr<AggregationPhysicalFunction>> aggregationPhysicalFunctions;
-    HashMapOptions hashMapOptions;
+    ChainedHashMapConfig hashMapConfig;
+    /// Extracts the key fields out of an incoming record. Operator logic, not hash map metadata, hence not in the config.
+    std::vector<PhysicalFunction> keyFunctions;
+    /// Set for a session window: the setup registers the functions its SessionAggregationOperatorHandler calls
+    std::shared_ptr<SessionFunctions> sessionFunctions;
+    uint64_t sessionGapInMilliseconds;
 };
 
 }

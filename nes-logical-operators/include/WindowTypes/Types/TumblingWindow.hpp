@@ -14,16 +14,19 @@
 
 #pragma once
 
+#include <cstddef>
+#include <functional>
+#include <ostream>
 #include <string>
+#include <Util/Logger/Formatter.hpp>
+#include <Util/ReflectionFwd.hpp>
 #include <WindowTypes/Measures/TimeCharacteristic.hpp>
 #include <WindowTypes/Measures/TimeMeasure.hpp>
-#include <WindowTypes/Types/TimeBasedWindowType.hpp>
-#include <WindowTypes/Types/WindowType.hpp>
 
 namespace NES::Windowing
 {
 /// A TumblingWindow assigns records to non-overlapping windows.
-class TumblingWindow final : public TimeBasedWindowType
+class TumblingWindow
 {
 public:
     /// Creates a new TumblingWindow that assigns
@@ -33,14 +36,36 @@ public:
     /// time windows start at 0:15:00,1:15:00,2:15:00,etc.
     /// @param size
     /// @return std::shared_ptr<WindowType>
-    TumblingWindow(TimeCharacteristic timeCharacteristic, TimeMeasure size);
-    TimeMeasure getSize() override;
-    TimeMeasure getSlide() override;
-    [[nodiscard]] std::string toString() const override;
-    bool operator==(const WindowType& otherWindowType) const override;
+    explicit TumblingWindow(TimeMeasure size);
+    [[nodiscard]] TimeMeasure getSize() const;
+    bool operator==(const TumblingWindow& otherWindowType) const;
+    friend std::ostream& operator<<(std::ostream& os, const TumblingWindow& tumblingWindow);
 
 private:
-    const TimeMeasure size;
+    TimeMeasure size;
 };
 
 }
+
+namespace NES
+{
+template <>
+struct Reflector<Windowing::TumblingWindow>
+{
+    Reflected operator()(const Windowing::TumblingWindow& tumblingWindow, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<Windowing::TumblingWindow>
+{
+    Windowing::TumblingWindow operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
+}
+
+template <>
+struct std::hash<NES::Windowing::TumblingWindow>
+{
+    std::size_t operator()(const NES::Windowing::TumblingWindow& window) const noexcept;
+};
+
+FMT_OSTREAM(NES::Windowing::TumblingWindow);

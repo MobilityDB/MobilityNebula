@@ -1,0 +1,53 @@
+# name: MEOS_Aggregates_Sliding
+# description: The MEOS aggregates over a sliding window of three seconds advancing by one, each slice of one second lying in three windows, so that each window joins the rows of slices other windows join too: extent over FLOAT64 (a span state), tCount (a skip-list state) and appendInstantAgg (an aggregate of no combine, its rows folded in time order). Every window answers what libmeos answers over the rows it holds, folded by the calls the plugin makes and written by span_out, temporal_out and tspatial_as_ewkt with 15 digits.
+# groups: [Aggregation, MEOS, SpatioTemporal, WindowOperators]
+CREATE LOGICAL SOURCE readings(ts UINT64 NOT NULL, v FLOAT64 NOT NULL, x FLOAT64 NOT NULL, y FLOAT64 NOT NULL);
+CREATE PHYSICAL SOURCE FOR readings TYPE File;
+ATTACH INLINE
+10000,5.0,1.0,1.0
+11000,2.0,2.0,1.0
+12000,8.0,3.0,2.0
+13000,1.0,4.0,2.0
+14000,6.0,5.0,3.0
+
+CREATE SINK extents(start UINT64 NOT NULL, end UINT64 NOT NULL, extent VARSIZED) TYPE File;
+SELECT start, end, asText(extent(v)) AS extent
+FROM (SELECT ts, v, tgeompoint(makePoint(x, y, INT32(4326)), ts) AS pos FROM readings)
+WINDOW SLIDING(ts, SIZE 3 SEC, ADVANCE BY 1 SEC)
+INTO extents;
+----
+8000,11000,[5, 5]
+9000,12000,[2, 5]
+10000,13000,[2, 8]
+11000,14000,[1, 8]
+12000,15000,[1, 8]
+13000,16000,[1, 6]
+14000,17000,[6, 6]
+
+CREATE SINK counts(start UINT64 NOT NULL, end UINT64 NOT NULL, n VARSIZED) TYPE File;
+SELECT start, end, asText(tCount(pos)) AS n
+FROM (SELECT ts, v, tgeompoint(makePoint(x, y, INT32(4326)), ts) AS pos FROM readings)
+WINDOW SLIDING(ts, SIZE 3 SEC, ADVANCE BY 1 SEC)
+INTO counts;
+----
+8000,11000,{1@1970-01-01 00:00:10+00}
+9000,12000,{1@1970-01-01 00:00:10+00, 1@1970-01-01 00:00:11+00}
+10000,13000,{1@1970-01-01 00:00:10+00, 1@1970-01-01 00:00:11+00, 1@1970-01-01 00:00:12+00}
+11000,14000,{1@1970-01-01 00:00:11+00, 1@1970-01-01 00:00:12+00, 1@1970-01-01 00:00:13+00}
+12000,15000,{1@1970-01-01 00:00:12+00, 1@1970-01-01 00:00:13+00, 1@1970-01-01 00:00:14+00}
+13000,16000,{1@1970-01-01 00:00:13+00, 1@1970-01-01 00:00:14+00}
+14000,17000,{1@1970-01-01 00:00:14+00}
+
+CREATE SINK trips(start UINT64 NOT NULL, end UINT64 NOT NULL, trip VARSIZED) TYPE File;
+SELECT start, end, asEWKT(appendInstantAgg(pos)) AS trip
+FROM (SELECT ts, v, tgeompoint(makePoint(x, y, INT32(4326)), ts) AS pos FROM readings)
+WINDOW SLIDING(ts, SIZE 3 SEC, ADVANCE BY 1 SEC)
+INTO trips;
+----
+8000,11000,SRID=4326;[POINT(1 1)@1970-01-01 00:00:10+00]
+9000,12000,SRID=4326;[POINT(1 1)@1970-01-01 00:00:10+00, POINT(2 1)@1970-01-01 00:00:11+00]
+10000,13000,SRID=4326;[POINT(1 1)@1970-01-01 00:00:10+00, POINT(2 1)@1970-01-01 00:00:11+00, POINT(3 2)@1970-01-01 00:00:12+00]
+11000,14000,SRID=4326;[POINT(2 1)@1970-01-01 00:00:11+00, POINT(3 2)@1970-01-01 00:00:12+00, POINT(4 2)@1970-01-01 00:00:13+00]
+12000,15000,SRID=4326;[POINT(3 2)@1970-01-01 00:00:12+00, POINT(4 2)@1970-01-01 00:00:13+00, POINT(5 3)@1970-01-01 00:00:14+00]
+13000,16000,SRID=4326;[POINT(4 2)@1970-01-01 00:00:13+00, POINT(5 3)@1970-01-01 00:00:14+00]
+14000,17000,SRID=4326;[POINT(5 3)@1970-01-01 00:00:14+00]

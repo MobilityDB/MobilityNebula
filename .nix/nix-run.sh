@@ -42,6 +42,63 @@ fi
 SCRIPT="$(readlink -f "$0")"          # follow symlinks
 PROJECT_DIR="$(dirname "$(dirname "$SCRIPT")")"
 
+SANITIZER_REQUEST="${NES_SANITIZER_REQUEST:-}"
+if [ -z "$SANITIZER_REQUEST" ] && [ -n "${NES_SANITIZER:-}" ]; then
+  SANITIZER_REQUEST="$NES_SANITIZER"
+fi
+
+STDLIB_REQUEST="${NES_STDLIB_REQUEST:-}"
+if [ -z "$STDLIB_REQUEST" ] && [ -n "${NES_STDLIB:-}" ]; then
+  STDLIB_REQUEST="$NES_STDLIB"
+fi
+
+SANITIZER_SELECTOR="none"
+if [ -n "$SANITIZER_REQUEST" ]; then
+  LOWER_REQUEST=$(printf '%s' "$SANITIZER_REQUEST" | tr '[:upper:]' '[:lower:]')
+  case "$LOWER_REQUEST" in
+    address|asan)
+      SANITIZER_SELECTOR="asan"
+      ;;
+    thread|tsan)
+      SANITIZER_SELECTOR="tsan"
+      ;;
+    undefined|ubsan)
+      SANITIZER_SELECTOR="ubsan"
+      ;;
+    none|default)
+      SANITIZER_SELECTOR="none"
+      ;;
+    *)
+      printf 'nix-run.sh: warning: unrecognized sanitizer "%s", falling back to none\n' "$SANITIZER_REQUEST" >&2
+      SANITIZER_SELECTOR="none"
+      ;;
+  esac
+fi
+
+STDLIB_SELECTOR="libstdcxx"
+if [ -n "$STDLIB_REQUEST" ]; then
+  LOWER_STDLIB=$(printf '%s' "$STDLIB_REQUEST" | tr '[:upper:]' '[:lower:]')
+  LOWER_STDLIB=$(printf '%s' "$LOWER_STDLIB" | sed 's/++/xx/g')
+  case "$LOWER_STDLIB" in
+    libcxx|on|true|1|yes)
+      STDLIB_SELECTOR="libcxx"
+      ;;
+    libstdcxx|off|false|0|no|default|local)
+      STDLIB_SELECTOR="libstdcxx"
+      ;;
+    *)
+      printf 'nix-run.sh: warning: unrecognized stdlib "%s", defaulting to libstdcxx\n' "$STDLIB_REQUEST" >&2
+      STDLIB_SELECTOR="libstdcxx"
+      ;;
+  esac
+fi
+
+if [ "$SANITIZER_SELECTOR" = "none" ] && [ "$STDLIB_SELECTOR" = "libstdcxx" ]; then
+  FLAKE_ATTR="default"
+else
+  FLAKE_ATTR="${SANITIZER_SELECTOR}-${STDLIB_SELECTOR}"
+fi
+
 # keep only the environment variables we actually need
 KEEP_VARS="
 HOME
@@ -51,6 +108,20 @@ TERM
 SSH_AUTH_SOCK
 GIT_CONFIG
 CTEST_PARALLEL_LEVEL
+CCACHE_DIR
+CCACHE_MAXSIZE
+SCCACHE_BUCKET
+SCCACHE_ENDPOINT
+SCCACHE_REGION
+SCCACHE_S3_USE_SSL
+SCCACHE_DIR
+SCCACHE_CACHE_SIZE
+SCCACHE_IDLE_TIMEOUT
+SCCACHE_LOG
+SCCACHE_ERROR_LOG
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_SESSION_TOKEN
 "
 KEEP_ARGS="--keep IN_NIX_RUN"
 for var in $KEEP_VARS; do
@@ -60,7 +131,7 @@ for var in $KEEP_VARS; do
 done
 
 IN_NIX_RUN=1 NIX_CONFIG="warn-dirty = false" \
-  nix develop "${PROJECT_DIR}#default" \
+  nix develop "${PROJECT_DIR}#${FLAKE_ATTR}" \
   --ignore-environment \
   $KEEP_ARGS \
   --command "$CMD" "$@"

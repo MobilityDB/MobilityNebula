@@ -14,10 +14,8 @@
 
 #include <Serialization/DataTypeSerializationUtil.hpp>
 
-#include <string>
 #include <type_traits>
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/DataTypeProvider.hpp>
 #include <magic_enum/magic_enum.hpp>
 #include <ErrorHandling.hpp>
 #include <SerializableDataType.pb.h>
@@ -28,12 +26,12 @@ namespace NES
 SerializableDataType* DataTypeSerializationUtil::serializeDataType(const DataType& dataType, SerializableDataType* serializedDataType)
 {
     auto serializedPhysicalTypeEnum = SerializableDataType_Type();
-    SerializableDataType_Type_Parse(magic_enum::enum_name(dataType.type), &serializedPhysicalTypeEnum);
-    serializedDataType->set_type(serializedPhysicalTypeEnum);
-    if (dataType.extension != nullptr)
+    if (!SerializableDataType_Type_Parse(magic_enum::enum_name(dataType.type), &serializedPhysicalTypeEnum))
     {
-        serializedDataType->set_extension(std::string{dataType.extension->name});
+        throw CannotSerialize("Failed to parse SerializableDataType_Type from {}", magic_enum::enum_name(dataType.type));
     }
+    serializedDataType->set_type(serializedPhysicalTypeEnum);
+    serializedDataType->set_nullable(dataType.nullable);
     return serializedDataType;
 }
 
@@ -52,17 +50,8 @@ DataType DataTypeSerializationUtil::deserializeDataType(const SerializableDataTy
             static_cast<std::underlying_type_t<DataType::Type>>(serializedDataType.type()),
             magic_enum::enum_values<DataType::Type>().size());
     }
-    if (!serializedDataType.extension().empty())
-    {
-        /// The type a plugin adds is the one object registered under its name.
-        const auto extensionType = DataTypeProvider::tryProvideDataType(serializedDataType.extension());
-        if (!extensionType || extensionType->extension == nullptr || extensionType->type != *type)
-        {
-            throw CannotDeserialize("Unknown extension type {} over {}", serializedDataType.extension(), magic_enum::enum_name(*type));
-        }
-        return *extensionType;
-    }
-    const DataType deserializedDataType = DataType{.type = *type};
+    const DataType deserializedDataType
+        = DataType{*type, serializedDataType.nullable() ? DataType::NULLABLE::IS_NULLABLE : DataType::NULLABLE::NOT_NULLABLE};
     return deserializedDataType;
 }
 

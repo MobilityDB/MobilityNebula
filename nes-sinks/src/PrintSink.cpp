@@ -15,41 +15,65 @@
 #include <Sinks/PrintSink.hpp>
 
 #include <cstdint>
+#include <expected>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <utility>
 
-#include <Configurations/Descriptor.hpp>
+#include <Configurations/ConfigField.hpp>
+#include <Configurations/ConfigLiteral.hpp>
+#include <Configurations/InstantiatedConfigValue.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Runtime/TupleBuffer.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Sinks/Sink.hpp>
 #include <Sinks/SinkDescriptor.hpp>
-#include <SinksParsing/CSVFormat.hpp>
-#include <SinksParsing/JSONFormat.hpp>
+#include <SinksParsing/BufferIterator.hpp>
+#include <Util/Variant.hpp>
 #include <fmt/format.h>
 #include <magic_enum/magic_enum.hpp>
+#include <BackpressureChannel.hpp>
 #include <ErrorHandling.hpp>
 #include <PipelineExecutionContext.hpp>
-#include <SinkRegistry.hpp>
-#include <SinkValidationRegistry.hpp>
 
 namespace NES
 {
 
-PrintSink::PrintSink(const SinkDescriptor& sinkDescriptor) : outputStream(&std::cout)
+namespace
 {
-    switch (const auto inputFormat = sinkDescriptor.getFromConfig(ConfigParametersPrint::INPUT_FORMAT))
-    {
-        case InputFormat::CSV:
-            outputParser = std::make_unique<CSVFormat>(*sinkDescriptor.getSchema());
-            break;
-        case InputFormat::JSON:
-            outputParser = std::make_unique<JSONFormat>(*sinkDescriptor.getSchema());
-            break;
-        default:
-            throw UnknownSinkFormat(fmt::format("Sink format: {} not supported.", magic_enum::enum_name(inputFormat)));
-    }
+
+/// Config fields of the print sink, shared by getConfigSchema (declaration) and
+/// PrintSinkConfig::fromConfig (typed extraction).
+/// NOLINTBEGIN(bugprone-throwing-static-initialization)
+const ConfigField<uint32_t> INGESTION{
+    Identifier::parse("INGESTION"),
+    "Artificial delay in milliseconds after emitting each buffer. 0 disables the delay.",
+    [](const ConfigLiteral& literal)
+    { return tryGetOr<int64_t>(literal, expectedType<uint32_t>()).and_then(narrowConfigValue<int64_t, uint32_t>); },
+    uint32_t{0}};
+/// NOLINTEND(bugprone-throwing-static-initialization)
+
+}
+
+Schema<QualifiedErasedConfigField, Ordered> PrintSink::getConfigSchema()
+{
+    return createConfigSchema(Identifier::parse("PRINT_SINK"), INGESTION);
+}
+
+std::expected<PrintSinkConfig, Exception> PrintSinkConfig::fromConfig(const InstantiatedConfig& config)
+{
+    return PrintSinkConfig{.ingestion = config.get(INGESTION)};
+}
+
+PrintSink::PrintSink(BackpressureController backpressureController, const PrintSinkConfig& config)
+    : Sink(std::move(backpressureController)), outputStream(&std::cout), ingestion(config.ingestion)
+{
 }
 
 void PrintSink::start(PipelineExecutionContext&)
@@ -63,30 +87,28 @@ void PrintSink::stop(PipelineExecutionContext&)
 void PrintSink::execute(const TupleBuffer& inputBuffer, PipelineExecutionContext&)
 {
     PRECONDITION(inputBuffer, "Invalid input buffer in PrintSink.");
+    {
+        const auto wlocked = outputStream.wlock();
+        /// Create a buffer iterator to help iterate through the tuplebuffer and its children
+        BufferIterator iterator{inputBuffer};
 
-    const auto bufferAsString = outputParser->getFormattedBuffer(inputBuffer);
-    *(*outputStream.wlock()) << bufferAsString << '\n';
+        std::optional<BufferIterator::BufferElement> element = iterator.getNextElement();
+        while (element.has_value())
+        {
+            (*wlocked)->write(
+                element.value().buffer.getAvailableMemoryArea<char>().data(), static_cast<std::streamsize>(element.value().contentLength));
+            /// Get the next buffer to be written
+            element = iterator.getNextElement();
+        }
+        (*wlocked)->flush();
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds{ingestion});
 }
 
 std::ostream& PrintSink::toString(std::ostream& str) const
 {
-    str << fmt::format("PRINT_SINK(Writing to: std::cout, using outputParser: {}", *outputParser);
+    str << fmt::format("PRINT_SINK");
     return str;
-}
-
-DescriptorConfig::Config PrintSink::validateAndFormat(std::unordered_map<std::string, std::string> config)
-{
-    return DescriptorConfig::validateAndFormat<ConfigParametersPrint>(std::move(config), NAME);
-}
-
-SinkValidationRegistryReturnType RegisterPrintSinkValidation(SinkValidationRegistryArguments sinkConfig)
-{
-    return PrintSink::validateAndFormat(std::move(sinkConfig.config));
-}
-
-SinkRegistryReturnType RegisterPrintSink(SinkRegistryArguments sinkRegistryArguments)
-{
-    return std::make_unique<PrintSink>(sinkRegistryArguments.sinkDescriptor);
 }
 
 }

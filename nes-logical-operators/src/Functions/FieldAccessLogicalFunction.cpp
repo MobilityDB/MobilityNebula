@@ -14,44 +14,34 @@
 
 #include <Functions/FieldAccessLogicalFunction.hpp>
 
+#include <cstddef>
+#include <functional>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
-#include <Configurations/Descriptor.hpp>
+
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Binder.hpp> /// NOLINT(misc-include-cleaner)
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
-FieldAccessLogicalFunction::FieldAccessLogicalFunction(std::string fieldName)
-    : fieldName(std::move(fieldName)), dataType(DataTypeProvider::provideDataType(DataType::Type::UNDEFINED)) { };
+FieldAccessLogicalFunction::FieldAccessLogicalFunction(Field field) : field(std::move(field)) { };
 
-FieldAccessLogicalFunction::FieldAccessLogicalFunction(DataType dataType, std::string fieldName)
-    : fieldName(std::move(fieldName)), dataType(std::move(std::move(dataType))) { };
-
-bool FieldAccessLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool FieldAccessLogicalFunction::operator==(const FieldAccessLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const FieldAccessLogicalFunction*>(&rhs))
-    {
-        return *this == *other;
-    }
-    return false;
-}
-
-bool operator==(const FieldAccessLogicalFunction& lhs, const FieldAccessLogicalFunction& rhs)
-{
-    const bool fieldNamesMatch = rhs.fieldName == lhs.fieldName;
-    const bool dataTypesMatch = rhs.dataType == lhs.dataType;
-    return fieldNamesMatch and dataTypesMatch;
+    return this->field == rhs.field;
 }
 
 bool operator!=(const FieldAccessLogicalFunction& lhs, const FieldAccessLogicalFunction& rhs)
@@ -59,15 +49,15 @@ bool operator!=(const FieldAccessLogicalFunction& lhs, const FieldAccessLogicalF
     return !(lhs == rhs);
 }
 
-std::string FieldAccessLogicalFunction::getFieldName() const
+Field FieldAccessLogicalFunction::getField() const
 {
-    return fieldName;
+    return field;
 }
 
-LogicalFunction FieldAccessLogicalFunction::withFieldName(std::string fieldName) const
+FieldAccessLogicalFunction FieldAccessLogicalFunction::withField(Field field) const
 {
     auto copy = *this;
-    copy.fieldName = std::move(fieldName);
+    copy.field = std::move(field);
     return copy;
 }
 
@@ -75,43 +65,35 @@ std::string FieldAccessLogicalFunction::explain(ExplainVerbosity verbosity) cons
 {
     if (verbosity == ExplainVerbosity::Debug)
     {
-        return fmt::format("FieldAccessLogicalFunction({}{})", fieldName, dataType);
+        return fmt::format("FieldAccessLogicalFunction({})", field);
     }
-    return fieldName;
+    return fmt::format("{}", field.getLastName());
 }
 
-LogicalFunction FieldAccessLogicalFunction::withInferredDataType(const Schema& schema) const
+LogicalFunction FieldAccessLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
-    const auto existingField = schema.getFieldByName(fieldName);
-    if (!existingField)
+    const auto newField = schema.getFieldByName(field.getLastName());
+    if (!newField)
     {
-        throw CannotInferSchema("field {} is not part of the schema {}", fieldName, schema);
+        throw CannotInferSchema("field {} is not part of the schema {}", field.getLastName(), schema);
     }
 
     auto copy = *this;
-    copy.dataType = existingField.value().dataType;
-    copy.fieldName = existingField.value().name;
+    copy.field = newField.value();
     return copy;
 }
 
 DataType FieldAccessLogicalFunction::getDataType() const
 {
-    return dataType;
+    return field.getDataType();
 };
-
-LogicalFunction FieldAccessLogicalFunction::withDataType(const DataType& dataType) const
-{
-    auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-}
 
 std::vector<LogicalFunction> FieldAccessLogicalFunction::getChildren() const
 {
     return {};
 };
 
-LogicalFunction FieldAccessLogicalFunction::withChildren(const std::vector<LogicalFunction>&) const
+FieldAccessLogicalFunction FieldAccessLogicalFunction::withChildren(const std::vector<LogicalFunction>&) const
 {
     return *this;
 };
@@ -121,35 +103,30 @@ std::string_view FieldAccessLogicalFunction::getType() const
     return NAME;
 }
 
-SerializableFunction FieldAccessLogicalFunction::serialize() const
+Reflected
+Reflector<FieldAccessLogicalFunction>::operator()(const FieldAccessLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-
-    const DescriptorConfig::ConfigType configVariant = getFieldName();
-    const SerializableVariantDescriptor variantDescriptor = descriptorConfigTypeToProto(configVariant);
-    (*serializedFunction.mutable_config())["FieldName"] = variantDescriptor;
-
-    DataTypeSerializationUtil::serializeDataType(dataType, serializedFunction.mutable_data_type());
-
-    return serializedFunction;
+    return context.reflect(function.getField());
 }
 
-LogicalFunctionRegistryReturnType
-LogicalFunctionGeneratedRegistrar::RegisterFieldAccessLogicalFunction(LogicalFunctionRegistryArguments arguments)
+FieldAccessLogicalFunction
+Unreflector<FieldAccessLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
 {
-    if (not arguments.config.contains("FieldName"))
-    {
-        throw CannotDeserialize(
-
-            "FieldAccessLogicalFunction requires a FieldName in its config");
-    }
-    auto fieldName = get<std::string>(arguments.config["FieldName"]);
-    if (fieldName.empty())
-    {
-        throw CannotDeserialize("FieldName cannot be empty");
-    }
-    return FieldAccessLogicalFunction(arguments.dataType, fieldName);
+    return FieldAccessLogicalFunction{context.unreflect<Field>(reflected)};
 }
 
+/// NOLINTBEGIN(performance-unnecessary-value-param)
+LogicalFunctionRegistryReturnType FieldAccessLogicalFunction::createFieldAccess(LogicalFunctionRegistryArguments)
+{
+    PRECONDITION(false, "Function is only build directly via parser or via reflection, not using the registry");
+    std::unreachable();
+}
+
+/// NOLINTEND(performance-unnecessary-value-param)
+}
+
+std::size_t
+std::hash<NES::FieldAccessLogicalFunction>::operator()(const NES::FieldAccessLogicalFunction& fieldAccessFunction) const noexcept
+{
+    return std::hash<NES::Field>()(fieldAccessFunction.getField());
 }

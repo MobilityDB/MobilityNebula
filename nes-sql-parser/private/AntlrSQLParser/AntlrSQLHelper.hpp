@@ -14,20 +14,24 @@
 
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
-#include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
 #include <Operators/Windows/JoinLogicalOperator.hpp>
 #include <Plans/LogicalPlan.hpp>
 #include <Sinks/SinkDescriptor.hpp>
-#include <WindowTypes/Types/WindowType.hpp>
+#include <WindowTypes/Types/TimeBasedWindowType.hpp>
 
+#include <Functions/UnboundFieldAccessLogicalFunction.hpp>
+#include <Identifiers/Identifier.hpp>
+#include <WindowTypes/Measures/TimeCharacteristic.hpp>
 #include <CommonParserFunctions.hpp>
 
 namespace NES::Parsers
@@ -35,11 +39,16 @@ namespace NES::Parsers
 
 class AntlrSQLHelper
 {
-    using Projection = std::pair<std::optional<FieldIdentifier>, LogicalFunction>;
+public:
+    using Projection = std::pair<std::optional<Identifier>, LogicalFunction>;
+
+private:
     std::vector<LogicalFunction> whereClauses; ///where and having clauses need to be accessed in reverse
     std::vector<LogicalFunction> havingClauses;
-    std::string source;
-    std::pair<std::string, ConfigMap> inlineSourceConfig;
+    std::optional<Identifier> source;
+    std::optional<Identifier> sourceAlias;
+    std::vector<Identifier> sourceQualifiers;
+    std::optional<std::pair<Identifier, ConfigMap>> anonymousSourceConfig;
     std::vector<Projection> projectionBuilder;
 
 public:
@@ -60,10 +69,6 @@ public:
     /// joinCriteriaStart on
     bool isJoinCriteria = false;
     size_t joinCriteriaStart = 0;
-    /// Inside CROSS JOIN UNNEST(array) AS u(x), whose identifiers name no source
-    bool isUnnest = false;
-    /// Inside the inline table of a cross join, (VALUES ...) AS f(x, y), whose identifiers name no source
-    bool isInlineTable = false;
     bool isSimpleCondition = true;
     bool isTimeBasedWindow = true;
     bool isSetOperation = false;
@@ -76,27 +81,21 @@ public:
 
     [[nodiscard]] bool isInAggFunction() const { return not windowAggs.empty(); }
 
-    /// Containers that hold state of specific objects that we create during parsing.
-    std::shared_ptr<Windowing::WindowType> windowType;
-    std::vector<std::shared_ptr<WindowAggregationLogicalFunction>> windowAggs;
+    std::optional<Windowing::TimeBasedWindowType> windowType;
+    std::vector<std::pair<WindowAggregationLogicalFunction, std::optional<Identifier>>> windowAggs;
+    std::vector<Identifier> userAggregationAliases;
     std::vector<SinkDescriptor> sinkDescriptor;
     std::vector<std::string> constantBuilder;
     std::vector<LogicalFunction> functionBuilder;
-    /// The array of CROSS JOIN UNNEST and the qualified name of the field of its elements
-    std::optional<std::pair<LogicalFunction, std::string>> unnest;
-    /// The values of the inline table of a cross join, row after row, and the qualified names of its fields
-    std::optional<std::pair<std::vector<LogicalFunction>, std::vector<std::string>>> inlineTable;
-    std::vector<FieldAccessLogicalFunction> groupByFields;
-    std::vector<std::string> joinSources;
+    std::vector<UnboundFieldAccessLogicalFunction> groupByFields;
+    std::vector<Identifier> joinSources;
     std::vector<LogicalFunction> joinKeyRelationHelper;
-    std::vector<std::string> joinSourceRenames;
     JoinLogicalOperator::JoinType joinType = JoinLogicalOperator::JoinType::INNER_JOIN;
 
     /// Utility variables to keep state between enter/exit parser function calls.
     size_t opBoolean{}; ///anonymous token enum in AntlrSQLLexer.h
     std::string opValue;
-    std::string newSourceName;
-    std::string timestamp;
+    std::optional<std::variant<Windowing::UnboundTimeCharacteristic, std::array<Windowing::UnboundTimeCharacteristic, 2>>> windowTimestamp;
 
     /// Utility variables used to keep track of the parsing state.
     int size{};
@@ -106,16 +105,54 @@ public:
     std::optional<int> minimumCount;
     int implicitMapCountHelper = 0;
 
+    /// Pre-aggregation projections for desugaring expressions inside aggregation functions.
+    /// E.g., AVG(i + UINT64(1)) becomes: Projection(*, i + UINT64(1) AS _AGG_INPUT_0) → AVG(_AGG_INPUT_0).
+    std::vector<Projection> preAggregationProjections;
+    size_t aggExprCounter = 0;
+
+    /// Number of aggregations collected before the HAVING clause was entered, so that aggregations written
+    /// inside HAVING can be distinguished from the ones the SELECT list already projects.
+    size_t aggCountBeforeHaving = 0;
+
+    /// Flag set while parsing a MODEL_INFERENCE TVF source to suppress identifier capture as FROM source
+    bool isModelInference = false;
+
+    /// Flag set while parsing CROSS JOIN UNNEST(array) AS u(x), whose identifiers name no source
+    bool isUnnest = false;
+    /// The array of CROSS JOIN UNNEST, the alias u and the field x of its elements
+    struct Unnest
+    {
+        LogicalFunction array;
+        Identifier alias;
+        Identifier element;
+    };
+    std::optional<Unnest> unnest;
+
+    /// Flag set while parsing the inline table of a cross join, (VALUES ...) AS f(x, y), whose identifiers name no source
+    bool isInlineTable = false;
+    /// The values of the inline table of a cross join, row after row, and the fields x, y its alias f names
+    struct InlineTable
+    {
+        std::vector<LogicalFunction> values;
+        Identifier alias;
+        std::vector<Identifier> fields;
+    };
+    std::optional<InlineTable> inlineTable;
+
     [[nodiscard]] std::vector<LogicalFunction>& getWhereClauses();
     [[nodiscard]] std::vector<LogicalFunction>& getHavingClauses();
     [[nodiscard]] std::vector<Projection>& getProjections();
 
     void addWhereClause(LogicalFunction expressionNode);
     void addHavingClause(LogicalFunction expressionNode);
-    void setSource(std::string sourceName);
-    [[nodiscard]] const std::string getSource() const;
-    void setInlineSource(const std::string& type, const ConfigMap& parameters);
-    [[nodiscard]] std::pair<std::string, ConfigMap> getInlineSourceConfig();
-    void addProjection(std::optional<FieldIdentifier>, LogicalFunction);
+    void setSource(Identifier sourceName);
+    [[nodiscard]] std::optional<Identifier> getSource() const;
+    void setSourceAlias(Identifier alias);
+    [[nodiscard]] std::optional<Identifier> getSourceAlias() const;
+    void addSourceQualifier(Identifier qualifier);
+    [[nodiscard]] const std::vector<Identifier>& getSourceQualifiers() const;
+    void setAnonymousSource(const Identifier& type, const ConfigMap& parameters);
+    [[nodiscard]] std::optional<std::pair<Identifier, ConfigMap>> getAnonymousSourceConfig();
+    void addProjection(std::optional<Identifier>, LogicalFunction);
 };
 }

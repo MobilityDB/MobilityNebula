@@ -14,31 +14,63 @@
 
 #pragma once
 
-#include <memory>
+#include <cstddef>
+#include <functional>
+#include <string>
 #include <string_view>
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
-#include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <AggregationLogicalFunctionRegistry.hpp>
 #include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-class AvgAggregationLogicalFunction final : public WindowAggregationLogicalFunction
+class AvgAggregationLogicalFunction final
 {
 public:
-    AvgAggregationLogicalFunction(const FieldAccessLogicalFunction& onField, const FieldAccessLogicalFunction& asField);
-    explicit AvgAggregationLogicalFunction(const FieldAccessLogicalFunction& onField);
+    explicit AvgAggregationLogicalFunction(AggregationFieldAccess inputFunction);
 
-    void inferStamp(const Schema& schema) override;
-    ~AvgAggregationLogicalFunction() override = default;
-    [[nodiscard]] SerializableAggregationFunction serialize() const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
+    [[nodiscard]] AggregationFieldAccess getInputFunction() const;
+    [[nodiscard]] AvgAggregationLogicalFunction withInferredType(const Schema<Field, Unordered>& schema) const;
+    [[nodiscard]] static std::string_view getName() noexcept;
+    [[nodiscard]] DataType getAggregateType() const;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
+    [[nodiscard]] bool operator==(const AvgAggregationLogicalFunction& other) const;
+    [[nodiscard]] static bool shallIncludeNullValues() noexcept;
+
+    static AggregationLogicalFunctionRegistryReturnType create(AggregationLogicalFunctionRegistryArguments arguments);
 
 private:
+    AggregationFieldAccess inputFunction;
+    bool nullable{};
     static constexpr std::string_view NAME = "Avg";
-    static constexpr DataType::Type partialAggregateStampType = DataType::Type::UNDEFINED;
     static constexpr DataType::Type finalAggregateStampType = DataType::Type::FLOAT64;
 };
+
+template <>
+struct Reflector<AvgAggregationLogicalFunction>
+{
+    Reflected operator()(const AvgAggregationLogicalFunction& function, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<AvgAggregationLogicalFunction>
+{
+    AvgAggregationLogicalFunction operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
+
 }
+
+template <>
+struct std::hash<NES::AvgAggregationLogicalFunction>
+{
+    size_t operator()(const NES::AvgAggregationLogicalFunction& aggregationFunction) const noexcept;
+};
+
+static_assert(NES::WindowAggregationFunctionConcept<NES::AvgAggregationLogicalFunction>);

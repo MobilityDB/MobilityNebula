@@ -11,16 +11,33 @@
 # limitations under the License.
 
 add_source_files(nes-logical-operators
+        AggregationLogicalFunctionRegistry.cpp
         WindowAggregationLogicalFunction.cpp
-        AggregationLogicalFunctionProvider.cpp
+        ArrayAggregationLogicalFunction.cpp
+        AvgAggregationLogicalFunction.cpp
+        CountAggregationLogicalFunction.cpp
+        CountDistinctAggregationLogicalFunction.cpp
+        MaxAggregationLogicalFunction.cpp
+        MedianAggregationLogicalFunction.cpp
+        MinAggregationLogicalFunction.cpp
+        SumAggregationLogicalFunction.cpp
 )
 
-add_subdirectory(Meos)
-add_plugin(Avg AggregationLogicalFunction nes-logical-operators AvgAggregationLogicalFunction.cpp)
-add_plugin(Count AggregationLogicalFunction nes-logical-operators CountAggregationLogicalFunction.cpp)
-add_plugin(Max AggregationLogicalFunction nes-logical-operators MaxAggregationLogicalFunction.cpp)
-add_plugin(Median AggregationLogicalFunction nes-logical-operators MedianAggregationLogicalFunction.cpp)
-add_plugin(CountDistinct AggregationLogicalFunction nes-logical-operators CountDistinctAggregationLogicalFunction.cpp)
-add_plugin(Min AggregationLogicalFunction nes-logical-operators MinAggregationLogicalFunction.cpp)
-add_plugin(Sum AggregationLogicalFunction nes-logical-operators SumAggregationLogicalFunction.cpp)
-add_plugin(Array_Agg AggregationLogicalFunction nes-logical-operators ArrayAggregationLogicalFunction.cpp)
+
+add_unreflection_entry(AggregationLogicalFunction Array KEY Array_Agg)
+add_unreflection_entry(AggregationLogicalFunction Avg)
+add_unreflection_entry(AggregationLogicalFunction Count)
+add_unreflection_entry(AggregationLogicalFunction CountDistinct)
+add_unreflection_entry(AggregationLogicalFunction Max)
+add_unreflection_entry(AggregationLogicalFunction Median)
+add_unreflection_entry(AggregationLogicalFunction Min)
+add_unreflection_entry(AggregationLogicalFunction Sum)
+
+add_registry_entry(AggregationLogicalFunction Array KEY Array_Agg)
+add_registry_entry(AggregationLogicalFunction Avg)
+add_registry_entry(AggregationLogicalFunction Count)
+add_registry_entry(AggregationLogicalFunction CountDistinct)
+add_registry_entry(AggregationLogicalFunction Max)
+add_registry_entry(AggregationLogicalFunction Median)
+add_registry_entry(AggregationLogicalFunction Min)
+add_registry_entry(AggregationLogicalFunction Sum)

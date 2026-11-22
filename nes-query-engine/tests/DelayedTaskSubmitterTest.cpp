@@ -15,6 +15,7 @@
 #include <DelayedTaskSubmitter.hpp>
 
 #include <atomic>
+#include <barrier>
 #include <chrono>
 #include <cstddef>
 #include <memory>
@@ -27,16 +28,42 @@
 #include <Util/Logger/LogLevel.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <Util/Logger/impl/NesLogger.hpp>
+#include <Util/UUID.hpp>
 #include <folly/Synchronized.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <BaseUnitTest.hpp>
 #include <ErrorHandling.hpp>
+#include <QueryId.hpp>
 #include <RunningQueryPlan.hpp>
 #include <Task.hpp>
 
 namespace NES::Testing
 {
+namespace
+{
+QueryId randomQueryId()
+{
+    return QueryId::createLocal(LocalQueryId(generateUUID()));
+}
+
+WorkTask createTrackedTask(std::atomic<int>& completeCount, std::atomic<int>& failureCount)
+{
+    return {
+        randomQueryId(),
+        PipelineId(1),
+        std::weak_ptr<RunningQueryPlanNode>(),
+        TupleBuffer(),
+        TaskCallback(
+            TaskCallback::OnComplete([&completeCount] { ++completeCount; }),
+
+            TaskCallback::OnFailure([&failureCount](const Exception&) { ++failureCount; }))};
+}
+}
+
+/// While the test attempts to bypass handling real time by using a TestClock, this test cannot ensure that the condition variable
+/// is checked. Thus, we still need to rely on real time delay to ensure that condition variable was checked.
+constexpr auto REAL_TIME_DELAY = std::chrono::milliseconds(400);
 
 /// Testing the DelayedTaskSubmitter with an actual clock is impractical. The TestClock implements
 /// the std::chrono::Clock concept and is injected into the DelayedTaskSubmitter, that way the test
@@ -60,7 +87,7 @@ struct TestClock
 
         if (doAnActualWait)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(REAL_TIME_DELAY);
         }
     };
 
@@ -68,6 +95,7 @@ struct TestClock
     static void reset() { *now_.wlock() = time_point(std::chrono::nanoseconds(0)); }
 };
 
+/// NOLINTNEXTLINE(bugprone-throwing-static-initialization) test clock
 folly::Synchronized<TestClock::time_point> TestClock::now_{time_point(std::chrono::nanoseconds(0))};
 
 using DelayedTaskSubmitter = NES::DelayedTaskSubmitter<TestClock>;
@@ -92,7 +120,7 @@ protected:
     std::atomic<int> taskCounter{0};
 
     /// For tracking execution order in tests
-    folly::Synchronized<std::vector<int>> executionOrder;
+    folly::Synchronized<std::vector<QueryId>> executionOrder;
 
     void submitTask(Task task)
     {
@@ -115,7 +143,7 @@ TEST_F(DelayedTaskSubmitterTest, testBasicTaskSubmission)
     auto submitter = DelayedTaskSubmitter([this](Task task) noexcept { submitTask(std::move(task)); });
 
     /// Create a simple task
-    auto task = WorkTask(QueryId(1), PipelineId(1), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
+    auto task = WorkTask(randomQueryId(), PipelineId(1), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
 
     /// Submit task with immediate execution
     submitter.submitTaskIn(std::move(task), std::chrono::milliseconds(10));
@@ -139,15 +167,18 @@ TEST_F(DelayedTaskSubmitterTest, testMultipleTasksOrderedExecution)
             if (std::holds_alternative<WorkTask>(task))
             {
                 const auto& workTask = std::get<WorkTask>(task);
-                executionOrder.wlock()->push_back(workTask.queryId.getRawValue());
+                executionOrder.wlock()->push_back(workTask.queryId);
             }
             submitTask(std::move(task));
         });
 
     /// Submit tasks with different delays
-    auto task1 = WorkTask(QueryId(1), PipelineId(1), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
-    auto task2 = WorkTask(QueryId(2), PipelineId(2), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
-    auto task3 = WorkTask(QueryId(3), PipelineId(3), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
+    const auto qid1 = randomQueryId();
+    const auto qid2 = randomQueryId();
+    const auto qid3 = randomQueryId();
+    auto task1 = WorkTask(qid1, PipelineId(1), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
+    auto task2 = WorkTask(qid2, PipelineId(2), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
+    auto task3 = WorkTask(qid3, PipelineId(3), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
 
     /// Submit in reverse order with increasing delays
     submitter.submitTaskIn(std::move(task3), std::chrono::milliseconds(30));
@@ -165,7 +196,7 @@ TEST_F(DelayedTaskSubmitterTest, testMultipleTasksOrderedExecution)
     {
         auto order = executionOrder.rlock();
         ASSERT_EQ(order->size(), 3);
-        EXPECT_THAT(*order, ::testing::ElementsAre(1, 2, 3));
+        EXPECT_THAT(*order, ::testing::ElementsAre(qid1, qid2, qid3));
     }
 }
 
@@ -173,13 +204,13 @@ TEST_F(DelayedTaskSubmitterTest, testTaskWithZeroDelay)
 {
     auto submitter = DelayedTaskSubmitter([this](Task task) noexcept { submitTask(std::move(task)); });
 
-    auto task = WorkTask(QueryId(1), PipelineId(1), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
+    auto task = WorkTask(randomQueryId(), PipelineId(1), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
 
     /// Submit task with zero delay
     submitter.submitTaskIn(std::move(task), std::chrono::milliseconds(0));
 
     /// Wait a bit for task to be executed
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(REAL_TIME_DELAY);
 
     ASSERT_EQ(getSubmittedTaskCount(), 1);
 }
@@ -188,9 +219,9 @@ TEST_F(DelayedTaskSubmitterTest, testDifferentDurationTypes)
 {
     auto submitter = DelayedTaskSubmitter([this](Task task) noexcept { submitTask(std::move(task)); });
 
-    auto task1 = WorkTask(QueryId(1), PipelineId(1), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
-    auto task2 = WorkTask(QueryId(2), PipelineId(2), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
-    auto task3 = WorkTask(QueryId(3), PipelineId(3), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
+    auto task1 = WorkTask(randomQueryId(), PipelineId(1), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
+    auto task2 = WorkTask(randomQueryId(), PipelineId(2), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
+    auto task3 = WorkTask(randomQueryId(), PipelineId(3), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
 
     /// Test different duration types
     submitter.submitTaskIn(std::move(task1), std::chrono::microseconds(10000)); /// 10ms
@@ -221,11 +252,7 @@ TEST_F(DelayedTaskSubmitterTest, testConcurrentTaskSubmission)
                 for (int j = 0; j < tasksPerThread; ++j)
                 {
                     auto task = WorkTask(
-                        QueryId((i * tasksPerThread) + j),
-                        PipelineId((i * tasksPerThread) + j),
-                        std::weak_ptr<RunningQueryPlanNode>(),
-                        TupleBuffer(),
-                        {});
+                        randomQueryId(), PipelineId((i * tasksPerThread) + j), std::weak_ptr<RunningQueryPlanNode>(), TupleBuffer(), {});
                     if (j % 2 == 0)
                     {
                         TestClock::advance(std::chrono::milliseconds(1), false);
@@ -255,14 +282,7 @@ TEST_F(DelayedTaskSubmitterTest, testDestructorCleanup)
         auto submitter = DelayedTaskSubmitter([&submittedCount](Task /*task*/) noexcept { ++submittedCount; });
 
         /// Submit a task with long delay and custom onComplete and onFailure callbacks
-        auto task = WorkTask(
-            QueryId(1),
-            PipelineId(1),
-            std::weak_ptr<RunningQueryPlanNode>(),
-            TupleBuffer(),
-            TaskCallback(
-                TaskCallback::OnComplete([&completeCount] { ++completeCount; }),
-                TaskCallback::OnFailure([&failureCount](const Exception&) { ++failureCount; })));
+        auto task = createTrackedTask(completeCount, failureCount);
         submitter.submitTaskIn(std::move(task), std::chrono::milliseconds(1000));
         TestClock::advance(std::chrono::milliseconds(100), true);
         /// Destructor should be called here, cleaning up pending tasks
@@ -271,7 +291,65 @@ TEST_F(DelayedTaskSubmitterTest, testDestructorCleanup)
     TestClock::advance(std::chrono::milliseconds(1000), true);
     /// Task should not be executed since submitter was destroyed, but the failure callback should be called
     EXPECT_EQ(submittedCount.load(), 0);
-    EXPECT_EQ(completeCount.load(), 0);
+    EXPECT_EQ(completeCount.load(), 1);
+    EXPECT_EQ(failureCount.load(), 1);
+}
+
+TEST_F(DelayedTaskSubmitterTest, testShutdownFailsPendingTask)
+{
+    std::atomic submittedCount{0};
+    std::atomic failureCount{0};
+    std::atomic completeCount{0};
+
+    auto submitter = DelayedTaskSubmitter([&submittedCount](Task /*task*/) noexcept { ++submittedCount; });
+    submitter.submitTaskIn(createTrackedTask(completeCount, failureCount), std::chrono::hours(1));
+
+    submitter.shutdown();
+
+    EXPECT_EQ(submittedCount.load(), 0);
+    EXPECT_EQ(completeCount.load(), 1);
+    EXPECT_EQ(failureCount.load(), 1);
+}
+
+TEST_F(DelayedTaskSubmitterTest, testConcurrentShutdown)
+{
+    auto submitter = DelayedTaskSubmitter([](Task /*task*/) noexcept { });
+
+    constexpr size_t numberOfShutdownThreads = 10;
+    std::atomic<size_t> completedShutdowns{0};
+    std::barrier shutdownBarrier(numberOfShutdownThreads + 1);
+
+    std::vector<std::jthread> shutdownThreads;
+    shutdownThreads.reserve(numberOfShutdownThreads);
+    for (size_t index = 0; index < numberOfShutdownThreads; ++index)
+    {
+        shutdownThreads.emplace_back(
+            [&submitter, &shutdownBarrier, &completedShutdowns]
+            {
+                shutdownBarrier.arrive_and_wait();
+                submitter.shutdown();
+                ++completedShutdowns;
+            });
+    }
+    shutdownBarrier.arrive_and_wait();
+    shutdownThreads.clear();
+
+    EXPECT_EQ(completedShutdowns.load(), numberOfShutdownThreads);
+}
+
+TEST_F(DelayedTaskSubmitterTest, testSubmissionAfterShutdownFailsSynchronously)
+{
+    std::atomic submittedCount{0};
+    std::atomic failureCount{0};
+    std::atomic completeCount{0};
+
+    auto submitter = DelayedTaskSubmitter([&submittedCount](Task /*task*/) noexcept { ++submittedCount; });
+    submitter.shutdown();
+
+    submitter.submitTaskIn(createTrackedTask(completeCount, failureCount), std::chrono::milliseconds(1));
+
+    EXPECT_EQ(submittedCount.load(), 0);
+    EXPECT_EQ(completeCount.load(), 1);
     EXPECT_EQ(failureCount.load(), 1);
 }
 
@@ -299,7 +377,7 @@ TEST_F(DelayedTaskSubmitterTest, testStressRandomTasks)
                 for (int i = 0; i < tasksPerThread; ++i)
                 {
                     auto task = WorkTask(
-                        QueryId((threadId * tasksPerThread) + i),
+                        randomQueryId(),
                         PipelineId((threadId * tasksPerThread) + i),
                         std::weak_ptr<RunningQueryPlanNode>(),
                         TupleBuffer(),

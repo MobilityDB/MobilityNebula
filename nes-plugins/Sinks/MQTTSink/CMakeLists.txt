@@ -10,23 +10,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_plugin_as_library(MQTT Sink nes-sinks-registry mqtt_sink_plugin_library MQTTSink.cpp)
-add_plugin_as_library(MQTT SinkValidation nes-sinks-registry mqtt_sink_validation_plugin_library MQTTSink.cpp)
+include(${PROJECT_SOURCE_DIR}/cmake/RuntimeRegistrationUtil.cmake)
 
-target_include_directories(mqtt_sink_plugin_library
-        PUBLIC include
-        PRIVATE .
-)
-target_include_directories(mqtt_sink_validation_plugin_library
-        PUBLIC include
-        PRIVATE .
-)
+# One implementation library serving all registries this plugin participates in.
+add_library(mqtt_sink_plugin_library STATIC MQTTSink.cpp)
+target_link_libraries(mqtt_sink_plugin_library PRIVATE nes-sinks)
+target_include_directories(mqtt_sink_plugin_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/)
 
 find_package(PahoMqttCpp CONFIG REQUIRED)
-if(TARGET PahoMqttCpp::paho-mqttpp3-static)
-    target_link_libraries(mqtt_sink_plugin_library PRIVATE PahoMqttCpp::paho-mqttpp3-static)
-    target_link_libraries(mqtt_sink_validation_plugin_library PRIVATE PahoMqttCpp::paho-mqttpp3-static)
-else()
-    target_link_libraries(mqtt_sink_plugin_library PRIVATE PahoMqttCpp::paho-mqttpp3)
-    target_link_libraries(mqtt_sink_validation_plugin_library PRIVATE PahoMqttCpp::paho-mqttpp3)
-endif()
+target_link_libraries(mqtt_sink_plugin_library PRIVATE PahoMqttCpp::paho-mqttpp3-static)
+
+link_plugin_library(nes-sinks mqtt_sink_plugin_library)
+add_registry_entry(Sink MQTT)
+add_registry_entry(SinkConfigSchema MQTT)
+add_registry_entry(SinkConfig MQTT)
+
+# These tests use docker CLI to run docker-compose from within the development container.
+add_e2e_test(
+    NAME mqtt-sink-test
+    BATS_FILE tests/distributed.bats
+    DOCKER_COMPOSE
+    JOBS 4
+)

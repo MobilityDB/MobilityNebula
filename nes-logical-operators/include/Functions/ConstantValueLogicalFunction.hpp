@@ -19,20 +19,22 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
-#include <Configurations/Descriptor.hpp>
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Util/Logger/Formatter.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <SerializableVariantDescriptor.pb.h>
+#include <Util/Reflection.hpp>
+#include <LogicalFunctionRegistry.hpp>
 
 namespace NES
 {
 
 /// This function node represents a constant value and a fixed data type.
 /// Thus, the dataType of this function is always fixed.
-class ConstantValueLogicalFunction final : public LogicalFunctionConcept
+class ConstantValueLogicalFunction final
 {
 public:
     static constexpr std::string_view NAME = "ConstantValue";
@@ -41,34 +43,45 @@ public:
 
     [[nodiscard]] std::string getConstantValue() const;
 
-    [[nodiscard]] bool operator==(const LogicalFunctionConcept& rhs) const override;
+    [[nodiscard]] bool operator==(const ConstantValueLogicalFunction& rhs) const;
 
-    [[nodiscard]] SerializableFunction serialize() const override;
+    [[nodiscard]] DataType getDataType() const;
+    [[nodiscard]] ConstantValueLogicalFunction withDataType(const DataType& dataType) const;
+    [[nodiscard]] LogicalFunction withInferredDataType(const Schema<Field, Unordered>& schema) const;
 
-    [[nodiscard]] DataType getDataType() const override;
-    [[nodiscard]] LogicalFunction withDataType(const DataType& dataType) const override;
-    [[nodiscard]] LogicalFunction withInferredDataType(const Schema& schema) const override;
+    [[nodiscard]] std::vector<LogicalFunction> getChildren() const;
+    [[nodiscard]] ConstantValueLogicalFunction withChildren(const std::vector<LogicalFunction>& children) const;
 
-    [[nodiscard]] std::vector<LogicalFunction> getChildren() const override;
-    [[nodiscard]] LogicalFunction withChildren(const std::vector<LogicalFunction>& children) const override;
+    [[nodiscard]] std::string_view getType() const;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
 
-    [[nodiscard]] std::string_view getType() const override;
-    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const override;
-
-    struct ConfigParameters
-    {
-        static inline const DescriptorConfig::ConfigParameter<std::string> CONSTANT_VALUE_AS_STRING{
-            "constantValueAsString",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return DescriptorConfig::tryGet(CONSTANT_VALUE_AS_STRING, config); }};
-
-        static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
-            = DescriptorConfig::createConfigParameterContainerMap(CONSTANT_VALUE_AS_STRING);
-    };
+    static LogicalFunctionRegistryReturnType createConstantValue(LogicalFunctionRegistryArguments arguments);
 
 private:
     const std::string constantValue;
+    DataType dataType;
+};
+
+template <>
+struct Reflector<ConstantValueLogicalFunction>
+{
+    Reflected operator()(const ConstantValueLogicalFunction& function, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<ConstantValueLogicalFunction>
+{
+    ConstantValueLogicalFunction operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
+
+static_assert(LogicalFunctionConcept<ConstantValueLogicalFunction>);
+}
+
+namespace NES::detail
+{
+struct ReflectedConstantValueLogicalFunction
+{
+    std::string value;
     DataType dataType;
 };
 }

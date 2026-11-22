@@ -14,56 +14,96 @@
 
 #pragma once
 
+#include <cstdint>
+#include <functional>
+#include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include <DataTypes/Schema.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
-#include <Traits/Trait.hpp>
+#include <Serialization/ReflectedOperator.hpp>
 #include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <SerializableOperator.pb.h>
+#include <Util/Reflection.hpp>
+
+#include <DataTypes/UnboundField.hpp>
+#include <Operators/LogicalOperatorFwd.hpp>
+#include <Operators/Reorderer.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Util/DynamicBase.hpp>
 
 namespace NES
 {
 
-class UnionLogicalOperator
+class UnionLogicalOperator : public Reorderer, public ManagedByOperator
 {
 public:
-    explicit UnionLogicalOperator();
+    explicit UnionLogicalOperator(WeakLogicalOperator self);
+    explicit UnionLogicalOperator(WeakLogicalOperator self, std::vector<LogicalOperator> children);
+
+    static TypedLogicalOperator<UnionLogicalOperator> create();
+    static TypedLogicalOperator<UnionLogicalOperator> create(std::vector<LogicalOperator> children);
 
     [[nodiscard]] bool operator==(const UnionLogicalOperator& rhs) const;
-    void serialize(SerializableOperator&) const;
 
     [[nodiscard]] UnionLogicalOperator withTraitSet(TraitSet traitSet) const;
     [[nodiscard]] TraitSet getTraitSet() const;
 
+    [[nodiscard]] UnionLogicalOperator withChildrenUnsafe(std::vector<LogicalOperator> children) const;
     [[nodiscard]] UnionLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
     [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
 
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
-    [[nodiscard]] Schema getOutputSchema() const;
+    [[nodiscard]] Schema<Field, Unordered> getOutputSchema() const;
 
     [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId) const;
     [[nodiscard]] std::string_view getName() const noexcept;
 
-    [[nodiscard]] UnionLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
 
-    /// Set the schemas directly without inference used for operator registration
-    [[nodiscard]] UnionLogicalOperator setInputSchemas(std::vector<Schema> inputSchemas) const;
-    [[nodiscard]] UnionLogicalOperator setOutputSchema(const Schema& outputSchema) const;
+    [[nodiscard]] UnionLogicalOperator withInferredSchema() const;
+    [[nodiscard]] Schema<Field, Ordered> getOrderedOutputSchema(ChildOutputOrderProvider childOrderProvider) const override;
+    [[nodiscard]] const DynamicBase* getDynamicBase() const;
 
 private:
     static constexpr std::string_view NAME = "Union";
 
     std::vector<LogicalOperator> children;
-    std::vector<Schema> inputSchemas;
-    Schema outputSchema;
+
+    void inferLocalSchema();
+    /// Set during schema inference
+    std::optional<Schema<UnqualifiedUnboundField, Unordered>> outputSchema;
+
     TraitSet traitSet;
+    friend struct std::hash<UnionLogicalOperator>;
+    friend Reflector<TypedLogicalOperator<UnionLogicalOperator>>;
+};
+
+template <>
+struct Reflector<TypedLogicalOperator<UnionLogicalOperator>>
+{
+    Reflected operator()(const TypedLogicalOperator<UnionLogicalOperator>&, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<TypedLogicalOperator<UnionLogicalOperator>>
+{
+    using ContextType = std::shared_ptr<ReflectedPlan>;
+    ContextType plan;
+    explicit Unreflector(ContextType operatorMapping);
+    TypedLogicalOperator<UnionLogicalOperator> operator()(const Reflected&, const ReflectionContext&) const;
 };
 
 static_assert(LogicalOperatorConcept<UnionLogicalOperator>);
 
 }
+
+template <>
+struct std::hash<NES::UnionLogicalOperator>
+{
+    uint64_t operator()(const NES::UnionLogicalOperator& op) const noexcept;
+};

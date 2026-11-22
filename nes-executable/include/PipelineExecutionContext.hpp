@@ -52,7 +52,7 @@ public:
     virtual void repeatTask(const TupleBuffer&, std::chrono::milliseconds) = 0;
 
     virtual TupleBuffer allocateTupleBuffer() = 0;
-    [[nodiscard]] virtual WorkerThreadId getId() const = 0;
+    [[nodiscard]] virtual WorkerThreadId getWorkerThreadId() const = 0;
     [[nodiscard]] virtual uint64_t getNumberOfWorkerThreads() const = 0;
     [[nodiscard]] virtual std::shared_ptr<AbstractBufferProvider> getBufferManager() const = 0;
     [[nodiscard]] virtual PipelineId getPipelineId() const = 0;

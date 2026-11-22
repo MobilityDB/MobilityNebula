@@ -1,0 +1,54 @@
+/*
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
+#pragma once
+
+#include <filesystem>
+#include <ostream>
+#include <string>
+#include <unordered_set>
+#include <vector>
+
+#include <Config/Config.hpp>
+#include <Identifiers/Identifiers.hpp>
+
+namespace NES
+{
+
+/// A file's name: its path relative to the discovery root, without extension.
+/// E.g., `nes-systests/operator/join/JoinNull.test` becomes `operator/join/JoinNull`.
+/// The name labels the file in the report and in the result file path.
+/// Strong types, so a name or a group is not confused with a path or with each other.
+using TestName = NESStrongStringType<struct TestName_, "INVALID">;
+using TestGroup = NESStrongStringType<struct TestGroup_, "INVALID">;
+
+struct DiscoveredTestFile
+{
+    explicit DiscoveredTestFile(const std::filesystem::path& file, TestName testName, std::unordered_set<SystestQueryId> queryFilter = {});
+    [[nodiscard]] std::string getLogFilePath() const;
+
+    [[nodiscard]] TestName getName() const { return testName; }
+
+    std::filesystem::path file;
+    TestName testName;
+    /// Query numbers to keep; an empty filter keeps every query.
+    std::unordered_set<SystestQueryId> queryFilter;
+    std::vector<TestGroup> groups;
+};
+
+std::ostream& operator<<(std::ostream& os, const std::vector<DiscoveredTestFile>& testFiles);
+/// Reads the configuration and searches the given directories, returning one invocation's test files.
+std::vector<DiscoveredTestFile> discoverTestFiles(const SystestConfiguration& config);
+
+}

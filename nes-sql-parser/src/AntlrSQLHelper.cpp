@@ -18,15 +18,26 @@
 #include <utility>
 #include <vector>
 #include <Functions/LogicalFunction.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <CommonParserFunctions.hpp>
 
 namespace NES::Parsers
 {
 
 /// Getter and Setter for the map/list entries of each clause
-const std::string AntlrSQLHelper::getSource() const
+std::optional<Identifier> AntlrSQLHelper::getSource() const
 {
     return this->source;
+}
+
+std::optional<Identifier> AntlrSQLHelper::getSourceAlias() const
+{
+    return sourceAlias;
+}
+
+const std::vector<Identifier>& AntlrSQLHelper::getSourceQualifiers() const
+{
+    return sourceQualifiers;
 }
 
 std::vector<LogicalFunction>& AntlrSQLHelper::getWhereClauses()
@@ -40,19 +51,29 @@ std::vector<LogicalFunction>& AntlrSQLHelper::getHavingClauses()
 }
 
 /// methods to update the clauses maps/lists
-void AntlrSQLHelper::setSource(std::string sourceName)
+void AntlrSQLHelper::setSource(Identifier sourceName)
 {
-    this->source = sourceName;
+    this->source = std::move(sourceName);
 }
 
-void AntlrSQLHelper::setInlineSource(const std::string& type, const ConfigMap& parameters)
+void AntlrSQLHelper::setSourceAlias(Identifier alias)
 {
-    this->inlineSourceConfig = std::make_pair(type, parameters);
+    sourceAlias = std::move(alias);
 }
 
-std::pair<std::string, ConfigMap> AntlrSQLHelper::getInlineSourceConfig()
+void AntlrSQLHelper::addSourceQualifier(Identifier qualifier)
 {
-    return this->inlineSourceConfig;
+    sourceQualifiers.emplace_back(std::move(qualifier));
+}
+
+void AntlrSQLHelper::setAnonymousSource(const Identifier& type, const ConfigMap& parameters)
+{
+    this->anonymousSourceConfig = std::make_pair(type, parameters);
+}
+
+std::optional<std::pair<Identifier, ConfigMap>> AntlrSQLHelper::getAnonymousSourceConfig()
+{
+    return this->anonymousSourceConfig;
 }
 
 void AntlrSQLHelper::addWhereClause(LogicalFunction expressionNode)
@@ -65,7 +86,7 @@ void AntlrSQLHelper::addHavingClause(LogicalFunction expressionNode)
     this->havingClauses.emplace_back(std::move(expressionNode));
 }
 
-void AntlrSQLHelper::addProjection(std::optional<FieldIdentifier> identifier, LogicalFunction logicalFunction)
+void AntlrSQLHelper::addProjection(std::optional<Identifier> identifier, LogicalFunction logicalFunction)
 {
     this->projectionBuilder.emplace_back(std::move(identifier), std::move(logicalFunction));
 }

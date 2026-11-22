@@ -1,3 +1,8 @@
+---
+title: "Build instructions"
+weight: 10
+---
+
 # Development
 
 This document explains how to set up the development environment for NebulaStream.
@@ -8,32 +13,58 @@ non-containerized environment.
 
 ## Development Container
 
-The recent (based on the main branch) development image can be pulled from
-
-```shell
-docker pull nebulastream/nes-development:latest
-```
-> [!IMPORTANT]
-> If running on an arm64 / aarch64 architecture, ensure that containers you pull are built for a "linux/arm64" target.
-> Else builds may be very slow or fail while emulating the amd64 architecture.
-> If you are intentionally cross compiling for amd64 on an apple ARM processor with docker on colima and encounter crashes while building, you may need to disable rosetta.
-
-However, it is recommended to build a local development image, because it also installs the current user into the
-docker container, which prevents permission issues. Building a local image will fall back to a pre-built development
-image which matches the current set of dependencies (based on a hash). If you are using docker in rootless mode the
-user inside the container will be root.
-
-If no development image matches the current dependency hash, you can build the development environment locally (using
-the `-l` flag). If you want to use `libstdc++` instead of the default libc++, you can use the `--libstdcxx` flag.
-
-Currently, we do not provide any libstdc++ images for ARM, but you can build them locally.
+To set up a development container, always use the provided installation script:
 
 ```shell
 ./scripts/install-local-docker-environment.sh
 ```
 
+This script ensures that a suitable development image is available locally. It will automatically pull a pre-built image that matches the current dependency hash, or build one locally when needed. Local builds also install the current user inside the container, preventing permission issues.
+If you are using Docker in rootless mode, the user inside the container will be `root`.
+
+> [!NOTE]
+> The Dockerfiles use [BuildKit](https://docs.docker.com/build/buildkit/) features (e.g., `--mount`, `--chmod`, `--checksum`).
+> The installation script enables BuildKit automatically (`DOCKER_BUILDKIT=1`).
+> If you invoke `docker build` manually, make sure BuildKit is enabled, either by setting `export DOCKER_BUILDKIT=1` or by using `docker buildx build`.
+
+> [!WARNING]
+> The logic for detecting root mode is not perfect. If you encounter permission problems you may have to force root mode using the `-r` flag.
+
+> [!IMPORTANT]
+> If running on an arm64 / aarch64 architecture, ensure that any container images used are built for the `linux/arm64` target.
+> Otherwise, builds may be slow or fail due to architecture emulation.
+> If you are intentionally cross-compiling for amd64 on an Apple ARM processor using Docker on Colima and encounter crashes, you may need to disable Rosetta.
+
+If no pre-built image matches the current dependency hash, the script will build the development environment locally (equivalent to using the `-l` flag).
+Note that we currently do not provide pre-built libstdc++ images for ARM, but the script can build them locally when requested.
+If the dependency hash mismatches but you are certain that none of the files in docker/ or vcpkg/ have been modified, please submit a bug report, as the hash function may not be working correctly on your system.
+
+You may also select `libstdc++` instead of the default libc++ using the `--libstdcxx` flag.
+Using `libstdc++` leads to better resolution of debug symbols on Linux, using CLion.
+
+> [!NOTE]
+> We currently do not provide pre-built `libstdc++` development images for ARM architectures.  
+> However, you can build them locally by using the `-l` flag with the installation script.
+
+> [!NOTE]
+> Pre-built development images do not include debug builds of the dependencies, to keep them small.
+> A Debug build of NebulaStream then links the release builds of the dependencies, so you cannot step through their code with full debug information.
+> If you need that, build the image locally by using the `-l` flag with the installation script. This is slower, but includes the debug builds.
+
+
 > [!NOTE]
 > All commands need to be run from the **root of the git repository**!
+
+> [!NOTE]
+> **Windows Line Endings**
+>
+> If you are working on Windows, some scripts may fail to run if they use Windows-style CRLF line endings.  
+> Ensure that the following files use **LF** line endings:
+>
+> - `./scripts/install-local-docker-environment.sh`
+> - `./docker/dependency/hash_dependency.sh`
+>
+> Scripts will not execute correctly under Git Bash or Cygwin if they contain CRLF line endings. You can switch line endings in most editors (e.g., VS Code, Notepad++, IntelliJ) via the status bar.
 
 The image contains an LLVM-based toolchain (with libc++), a recent CMake version, the mold linker and a pre-built
 development sdk based on the vcpkg manifest.
@@ -72,6 +103,39 @@ docker run \
      ctest --test-dir build-docker -j
 ```
 
+### Packaging binaries into Docker images
+
+The `package-docker-images-all` CMake target builds the runtime base and packages every executable image;
+`package-docker-<nes-cli|nes-repl|nes-repl-embedded|nes-worker>` packages a single one. They require a reachable Docker
+daemon — inside the development container that means mounting the docker socket, as for the docker-based
+e2e tests — and are excluded from the default build. See
+[packaging Docker images](packaging_docker_images.md) for individual targets and tag configuration.
+
+### Code style & static analysis
+
+Code style and static analysis are available as CMake targets, so you do not need to invoke `clang-format` or
+`clang-tidy` by hand:
+
+- `format` / `check-format` — run clang-format (apply in place / check only).
+- `tidy-diff` / `tidy-diff-fix` — run clang-tidy over your diff (base `NES_TIDY_DIFF_BASE`, default `HEAD`).
+- `tidy-diff-to-main` / `tidy-diff-to-main-fix` — run clang-tidy over your whole branch relative to `origin/main`.
+- `tidy-full` — run clang-tidy over every translation unit (what nightly CI runs).
+
+For example, to fix clang-tidy findings on your branch inside the container:
+
+```shell
+docker run \
+    --workdir $(pwd) \
+    -v $(pwd):$(pwd) \
+    nebulastream/nes-development:local \
+    cmake --build build-docker --target tidy-diff-to-main-fix
+```
+
+In CLion these show up in the target dropdown and run like any other build target, so there is no need to edit the
+Docker toolchain environment. See
+[fixing clang-tidy warnings](https://github.com/nebulastream/nebulastream/blob/main/docs/development/fix_clang_tidy_warnings.md)
+for details.
+
 ### Modifying dependencies
 
 When using the docker images, it is not straightforward to edit the dependencies, as a new docker image would need to be
@@ -94,10 +158,22 @@ Since the development environment only provides a pre-built set of dependencies,
 containerized mode is impossible. If desired, a new development image can be built locally or via the CI.
 
 ### CCache
+Using ccache can significantly speed up recompilation times. For optimal performance, create a dedicated ccache volume that persists across container runs:
 
-If you want to use `CCache`, you need to mount your host machines' CCache directory (`ccache -p`) into the docker
-containers CCache directory.
+```shell
+docker volume create ccache
+```
+```shell
+docker run \
+    --workdir $(pwd) \
+    -v $(pwd):$(pwd) \
+    -v ccache:/ccache \
+    -e CCACHE_DIR=/ccache \
+    nebulastream/nes-development:local \
+    cmake -B build-docker
+```
 
+Alternatively, you can share your host machine's existing ccache directory by mounting it directly:
 ```shell
 docker run \
     --workdir $(pwd) \
@@ -108,12 +184,21 @@ docker run \
     cmake -B build-docker
 ```
 
+### Unit-test binaries
+
+`NES_SPLIT_TEST_BINARIES` defaults to `ON` and builds one executable per unit-test suite. Set it to `OFF` to link all
+unit tests into `nes-unit-tests`, as CI does:
+
+```shell
+cmake -B build-docker -DNES_SPLIT_TEST_BINARIES=OFF
+```
+
 ### CLion Integration
 
 To integrate the container-based development environment you need to create a new docker-based toolchain. With the
 following settings:
 
-![CLion-Toolchain-Settings](../resources/SetupDockerToolchainClion.png)
+![CLion-Toolchain-Settings](https://raw.githubusercontent.com/nebulastream/nebulastream/main/docs/resources/SetupDockerToolchainClion.png)
 
 > [!IMPORTANT]
 > If running on MacOS with Colima as your docker VM, you will need to select Colima instead of the default docker daemon.
@@ -123,16 +208,17 @@ docker-based toolchains if you plan to experiment with different sanitizer.
 
 Lastly, you need to create a new CMake profile which uses the newly created docker-based toolchain:
 
-![CLion-CMake-Settings](../resources/SetupDockerCmakeClion.png)
+![CLion-CMake-Settings](https://raw.githubusercontent.com/nebulastream/nebulastream/main/docs/resources/SetupDockerCmakeClion.png)
 
 ## Non-Container Development Environment
 
 The relevant CI Jobs will be executed in the development container. This means in order to reproduce CI results, it is
 essential to replicate the development environment built into the base docker image. Note that NebulaStream uses llvm
 for its query compilation, which will take a while to build locally. You can follow the instructions of the instructions
-of the [base.dockerfile](../docker/dependency/Base.dockerfile) to replicate on Ubuntu or Debian systems.
+of the [base.dockerfile](https://github.com/nebulastream/nebulastream/blob/main/docker/dependency/Base.dockerfile) to
+replicate on Ubuntu or Debian systems.
 
-The compiler toolchain is based on `llvm-19` and libc++-19, and we use the mold linker for its better performance.
+The compiler toolchain is based on `llvm-22` and libc++-22, and we use the mold linker for its better performance.
 Follow the [llvm documentation](https://apt.llvm.org/) to install a recent toolchain via your package manager.
 
 ### Local VCPKG with DCMAKE_TOOLCHAIN_FILE
@@ -159,9 +245,8 @@ elsewhere on your system and specify the `-DCMAKE_TOOLCHAIN_FILE` flag.
 ### Using a local installation of MLIR
 
 Building LLVM and `MLIR` locally can be both time and disk-space consuming. The cmake option `-DUSE_LOCAL_MLIR=ON` will
-remove the vcpkg feature responsible for building `MLIR`. Unless the `MLIR` backend is also disabled via
-`-DNES_ENABLE_EXPERIMENTAL_EXECUTION_MLIR=OFF`,
-CMake expects to be able to locate `MLIR` somewhere on the system.
+remove the vcpkg feature responsible for building `MLIR`. CMake then expects to be able to locate `MLIR` somewhere on
+the system.
 
 The current recommendation is to use the
 legacy [pre-built llvm archive](https://github.com/nebulastream/clang-binaries/releases/tag/vmlir-sanitized)
@@ -237,6 +322,14 @@ that wrap build tools to run inside the Nix development shell.
    ```shell
    ./.nix/nix-cmake.sh --build cmake-build-debug
    ```
+
+3. **Run the clang-tidy diff workflow** against `origin/main`:
+   ```shell
+   nix run .#clang-tidy
+   ```
+   Pass another base ref after `--` to compare against a different branch or commit, for example
+   `nix run .#clang-tidy -- upstream/main`. The command uses the official `clang-tidy-diff.py` workflow, applies fixes
+   in place, and configures and builds `build/`.
 
 ### CLion Integration with Nix
 

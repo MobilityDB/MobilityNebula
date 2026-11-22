@@ -15,9 +15,13 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 #include <Identifiers/Identifiers.hpp>
+#include <Interface/Hash/BloomFilterRef.hpp>
+#include <Interface/HashMap/HashMap.hpp>
 #include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/HashMap/HashMap.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/TupleBuffer.hpp>
 #include <SliceStore/Slice.hpp>
 #include <HashMapSlice.hpp>
 
@@ -31,8 +35,9 @@ class HJSlice final : public HashMapSlice
 public:
     HJSlice(
         SliceStart sliceStart, SliceEnd sliceEnd, const CreateNewHashMapSliceArgs& createNewHashMapSliceArgs, uint64_t numberOfHashMaps);
-    [[nodiscard]] Nautilus::Interface::HashMap* getHashMapPtr(WorkerThreadId workerThreadId, const JoinBuildSideType& buildSide) const;
-    [[nodiscard]] Nautilus::Interface::HashMap* getHashMapPtrOrCreate(WorkerThreadId workerThreadId, const JoinBuildSideType& buildSide);
+    [[nodiscard]] const TupleBuffer* getHashMapBufferRefForSide(WorkerThreadId workerThreadId, const JoinBuildSideType& buildSide) const;
+    [[nodiscard]] const TupleBuffer* getOrCreateHashMapBufferRefForSide(
+        WorkerThreadId workerThreadId, const JoinBuildSideType& buildSide, AbstractBufferProvider& bufferProvider);
     [[nodiscard]] uint64_t getNumberOfHashMapsForSide() const;
 };
 

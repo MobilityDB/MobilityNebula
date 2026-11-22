@@ -23,19 +23,26 @@
 #include <string_view>
 #include <utility>
 #include <vector>
+
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
-#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
-#include <Nautilus/Interface/Hash/HashFunction.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <DataTypes/UnboundField.hpp>
+#include <Interface/BufferRef/LowerSchemaProvider.hpp>
+#include <Interface/BufferRef/TupleBufferRef.hpp>
+#include <Interface/Hash/HashFunction.hpp>
+#include <Interface/Hash/MurMur3HashFunction.hpp>
+#include <Interface/Record.hpp>
+#include <Runtime/BufferManager.hpp>
 #include <Runtime/TupleBuffer.hpp>
-#include <Util/ExecutionMode.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Util/ExecutionConfiguration.hpp>
 #include <nautilus/Engine.hpp>
 #include <ErrorHandling.hpp>
 #include <options.hpp>
 #include <static.hpp>
+#include <val_details.hpp>
 
-namespace NES::Nautilus::TestUtils
+namespace NES::TestUtils
 {
 
 /// We need a simple wrapper around the Record class to be able to compare the records with the fields.
@@ -59,15 +66,38 @@ struct RecordWithFields
         return false;
     }
 
+    bool operator==(const RecordWithFields& other) const
+    {
+        return std::ranges::all_of(
+            fields,
+            [this, &other](const auto fieldIdentifier)
+            { return (record.read(fieldIdentifier) == other.record.read(fieldIdentifier)).operator bool(); });
+    }
+
     Record record;
     std::vector<Record::RecordFieldIdentifier> fields;
+};
+
+struct RecordWithFieldsHash
+{
+    std::size_t operator()(const RecordWithFields& record) const
+    {
+        uint64_t hashValue = 0;
+        const std::unique_ptr<HashFunction> hashFunction = std::make_unique<MurMur3HashFunction>();
+        for (const auto& fieldIdentifier : nautilus::static_iterable(record.fields))
+        {
+            auto val = record.record.read(fieldIdentifier);
+            hashValue ^= nautilus::details::RawValueResolver<uint64_t>::getRawValue(hashFunction->calculate(val));
+        }
+        return hashValue;
+    }
 };
 
 /// We store the name of a nautilus function and the backend type in this struct
 /// We use this information for being able to access a (pre-)compiled/traced function and not having to recompile it all the time
 struct NameAndNautilusBackend
 {
-    NameAndNautilusBackend(std::string_view functionName, const ExecutionMode backend)
+    NameAndNautilusBackend(std::string_view functionName, const ExecutionConfiguration::ExecutionMode backend)
         : functionName(std::move(functionName)), backend(backend)
     {
     }
@@ -91,7 +121,7 @@ struct NameAndNautilusBackend
     }
 
     std::string functionName;
-    ExecutionMode backend;
+    ExecutionConfiguration::ExecutionMode backend;
 };
 
 /// Struct that stores a min and max value.
@@ -115,13 +145,13 @@ template <typename R, typename... FunctionArguments>
 class FunctionWrapper final : public FunctionWrapperBase
 {
 public:
-    explicit FunctionWrapper(nautilus::engine::CallableFunction<R, FunctionArguments...>&& function)
+    explicit FunctionWrapper(nautilus::engine::CompiledFunction<R(FunctionArguments...)>&& function)
         : FunctionWrapperBase(), func(std::move(function))
     {
     }
 
     ~FunctionWrapper() override = default;
-    nautilus::engine::CallableFunction<R, FunctionArguments...> func;
+    nautilus::engine::CompiledFunction<R(FunctionArguments...)> func;
 };
 
 class NautilusTestUtils
@@ -133,35 +163,44 @@ public:
 
 
     /// Returns a MurMur3 hash function
-    static std::unique_ptr<Interface::HashFunction> getMurMurHashFunction();
+    static std::unique_ptr<HashFunction> getMurMurHashFunction();
 
     /// Creates a schema from the provided basic types. The field names will be field<counter> with the counter starting at typeIdxOffset
     /// For example, the call createSchemaFromBasicTypes({DataType::Type::INT_32, DataType::Type::FLOAT}, 1) will create a schema with the fields field1 and field2
-    static Schema createSchemaFromBasicTypes(const std::vector<DataType::Type>& basicTypes);
-    static Schema createSchemaFromBasicTypes(const std::vector<DataType::Type>& basicTypes, uint64_t typeIdxOffset);
+    static Schema<QualifiedUnboundField, Ordered> createSchemaFromBasicTypes(const std::vector<DataType::Type>& basicTypes);
+    static Schema<QualifiedUnboundField, Ordered>
+    createSchemaFromBasicTypes(const std::vector<DataType::Type>& basicTypes, uint64_t typeIdxOffset);
 
     /// Creates monotonic increasing values for each field. This means that each field in each tuple has a new and increased value
     std::vector<TupleBuffer> createMonotonicallyIncreasingValues(
-        const Schema& schema,
+        const Schema<QualifiedUnboundField, Ordered>& schema,
+        MemoryLayoutType layoutType,
         uint64_t numberOfTuples,
         BufferManager& bufferManager,
         uint64_t seed,
         uint64_t minSizeVarSizedData,
         uint64_t maxSizeVarSizedData);
     std::vector<TupleBuffer> createMonotonicallyIncreasingValues(
-        const Schema& schema, uint64_t numberOfTuples, BufferManager& bufferManager, uint64_t minSizeVarSizedData);
-    std::vector<TupleBuffer>
-    createMonotonicallyIncreasingValues(const Schema& schema, uint64_t numberOfTuples, BufferManager& bufferManager);
+        const Schema<QualifiedUnboundField, Ordered>& schema,
+        MemoryLayoutType layoutType,
+        uint64_t numberOfTuples,
+        BufferManager& bufferManager,
+        uint64_t minSizeVarSizedData);
+    std::vector<TupleBuffer> createMonotonicallyIncreasingValues(
+        const Schema<QualifiedUnboundField, Ordered>& schema,
+        MemoryLayoutType layoutType,
+        uint64_t numberOfTuples,
+        BufferManager& bufferManager);
 
     void compileFillBufferFunction(
         std::string_view functionName,
-        ExecutionMode backend,
+        ExecutionConfiguration::ExecutionMode backend,
         nautilus::engine::Options& options,
-        const Schema& schema,
-        const std::shared_ptr<Interface::BufferRef::TupleBufferRef>& memoryProviderInputBuffer);
+        const Schema<QualifiedUnboundField, Ordered>& schema,
+        const std::shared_ptr<TupleBufferRef>& memoryProviderInputBuffer);
 
     /// Compares two records and if they are not equal returning a string. If the records are equal, return nullopt
-    static std::string
+    static std::optional<std::string>
     compareRecords(const Record& recordLeft, const Record& recordRight, const std::vector<Record::RecordFieldIdentifier>& projection);
 
     /// Calls an already compiled function. If the method does not exist, we throw an PRECONDITION violation
@@ -178,8 +217,8 @@ public:
     static std::string compareRecordBuffers(
         const std::vector<TupleBuffer>& actualRecords,
         const std::vector<TupleBuffer>& expectedRecords,
-        const Nautilus::Interface::BufferRef::TupleBufferRef& memoryProviderActualBuffer,
-        const Nautilus::Interface::BufferRef::TupleBufferRef& memoryProviderInputBuffer);
+        const TupleBufferRef& memoryProviderActualBuffer,
+        const TupleBufferRef& memoryProviderInputBuffer);
 
 
 protected:

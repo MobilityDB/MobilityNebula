@@ -14,79 +14,113 @@
 
 #pragma once
 
+#include <cstdint>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <vector>
-#include <Configurations/Descriptor.hpp>
-#include <DataTypes/Schema.hpp>
+
+#include <DataTypes/UnboundField.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
+#include <Operators/LogicalOperatorFwd.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/ReflectedOperator.hpp>
 #include <Traits/Trait.hpp>
 #include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <SerializableOperator.pb.h>
+#include <Util/Reflection.hpp>
 
 namespace NES
 {
 
-/// The rows of FROM t, (VALUES (a, b), (c, d)) AS f(x, y), or of t CROSS JOIN the same table: each row of its input once
-/// per row of the table, the values of the row in the fields f$x and f$y. The values are functions, read row after row
-/// and one per field, and every row gives each field a value of the same type.
-class InlineTableJoinLogicalOperator
+/// FROM t, (VALUES (a, b), (c, d)) AS alias(x, y), or CROSS JOIN the same table: each record of the child, once per row of
+/// the table, the values of the row in the fields x and y, as SQL writes the cross join with a table of values. A value is
+/// an expression over the fields of the child; each field takes the type of its value in the first row, and every other
+/// row gives it a value of that type. The output holds the child's fields and the table's.
+class InlineTableJoinLogicalOperator : public ManagedByOperator
 {
 public:
-    InlineTableJoinLogicalOperator(std::vector<LogicalFunction> values, std::vector<std::string> fieldNames);
+    InlineTableJoinLogicalOperator(WeakLogicalOperator self, std::vector<LogicalFunction> values, Identifier alias, std::vector<Identifier> fields);
+    InlineTableJoinLogicalOperator(
+        WeakLogicalOperator self, LogicalOperator child, std::vector<LogicalFunction> values, Identifier alias, std::vector<Identifier> fields);
 
+    static TypedLogicalOperator<InlineTableJoinLogicalOperator>
+    create(std::vector<LogicalFunction> values, Identifier alias, std::vector<Identifier> fields);
+    static TypedLogicalOperator<InlineTableJoinLogicalOperator>
+    create(LogicalOperator child, std::vector<LogicalFunction> values, Identifier alias, std::vector<Identifier> fields);
+
+    /// The values of the table, row after row
     [[nodiscard]] const std::vector<LogicalFunction>& getValues() const;
-    [[nodiscard]] const std::vector<std::string>& getFieldNames() const;
+    [[nodiscard]] Identifier getAlias() const;
+    [[nodiscard]] const std::vector<Identifier>& getFields() const;
 
     [[nodiscard]] bool operator==(const InlineTableJoinLogicalOperator& rhs) const;
-    void serialize(SerializableOperator&) const;
 
     [[nodiscard]] InlineTableJoinLogicalOperator withTraitSet(TraitSet traitSet) const;
     [[nodiscard]] TraitSet getTraitSet() const;
 
+    [[nodiscard]] InlineTableJoinLogicalOperator withChildrenUnsafe(std::vector<LogicalOperator> children) const;
     [[nodiscard]] InlineTableJoinLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
     [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
-
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
-    [[nodiscard]] Schema getOutputSchema() const;
+    [[nodiscard]] LogicalOperator getChild() const;
+    [[nodiscard]] Schema<Field, Unordered> getOutputSchema() const;
 
     [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId) const;
     [[nodiscard]] std::string_view getName() const noexcept;
 
-    [[nodiscard]] InlineTableJoinLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
-
-    struct ConfigParameters
-    {
-        static inline const DescriptorConfig::ConfigParameter<FunctionList> INLINE_TABLE_VALUES{
-            "inlineTableValues",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return DescriptorConfig::tryGet(INLINE_TABLE_VALUES, config); }};
-
-        static inline const DescriptorConfig::ConfigParameter<FunctionList> INLINE_TABLE_FIELDS{
-            "inlineTableFields",
-            std::nullopt,
-            [](const std::unordered_map<std::string, std::string>& config)
-            { return DescriptorConfig::tryGet(INLINE_TABLE_FIELDS, config); }};
-
-        static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
-            = DescriptorConfig::createConfigParameterContainerMap(INLINE_TABLE_VALUES, INLINE_TABLE_FIELDS);
-    };
+    [[nodiscard]] InlineTableJoinLogicalOperator withInferredSchema() const;
 
 private:
     static constexpr std::string_view NAME = "InlineTableJoin";
+    std::optional<LogicalOperator> child;
     std::vector<LogicalFunction> values;
-    std::vector<std::string> fieldNames;
+    Identifier alias;
+    std::vector<Identifier> fields;
 
-    std::vector<LogicalOperator> children;
+    void inferLocalSchema();
+    /// Set during schema inference
+    std::optional<Schema<UnqualifiedUnboundField, Unordered>> outputSchema;
+
     TraitSet traitSet;
-    Schema inputSchema, outputSchema;
+    friend struct std::hash<InlineTableJoinLogicalOperator>;
+};
+
+namespace detail
+{
+struct ReflectedInlineTableJoinLogicalOperator
+{
+    OperatorId operatorId{OperatorId::INVALID};
+    std::vector<LogicalFunction> values;
+    Identifier alias;
+    std::vector<Identifier> fields;
+};
+}
+
+template <>
+struct Reflector<TypedLogicalOperator<InlineTableJoinLogicalOperator>>
+{
+    Reflected operator()(const TypedLogicalOperator<InlineTableJoinLogicalOperator>& op, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<TypedLogicalOperator<InlineTableJoinLogicalOperator>>
+{
+    using ContextType = std::shared_ptr<ReflectedPlan>;
+    ContextType plan;
+    explicit Unreflector(ContextType operatorMapping);
+    TypedLogicalOperator<InlineTableJoinLogicalOperator> operator()(const Reflected& rfl, const ReflectionContext& context) const;
 };
 
 static_assert(LogicalOperatorConcept<InlineTableJoinLogicalOperator>);
 }
+
+template <>
+struct std::hash<NES::InlineTableJoinLogicalOperator>
+{
+    uint64_t operator()(const NES::InlineTableJoinLogicalOperator& op) const noexcept;
+};

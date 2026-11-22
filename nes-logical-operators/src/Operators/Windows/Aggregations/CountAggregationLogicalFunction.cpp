@@ -14,39 +14,40 @@
 
 #include <Operators/Windows/Aggregations/CountAggregationLogicalFunction.hpp>
 
+#include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <variant>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <fmt/format.h>
+#include <folly/hash/Hash.h>
 #include <AggregationLogicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
-CountAggregationLogicalFunction::CountAggregationLogicalFunction(const FieldAccessLogicalFunction& field)
-    : WindowAggregationLogicalFunction(
-          DataTypeProvider::provideDataType(inputAggregateStampType),
-          DataTypeProvider::provideDataType(partialAggregateStampType),
-          DataTypeProvider::provideDataType(finalAggregateStampType),
-          field)
+/// COUNT(*) includes null values (counts all rows), COUNT(fieldName) does not
+CountAggregationLogicalFunction::CountAggregationLogicalFunction(AggregationFieldAccess inputFunction, const bool includeNullValues)
+    : inputFunction(std::move(inputFunction)), includeNullValues(includeNullValues)
 {
 }
 
-CountAggregationLogicalFunction::CountAggregationLogicalFunction(FieldAccessLogicalFunction field, FieldAccessLogicalFunction asField)
-    : WindowAggregationLogicalFunction(
-          DataTypeProvider::provideDataType(inputAggregateStampType),
-          DataTypeProvider::provideDataType(partialAggregateStampType),
-          DataTypeProvider::provideDataType(finalAggregateStampType),
-          std::move(field),
-          std::move(asField))
+bool CountAggregationLogicalFunction::shallIncludeNullValues() const noexcept
 {
+    return includeNullValues;
 }
 
 std::string_view CountAggregationLogicalFunction::getName() const noexcept
@@ -54,57 +55,83 @@ std::string_view CountAggregationLogicalFunction::getName() const noexcept
     return NAME;
 }
 
-void CountAggregationLogicalFunction::inferStamp(const Schema& schema)
+DataType CountAggregationLogicalFunction::getAggregateType()
 {
-    if (const auto sourceNameQualifier = schema.getSourceNameQualifier())
-    {
-        const auto attributeNameResolver = sourceNameQualifier.value() + std::string(Schema::ATTRIBUTE_NAME_SEPARATOR);
-        const auto asFieldName = asField.getFieldName();
-
-        ///If on and as field name are different then append the attribute name resolver from on field to the as field
-        if (asFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR) == std::string::npos)
-        {
-            asField = asField.withFieldName(attributeNameResolver + asFieldName).get<FieldAccessLogicalFunction>();
-        }
-        else
-        {
-            const auto fieldName = asFieldName.substr(asFieldName.find_last_of(Schema::ATTRIBUTE_NAME_SEPARATOR) + 1);
-            asField = asField.withFieldName(attributeNameResolver + fieldName).get<FieldAccessLogicalFunction>();
-        }
-
-        /// a count aggregation is always on an uint 64
-        this->onField = onField.withDataType(DataTypeProvider::provideDataType(DataType::Type::UINT64)).get<FieldAccessLogicalFunction>();
-        this->asField = asField.withDataType(DataTypeProvider::provideDataType(DataType::Type::UINT64)).get<FieldAccessLogicalFunction>();
-    }
-    else
-    {
-        throw CannotInferSchema("Schema lacked source name qualifier: {}", schema);
-    }
+    return DataTypeProvider::provideDataType(finalAggregateStampType);
 }
 
-SerializableAggregationFunction CountAggregationLogicalFunction::serialize() const
+AggregationFieldAccess CountAggregationLogicalFunction::getInputFunction() const
 {
-    SerializableAggregationFunction serializedAggregationFunction;
-    serializedAggregationFunction.set_type(NAME);
-
-    auto onFieldFuc = SerializableFunction();
-    onFieldFuc.CopyFrom(onField.serialize());
-
-    auto asFieldFuc = SerializableFunction();
-    asFieldFuc.CopyFrom(asField.serialize());
-
-    serializedAggregationFunction.mutable_as_field()->CopyFrom(asFieldFuc);
-    serializedAggregationFunction.mutable_on_field()->CopyFrom(onFieldFuc);
-    return serializedAggregationFunction;
+    return inputFunction;
 }
 
-AggregationLogicalFunctionRegistryReturnType
-AggregationLogicalFunctionGeneratedRegistrar::RegisterCountAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
+std::string CountAggregationLogicalFunction::explain(ExplainVerbosity verbosity) const
 {
-    if (arguments.fields.size() != 2)
+    if (verbosity == ExplainVerbosity::Short)
     {
-        throw CannotDeserialize("CountAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
+        return fmt::format("{}()", NAME);
     }
-    return std::make_shared<CountAggregationLogicalFunction>(arguments.fields[0], arguments.fields[1]);
+    auto inputExplain = std::visit([verbosity](const auto& input) { return input->explain(verbosity); }, inputFunction);
+    return fmt::format("{}({})", NAME, inputExplain);
 }
+
+bool CountAggregationLogicalFunction::operator==(const CountAggregationLogicalFunction& other) const
+{
+    return inputFunction == other.inputFunction;
+}
+
+CountAggregationLogicalFunction CountAggregationLogicalFunction::withInferredType(const Schema<Field, Unordered>& schema) const
+{
+    if (includeNullValues)
+    {
+        /// COUNT(*) does not refer to a specific field; use the first field of the schema as a placeholder
+        PRECONDITION(schema.size() >= 1, "Schema needs to have one field at least for CountAggregationLogicalFunction");
+        const auto& placeHolderField
+            = std::ranges::min_element(schema, {}, [](const auto& field) { return fmt::format("{}", field.getFullyQualifiedName()); });
+        auto newInputFunction = TypedLogicalFunction<FieldAccessLogicalFunction>{FieldAccessLogicalFunction{*placeHolderField}};
+        return CountAggregationLogicalFunction{newInputFunction, includeNullValues};
+    }
+    auto newInputFunction = inferFieldAccess(inputFunction, schema);
+    return CountAggregationLogicalFunction{newInputFunction, includeNullValues};
+}
+
+namespace detail
+{
+struct ReflectedCountAggregationLogicalFunction
+{
+    AggregationFieldAccess inputFunction;
+    bool includeNullValues;
+};
+}
+
+Reflected Reflector<CountAggregationLogicalFunction>::operator()(
+    const CountAggregationLogicalFunction& function, const ReflectionContext& context) const
+{
+    return context.reflect(
+        detail::ReflectedCountAggregationLogicalFunction{
+            .inputFunction = function.getInputFunction(), .includeNullValues = function.shallIncludeNullValues()});
+}
+
+CountAggregationLogicalFunction
+Unreflector<CountAggregationLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [inputFunction, includeNullValues] = context.unreflect<detail::ReflectedCountAggregationLogicalFunction>(reflected);
+    return CountAggregationLogicalFunction{std::move(inputFunction), includeNullValues};
+}
+
+AggregationLogicalFunctionRegistryReturnType CountAggregationLogicalFunction::create(AggregationLogicalFunctionRegistryArguments arguments)
+{
+    if (arguments.on.size() != 1)
+    {
+        throw CannotDeserialize("CountAggregationLogicalFunction requires exactly one field, but got {}", arguments.on.size());
+    }
+    return CountAggregationLogicalFunction{arguments.on.at(0), arguments.includeNullValues};
+}
+}
+
+size_t
+std::hash<NES::CountAggregationLogicalFunction>::operator()(const NES::CountAggregationLogicalFunction& aggregationFunction) const noexcept
+{
+    return folly::hash::hash_combine(
+        aggregationFunction.getInputFunction(), aggregationFunction.getName(), aggregationFunction.shallIncludeNullValues());
 }

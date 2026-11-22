@@ -15,35 +15,64 @@
 #include <Operators/InlineTableJoinLogicalOperator.hpp>
 
 #include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <optional>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <utility>
-#include <variant>
 #include <vector>
 
-#include <fmt/format.h>
-#include <fmt/ranges.h>
-
-#include <Configurations/Descriptor.hpp>
-#include <Functions/FieldAccessLogicalFunction.hpp>
+#include <DataTypes/DataType.hpp>
+#include <DataTypes/UnboundField.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
-#include <Serialization/FunctionSerializationUtil.hpp>
-#include <Serialization/SchemaSerializationUtil.hpp>
+#include <Operators/LogicalOperatorFwd.hpp>
+#include <Schema/Binder.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Traits/Trait.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+#include <folly/hash/Hash.h>
 #include <ErrorHandling.hpp>
-#include <LogicalOperatorRegistry.hpp>
-#include <SerializableOperator.pb.h>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
-
-InlineTableJoinLogicalOperator::InlineTableJoinLogicalOperator(std::vector<LogicalFunction> values, std::vector<std::string> fieldNames)
-    : values(std::move(values)), fieldNames(std::move(fieldNames))
+InlineTableJoinLogicalOperator::InlineTableJoinLogicalOperator(
+    WeakLogicalOperator self, std::vector<LogicalFunction> values, Identifier alias, std::vector<Identifier> fields)
+    : ManagedByOperator(std::move(self)), values(std::move(values)), alias(std::move(alias)), fields(std::move(fields))
 {
+}
+
+InlineTableJoinLogicalOperator::InlineTableJoinLogicalOperator(
+    WeakLogicalOperator self, LogicalOperator child, std::vector<LogicalFunction> values, Identifier alias, std::vector<Identifier> fields)
+    : ManagedByOperator(std::move(self))
+    , child(std::move(child))
+    , values(std::move(values))
+    , alias(std::move(alias))
+    , fields(std::move(fields))
+{
+    inferLocalSchema();
+}
+
+TypedLogicalOperator<InlineTableJoinLogicalOperator>
+InlineTableJoinLogicalOperator::create(std::vector<LogicalFunction> values, Identifier alias, std::vector<Identifier> fields)
+{
+    return TypedLogicalOperator<InlineTableJoinLogicalOperator>{std::move(values), std::move(alias), std::move(fields)};
+}
+
+TypedLogicalOperator<InlineTableJoinLogicalOperator>
+InlineTableJoinLogicalOperator::create(LogicalOperator child, std::vector<LogicalFunction> values, Identifier alias, std::vector<Identifier> fields)
+{
+    return TypedLogicalOperator<InlineTableJoinLogicalOperator>{std::move(child), std::move(values), std::move(alias), std::move(fields)};
 }
 
 std::string_view InlineTableJoinLogicalOperator::getName() const noexcept
@@ -56,74 +85,85 @@ const std::vector<LogicalFunction>& InlineTableJoinLogicalOperator::getValues() 
     return values;
 }
 
-const std::vector<std::string>& InlineTableJoinLogicalOperator::getFieldNames() const
+Identifier InlineTableJoinLogicalOperator::getAlias() const
 {
-    return fieldNames;
+    return alias;
+}
+
+const std::vector<Identifier>& InlineTableJoinLogicalOperator::getFields() const
+{
+    return fields;
 }
 
 bool InlineTableJoinLogicalOperator::operator==(const InlineTableJoinLogicalOperator& rhs) const
 {
-    return values == rhs.values && fieldNames == rhs.fieldNames && getOutputSchema() == rhs.getOutputSchema()
-        && getInputSchemas() == rhs.getInputSchemas() && getTraitSet() == rhs.getTraitSet();
+    return values == rhs.values && alias == rhs.alias && fields == rhs.fields && outputSchema == rhs.outputSchema
+        && traitSet == rhs.traitSet;
 };
 
 std::string InlineTableJoinLogicalOperator::explain(ExplainVerbosity verbosity, OperatorId opId) const
 {
-    const auto rows = fieldNames.empty() ? 0 : values.size() / fieldNames.size();
+    const auto rows = fields.empty() ? 0 : values.size() / fields.size();
     if (verbosity == ExplainVerbosity::Debug)
     {
         return fmt::format(
-            "INLINE_TABLE_JOIN(opId: {}, fields: {}, rows: {}, traitSet: {})",
+            "INLINE_TABLE_JOIN(opId: {}, rows: {}, alias: {}, fields: {}, traitSet: {})",
             opId,
-            fmt::join(fieldNames, ", "),
             rows,
+            alias,
+            fmt::join(fields, ", "),
             traitSet.explain(verbosity));
     }
-    return fmt::format("INLINE_TABLE_JOIN({} rows AS {})", rows, fmt::join(fieldNames, ", "));
+    return fmt::format("INLINE_TABLE_JOIN({} rows AS {}({}))", rows, alias, fmt::join(fields, ", "));
 }
 
-InlineTableJoinLogicalOperator InlineTableJoinLogicalOperator::withInferredSchema(std::vector<Schema> inputSchemas) const
+void InlineTableJoinLogicalOperator::inferLocalSchema()
 {
-    auto copy = *this;
-    if (inputSchemas.empty())
+    PRECONDITION(child.has_value(), "Child not set when calling schema inference");
+    const auto inputSchema = child->getOutputSchema();
+    if (fields.empty() or values.empty() or values.size() % fields.size() != 0)
     {
-        throw CannotDeserialize("InlineTableJoin should have at least one input");
+        throw CannotInferSchema("An inline table of {} fields cannot hold {} values", fields.size(), values.size());
     }
-
-    const auto& firstSchema = inputSchemas.at(0);
-    for (const auto& schema : inputSchemas)
+    for (auto& value : values)
     {
-        if (schema != firstSchema)
-        {
-            throw CannotInferSchema("All input schemas must be equal for InlineTableJoin operator");
-        }
+        value = value.withInferredDataType(inputSchema);
     }
-    if (fieldNames.empty() or values.empty() or values.size() % fieldNames.size() != 0)
-    {
-        throw CannotInferSchema("An inline table of {} fields cannot hold {} values", fieldNames.size(), values.size());
-    }
-
-    copy.values.clear();
-    for (const auto& value : values)
-    {
-        copy.values.push_back(value.withInferredDataType(firstSchema));
-    }
-    copy.inputSchema = firstSchema;
-    copy.outputSchema = firstSchema;
+    auto outputFields = unbind(inputSchema) | std::ranges::to<std::vector>();
     /// Each field takes the type of its value in the first row, and every other row gives it a value of that type
-    for (size_t field = 0; field < fieldNames.size(); ++field)
+    for (size_t field = 0; field < fields.size(); ++field)
     {
-        const auto fieldType = copy.values[field].getDataType();
-        for (size_t at = field + fieldNames.size(); at < copy.values.size(); at += fieldNames.size())
+        const auto fieldType = values[field].getDataType();
+        for (size_t at = field + fields.size(); at < values.size(); at += fields.size())
         {
-            if (copy.values[at].getDataType() != fieldType)
+            if (values[at].getDataType() != fieldType)
             {
                 throw CannotInferSchema(
-                    "The field {} of an inline table holds a {} and a {}", fieldNames[field], fieldType, copy.values[at].getDataType());
+                    "The field {} of {} takes a value of type {} in its first row but {} in another",
+                    fields[field],
+                    alias,
+                    fieldType,
+                    values[at].getDataType());
             }
         }
-        copy.outputSchema = copy.outputSchema.addField(fieldNames[field], fieldType);
+        outputFields.emplace_back(fields[field], fieldType);
     }
+    auto outputSchemaOpt = Schema<UnqualifiedUnboundField, Unordered>::tryCreateCollisionFree(std::move(outputFields));
+    if (!outputSchemaOpt.has_value())
+    {
+        throw CannotInferSchema(
+            "A field of the inline table collides with a field of its input: {}",
+            Schema<UnqualifiedUnboundField, Unordered>::createCollisionString(outputSchemaOpt.error()));
+    }
+    outputSchema = std::move(outputSchemaOpt).value();
+}
+
+InlineTableJoinLogicalOperator InlineTableJoinLogicalOperator::withInferredSchema() const
+{
+    PRECONDITION(child.has_value(), "Child not set when calling schema inference");
+    auto copy = *this;
+    copy.child = copy.child->withInferredSchema();
+    copy.inferLocalSchema();
     return copy;
 }
 
@@ -139,93 +179,78 @@ InlineTableJoinLogicalOperator InlineTableJoinLogicalOperator::withTraitSet(Trai
     return copy;
 }
 
-InlineTableJoinLogicalOperator InlineTableJoinLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
+InlineTableJoinLogicalOperator InlineTableJoinLogicalOperator::withChildrenUnsafe(std::vector<LogicalOperator> children) const
 {
+    PRECONDITION(children.size() == 1, "Can only set exactly one child for an inline table join, got {}", children.size());
     auto copy = *this;
-    copy.children = std::move(children);
+    copy.child = std::move(children.at(0));
     return copy;
 }
 
-std::vector<Schema> InlineTableJoinLogicalOperator::getInputSchemas() const
+InlineTableJoinLogicalOperator InlineTableJoinLogicalOperator::withChildren(std::vector<LogicalOperator> children) const
 {
-    return {inputSchema};
-};
+    PRECONDITION(children.size() == 1, "Can only set exactly one child for an inline table join, got {}", children.size());
+    auto copy = *this;
+    copy.child = std::move(children.at(0));
+    copy.inferLocalSchema();
+    return copy;
+}
 
-Schema InlineTableJoinLogicalOperator::getOutputSchema() const
+Schema<Field, Unordered> InlineTableJoinLogicalOperator::getOutputSchema() const
 {
-    return outputSchema;
+    INVARIANT(outputSchema.has_value(), "Accessed output schema before calling schema inference");
+    return NES::bindToOperator(self.lock(), outputSchema.value());
 }
 
 std::vector<LogicalOperator> InlineTableJoinLogicalOperator::getChildren() const
 {
-    return children;
+    if (child.has_value())
+    {
+        return {*child};
+    }
+    return {};
 }
 
-void InlineTableJoinLogicalOperator::serialize(SerializableOperator& serializableOperator) const
+LogicalOperator InlineTableJoinLogicalOperator::getChild() const
 {
-    SerializableLogicalOperator proto;
-
-    proto.set_operator_type(NAME);
-
-    for (const auto& input : getInputSchemas())
-    {
-        auto* schProto = proto.add_input_schemas();
-        SchemaSerializationUtil::serializeSchema(input, schProto);
-    }
-
-    auto* outSch = proto.mutable_output_schema();
-    SchemaSerializationUtil::serializeSchema(outputSchema, outSch);
-
-    for (auto& child : getChildren())
-    {
-        serializableOperator.add_children_ids(child.getId().getRawValue());
-    }
-
-    FunctionList valueList;
-    for (const auto& value : values)
-    {
-        *valueList.add_functions() = value.serialize();
-    }
-    const DescriptorConfig::ConfigType valuesVariant = std::move(valueList);
-    (*serializableOperator.mutable_config())[ConfigParameters::INLINE_TABLE_VALUES] = descriptorConfigTypeToProto(valuesVariant);
-
-    /// The fields are named as the keys of a window aggregation are, by field accesses
-    FunctionList fieldList;
-    for (const auto& fieldName : fieldNames)
-    {
-        *fieldList.add_functions() = LogicalFunction(FieldAccessLogicalFunction(fieldName)).serialize();
-    }
-    const DescriptorConfig::ConfigType fieldsVariant = std::move(fieldList);
-    (*serializableOperator.mutable_config())[ConfigParameters::INLINE_TABLE_FIELDS] = descriptorConfigTypeToProto(fieldsVariant);
-
-    serializableOperator.mutable_operator_()->CopyFrom(proto);
+    PRECONDITION(child.has_value(), "Child not set when trying to retrieve child");
+    return child.value();
 }
 
-LogicalOperatorRegistryReturnType
-LogicalOperatorGeneratedRegistrar::RegisterInlineTableJoinLogicalOperator(LogicalOperatorRegistryArguments arguments)
+Reflected Reflector<TypedLogicalOperator<InlineTableJoinLogicalOperator>>::operator()(
+    const TypedLogicalOperator<InlineTableJoinLogicalOperator>& op, const ReflectionContext& context) const
 {
-    auto valuesVariant = arguments.config.at(InlineTableJoinLogicalOperator::ConfigParameters::INLINE_TABLE_VALUES);
-    auto fieldsVariant = arguments.config.at(InlineTableJoinLogicalOperator::ConfigParameters::INLINE_TABLE_FIELDS);
-    if (not std::holds_alternative<FunctionList>(valuesVariant) or not std::holds_alternative<FunctionList>(fieldsVariant))
-    {
-        throw UnknownLogicalOperator();
-    }
-    std::vector<LogicalFunction> values;
-    for (const auto& value : std::get<FunctionList>(valuesVariant).functions())
-    {
-        values.push_back(FunctionSerializationUtil::deserializeFunction(value));
-    }
-    std::vector<std::string> fieldNames;
-    for (const auto& field : std::get<FunctionList>(fieldsVariant).functions())
-    {
-        auto fieldAccess = FunctionSerializationUtil::deserializeFunction(field).tryGet<FieldAccessLogicalFunction>();
-        if (not fieldAccess)
-        {
-            throw UnknownLogicalOperator();
-        }
-        fieldNames.push_back(fieldAccess->getFieldName());
-    }
-    auto logicalOperator = InlineTableJoinLogicalOperator(std::move(values), std::move(fieldNames));
-    return logicalOperator.withInferredSchema(arguments.inputSchemas);
+    return context.reflect(detail::ReflectedInlineTableJoinLogicalOperator{
+        .operatorId = op.getId(), .values = op->getValues(), .alias = op->getAlias(), .fields = op->getFields()});
 }
+
+Unreflector<TypedLogicalOperator<InlineTableJoinLogicalOperator>>::Unreflector(ContextType operatorMapping) : plan(std::move(operatorMapping))
+{
+}
+
+TypedLogicalOperator<InlineTableJoinLogicalOperator>
+Unreflector<TypedLogicalOperator<InlineTableJoinLogicalOperator>>::operator()(const Reflected& rfl, const ReflectionContext& context) const
+{
+    auto [id, values, alias, fields] = context.unreflect<detail::ReflectedInlineTableJoinLogicalOperator>(rfl);
+    auto children = plan->getChildrenFor(id, context);
+    if (children.size() != 1)
+    {
+        throw CannotDeserialize("InlineTableJoinLogicalOperator requires exactly one child, but got {}", children.size());
+    }
+    return InlineTableJoinLogicalOperator::create(children.at(0), values, alias, fields);
+}
+}
+
+uint64_t std::hash<NES::InlineTableJoinLogicalOperator>::operator()(const NES::InlineTableJoinLogicalOperator& op) const noexcept
+{
+    auto hash = std::hash<NES::Identifier>{}(op.getAlias());
+    for (const auto& value : op.getValues())
+    {
+        hash = folly::hash::hash_combine(hash, value);
+    }
+    for (const auto& field : op.getFields())
+    {
+        hash = folly::hash::hash_combine(hash, field);
+    }
+    return hash;
 }

@@ -23,6 +23,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <stop_token>
 #include <thread>
 #include <unordered_map>
@@ -34,11 +35,9 @@
 #include <Listeners/AbstractQueryStatusListener.hpp>
 #include <Runtime/AbstractBufferProvider.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
-#include <Runtime/Execution/QueryStatus.hpp>
 #include <Runtime/QueryTerminationType.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Util/AtomicState.hpp>
-#include <Util/ThreadNaming.hpp>
 #include <fmt/format.h>
 #include <folly/MPMCQueue.h>
 #include <DelayedTaskSubmitter.hpp>
@@ -50,9 +49,11 @@
 #include <PipelineExecutionContext.hpp>
 #include <QueryEngineConfiguration.hpp>
 #include <QueryEngineStatisticListener.hpp>
+#include <QueryStatus.hpp>
 #include <RunningQueryPlan.hpp>
 #include <Task.hpp>
 #include <TaskQueue.hpp>
+#include <Thread.hpp>
 
 namespace NES
 {
@@ -158,7 +159,7 @@ struct Stopping
 
 struct Terminated
 {
-    enum TerminationReason
+    enum class TerminationReason : uint8_t
     {
         Failed,
         Stopped
@@ -190,7 +191,6 @@ public:
     }
 
 private:
-    std::atomic<QueryId::Underlying> queryIdCounter = QueryId::INITIAL;
     std::recursive_mutex mutex;
     std::unordered_map<QueryId, State> queryStates;
 };
@@ -230,7 +230,7 @@ struct DefaultPEC final : PipelineExecutionContext
     {
     }
 
-    [[nodiscard]] WorkerThreadId getId() const override
+    [[nodiscard]] WorkerThreadId getWorkerThreadId() const override
     {
         PRECONDITION(!wasRepeated, "A task should terminate after repeating");
         return threadId;
@@ -298,7 +298,7 @@ struct DefaultPEC final : PipelineExecutionContext
 class ThreadPool : public WorkEmitter, public QueryLifetimeController
 {
 public:
-    void addThread();
+    void addThread(const Host& host);
 
     bool emitWork(
         QueryId qid,
@@ -401,11 +401,22 @@ public:
         std::shared_ptr<AbstractBufferProvider> bufferProvider,
         const size_t admissionQueueSize)
         : listener(std::move(listener))
-        , statistic(std::move(std::move(stats)))
+        , statistic(std::move(stats))
         , bufferProvider(std::move(bufferProvider))
         , taskQueue(admissionQueueSize)
         , delayedTaskSubmitter([this](Task&& task) noexcept { taskQueue.addInternalTaskNonBlocking(std::move(task)); })
     {
+    }
+
+    ~ThreadPool() override
+    {
+        /// Request shutdown for every worker before joining any individual thread. This lets all workers leave their normal processing
+        /// loop and synchronously coordinate shutdown of the delayed task submitter before they perform the final task queue drain.
+        for (auto& worker : pool)
+        {
+            worker.requestStop();
+        }
+        pool.clear();
     }
 
     /// Reserves the initial WorkerThreadId for the terminator thread, which is the thread which is calling shutdown.
@@ -456,7 +467,7 @@ private:
     /// Class Invariant: numberOfThreads == pool.size().
     /// We don't want to expose the vector directly to anyone, as this would introduce a race condition.
     /// The number of threads is only available via the atomic.
-    std::vector<std::jthread> pool;
+    std::vector<Thread> pool;
     std::atomic<int32_t> numberOfThreads_;
 
     friend class QueryEngine;
@@ -467,6 +478,7 @@ thread_local WorkerThreadId ThreadPool::WorkerThread::id = INVALID<WorkerThreadI
 
 bool ThreadPool::WorkerThread::operator()(WorkTask& task) const
 {
+    LogContext logContext("Task", fmt::format("{}-{}", task.queryId, task.pipelineId));
     if (terminating)
     {
         ENGINE_LOG_WARNING("Skipped Task for {}-{} during termination", task.queryId, task.pipelineId);
@@ -477,6 +489,7 @@ bool ThreadPool::WorkerThread::operator()(WorkTask& task) const
     if (auto pipeline = task.pipeline.lock())
     {
         ENGINE_LOG_DEBUG("Handle Task for {}-{}. Tuples: {}", task.queryId, pipeline->id, task.buf.getNumberOfTuples());
+        std::optional<std::pair<TupleBuffer, std::chrono::milliseconds>> requiresTaskRepetition;
         DefaultPEC pec(
             pool.numberOfThreads(),
             WorkerThread::id,
@@ -497,21 +510,30 @@ bool ThreadPool::WorkerThread::operator()(WorkTask& task) const
             },
             [&](const TupleBuffer& tupleBuffer, std::chrono::milliseconds duration)
             {
-                if (duration.count() > 0)
-                {
-                    pool.delayedTaskSubmitter.submitTaskIn(
-                        WorkTask(task.queryId, pipeline->id, pipeline, tupleBuffer, std::move(task.callback)), duration);
-                }
-                else
-                {
-                    pool.addInternalTask(WorkTask(task.queryId, pipeline->id, pipeline, tupleBuffer, std::move(task.callback)));
-                }
-                pool.statistic->onEvent(TaskEmit{id, task.queryId, pipeline->id, pipeline->id, taskId, tupleBuffer.getNumberOfTuples()});
+                INVARIANT(!requiresTaskRepetition.has_value(), "Pipeline attempts to repeat the task multiple times");
+                requiresTaskRepetition = std::make_pair(tupleBuffer, duration);
             }
 
         );
         pool.statistic->onEvent(TaskExecutionStart{WorkerThread::id, task.queryId, pipeline->id, taskId, task.buf.getNumberOfTuples()});
         pipeline->stage->execute(task.buf, pec);
+
+        if (requiresTaskRepetition)
+        {
+            auto [repeatedBuffer, duration] = std::move(requiresTaskRepetition).value();
+            const auto numberOfTuples = repeatedBuffer.getNumberOfTuples();
+            Task repeatedTask = WorkTask(task.queryId, pipeline->id, pipeline, std::move(repeatedBuffer), std::move(task.callback));
+            if (duration.count() > 0)
+            {
+                pool.delayedTaskSubmitter.submitTaskIn(std::move(repeatedTask), duration);
+            }
+            else
+            {
+                pool.addInternalTask(std::move(repeatedTask));
+            }
+            pool.statistic->onEvent(TaskEmit{id, task.queryId, pipeline->id, pipeline->id, taskId, numberOfTuples});
+        }
+
         pool.statistic->onEvent(TaskExecutionComplete{WorkerThread::id, task.queryId, pipeline->id, taskId});
         return true;
     }
@@ -524,6 +546,7 @@ bool ThreadPool::WorkerThread::operator()(WorkTask& task) const
 
 bool ThreadPool::WorkerThread::operator()(StartPipelineTask& startPipeline) const
 {
+    LogContext logContext("Task", fmt::format("{}-{}", startPipeline.queryId, startPipeline.pipelineId));
     if (terminating)
     {
         ENGINE_LOG_WARNING("Pipeline Start {}-{} was skipped during Termination", startPipeline.queryId, startPipeline.pipelineId);
@@ -565,6 +588,7 @@ bool ThreadPool::WorkerThread::operator()(StartPipelineTask& startPipeline) cons
 
 bool ThreadPool::WorkerThread::operator()(PendingPipelineStopTask& pendingPipelineStop) const
 {
+    LogContext logContext("Task", fmt::format("{}-{}", pendingPipelineStop.queryId, pendingPipelineStop.pipeline->id));
     INVARIANT(
         pendingPipelineStop.pipeline->pendingTasks >= 0,
         "Pending Pipeline Stop must have pending tasks, but had {} pending tasks.",
@@ -608,7 +632,9 @@ bool ThreadPool::WorkerThread::operator()(PendingPipelineStopTask& pendingPipeli
 
 bool ThreadPool::WorkerThread::operator()(StopPipelineTask& stopPipelineTask) const
 {
+    LogContext logContext("Task", fmt::format("{}-{}", stopPipelineTask.queryId, stopPipelineTask.pipeline->id));
     ENGINE_LOG_DEBUG("Stop Pipeline Task for {}-{}", stopPipelineTask.queryId, stopPipelineTask.pipeline->id);
+    std::optional<std::chrono::milliseconds> requiresTaskRepetition;
     DefaultPEC pec(
         pool.numberOfThreads(),
         WorkerThread::id,
@@ -633,28 +659,35 @@ bool ThreadPool::WorkerThread::operator()(StopPipelineTask& stopPipelineTask) co
         },
         [&](const TupleBuffer&, std::chrono::milliseconds duration)
         {
-            StopPipelineTask repeatedTask(
-                stopPipelineTask.queryId, std::move(stopPipelineTask.pipeline), std::move(stopPipelineTask.callback));
-            if (duration.count() > 0)
-            {
-                pool.delayedTaskSubmitter.submitTaskIn(std::move(repeatedTask), duration);
-            }
-            else
-            {
-                pool.addInternalTask(std::move(repeatedTask));
-            }
+            INVARIANT(!requiresTaskRepetition.has_value(), "Pipeline attempts to repeat the task multiple times");
+            requiresTaskRepetition = duration;
         });
 
     ENGINE_LOG_DEBUG("Stopping Pipeline {}-{}", stopPipelineTask.queryId, stopPipelineTask.pipeline->id);
     auto pipelineId = stopPipelineTask.pipeline->id;
     auto queryId = stopPipelineTask.queryId;
     stopPipelineTask.pipeline->stage->stop(pec);
+
+    if (requiresTaskRepetition)
+    {
+        const auto duration = requiresTaskRepetition.value();
+        StopPipelineTask repeatedTask{stopPipelineTask.queryId, std::move(stopPipelineTask.pipeline), std::move(stopPipelineTask.callback)};
+        if (duration.count() > 0)
+        {
+            pool.delayedTaskSubmitter.submitTaskIn(std::move(repeatedTask), duration);
+        }
+        else
+        {
+            pool.addInternalTask(std::move(repeatedTask));
+        }
+    }
     pool.statistic->onEvent(PipelineStop{WorkerThread::id, queryId, pipelineId});
     return true;
 }
 
 bool ThreadPool::WorkerThread::operator()(StopQueryTask& stopQuery) const
 {
+    LogContext logContext("Task", fmt::format("{}", stopQuery.queryId));
     ENGINE_LOG_INFO("Terminate Query Task for Query {}", stopQuery.queryId);
     if (auto queryCatalog = stopQuery.catalog.lock())
     {
@@ -667,6 +700,7 @@ bool ThreadPool::WorkerThread::operator()(StopQueryTask& stopQuery) const
 
 bool ThreadPool::WorkerThread::operator()(StartQueryTask& startQuery) const
 {
+    LogContext logContext("Task", fmt::format("{}", startQuery.queryId));
     ENGINE_LOG_INFO("Start Query Task for Query {}", startQuery.queryId);
     if (auto queryCatalog = startQuery.catalog.lock())
     {
@@ -679,6 +713,7 @@ bool ThreadPool::WorkerThread::operator()(StartQueryTask& startQuery) const
 
 bool ThreadPool::WorkerThread::operator()(StopSourceTask& stopSource) const
 {
+    LogContext logContext("Task", fmt::format("{}", stopSource.queryId));
     if (auto source = stopSource.target.lock())
     {
         ENGINE_LOG_DEBUG("Stop Source Task for Query {} Source {}", stopSource.queryId, source->getOriginId());
@@ -712,6 +747,7 @@ bool ThreadPool::WorkerThread::operator()(StopSourceTask& stopSource) const
 
 bool ThreadPool::WorkerThread::operator()(FailSourceTask& failSource) const
 {
+    LogContext logContext("Task", fmt::format("{}", failSource.queryId));
     if (auto source = failSource.target.lock())
     {
         ENGINE_LOG_DEBUG("Fail Source Task for Query {} Source {}", failSource.queryId, source->getOriginId());
@@ -721,13 +757,14 @@ bool ThreadPool::WorkerThread::operator()(FailSourceTask& failSource) const
     return false;
 }
 
-void ThreadPool::addThread()
+void ThreadPool::addThread(const Host& host)
 {
     pool.emplace_back(
+        fmt::format("WorkerThread-{}", numberOfThreads_),
+        host,
         [this, id = numberOfThreads_++](const std::stop_token& stopToken)
         {
             WorkerThread::id = WorkerThreadId(WorkerThreadId::INITIAL + id);
-            setThreadName(fmt::format("WorkerThread-{}", id));
             const WorkerThread worker{*this, false};
             while (!stopToken.stop_requested())
             {
@@ -736,6 +773,10 @@ void ThreadPool::addThread()
                     handleTask(worker, std::move(*task));
                 }
             }
+
+            /// The task delayer could add another task after the workers observe an empty task queue. Synchronously shutting it down first
+            /// guarantees that no delayed submission is in flight and that later delayed submissions are failed instead of queued.
+            delayedTaskSubmitter.shutdown();
 
             ENGINE_LOG_INFO("WorkerThread {} shutting down", id);
             /// Worker in termination mode will not emit further work and eventually clear the task queue and terminate.
@@ -751,16 +792,18 @@ QueryEngine::QueryEngine(
     const QueryEngineConfiguration& config,
     std::shared_ptr<QueryEngineStatisticListener> statListener,
     std::shared_ptr<AbstractQueryStatusListener> listener,
-    std::shared_ptr<BufferManager> bm)
+    std::shared_ptr<BufferManager> bm,
+    const Host& host)
     : bufferManager(std::move(bm))
     , statusListener(std::move(listener))
     , statisticListener(std::move(statListener))
     , queryCatalog(std::make_shared<QueryCatalog>())
-    , threadPool(std::make_unique<ThreadPool>(statusListener, statisticListener, bufferManager, config.admissionQueueSize.getValue()))
+    , threadPool(std::make_unique<ThreadPool>(statusListener, statisticListener, bufferManager, config.admissionQueueSize))
+    , host(host)
 {
-    for (size_t i = 0; i < config.numberOfWorkerThreads.getValue(); ++i)
+    for (size_t i = 0; i < config.numberOfWorkerThreads; ++i)
     {
-        threadPool->addThread();
+        threadPool->addThread(host);
     }
 }
 
@@ -808,14 +851,17 @@ void QueryCatalog::start(
             const auto timestamp = std::chrono::system_clock::now();
             if (const auto locked = state.lock())
             {
-                locked->transition(
+                const auto didTransition = locked->transition(
                     [](Reserved&&)
                     {
                         INVARIANT(false, "Bug: Jumping from reserved to running state should be impossible.");
-                        return Terminated{Terminated::Failed};
+                        return Terminated{Terminated::TerminationReason::Failed};
                     },
                     [](Starting&& starting) { return Running{std::move(starting.plan)}; });
-                listener->logQueryStatusChange(queryId, QueryState::Running, timestamp);
+                if (didTransition)
+                {
+                    listener->logQueryStatusChange(queryId, QueryStatus::Running, timestamp);
+                }
             }
         }
 
@@ -825,29 +871,38 @@ void QueryCatalog::start(
             const auto timestamp = std::chrono::system_clock::now();
             if (const auto locked = state.lock())
             {
+                /// We want to avoid running destructors and callbacks while holding the atomic transition lock.
+                /// So we move the queryplan out of the lock and dispose (if there exists one)
+                std::optional<std::variant<std::unique_ptr<RunningQueryPlan>, std::unique_ptr<StoppingQueryPlan>>> toDispose{};
                 /// Regardless of its current state the query should move into the Terminated::Failed state.
                 locked->transition(
                     [](Reserved&&)
                     {
                         ENGINE_LOG_DEBUG("Query was stopped before all pipeline starts were submitted");
-                        return Terminated{Terminated::Failed};
+                        return Terminated{Terminated::TerminationReason::Failed};
                     },
-                    [](Starting&& starting)
+                    [&toDispose](Starting&& starting)
                     {
-                        RunningQueryPlan::dispose(std::move(starting.plan));
-                        return Terminated{Terminated::Failed};
+                        toDispose = std::move(starting.plan);
+                        return Terminated{Terminated::TerminationReason::Failed};
                     },
-                    [](Running&& running)
+                    [&toDispose](Running&& running)
                     {
-                        RunningQueryPlan::dispose(std::move(running.plan));
-                        return Terminated{Terminated::Failed};
+                        toDispose = std::move(running.plan);
+                        return Terminated{Terminated::TerminationReason::Failed};
                     },
-                    [](Stopping&& stopping)
+                    [&toDispose](Stopping&& stopping)
                     {
-                        StoppingQueryPlan::dispose(std::move(stopping.plan));
-                        return Terminated{Terminated::Failed};
+                        toDispose = std::move(stopping.plan);
+                        return Terminated{Terminated::TerminationReason::Failed};
                     },
-                    [](Terminated&&) { return Terminated{Terminated::Failed}; });
+                    [](Terminated&&) { return Terminated{Terminated::TerminationReason::Failed}; });
+
+                /// Dispose after the transition (lock released) to avoid deadlock
+                if (toDispose)
+                {
+                    std::visit([]<typename T>(T&& plan) { T::element_type::dispose(std::forward<T>(plan)); }, std::move(toDispose).value());
+                }
 
                 exception.what() += fmt::format(" in Query {}.", queryId);
                 ENGINE_LOG_ERROR("Query Failed: {}", exception.what());
@@ -863,25 +918,36 @@ void QueryCatalog::start(
             const auto timestamp = std::chrono::system_clock::now();
             if (const auto locked = state.lock())
             {
+                /// We want to avoid running destructors and callbacks while holding the atomic transition lock.
+                /// So we move the queryplan out of the lock and dispose (if there exists one)
+                std::optional<std::variant<std::unique_ptr<RunningQueryPlan>, std::unique_ptr<StoppingQueryPlan>>> toDispose{};
+
                 const auto didTransition = locked->transition(
-                    [](Starting&& starting) /// NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+                    [&toDispose](Starting&& starting)
                     {
-                        RunningQueryPlan::dispose(std::move(starting.plan));
-                        return Terminated{Terminated::Stopped};
+                        toDispose = std::move(starting.plan);
+                        return Terminated{Terminated::TerminationReason::Stopped};
                     },
-                    [](Running&& running) /// NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+                    [&toDispose](Running&& running)
                     {
-                        RunningQueryPlan::dispose(std::move(running.plan));
-                        return Terminated{Terminated::Stopped};
+                        toDispose = std::move(running.plan);
+                        return Terminated{Terminated::TerminationReason::Stopped};
                     },
-                    [](Stopping&& stopping)
+                    [&toDispose](Stopping&& stopping)
                     {
-                        StoppingQueryPlan::dispose(std::move(stopping.plan));
-                        return Terminated{Terminated::Stopped};
+                        toDispose = std::move(stopping.plan);
+                        return Terminated{Terminated::TerminationReason::Stopped};
                     });
+
+                /// Dispose after the transition (lock released) to avoid deadlock
+                if (toDispose)
+                {
+                    std::visit([]<typename T>(T&& plan) { T::element_type::dispose(std::forward<T>(plan)); }, std::move(toDispose).value());
+                }
+
                 if (didTransition)
                 {
-                    listener->logQueryStatusChange(queryId, QueryState::Stopped, timestamp);
+                    listener->logQueryStatusChange(queryId, QueryStatus::Stopped, timestamp);
                     statistic->onEvent(QueryStop(ThreadPool::WorkerThread::id, queryId));
                 }
             }
@@ -904,7 +970,7 @@ void QueryCatalog::start(
     if (state->transition([&](Reserved&&)
                           { return Starting{std::move(runningQueryPlan)}; })) /// NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
     {
-        listener->logQueryStatusChange(queryId, QueryState::Started, startTimestamp);
+        listener->logQueryStatusChange(queryId, QueryStatus::Started, startTimestamp);
     }
     else
     {
@@ -925,17 +991,24 @@ void QueryCatalog::stopQuery(QueryId id)
         if (auto it = queryStates.find(id); it != queryStates.end())
         {
             auto& state = *it->second;
-            state.transition(
-                [](Starting&& starting) /// NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+            absl::AnyInvocable<void()> cleanup;
+            bool didTransition = state.transition(
+                [&cleanup](Starting&& starting) /// NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
                 {
-                    auto stoppingQueryPlan = RunningQueryPlan::stop(std::move(starting.plan));
+                    auto [stoppingQueryPlan, cb] = RunningQueryPlan::stop(std::move(starting.plan));
+                    cleanup = std::move(cb);
                     return Stopping{std::move(stoppingQueryPlan)};
                 },
-                [](Running&& running) /// NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+                [&cleanup](Running&& running) /// NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
                 {
-                    auto stoppingQueryPlan = RunningQueryPlan::stop(std::move(running.plan));
+                    auto [stoppingQueryPlan, cb] = RunningQueryPlan::stop(std::move(running.plan));
+                    cleanup = std::move(cb);
                     return Stopping{std::move(stoppingQueryPlan)};
                 });
+            if (didTransition)
+            {
+                cleanup();
+            }
         }
         else
         {

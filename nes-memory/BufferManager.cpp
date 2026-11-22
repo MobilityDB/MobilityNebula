@@ -14,23 +14,29 @@
 #include <Runtime/BufferManager.hpp>
 
 #include <algorithm>
+#include <array>
 #include <atomic>
+#include <bit>
 #include <chrono>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <deque>
+#include <limits>
 #include <memory>
 #include <memory_resource>
 #include <mutex>
 #include <optional>
+#include <span>
 #include <utility>
 #include <unistd.h>
 #include <Runtime/AbstractBufferProvider.hpp>
 #include <Runtime/BufferRecycler.hpp>
+#include <Runtime/MemoryUtils.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <folly/MPMCQueue.h>
+#include <sanitizer/asan_interface.h>
 #include <ErrorHandling.hpp>
 #include <TupleBufferImpl.hpp>
 
@@ -42,29 +48,58 @@ BufferManager::BufferManager(
     const uint32_t bufferSize,
     const uint32_t numOfBuffers,
     std::shared_ptr<std::pmr::memory_resource> memoryResource,
-    const uint32_t withAlignment)
+    const size_t unpooledMemoryLimitInBytes,
+    const uint32_t alignment)
     : availableBuffers(numOfBuffers)
-    , unpooledChunksManager(std::make_shared<UnpooledChunksManager>(memoryResource))
+    , unpooledChunksManager(std::make_shared<UnpooledChunksManager>(memoryResource, unpooledMemoryLimitInBytes))
     , bufferSize(bufferSize)
     , numOfBuffers(numOfBuffers)
+    , alignment(alignment)
     , memoryResource(std::move(memoryResource))
 {
-    ((void)withAlignment);
-    initialize(DEFAULT_ALIGNMENT);
+    PRECONDITION(numOfBuffers > 0, "BufferManager requires at least one pooled buffer, but the configured budget yields {}", numOfBuffers);
+    initialize();
 }
 
 std::shared_ptr<BufferManager> BufferManager::create(
-    uint32_t bufferSize, uint32_t numOfBuffers, const std::shared_ptr<std::pmr::memory_resource>& memoryResource, uint32_t withAlignment)
+    const size_t totalMemoryInBytes,
+    const double unpooledMemoryFraction,
+    const BufferAlignment alignment,
+    const uint32_t bufferSize,
+    const std::shared_ptr<std::pmr::memory_resource>& memoryResource)
 {
-    return std::make_shared<BufferManager>(Private{}, bufferSize, numOfBuffers, memoryResource, withAlignment);
+    PRECONDITION(
+        unpooledMemoryFraction >= 0.0 and unpooledMemoryFraction <= 1.0,
+        "unpooledMemoryFraction must be in [0.0, 1.0] but is {}",
+        unpooledMemoryFraction);
+    PRECONDITION(bufferSize > 0, "bufferSize must be greater than zero");
+
+    const auto unpooledMemoryLimitInBytes = static_cast<size_t>(static_cast<double>(totalMemoryInBytes) * unpooledMemoryFraction);
+    const size_t pooledMemoryInBytes = totalMemoryInBytes - unpooledMemoryLimitInBytes;
+    PRECONDITION(
+        pooledMemoryInBytes / bufferSize <= std::numeric_limits<uint32_t>::max(),
+        "pooled buffer count {} exceeds uint32_t; lower total_memory_in_bytes or raise buffer_size",
+        pooledMemoryInBytes / bufferSize);
+    const auto numOfBuffers = static_cast<uint32_t>(pooledMemoryInBytes / bufferSize);
+    return std::make_shared<BufferManager>(
+        Private{}, bufferSize, numOfBuffers, memoryResource, unpooledMemoryLimitInBytes, alignment.getRawValue());
 }
 
 BufferManager::~BufferManager()
+{
+    destroy();
+}
+
+void BufferManager::destroy()
 {
     bool expected = false;
     NES_DEBUG("Calling BufferManager::destroy()");
     if (isDestroyed.compare_exchange_strong(expected, true))
     {
+        /// All buffers should be idle now, so their control blocks (and data regions) are poisoned. Clear all
+        /// poison up front: the availability checks and the MemorySegment destructors in allBuffers.clear()
+        /// below read the control blocks, and the arena is about to be returned to the allocator anyway.
+        ASAN_UNPOISON_MEMORY_REGION(basePointer, allocatedAreaSize);
         bool success = true;
         if (allBuffers.size() != getNumberOfAvailableBuffers())
         {
@@ -78,6 +113,7 @@ BufferManager::~BufferManager()
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
                 buffer.controlBlock->dumpOwningThreadInfo();
 #endif
+                NES_ERROR("[BufferManager] leaked buffer detected: segment at {}", fmt::ptr(buffer.ptr));
                 success = false;
             }
         }
@@ -91,7 +127,7 @@ BufferManager::~BufferManager()
 
         availableBuffers = decltype(availableBuffers)();
         NES_DEBUG("Shutting down Buffer Manager completed");
-        memoryResource->deallocate(basePointer, allocatedAreaSize, DEFAULT_ALIGNMENT);
+        memoryResource->deallocate(basePointer, allocatedAreaSize, alignment);
         allocatedAreaSize = 0;
 
         /// Destroying the unpooled chunks
@@ -99,15 +135,20 @@ BufferManager::~BufferManager()
     }
 }
 
-void BufferManager::initialize(uint32_t withAlignment)
+void BufferManager::initialize()
 {
+    /// Buffer alignment is configured at construction
+    const uint32_t withAlignment = alignment;
     const size_t pages = sysconf(_SC_PHYS_PAGES);
     size_t page_size = sysconf(_SC_PAGE_SIZE);
     auto memorySizeInBytes = pages * page_size;
 
     uint64_t requiredMemorySpace = this->bufferSize * this->numOfBuffers;
-    double percentage = (100.0 * requiredMemorySpace) / memorySizeInBytes;
-    NES_DEBUG("NES memory allocation requires {} out of {} (so {}%) available bytes", requiredMemorySpace, memorySizeInBytes, percentage);
+    NES_DEBUG(
+        "NES memory allocation requires {} out of {} (so {}%) available bytes",
+        requiredMemorySpace,
+        memorySizeInBytes,
+        (100.0 * requiredMemorySpace) / memorySizeInBytes);
 
     INVARIANT(
         requiredMemorySpace < memorySizeInBytes,
@@ -127,12 +168,27 @@ void BufferManager::initialize(uint32_t withAlignment)
         alignof(detail::BufferControlBlock));
 
     allBuffers.reserve(numOfBuffers);
-    auto controlBlockSize = alignBufferSize(sizeof(detail::BufferControlBlock), withAlignment);
-    auto alignedBufferSize = alignBufferSize(bufferSize, withAlignment);
-    allocatedAreaSize = alignBufferSize(controlBlockSize + alignedBufferSize, withAlignment);
-    const size_t offsetBetweenBuffers = allocatedAreaSize;
-    allocatedAreaSize *= numOfBuffers;
+    const auto controlBlockSize = alignBufferSize(sizeof(detail::BufferControlBlock), withAlignment);
+    const auto alignedBufferSize = alignBufferSize(bufferSize, withAlignment);
+
+    /// Each buffer slot is laid out as:
+    ///   [ redzone | control block | redzone | data region ]
+    /// Under ASan the two redzones are permanently poisoned to trap any over-/underflow that would
+    /// corrupt the control block. CONTROL_BLOCK_REDZONE_SIZE is 0 without ASan, so the slot size
+    /// below collapses to the previous (controlBlockSize + alignedBufferSize) layout exactly.
+    const auto redzoneSize = detail::CONTROL_BLOCK_REDZONE_SIZE;
+    const size_t offsetBetweenBuffers = redzoneSize + controlBlockSize + redzoneSize + alignedBufferSize;
+    /// One extra trailing redzone guards the data region of the very last slot.
+    allocatedAreaSize = (offsetBetweenBuffers * numOfBuffers) + redzoneSize;
     basePointer = static_cast<uint8_t*>(memoryResource->allocate(allocatedAreaSize, withAlignment));
+    INVARIANT(basePointer, "memory allocation failed, because 'basePointer' was a nullptr");
+
+#ifndef NDEBUG
+    constexpr std::array marker{'N', 'E', 'B', 'U', 'S', 'T', 'R', 'M'};
+    /// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): basePointer is freshly allocated raw storage aligned to >= alignof(uint64_t).
+    std::fill_n(reinterpret_cast<uint64_t*>(basePointer), allocatedAreaSize / sizeof(uint64_t), std::bit_cast<uint64_t>(marker));
+#endif
+
     NES_TRACE(
         "Allocated {} bytes with alignment {} buffer size {} num buffer {} controlBlockSize {} {}",
         allocatedAreaSize,
@@ -142,21 +198,27 @@ void BufferManager::initialize(uint32_t withAlignment)
         controlBlockSize,
         alignof(detail::BufferControlBlock));
 
-    INVARIANT(basePointer, "memory allocation failed, because 'basePointer' was a nullptr");
-    uint8_t* ptr = basePointer;
+    const std::span<uint8_t> allocatedMemory(basePointer, allocatedAreaSize);
     for (size_t i = 0; i < numOfBuffers; ++i)
     {
-        uint8_t* controlBlock = ptr;
-        uint8_t* payload = ptr + controlBlockSize;
+        const auto slot = allocatedMemory.subspan(i * offsetBetweenBuffers, offsetBetweenBuffers);
+        const auto controlBlock = slot.subspan(redzoneSize, controlBlockSize);
+        const auto payload = slot.subspan((2 * redzoneSize) + controlBlockSize, alignedBufferSize);
         allBuffers.emplace_back(
-            payload,
+            payload.data(),
             bufferSize,
             [](detail::MemorySegment* segment, BufferRecycler* recycler) { recycler->recyclePooledBuffer(segment); },
-            controlBlock);
+            controlBlock.data());
 
         availableBuffers.write(&allBuffers.back());
-        ptr += offsetBetweenBuffers;
     }
+
+    /// All buffers start idle, so poison the whole arena in one shot: redzones, control blocks and data
+    /// regions alike. The redzones stay poisoned for the arena's lifetime; prepare() unpoisons a control
+    /// block on hand-out and recyclePooledBuffer() re-poisons it, and the data region is likewise unpoisoned
+    /// on hand-out and re-poisoned on recycle. This must run after the construction loop so that the
+    /// placement-new of each control block (and the debug marker fill above) writes to unpoisoned memory.
+    ASAN_POISON_MEMORY_REGION(basePointer, allocatedAreaSize);
     NES_DEBUG("BufferManager configuration bufferSize={} numOfBuffers={}", this->bufferSize, this->numOfBuffers);
 }
 
@@ -180,6 +242,8 @@ std::optional<TupleBuffer> BufferManager::getBufferNoBlocking()
     }
     if (memSegment->controlBlock->prepare(shared_from_this()))
     {
+        /// The buffer is now exclusively owned by the caller: unpoison its data region so it can be used.
+        ASAN_UNPOISON_MEMORY_REGION(memSegment->ptr, memSegment->size);
         return TupleBuffer(memSegment->controlBlock.get(), memSegment->ptr, memSegment->size);
     }
     throw InvalidRefCountForBuffer("[BufferManager] got buffer with invalid reference counter");
@@ -195,6 +259,8 @@ std::optional<TupleBuffer> BufferManager::getBufferWithTimeout(const std::chrono
     }
     if (memSegment->controlBlock->prepare(shared_from_this()))
     {
+        /// The buffer is now exclusively owned by the caller: unpoison its data region so it can be used.
+        ASAN_UNPOISON_MEMORY_REGION(memSegment->ptr, memSegment->size);
         return TupleBuffer(memSegment->controlBlock.get(), memSegment->ptr, memSegment->size);
     }
     throw InvalidRefCountForBuffer("[BufferManager] got buffer with invalid reference counter");
@@ -202,7 +268,7 @@ std::optional<TupleBuffer> BufferManager::getBufferWithTimeout(const std::chrono
 
 std::optional<TupleBuffer> BufferManager::getUnpooledBuffer(const size_t bufferSize)
 {
-    return unpooledChunksManager->getUnpooledBuffer(bufferSize, DEFAULT_ALIGNMENT, shared_from_this());
+    return unpooledChunksManager->getUnpooledBuffer(bufferSize, alignment, shared_from_this());
 }
 
 void BufferManager::recyclePooledBuffer(detail::MemorySegment* segment)
@@ -210,6 +276,12 @@ void BufferManager::recyclePooledBuffer(detail::MemorySegment* segment)
     INVARIANT(segment->isAvailable(), "Recycling buffer callback invoked on used memory segment");
     INVARIANT(
         segment->controlBlock->owningBufferRecycler == nullptr, "Buffer should not retain a reference to its parent while not in use");
+    /// The buffer is back in the pool and must not be touched until handed out again: re-poison its data
+    /// region and its control block. This is the control block's last read on the recycle path (the INVARIANTs
+    /// above), and prepare() unpoisons it again on the next hand-out. Poisoning before the enqueue
+    /// happens-before that unpoison via the availableBuffers queue, so there is no shadow-memory race.
+    ASAN_POISON_MEMORY_REGION(segment->ptr, segment->size);
+    ASAN_POISON_MEMORY_REGION(segment->controlBlock.get(), sizeof(detail::BufferControlBlock));
     USED_IN_DEBUG const auto couldRecycleBuffer = availableBuffers.writeIfNotFull(segment);
     INVARIANT(couldRecycleBuffer, "should always succeed");
 }

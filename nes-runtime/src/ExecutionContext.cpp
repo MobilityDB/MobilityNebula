@@ -19,21 +19,22 @@
 #include <span>
 #include <string>
 #include <utility>
+#include <DataTypes/DataTypesUtil.hpp>
+#include <DataTypes/VariableSizedData.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Identifiers/NESStrongType.hpp>
-#include <Nautilus/DataTypes/DataTypesUtil.hpp>
-#include <Nautilus/DataTypes/VariableSizedData.hpp>
-#include <Nautilus/Interface/NESStrongTypeRef.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
+#include <Interface/NESStrongTypeRef.hpp>
+#include <Interface/NautilusBuffer.hpp>
+#include <Interface/RecordBuffer.hpp>
 #include <Runtime/AbstractBufferProvider.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Util/Logger/Logger.hpp>
-#include <Util/StdInt.hpp>
 #include <nautilus/function.hpp>
 #include <ErrorHandling.hpp>
 #include <OperatorState.hpp>
 #include <PipelineExecutionContext.hpp>
+#include <inline.hpp>
 #include <val.hpp>
 #include <val_ptr.hpp>
 
@@ -46,99 +47,43 @@ AbstractBufferProvider* getBufferProviderProxy(const PipelineExecutionContext* p
     return pipelineCtx->getBufferManager().get();
 }
 
-WorkerThreadId getWorkerThreadIdProxy(const PipelineExecutionContext* pec)
+WorkerThreadId getWorkerThreadIdProxy(const PipelineExecutionContext* pec) noexcept
 {
-    return pec->getId();
-}
-}
-
-std::span<std::byte> Arena::allocateMemory(const size_t sizeInBytes)
-{
-    /// Case 1
-    if (bufferProvider->getBufferSize() < sizeInBytes)
-    {
-        const auto unpooledBufferOpt = bufferProvider->getUnpooledBuffer(sizeInBytes);
-        if (not unpooledBufferOpt.has_value())
-        {
-            throw CannotAllocateBuffer("Cannot allocate unpooled buffer of size " + std::to_string(sizeInBytes));
-        }
-        unpooledBuffers.emplace_back(unpooledBufferOpt.value());
-        lastAllocationSize = sizeInBytes;
-        return unpooledBuffers.back().getAvailableMemoryArea().subspan(0, sizeInBytes);
-    }
-
-    if (fixedSizeBuffers.empty())
-    {
-        fixedSizeBuffers.emplace_back(bufferProvider->getBufferBlocking());
-        lastAllocationSize = bufferProvider->getBufferSize();
-        currentOffset += sizeInBytes;
-        return fixedSizeBuffers.back().getAvailableMemoryArea().subspan(0, sizeInBytes);
-    }
-
-    /// Case 2
-    if (lastAllocationSize < currentOffset + sizeInBytes)
-    {
-        fixedSizeBuffers.emplace_back(bufferProvider->getBufferBlocking());
-        this->currentOffset = 0;
-    }
-
-    /// Case 3
-    auto& lastBuffer = fixedSizeBuffers.back();
-    lastAllocationSize = lastBuffer.getBufferSize();
-    const auto result = lastBuffer.getAvailableMemoryArea().subspan(currentOffset, sizeInBytes);
-    currentOffset += sizeInBytes;
-    return result;
+    return pec->getWorkerThreadId();
 }
 
-nautilus::val<int8_t*> ArenaRef::allocateMemory(const nautilus::val<size_t>& sizeInBytes)
+PipelineId getPipelineIdProxy(const PipelineExecutionContext* pec) noexcept
 {
-    /// If the available space for the pointer is smaller than the required size, we allocate a new buffer from the arena.
-    /// We use the arena's allocateMemory function to allocate a new buffer and set the available space for the pointer to the last allocation size.
-    /// Further, we set the space pointer to the beginning of the new buffer.
-    const auto currentArenaPtr = nautilus::invoke(
-        +[](Arena* arena, const size_t sizeInBytesVal) -> int8_t*
-        { return reinterpret_cast<int8_t*>(arena->allocateMemory(sizeInBytesVal).data()); },
-        arenaRef,
-        sizeInBytes);
-    return currentArenaPtr;
+    return pec->getPipelineId();
 }
-
-VariableSizedData ArenaRef::allocateVariableSizedData(const nautilus::val<uint32_t>& sizeInBytes)
-{
-    auto basePtr = allocateMemory(sizeInBytes + nautilus::val<size_t>(4));
-    *(static_cast<nautilus::val<uint32_t*>>(basePtr)) = sizeInBytes;
-    return VariableSizedData(basePtr, sizeInBytes);
 }
 
 ExecutionContext::ExecutionContext(const nautilus::val<PipelineExecutionContext*>& pipelineContext, const nautilus::val<Arena*>& arena)
     : pipelineContext(pipelineContext)
     , workerThreadId(nautilus::invoke(getWorkerThreadIdProxy, pipelineContext))
+    , pipelineId(nautilus::invoke(getPipelineIdProxy, pipelineContext))
     , pipelineMemoryProvider(arena, invoke(getBufferProviderProxy, pipelineContext))
     , originId(INVALID<OriginId>)
-    , watermarkTs(0_u64)
-    , currentTs(0_u64)
+    , watermarkTs(uint64_t{0})
+    , currentTs(uint64_t{0})
     , sequenceNumber(INVALID<SequenceNumber>)
     , chunkNumber(INVALID<ChunkNumber>)
     , lastChunk(true)
 {
 }
 
-nautilus::val<TupleBuffer*> ExecutionContext::allocateBuffer() const
+NautilusBuffer ExecutionContext::allocateBuffer() const
 {
-    auto bufferPtr = nautilus::invoke(
-        +[](PipelineExecutionContext* pec)
+    OwnedNautilusBuffer buffer;
+    nautilus::invoke(
+        +[](PipelineExecutionContext* pec, TupleBuffer* buffer)
         {
             PRECONDITION(pec, "pipeline execution context should not be null");
-            /// We allocate a new tuple buffer for the runtime.
-            /// As we can only return it to operator code as a ptr we create a new TupleBuffer on the heap.
-            /// This increases the reference counter in the buffer.
-            /// When the heap allocated buffer is not required anymore, the operator code has to clean up the allocated memory to prevent memory leaks.
-            const auto buffer = pec->allocateTupleBuffer();
-            auto* tb = new TupleBuffer(buffer);
-            return tb;
+            *buffer = pec->allocateTupleBuffer();
         },
-        pipelineContext);
-    return bufferPtr;
+        pipelineContext,
+        buffer.asArg());
+    return buffer;
 }
 
 nautilus::val<int8_t*> ExecutionContext::allocateMemory(const nautilus::val<size_t>& sizeInBytes)
@@ -146,7 +91,7 @@ nautilus::val<int8_t*> ExecutionContext::allocateMemory(const nautilus::val<size
     return pipelineMemoryProvider.arena.allocateMemory(sizeInBytes);
 }
 
-void emitBufferProxy(PipelineExecutionContext* pipelineCtx, TupleBuffer* tb)
+NAUTILUS_INLINE void emitBufferProxy(PipelineExecutionContext* pipelineCtx, TupleBuffer* tb)
 {
     NES_TRACE("Emitting buffer with SequenceData = {}", tb->getSequenceDataAsString());
 
@@ -155,14 +100,21 @@ void emitBufferProxy(PipelineExecutionContext* pipelineCtx, TupleBuffer* tb)
      * fusion, this should only happen occasionally.
      */
     pipelineCtx->emitBuffer(*tb);
-
-    /// delete tuple buffer as it was allocated within the pipeline and is not required anymore
-    delete tb;
 }
 
-void ExecutionContext::emitBuffer(const Nautilus::RecordBuffer& buffer) const
+void ExecutionContext::emitBuffer(const RecordBuffer& buffer) const
 {
     nautilus::invoke(emitBufferProxy, pipelineContext, buffer.getReference());
+}
+
+void ExecutionContext::setOpenReturnState(const OpenReturnState openReturnState)
+{
+    this->openReturnState = openReturnState;
+}
+
+OpenReturnState ExecutionContext::getOpenReturnState() const
+{
+    return this->openReturnState;
 }
 
 OperatorState* ExecutionContext::getLocalState(const OperatorId operatorId)

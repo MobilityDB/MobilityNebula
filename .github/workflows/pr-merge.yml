@@ -1,8 +1,8 @@
 name: NES PR CI Merge
-# Its jobs build and publish development images on self-hosted runners, which MobilityNebula does
-# not register, so it runs on demand only.
 on:
-  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+    types: [ closed ]
 
 jobs:
   get-dev-images:
@@ -24,6 +24,20 @@ jobs:
       branch-name: 'main'
     secrets: inherit
 
+  docs-website:
+    if: github.event.pull_request.merged == true
+    name: "Publish Docs Website"
+    uses: ./.github/workflows/docs_website_build.yml
+    # A called workflow can only narrow the caller's scopes, and id-token is not in the
+    # default token, so publish-website cannot request it unless it is granted here.
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    with:
+      head_sha: ${{ github.event.pull_request.merge_commit_sha }}
+      should_publish: true
+
   check-and-update-development-images:
     # This job is executed when a PR is merged into the main branch.
     # If changes to the dependencies are detected we update the `latest`
@@ -31,9 +45,10 @@ jobs:
     # updated dependencies.
     runs-on: [ self-hosted, linux, Build ]
     needs: [ get-dev-images ]
-    if: ${{ github.event.pull_request.merged == true && needs.get-dev-images.outputs.build-dependency == true }}
+    # `build-dependency` is a job output, i.e. a string.
+    if: ${{ github.event.pull_request.merged == true && needs.get-dev-images.outputs.build-dependency == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v44
@@ -42,12 +57,12 @@ jobs:
             vcpkg/**
             docker/dependency/**
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: ./.github/steps/docker-login
         with:
           username: ${{ secrets.DOCKER_USER_NAME }}
           password: ${{ secrets.DOCKER_SECRET }}
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Retag Base Image
         run: |
           docker buildx imagetools create -t nebulastream/nes-development-base:latest \
@@ -67,31 +82,15 @@ jobs:
               for sanitizer in none address thread undefined; do
                 docker buildx imagetools create -t nebulastream/nes-$image_tag:latest-$stdlib-$sanitizer \
                   nebulastream/nes-$image_tag:${{ needs.get-dev-images.outputs.image-tag }}-$stdlib-$sanitizer
-          
-                docker buildx imagetools create -t nebulastream/nes-$image_tag:latest-$sanitizer \
-                  nebulastream/nes-$image_tag:${{ needs.get-dev-images.outputs.image-tag }}-$sanitizer
-          
-                docker buildx imagetools create -t nebulastream/nes-$image_tag:latest-$stdlib-$sanitizer \
-                  nebulastream/nes-$image_tag:${{ needs.get-dev-images.outputs.image-tag }}-$stdlib-$sanitizer
               done
+            done
+
+            # the stdlib-less shortcut resolves to libcxx, matching the shortcut tags in get_dev_images.yml
+            for sanitizer in none address thread undefined; do
+              docker buildx imagetools create -t nebulastream/nes-$image_tag:latest-$sanitizer \
+                nebulastream/nes-$image_tag:${{ needs.get-dev-images.outputs.image-tag }}-libcxx-$sanitizer
             done
           done
           
           docker buildx imagetools create -t nebulastream/nes-benchmark:latest \
             nebulastream/nes-benchmark:${{ needs.get-dev-images.outputs.image-tag }}
-
-      - name: Update Cache Images
-        run: |
-          for image_tag in development-dependency development; do
-            for arch in x64 arm64; do
-              for stdlib in libcxx libstdcxx; do
-                if [[ "$arch" == "arm64" && "$stdlib" == "libstdcxx" ]]; then
-                  continue
-                fi
-                for sanitizer in none address thread undefined; do
-                  docker buildx imagetools create -t nebulastream/nes-$image_tag-cache:latest-$arch-$stdlib-$sanitizer \
-                    nebulastream/nes-$image_tag-cache:${{ github.head_ref }}-$arch-$stdlib-$sanitizer
-                done
-              done
-            done
-          done

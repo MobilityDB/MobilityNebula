@@ -1,8 +1,8 @@
 name: PR Review Reminder
-
-# This workflow is triggered from Monday to Friday at 9:00 AM, 12:45 PM and 4:00 PM CEST.
-# It creates a message consisting of every missing review of every open pull request on this repository.
-# The message is sent into a topic of the NebulaStream Zulip organization.
+description: |
+  This workflow is triggered from Monday to Friday at 7:00 AM UTC (9:00 AM CEST).
+  It creates a message consisting of every missing review of every open pull request on this repository.
+  The message is sent into a topic of the NebulaStream Zulip organization.
 
 on: 
     schedule:
@@ -13,7 +13,7 @@ jobs:
 
         steps:
             - name: Checkout repo
-              uses: actions/checkout@v2
+              uses: actions/checkout@v5
 
             - name: Use reminder action
               uses: LeoRaasch/my-github-actions/zulip-pr-reminder@v1
@@ -28,7 +28,11 @@ jobs:
                     "keyseven123": "@**Nils**",
                     "zeuchste": "@**Steffen Zeuch**",
                     "yschroeder97": "@**Yannik Schröder**",
-                    "Artraxon": "@**Leonhard Rose**"
+                    "Artraxon": "@**Leonhard Rose**",
+                    "greenBene": "@**Bene**",
+                    "ThanGeo": "@**Thanasis Georgiadis**",
+                    "oczerwia-2010": "@**Oliver Czerwiak**",
+                    "thedonatic": "@**Jannis**"
                   }
                 bot-api-key: ${{ secrets.PRBOT_API_KEY }}
                 bot-email: "pr-reminder-bot@nebulastream.zulipchat.com"

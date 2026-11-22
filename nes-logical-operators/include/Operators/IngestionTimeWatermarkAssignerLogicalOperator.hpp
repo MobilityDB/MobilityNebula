@@ -14,53 +14,96 @@
 
 #pragma once
 
+#include <cstdint>
+#include <functional>
+#include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/UnboundField.hpp>
 #include <Identifiers/Identifiers.hpp>
 #include <Operators/LogicalOperator.hpp>
-#include <Traits/Trait.hpp>
+#include <Operators/LogicalOperatorFwd.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/ReflectedOperator.hpp>
 #include <Traits/TraitSet.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <SerializableOperator.pb.h>
+#include <Util/Reflection.hpp>
 
 namespace NES
 {
 
-class IngestionTimeWatermarkAssignerLogicalOperator final
+class IngestionTimeWatermarkAssignerLogicalOperator final : public ManagedByOperator
 {
 public:
-    IngestionTimeWatermarkAssignerLogicalOperator();
+    explicit IngestionTimeWatermarkAssignerLogicalOperator(WeakLogicalOperator self);
+    /// I do not understand why, but if we just pass the child in an explicit constructor,
+    /// this class stops being convertible to itself (how is that even a thing) and thus doesn't fulfill the concept.
+    IngestionTimeWatermarkAssignerLogicalOperator(WeakLogicalOperator self, LogicalOperator child);
+
+    static TypedLogicalOperator<IngestionTimeWatermarkAssignerLogicalOperator> create();
+    static TypedLogicalOperator<IngestionTimeWatermarkAssignerLogicalOperator> create(LogicalOperator child);
 
     [[nodiscard]] bool operator==(const IngestionTimeWatermarkAssignerLogicalOperator& rhs) const;
-    void serialize(SerializableOperator&) const;
 
     [[nodiscard]] IngestionTimeWatermarkAssignerLogicalOperator withTraitSet(TraitSet traitSet) const;
     [[nodiscard]] TraitSet getTraitSet() const;
 
+    [[nodiscard]] IngestionTimeWatermarkAssignerLogicalOperator withChildrenUnsafe(std::vector<LogicalOperator> children) const;
     [[nodiscard]] IngestionTimeWatermarkAssignerLogicalOperator withChildren(std::vector<LogicalOperator> children) const;
     [[nodiscard]] std::vector<LogicalOperator> getChildren() const;
+    [[nodiscard]] LogicalOperator getChild() const;
 
-    [[nodiscard]] std::vector<Schema> getInputSchemas() const;
-    [[nodiscard]] Schema getOutputSchema() const;
+    [[nodiscard]] Schema<Field, Unordered> getOutputSchema() const;
 
     [[nodiscard]] std::string explain(ExplainVerbosity verbosity, OperatorId) const;
     [[nodiscard]] std::string_view getName() const noexcept;
 
-    [[nodiscard]] IngestionTimeWatermarkAssignerLogicalOperator withInferredSchema(std::vector<Schema> inputSchemas) const;
-
+    [[nodiscard]] IngestionTimeWatermarkAssignerLogicalOperator withInferredSchema() const;
 
 protected:
     static constexpr std::string_view NAME = "IngestionTimeWatermarkAssigner";
 
-    std::vector<LogicalOperator> children;
+    std::optional<LogicalOperator> child;
+
+    void inferLocalSchema();
+    /// Set during schema inference
+    std::optional<Schema<UnqualifiedUnboundField, Unordered>> outputSchema;
+
     TraitSet traitSet;
-    Schema inputSchema;
-    Schema outputSchema;
+
+    friend struct std::hash<IngestionTimeWatermarkAssignerLogicalOperator>;
+
+    friend Reflector<TypedLogicalOperator<IngestionTimeWatermarkAssignerLogicalOperator>>;
+};
+
+template <>
+struct Reflector<TypedLogicalOperator<IngestionTimeWatermarkAssignerLogicalOperator>>
+{
+    Reflected
+    operator()(const TypedLogicalOperator<IngestionTimeWatermarkAssignerLogicalOperator>& op, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<TypedLogicalOperator<IngestionTimeWatermarkAssignerLogicalOperator>>
+{
+    using ContextType = std::shared_ptr<ReflectedPlan>;
+    ContextType plan;
+    explicit Unreflector(ContextType operatorMapping);
+    TypedLogicalOperator<IngestionTimeWatermarkAssignerLogicalOperator>
+    operator()(const Reflected& reflected, const ReflectionContext& context) const;
 };
 
 static_assert(LogicalOperatorConcept<IngestionTimeWatermarkAssignerLogicalOperator>);
 
 }
+
+template <>
+struct std::hash<NES::IngestionTimeWatermarkAssignerLogicalOperator>
+{
+    uint64_t operator()(const NES::IngestionTimeWatermarkAssignerLogicalOperator& op) const noexcept;
+};

@@ -14,13 +14,15 @@
 
 #pragma once
 
+#include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
+#include <Interface/HashMap/ChainedHashMap/ChainedHashMapConfig.hpp>
+#include <Interface/RecordBuffer.hpp>
+#include <Operators/Windows/WindowMetaData.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
-#include <Windowing/WindowMetaData.hpp>
-#include <HashMapOptions.hpp>
 #include <WindowProbePhysicalOperator.hpp>
 
 namespace NES
@@ -30,15 +32,21 @@ class AggregationProbePhysicalOperator final : public WindowProbePhysicalOperato
 {
 public:
     AggregationProbePhysicalOperator(
-        HashMapOptions hashMapOptions,
+        ChainedHashMapConfig hashMapConfig,
         std::vector<std::shared_ptr<AggregationPhysicalFunction>> aggregationPhysicalFunctions,
         OperatorHandlerId operatorHandlerId,
-        WindowMetaData windowMetaData);
-    void open(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const override;
+        WindowMetaData windowMetaData,
+        std::optional<uint64_t> sessionGapInMilliseconds = std::nullopt);
+
+protected:
+    void probeWindow(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const override;
 
 private:
     std::vector<std::shared_ptr<AggregationPhysicalFunction>> aggregationPhysicalFunctions;
-    HashMapOptions hashMapOptions;
+    ChainedHashMapConfig hashMapConfig;
+    /// Set for a session window: each entry is a session whose window is [first event time, last event time + gap),
+    /// read from the state of its SessionBoundsAggregationPhysicalFunction, the last aggregation function
+    std::optional<uint64_t> sessionGapInMilliseconds;
 };
 
 }

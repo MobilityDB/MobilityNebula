@@ -19,5 +19,4 @@ add_source_files(nes-physical-operators
         AggregationProbePhysicalOperator.cpp
         AggregationSlice.cpp
         SessionAggregationOperatorHandler.cpp
-        SessionAggregationProbePhysicalOperator.cpp
 )

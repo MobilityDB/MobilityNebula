@@ -14,25 +14,31 @@
 
 #include <Functions/ArithmeticalFunctions/AddLogicalFunction.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataTypeProvider.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-AddLogicalFunction::AddLogicalFunction(const LogicalFunction& left, const LogicalFunction& right)
-    : dataType(left.getDataType().join(right.getDataType()).value_or(DataType{DataType::Type::UNDEFINED})), left(left), right(right)
+AddLogicalFunction::AddLogicalFunction(LogicalFunction left, LogicalFunction right) : left(std::move(left)), right(std::move(right))
 {
 }
 
@@ -41,21 +47,20 @@ DataType AddLogicalFunction::getDataType() const
     return dataType;
 };
 
-LogicalFunction AddLogicalFunction::withDataType(const DataType& dataType) const
+LogicalFunction AddLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
-    auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
+    AddLogicalFunction copy = *this;
+    copy.left = left.withInferredDataType(schema);
+    copy.right = right.withInferredDataType(schema);
 
-LogicalFunction AddLogicalFunction::withInferredDataType(const Schema& schema) const
-{
-    std::vector<LogicalFunction> newChildren;
-    for (auto& child : getChildren())
+    auto newType = copy.left.getDataType().join(copy.right.getDataType());
+    if (not newType.has_value())
     {
-        newChildren.push_back(child.withInferredDataType(schema));
+        throw CannotInferStamp("Could not join data types of input functions, left: {}, right: {}", copy.left, copy.right);
     }
-    return this->withChildren(newChildren);
+    copy.dataType = std::move(newType).value();
+    copy.dataType.nullable = std::ranges::any_of(copy.getChildren(), [](const auto& child) { return child.getDataType().nullable; });
+    return copy;
 }
 
 std::vector<LogicalFunction> AddLogicalFunction::getChildren() const
@@ -63,13 +68,14 @@ std::vector<LogicalFunction> AddLogicalFunction::getChildren() const
     return {left, right};
 };
 
-LogicalFunction AddLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+AddLogicalFunction AddLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 2, "AddLogicalFunction requires exactly two children, but got {}", children.size());
     auto copy = *this;
     copy.left = children[0];
     copy.right = children[1];
-    copy.dataType = children[0].getDataType().join(children[1].getDataType()).value_or(DataType{DataType::Type::UNDEFINED});
+    copy.dataType
+        = children[0].getDataType().join(children[1].getDataType()).value_or(DataTypeProvider::provideDataType(DataType::Type::UNDEFINED));
     return copy;
 };
 
@@ -78,16 +84,11 @@ std::string_view AddLogicalFunction::getType() const
     return NAME;
 }
 
-bool AddLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool AddLogicalFunction::operator==(const AddLogicalFunction& rhs) const
 {
-    const auto* other = dynamic_cast<const AddLogicalFunction*>(&rhs);
-    if (other != nullptr)
-    {
-        const bool simpleMatch = left == other->left and right == other->right;
-        const bool commutativeMatch = right == other->right and right == other->left;
-        return simpleMatch or commutativeMatch;
-    }
-    return false;
+    const bool simpleMatch = left == rhs.left and right == rhs.right;
+    const bool commutativeMatch = left == rhs.right and right == rhs.left;
+    return simpleMatch or commutativeMatch;
 }
 
 std::string AddLogicalFunction::explain(ExplainVerbosity verbosity) const
@@ -99,17 +100,18 @@ std::string AddLogicalFunction::explain(ExplainVerbosity verbosity) const
     return fmt::format("{} + {}", left.explain(verbosity), right.explain(verbosity));
 }
 
-SerializableFunction AddLogicalFunction::serialize() const
+Reflected Reflector<AddLogicalFunction>::operator()(const AddLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(left.serialize());
-    serializedFunction.add_children()->CopyFrom(right.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedAddLogicalFunction{.left = function.left, .right = function.right});
 }
 
-LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterAddLogicalFunction(LogicalFunctionRegistryArguments arguments)
+AddLogicalFunction Unreflector<AddLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [left, right] = context.unreflect<detail::ReflectedAddLogicalFunction>(reflected);
+    return AddLogicalFunction{std::move(left), std::move(right)};
+}
+
+LogicalFunctionRegistryReturnType AddLogicalFunction::createAdd(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 2)
     {

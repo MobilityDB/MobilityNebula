@@ -14,28 +14,64 @@
 
 #pragma once
 
+#include <cstddef>
+#include <functional>
 #include <memory>
+#include <string>
 #include <string_view>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataType.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <AggregationLogicalFunctionRegistry.hpp>
 #include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-class MinAggregationLogicalFunction : public WindowAggregationLogicalFunction
+class MinAggregationLogicalFunction
 {
 public:
-    MinAggregationLogicalFunction(const FieldAccessLogicalFunction& onField, FieldAccessLogicalFunction asField);
-    explicit MinAggregationLogicalFunction(const FieldAccessLogicalFunction& onField);
-    ~MinAggregationLogicalFunction() override = default;
+    explicit MinAggregationLogicalFunction(AggregationFieldAccess inputFunction);
+    MinAggregationLogicalFunction(AggregationFieldAccess inputFunction, DataType aggregateType);
 
-    void inferStamp(const Schema& schema) override;
-    [[nodiscard]] SerializableAggregationFunction serialize() const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
+    [[nodiscard]] MinAggregationLogicalFunction withInferredType(const Schema<Field, Unordered>& schema) const;
+    [[nodiscard]] std::string_view getName() const noexcept;
+    [[nodiscard]] DataType getAggregateType() const;
+    [[nodiscard]] static bool shallIncludeNullValues() noexcept;
+    [[nodiscard]] AggregationFieldAccess getInputFunction() const;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
+    [[nodiscard]] bool operator==(const MinAggregationLogicalFunction& other) const;
+
+    static AggregationLogicalFunctionRegistryReturnType create(AggregationLogicalFunctionRegistryArguments arguments);
 
 private:
+    AggregationFieldAccess inputFunction;
+    DataType aggregateType;
     static constexpr std::string_view NAME = "Min";
 };
+
+template <>
+struct Reflector<MinAggregationLogicalFunction>
+{
+    Reflected operator()(const MinAggregationLogicalFunction& function, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<MinAggregationLogicalFunction>
+{
+    MinAggregationLogicalFunction operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
 }
+
+template <>
+struct std::hash<NES::MinAggregationLogicalFunction>
+{
+    size_t operator()(const NES::MinAggregationLogicalFunction& aggregationFunction) const noexcept;
+};
+
+static_assert(NES::WindowAggregationFunctionConcept<NES::MinAggregationLogicalFunction>);

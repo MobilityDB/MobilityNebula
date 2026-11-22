@@ -15,81 +15,382 @@
 #include <GeneratorSource.hpp>
 
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <exception>
-#include <iostream>
+#include <expected>
+#include <ios>
 #include <memory>
+#include <optional>
 #include <stop_token>
 #include <string>
+#include <string_view>
 #include <thread>
-#include <unordered_map>
 #include <utility>
-#include <Configurations/Descriptor.hpp>
+#include <variant>
+#include <vector>
+
+#include <Configurations/ConfigField.hpp>
+#include <Configurations/ConfigLiteral.hpp>
+#include <Configurations/Enums/EnumWrapper.hpp>
+#include <Configurations/InstantiatedConfigValue.hpp>
+#include <Identifiers/Identifier.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
 #include <Runtime/TupleBuffer.hpp>
-#include <Sources/SourceDescriptor.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Sources/Source.hpp>
 #include <Util/Logger/Logger.hpp>
-#include <FixedGeneratorRate.hpp>
+#include <Util/Optional.hpp>
+#include <Util/Strings.hpp>
+#include <Util/Variant.hpp>
+#include <fmt/ranges.h>
+#include <magic_enum/magic_enum.hpp>
+#include <ErrorHandling.hpp>
 #include <Generator.hpp>
+#include <GeneratorFields.hpp>
 #include <GeneratorRate.hpp>
-#include <SinusGeneratorRate.hpp>
-#include <SourceRegistry.hpp>
-#include <SourceValidationRegistry.hpp>
 
 namespace NES
 {
 
-GeneratorSource::GeneratorSource(const SourceDescriptor& sourceDescriptor)
-    : seed(sourceDescriptor.getFromConfig(ConfigParametersGenerator::SEED))
-    , maxRuntime(sourceDescriptor.getFromConfig(ConfigParametersGenerator::MAX_RUNTIME_MS))
-    , generatorSchemaRaw(sourceDescriptor.getFromConfig(ConfigParametersGenerator::GENERATOR_SCHEMA))
-    , generator(
-          seed,
-          sourceDescriptor.getFromConfig(ConfigParametersGenerator::SEQUENCE_STOPS_GENERATOR),
-          sourceDescriptor.getFromConfig(ConfigParametersGenerator::GENERATOR_SCHEMA))
-    , flushInterval(std::chrono::milliseconds{sourceDescriptor.getFromConfig(ConfigParametersGenerator::FLUSH_INTERVAL_MS)})
+/// Parsers for the rate config string. The outer optional signals "not this rate type", the inner
+/// expected carries parse/validation errors for the matched type.
+std::optional<std::expected<FixedGeneratorRateConfig, Exception>> parseValidateFixedRateConfigString(const std::string_view configString)
 {
-    NES_TRACE("Init GeneratorSource.")
-    switch (sourceDescriptor.getFromConfig(ConfigParametersGenerator::GENERATOR_RATE_TYPE))
+    if (const auto params = splitWithStringDelimiter<std::string_view>(configString, " "); params.size() == 2)
     {
-        case GeneratorRate::Type::FIXED:
-            generatorRate
-                = std::make_unique<FixedGeneratorRate>(sourceDescriptor.getFromConfig(ConfigParametersGenerator::GENERATOR_RATE_CONFIG));
-            break;
-        case GeneratorRate::Type::SINUS:
-            /// We can assume that the parsing will work, as the config has been validated
-            auto [amplitude, frequency] = SinusGeneratorRate::parseAndValidateConfigString(
-                                              sourceDescriptor.getFromConfig(ConfigParametersGenerator::GENERATOR_RATE_CONFIG))
-                                              .value();
-            generatorRate = std::make_unique<SinusGeneratorRate>(frequency, amplitude);
-            break;
+        if (toLowerCase(params[0]) == "emit_rate")
+        {
+            return optionalToExpected(from_chars<double>(params[1]), expectedType<double>())
+                .transform([](const double rate) { return FixedGeneratorRateConfig{.emitRate = rate}; });
+        }
     }
+    return {};
 }
 
-void GeneratorSource::open()
+std::optional<std::expected<SinusGeneratorRateConfig, Exception>> parseValidateSinusRateConfigString(const std::string_view configString)
+{
+    std::optional<std::expected<double, Exception>> amplitude = {};
+    std::optional<std::expected<double, Exception>> frequency = {};
+
+    std::vector<std::string_view> params;
+
+    for (const auto& param : splitOnMultipleDelimiters(configString, {'\n', ','}))
+    {
+        params.emplace_back(trimWhiteSpaces(param));
+    }
+
+    if (params.size() == 2)
+    {
+        const auto amplitudeParams = splitWithStringDelimiter<std::string_view>(params[0], " ");
+        if (amplitudeParams.size() != 2)
+        {
+            return std::unexpected{
+                InvalidConfigParameter("Amplitude must have exactly one argument, but was {}", amplitudeParams.size() - 1)};
+        }
+        if (toLowerCase(amplitudeParams[0]) == "amplitude")
+        {
+            amplitude = optionalToExpected(from_chars<double>(amplitudeParams[1]), expectedType<double>());
+        }
+
+        const auto frequencyParams = splitWithStringDelimiter<std::string_view>(params[1], " ");
+        if (frequencyParams.size() != 2)
+        {
+            return std::unexpected{
+                InvalidConfigParameter("Amplitude must have exactly one argument, but was {}", frequencyParams.size() - 1)};
+        }
+        if (toLowerCase(frequencyParams[0]) == "frequency")
+        {
+            frequency = optionalToExpected(from_chars<double>(frequencyParams[1]), expectedType<double>());
+        }
+    }
+
+    if ((!amplitude.has_value()) && (!frequency.has_value()))
+    {
+        return std::nullopt;
+    }
+
+    if (amplitude.has_value() != frequency.has_value())
+    {
+        return std::unexpected{InvalidConfigParameter("Amplitude and frequency must be specified together!")};
+    }
+
+    if (amplitude.value().has_value() and frequency.value().has_value())
+    {
+        return SinusGeneratorRateConfig{.amplitude = amplitude.value().value(), .frequency = frequency.value().value()};
+    }
+    if (!amplitude.value().has_value())
+    {
+        return std::unexpected{amplitude.value().error()};
+    }
+    return std::unexpected{frequency.value().error()};
+}
+
+uint64_t calcNumberOfTuplesForInterval(
+    const FixedGeneratorRateConfig& rate,
+    const std::chrono::time_point<std::chrono::system_clock>& start,
+    const std::chrono::time_point<std::chrono::system_clock>& end)
+{
+    /// As the emit rate is fixed, we have to multiply the interval duration (or size) with the emit rate.
+    const auto duration = std::chrono::duration<double>(end - start);
+    const auto numberOfTuples = static_cast<uint64_t>(rate.emitRate * static_cast<double>(duration.count()));
+    return numberOfTuples;
+}
+
+uint64_t calcNumberOfTuplesForInterval(
+    const SinusGeneratorRateConfig& rate,
+    const std::chrono::time_point<std::chrono::system_clock>& start,
+    const std::chrono::time_point<std::chrono::system_clock>& end)
+{
+    /// To calculate the number of tuples for a non-negative sinus, we take the integral of the sinus from end to start
+    /// As the sinus must be non-negative, the sin-function is emit_rate_at_x = amplitude * sin(freq * (x - phaseShift)) + amplitude
+    /// Thus, the integral from startTimePoint to endTimePoint is the following:
+    auto integralStartEnd = [](const double startTimePoint, const double endTimePoint, const double amplitude, const double frequency)
+    {
+        const auto firstCos = std::cos(frequency * startTimePoint);
+        const auto secondCos = frequency * (startTimePoint - endTimePoint);
+        const auto thirdCos = std::cos(endTimePoint * frequency);
+        return (amplitude * (firstCos - secondCos - thirdCos)) / (2 * frequency);
+    };
+
+    /// Calculating the integral of end --> start, resulting in the required number of tuples
+    /// As the interval of start and end might share the same seconds, we need to first cast it to milliseconds and then convert it to a
+    /// double. Otherwise, we would have the exact same value for startTimePoint and endTimePoint, resulting in number of tuples to generate.
+    const auto startTimePoint = std::chrono::duration<double>(start.time_since_epoch()).count();
+    const auto endTimePoint = std::chrono::duration<double>(end.time_since_epoch()).count();
+    const auto numberOfTuples = static_cast<uint64_t>(integralStartEnd(startTimePoint, endTimePoint, rate.amplitude, rate.frequency));
+    return numberOfTuples;
+}
+
+namespace
+{
+
+/// NOLINTBEGIN(bugprone-throwing-static-initialization)
+const ConfigField<GeneratorStop> SEQUENCE_STOPS_GENERATOR{
+    Identifier::parse("STOP_GENERATOR_WHEN_SEQUENCE_FINISHES"),
+    "One of ALL, ONE or NONE. ALL stops the generator source once all sequences have reached the end, "
+    "ONE when one sequence has reached the end, NONE never stops it based on sequence ends and repeats the last element forever.",
+    [](const ConfigLiteral& literal)
+    {
+        return NES::tryGetOr<std::string>(literal, expectedType<std::string>())
+            .and_then(
+                [](std::string value) -> std::expected<GeneratorStop, Exception>
+                {
+                    auto optToken = EnumWrapper{value}.asEnum<GeneratorStop>();
+                    if (not optToken.has_value())
+                    {
+                        return std::unexpected{InvalidConfigParameter("Invalid value, must be ALL, ONE or NONE, but was: {}!", value)};
+                    }
+                    return optToken.value();
+                });
+    }};
+
+const ConfigField<uint32_t> SEED{
+    Identifier::parse("SEED"),
+    "A (signed) integer seed for the generator",
+    [](const ConfigLiteral& config)
+    { return NES::tryGetOr<int64_t>(config, expectedType<int64_t>()).and_then(narrowConfigValue<int64_t, uint32_t>); },
+    [] { return std::chrono::high_resolution_clock::now().time_since_epoch().count(); },
+    "The time since epoch as per std::chrono::high_resolution_clock."};
+
+const ConfigField<GeneratorRate::Type> GENERATOR_RATE_TYPE{
+    Identifier::parse("GENERATOR_RATE_TYPE"),
+    "The type of rate in which tuples should be emitted, can be either FIXED or SINUS.",
+    [](const ConfigLiteral& config)
+    {
+        return NES::tryGetOr<std::string>(config, expectedType<std::string>())
+            .and_then(
+                [](std::string value) -> std::expected<GeneratorRate::Type, Exception>
+                {
+                    auto enumOpt = EnumWrapper{value}.asEnum<GeneratorRate::Type>();
+                    if (not enumOpt.has_value())
+                    {
+                        return std::unexpected{InvalidConfigParameter("Invalid value, must be FIXED or SINUS, but was: {}!", value)};
+                    }
+                    return enumOpt.value();
+                });
+    },
+    GeneratorRate::Type::FIXED,
+    "FIXED"};
+
+/// TODO #1956: Split up generator rate config into its components, e.g. have a config field for FIXED.EMIT_RATE, SINUS.AMPLITUDE, SINUS.FREQUENCY
+const ConfigField<GeneratorRateVariant> GENERATOR_RATE_CONFIG{
+    Identifier::parse("GENERATOR_RATE_CONFIG"),
+    "Parameters for the rate, set as \"key value\", multiple options are comma delimited. "
+    "Available options are emit_rate for the fixed generator rate type, and frequency and amplitude for sinus.",
+    [](const ConfigLiteral& config)
+    {
+        return NES::tryGetOr<std::string>(config, expectedType<std::string>())
+            .and_then(
+                [](const std::string& value) -> std::expected<GeneratorRateVariant, Exception>
+                {
+                    if (const auto sinusGeneratorRate = parseValidateSinusRateConfigString(value))
+                    {
+                        return sinusGeneratorRate->transform([](const SinusGeneratorRateConfig& rate)
+                                                             { return GeneratorRateVariant{rate}; });
+                    }
+                    if (const auto fixedGeneratorRate = parseValidateFixedRateConfigString(value))
+                    {
+                        return fixedGeneratorRate->transform([](const FixedGeneratorRateConfig& rate)
+                                                             { return GeneratorRateVariant{rate}; });
+                    }
+                    return std::unexpected{InvalidConfigParameter(
+                        "GENERATOR_RATE_CONFIG is '{}', but it must be either 'emit_rate <tuples per second>' (e.g. 'emit_rate 1000') or "
+                        "'amplitude <number>, frequency <number>' (e.g. 'amplitude 100, frequency 0.5')",
+                        value)};
+                });
+    },
+    GeneratorRateVariant{FixedGeneratorRateConfig{.emitRate = 1000}},
+    "emit_rate 1000"};
+
+const ConfigField<std::string> GENERATOR_SCHEMA{
+    Identifier::parse("GENERATOR_SCHEMA"),
+    "The schema with datatypes, types of sequences and their parameter. See the Generator.test systest for examples.",
+    [](const ConfigLiteral& config)
+    {
+        return NES::tryGetOr<std::string>(config, expectedType<std::string>())
+            .and_then(
+                [](const std::string& value) -> std::expected<std::string, Exception>
+                {
+                    if (value.empty())
+                    {
+                        return std::unexpected{InvalidConfigParameter("Generator schema cannot be empty!")};
+                    }
+                    std::vector<std::pair<std::string, Exception>> exceptions;
+                    for (const auto lines = splitOnMultipleDelimiters(value, {',', '\n'}); auto line : lines)
+                    {
+                        line = trimWhiteSpaces(line);
+                        const auto foundIdentifier = magic_enum::enum_cast<GeneratorFields::FieldIdentifier>(
+                            NES::toUpperCase(line.substr(0, line.find_first_of(' '))));
+                        bool validatorExists = false;
+                        for (const auto& [identifier, validator] : GeneratorFields::Validators)
+                        {
+                            if (identifier == foundIdentifier)
+                            {
+                                try
+                                {
+                                    validator(line);
+                                }
+                                catch (Exception& e)
+                                {
+                                    exceptions.emplace_back(line, e);
+                                }
+                                validatorExists = true;
+                                break;
+                            }
+                        }
+                        if (not validatorExists)
+                        {
+                            exceptions.emplace_back(
+                                line,
+                                InvalidConfigParameter(
+                                    "Cannot identify the type of field in \"{}\", does the field have a registered validator?", line));
+                        }
+                    }
+                    if (not exceptions.empty())
+                    {
+                        return std::unexpected{InvalidConfigParameter("Invalid Generator schema:\n{}", fmt::join(exceptions, ","))};
+                    }
+                    return value;
+                });
+    }};
+
+const ConfigField<uint64_t> FLUSH_INTERVAL_MS{
+    Identifier::parse("FLUSH_INTERVAL_MS"),
+    "How long the generator source thread sleeps in between emitting tuples in ms.",
+    [](const ConfigLiteral& config)
+    { return NES::tryGetOr<int64_t>(config, expectedType<int64_t>()).and_then(narrowConfigValue<int64_t, uint64_t>); },
+    10};
+
+/// Max runtime in ms; if set to -1 the source runs until stopped by another thread.
+/// TODO #1956: Make the type std::optional<size_t>
+const ConfigField<int32_t> MAX_RUNTIME_MS{
+    Identifier::parse("MAX_RUNTIME_MS"),
+    "How long the generator source should run in ms, -1 means indefinite",
+    [](const ConfigLiteral& config)
+    { return NES::tryGetOr<int64_t>(config, expectedType<int64_t>()).and_then(narrowConfigValue<int64_t, int32_t>); },
+    int32_t{-1}};
+/// NOLINTEND(bugprone-throwing-static-initialization)
+
+}
+
+Schema<QualifiedErasedConfigField, Ordered> GeneratorSource::getConfigSchema()
+{
+    return createConfigSchema(
+        Identifier::parse("GENERATOR_SOURCE"),
+        SEED,
+        GENERATOR_SCHEMA,
+        MAX_RUNTIME_MS,
+        SEQUENCE_STOPS_GENERATOR,
+        GENERATOR_RATE_TYPE,
+        GENERATOR_RATE_CONFIG,
+        FLUSH_INTERVAL_MS);
+}
+
+std::expected<GeneratorSourceConfig, Exception> GeneratorSourceConfig::fromConfig(const InstantiatedConfig& config)
+{
+    if ((config.get(GENERATOR_RATE_TYPE) == GeneratorRate::Type::FIXED
+         && !std::holds_alternative<FixedGeneratorRateConfig>(config.get(GENERATOR_RATE_CONFIG)))
+        || (config.get(GENERATOR_RATE_TYPE) == GeneratorRate::Type::SINUS
+            && !std::holds_alternative<SinusGeneratorRateConfig>(config.get(GENERATOR_RATE_CONFIG))))
+    {
+        return std::unexpected{InvalidConfigParameter(
+            "Generator rate config must match specified rate type {}", magic_enum::enum_name(config.get(GENERATOR_RATE_TYPE)))};
+    }
+    return GeneratorSourceConfig{
+        .seed = static_cast<uint32_t>(config.get(SEED)),
+        .maxRuntime = static_cast<int32_t>(config.get(MAX_RUNTIME_MS)),
+        .generatorSchemaRaw = config.get(GENERATOR_SCHEMA),
+        .stopGeneratorWhenSequenceFinishes = config.get(SEQUENCE_STOPS_GENERATOR),
+        .flushInterval = std::chrono::milliseconds{config.get(FLUSH_INTERVAL_MS)},
+        .generatorRateConfig = config.get(GENERATOR_RATE_CONFIG)};
+}
+
+GeneratorSource::GeneratorSource(const GeneratorSourceConfig& config)
+    : config(config), generator(config.seed, config.stopGeneratorWhenSequenceFinishes, config.generatorSchemaRaw)
+{
+    NES_TRACE("Init GeneratorSource.");
+}
+
+void GeneratorSource::open(std::shared_ptr<AbstractBufferProvider>)
 {
     this->generatorStartTime = std::chrono::system_clock::now();
     this->startOfInterval = std::chrono::system_clock::now();
+    this->tuplesStream.str("");
     NES_TRACE("Opening GeneratorSource.");
 }
 
 void GeneratorSource::close()
 {
     auto totalElapsedTime = std::chrono::system_clock::now() - generatorStartTime;
-    NES_TRACE("Generated {} buffers in {}. Closing GeneratorSource.", generatedBuffers, totalElapsedTime);
+    if (generatedBuffers == 0)
+    {
+        NES_WARNING("Generated {} buffers in {}. Closing GeneratorSource.", generatedBuffers, totalElapsedTime);
+    }
+    else
+    {
+        NES_INFO("Generated {} buffers in {}. Closing GeneratorSource.", generatedBuffers, totalElapsedTime);
+    }
 }
 
-size_t GeneratorSource::fillTupleBuffer(TupleBuffer& tupleBuffer, const std::stop_token& stopToken)
+Source::FillTupleBufferResult GeneratorSource::fillTupleBuffer(TupleBuffer& tupleBuffer, const std::stop_token&)
 {
-    NES_DEBUG("Filling buffer in GeneratorSource.");
+    /// the generator indicated that it will not produce anymore data and the tupleStream is empty.
+    if (this->generator.shouldStop() && tuplesStream.tellp() == 0)
+    {
+        return FillTupleBufferResult::eos();
+    }
+
     try
     {
         const auto elapsedTime
             = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - generatorStartTime).count();
-        if (maxRuntime >= 0 && elapsedTime >= maxRuntime)
+        if (config.maxRuntime >= 0 && elapsedTime >= config.maxRuntime)
         {
             NES_INFO("Reached max runtime! Stopping Source");
-            return 0;
+            return FillTupleBufferResult::eos();
         }
 
         /// Asking the generatorRate how many tuples we should generate for this interval [now, now + flushInterval].
@@ -98,64 +399,63 @@ size_t GeneratorSource::fillTupleBuffer(TupleBuffer& tupleBuffer, const std::sto
         uint64_t noIntervals = 1;
         while (numberOfTuplesToGenerate == 0)
         {
-            const auto endOfInterval = startOfInterval + (flushInterval * noIntervals);
-            numberOfTuplesToGenerate = generatorRate->calcNumberOfTuplesForInterval(startOfInterval, endOfInterval);
-            NES_DEBUG("numberOfTuplesToGenerate: {}", numberOfTuplesToGenerate);
+            const auto endOfInterval = startOfInterval + (config.flushInterval * noIntervals);
+            numberOfTuplesToGenerate = std::visit(
+                [&](const auto& rate) { return calcNumberOfTuplesForInterval(rate, startOfInterval, endOfInterval); },
+                config.generatorRateConfig);
+            NES_TRACE("numberOfTuplesToGenerate: {}", numberOfTuplesToGenerate);
             if (numberOfTuplesToGenerate == 0)
             {
-                std::this_thread::sleep_for(std::chrono::microseconds{flushInterval});
+                std::this_thread::sleep_for(std::chrono::microseconds{config.flushInterval});
                 ++noIntervals;
             }
         }
 
-        /// Generating the required number of tuples. Any tuples that do not fit into the tuple buffer, we add to the orphanTuples and emit
-        /// a warning. Also, we first add the orphanTuples to the tuple buffer, before adding newly-created once.
-        const size_t rawTBSize = tupleBuffer.getBufferSize();
+        auto currentBuffer = tupleBuffer.getAvailableMemoryArea<std::ostream::char_type>();
+        /// Generating the required number of tuples. Any tuples that do not fit into the tuple buffer, the content is persisted in the tupleStream.
         uint64_t curTupleCount = 0;
         size_t writtenBytes = 0;
-        while (curTupleCount < numberOfTuplesToGenerate and not this->generator.shouldStop() and not stopToken.stop_requested())
+        while (curTupleCount < numberOfTuplesToGenerate)
         {
-            auto insertedBytes = tuplesStream.tellp();
-            if (not orphanTuples.empty())
+            const size_t bytesRead = tuplesStream.readsome(currentBuffer.data(), static_cast<std::streamsize>(currentBuffer.size()));
+            writtenBytes += bytesRead;
+            currentBuffer = currentBuffer.subspan(bytesRead);
+            if (currentBuffer.empty())
             {
-                tuplesStream << orphanTuples;
-                orphanTuples.clear();
-            }
-            this->generator.generateTuple(tuplesStream);
-            ++generatedTuplesCounter;
-            insertedBytes = tuplesStream.tellp() - insertedBytes;
-            if (writtenBytes + insertedBytes > rawTBSize)
-            {
-                this->orphanTuples = tuplesStream.str().substr(writtenBytes, tuplesStream.str().length() - writtenBytes);
-                NES_WARNING("Not all required tuples fit into buffer of size {}. {} are left over", rawTBSize, tuplesStream.str().size());
                 break;
             }
-            writtenBytes += insertedBytes;
+
+            tuplesStream.str("");
+            if (this->generator.shouldStop())
+            {
+                break;
+            }
+            this->generator.generateTuple(tuplesStream);
             ++curTupleCount;
+            ++generatedTuplesCounter;
+            tuplesStream.seekg(0, std::ios::beg);
         }
-        tuplesStream.read(tupleBuffer.getAvailableMemoryArea<std::istream::char_type>().data(), writtenBytes);
+
         ++generatedBuffers;
-        tuplesStream.str("");
-        NES_DEBUG("Wrote {} bytes", writtenBytes);
 
         /// Calculating how long to sleep. The whole method should take the duration of the flushInterval. If we have some time left, we
         /// sleep for the remaining duration. If there is no time left, we print a warning.
         const auto durationGeneratingTuples
             = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startOfInterval);
-        if (durationGeneratingTuples > (flushInterval * noIntervals))
+        if (durationGeneratingTuples > (config.flushInterval * noIntervals))
         {
             NES_WARNING(
                 "Can not produce all required tuples in the flushInterval of {} as it took us {}",
-                (flushInterval * noIntervals),
+                (config.flushInterval * noIntervals),
                 durationGeneratingTuples);
         }
         else
         {
-            const auto sleepDuration = (flushInterval * noIntervals) - durationGeneratingTuples;
+            const auto sleepDuration = (config.flushInterval * noIntervals) - durationGeneratingTuples;
             std::this_thread::sleep_for(sleepDuration);
         }
         this->startOfInterval = std::chrono::system_clock::now();
-        return writtenBytes;
+        return FillTupleBufferResult::withBytes(writtenBytes);
     }
     catch (const std::exception& e)
     {
@@ -168,27 +468,10 @@ std::ostream& GeneratorSource::toString(std::ostream& str) const
 {
     str << "\nGeneratorSource(";
     str << "\n\tgenerated buffers: " << this->generatedBuffers;
-    str << "\n\tschema: " << this->generatorSchemaRaw;
-    str << "\n\tseed: " << this->seed;
+    str << "\n\tschema: " << this->config.generatorSchemaRaw;
+    str << "\n\tseed: " << this->config.seed;
     str << ")\n";
     return str;
 }
 
-DescriptorConfig::Config GeneratorSource::validateAndFormat(std::unordered_map<std::string, std::string> config)
-{
-    return DescriptorConfig::validateAndFormat<ConfigParametersGenerator>(std::move(config), NAME);
-}
-
-SourceValidationRegistryReturnType
-///NOLINTNEXTLINE (performance-unnecessary-value-param)
-RegisterGeneratorSourceValidation(SourceValidationRegistryArguments sourceConfig)
-{
-    return GeneratorSource::validateAndFormat(sourceConfig.config);
-}
-
-///NOLINTNEXTLINE (performance-unnecessary-value-param)
-SourceRegistryReturnType SourceGeneratedRegistrar::RegisterGeneratorSource(SourceRegistryArguments sourceRegistryArguments)
-{
-    return std::make_unique<GeneratorSource>(sourceRegistryArguments.sourceDescriptor);
-}
 }

@@ -14,44 +14,50 @@
 
 #include <Functions/ArithmeticalFunctions/CeilLogicalFunction.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
+
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataTypeProvider.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-CeilLogicalFunction::CeilLogicalFunction(const LogicalFunction& child) : dataType(child.getDataType()), child(child) { };
+CeilLogicalFunction::CeilLogicalFunction(LogicalFunction child) : child(std::move(child)) { };
 
 DataType CeilLogicalFunction::getDataType() const
 {
     return dataType;
 };
 
-LogicalFunction CeilLogicalFunction::withDataType(const DataType& dataType) const
+LogicalFunction CeilLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
-    auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
-LogicalFunction CeilLogicalFunction::withInferredDataType(const Schema& schema) const
-{
-    std::vector<LogicalFunction> newChildren;
-    for (auto& child : getChildren())
+    CeilLogicalFunction copy = *this;
+    copy.child = child.withInferredDataType(schema);
+    if (!copy.child.getDataType().isNumeric())
     {
-        newChildren.push_back(child.withInferredDataType(schema));
+        throw CannotInferStamp("Cannot apply ceil function on non-numeric input function {}", copy.child);
     }
-    return withChildren(newChildren);
+    /// ISO/IEC 9075-2 (<numeric value function>): CEILING of an exact numeric type is exact numeric, CEILING of an approximate numeric
+    /// type is approximate numeric. PostgreSQL, MySQL, and SQLite implement this by preserving the input type: floats stay floats and
+    /// integers pass through unchanged (CEIL of an integer is the identity), so we do the same and never cast to INT64.
+    copy.dataType = copy.child.getDataType();
+    return copy;
 };
 
 std::vector<LogicalFunction> CeilLogicalFunction::getChildren() const
@@ -59,7 +65,7 @@ std::vector<LogicalFunction> CeilLogicalFunction::getChildren() const
     return {child};
 };
 
-LogicalFunction CeilLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+CeilLogicalFunction CeilLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 1, "CeilLogicalFunction requires exactly one child, but got {}", children.size());
     auto copy = *this;
@@ -72,13 +78,9 @@ std::string_view CeilLogicalFunction::getType() const
     return NAME;
 }
 
-bool CeilLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool CeilLogicalFunction::operator==(const CeilLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const CeilLogicalFunction*>(&rhs))
-    {
-        return child == other->child;
-    }
-    return false;
+    return child == rhs.child;
 }
 
 std::string CeilLogicalFunction::explain(ExplainVerbosity verbosity) const
@@ -90,17 +92,18 @@ std::string CeilLogicalFunction::explain(ExplainVerbosity verbosity) const
     return fmt::format("CEIL({})", child.explain(verbosity));
 }
 
-SerializableFunction CeilLogicalFunction::serialize() const
+Reflected Reflector<CeilLogicalFunction>::operator()(const CeilLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(child.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-
-    return serializedFunction;
+    return context.reflect(detail::ReflectedCeilLogicalFunction{.child = function.child});
 }
 
-LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterCeilLogicalFunction(LogicalFunctionRegistryArguments arguments)
+CeilLogicalFunction Unreflector<CeilLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [child] = context.unreflect<detail::ReflectedCeilLogicalFunction>(reflected);
+    return CeilLogicalFunction(std::move(child));
+}
+
+LogicalFunctionRegistryReturnType CeilLogicalFunction::createCeil(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 1)
     {

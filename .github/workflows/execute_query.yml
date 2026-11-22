@@ -15,111 +15,133 @@ on:
         type: string
         description: "Runtime of the query in seconds, after this the query is stopped. This is directly assigned to bash variable, so it can be string that evaluates to a number i.e $((5*60)) for a 5 minute runtime."
         default: "$((23*60*60))"
+      arch:
+        required: true
+        type: string
+        description: "Architecture that this job should run on, either x64 or arm64"
       query_config:
         required: false
         type: string
         default: |
-          query: |
-            SELECT * FROM GENERATOR_SOURCE INTO void_sink
-          sinks:
-            - name: VOID_SINK
-              schema:
-                - name: GENERATOR_SOURCE$double
-                  type: FLOAT64
-              type: Void
-              config: {}
-                
-          logical:
-            - name: GENERATOR_SOURCE
-              schema:
-                - name: double
-                  type: FLOAT64
-
-          physical:
-            - logical: GENERATOR_SOURCE
-              parser_config:
-                type: CSV
-                fieldDelimiter: ","
-              type: Generator
-              source_config:
-                generator_rate_type: FIXED
-                generator_rate_config: emit_rate 1000
-                stop_generator_when_sequence_finishes: NONE
-                seed: 1
-                generator_schema: |
-                  NORMAL_DISTRIBUTION FLOAT64 0 1
+          CREATE WORKER 'localhost:8080' SET ('localhost:9090' AS DATA);
+          CREATE LOGICAL SOURCE endless(val_1 UINT32 NOT NULL, ts UINT64 NOT NULL);
+          CREATE PHYSICAL SOURCE FOR endless TYPE Generator SET(
+              'localhost:8080' AS "SOURCE"."HOST",
+              'ALL' as "SOURCE".STOP_GENERATOR_WHEN_SEQUENCE_FINISHES,
+              'CSV' as INPUT_FORMATTER."TYPE",
+              1 AS "SOURCE".SEED,
+              -1 AS "SOURCE".MAX_RUNTIME_MS,
+              'FIXED' AS "SOURCE".GENERATOR_RATE_TYPE,
+              'EMIT_RATE 1000' AS "SOURCE".GENERATOR_RATE_CONFIG,
+              'SEQUENCE UINT32 0 200000000 1, SEQUENCE UINT64 0 200000000 1' AS "SOURCE".GENERATOR_SCHEMA);
+          SHOW QUERIES;
+          SELECT TS FROM ENDLESS INTO Void('localhost:8080' AS "SINK"."HOST");
+          SELECT * FROM ENDLESS INTO Void('localhost:8080' AS "SINK"."HOST");
+          SELECT val_1 + UINT32(1) AS val_plus_1 FROM ENDLESS INTO Void('localhost:8080' AS "SINK"."HOST");
+          SELECT AVG(val_1) AS agg_val_1 FROM ENDLESS WINDOW TUMBLING(ts, SIZE 1 SEC) INTO Void('localhost:8080' AS "SINK"."HOST");
 
 jobs:
   execute-query:
     name: "E2E Test"
+    timeout-minutes: 1440 # 24 hours
     container:
-      image: nebulastream/nes-development:${{ inputs.dev_image_tag }}
+      image: nebulastream/nes-ci:${{ inputs.dev_image_tag }}-${{ matrix.stdlib }}-${{ matrix.sanitizer }}
       volumes:
-        - ccache:/ccache
         - test-file-cache:/test-file-cache
       env:
-        CCACHE_DIR: /ccache
         MOLD_JOBS: 1
+        SCCACHE_BUCKET: ${{ secrets.SCCACHE_CACHE_BUCKET }}
+        SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_CACHE_ENDPOINT }}
+        SCCACHE_REGION: auto
+        SCCACHE_S3_USE_SSL: "true"
+        AWS_ACCESS_KEY_ID: ${{ secrets.SCCACHE_CACHE_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.SCCACHE_CACHE_SECRET_KEY }}
       # TODO #401 Investigate rootless docker containers
       options: --user root
-    timeout-minutes: 1440 # 24 hours
-    runs-on: [ self-hosted, linux, Build]
+    runs-on: [ self-hosted, linux, Build, "${{inputs.arch}}" ]
+    strategy:
+      matrix:
+        stdlib: [ 'libcxx' ]
+        build_type: [ 'Debug' ]
+        sanitizer: [ 'none' ]
     steps:
       - name: checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ inputs.head_sha }}
-
-      - name: Configure NebulaStream
+      - name: Write Query to File
         run: |
-          cmake -GNinja -B build -DExternalData_OBJECT_STORES=/test-file-cache -DNES_LOG_LEVEL=DEBUG
-
-      - name: Build NebulaStream
-        run: cmake --build build -j -- -k 0
-
-      - name: Create Nebuli Query file
-        run: |
-          cat << 'EOF' > query.yml
+          # prepare query
+          cat << 'EOF' > query.sql
           ${{ inputs.query_config }}
           EOF
 
-      - name: Start single node Worker
-        run: |
-          build/nes-single-node-worker/nes-single-node-worker > worker.log 2>&1 &
-          echo "WORKER_PID=$!" >> $GITHUB_ENV
-
-      - name: Register and Start Query
-        run: |
-          build/nes-nebuli/nes-nebuli -d -s localhost:8080 register -x -i query.yml
-
-      - name: Wait and monitor
+          cat query.sql
+      - name: Build and Test
         shell: bash
         run: |
-          SECONDS=0
-          MAX_SECONDS=${{ inputs.runtime_seconds}}
-          echo "Stress test runtime set to $MAX_SECONDS seconds"
-          
-          while [ $SECONDS -lt $MAX_SECONDS ]; do
-            if ! kill -0 $WORKER_PID 2>/dev/null; then
-              echo "Worker has exited unexpectedly!"
-              tail -n 50 worker.log
+          set -o pipefail
+          cmake -GNinja -B build -DExternalData_OBJECT_STORES=/test-file-cache -DNES_LOG_LEVEL=DEBUG
+          cmake --build build -j -- -k 0
+
+          build/nes-single-node-worker/nes-single-node-worker -- --data_address=localhost:9090 > worker.log 2>&1 &
+          WORKER_PID=$!
+
+          sleep 5
+
+          # Stream queries directly into the REPL via stdin redirection — no
+          # producer-side `sleep` keeping the bash pipeline open after the REPL
+          # has exited. With FAIL_FAST (also the non-interactive default) the
+          # REPL exits non-zero on the first statement error, which `timeout`
+          # then reports as the child's exit code instead of swallowing it.
+          # Exit-code interpretation:
+          #   124    → timeout fired ⇒ REPL was alive for the full duration
+          #            and exited cleanly on SIGTERM ⇒ pass
+          #   0      → REPL exited cleanly before timeout, i.e. all queries
+          #            terminated on their own ⇒ unexpected for an endless
+          #            stress test ⇒ fail
+          #   *      → REPL errored (FAIL_FAST on bad statement, etc.) ⇒ fail
+          EXIT_CODE=0
+          timeout --foreground "${{inputs.runtime_seconds}}" \
+            build/nes-frontend/apps/nes-repl \
+              --on-exit WAIT_FOR_QUERY_TERMINATION \
+              -e FAIL_FAST \
+              -s localhost:8080 \
+            < query.sql || EXIT_CODE=$?
+
+          case "${EXIT_CODE}" in
+            124)
+              echo "✓ REPL ran for the full ${{inputs.runtime_seconds}}s and was terminated by timeout"
+              ;;
+            0)
+              echo "✗ FAILURE: REPL exited cleanly before timeout — queries terminated unexpectedly or never deployed"
               exit 1
-            fi
-            sleep 60
-          done
+              ;;
+            *)
+              echo "✗ FAILURE: REPL exited with non-zero code ${EXIT_CODE}"
+              exit 1
+              ;;
+          esac
 
-      - name: Stop Query
-        run: |
-          build/nes-nebuli/nes-nebuli -d -s localhost:8080 stop 1
-
-      - name: Stop Worker
-        run: |
+          # stop worker
           kill $WORKER_PID
           wait $WORKER_PID || true
-          tail -n 50 worker.log
-
       - name: Output Logs on failure
         if: failure()
         run: |
-          cat nebuli.log
+          cat nes-repl.log
           cat worker.log
+
+      - name: Upload nebuli.log on failure
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: repl-log-${{ matrix.arch }}
+          path: nes-repl.log
+
+      - name: Upload worker.log on failure
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: worker-log-${{ matrix.arch }}
+          path: worker.log

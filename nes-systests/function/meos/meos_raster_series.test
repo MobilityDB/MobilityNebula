@@ -1,0 +1,48 @@
+# name: MEOS_RasterSeries
+# description: A raster series read along a trajectory, the case of MobilityDB's raster test 500_raster: a step point at POINT(0.5 1) held from 2024-01-15 to 2024-02-15 across two 2x2 rasters of one 8BUI band, 1 everywhere over [2024-01-01, 2024-02-01) and 5 over [2024-02-01, 2024-03-01), reads 1 until February and 5 after, as libmeos answers. The rasters and their periods are read from PostgreSQL's array text form, each element in the form its type crosses MobilityNebula in, the hex of the WKB libmeos writes for it (raster_as_hexwkb of raster_add_band over raster_make_empty, span_as_wkb with variant 4); then they are built as 500_raster builds them, with makeEmptyRaster and addBand, and collected into arrays with ARRAY_AGG as it collects them with array_agg. spans answers the spans of a span set as a contiguous array of structs, written in the array text form: [2024-01-01, 2024-01-10] and [2024-02-01, 2024-03-01).
+# groups: [Function, MEOS, Raster]
+CREATE LOGICAL SOURCE series(id UINT32, rasts RASTER_ARRAY, periods TSTZSPAN_ARRAY);
+CREATE PHYSICAL SOURCE FOR series TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|{0100000100000000000000F03F000000000000F0BF0000000000000000000000000000004000000000000000000000000000000000E610000002000200440001010101,0100000100000000000000F03F000000000000F0BF0000000000000000000000000000004000000000000000000000000000000000E610000002000200440005050505}|{012700010040E9D4D5B0020000E0FD7145B30200,0127000100E0FD7145B3020000C063D38CB50200}
+
+CREATE SINK seriesValues(id UINT32, value VARSIZED) TYPE File;
+SELECT id, asText(rasterValue(tgeompoint(geometryFromText(VARSIZED('SRID=4326;POINT(0.5 1)')),
+  tstzspanFromText(VARSIZED('[2024-01-15, 2024-02-15]')), VARSIZED('Step')), rasts, periods, INT32(1))) AS value
+FROM series INTO seriesValues;
+----
+1,Interp=Step;[1@2024-01-15 00:00:00+00, 5@2024-02-01 00:00:00+00, 5@2024-02-15 00:00:00+00]
+
+CREATE SINK seriesPeriods(id UINT32, periods TSTZSPAN_ARRAY) TYPE File;
+SELECT id, periods FROM series INTO seriesPeriods;
+----
+1,{012700010040E9D4D5B0020000E0FD7145B30200,0127000100E0FD7145B3020000C063D38CB50200}
+
+CREATE LOGICAL SOURCE bands(period VARSIZED, value FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR bands TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+[2024-01-01, 2024-02-01)|1.0|1000
+[2024-02-01, 2024-03-01)|5.0|2000
+
+CREATE SINK builtValues(value VARSIZED NOT NULL) TYPE File;
+SELECT asText(rasterValue(tgeompoint(geometryFromText(VARSIZED('SRID=4326;POINT(0.5 1)')),
+  tstzspanFromText(VARSIZED('[2024-01-15, 2024-02-15]')), VARSIZED('Step')), rasts, periods, INT32(1))) AS value
+FROM (SELECT start, end, ARRAY_AGG(rast) AS rasts, ARRAY_AGG(period) AS periods
+      FROM (SELECT addBand(makeEmptyRaster(INT32(2), INT32(2), FLOAT64(0.0), FLOAT64(2.0), FLOAT64(1.0), FLOAT64(-1.0),
+                     FLOAT64(0.0), FLOAT64(0.0), INT32(4326)), INT32(0), VARSIZED('8BUI'), value, FLOAT64(0.0)) AS rast,
+                   tstzspanFromText(period) AS period, ts
+            FROM bands)
+      WINDOW TUMBLING(ts, size 1 minute))
+INTO builtValues;
+----
+Interp=Step;[1@2024-01-15 00:00:00+00, 5@2024-02-01 00:00:00+00, 5@2024-02-15 00:00:00+00]
+
+CREATE LOGICAL SOURCE spansets(id UINT32, spanset VARSIZED);
+CREATE PHYSICAL SOURCE FOR spansets TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|{[2024-01-01, 2024-01-10], [2024-02-01, 2024-03-01)}
+
+CREATE SINK spanArrays(id UINT32, spans TSTZSPAN_ARRAY) TYPE File;
+SELECT id, spans(tstzspansetFromText(spanset)) AS spans FROM spansets INTO spanArrays;
+----
+1,{012700030040E9D4D5B0020000A07BE18AB10200,0127000100E0FD7145B3020000C063D38CB50200}

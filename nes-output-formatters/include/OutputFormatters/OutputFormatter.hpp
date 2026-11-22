@@ -1,0 +1,111 @@
+/*
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        https://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
+#pragma once
+#include <concepts>
+#include <cstddef>
+#include <cstdint>
+#include <ostream>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include <DataTypes/DataType.hpp>
+#include <DataTypes/VarVal.hpp>
+#include <Interface/Record.hpp>
+#include <Interface/RecordBuffer.hpp>
+#include <magic_enum/magic_enum.hpp>
+
+#include <Runtime/AbstractBufferProvider.hpp>
+#include <fmt/base.h>
+#include <fmt/ostream.h>
+#include <ErrorHandling.hpp>
+#include <val_arith.hpp>
+#include <val_concepts.hpp>
+#include <val_ptr.hpp>
+
+namespace NES
+{
+
+/// The output formatter is responsible for converting a Record into a string of a given Output Format like CSV or JSON
+/// Output formatters are stateless, meaning that they must be able to produce valid output in a streaming fashion.
+/// Output formatters are used by the OutputFormatterBufferRef during the last emit before a sink.
+class OutputFormatter
+{
+public:
+    explicit OutputFormatter(const std::vector<Record::RecordFieldIdentifier>& fieldNames) : fieldNames(fieldNames)
+    {
+        INVARIANT(!fieldNames.empty(), "Schema is not allowed to have 0 fields");
+    }
+
+    virtual ~OutputFormatter() noexcept = default;
+
+    /// Format the field's contents into a string and write the string bytes into the field pointer address.
+    /// If the formatted value does not fit into the record buffer, child buffers will be allocated to write the value into.
+    /// The main buffer's space will always be utilized completely before writing in a child.
+    /// Returns the number of bytes written into the record buffer (excluding the bytes written into the children).
+    [[nodiscard]] virtual nautilus::val<uint64_t> writeFormattedValue(
+        const VarVal& value,
+        const DataType& fieldType,
+        uint64_t fieldIndex,
+        const nautilus::val<int8_t*>& fieldPointer,
+        const nautilus::val<uint64_t>& remainingSize,
+        const RecordBuffer& recordBuffer,
+        const nautilus::val<AbstractBufferProvider*>& bufferProvider) const = 0;
+
+    virtual std::ostream& toString(std::ostream&) const = 0;
+
+    friend std::ostream& operator<<(std::ostream& os, const OutputFormatter& obj);
+
+    /// Get the serializer type for a specific field of the given data type. A field of a type a plugin adds over VARSIZED is
+    /// written by the serializer the plugin registers under the name of the type, unless the user overrides it for this field.
+    [[nodiscard]] std::string getSerializerType(const Record::RecordFieldIdentifier& fieldName, const DataType& dataType) const
+    {
+        if (dataType.extension != nullptr and not fieldSerializerTypes.contains(fieldName))
+        {
+            return std::string{dataType.extension->name};
+        }
+        return getSerializerType(fieldName, dataType.type);
+    }
+
+    /// Get the serializer type for a specific field. The datatype of the field determines the default, which the user may
+    /// override for this particular field.
+    [[nodiscard]] const std::string& getSerializerType(const Record::RecordFieldIdentifier& fieldName, const DataType::Type& dataType) const
+    {
+        if (const auto it = fieldSerializerTypes.find(fieldName); it != fieldSerializerTypes.end())
+        {
+            return it->second;
+        }
+        if (const auto it = serializerTypes.find(dataType); it != serializerTypes.end())
+        {
+            return it->second;
+        }
+        throw UnknownValueSerializerType("No ValueSerializer configured for DataType {}.", magic_enum::enum_name(dataType));
+    }
+
+protected:
+    /// Identifiers of the fields of the output schema
+    std::vector<Record::RecordFieldIdentifier> fieldNames;
+    /// Stores the default serializer for each datatype.
+    std::unordered_map<DataType::Type, std::string> serializerTypes;
+    /// Stores the serializer type that the user configured for a specific field. Takes precedence over the datatype default.
+    std::unordered_map<Record::RecordFieldIdentifier, std::string> fieldSerializerTypes;
+};
+
+}
+
+template <std::derived_from<NES::OutputFormatter> OutputFormatter>
+struct fmt::formatter<OutputFormatter> : fmt::ostream_formatter
+{
+};

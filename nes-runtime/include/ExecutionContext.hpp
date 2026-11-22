@@ -21,19 +21,21 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <DataTypes/DataTypesUtil.hpp>
+#include <DataTypes/VarVal.hpp>
+#include <DataTypes/VariableSizedData.hpp>
 #include <Identifiers/Identifiers.hpp>
-#include <Nautilus/DataTypes/DataTypesUtil.hpp>
-#include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/DataTypes/VariableSizedData.hpp>
-#include <Nautilus/Interface/NESStrongTypeRef.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
-#include <Nautilus/Interface/TimestampRef.hpp>
+#include <Interface/NESStrongTypeRef.hpp>
+#include <Interface/NautilusBuffer.hpp>
+#include <Interface/RecordBuffer.hpp>
+#include <Interface/TimestampRef.hpp>
 #include <Runtime/AbstractBufferProvider.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Time/Timestamp.hpp>
 #include <nautilus/val_concepts.hpp>
 #include <nautilus/val_ptr.hpp>
+#include <Arena.hpp>
 #include <ErrorHandling.hpp>
 #include <OperatorState.hpp>
 #include <PipelineExecutionContext.hpp>
@@ -42,43 +44,6 @@
 
 namespace NES
 {
-using namespace Nautilus;
-
-/// The arena is a memory management system that provides memory to the operators during a pipeline invocation.
-/// As the memory is destroyed / returned to the arena after the pipeline invocation, the memory is not persistent and thus, it is not
-/// suitable for storing state across pipeline invocations. For storing state across pipeline invocations, the operator handler should be used.
-struct Arena
-{
-    explicit Arena(std::shared_ptr<AbstractBufferProvider> bufferProvider) : bufferProvider(std::move(bufferProvider)) { }
-
-    /// Allocating memory by the buffer provider. There are three cases:
-    /// 1. The required size is larger than the buffer provider's buffer size. In this case, we allocate an unpooled buffer.
-    /// 2. The required size is larger than the last buffer size. In this case, we allocate a new buffer of fixed size.
-    /// 3. The required size is smaller than the last buffer size. In this case, we return the pointer to the address in the last buffer.
-    std::span<std::byte> allocateMemory(size_t sizeInBytes);
-
-    std::shared_ptr<AbstractBufferProvider> bufferProvider;
-    std::vector<TupleBuffer> fixedSizeBuffers;
-    std::vector<TupleBuffer> unpooledBuffers;
-    size_t lastAllocationSize{0};
-    size_t currentOffset{0};
-};
-
-/// Nautilus Wrapper for the Arena
-struct ArenaRef
-{
-    explicit ArenaRef(const nautilus::val<Arena*>& arenaRef) : arenaRef(arenaRef), availableSpaceForPointer(0), spacePointer(nullptr) { }
-
-    /// Allocates memory from the arena. If the available space for the pointer is smaller than the required size, we allocate a new buffer from the arena.
-    nautilus::val<int8_t*> allocateMemory(const nautilus::val<size_t>& sizeInBytes);
-
-    VariableSizedData allocateVariableSizedData(const nautilus::val<uint32_t>& sizeInBytes);
-
-private:
-    nautilus::val<Arena*> arenaRef;
-    nautilus::val<size_t> availableSpaceForPointer;
-    nautilus::val<int8_t*> spacePointer;
-};
 
 /// Struct that combines the arena and the buffer provider. This struct combines the functionality of the arena and the buffer provider,
 /// allowing the operator to allocate two different types of memory, in regard to their lifetime.
@@ -100,6 +65,15 @@ struct PipelineMemoryProvider
     nautilus::val<AbstractBufferProvider*> bufferProvider;
 };
 
+/// Determines whether the CompiledExecutablePipelineStage continues after the open() call (with close()) or calls the 'repeatTask()' of the
+/// pipeline execution context, putting the task back into the task queue for later execution
+/// This is useful, e.g., to prevent a call to 'close()', which may emit a TupleBuffer in an unfinished state
+enum class OpenReturnState : uint8_t
+{
+    CONTINUE,
+    REPEAT,
+};
+
 /// The execution context provides access to functionality, such as emitting a record buffer to the next pipeline or sink as well
 /// as access to operator states from the nautilus-runtime.
 /// We differentiate between local and global operator state.
@@ -118,7 +92,7 @@ struct ExecutionContext final
     [[nodiscard]] nautilus::val<OperatorHandler*> getGlobalOperatorHandler(OperatorHandlerId handlerIndex) const;
     /// Use allocateBuffer if you want to allocate space that lives for multiple pipeline invocations, i.e., query lifetime.
     /// You must take care of the memory management yourself, i.e., when/how should the tuple buffer be returned to the buffer provider.
-    [[nodiscard]] nautilus::val<TupleBuffer*> allocateBuffer() const;
+    [[nodiscard]] NautilusBuffer allocateBuffer() const;
 
     /// Use allocateMemory if you want to allocate memory that lives for one pipeline invocation, i.e., tuple buffer lifetime.
     /// You do not have to take care of the memory management yourself, as the memory is automatically destroyed after the pipeline invocation.
@@ -128,8 +102,12 @@ struct ExecutionContext final
     /// Emit a record buffer to the successor pipeline(s) or sink(s)
     void emitBuffer(const RecordBuffer& buffer) const;
 
+    void setOpenReturnState(OpenReturnState openReturnState);
+    [[nodiscard]] OpenReturnState getOpenReturnState() const;
+
     const nautilus::val<PipelineExecutionContext*> pipelineContext;
     nautilus::val<WorkerThreadId> workerThreadId;
+    nautilus::val<PipelineId> pipelineId;
     PipelineMemoryProvider pipelineMemoryProvider;
     nautilus::val<OriginId> originId; /// Stores the current origin id of the incoming tuple buffer. This is set in the scan.
     nautilus::val<Timestamp> watermarkTs; /// Stores the watermark timestamp of the incoming tuple buffer. This is set in the scan.
@@ -140,6 +118,7 @@ struct ExecutionContext final
 
 private:
     std::unordered_map<OperatorId, std::unique_ptr<OperatorState>> localStateMap;
+    OpenReturnState openReturnState{OpenReturnState::CONTINUE};
 };
 
 }

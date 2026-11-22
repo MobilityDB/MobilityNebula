@@ -17,14 +17,22 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <memory>
 #include <utility>
+#include <vector>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
+#include <DataTypes/DataTypesUtil.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/DataTypes/DataTypesUtil.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <Identifiers/Identifier.hpp>
+#include <Identifiers/QualifiedIdentifier.hpp>
+#include <Interface/NautilusBuffer.hpp>
+#include <Interface/Record.hpp>
 #include <ExecutionContext.hpp>
+#include <val.hpp>
+#include <val_arith.hpp>
+#include <val_concepts.hpp>
 #include <val_ptr.hpp>
 
 namespace NES
@@ -53,26 +61,39 @@ SessionBoundsAggregationPhysicalFunction::SessionBoundsAggregationPhysicalFuncti
           DataTypeProvider::provideDataType(DataType::Type::UINT64),
           DataTypeProvider::provideDataType(DataType::Type::UINT64),
           std::move(timestampFunction),
-          "$session_bounds")
+          QualifiedIdentifier{Identifier::parse("session_bounds")})
     , millisecondsMultiplier(millisecondsMultiplier)
 {
 }
 
 nautilus::val<uint64_t> SessionBoundsAggregationPhysicalFunction::readFirst(const nautilus::val<AggregationState*>& aggregationState)
 {
-    return Nautilus::Util::readValueFromMemRef<uint64_t>(static_cast<nautilus::val<int8_t*>>(firstRef(aggregationState)));
+    return readValueFromMemRef<uint64_t>(firstRef(aggregationState));
 }
 
 nautilus::val<uint64_t> SessionBoundsAggregationPhysicalFunction::readLast(const nautilus::val<AggregationState*>& aggregationState)
 {
-    return Nautilus::Util::readValueFromMemRef<uint64_t>(static_cast<nautilus::val<int8_t*>>(lastRef(aggregationState)));
+    return readValueFromMemRef<uint64_t>(lastRef(aggregationState));
+}
+
+size_t SessionBoundsAggregationPhysicalFunction::stateOffset(const std::vector<std::shared_ptr<AggregationPhysicalFunction>>& aggregationFunctions)
+{
+    size_t offset = 0;
+    for (size_t i = 0; i + 1 < aggregationFunctions.size(); ++i)
+    {
+        offset += aggregationFunctions[i]->getSizeOfStateInBytes();
+    }
+    return offset;
 }
 
 void SessionBoundsAggregationPhysicalFunction::lift(
-    const nautilus::val<AggregationState*>& aggregationState, PipelineMemoryProvider& pipelineMemoryProvider, const Record& record)
+    const nautilus::val<AggregationState*>& aggregationState,
+    BorrowedNautilusBuffer,
+    PipelineMemoryProvider& pipelineMemoryProvider,
+    const Record& record)
 {
-    /// The event time in milliseconds, as the time function of the window computes it
-    const nautilus::val<uint64_t> ts = inputFunction.execute(record, pipelineMemoryProvider.arena).cast<nautilus::val<uint64_t>>()
+    /// The event time in milliseconds, as the window's EventTimeFunction computes it
+    const nautilus::val<uint64_t> ts = inputFunction.execute(record, pipelineMemoryProvider.arena).getRawValueAs<nautilus::val<uint64_t>>()
         * nautilus::val<uint64_t>(millisecondsMultiplier);
     if (ts < readFirst(aggregationState))
     {
@@ -86,7 +107,9 @@ void SessionBoundsAggregationPhysicalFunction::lift(
 
 void SessionBoundsAggregationPhysicalFunction::combine(
     const nautilus::val<AggregationState*> aggregationState1,
+    BorrowedNautilusBuffer,
     const nautilus::val<AggregationState*> aggregationState2,
+    BorrowedNautilusBuffer,
     PipelineMemoryProvider&)
 {
     const nautilus::val<uint64_t> first2 = readFirst(aggregationState2);
@@ -101,12 +124,13 @@ void SessionBoundsAggregationPhysicalFunction::combine(
     }
 }
 
-Record SessionBoundsAggregationPhysicalFunction::lower(const nautilus::val<AggregationState*>, PipelineMemoryProvider&)
+Record SessionBoundsAggregationPhysicalFunction::lower(const nautilus::val<AggregationState*>, BorrowedNautilusBuffer, PipelineMemoryProvider&)
 {
     return Record{};
 }
 
-void SessionBoundsAggregationPhysicalFunction::reset(const nautilus::val<AggregationState*> aggregationState, PipelineMemoryProvider&)
+void SessionBoundsAggregationPhysicalFunction::reset(
+    const nautilus::val<AggregationState*> aggregationState, BorrowedNautilusBuffer, PipelineMemoryProvider&)
 {
     *firstRef(aggregationState) = nautilus::val<uint64_t>(std::numeric_limits<uint64_t>::max());
     *lastRef(aggregationState) = nautilus::val<uint64_t>(0);

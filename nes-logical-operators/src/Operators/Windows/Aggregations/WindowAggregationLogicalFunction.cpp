@@ -12,64 +12,39 @@
     limitations under the License.
 */
 
+#include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+
 #include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
+#include <variant>
+
 #include <DataTypes/DataType.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Functions/LogicalFunction.hpp>
+#include <Functions/UnboundFieldAccessLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Util/Overloaded.hpp>
 #include <fmt/format.h>
 
 namespace NES
 {
 
-WindowAggregationLogicalFunction::WindowAggregationLogicalFunction(
-    DataType inputStamp, DataType partialAggregateStamp, DataType finalAggregateStamp, const FieldAccessLogicalFunction& onField)
-    : WindowAggregationLogicalFunction(
-          std::move(inputStamp), std::move(partialAggregateStamp), std::move(finalAggregateStamp), onField, onField)
+TypedLogicalFunction<FieldAccessLogicalFunction> inferFieldAccess(AggregationFieldAccess field, const Schema<Field, Unordered>& schema)
 {
+    return std::visit(
+        Overloaded{
+            [&schema](const TypedLogicalFunction<UnboundFieldAccessLogicalFunction>& unboundFieldAccessLogicalFunction)
+            {
+                const auto shouldBeFieldAccess = unboundFieldAccessLogicalFunction.withInferredDataType(schema);
+                return shouldBeFieldAccess.getAs<FieldAccessLogicalFunction>();
+            },
+            [&schema](const TypedLogicalFunction<FieldAccessLogicalFunction>& fieldAccessLogicalFunction)
+            { return fieldAccessLogicalFunction.withInferredDataType(schema).getAs<FieldAccessLogicalFunction>(); },
+        },
+        field);
 }
-
-WindowAggregationLogicalFunction::WindowAggregationLogicalFunction(
-    DataType inputStamp,
-    DataType partialAggregateStamp,
-    DataType finalAggregateStamp,
-    FieldAccessLogicalFunction onField,
-    FieldAccessLogicalFunction asField)
-    : inputStamp(std::move(inputStamp))
-    , partialAggregateStamp(std::move(partialAggregateStamp))
-    , finalAggregateStamp(std::move(finalAggregateStamp))
-    , onField(std::move(std::move(onField)))
-    , asField(std::move(std::move(asField)))
-{
-}
-
-std::string WindowAggregationLogicalFunction::toString() const
-{
-    return fmt::format("WindowAggregation: onField={} asField={}", onField, asField);
-}
-
-DataType WindowAggregationLogicalFunction::getInputStamp() const
-{
-    return inputStamp;
-}
-
-DataType WindowAggregationLogicalFunction::getPartialAggregateStamp() const
-{
-    return partialAggregateStamp;
-}
-
-DataType WindowAggregationLogicalFunction::getFinalAggregateStamp() const
-{
-    return finalAggregateStamp;
-}
-
-bool WindowAggregationLogicalFunction::operator==(
-    const std::shared_ptr<WindowAggregationLogicalFunction>& otherWindowAggregationLogicalFunction) const
-{
-    return this->getName() == otherWindowAggregationLogicalFunction->getName()
-        && this->onField == otherWindowAggregationLogicalFunction->onField
-        && this->asField == otherWindowAggregationLogicalFunction->asField;
-}
-
 }

@@ -22,15 +22,16 @@
 #include <memory>
 #include <vector>
 #include <Identifiers/Identifiers.hpp>
-#include <MemoryLayout/VariableSizedAccess.hpp>
+#include <Runtime/TupleBuffer.hpp>
 #include <Time/Timestamp.hpp>
+#include <Util/Sanitizer.hpp>
 #include <TaggedPointer.hpp>
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
     #include <deque>
     #include <mutex>
     #include <thread>
     #include <unordered_map>
-    #include <cpptrace.hpp>
+    #include <cpptrace/cpptrace.hpp>
 #endif
 
 namespace NES
@@ -48,23 +49,15 @@ class BufferRecycler;
 
 static constexpr auto GET_BUFFER_TIMEOUT = std::chrono::milliseconds(1000);
 
-/**
- * @brief Computes aligned buffer size based on original buffer size and alignment
- */
-constexpr size_t alignBufferSize(const size_t bufferSize, const uint32_t withAlignment)
-{
-    if (bufferSize % withAlignment)
-    {
-        /// make sure that each buffer is a multiple of the alignment
-        return bufferSize + (withAlignment - bufferSize % withAlignment);
-    }
-    return bufferSize;
-}
-
 namespace detail
 {
 
 class MemorySegment;
+
+/// Size of the always-poisoned ASan redzone placed immediately before and after every pooled control
+/// block. Collapses to 0 (no layout change) when ASan is disabled. Kept a multiple of the 64-byte
+/// buffer alignment so the data region stays aligned.
+inline constexpr size_t CONTROL_BLOCK_REDZONE_SIZE = NES_ASAN_ENABLED ? 64UL : 0UL;
 
 #define PLACEHOLDER_LIKELY(cond) (cond) [[likely]]
 #define PLACEHOLDER_UNLIKELY(cond) (cond) [[unlikely]]
@@ -111,8 +104,8 @@ public:
     void setOriginId(OriginId originId);
     void setCreationTimestamp(Timestamp timestamp);
     [[nodiscard]] Timestamp getCreationTimestamp() const noexcept;
-    [[nodiscard]] VariableSizedAccess::Index storeChildBuffer(BufferControlBlock* control);
-    [[nodiscard]] bool loadChildBuffer(VariableSizedAccess::Index index, BufferControlBlock*& control, uint8_t*& ptr, uint32_t& size) const;
+    [[nodiscard]] ChildBufferIndex storeChildBuffer(BufferControlBlock* control);
+    [[nodiscard]] bool loadChildBuffer(ChildBufferIndex index, BufferControlBlock*& control, uint8_t*& ptr, uint32_t& size) const;
 
     [[nodiscard]] uint32_t getNumberOfChildBuffers() const noexcept { return children.size(); }
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
@@ -122,7 +115,7 @@ public:
 private:
     std::atomic<int32_t> referenceCounter = 0;
     uint32_t numberOfTuples = 0;
-    Timestamp watermark = Timestamp(Timestamp::INITIAL_VALUE);
+    Timestamp watermark = Timestamp(Timestamp::INVALID_VALUE);
     SequenceNumber sequenceNumber = INVALID_SEQ_NUMBER;
     ChunkNumber chunkNumber = INVALID_CHUNK_NUMBER;
     bool lastChunk = true;

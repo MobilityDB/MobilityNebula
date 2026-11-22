@@ -14,56 +14,60 @@
 
 #include <Functions/ArithmeticalFunctions/DivLogicalFunction.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
 
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataTypeProvider.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-DivLogicalFunction::DivLogicalFunction(const LogicalFunction& left, LogicalFunction right)
-    : dataType(left.getDataType()), left(left), right(std::move(std::move(right))) { };
+DivLogicalFunction::DivLogicalFunction(LogicalFunction left, LogicalFunction right) : left(std::move(left)), right(std::move(right)) { };
 
-bool DivLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool DivLogicalFunction::operator==(const DivLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const DivLogicalFunction*>(&rhs))
-    {
-        return left == other->left and right == other->right;
-    }
-    return false;
+    return left == rhs.left and right == rhs.right;
 }
 
 DataType DivLogicalFunction::getDataType() const
 {
     return dataType;
-};
+}
 
-LogicalFunction DivLogicalFunction::withDataType(const DataType& dataType) const
+LogicalFunction DivLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
     auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
-LogicalFunction DivLogicalFunction::withInferredDataType(const Schema& schema) const
-{
-    std::vector<LogicalFunction> newChildren;
-    for (auto& child : getChildren())
+    copy.left = left.withInferredDataType(schema);
+    copy.right = right.withInferredDataType(schema);
+    if (!copy.left.getDataType().isNumeric() || !copy.right.getDataType().isNumeric())
     {
-        newChildren.push_back(child.withInferredDataType(schema));
+        throw CannotInferStamp("Cannot apply division to non-numeric input function left: {}, right: {}", copy.left, copy.right);
     }
-    return withChildren(newChildren);
+    auto newDataType = copy.left.getDataType().join(copy.right.getDataType());
+    if (!newDataType.has_value())
+    {
+        throw CannotInferStamp("Could not join datatypes {} and {} for division", copy.left.getDataType(), copy.right.getDataType());
+    }
+    copy.dataType = std::move(newDataType).value();
+    copy.dataType.nullable = std::ranges::any_of(copy.getChildren(), [](const auto& child) { return child.getDataType().nullable; });
+
+    return copy;
 };
 
 std::vector<LogicalFunction> DivLogicalFunction::getChildren() const
@@ -71,13 +75,14 @@ std::vector<LogicalFunction> DivLogicalFunction::getChildren() const
     return {left, right};
 };
 
-LogicalFunction DivLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+DivLogicalFunction DivLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 2, "DivLogicalFunction requires exactly two children, but got {}", children.size());
     auto copy = *this;
     copy.left = children[0];
     copy.right = children[1];
-    copy.dataType = children[0].getDataType().join(children[1].getDataType()).value_or(DataType{DataType::Type::UNDEFINED});
+    copy.dataType
+        = children[0].getDataType().join(children[1].getDataType()).value_or(DataTypeProvider::provideDataType(DataType::Type::UNDEFINED));
     return copy;
 };
 
@@ -95,17 +100,18 @@ std::string DivLogicalFunction::explain(ExplainVerbosity verbosity) const
     return fmt::format("{} / {}", left.explain(verbosity), right.explain(verbosity));
 }
 
-SerializableFunction DivLogicalFunction::serialize() const
+Reflected Reflector<DivLogicalFunction>::operator()(const DivLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(left.serialize());
-    serializedFunction.add_children()->CopyFrom(right.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedDivLogicalFunction{.left = function.left, .right = function.right});
 }
 
-LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterDivLogicalFunction(LogicalFunctionRegistryArguments arguments)
+DivLogicalFunction Unreflector<DivLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [left, right] = context.unreflect<detail::ReflectedDivLogicalFunction>(reflected);
+    return DivLogicalFunction{std::move(left), std::move(right)};
+}
+
+LogicalFunctionRegistryReturnType DivLogicalFunction::createDiv(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 2)
     {

@@ -14,29 +14,45 @@
 
 #pragma once
 
+#include <concepts>
+#include <functional>
 #include <memory>
 #include <string>
 
 #include <Sources/Source.hpp>
 #include <Sources/SourceDescriptor.hpp>
-#include <Util/Registry.hpp>
+#include <Util/RuntimeRegistry.hpp>
 
 namespace NES
 {
 
-using SourceRegistryReturnType = std::unique_ptr<Source>;
+/// Maps a source type name to a factory that instantiates the source from a SourceDescriptor.
+using SourceFactoryFn = std::function<std::unique_ptr<Source>(const SourceDescriptor&)>;
 
-struct SourceRegistryArguments
+class SourceRegistry : public RuntimeRegistry<SourceRegistry, std::string, SourceFactoryFn, /*CaseSensitive*/ false>
 {
-    SourceDescriptor sourceDescriptor;
+public:
+    static SourceRegistry& instance();
 };
 
-class SourceRegistry : public BaseRegistry<SourceRegistry, std::string, SourceRegistryReturnType, SourceRegistryArguments>
+/// Factory for the common case: the descriptor's type-erased plugin data is the source's own
+/// config struct (put there by this source's SourceConfigRegistry entry), so the any_cast is safe.
+/// Sources that need more than their config can additionally take the descriptor.
+template <typename SourceImpl, typename ConfigStruct>
+SourceFactoryFn makeSourceFactory()
 {
-};
-
+    return [](const SourceDescriptor& descriptor) -> std::unique_ptr<Source>
+    {
+        auto config = descriptor.getPluginData().getAs<ConfigStruct>();
+        if constexpr (std::constructible_from<SourceImpl, const ConfigStruct&, const SourceDescriptor&>)
+        {
+            return std::make_unique<SourceImpl>(std::move(config), descriptor);
+        }
+        else
+        {
+            return std::make_unique<SourceImpl>(std::move(config));
+        }
+    };
 }
 
-#define INCLUDED_FROM_SOURCE_REGISTRY
-#include <SourceGeneratedRegistrar.inc>
-#undef INCLUDED_FROM_SOURCE_REGISTRY
+}

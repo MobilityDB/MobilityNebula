@@ -2,16 +2,64 @@
 # description: tests general input formatter behavior
 # groups: [Formatter, JSON]
 
-CREATE LOGICAL SOURCE jsonStream(KEY UINT64, value UINT64, name VARSIZED);
-CREATE PHYSICAL SOURCE FOR jsonStream TYPE File SET("JSON" AS PARSER.`TYPE`);
+CREATE LOGICAL SOURCE jsonStream(KEY UINT64 NOT NULL, value UINT64 NOT NULL, name VARSIZED NOT NULL, letter CHAR NOT NULL);
+CREATE PHYSICAL SOURCE FOR jsonStream TYPE File SET('JSON' AS INPUT_FORMATTER."TYPE");
 ATTACH INLINE
-{"KEY":1, "VALUE":1, "NAME":"john"}
+{"KEY":1, "VALUE":1, "NAME":"john", "LETTER":"a"}
+{"KEY":1, "VALUE":2, "NAME":"max", "LETTER":"b"}
+
+CREATE LOGICAL SOURCE jsonStreamOneTuple("key" UINT64 NOT NULL, "value" UINT64 NOT NULL, name VARSIZED NOT NULL);
+CREATE PHYSICAL SOURCE FOR jsonStreamOneTuple TYPE File SET('JSON' AS INPUT_FORMATTER."TYPE");
+ATTACH INLINE
+{"key":1, "value":1, "NAME":"john"}
+
+CREATE LOGICAL SOURCE jsonStreamWrongDataTypes(key UINT64 NOT NULL, value UINT64 NOT NULL, name VARSIZED NOT NULL);
+CREATE PHYSICAL SOURCE FOR jsonStreamWrongDataTypes TYPE File SET('JSON' AS INPUT_FORMATTER."TYPE");
+ATTACH INLINE
+{"KEY":1.0, "VALUE":1, "NAME":"john"}
 {"KEY":1, "VALUE":2, "NAME":"max"}
 
-CREATE SINK keySink(jsonStream.key UINT64) TYPE File;
-CREATE SINK valueSink(jsonStream.value UINT64) TYPE File;
-CREATE SINK nameSink(jsonStream.name VARSIZED) TYPE File;
-CREATE SINK allFieldsSink(jsonStream.key UINT64, jsonStream.value UINT64, jsonStream.name VARSIZED) TYPE File;
+CREATE LOGICAL SOURCE jsonStreamWrongDataTypesWithObject(key UINT64 NOT NULL, value UINT64 NOT NULL, name VARSIZED NOT NULL);
+CREATE PHYSICAL SOURCE FOR jsonStreamWrongDataTypesWithObject TYPE File SET('JSON' AS INPUT_FORMATTER."TYPE");
+ATTACH INLINE
+{"KEY":{"value": 1}, "VALUE":1, "NAME":"john"}
+{"KEY":1, "VALUE":2, "NAME":"max"}
+
+CREATE LOGICAL SOURCE jsonStreamWrongFieldName(key UINT64 NOT NULL, value UINT64 NOT NULL, name VARSIZED NOT NULL);
+CREATE PHYSICAL SOURCE FOR jsonStreamWrongFieldName TYPE File SET('JSON' AS INPUT_FORMATTER."TYPE");
+ATTACH INLINE
+{"WRONG_NAME":1, "VALUE":1, "NAME":"john"}
+{"WRONG_NAME":1, "VALUE":2, "NAME":"max"}
+
+CREATE LOGICAL SOURCE MissingKeyFronJSONStream(key UINT64 NOT NULL, value UINT64 NOT NULL, name VARSIZED NOT NULL);
+CREATE PHYSICAL SOURCE FOR MissingKeyFronJSONStream TYPE File SET('JSON' AS INPUT_FORMATTER."TYPE");
+ATTACH INLINE
+{"KEY":1, "VALUE":1, "NAME":"john"}
+{"KEY":1, "VALUE":2 }
+
+CREATE LOGICAL SOURCE ExtraKeyJson(key UINT64 NOT NULL, value UINT64 NOT NULL, name VARSIZED NOT NULL);
+CREATE PHYSICAL SOURCE FOR ExtraKeyJson TYPE File SET('JSON' AS INPUT_FORMATTER."TYPE");
+ATTACH INLINE
+{"KEY":1, "VALUE":1, "NAME":"john"}
+{"KEY":1, "VALUE":2, "NAME": "max", "EXTRA_KEY": 1 }
+
+CREATE LOGICAL SOURCE ExtraKeyObjectJson(key UINT64 NOT NULL, value UINT64 NOT NULL, name VARSIZED NOT NULL);
+CREATE PHYSICAL SOURCE FOR ExtraKeyObjectJson TYPE File SET('JSON' AS INPUT_FORMATTER."TYPE");
+ATTACH INLINE
+{"KEY":1, "VALUE":1, "NAME":"john"}
+{"KEY":1, "VALUE":2, "NAME": "max", "EXTRA_KEY": {"KEY": 2}}
+
+CREATE SINK keySink(key UINT64 NOT NULL) TYPE File;
+CREATE SINK keySink2("key" UINT64 NOT NULL) TYPE File;
+CREATE SINK valueSink(value UINT64 NOT NULL) TYPE File;
+CREATE SINK nameSink(name VARSIZED NOT NULL) TYPE File;
+CREATE SINK allFieldsSink(key UINT64 NOT NULL, value UINT64 NOT NULL, name VARSIZED NOT NULL, letter CHAR NOT NULL) TYPE File;
+CREATE SINK allFieldsWrongFieldNameSink(key UINT64 NOT NULL, value UINT64 NOT NULL, name VARSIZED NOT NULL) TYPE File;
+CREATE SINK allFieldsWrongDataTypeSink(key UINT64 NOT NULL, value UINT64 NOT NULL, name VARSIZED NOT NULL) TYPE File;
+
+SELECT "key" FROM jsonStreamOneTuple INTO keySink2;
+----
+1
 
 SELECT KEY FROM jsonStream INTO keySink;
 ----
@@ -29,6 +77,32 @@ john
 max
 
 SELECT * FROM jsonStream INTO allFieldsSink;
+----
+1,1,john,a
+1,2,max,b
+
+SELECT * FROM jsonStreamWrongDataTypes INTO allFieldsWrongDataTypeSink;
+----
+ERROR 3002
+
+SELECT * FROM jsonStreamWrongDataTypesWithObject INTO File();
+----
+ERROR 3002
+
+SELECT * FROM jsonStreamWrongFieldName INTO allFieldsWrongFieldNameSink;
+----
+ERROR 2004
+
+SELECT * FROM MissingKeyFronJSONStream INTO Checksum();
+----
+ERROR 2004
+
+SELECT * FROM ExtraKeyJson INTO File();
+----
+1,1,john
+1,2,max
+
+SELECT * FROM ExtraKeyObjectJson INTO File();
 ----
 1,1,john
 1,2,max

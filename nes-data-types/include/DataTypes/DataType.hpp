@@ -23,6 +23,7 @@
 #include <type_traits>
 #include <DataTypes/ExtensionType.hpp>
 #include <Util/Logger/Formatter.hpp>
+#include <Util/ReflectionFwd.hpp>
 
 namespace NES
 {
@@ -45,20 +46,20 @@ struct DataType final
         CHAR,
         UNDEFINED,
         VARSIZED,
-        VARSIZED_POINTER_REP,
     };
+
+    enum class NULLABLE : uint8_t
+    {
+        IS_NULLABLE,
+        NOT_NULLABLE
+    };
+
+    DataType(Type type, NULLABLE nullable);
+    DataType();
 
     template <class T>
     [[nodiscard]] bool isSameDataType() const
     {
-        if (this->type == Type::VARSIZED && std::is_same_v<std::remove_cvref_t<T>, std::uint32_t>)
-        {
-            return true;
-        }
-        if (this->type == Type::VARSIZED_POINTER_REP && std::is_same_v<std::remove_cvref_t<T>, std::uintptr_t>)
-        {
-            return true;
-        }
         if constexpr (std::is_same_v<std::remove_cvref_t<T>, bool>)
         {
             return this->type == Type::BOOLEAN;
@@ -114,11 +115,16 @@ struct DataType final
     bool operator!=(const DataType& other) const = default;
     friend std::ostream& operator<<(std::ostream& os, const DataType& dataType);
 
-    [[nodiscard]] uint32_t getSizeInBytes() const;
+    /// Provides the size needed for storing this data type containing any additional space, e.g., for null-handling
+    [[nodiscard]] uint32_t getSizeInBytesWithNull() const;
+
+    /// Provides the raw underlying size. This means the raw data type without any additional space, e.g., for null-handling
+    [[nodiscard]] uint32_t getSizeInBytesWithoutNull() const;
+
     /// Determines common data type for this and other data type. Returns @Type::UNDEFINED if it cannot find a common type.
     /// example usage a binary arithmetical function: 'const auto commonStamp = left->getStamp().join(right->getStamp());'
     [[nodiscard]] std::optional<DataType> join(const DataType& otherDataType) const;
-    [[nodiscard]] std::string formattedBytesToString(const void* data) const;
+    [[nodiscard]] DataType::NULLABLE joinNullable(const DataType& otherDataType) const;
 
     [[nodiscard]] bool isType(Type type) const;
     [[nodiscard]] bool isInteger() const;
@@ -128,9 +134,22 @@ struct DataType final
     /// Whether the values are those of a type a plugin adds over VARSIZED (@struct ExtensionType).
     [[nodiscard]] bool isExtension() const { return extension != nullptr; }
 
-    Type type{Type::UNDEFINED};
+    Type type;
+    bool nullable;
     /// The type a plugin adds, for a VARSIZED field carrying one; null for every other field.
     const ExtensionType* extension{nullptr};
+};
+
+template <>
+struct Reflector<DataType>
+{
+    Reflected operator()(const DataType& field, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<DataType>
+{
+    DataType operator()(const Reflected& rfl, const ReflectionContext& context) const;
 };
 
 }
@@ -140,7 +159,8 @@ struct std::hash<NES::DataType>
 {
     size_t operator()(const NES::DataType& dataType) const noexcept
     {
-        return static_cast<uint8_t>(dataType.type) ^ (std::hash<const void*>{}(dataType.extension) << 1U);
+        return ((static_cast<uint16_t>(dataType.type) << 8) | static_cast<uint8_t>(dataType.nullable))
+            ^ (std::hash<const void*>{}(dataType.extension) << 1U);
     }
 };
 

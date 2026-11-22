@@ -13,8 +13,6 @@
 */
 #pragma once
 
-#include <memory>
-#include <optional>
 #include <stack>
 #include <string>
 #include <utility>
@@ -23,6 +21,7 @@
 #include <AntlrSQLBaseListener.h>
 #include <AntlrSQLParser.h>
 #include <AntlrSQLParser/AntlrSQLHelper.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Plans/LogicalPlan.hpp>
 #include <CommonParserFunctions.hpp>
 
@@ -32,18 +31,8 @@ namespace NES::Parsers
 class AntlrSQLQueryPlanCreator final : public AntlrSQLBaseListener
 {
     std::stack<AntlrSQLHelper> helpers;
-    std::vector<std::variant<std::string, std::pair<std::string, ConfigMap>>> sinks;
+    std::vector<std::variant<Identifier, std::pair<Identifier, ConfigMap>>> sinks;
     std::stack<LogicalPlan> queryPlans;
-
-    /// The arguments of a function call in order: an expression as the function builder holds it, a literal
-    /// as a constant of its type, a string VARSIZED and a number INT32, INT64 or FLOAT64 as it is written
-    [[nodiscard]] std::vector<LogicalFunction> callArguments(AntlrSQLParser::FunctionCallContext* context) const;
-    /// The call's arguments removed from the function and constant builders
-    void takeCallArguments(AntlrSQLParser::FunctionCallContext* context);
-    /// The aggregation registered under the name over the field of the call's first argument and the literals of
-    /// the others, none for a call of another shape
-    [[nodiscard]] std::optional<std::shared_ptr<WindowAggregationLogicalFunction>>
-    aggregationOverField(AntlrSQLParser::FunctionCallContext* context, const std::string& name) const;
 
 public:
     [[nodiscard]] LogicalPlan getQueryPlan() const;
@@ -55,6 +44,7 @@ public:
     void exitSelectClause(AntlrSQLParser::SelectClauseContext* context) override;
     void enterFromClause(AntlrSQLParser::FromClauseContext* context) override;
     void exitFromClause(AntlrSQLParser::FromClauseContext* context) override;
+    void exitNamedSource(AntlrSQLParser::NamedSourceContext* context) override;
     void enterWhereClause(AntlrSQLParser::WhereClauseContext* context) override;
     void exitWhereClause(AntlrSQLParser::WhereClauseContext* context) override;
     void enterUnnestRelation(AntlrSQLParser::UnnestRelationContext* context) override;
@@ -65,6 +55,7 @@ public:
     void exitComparison(AntlrSQLParser::ComparisonContext* context) override;
     void enterFunctionCall(AntlrSQLParser::FunctionCallContext* context) override;
     void exitFunctionCall(AntlrSQLParser::FunctionCallContext* context) override;
+    void exitCastExpression(AntlrSQLParser::CastExpressionContext* context) override;
     void enterHavingClause(AntlrSQLParser::HavingClauseContext* context) override;
     void exitHavingClause(AntlrSQLParser::HavingClauseContext* context) override;
     void enterJoinRelation(AntlrSQLParser::JoinRelationContext* context) override;
@@ -80,10 +71,16 @@ public:
     void enterSetOperation(AntlrSQLParser::SetOperationContext* context) override;
     void exitSetOperation(AntlrSQLParser::SetOperationContext* context) override;
 
+    void enterModelInferenceRelation(AntlrSQLParser::ModelInferenceRelationContext* context) override;
+    void exitModelInferenceRelation(AntlrSQLParser::ModelInferenceRelationContext* context) override;
+
     /// enter or exit functions (no pairs)
     void enterSinkClause(AntlrSQLParser::SinkClauseContext* context) override;
-    void exitLogicalBinary(AntlrSQLParser::LogicalBinaryContext* context) override;
-    void enterUnquotedIdentifier(AntlrSQLParser::UnquotedIdentifierContext* context) override;
+    void exitOrPredicate(AntlrSQLParser::OrPredicateContext* context) override;
+    void exitAndPredicate(AntlrSQLParser::AndPredicateContext* context) override;
+    void exitLogicalNotPredicate(AntlrSQLParser::LogicalNotPredicateContext* context) override;
+    void exitBoolComparison(AntlrSQLParser::BoolComparisonContext* context) override;
+    void exitStar(AntlrSQLParser::StarContext* context) override;
     void enterIdentifier(AntlrSQLParser::IdentifierContext* context) override;
     void enterTimeUnit(AntlrSQLParser::TimeUnitContext* context) override;
     void exitSizeParameter(AntlrSQLParser::SizeParameterContext* context) override;
@@ -100,7 +97,7 @@ public:
     void exitLogicalNot(AntlrSQLParser::LogicalNotContext* context) override;
     void exitConstantDefault(AntlrSQLParser::ConstantDefaultContext* context) override;
     void exitThresholdMinSizeParameter(AntlrSQLParser::ThresholdMinSizeParameterContext* context) override;
-    void enterInlineSource(AntlrSQLParser::InlineSourceContext* context) override;
+    void enterAnonymousSource(AntlrSQLParser::AnonymousSourceContext* context) override;
 };
 
 }

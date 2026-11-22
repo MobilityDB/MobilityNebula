@@ -20,76 +20,143 @@
 #include <utility>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <DataTypes/DataType.hpp>
+#include <DataTypes/VarVal.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/Interface/Record.hpp>
-#include <Nautilus/Util.hpp>
+#include <Interface/NautilusBuffer.hpp>
+#include <Interface/Record.hpp>
+#include <Runtime/TupleBuffer.hpp>
 #include <AggregationPhysicalFunctionRegistry.hpp>
 #include <ExecutionContext.hpp>
+#include <Util.hpp>
+#include <val_arith.hpp>
+#include <val_bool.hpp>
 #include <val_ptr.hpp>
 
 namespace NES
 {
 
 MinAggregationPhysicalFunction::MinAggregationPhysicalFunction(
-    DataType inputType, DataType resultType, PhysicalFunction inputFunction, Nautilus::Record::RecordFieldIdentifier resultFieldIdentifier)
+    DataType inputType, DataType resultType, PhysicalFunction inputFunction, Record::RecordFieldIdentifier resultFieldIdentifier)
     : AggregationPhysicalFunction(std::move(inputType), std::move(resultType), std::move(inputFunction), std::move(resultFieldIdentifier))
 {
 }
 
 void MinAggregationPhysicalFunction::lift(
-    const nautilus::val<AggregationState*>& aggregationState, PipelineMemoryProvider& pipelineMemoryProvider, const Record& record)
+    const nautilus::val<AggregationState*>& aggregationState,
+    BorrowedNautilusBuffer,
+    PipelineMemoryProvider& pipelineMemoryProvider,
+    const Record& record)
 {
-    /// Reading the old min value from the aggregation state.
-    const auto memAreaMin = static_cast<nautilus::val<int8_t*>>(aggregationState);
-    const auto min = VarVal::readVarValFromMemory(memAreaMin, inputType.type);
-
-    /// Updating the min value with the new value, if the new value is smaller
     const auto value = inputFunction.execute(record, pipelineMemoryProvider.arena);
-    if (value < min)
+
+    if (not inputType.nullable)
     {
-        value.writeToMemory(memAreaMin);
+        /// Reading the old min value from the aggregation state.
+        const auto memAreaMin = static_cast<nautilus::val<int8_t*>>(aggregationState);
+        const auto min = VarVal::readNonNullableVarValFromMemory(memAreaMin, inputType);
+
+        /// Updating the min value with the new value, if the new value is smaller
+        const auto newMin = VarVal::select((value < min).getRawValueAs<nautilus::val<bool>>(), value, min);
+        newMin.writeToMemory(memAreaMin);
+    }
+    else
+    {
+        /// Reading the old min value from the aggregation state. We need to skip the first byte as null
+        const auto isNull = readNull(aggregationState);
+        const auto memAreaMin = static_cast<nautilus::val<int8_t*>>(aggregationState + nautilus::val<uint64_t>{1});
+        const auto min = VarVal::readVarValFromMemory(memAreaMin, inputType, isNull);
+
+        /// SQL-standard: skip NULL inputs
+        const auto valueIsNotNull = not value.isNull();
+        const auto adoptValue = valueIsNotNull and (isNull or (value < min).getRawValueAs<nautilus::val<bool>>());
+        const auto newMin = VarVal::select(adoptValue, value, min);
+        newMin.writeToMemory(memAreaMin);
+
+        /// Stay null only while every input has been NULL
+        const auto newIsNull = isNull and value.isNull();
+        storeNull(aggregationState, newIsNull);
     }
 }
 
 void MinAggregationPhysicalFunction::combine(
     const nautilus::val<AggregationState*> aggregationState1,
+    BorrowedNautilusBuffer,
     const nautilus::val<AggregationState*> aggregationState2,
+    BorrowedNautilusBuffer,
     PipelineMemoryProvider&)
 {
-    /// Reading the min value from the first aggregation state
-    const auto memAreaMin1 = static_cast<nautilus::val<int8_t*>>(aggregationState1);
-    const auto min1 = VarVal::readVarValFromMemory(memAreaMin1, inputType.type);
-
-    /// Reading the min value from the second aggregation state
-    const auto memAreaMin2 = static_cast<nautilus::val<int8_t*>>(aggregationState2);
-    const auto min2 = VarVal::readVarValFromMemory(memAreaMin2, inputType.type);
-
-    /// Updating the min value with the new min value, if the new min value is smaller
-    if (min2 < min1)
+    if (not inputType.nullable)
     {
-        min2.writeToMemory(memAreaMin1);
+        /// Reading the old min value from the aggregation state.
+        const auto memAreaMin1 = static_cast<nautilus::val<int8_t*>>(aggregationState1);
+        const auto memAreaMin2 = static_cast<nautilus::val<int8_t*>>(aggregationState2);
+        const auto min1 = VarVal::readNonNullableVarValFromMemory(memAreaMin1, inputType);
+        const auto min2 = VarVal::readNonNullableVarValFromMemory(memAreaMin2, inputType);
+
+        /// Updating the min value with the new value, if the new value is smaller
+        const auto newMin = VarVal::select((min1 < min2).getRawValueAs<nautilus::val<bool>>(), min1, min2);
+        newMin.writeToMemory(memAreaMin1);
+    }
+    else
+    {
+        /// Reading the old min value from the aggregation state. We need to skip the first byte as null
+        const auto isNull1 = readNull(aggregationState1);
+        const auto isNull2 = readNull(aggregationState2);
+        const auto memAreaMin1 = static_cast<nautilus::val<int8_t*>>(aggregationState1 + nautilus::val<uint64_t>{1});
+        const auto memAreaMin2 = static_cast<nautilus::val<int8_t*>>(aggregationState2 + nautilus::val<uint64_t>{1});
+        const auto min1 = VarVal::readVarValFromMemory(memAreaMin1, inputType, isNull1);
+        const auto min2 = VarVal::readVarValFromMemory(memAreaMin2, inputType, isNull2);
+
+        /// SQL-standard: only stay null when both partitions are still empty
+        const auto newIsNull = isNull1 and isNull2;
+        storeNull(aggregationState1, newIsNull);
+
+        /// If state1 is empty take min2; if state2 is empty take min1; otherwise take the pairwise min
+        const auto min1OrMin2 = VarVal::select((min1 < min2).getRawValueAs<nautilus::val<bool>>(), min1, min2);
+        const auto newMin = VarVal::select(isNull1, min2, VarVal::select(isNull2, min1, min1OrMin2));
+        newMin.writeToMemory(memAreaMin1);
     }
 }
 
-Nautilus::Record MinAggregationPhysicalFunction::lower(const nautilus::val<AggregationState*> aggregationState, PipelineMemoryProvider&)
+Record MinAggregationPhysicalFunction::lower(
+    const nautilus::val<AggregationState*> aggregationState, BorrowedNautilusBuffer, PipelineMemoryProvider&)
 {
+    if (not inputType.nullable)
+    {
+        /// Reading the min value from the aggregation state
+        const auto memAreaMin = static_cast<nautilus::val<int8_t*>>(aggregationState);
+        const auto min = VarVal::readNonNullableVarValFromMemory(memAreaMin, inputType);
+
+        /// Creating a record with the min value
+        Record record;
+        record.write(resultFieldIdentifier, min);
+        return record;
+    }
+
     /// Reading the min value from the aggregation state
-    const auto memAreaMin = static_cast<nautilus::val<int8_t*>>(aggregationState);
-    const auto min = VarVal::readVarValFromMemory(memAreaMin, inputType.type);
+    const auto isNull = readNull(aggregationState);
+    const auto memAreaMin = static_cast<nautilus::val<int8_t*>>(aggregationState + nautilus::val<uint64_t>{1});
+    const auto min = VarVal::readVarValFromMemory(memAreaMin, inputType, isNull);
 
     /// Creating a record with the min value
-    Nautilus::Record record;
+    Record record;
     record.write(resultFieldIdentifier, min);
-
     return record;
 }
 
-void MinAggregationPhysicalFunction::reset(const nautilus::val<AggregationState*> aggregationState, PipelineMemoryProvider&)
+void MinAggregationPhysicalFunction::reset(
+    const nautilus::val<AggregationState*> aggregationState, BorrowedNautilusBuffer, PipelineMemoryProvider&)
 {
+    /// Initialize the null flag to "no value seen yet" so the first non-null input becomes the running min
+    if (inputType.nullable)
+    {
+        storeNull(aggregationState, true);
+    }
+
     /// Resetting the min value to the maximum value
-    const auto memAreaMin = static_cast<nautilus::val<int8_t*>>(aggregationState);
-    const auto min = Nautilus::Util::createNautilusMaxValue(inputType.type);
+    const auto memAreaMin
+        = static_cast<nautilus::val<int8_t*>>(aggregationState + nautilus::val<uint64_t>{static_cast<uint64_t>(inputType.nullable)});
+    const auto min = createNautilusMaxValue(inputType.type);
     min.writeToMemory(memAreaMin);
 }
 
@@ -99,11 +166,10 @@ void MinAggregationPhysicalFunction::cleanup(nautilus::val<AggregationState*>)
 
 size_t MinAggregationPhysicalFunction::getSizeOfStateInBytes() const
 {
-    return inputType.getSizeInBytes();
+    return inputType.getSizeInBytesWithNull();
 }
 
-AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::RegisterMinAggregationPhysicalFunction(
-    AggregationPhysicalFunctionRegistryArguments arguments)
+AggregationPhysicalFunctionRegistryReturnType MinAggregationPhysicalFunction::create(AggregationPhysicalFunctionRegistryArguments arguments)
 {
     return std::make_shared<MinAggregationPhysicalFunction>(
         std::move(arguments.inputType), std::move(arguments.resultType), arguments.inputFunction, arguments.resultFieldIdentifier);

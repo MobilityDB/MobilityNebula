@@ -21,6 +21,7 @@
 #include <Runtime/AbstractBufferProvider.hpp>
 #include <Sources/SourceDescriptor.hpp>
 #include <Sources/SourceHandle.hpp>
+#include <BackpressureChannel.hpp>
 #include <ErrorHandling.hpp>
 #include <SourceRegistry.hpp>
 
@@ -32,20 +33,20 @@ SourceProvider::SourceProvider(size_t defaultMaxInflightBuffers, std::shared_ptr
 {
 }
 
-std::unique_ptr<SourceHandle> SourceProvider::lower(OriginId originId, const SourceDescriptor& sourceDescriptor) const
+std::unique_ptr<SourceHandle>
+SourceProvider::lower(OriginId originId, BackpressureListener backpressureListener, const SourceDescriptor& sourceDescriptor) const
 {
     /// Todo #241: Get the new source identfier from the source descriptor and pass it to SourceHandle.
-    auto sourceArguments = SourceRegistryArguments(sourceDescriptor);
-    if (auto source = SourceRegistry::instance().create(sourceDescriptor.getSourceType(), sourceArguments))
+    if (const auto sourceFactory = SourceRegistry::instance().find(sourceDescriptor.getSourceType().asCanonicalString()))
     {
+        auto source = (*sourceFactory)(sourceDescriptor);
         /// The source-specific configuration of maxInflightBuffers takes priority.
-        /// If not specified (0), we take the NodeEngine-wide configuration.
-        const auto maxInflightBuffers = (sourceDescriptor.getFromConfig(SourceDescriptor::MAX_INFLIGHT_BUFFERS) > 0)
-            ? sourceDescriptor.getFromConfig(SourceDescriptor::MAX_INFLIGHT_BUFFERS)
-            : defaultMaxInflightBuffers;
-        SourceRuntimeConfiguration runtimeConfig{maxInflightBuffers};
+        /// If not specified, we take the NodeEngine-wide configuration.
+        const auto maxInflightBuffers = sourceDescriptor.getMaxInflightBuffers().value_or(defaultMaxInflightBuffers);
+        const SourceRuntimeConfiguration runtimeConfig{maxInflightBuffers};
 
-        return std::make_unique<SourceHandle>(std::move(originId), std::move(runtimeConfig), bufferPool, std::move(source.value()));
+        return std::make_unique<SourceHandle>(
+            std::move(backpressureListener), std::move(originId), std::move(runtimeConfig), bufferPool, std::move(source));
     }
     throw UnknownSourceType("unknown source descriptor type: {}", sourceDescriptor.getSourceType());
 }

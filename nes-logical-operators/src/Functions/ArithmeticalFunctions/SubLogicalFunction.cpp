@@ -14,33 +14,35 @@
 
 #include <Functions/ArithmeticalFunctions/SubLogicalFunction.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataTypeProvider.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-SubLogicalFunction::SubLogicalFunction(const LogicalFunction& left, const LogicalFunction& right)
-    : dataType(left.getDataType().join(right.getDataType()).value_or(DataType{DataType::Type::UNDEFINED})), left(left), right(right) { };
+SubLogicalFunction::SubLogicalFunction(LogicalFunction left, LogicalFunction right) : left(std::move(left)), right(std::move(right)) { };
 
-bool SubLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool SubLogicalFunction::operator==(const SubLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const SubLogicalFunction*>(&rhs))
-    {
-        return left == other->left and right == other->right;
-    }
-    return false;
+    return left == rhs.left and right == rhs.right;
 }
 
 std::string SubLogicalFunction::explain(ExplainVerbosity verbosity) const
@@ -57,21 +59,19 @@ DataType SubLogicalFunction::getDataType() const
     return dataType;
 };
 
-LogicalFunction SubLogicalFunction::withDataType(const DataType& dataType) const
+LogicalFunction SubLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
     auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
-LogicalFunction SubLogicalFunction::withInferredDataType(const Schema& schema) const
-{
-    std::vector<LogicalFunction> newChildren;
-    for (auto& child : getChildren())
+    copy.left = left.withInferredDataType(schema);
+    copy.right = right.withInferredDataType(schema);
+    auto newDataType = copy.left.getDataType().join(copy.right.getDataType());
+    if (not newDataType.has_value())
     {
-        newChildren.push_back(child.withInferredDataType(schema));
+        throw CannotInferStamp("Cannot apply subtraction to input function left: {}, right: {}", copy.left, copy.right);
     }
-    return this->withChildren(newChildren);
+    copy.dataType = std::move(newDataType).value();
+    copy.dataType.nullable = std::ranges::any_of(copy.getChildren(), [](const auto& child) { return child.getDataType().nullable; });
+    return copy;
 };
 
 std::vector<LogicalFunction> SubLogicalFunction::getChildren() const
@@ -79,13 +79,14 @@ std::vector<LogicalFunction> SubLogicalFunction::getChildren() const
     return {left, right};
 };
 
-LogicalFunction SubLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+SubLogicalFunction SubLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 2, "SubLogicalFunction requires exactly two children, but got {}", children.size());
     auto copy = *this;
     copy.left = children[0];
     copy.right = children[1];
-    copy.dataType = children[0].getDataType().join(children[1].getDataType()).value_or(DataType{DataType::Type::UNDEFINED});
+    copy.dataType
+        = children[0].getDataType().join(children[1].getDataType()).value_or(DataTypeProvider::provideDataType(DataType::Type::UNDEFINED));
     return copy;
 };
 
@@ -94,17 +95,18 @@ std::string_view SubLogicalFunction::getType() const
     return NAME;
 }
 
-SerializableFunction SubLogicalFunction::serialize() const
+Reflected Reflector<SubLogicalFunction>::operator()(const SubLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(left.serialize());
-    serializedFunction.add_children()->CopyFrom(right.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedSubLogicalFunction{.left = function.left, .right = function.right});
 }
 
-LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterSubLogicalFunction(LogicalFunctionRegistryArguments arguments)
+SubLogicalFunction Unreflector<SubLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [left, right] = context.unreflect<detail::ReflectedSubLogicalFunction>(reflected);
+    return SubLogicalFunction{std::move(left), std::move(right)};
+}
+
+LogicalFunctionRegistryReturnType SubLogicalFunction::createSub(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 2)
     {

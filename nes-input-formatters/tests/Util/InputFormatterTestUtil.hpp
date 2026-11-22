@@ -20,25 +20,49 @@
 #include <functional>
 #include <memory>
 #include <numeric>
+#include <optional>
+#include <ranges>
 #include <set>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
-#include <DataTypes/Schema.hpp>
+
+#include <DataTypes/UnboundField.hpp>
+#include <DataTypes/UnboundSchema.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Identifiers/Identifiers.hpp>
-#include <InputFormatters/InputFormatterProvider.hpp>
-#include <InputFormatters/InputFormatterTaskPipeline.hpp>
-#include <MemoryLayout/RowLayout.hpp>
+#include <Interface/BufferRef/LowerSchemaProvider.hpp>
+#include <Interface/BufferRef/TupleBufferRef.hpp>
+#include <Interface/NautilusBuffer.hpp>
+#include <Interface/Record.hpp>
+#include <Interface/RecordBuffer.hpp>
+#include <Interface/VariableSizedAccessRef.hpp>
+#include <Pipelines/CompiledExecutablePipelineStage.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/Allocator/NesDefaultMemoryAllocator.hpp>
 #include <Runtime/BufferManager.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Sources/SourceDescriptor.hpp>
 #include <Sources/SourceHandle.hpp>
 #include <Sources/SourceReturnType.hpp>
 #include <Util/Logger/Logger.hpp>
-#include <Util/TestTupleBuffer.hpp>
+#include <nautilus/std/sstream.h>
+#include <ErrorHandling.hpp>
+#include <InputFormatterDescriptor.hpp>
 #include <TestTaskQueue.hpp>
+#include <Util.hpp>
+#include <val.hpp>
+#include <val_ptr.hpp>
 
 namespace NES::InputFormatterTestUtil
 {
+static constexpr NES::BufferAlignment BUFFER_ALIGNMENT{64};
+/// Spanning tuples are stored in unpooled buffers (allocated in page-sized chunks), so the unpooled budget must
+/// comfortably exceed a page even though these tests use tiny pooled buffers. We reserve a fixed, generous unpooled
+/// budget (only a cap, not eagerly allocated) and size the total so the pooled pool still keeps the requested buffers.
+static constexpr size_t UNPOOLED_MEMORY_BUDGET_IN_BYTES = 64 * 1024 * 1024;
 
 enum class TestDataTypes : uint8_t
 {
@@ -63,12 +87,6 @@ struct ThreadInputBuffers
     std::string rawBytes;
 };
 
-struct TaskPackage
-{
-    SequenceNumber sequenceNumber;
-    TupleBuffer rawByteBuffer;
-};
-
 template <typename TupleSchemaTemplate>
 struct WorkerThreadResults
 {
@@ -81,8 +99,9 @@ struct TestConfig
     size_t numRequiredBuffers{};
     uint64_t sizeOfRawBuffers{};
     uint64_t sizeOfFormattedBuffers{};
-    ParserConfig parserConfig;
+    InputFormatterDescriptor parserConfig;
     std::vector<TestDataTypes> testSchema;
+    const MemoryLayoutType memoryLayoutType;
     /// Each workerThread(vector) can produce multiple buffers(vector) with multiple tuples(vector<TupleSchemaTemplate>)
     std::vector<WorkerThreadResults<TupleSchemaTemplate>> expectedResults;
     std::vector<ThreadInputBuffers> rawBytesPerThread;
@@ -139,22 +158,23 @@ public:
 };
 
 /// Generates field names (for field N: Field_N)
-Schema createSchema(const std::vector<TestDataTypes>& testDataTypes);
-Schema createSchema(const std::vector<TestDataTypes>& testDataTypes, const std::vector<std::string>& testFieldNames);
+Schema<UnqualifiedUnboundField, Ordered> createSchema(const std::vector<TestDataTypes>& testDataTypes);
+Schema<UnqualifiedUnboundField, Ordered>
+createSchema(const std::vector<TestDataTypes>& testDataTypes, const std::vector<Identifier>& testFieldNames);
 
 /// Creates an emit function that places buffers into 'resultBuffers' when there is data.
 SourceReturnType::EmitFunction getEmitFunction(ThreadSafeVector<TupleBuffer>& resultBuffers);
 
-ParserConfig validateAndFormatParserConfig(const std::unordered_map<std::string, std::string>& parserConfig);
-
-std::unique_ptr<SourceHandle> createFileSource(
-    SourceCatalog& sourceCatalog,
+std::pair<BackpressureController, std::unique_ptr<SourceHandle>> createFileSource(
     const std::string& filePath,
-    const Schema& schema,
+    const Schema<UnqualifiedUnboundField, Ordered>& schema,
     std::shared_ptr<BufferManager> sourceBufferPool,
     size_t numberOfRequiredSourceBuffers);
 
-std::shared_ptr<InputFormatterTaskPipeline> createInputFormatterTask(const Schema& schema, std::string formatterType);
+/// Resolves the literal values against the formatter's declared config schema and instantiates
+/// the formatter-defined config struct via the config registries.
+InputFormatterDescriptor
+provideInputFormatterDescriptor(const std::string& type, const std::vector<std::pair<std::string, std::string>>& values);
 
 /// Waits until source reached EoS
 void waitForSource(const std::vector<TupleBuffer>& resultBuffers, size_t numExpectedBuffers);
@@ -162,11 +182,12 @@ void waitForSource(const std::vector<TupleBuffer>& resultBuffers, size_t numExpe
 /// Compares two files and returns true if they are equal on a byte level.
 bool compareFiles(const std::filesystem::path& file1, const std::filesystem::path& file2);
 
-TestPipelineTask createInputFormatterTask(
-    SequenceNumber sequenceNumber,
-    WorkerThreadId workerThreadId,
-    TupleBuffer taskBuffer,
-    std::shared_ptr<InputFormatterTaskPipeline> inputFormatterTask);
+std::shared_ptr<CompiledExecutablePipelineStage> createInputFormatter(
+    const InputFormatterDescriptor& parserConfiguration,
+    const Schema<UnqualifiedUnboundField, Ordered>& schema,
+    MemoryLayoutType memoryLayoutType,
+    size_t sizeOfFormattedBuffers,
+    bool isCompiled);
 
 template <typename TupleSchemaTemplate>
 struct TestHandle
@@ -175,9 +196,10 @@ struct TestHandle
     std::shared_ptr<BufferManager> testBufferManager;
     std::shared_ptr<BufferManager> formattedBufferManager;
     std::shared_ptr<std::vector<std::vector<TupleBuffer>>> resultBuffers;
-    Schema schema;
+    Schema<UnqualifiedUnboundField, Ordered> schema;
+    MemoryLayoutType memoryLayoutType;
     std::unique_ptr<SingleThreadedTestTaskQueue> testTaskQueue;
-    std::vector<TaskPackage> inputBuffers;
+    std::vector<TupleBuffer> inputBuffers;
     std::vector<std::vector<TupleBuffer>> expectedResultVectors;
 
     void destroy()
@@ -186,7 +208,7 @@ struct TestHandle
         expectedResultVectors.clear();
         resultBuffers->clear();
         testTaskQueue.reset();
-        schema = Schema{};
+        schema = Schema<UnqualifiedUnboundField, Ordered>{};
     }
 };
 
@@ -209,16 +231,16 @@ inline void sortTupleBuffers(std::vector<TupleBuffer>& buffers)
 class TupleIterator
 {
 public:
-    TupleIterator(std::vector<TupleBuffer> buffers, Schema schema)
+    TupleIterator(std::vector<TupleBuffer> buffers, Schema<QualifiedUnboundField, Ordered> schema, const MemoryLayoutType layoutType)
         : schema(std::move(schema))
         , buffers(std::move(buffers))
-        , currentBuffer(TestTupleBuffer::createTestTupleBuffer(this->buffers.front(), this->schema))
+        , bufferRef(LowerSchemaProvider::lowerSchema(this->buffers.at(0).getBufferSize(), this->schema, layoutType))
     {
     }
 
-    std::optional<DynamicTuple> getNextTuple()
+    std::optional<Record> getNextTuple()
     {
-        if (currentTupleIdx >= currentBuffer.getNumberOfTuples())
+        if (currentTupleIdx >= buffers.at(currentBufferIdx).getNumberOfTuples())
         {
             ++currentBufferIdx;
             if (currentBufferIdx >= buffers.size())
@@ -226,53 +248,45 @@ public:
                 /// all buffers exhausted
                 return std::nullopt;
             }
-            currentBuffer = TestTupleBuffer::createTestTupleBuffer(buffers.at(currentBufferIdx), schema);
             currentTupleIdx = 0;
         }
-        return currentBuffer[currentTupleIdx++];
+        const RecordBuffer recordBuffer{BorrowedNautilusBuffer::from(buffers.data() + currentBufferIdx)};
+        auto record = bufferRef->readRecord(getOrderedFieldNames(schema), recordBuffer, currentTupleIdx);
+        ++currentTupleIdx;
+        return record;
     }
 
 private:
     size_t currentBufferIdx = 0;
-    size_t currentTupleIdx = 0;
-    Schema schema;
+    nautilus::val<uint64_t> currentTupleIdx = 0;
+    Schema<QualifiedUnboundField, Ordered> schema;
     std::vector<TupleBuffer> buffers;
-    TestTupleBuffer currentBuffer;
+    std::shared_ptr<TupleBufferRef> bufferRef;
 };
 
 /// Expects tuple buffers with matching sequence numbers contain the same tuples in the same order
-inline bool
-compareTestTupleBuffersOrderSensitive(std::vector<TupleBuffer>& actualResult, std::vector<TupleBuffer>& expectedResult, Schema schema)
+inline bool compareTestTupleBuffersOrderSensitive(
+    std::vector<TupleBuffer>& actualResult, std::vector<TupleBuffer>& expectedResult, const Schema<QualifiedUnboundField, Ordered>& schema)
 {
-    sortTupleBuffers(actualResult);
-    sortTupleBuffers(expectedResult);
+    InputFormatterTestUtil::sortTupleBuffers(actualResult);
+    InputFormatterTestUtil::sortTupleBuffers(expectedResult);
 
     bool allTuplesMatch = true;
-    TupleIterator expectedResultTupleIt(std::move(expectedResult), schema);
-    for (const auto& actualResultTupleBuffer : actualResult)
+    auto bufferRef = LowerSchemaProvider::lowerSchema(expectedResult.at(0).getBufferSize(), schema, MemoryLayoutType::ROW_LAYOUT);
+    TupleIterator expectedResultTupleIt(std::move(expectedResult), schema, MemoryLayoutType::ROW_LAYOUT);
+    TupleIterator actualResultTupleIt(std::move(actualResult), schema, MemoryLayoutType::ROW_LAYOUT);
+    while (const auto actualResultTuple = actualResultTupleIt.getNextTuple())
     {
-        for (auto actualResultTestTupleBuffer = TestTupleBuffer::createTestTupleBuffer(actualResultTupleBuffer, schema);
-             const auto& actualResultTuple : actualResultTestTupleBuffer)
+        const auto expectedResultTuple = expectedResultTupleIt.getNextTuple();
+        if (actualResultTuple != expectedResultTuple)
         {
-            if (const auto expectedResultTuple = expectedResultTupleIt.getNextTuple())
-            {
-                if (actualResultTuple != expectedResultTuple)
-                {
-                    NES_ERROR(
-                        "Tuples don't match: {} != {}", actualResultTuple.toString(schema), expectedResultTuple.value().toString(schema));
-                    allTuplesMatch = false;
-                }
-            }
-            else
-            {
-                NES_ERROR("Found actual result tuple: {}, but exhausted expected", actualResultTuple.toString(schema));
-                allTuplesMatch = false;
-            }
+            NES_ERROR_EXEC("Tuples don't match: {} " << *actualResultTuple << " != " << *expectedResultTuple);
+            allTuplesMatch = false;
         }
     }
     while (const auto additionalRhsTuple = expectedResultTupleIt.getNextTuple())
     {
-        NES_ERROR("Found expected result tuple: {}, but exhausted actual result tuples", additionalRhsTuple.value().toString(schema));
+        NES_ERROR_EXEC("Found expected result tuple: {}, but exhausted actual result tuples" << *additionalRhsTuple);
         allTuplesMatch = false;
     }
     return allTuplesMatch;
@@ -318,7 +332,7 @@ inline bool checkIfBuffersAreEqual(const TupleBuffer& leftBuffer, const TupleBuf
     return (sameTupleIndices.size() == leftBuffer.getNumberOfTuples());
 }
 
-inline TupleBuffer copyStringDataToTupleBuffer(const std::string_view rawData, TupleBuffer tupleBuffer)
+inline void copyStringDataToTupleBuffer(const std::string_view rawData, TupleBuffer& tupleBuffer)
 {
     PRECONDITION(
         tupleBuffer.getBufferSize() >= rawData.size(),
@@ -327,7 +341,51 @@ inline TupleBuffer copyStringDataToTupleBuffer(const std::string_view rawData, T
         rawData.size());
     std::ranges::copy(rawData, reinterpret_cast<char*>(tupleBuffer.getAvailableMemoryArea().data()));
     tupleBuffer.setNumberOfTuples(rawData.size());
-    return tupleBuffer;
+}
+
+template <typename T>
+void writeFieldToBuffer(
+    const T& fieldValue,
+    const size_t fieldIndex,
+    NES::TupleBuffer& tupleBuffer,
+    TupleBufferRef& tupleBufferRef,
+    AbstractBufferProvider& bufferProvider)
+{
+    Record record;
+    const RecordBuffer recordBuffer{BorrowedNautilusBuffer::from(std::addressof(tupleBuffer))};
+    const auto fieldName = tupleBufferRef.getAllFieldNames().at(fieldIndex);
+
+    /// Creating a Record containing the current field
+    if constexpr (std::is_same_v<T, std::string>)
+    {
+        VariableSizedData value{fieldValue, fieldValue.size()};
+        record.write(fieldName, value);
+    }
+    else
+    {
+        nautilus::val<T> value{fieldValue};
+        record.write(fieldName, value);
+    }
+
+    const nautilus::val<AbstractBufferProvider*> bufferProviderVal{std::addressof(bufferProvider)};
+    auto recordIndex = recordBuffer.getNumRecords();
+    tupleBufferRef.writeRecord(recordIndex, recordBuffer, record, bufferProviderVal);
+}
+
+inline void printTupleBuffer(const std::string_view message, TupleBuffer& tupleBuffer, const TupleBufferRef& tupleBufferRef)
+{
+    /// NOLINTNEXTLINE(bugprone-suspicious-stringview-data-usage) is fine as we are passing it ot a nautilus::val<>
+    const nautilus::val<const char*> messageVal{message.data()};
+    nautilus::stringstream ss;
+    ss << messageVal;
+    const RecordBuffer recordBuffer{BorrowedNautilusBuffer::from(std::addressof(tupleBuffer))};
+    for (nautilus::val<uint64_t> recordIndex = 0; recordIndex < recordBuffer.getNumRecords(); ++recordIndex)
+    {
+        const auto record = tupleBufferRef.readRecord(tupleBufferRef.getAllFieldNames(), recordBuffer, recordIndex);
+        ss << record << "\n";
+    }
+
+    NES_DEBUG_EXEC(ss.str().c_str());
 }
 
 /// Takes a schema, a buffer manager and tuples.
@@ -335,68 +393,61 @@ inline TupleBuffer copyStringDataToTupleBuffer(const std::string_view rawData, T
 /// Unfolds the tuples into the TestTupleBuffer.
 /// Example usage (assumes a bufferManager (shared_ptr to BufferManager object) is available):
 ///     using TestTuple = std::tuple<int, bool>;
-///     SchemaPtr schema = Schema::create()->addField("INT", DataType::Type::INT32)->addField("BOOL", DataType::Type::BOOLEAN);
+///     SchemaPtr schema = Schema<Field, Unordered>::create()->addField("INT", DataType::Type::INT32)->addField("BOOL", DataType::Type::BOOLEAN);
 ///     auto testTupleBuffer = TestUtil::createTupleBufferFromTuples(schema, *bufferManager,
 ///         TestTuple(42, true), TestTuple(43, false), TestTuple(44, true), TestTuple(45, false));
-template <typename TupleSchema, bool ContainsVarSized = false, bool PrintDebug = false>
-TupleBuffer createTupleBufferFromTuples(const Schema& schema, BufferManager& bufferManager, const std::vector<TupleSchema>& tuples)
+template <typename TupleSchema, bool PrintDebug = false>
+TupleBuffer createTupleBufferFromTuples(
+    const Schema<QualifiedUnboundField, Ordered>& schema, BufferManager& bufferManager, const std::vector<TupleSchema>& tuples)
 {
     PRECONDITION(bufferManager.getNumberOfAvailableBuffers() != 0, "Cannot create a test tuple buffer, if there are no buffers available");
-    auto rowLayout = std::make_shared<RowLayout>(bufferManager.getBufferSize(), schema);
-    auto testTupleBuffer = std::make_unique<TestTupleBuffer>(rowLayout, bufferManager.getBufferBlocking());
+    auto tupleBufferRef = LowerSchemaProvider::lowerSchema(bufferManager.getBufferSize(), schema, MemoryLayoutType::ROW_LAYOUT);
+    auto tupleBuffer = bufferManager.getBufferBlocking();
 
-    for (const auto& testTuple : tuples)
+    for (const auto& tuple : tuples)
     {
-        if constexpr (ContainsVarSized)
+        [&tupleBuffer, &tupleBufferRef, &bufferManager]<size_t... Is>(const auto& fields, std::index_sequence<Is...>)
         {
-            testTupleBuffer->pushRecordToBuffer(testTuple, &bufferManager);
-        }
-        else
-        {
-            testTupleBuffer->pushRecordToBuffer(testTuple);
-        }
+            (writeFieldToBuffer(std::get<Is>(fields), Is, tupleBuffer, *tupleBufferRef, bufferManager), ...);
+        }(tuple, std::make_index_sequence<std::tuple_size_v<TupleSchema>>{});
+        tupleBuffer.setNumberOfTuples(tupleBuffer.getNumberOfTuples() + 1);
     }
 
     if constexpr (PrintDebug)
     {
-        NES_DEBUG("test tuple buffer is: {}", testTupleBuffer->toString(schema));
+        printTupleBuffer("test tuple buffer is: ", tupleBuffer, *tupleBufferRef);
     }
-    return testTupleBuffer->getBuffer();
+    return tupleBuffer;
 }
 
 /// Gets the actual result buffers and the expected result buffers from the test handle and compares them.
 /// Logs both the actual and the expected buffers if 'PrintDebug' is set to true.
 template <typename TupleSchemaTemplate, bool PrintDebug>
-bool validateResult(const TestHandle<TupleSchemaTemplate>& testHandle)
+bool validateResult(TestHandle<TupleSchemaTemplate>& testHandle)
 {
     /// check that vectors of vectors contain the same number of vectors.
     bool isValid = true;
     isValid &= (testHandle.resultBuffers->size() == testHandle.expectedResultVectors.size());
 
     /// iterate over all vectors in the actual results
-    for (size_t taskIndex = 0; const auto& actualResultVector : *testHandle.resultBuffers)
+    for (size_t taskIndex = 0; auto& actualResultVector : *testHandle.resultBuffers)
     {
         /// check that the corresponding vector in the vector of vector containing the expected results is of the same size
         isValid &= (actualResultVector.size() == testHandle.expectedResultVectors[taskIndex].size());
         /// iterate over all buffers in the vector containing the actual results and compare the buffer with the corresponding buffers
         /// in the expected results.
-        for (size_t bufferIndex = 0; const auto& actualResultBuffer : actualResultVector)
+        for (size_t bufferIndex = 0; auto& actualResultBuffer : actualResultVector)
         {
             if (PrintDebug)
             {
                 /// If specified, print the contents of the buffers.
-                auto actualResultTestBuffer = TestTupleBuffer::createTestTupleBuffer(actualResultBuffer, testHandle.schema);
-                actualResultTestBuffer.setNumberOfTuples(actualResultBuffer.getNumberOfTuples());
-                auto expectedTestBuffer
-                    = TestTupleBuffer::createTestTupleBuffer(testHandle.expectedResultVectors[taskIndex][bufferIndex], testHandle.schema);
-                expectedTestBuffer.setNumberOfTuples(expectedTestBuffer.getNumberOfTuples());
-                NES_DEBUG(
-                    "\n Actual result buffer:\n{} Expected result buffer:\n{}",
-                    actualResultTestBuffer.toString(testHandle.schema, TestTupleBuffer::PrintMode::NO_HEADER_END_IN_NEWLINE),
-                    expectedTestBuffer.toString(testHandle.schema, TestTupleBuffer::PrintMode::NO_HEADER_END_IN_NEWLINE));
+                auto tupleBufferRef
+                    = LowerSchemaProvider::lowerSchema(actualResultBuffer.getBufferSize(), testHandle.schema, MemoryLayoutType::ROW_LAYOUT);
+                printTupleBuffer("\n Actual result buffer:\n", actualResultBuffer, *tupleBufferRef);
+                printTupleBuffer(" Expected result buffer:\n", testHandle.expectedResultVectors[taskIndex][bufferIndex], *tupleBufferRef);
             }
             isValid &= checkIfBuffersAreEqual(
-                actualResultBuffer, testHandle.expectedResultVectors[taskIndex][bufferIndex], testHandle.schema.getSizeOfSchemaInBytes());
+                actualResultBuffer, testHandle.expectedResultVectors[taskIndex][bufferIndex], getSizeInBytes(testHandle.schema));
             ++bufferIndex;
         }
         ++taskIndex;
@@ -408,13 +459,14 @@ template <typename TupleSchemaTemplate, bool PrintDebug>
 std::vector<std::vector<TupleBuffer>> createExpectedResults(const TestHandle<TupleSchemaTemplate>& testHandle)
 {
     std::vector<std::vector<TupleBuffer>> expectedTupleBuffers(1);
-    for (const auto workerThreadResultVector : testHandle.testConfig.expectedResults)
+    for (const auto& workerThreadResultVector : testHandle.testConfig.expectedResults)
     {
         /// expectedBuffersVector: vector<TupleSchemaTemplate>
         for (const auto& expectedBuffersVector : workerThreadResultVector.expectedResultsForThread)
         {
-            expectedTupleBuffers.at(0).emplace_back(createTupleBufferFromTuples<TupleSchemaTemplate, false, PrintDebug>(
-                testHandle.schema, *testHandle.formattedBufferManager, expectedBuffersVector));
+            expectedTupleBuffers.at(0).emplace_back(
+                createTupleBufferFromTuples<TupleSchemaTemplate, PrintDebug>(
+                    testHandle.schema, *testHandle.formattedBufferManager, expectedBuffersVector));
         }
     }
     return expectedTupleBuffers;
@@ -423,10 +475,24 @@ std::vector<std::vector<TupleBuffer>> createExpectedResults(const TestHandle<Tup
 template <typename TupleSchemaTemplate>
 TestHandle<TupleSchemaTemplate> setupTest(const TestConfig<TupleSchemaTemplate>& testConfig)
 {
-    std::shared_ptr<BufferManager> testBufferManager
-        = BufferManager::create(testConfig.sizeOfRawBuffers, 2 * testConfig.numRequiredBuffers);
-    std::shared_ptr<BufferManager> formattedBufferManager
-        = BufferManager::create(testConfig.sizeOfFormattedBuffers, 2 * testConfig.numRequiredBuffers);
+    /// One extra buffer of headroom absorbs the floor rounding of pooled bytes -> buffer count.
+    const size_t poolBufferCount = static_cast<size_t>(2 * testConfig.numRequiredBuffers) + 1;
+
+    const size_t rawTotalMemory = (poolBufferCount * testConfig.sizeOfRawBuffers) + UNPOOLED_MEMORY_BUDGET_IN_BYTES;
+    std::shared_ptr<BufferManager> testBufferManager = BufferManager::create(
+        rawTotalMemory,
+        static_cast<double>(UNPOOLED_MEMORY_BUDGET_IN_BYTES) / static_cast<double>(rawTotalMemory),
+        BUFFER_ALIGNMENT,
+        testConfig.sizeOfRawBuffers,
+        std::make_shared<NesDefaultMemoryAllocator>());
+
+    const size_t formattedTotalMemory = (poolBufferCount * testConfig.sizeOfFormattedBuffers) + UNPOOLED_MEMORY_BUDGET_IN_BYTES;
+    std::shared_ptr<BufferManager> formattedBufferManager = BufferManager::create(
+        formattedTotalMemory,
+        static_cast<double>(UNPOOLED_MEMORY_BUDGET_IN_BYTES) / static_cast<double>(formattedTotalMemory),
+        BUFFER_ALIGNMENT,
+        testConfig.sizeOfFormattedBuffers,
+        std::make_shared<NesDefaultMemoryAllocator>());
 
     auto resultBuffers = std::make_shared<std::vector<std::vector<TupleBuffer>>>(1);
     auto schema = createSchema(testConfig.testSchema);
@@ -436,6 +502,7 @@ TestHandle<TupleSchemaTemplate> setupTest(const TestConfig<TupleSchemaTemplate>&
         formattedBufferManager,
         resultBuffers,
         std::move(schema),
+        testConfig.memoryLayoutType,
         std::make_unique<SingleThreadedTestTaskQueue>(formattedBufferManager, resultBuffers),
         {},
         {}};
@@ -444,28 +511,38 @@ TestHandle<TupleSchemaTemplate> setupTest(const TestConfig<TupleSchemaTemplate>&
 template <typename TupleSchemaTemplate>
 std::vector<TestPipelineTask> createTasks(const TestHandle<TupleSchemaTemplate>& testHandle)
 {
-    const std::shared_ptr<InputFormatterTaskPipeline> inputFormatterTask
-        = provideInputFormatterTask(testHandle.schema, testHandle.testConfig.parserConfig);
+    auto inputFormatter = createInputFormatter(
+        testHandle.testConfig.parserConfig,
+        testHandle.schema,
+        testHandle.memoryLayoutType,
+        testHandle.formattedBufferManager->getBufferSize(),
+        false);
     std::vector<TestPipelineTask> tasks;
     tasks.reserve(testHandle.inputBuffers.size());
     for (const auto& inputBuffer : testHandle.inputBuffers)
     {
-        tasks.emplace_back(
-            createInputFormatterTask(inputBuffer.sequenceNumber, WorkerThreadId(0), inputBuffer.rawByteBuffer, inputFormatterTask));
+        tasks.emplace_back(TestPipelineTask{WorkerThreadId(0), inputBuffer, inputFormatter});
     }
     return tasks;
 }
 
 template <typename TupleSchemaTemplate>
-std::vector<TaskPackage> createTestTupleBuffers(const TestHandle<TupleSchemaTemplate>& testHandle)
+std::vector<TupleBuffer> createTestTupleBuffers(const TestHandle<TupleSchemaTemplate>& testHandle)
 {
-    std::vector<TaskPackage> rawTupleBuffers;
+    std::vector<TupleBuffer> rawTupleBuffers;
     for (const auto& rawInputBuffer : testHandle.testConfig.rawBytesPerThread)
     {
-        auto tupleBuffer = testHandle.testBufferManager->getBufferNoBlocking();
-        INVARIANT(tupleBuffer, "Couldn't get buffer from bufferManager. Configure test to use more buffers.");
-        rawTupleBuffers.emplace_back(TaskPackage{
-            rawInputBuffer.sequenceNumber, copyStringDataToTupleBuffer(rawInputBuffer.rawBytes, std::move(tupleBuffer.value()))});
+        if (auto tupleBuffer = testHandle.testBufferManager->getBufferNoBlocking())
+        {
+            copyStringDataToTupleBuffer(rawInputBuffer.rawBytes, tupleBuffer.value());
+            tupleBuffer.value().setSequenceNumber(rawInputBuffer.sequenceNumber);
+            tupleBuffer.value().setChunkNumber(INITIAL_CHUNK_NUMBER);
+            rawTupleBuffers.emplace_back(tupleBuffer.value());
+        }
+        else
+        {
+            throw BufferAllocationFailure("Couldn't get buffer from bufferManager. Configure test to use more buffers.");
+        }
     }
     return rawTupleBuffers;
 }
@@ -487,5 +564,4 @@ void runTest(const TestConfig<TupleSchemaTemplate>& testConfig)
     const auto validationResult = validateResult<TupleSchemaTemplate, PrintDebug>(testHandle);
     ASSERT_TRUE(validationResult);
 }
-
 }

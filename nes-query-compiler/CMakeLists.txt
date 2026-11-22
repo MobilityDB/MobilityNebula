@@ -10,19 +10,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Set Sources and Headers
-add_subdirectory(src)
-get_source(nes-query-compiler NES_QUERY_COMPILER_SOURCE_FILES)
 
-# Add Library
-add_library(nes-query-compiler ${NES_QUERY_COMPILER_SOURCE_FILES})
-target_link_libraries(nes-query-compiler PUBLIC nes-nautilus nes-physical-operators nes-query-optimizer nes-runtime nes-input-formatters)
+# Add interface library
+add_library(nes-query-compiler-interface interface/QueryExecutionConfiguration.cpp interface/SliceCacheConfiguration.cpp interface/BloomFilterConfiguration.cpp)
+target_include_directories(nes-query-compiler-interface PUBLIC interface)
+target_link_libraries(nes-query-compiler-interface PUBLIC nes-configurations)
+# Lets the nautilus_inlining option default to whether the inlining pass was applied at build time.
+target_compile_definitions(nes-query-compiler-interface PRIVATE NES_NAUTILUS_INLINING_ACTIVE=$<IF:$<BOOL:${NES_NAUTILUS_INLINING_ACTIVE}>,true,false>)
+
+# Declare the library up front so create_runtime_registry can attach the glue sub-library;
+# sources are added below once src/ has registered them.
+add_library(nes-query-compiler STATIC)
+set_target_properties(nes-query-compiler PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(nes-query-compiler PUBLIC nes-nautilus nes-physical-operators nes-runtime nes-input-formatter-provider PRIVATE nes-schema)
 target_include_directories(nes-query-compiler PUBLIC
         PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/private>)
 
-if (NES_ENABLE_PRECOMPILED_HEADERS)
-    target_precompile_headers(nes-query-compiler REUSE_FROM nes-common)
-    # We need to compile with -fPIC to include with nes-common compiled headers as it uses PIC
-    target_compile_options(nes-query-compiler PUBLIC "-fPIC")
-endif ()
+# Runtime registry: lowering rules are constructed uniformly from the query execution
+# configuration; the class is LowerToPhysical<name> (the Source rule registers under the key
+# SourceDescriptor).
+create_runtime_registry(LoweringRule nes-query-compiler
+        ENTRY_TEMPLATE "makeLoweringRule<LowerToPhysical\${PLUGIN_NAME}>()"
+        HEADER_TEMPLATE "LowerToPhysical\${PLUGIN_NAME}.hpp"
+        INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/private)
+
+add_subdirectory(src)
+get_source(nes-query-compiler NES_QUERY_COMPILER_SOURCE_FILES)
+target_sources(nes-query-compiler PRIVATE ${NES_QUERY_COMPILER_SOURCE_FILES})
+
+
+add_tests_if_enabled(tests)

@@ -38,14 +38,25 @@ log_fatal() {
 }
 
 
-if [ -x "$(command -v clang-format-19)" ]
+if [ -x "$(command -v clang-format-22)" ]
 then
-    CLANG_FORMAT="clang-format-19"
-elif [ -x "$(command -v clang-format)" ] && clang-format --version | grep "version 19" > /dev/null
+    CLANG_FORMAT="clang-format-22"
+elif [ -x "$(command -v clang-format)" ] && clang-format --version | grep "version 22" > /dev/null
 then
     CLANG_FORMAT="clang-format"
 else
-    log_fatal could not find clang-format 19 in PATH, please install.
+    log_fatal could not find clang-format 22 in PATH, please install.
+fi
+
+if [ -x "$(command -v rustfmt)" ]
+then
+    RUSTFMT="rustfmt"
+    if ! rustfmt --edition 2024 --help > /dev/null 2>&1
+    then
+        log_fatal rustfmt does not support 2024 edition, please update rustfmt.
+    fi
+else
+    log_fatal could not find rustfmt in PATH, please install.
 fi
 
 # calculate distance to base branch
@@ -61,6 +72,13 @@ fi
 if [ -v CI ]
 then
     [ -v DISTANCE_MERGE_BASE ] || log_fatal Running in CI but DISTANCE_MERGE_BASE not set
+    # A negative value is the sentinel for "commit count unknown" (e.g. merge_group runs,
+    # which have no pull_request payload). In that case the full history is fetched, so we
+    # compute the distance to the base branch ourselves, just like the local path below.
+    if [ "$DISTANCE_MERGE_BASE" -lt 0 ]
+    then
+        DISTANCE_MERGE_BASE=$(git rev-list --count origin/main..HEAD)
+    fi
 else
     DISTANCE_MERGE_BASE=$(git rev-list --count origin/main..HEAD)
 fi
@@ -85,19 +103,26 @@ then
     git ls-files -- '*.cpp' '*.hpp' \
       | xargs --max-args=10 --max-procs="$(nproc)" "$CLANG_FORMAT" -i
 
+    git ls-files -- '*.rs' \
+      | xargs --max-args=10 --max-procs="$(nproc)" "$RUSTFMT" --edition 2024
+
     # newline at eof
     #
     # list files in repo
     #   remove filenames indicating non-text content
     #   last char as decimal ascii is 10 (i.e. is newline) OR append newline
     git ls-files \
-      | grep --invert-match -e "\.png$" -e "\.zip$" -e "\.bin$" -e "\.nes" \
+      | grep --invert-match -e "\.png$" -e "\.zip$" -e "\.bin$" -e "\.nes" -e "\.onnx$" -e "\.pb$" -e "\.pbtxt$" -e "\.meta$" -e "\.tflite$" -e "\.pdmodel$" -e "\.pdiparams$" -e "variables\.index$" -e "variables\.data-" \
       | xargs --max-procs="$(nproc)" -I {} sh -c '[ "$(tail -c 1 {} | od -A n -t d1)" = "   10" ] || echo "" >> {}'
 
 else
     # clang-format
     git ls-files -- '*.cpp' '*.hpp' \
       | xargs --max-args=10 --max-procs="$(nproc)" "$CLANG_FORMAT" --dry-run -Werror \
+      || FAIL=1
+
+    git ls-files -- '*.rs' \
+      | xargs --max-args=10 --max-procs="$(nproc)" "$RUSTFMT" --edition 2024 --check \
       || FAIL=1
 
     # newline at eof
@@ -107,7 +132,7 @@ else
     #   take last char of the files, count lines and chars,
     #   fail if not equal (i.e. not every char is a newline)
     git ls-files \
-      | grep --invert-match -e "\.png$" -e "\.zip$" -e "\.bin$" -e "\.nes" \
+      | grep --invert-match -e "\.png$" -e "\.zip$" -e "\.bin$" -e "\.nes" -e "\.onnx$" -e "\.pb$" -e "\.pbtxt$" -e "\.meta$" -e "\.tflite$" -e "\.pdmodel$" -e "\.pdiparams$" -e "variables\.index$" -e "variables\.data-" \
       | xargs --max-args=10 --max-procs="$(nproc)" tail -qc 1  | wc -cl \
       | awk '$1 != $2 { exit 1 }' \
       || log_error 'There are missing newline(s) at EOF. Please run "scripts/format.sh -i" to fix'
@@ -135,7 +160,11 @@ do
     # check if corresponding header file exists
     if ! git ls-files | grep "$basename.hpp" > /dev/null
     then
-        log_warn "file has no corresponding header file: $file"
+        if [[ "$basename" =~ (test|Test|tests|Tests)$ ]]; then
+            log_warn "file has no corresponding header file: $file (fine for tests)"
+        else
+            log_warn "file has no corresponding header file: $file"
+        fi
         continue
     fi
     # error if the first include does not contain the basename
@@ -159,18 +188,37 @@ do
     fi
 done
 
+# error: no parent-relative or absolute path includes
+#
+# Includes must use the configured include paths, not parent-directory traversal
+# (e.g. <../../foo.hpp> or "../../foo.hpp") or absolute paths (e.g. </home/user/foo.hpp>
+# or "/home/user/foo.hpp"). This applies to both angle-bracket and double-quote includes.
+INCLUDE_PATH_PATTERN='#include[[:space:]]+([<"]/|[<"][^>"]*\.\./)'
+if git grep -E "$INCLUDE_PATH_PATTERN" -- "*.hpp" "*.cpp" > /dev/null
+then
+    log_error "Found include(s) with parent-relative or absolute paths. Use proper include paths instead.\n$(git grep -n -E "$INCLUDE_PATH_PATTERN" -- "*.hpp" "*.cpp")"
+fi
+
 # no raw catch (...)
 #
 # We generally want to have cpptrace traces, thus we need to use the cpptrace try-catch wrapper.
 # c.f. https://github.com/jeremy-rifkin/cpptrace?tab=readme-ov-file#traces-from-all-exceptions-cpptrace_try-and-cpptrace_catch
 if git grep "catch (\.\.\.)" -- ".hpp" "*.cpp" | grep -v "NOLINT(no-raw-catch-all)" > /dev/null
 then
-    log_error "Found catch (...). Please use CPPTRACE_TRY and CPPTRACE_CATCH to preserve stacktraces.\n$(git grep -n "catch (\.\.\.)" -- ".hpp" "*.cpp" | grep -v "NOLINT(no-raw-catch-all)")"
+    log_error "Found catch (...). Please use CPPTRACE_TRY and CPPTRACE_CATCH (or cpptrace::try_catch for multiple exception handlers) to preserve stacktraces, .\n$(git grep -n "catch (\.\.\.)" -- ".hpp" "*.cpp" | grep -v "NOLINT(no-raw-catch-all)")"
 fi
 
 python3 scripts/check_preamble.py || FAIL=1
 
 DISTANCE_MERGE_BASE=$DISTANCE_MERGE_BASE python3 scripts/check_todos.py || FAIL=1
+
+# error code uniqueness check
+DUPLICATES=$(sed -nE 's/^[[:space:]]*EXCEPTION\([^,]+,[[:space:]]*([0-9]+)[[:space:]]*,.*$/\1/p' nes-common/include/ExceptionDefinitions.inc | sort -n | uniq -d)
+if [ -n "$DUPLICATES" ]
+then
+    log_error "Duplicate exception codes found:"
+    echo "$DUPLICATES"
+fi
 
 [ "$FAIL" = "0" ] && echo "format.sh: no problems found"
 

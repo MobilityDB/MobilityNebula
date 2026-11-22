@@ -75,6 +75,13 @@ The CI will create a development image based on the latest set of dependencies a
 Lastly, the dependency image is used to build the development image, which contains additional tools we use in our CI or
 during daily development (e.g., clang-format, clang-tidy, gdb, ...).
 
+By default, the `dependency` image includes debug and release builds of all dependencies. The CI skips the debug builds
+by setting the `RELEASE_ONLY_DEPENDENCIES=true` build argument, because some GitHub-hosted runners do not have the disk
+for them. All images on Docker Hub, which `scripts/install-local-docker-environment.sh` uses by default, are therefore
+release-only, and Debug builds of NebulaStream link the release builds of the dependencies. To get the debug builds,
+build the images locally with `scripts/install-local-docker-environment.sh -l`, or build the dependencies without Docker.
+The image tag only depends on the dependency hash, so it does not show which of the two an image is.
+
 ## Continuous Integration
 
 The CI is aware of NebulaStreams dependency management. The PR CI Job detects changes to folders relevant to dependency
@@ -94,11 +101,10 @@ rebuilds of the docker images.
 
 Only build a new set of Docker images if changes to the dependency are detected. Since we rely on a fixed baseline of
 vcpkg, changes to the dependencies are always explicit via the vcpkg manifest or the Docker images.
-Docker image caching: Every docker image built in the CI builds an additional cache image (suffixed with the
-`—cache:tag`). This prevents PRs from rerunning the CI to rebuild its docker images unnecessarily, as all docker builds
-have been cached in a previous CI run.
-Latest image caching: When the CI builds a new docker image, we also pass the cache image of the `latest` image. Thus,
-we could prevent rebuilds in the first invocation of the CI if only changes to the development were made.
+VCPKG binary caching: The dependency image build supports S3-compatible binary caching for vcpkg packages. When S3
+credentials are provided (via GitHub secrets or environment variables), packages are cached in readwrite mode. A public
+read-only cache endpoint is available as a fallback for local builds without credentials. This significantly reduces
+build times when only a few dependencies change between builds.
 
 ### Multiplatform Images
 
@@ -127,10 +133,47 @@ patch throws all transient dependencies which would otherwise be introduced via 
 
 ### LLVM
 
-Based on the current vcpkg version. The LLVM patch simply disables all default features. This is not possible via
+Based on the current vcpkg version (22.1.8). The LLVM patch simply disables all default features. This is not possible via
 `vcpkg.json` because llvm is included via
-nautilus.
+nautilus. The remaining patches only fix install directories and disable the libomp aliases so that the port installs
+into the vcpkg layout. This port is only used when MLIR is built via vcpkg; the docker images and the nix flake use the
+prebuilt MLIR binaries from [clang-binaries](https://github.com/nebulastream/clang-binaries) (release `vmlir-22-clang22-v2`,
+MLIR 22 built with our clang 22 toolchain).
+
+### Paho MQTT
+
+The Paho MQTT C and C++ ports apply a libc++ compatibility patch. Paho's C++ client stores ALPN protocol data in
+`std::basic_string<unsigned char>`, which requires `std::char_traits<unsigned char>`. libc++ no longer provides this
+non-standard specialization; the standard only mandates it for `char`, `wchar_t`, `char8_t`, `char16_t`, and
+`char32_t`. The patch stores the data as `char` instead, allowing the MQTT dependencies to build with libc++.
+
+The Paho MQTT C port (vcpkg and nix) additionally carries the fix from upstream PR
+[#1706](https://github.com/eclipse-paho/paho.mqtt.c/pull/1706) for
+[#1622](https://github.com/eclipse-paho/paho.mqtt.c/issues/1622): a QoS 1/2 publish that fails with `SOCKET_ERROR` frees
+its payload although the stored publication already owns it, so the payload is freed a second time when the session is
+cleaned up. Drop the patch once a Paho release contains the fix.
 
 ### Nautilus
 
-Nautilus is not currently on vcpkg.
+Nautilus is not in the vcpkg registry, we provide our own port pinned to a commit of
+[nebulastream/nautilus](https://github.com/nebulastream/nautilus). The port builds the MLIR, AsmJit and threaded-bytecode
+(TBC, including its copy-and-patch JIT) backends and all plugins except the GPU plugin; the bytecode (bc) and C++ backends
+are disabled. It carries two patches until they are upstream: one includes `fmt/format.h` where newer fmt versions
+require it, the other moves a by-value `std::function` argument that clang-tidy 22 otherwise reports in our code. The nix flake builds the same nautilus commit
+(`.nix/nautilus`), keep both in sync when bumping.
+
+### libuuid
+
+The vcpkg libuuid port uses an unmaintained standalone fork from SourceForge (v1.0.3, circa 2013) rather than the
+upstream [util-linux](https://github.com/util-linux/util-linux) source. Our custom port patches a signed left-shift
+undefined behavior in `randutils.c` that was fixed upstream in 2020
+([util-linux@3534b2c7](https://github.com/util-linux/util-linux/commit/3534b2c7c7)).
+
+### Scope Guard
+
+[Scope Guard](https://github.com/Neargye/scope_guard) is not currently on vcpkg.
+
+### HiGHS
+
+[HiGHS](https://github.com/ERGO-Code/HiGHS) needs a patch that allows building with c++23.
+The patch also disables the HiGHS tool which is build with the vcpkg port.

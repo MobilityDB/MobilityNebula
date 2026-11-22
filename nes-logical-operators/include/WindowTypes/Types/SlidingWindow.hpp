@@ -13,32 +13,65 @@
 */
 
 #pragma once
+#include <cstddef>
+#include <functional>
 #include <memory>
+#include <ostream>
+#include <Util/Logger/Formatter.hpp>
+#include <Util/ReflectionFwd.hpp>
 #include <WindowTypes/Measures/TimeCharacteristic.hpp>
 #include <WindowTypes/Measures/TimeMeasure.hpp>
-#include <WindowTypes/Types/TimeBasedWindowType.hpp>
-#include <WindowTypes/Types/WindowType.hpp>
 
 namespace NES::Windowing
 {
 
 /// A SlidingWindow assigns records to multiple overlapping windows.
-class SlidingWindow : public TimeBasedWindowType
+class SlidingWindow
 {
 public:
-    static std::shared_ptr<WindowType> of(TimeCharacteristic timeCharacteristic, TimeMeasure size, TimeMeasure slide);
+    SlidingWindow(TimeMeasure size, TimeMeasure slide);
 
-    TimeMeasure getSize() override;
-    TimeMeasure getSlide() override;
+    [[nodiscard]] TimeMeasure getSize() const;
+    [[nodiscard]] TimeMeasure getSlide() const;
 
-    std::string toString() const override;
-
-    bool operator==(const WindowType& otherWindowType) const override;
+    bool operator==(const SlidingWindow& otherWindowType) const;
+    friend std::ostream& operator<<(std::ostream& os, const SlidingWindow& slidingWindow);
 
 private:
-    SlidingWindow(TimeCharacteristic timeCharacteristic, TimeMeasure size, TimeMeasure slide);
-    const TimeMeasure size;
-    const TimeMeasure slide;
+    TimeMeasure size;
+    TimeMeasure slide;
 };
 
 }
+
+namespace NES
+{
+template <>
+struct Reflector<Windowing::SlidingWindow>
+{
+    Reflected operator()(const Windowing::SlidingWindow& slidingWindow, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<Windowing::SlidingWindow>
+{
+    Windowing::SlidingWindow operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
+
+namespace detail
+{
+struct ReflectedSlidingWindow
+{
+    Windowing::TimeMeasure size{0};
+    Windowing::TimeMeasure slide{0};
+};
+}
+}
+
+template <>
+struct std::hash<NES::Windowing::SlidingWindow>
+{
+    std::size_t operator()(const NES::Windowing::SlidingWindow& window) const noexcept;
+};
+
+FMT_OSTREAM(NES::Windowing::SlidingWindow);

@@ -10,19 +10,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_plugin(Avg AggregationPhysicalFunction nes-physical-operators AvgAggregationPhysicalFunction.cpp)
-add_plugin(Count AggregationPhysicalFunction nes-physical-operators CountAggregationPhysicalFunction.cpp)
-add_plugin(Max AggregationPhysicalFunction nes-physical-operators MaxAggregationPhysicalFunction.cpp)
-add_plugin(Min AggregationPhysicalFunction nes-physical-operators MinAggregationPhysicalFunction.cpp)
-add_plugin(Median AggregationPhysicalFunction nes-physical-operators MedianAggregationPhysicalFunction.cpp)
-add_plugin(CountDistinct AggregationPhysicalFunction nes-physical-operators CountDistinctAggregationPhysicalFunction.cpp)
-add_plugin(Sum AggregationPhysicalFunction nes-physical-operators SumAggregationPhysicalFunction.cpp)
-add_plugin(Array_Agg AggregationPhysicalFunction nes-physical-operators ArrayAggregationPhysicalFunction.cpp)
-
 
 add_source_files(nes-physical-operators
+        AggregationPhysicalFunctionRegistry.cpp
         AggregationPhysicalFunction.cpp
+        ArrayAggregationPhysicalFunction.cpp
+        AvgAggregationPhysicalFunction.cpp
+        CountAggregationPhysicalFunction.cpp
+        CountDistinctAggregationPhysicalFunction.cpp
+        MaxAggregationPhysicalFunction.cpp
+        MinAggregationPhysicalFunction.cpp
+        MedianAggregationPhysicalFunction.cpp
         SessionBoundsAggregationPhysicalFunction.cpp
+        SumAggregationPhysicalFunction.cpp
 )
 
-add_subdirectory(Meos)
+add_registry_entry(AggregationPhysicalFunction Array KEY Array_Agg)
+add_registry_entry(AggregationPhysicalFunction Avg)
+add_registry_entry(AggregationPhysicalFunction Count)
+add_registry_entry(AggregationPhysicalFunction CountDistinct)
+add_registry_entry(AggregationPhysicalFunction Max)
+add_registry_entry(AggregationPhysicalFunction Median)
+add_registry_entry(AggregationPhysicalFunction Min)
+add_registry_entry(AggregationPhysicalFunction Sum)

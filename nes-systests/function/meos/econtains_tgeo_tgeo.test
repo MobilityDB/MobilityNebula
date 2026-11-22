@@ -1,14 +1,14 @@
 # name: MEOS_EContains_TGeo_TGeo
-# description: eContains, 6-arg (econtains_tgeo_tgeo): two single-instant tgeompoints at the same instant; contains iff coincident.
+# description: eContains of two temporal geometries, as the catalog states it (a temporal point is never the container): a single-instant temporal geometry holding a point contains another at the same time iff they are equal. Both are read by tgeometryFromText.
 # groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, EContains]
-CREATE LOGICAL SOURCE ect(id UINT32, lonA FLOAT64, latA FLOAT64, tsA UINT64, lonB FLOAT64, latB FLOAT64, tsB UINT64);
-CREATE PHYSICAL SOURCE FOR ect TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+CREATE LOGICAL SOURCE ect(id UINT32, a VARSIZED, b VARSIZED);
+CREATE PHYSICAL SOURCE FOR ect TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
 ATTACH INLINE
-1|4.3658|50.6456|1609459200|4.3658|50.6456|1609459200
-2|4.3658|50.6456|1609459200|4.4000|50.7000|1609459200
+1|SRID=4326;POINT(4.3658 50.6456)@2021-01-01 00:00:00+00|SRID=4326;POINT(4.3658 50.6456)@2021-01-01 00:00:00+00
+2|SRID=4326;POINT(4.3658 50.6456)@2021-01-01 00:00:00+00|SRID=4326;POINT(4.4 50.7)@2021-01-01 00:00:00+00
 
-CREATE SINK ect_out(ect.id UINT32, contains INT32) TYPE File;
-SELECT id, eContains(lonA, latA, tsA, lonB, latB, tsB) AS contains FROM ect INTO ect_out;
+CREATE SINK ect_out(id UINT32, contains BOOLEAN) TYPE File;
+SELECT id, eContains(tgeometryFromText(a), tgeometryFromText(b)) AS contains FROM ect INTO ect_out;
 ----
 1,1
 2,0

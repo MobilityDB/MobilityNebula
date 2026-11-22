@@ -27,6 +27,7 @@
 #include <Operators/LogicalOperator.hpp>
 #include <Util/Logger/Formatter.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <QueryId.hpp>
 
 namespace NES
 {
@@ -35,8 +36,7 @@ namespace NES
 class LogicalPlan
 {
 public:
-    LogicalPlan() = default;
-    explicit LogicalPlan(LogicalOperator rootOperator);
+    LogicalPlan() = delete;
     explicit LogicalPlan(QueryId queryId, std::vector<LogicalOperator> rootOperators);
     explicit LogicalPlan(QueryId queryId, std::vector<LogicalOperator> rootOperators, std::string originalSql);
 
@@ -48,7 +48,7 @@ public:
     [[nodiscard]] bool operator==(const LogicalPlan& otherPlan) const;
     friend std::ostream& operator<<(std::ostream& os, const LogicalPlan& plan);
 
-    [[nodiscard]] QueryId getQueryId() const;
+    [[nodiscard]] const QueryId& getQueryId() const;
     [[nodiscard]] std::string getOriginalSql() const;
     [[nodiscard]] std::vector<LogicalOperator> getRootOperators() const;
 
@@ -65,15 +65,6 @@ private:
 
 /// Get all parent operators of the target operator
 [[nodiscard]] std::vector<LogicalOperator> getParents(const LogicalPlan& plan, const LogicalOperator& target);
-
-/// Replace `target` with `replacement`, keeping target's children
-[[nodiscard]] std::optional<LogicalPlan> replaceOperator(const LogicalPlan& plan, OperatorId target, LogicalOperator replacement);
-
-/// Replace `target` with `replacement`, keeping the children that are already inside `replacement`
-[[nodiscard]] std::optional<LogicalPlan> replaceSubtree(const LogicalPlan& plan, OperatorId target, const LogicalOperator& replacement);
-
-/// Adds a new operator to the plan and promotes it as new root by reparenting existing root operators and replacing the current roots
-[[nodiscard]] LogicalPlan promoteOperatorToRoot(const LogicalPlan& plan, const LogicalOperator& newRoot);
 
 [[nodiscard]] LogicalPlan addRootOperators(const LogicalPlan& plan, const std::vector<LogicalOperator>& rootsToAdd);
 
@@ -102,8 +93,8 @@ template <LogicalOperatorConcept T>
 /// @note: in certain stages the source operators might not be Leaf operators
 [[nodiscard]] std::vector<LogicalOperator> getLeafOperators(const LogicalPlan& plan);
 
-/// Returns a set of all operators
-[[nodiscard]] std::unordered_set<LogicalOperator> flatten(const LogicalPlan& plan);
+/// Returns a set of all operators, deduplicated structurally (see StructuralOperatorHash/StructuralOperatorEqual)
+[[nodiscard]] std::unordered_set<LogicalOperator, StructuralOperatorHash, StructuralOperatorEqual> flatten(const LogicalPlan& plan);
 
 }
 

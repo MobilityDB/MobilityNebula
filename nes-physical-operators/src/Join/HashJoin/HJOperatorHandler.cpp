@@ -20,33 +20,74 @@
 #include <cstdint>
 #include <cstring>
 #include <functional>
+#include <map>
 #include <memory>
+#include <tuple>
 #include <utility>
 #include <vector>
 #include <Identifiers/Identifiers.hpp>
+#include <Interface/HashMap/ChainedHashMap/ChainedHashMap.hpp>
+#include <Interface/HashMap/HashMap.hpp>
 #include <Join/HashJoin/HJSlice.hpp>
 #include <Join/StreamJoinOperatorHandler.hpp>
 #include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/HashMap/HashMap.hpp>
+#include <Runtime/TupleBuffer.hpp>
 #include <Sequencing/SequenceData.hpp>
 #include <SliceStore/Slice.hpp>
 #include <SliceStore/WindowSlicesStoreInterface.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <ErrorHandling.hpp>
+#include <HashMapSlice.hpp>
 #include <PipelineExecutionContext.hpp>
 
 namespace NES
 {
+
+namespace
+{
+/// Collects non-empty hash map buffers for one build side from a single slice. Read-only: a hash map that no
+/// build worker ever touched for this slice is simply skipped, exactly as an untouched slot would be, rather
+/// than being lazily created here. Trigger-time must never allocate, since that would race with a build worker
+/// concurrently first-touching the same slot (see HashMapSlice::getOrCreateHashMapBufferRef).
+std::vector<TupleBuffer> getHashMapsFromSlice(const Slice& slice, JoinBuildSideType side)
+{
+    std::vector<TupleBuffer> buffers;
+    const auto* hjSlice = dynamic_cast<const HJSlice*>(&slice);
+    INVARIANT(hjSlice != nullptr, "Slice must be of type HJSlice!");
+    for (uint64_t i = 0; i < hjSlice->getNumberOfHashMapsForSide(); ++i)
+    {
+        if (const auto* hashMapBuffer = hjSlice->getHashMapBufferRefForSide(WorkerThreadId(i), side);
+            hashMapBuffer != nullptr && ChainedHashMap::load(*hashMapBuffer).getTotalNumberOfRecords() > 0)
+        {
+            buffers.emplace_back(*hashMapBuffer);
+        }
+    }
+    return buffers;
+}
+
+/// Collects non-empty hash map buffers from multiple slices for one build side
+std::vector<TupleBuffer> getHashMapsFromSlices(const std::vector<std::shared_ptr<Slice>>& slices, JoinBuildSideType side)
+{
+    std::vector<TupleBuffer> allBuffers;
+    for (const auto& slice : slices)
+    {
+        for (auto& buffer : getHashMapsFromSlice(*slice, side))
+        {
+            allBuffers.emplace_back(buffer);
+        }
+    }
+    return allBuffers;
+}
+}
+
 HJOperatorHandler::HJOperatorHandler(
     const std::vector<OriginId>& inputOrigins,
     const OriginId outputOriginId,
     std::unique_ptr<WindowSlicesStoreInterface> sliceAndWindowStore,
-    const uint64_t maxNumberOfBuckets)
-    : StreamJoinOperatorHandler(inputOrigins, outputOriginId, std::move(sliceAndWindowStore))
+    JoinTriggerStrategy triggerStrategy)
+    : StreamJoinOperatorHandler(inputOrigins, outputOriginId, std::move(sliceAndWindowStore), std::move(triggerStrategy))
     , setupAlreadyCalledLeft(false)
     , setupAlreadyCalledRight(false)
-    , rollingAverageNumberOfKeys(RollingAverage<uint64_t>{100})
-    , maxNumberOfBuckets(maxNumberOfBuckets)
 {
 }
 
@@ -56,8 +97,7 @@ HJOperatorHandler::getCreateNewSlicesFunction(const CreateNewSlicesArguments& ne
     PRECONDITION(
         numberOfWorkerThreads > 0, "Number of worker threads not set for window based operator. Has setWorkerThreads() being called?");
 
-    auto newHashMapArgs = dynamic_cast<const CreateNewHashMapSliceArgs&>(newSlicesArguments);
-    newHashMapArgs.numberOfBuckets = std::clamp(rollingAverageNumberOfKeys.rlock()->getAverage(), 1UL, maxNumberOfBuckets);
+    const auto& newHashMapArgs = dynamic_cast<const CreateNewHashMapSliceArgs&>(newSlicesArguments);
     return std::function(
         [outputOriginId = outputOriginId, numberOfWorkerThreads = numberOfWorkerThreads, copyOfNewHashMapArgs = newHashMapArgs](
             SliceStart sliceStart, SliceEnd sliceEnd) -> std::vector<std::shared_ptr<Slice>>
@@ -84,72 +124,36 @@ bool HJOperatorHandler::wasSetupCalled(const JoinBuildSideType& buildSide)
     std::unreachable();
 }
 
-void HJOperatorHandler::setNautilusCleanupExec(
-    std::shared_ptr<CreateNewHashMapSliceArgs::NautilusCleanupExec> nautilusCleanupExec, const JoinBuildSideType& buildSide)
-{
-    switch (buildSide)
-    {
-        case JoinBuildSideType::Right:
-            rightCleanupStateNautilusFunction = std::move(nautilusCleanupExec);
-            break;
-        case JoinBuildSideType::Left:
-            leftCleanupStateNautilusFunction = std::move(nautilusCleanupExec);
-            break;
-            std::unreachable();
-    }
-}
-
-std::vector<std::shared_ptr<CreateNewHashMapSliceArgs::NautilusCleanupExec>> HJOperatorHandler::getNautilusCleanupExec() const
-{
-    return {leftCleanupStateNautilusFunction, rightCleanupStateNautilusFunction};
-}
-
 void HJOperatorHandler::emitSlicesToProbe(
-    Slice& sliceLeft,
-    Slice& sliceRight,
+    const std::vector<std::shared_ptr<Slice>>& leftSlices,
+    const std::vector<std::shared_ptr<Slice>>& rightSlices,
+    ProbeTaskType probeTaskType,
     const WindowInfo& windowInfo,
     const SequenceData& sequenceData,
     PipelineExecutionContext* pipelineCtx)
 {
-    /// Counting how many tuples the probe has to check for this probe task
+    const auto leftHashMapBuffers = getHashMapsFromSlices(leftSlices, JoinBuildSideType::Left);
+    const auto rightHashMapBuffers = getHashMapsFromSlices(rightSlices, JoinBuildSideType::Right);
+
+    /// Creating a tuple buffer containing all necessary information for the probe
     uint64_t totalNumberOfTuples = 0;
-
-    /// Getting all hash maps for the left and right slice
-    auto getHashMapsForSlice = [&](const Slice& slice, const JoinBuildSideType& buildSide)
+    for (const auto& buffer : leftHashMapBuffers)
     {
-        std::vector<Nautilus::Interface::HashMap*> allHashMaps;
-        const auto* const hashJoinSlice = dynamic_cast<const HJSlice*>(&slice);
-        INVARIANT(hashJoinSlice != nullptr, "Slice must be of type HashMapSlice!");
-        for (uint64_t hashMapIdx = 0; hashMapIdx < hashJoinSlice->getNumberOfHashMapsForSide(); ++hashMapIdx)
-        {
-            if (auto* hashMap = hashJoinSlice->getHashMapPtr(WorkerThreadId(hashMapIdx), buildSide);
-                hashMap and hashMap->getNumberOfTuples() > 0)
-            {
-                /// As the hashmap has one value per key, we can use the number of tuples for the number of keys
-                rollingAverageNumberOfKeys.wlock()->add(hashMap->getNumberOfTuples());
+        totalNumberOfTuples += ChainedHashMap::load(buffer).getTotalNumberOfRecords();
+    }
+    for (const auto& buffer : rightHashMapBuffers)
+    {
+        totalNumberOfTuples += ChainedHashMap::load(buffer).getTotalNumberOfRecords();
+    }
 
-                allHashMaps.emplace_back(hashMap);
-                totalNumberOfTuples += hashMap->getNumberOfTuples();
-            }
-        }
-        return allHashMaps;
-    };
-    const auto leftHashMaps = getHashMapsForSlice(sliceLeft, JoinBuildSideType::Left);
-    const auto rightHashMaps = getHashMapsForSlice(sliceRight, JoinBuildSideType::Right);
-
-    /// We need a buffer that is large enough to store:
-    /// - all pointers to (left + right) hashmaps of the window to be triggered
-    /// - size of EmittedHJWindowTrigger
-    const auto neededBufferSize
-        = sizeof(EmittedHJWindowTrigger) + ((leftHashMaps.size() + rightHashMaps.size()) * sizeof(Nautilus::Interface::HashMap*));
+    /// Hash map buffers are stored as child buffers, not inline in the main buffer.
+    constexpr auto neededBufferSize = sizeof(EmittedHJWindowTrigger);
     const auto tupleBufferVal = pipelineCtx->getBufferManager()->getUnpooledBuffer(neededBufferSize);
     if (not tupleBufferVal.has_value())
     {
         throw CannotAllocateBuffer("{}B for the hash join window trigger were requested", neededBufferSize);
     }
 
-    /// As we are here "emitting" a buffer, we have to set the originId, the seq number, the watermark and the "number of tuples".
-    /// The watermark cannot be the slice end as some buffers might be still waiting to get processed.
     auto tupleBuffer = tupleBufferVal.value();
     tupleBuffer.setOriginId(outputOriginId);
     tupleBuffer.setSequenceNumber(SequenceNumber(sequenceData.sequenceNumber));
@@ -161,19 +165,20 @@ void HJOperatorHandler::emitSlicesToProbe(
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()));
 
     /// Writing all necessary information for the probe to the buffer via the placement constructor
-    new (tupleBuffer.getAvailableMemoryArea().data()) EmittedHJWindowTrigger{windowInfo, leftHashMaps, rightHashMaps};
+    new (tupleBuffer.getAvailableMemoryArea().data())
+        EmittedHJWindowTrigger{windowInfo, leftHashMapBuffers.size(), rightHashMapBuffers.size(), probeTaskType};
 
-    /// Dispatching the buffer to the probe operator via the task queue.
+    /// Store left hash map buffers as children first (indices 0..left-1), then right (indices left..left+right-1)
+    for (auto leftBuffer : leftHashMapBuffers)
+    {
+        std::ignore = tupleBuffer.storeChildBuffer(leftBuffer);
+    }
+    for (auto rightBuffer : rightHashMapBuffers)
+    {
+        std::ignore = tupleBuffer.storeChildBuffer(rightBuffer);
+    }
+
     pipelineCtx->emitBuffer(tupleBuffer);
-    NES_TRACE(
-        "Triggered window {}-{} with watermarkTs {} sequenceNumber {} originId {} and {}-{} hashmaps",
-        windowInfo.windowStart,
-        windowInfo.windowEnd,
-        tupleBuffer.getWatermark(),
-        tupleBuffer.getSequenceNumber(),
-        tupleBuffer.getOriginId(),
-        leftHashMaps.size(),
-        rightHashMaps.size());
 }
 
 }

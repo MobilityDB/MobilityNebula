@@ -20,7 +20,6 @@
 #include <Sequencing/NonBlockingMonotonicSeqQueue.hpp>
 #include <Sequencing/SequenceData.hpp>
 #include <Time/Timestamp.hpp>
-#include <Util/Common.hpp>
 
 namespace NES
 {
@@ -37,6 +36,9 @@ public:
 
     /// @brief Returns the current watermark across all origins
     [[nodiscard]] Timestamp getCurrentWatermark() const;
+
+    /// @brief Returns the current watermark of a single origin
+    [[nodiscard]] Timestamp getCurrentWatermark(OriginId origin) const;
 
     std::string getCurrentStatus();
 

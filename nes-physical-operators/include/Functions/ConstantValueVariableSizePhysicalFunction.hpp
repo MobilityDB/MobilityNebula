@@ -18,22 +18,25 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <DataTypes/VarVal.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <Interface/Record.hpp>
+#include <Arena.hpp>
 #include <ExecutionContext.hpp>
 
 namespace NES
 {
 
 /// A function that represents a constant value of variable size, e.g., a string.
-class ConstantValueVariableSizePhysicalFunction final : public PhysicalFunctionConcept
+class ConstantValueVariableSizePhysicalFunction final
 {
 public:
     explicit ConstantValueVariableSizePhysicalFunction(const int8_t* value, size_t size);
-    [[nodiscard]] VarVal execute(const Record& record, ArenaRef& arena) const override;
+    [[nodiscard]] VarVal execute(const Record& record, ArenaRef& arena) const;
 
 private:
     std::vector<int8_t> data;
 };
+
+static_assert(PhysicalFunctionConcept<ConstantValueVariableSizePhysicalFunction>);
 }

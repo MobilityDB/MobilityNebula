@@ -23,6 +23,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <strings.h>
 
 extern "C" {
 #include <meos.h>
@@ -36,13 +37,15 @@ extern "C" {
 #include <meos_quadbin.h>
 #include <meos_raster.h>
 #include <meos_s2cell.h>
+#include <pg_float.h>
+#include <pg_int.h>
 }
 
-#include <DataTypes/DataType.hpp>
+#include <array>
 #include <DataTypes/ExtensionType.hpp>
 #include <MEOSWrapper.hpp>
-#include <DataTypeRegistry.hpp>
 #include <ErrorHandling.hpp>
+#include <MeosRegistration.hpp>
 
 namespace
 {
@@ -138,6 +141,157 @@ std::vector<std::byte> image(const void* value, const size_t size)
     return bytes;
 }
 
+/// The text of the array the bytes carry (its number of elements, then each element after its length) in the form
+/// PostgreSQL's array_out writes a one-dimensional array: the texts element writes, in braces, separated by commas,
+/// a text quoted where it is empty, is NULL or holds a brace, a comma, a double quote, a backslash or white space,
+/// each double quote and backslash in it escaped by a backslash. No bytes are no value, written as the empty text.
+std::string arrayToText(std::span<const std::byte> bytes, std::string (*element)(std::span<const std::byte>))
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        const auto written = element(bytes.subspan(at, size));
+        at += size;
+        if (i > 0)
+        {
+            text += ',';
+        }
+        const bool quoted = written.empty() or strcasecmp(written.c_str(), "NULL") == 0
+            or written.find_first_of("{},\"\\ \t\n\r\v\f") != std::string::npos;
+        if (not quoted)
+        {
+            text += written;
+            continue;
+        }
+        text += '"';
+        for (const char c : written)
+        {
+            if (c == '"' or c == '\\')
+            {
+                text += '\\';
+            }
+            text += c;
+        }
+        text += '"';
+    }
+    text += '}';
+    return text;
+}
+
+/// The bytes of the array of `type` the text states in the form PostgreSQL's array_in reads a one-dimensional
+/// array (braces around elements separated by commas, an element quoted in double quotes or not, a backslash
+/// escaping the character after it, the white space around an unquoted element dropped), each element read by
+/// element; an array of MEOS values holds no NULL.
+std::vector<std::byte> arrayFromText(std::string_view text, std::string_view type, std::vector<std::byte> (*element)(std::string_view))
+{
+    const auto space = [](const char c) { return c == ' ' or c == '\t' or c == '\n' or c == '\r' or c == '\v' or c == '\f'; };
+    size_t at = 0;
+    const auto skip = [&]
+    {
+        while (at < text.size() and space(text[at]))
+        {
+            ++at;
+        }
+    };
+    skip();
+    if (at == text.size() or text[at] != '{')
+    {
+        cannotRead(type, text);
+    }
+    ++at;
+    std::vector<std::byte> carried(sizeof(uint32_t));
+    uint32_t count = 0;
+    skip();
+    bool closed = at < text.size() and text[at] == '}';
+    if (closed)
+    {
+        ++at;
+    }
+    while (not closed)
+    {
+        skip();
+        std::string value;
+        if (at < text.size() and text[at] == '"')
+        {
+            ++at;
+            while (at < text.size() and text[at] != '"')
+            {
+                if (text[at] == '\\')
+                {
+                    ++at;
+                }
+                if (at < text.size())
+                {
+                    value += text[at++];
+                }
+            }
+            if (at == text.size())
+            {
+                cannotRead(type, text);
+            }
+            ++at;
+            skip();
+        }
+        else
+        {
+            size_t kept = 0;
+            while (at < text.size() and text[at] != ',' and text[at] != '}')
+            {
+                if (text[at] == '{' or text[at] == '"')
+                {
+                    cannotRead(type, text);
+                }
+                if (text[at] == '\\' and at + 1 < text.size())
+                {
+                    ++at;
+                    value += text[at++];
+                    kept = value.size();
+                    continue;
+                }
+                value += text[at++];
+                if (not space(value.back()))
+                {
+                    kept = value.size();
+                }
+            }
+            value.resize(kept);
+            if (value.empty() or strcasecmp(value.c_str(), "NULL") == 0)
+            {
+                cannotRead(type, text);
+            }
+        }
+        if (at == text.size() or (text[at] != ',' and text[at] != '}'))
+        {
+            cannotRead(type, text);
+        }
+        closed = text[at++] == '}';
+        const auto bytes = element(value);
+        const auto size = static_cast<uint32_t>(bytes.size());
+        const auto from = carried.size();
+        carried.resize(from + sizeof(size) + size);
+        std::memcpy(carried.data() + from, &size, sizeof(size));
+        std::memcpy(carried.data() + from + sizeof(size), bytes.data(), size);
+        ++count;
+    }
+    skip();
+    if (at != text.size())
+    {
+        cannotRead(type, text);
+    }
+    std::memcpy(carried.data(), &count, sizeof(count));
+    return carried;
+}
+
 /* bigintset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string BigintsetToText(std::span<const std::byte> bytes)
 {
@@ -167,7 +321,7 @@ std::vector<std::byte> BigintsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType BigintsetType{.name = "BIGINTSET", .toText = BigintsetToText, .fromText = BigintsetFromText};
+constexpr ExtensionType BigintsetType{.name = "BIGINTSET", .fromText = BigintsetFromText};
 
 /* bigintspan: C type Span, carried as its memory image (span_copy / 24 bytes), read and written as the hex of its WKB */
 std::string BigintspanToText(std::span<const std::byte> bytes)
@@ -198,7 +352,7 @@ std::vector<std::byte> BigintspanFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType BigintspanType{.name = "BIGINTSPAN", .toText = BigintspanToText, .fromText = BigintspanFromText};
+constexpr ExtensionType BigintspanType{.name = "BIGINTSPAN", .fromText = BigintspanFromText};
 
 /* bigintspanset: C type SpanSet, carried as its memory image (spanset_copy / spanset_mem_size), read and written as the hex of its WKB */
 std::string BigintspansetToText(std::span<const std::byte> bytes)
@@ -229,7 +383,7 @@ std::vector<std::byte> BigintspansetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType BigintspansetType{.name = "BIGINTSPANSET", .toText = BigintspansetToText, .fromText = BigintspansetFromText};
+constexpr ExtensionType BigintspansetType{.name = "BIGINTSPANSET", .fromText = BigintspansetFromText};
 
 /* box2d: C type GBOX, carried as its text form (gbox_in / gbox_out), read and written as its text string */
 std::string Box2dToText(std::span<const std::byte> bytes)
@@ -251,7 +405,7 @@ std::vector<std::byte> Box2dFromText(std::string_view text)
     return bytesOf(std::span{terminated});
 }
 
-constexpr ExtensionType Box2dType{.name = "BOX2D", .toText = Box2dToText, .fromText = Box2dFromText};
+constexpr ExtensionType Box2dType{.name = "BOX2D", .fromText = Box2dFromText};
 
 /* box3d: C type BOX3D, carried as its text form (box3d_in / box3d_out), read and written as its text string */
 std::string Box3dToText(std::span<const std::byte> bytes)
@@ -273,7 +427,7 @@ std::vector<std::byte> Box3dFromText(std::string_view text)
     return bytesOf(std::span{terminated});
 }
 
-constexpr ExtensionType Box3dType{.name = "BOX3D", .toText = Box3dToText, .fromText = Box3dFromText};
+constexpr ExtensionType Box3dType{.name = "BOX3D", .fromText = Box3dFromText};
 
 /* cbuffer: C type Cbuffer, carried as its memory image (cbuffer_copy / cbuffer_mem_size), read and written as the hex of its WKB */
 std::string CbufferToText(std::span<const std::byte> bytes)
@@ -304,7 +458,7 @@ std::vector<std::byte> CbufferFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType CbufferType{.name = "CBUFFER", .toText = CbufferToText, .fromText = CbufferFromText};
+constexpr ExtensionType CbufferType{.name = "CBUFFER", .fromText = CbufferFromText};
 
 /* cbufferset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string CbuffersetToText(std::span<const std::byte> bytes)
@@ -335,7 +489,7 @@ std::vector<std::byte> CbuffersetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType CbuffersetType{.name = "CBUFFERSET", .toText = CbuffersetToText, .fromText = CbuffersetFromText};
+constexpr ExtensionType CbuffersetType{.name = "CBUFFERSET", .fromText = CbuffersetFromText};
 
 /* dateset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string DatesetToText(std::span<const std::byte> bytes)
@@ -366,7 +520,7 @@ std::vector<std::byte> DatesetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType DatesetType{.name = "DATESET", .toText = DatesetToText, .fromText = DatesetFromText};
+constexpr ExtensionType DatesetType{.name = "DATESET", .fromText = DatesetFromText};
 
 /* datespan: C type Span, carried as its memory image (span_copy / 24 bytes), read and written as the hex of its WKB */
 std::string DatespanToText(std::span<const std::byte> bytes)
@@ -397,7 +551,7 @@ std::vector<std::byte> DatespanFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType DatespanType{.name = "DATESPAN", .toText = DatespanToText, .fromText = DatespanFromText};
+constexpr ExtensionType DatespanType{.name = "DATESPAN", .fromText = DatespanFromText};
 
 /* datespanset: C type SpanSet, carried as its memory image (spanset_copy / spanset_mem_size), read and written as the hex of its WKB */
 std::string DatespansetToText(std::span<const std::byte> bytes)
@@ -428,7 +582,7 @@ std::vector<std::byte> DatespansetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType DatespansetType{.name = "DATESPANSET", .toText = DatespansetToText, .fromText = DatespansetFromText};
+constexpr ExtensionType DatespansetType{.name = "DATESPANSET", .fromText = DatespansetFromText};
 
 /* floatset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string FloatsetToText(std::span<const std::byte> bytes)
@@ -459,7 +613,7 @@ std::vector<std::byte> FloatsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType FloatsetType{.name = "FLOATSET", .toText = FloatsetToText, .fromText = FloatsetFromText};
+constexpr ExtensionType FloatsetType{.name = "FLOATSET", .fromText = FloatsetFromText};
 
 /* floatspan: C type Span, carried as its memory image (span_copy / 24 bytes), read and written as the hex of its WKB */
 std::string FloatspanToText(std::span<const std::byte> bytes)
@@ -490,7 +644,7 @@ std::vector<std::byte> FloatspanFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType FloatspanType{.name = "FLOATSPAN", .toText = FloatspanToText, .fromText = FloatspanFromText};
+constexpr ExtensionType FloatspanType{.name = "FLOATSPAN", .fromText = FloatspanFromText};
 
 /* floatspanset: C type SpanSet, carried as its memory image (spanset_copy / spanset_mem_size), read and written as the hex of its WKB */
 std::string FloatspansetToText(std::span<const std::byte> bytes)
@@ -521,7 +675,7 @@ std::vector<std::byte> FloatspansetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType FloatspansetType{.name = "FLOATSPANSET", .toText = FloatspansetToText, .fromText = FloatspansetFromText};
+constexpr ExtensionType FloatspansetType{.name = "FLOATSPANSET", .fromText = FloatspansetFromText};
 
 /* geography: C type GSERIALIZED, carried as its memory image (geo_copy / geo_mem_size), read and written as its wkb string */
 std::string GeographyToText(std::span<const std::byte> bytes)
@@ -552,7 +706,7 @@ std::vector<std::byte> GeographyFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType GeographyType{.name = "GEOGRAPHY", .toText = GeographyToText, .fromText = GeographyFromText};
+constexpr ExtensionType GeographyType{.name = "GEOGRAPHY", .fromText = GeographyFromText};
 
 /* geogset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string GeogsetToText(std::span<const std::byte> bytes)
@@ -583,7 +737,7 @@ std::vector<std::byte> GeogsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType GeogsetType{.name = "GEOGSET", .toText = GeogsetToText, .fromText = GeogsetFromText};
+constexpr ExtensionType GeogsetType{.name = "GEOGSET", .fromText = GeogsetFromText};
 
 /* geometry: C type GSERIALIZED, carried as its memory image (geo_copy / geo_mem_size), read and written as its wkb string */
 std::string GeometryToText(std::span<const std::byte> bytes)
@@ -614,7 +768,7 @@ std::vector<std::byte> GeometryFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType GeometryType{.name = "GEOMETRY", .toText = GeometryToText, .fromText = GeometryFromText};
+constexpr ExtensionType GeometryType{.name = "GEOMETRY", .fromText = GeometryFromText};
 
 /* geomset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string GeomsetToText(std::span<const std::byte> bytes)
@@ -645,7 +799,7 @@ std::vector<std::byte> GeomsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType GeomsetType{.name = "GEOMSET", .toText = GeomsetToText, .fromText = GeomsetFromText};
+constexpr ExtensionType GeomsetType{.name = "GEOMSET", .fromText = GeomsetFromText};
 
 /* h3index: C type H3Index, carried as its bytes form (h3index_from_wkb / h3index_as_wkb), read and written as the hex of its WKB */
 std::string H3indexToText(std::span<const std::byte> bytes)
@@ -666,7 +820,7 @@ std::vector<std::byte> H3indexFromText(std::string_view text)
     return bytesOf(std::span{wkb});
 }
 
-constexpr ExtensionType H3indexType{.name = "H3INDEX", .toText = H3indexToText, .fromText = H3indexFromText};
+constexpr ExtensionType H3indexType{.name = "H3INDEX", .fromText = H3indexFromText};
 
 /* h3indexset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string H3indexsetToText(std::span<const std::byte> bytes)
@@ -697,7 +851,7 @@ std::vector<std::byte> H3indexsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType H3indexsetType{.name = "H3INDEXSET", .toText = H3indexsetToText, .fromText = H3indexsetFromText};
+constexpr ExtensionType H3indexsetType{.name = "H3INDEXSET", .fromText = H3indexsetFromText};
 
 /* intset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string IntsetToText(std::span<const std::byte> bytes)
@@ -728,7 +882,7 @@ std::vector<std::byte> IntsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType IntsetType{.name = "INTSET", .toText = IntsetToText, .fromText = IntsetFromText};
+constexpr ExtensionType IntsetType{.name = "INTSET", .fromText = IntsetFromText};
 
 /* intspan: C type Span, carried as its memory image (span_copy / 24 bytes), read and written as the hex of its WKB */
 std::string IntspanToText(std::span<const std::byte> bytes)
@@ -759,7 +913,7 @@ std::vector<std::byte> IntspanFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType IntspanType{.name = "INTSPAN", .toText = IntspanToText, .fromText = IntspanFromText};
+constexpr ExtensionType IntspanType{.name = "INTSPAN", .fromText = IntspanFromText};
 
 /* intspanset: C type SpanSet, carried as its memory image (spanset_copy / spanset_mem_size), read and written as the hex of its WKB */
 std::string IntspansetToText(std::span<const std::byte> bytes)
@@ -790,7 +944,7 @@ std::vector<std::byte> IntspansetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType IntspansetType{.name = "INTSPANSET", .toText = IntspansetToText, .fromText = IntspansetFromText};
+constexpr ExtensionType IntspansetType{.name = "INTSPANSET", .fromText = IntspansetFromText};
 
 /* jsonb: C type Jsonb, carried as its memory image (jsonb_copy / jsonb_mem_size), read and written as its text string */
 std::string JsonbToText(std::span<const std::byte> bytes)
@@ -821,7 +975,7 @@ std::vector<std::byte> JsonbFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType JsonbType{.name = "JSONB", .toText = JsonbToText, .fromText = JsonbFromText};
+constexpr ExtensionType JsonbType{.name = "JSONB", .fromText = JsonbFromText};
 
 /* jsonbset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string JsonbsetToText(std::span<const std::byte> bytes)
@@ -852,7 +1006,7 @@ std::vector<std::byte> JsonbsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType JsonbsetType{.name = "JSONBSET", .toText = JsonbsetToText, .fromText = JsonbsetFromText};
+constexpr ExtensionType JsonbsetType{.name = "JSONBSET", .fromText = JsonbsetFromText};
 
 /* jsonpath: C type JsonPath, carried as its memory image (jsonpath_copy / jsonpath_mem_size), read and written as its text string */
 std::string JsonpathToText(std::span<const std::byte> bytes)
@@ -883,7 +1037,7 @@ std::vector<std::byte> JsonpathFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType JsonpathType{.name = "JSONPATH", .toText = JsonpathToText, .fromText = JsonpathFromText};
+constexpr ExtensionType JsonpathType{.name = "JSONPATH", .fromText = JsonpathFromText};
 
 /* npoint: C type Npoint, carried as its memory image (npoint_copy / 16 bytes), read and written as the hex of its WKB */
 std::string NpointToText(std::span<const std::byte> bytes)
@@ -914,7 +1068,7 @@ std::vector<std::byte> NpointFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType NpointType{.name = "NPOINT", .toText = NpointToText, .fromText = NpointFromText};
+constexpr ExtensionType NpointType{.name = "NPOINT", .fromText = NpointFromText};
 
 /* npointset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string NpointsetToText(std::span<const std::byte> bytes)
@@ -945,7 +1099,7 @@ std::vector<std::byte> NpointsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType NpointsetType{.name = "NPOINTSET", .toText = NpointsetToText, .fromText = NpointsetFromText};
+constexpr ExtensionType NpointsetType{.name = "NPOINTSET", .fromText = NpointsetFromText};
 
 /* nsegment: C type Nsegment, carried as its memory image (nsegment_copy / 24 bytes), read and written as the hex of its WKB */
 std::string NsegmentToText(std::span<const std::byte> bytes)
@@ -976,9 +1130,9 @@ std::vector<std::byte> NsegmentFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType NsegmentType{.name = "NSEGMENT", .toText = NsegmentToText, .fromText = NsegmentFromText};
+constexpr ExtensionType NsegmentType{.name = "NSEGMENT", .fromText = NsegmentFromText};
 
-/* pcpatch: C type Pcpatch, carried as its memory image (pcpatch_copy / pcpatch_mem_size), read and written as its wkb string */
+/* pcpatch: C type Pcpatch, carried as its memory image (pcpatch_copy / pcpatch_mem_size), read and written as the hex of its WKB */
 std::string PcpatchToText(std::span<const std::byte> bytes)
 {
     if (bytes.empty())
@@ -988,10 +1142,10 @@ std::string PcpatchToText(std::span<const std::byte> bytes)
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<struct Pcpatch*>(fromImage(bytes, [](const void* laid) -> void* { return pcpatch_copy(static_cast<const struct Pcpatch*>(laid)); }));
     size_t size = 0;
-    auto* written = pcpatch_as_hexwkb(value, &size);
+    auto* written = pcpatch_as_wkb(value, 4, &size);
     std::free(value);
     if (written == nullptr) { cannotWrite("pcpatch"); }
-    std::string text{written};
+    auto text = hex(std::as_bytes(std::span{written, size}));
     std::free(written);
     return text;
 }
@@ -999,15 +1153,15 @@ std::string PcpatchToText(std::span<const std::byte> bytes)
 std::vector<std::byte> PcpatchFromText(std::string_view text)
 {
     MEOS::Meos::ensureMeosInitialized();
-    const std::string terminated{text};
-    auto value = pcpatch_from_hexwkb(terminated.c_str());
+    const auto wkb = unhex(text);
+    auto value = pcpatch_from_wkb(wkb.data(), wkb.size());
     if (value == nullptr) { cannotRead("pcpatch", text); }
     auto carried = image(value, static_cast<size_t>(pcpatch_mem_size(value)));
     std::free(value);
     return carried;
 }
 
-constexpr ExtensionType PcpatchType{.name = "PCPATCH", .toText = PcpatchToText, .fromText = PcpatchFromText};
+constexpr ExtensionType PcpatchType{.name = "PCPATCH", .fromText = PcpatchFromText};
 
 /* pcpatchset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string PcpatchsetToText(std::span<const std::byte> bytes)
@@ -1038,9 +1192,9 @@ std::vector<std::byte> PcpatchsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType PcpatchsetType{.name = "PCPATCHSET", .toText = PcpatchsetToText, .fromText = PcpatchsetFromText};
+constexpr ExtensionType PcpatchsetType{.name = "PCPATCHSET", .fromText = PcpatchsetFromText};
 
-/* pcpoint: C type Pcpoint, carried as its memory image (pcpoint_copy / pcpoint_mem_size), read and written as its wkb string */
+/* pcpoint: C type Pcpoint, carried as its memory image (pcpoint_copy / pcpoint_mem_size), read and written as the hex of its WKB */
 std::string PcpointToText(std::span<const std::byte> bytes)
 {
     if (bytes.empty())
@@ -1050,10 +1204,10 @@ std::string PcpointToText(std::span<const std::byte> bytes)
     MEOS::Meos::ensureMeosInitialized();
     auto* value = static_cast<struct Pcpoint*>(fromImage(bytes, [](const void* laid) -> void* { return pcpoint_copy(static_cast<const struct Pcpoint*>(laid)); }));
     size_t size = 0;
-    auto* written = pcpoint_as_hexwkb(value, &size);
+    auto* written = pcpoint_as_wkb(value, 4, &size);
     std::free(value);
     if (written == nullptr) { cannotWrite("pcpoint"); }
-    std::string text{written};
+    auto text = hex(std::as_bytes(std::span{written, size}));
     std::free(written);
     return text;
 }
@@ -1061,15 +1215,15 @@ std::string PcpointToText(std::span<const std::byte> bytes)
 std::vector<std::byte> PcpointFromText(std::string_view text)
 {
     MEOS::Meos::ensureMeosInitialized();
-    const std::string terminated{text};
-    auto value = pcpoint_from_hexwkb(terminated.c_str());
+    const auto wkb = unhex(text);
+    auto value = pcpoint_from_wkb(wkb.data(), wkb.size());
     if (value == nullptr) { cannotRead("pcpoint", text); }
     auto carried = image(value, static_cast<size_t>(pcpoint_mem_size(value)));
     std::free(value);
     return carried;
 }
 
-constexpr ExtensionType PcpointType{.name = "PCPOINT", .toText = PcpointToText, .fromText = PcpointFromText};
+constexpr ExtensionType PcpointType{.name = "PCPOINT", .fromText = PcpointFromText};
 
 /* pcpointset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string PcpointsetToText(std::span<const std::byte> bytes)
@@ -1100,7 +1254,7 @@ std::vector<std::byte> PcpointsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType PcpointsetType{.name = "PCPOINTSET", .toText = PcpointsetToText, .fromText = PcpointsetFromText};
+constexpr ExtensionType PcpointsetType{.name = "PCPOINTSET", .fromText = PcpointsetFromText};
 
 /* pose: C type Pose, carried as its memory image (pose_copy / pose_mem_size), read and written as the hex of its WKB */
 std::string PoseToText(std::span<const std::byte> bytes)
@@ -1131,7 +1285,7 @@ std::vector<std::byte> PoseFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType PoseType{.name = "POSE", .toText = PoseToText, .fromText = PoseFromText};
+constexpr ExtensionType PoseType{.name = "POSE", .fromText = PoseFromText};
 
 /* posechain: C type PoseChain, carried as its memory image (posechain_copy / posechain_mem_size), read and written as the hex of its WKB */
 std::string PosechainToText(std::span<const std::byte> bytes)
@@ -1162,7 +1316,7 @@ std::vector<std::byte> PosechainFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType PosechainType{.name = "POSECHAIN", .toText = PosechainToText, .fromText = PosechainFromText};
+constexpr ExtensionType PosechainType{.name = "POSECHAIN", .fromText = PosechainFromText};
 
 /* posechainset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string PosechainsetToText(std::span<const std::byte> bytes)
@@ -1193,7 +1347,7 @@ std::vector<std::byte> PosechainsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType PosechainsetType{.name = "POSECHAINSET", .toText = PosechainsetToText, .fromText = PosechainsetFromText};
+constexpr ExtensionType PosechainsetType{.name = "POSECHAINSET", .fromText = PosechainsetFromText};
 
 /* poseset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string PosesetToText(std::span<const std::byte> bytes)
@@ -1224,7 +1378,7 @@ std::vector<std::byte> PosesetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType PosesetType{.name = "POSESET", .toText = PosesetToText, .fromText = PosesetFromText};
+constexpr ExtensionType PosesetType{.name = "POSESET", .fromText = PosesetFromText};
 
 /* quadbin: C type Quadbin, carried as its bytes form (quadbin_from_wkb / quadbin_as_wkb), read and written as the hex of its WKB */
 std::string QuadbinToText(std::span<const std::byte> bytes)
@@ -1245,7 +1399,7 @@ std::vector<std::byte> QuadbinFromText(std::string_view text)
     return bytesOf(std::span{wkb});
 }
 
-constexpr ExtensionType QuadbinType{.name = "QUADBIN", .toText = QuadbinToText, .fromText = QuadbinFromText};
+constexpr ExtensionType QuadbinType{.name = "QUADBIN", .fromText = QuadbinFromText};
 
 /* quadbinset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string QuadbinsetToText(std::span<const std::byte> bytes)
@@ -1276,7 +1430,7 @@ std::vector<std::byte> QuadbinsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType QuadbinsetType{.name = "QUADBINSET", .toText = QuadbinsetToText, .fromText = QuadbinsetFromText};
+constexpr ExtensionType QuadbinsetType{.name = "QUADBINSET", .fromText = QuadbinsetFromText};
 
 /* raquet: C type Raquet, carried as its memory image (raquet_copy / raquet_mem_size), read and written as the hex of its WKB */
 std::string RaquetToText(std::span<const std::byte> bytes)
@@ -1307,7 +1461,7 @@ std::vector<std::byte> RaquetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType RaquetType{.name = "RAQUET", .toText = RaquetToText, .fromText = RaquetFromText};
+constexpr ExtensionType RaquetType{.name = "RAQUET", .fromText = RaquetFromText};
 
 /* raster: C type Raster, carried as its memory image (raster_copy / raster_mem_size), read and written as the hex of its WKB */
 std::string RasterToText(std::span<const std::byte> bytes)
@@ -1338,7 +1492,7 @@ std::vector<std::byte> RasterFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType RasterType{.name = "RASTER", .toText = RasterToText, .fromText = RasterFromText};
+constexpr ExtensionType RasterType{.name = "RASTER", .fromText = RasterFromText};
 
 /* s2cell: C type S2CellId, carried as its bytes form (s2cell_from_wkb / s2cell_as_wkb), read and written as the hex of its WKB */
 std::string S2cellToText(std::span<const std::byte> bytes)
@@ -1359,7 +1513,7 @@ std::vector<std::byte> S2cellFromText(std::string_view text)
     return bytesOf(std::span{wkb});
 }
 
-constexpr ExtensionType S2cellType{.name = "S2CELL", .toText = S2cellToText, .fromText = S2cellFromText};
+constexpr ExtensionType S2cellType{.name = "S2CELL", .fromText = S2cellFromText};
 
 /* s2cellset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string S2cellsetToText(std::span<const std::byte> bytes)
@@ -1390,7 +1544,7 @@ std::vector<std::byte> S2cellsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType S2cellsetType{.name = "S2CELLSET", .toText = S2cellsetToText, .fromText = S2cellsetFromText};
+constexpr ExtensionType S2cellsetType{.name = "S2CELLSET", .fromText = S2cellsetFromText};
 
 /* stbox: C type STBox, carried as its memory image (stbox_copy / 80 bytes), read and written as the hex of its WKB */
 std::string StboxToText(std::span<const std::byte> bytes)
@@ -1421,7 +1575,38 @@ std::vector<std::byte> StboxFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType StboxType{.name = "STBOX", .toText = StboxToText, .fromText = StboxFromText};
+constexpr ExtensionType StboxType{.name = "STBOX", .fromText = StboxFromText};
+
+/* summarystats: C type BandStats, carried as its memory image (bandstats_copy / 48 bytes), read and written as its text string */
+std::string SummarystatsToText(std::span<const std::byte> bytes)
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    MEOS::Meos::ensureMeosInitialized();
+    auto* value = static_cast<BandStats*>(fromImage(bytes, [](const void* laid) -> void* { return bandstats_copy(static_cast<const BandStats*>(laid)); }));
+    size_t size = 0;
+    auto* written = bandstats_out(value, &size);
+    std::free(value);
+    if (written == nullptr) { cannotWrite("summarystats"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> SummarystatsFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    auto value = bandstats_in(terminated.c_str());
+    if (value == nullptr) { cannotRead("summarystats", text); }
+    auto carried = image(value, size_t{48});
+    std::free(value);
+    return carried;
+}
+
+constexpr ExtensionType SummarystatsType{.name = "SUMMARYSTATS", .fromText = SummarystatsFromText};
 
 /* tbigint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TbigintToText(std::span<const std::byte> bytes)
@@ -1452,7 +1637,7 @@ std::vector<std::byte> TbigintFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TbigintType{.name = "TBIGINT", .toText = TbigintToText, .fromText = TbigintFromText};
+constexpr ExtensionType TbigintType{.name = "TBIGINT", .fromText = TbigintFromText};
 
 /* tbool: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TboolToText(std::span<const std::byte> bytes)
@@ -1483,7 +1668,7 @@ std::vector<std::byte> TboolFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TboolType{.name = "TBOOL", .toText = TboolToText, .fromText = TboolFromText};
+constexpr ExtensionType TboolType{.name = "TBOOL", .fromText = TboolFromText};
 
 /* tbox: C type TBox, carried as its memory image (tbox_copy / 56 bytes), read and written as the hex of its WKB */
 std::string TboxToText(std::span<const std::byte> bytes)
@@ -1514,7 +1699,7 @@ std::vector<std::byte> TboxFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TboxType{.name = "TBOX", .toText = TboxToText, .fromText = TboxFromText};
+constexpr ExtensionType TboxType{.name = "TBOX", .fromText = TboxFromText};
 
 /* tcbuffer: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TcbufferToText(std::span<const std::byte> bytes)
@@ -1545,7 +1730,7 @@ std::vector<std::byte> TcbufferFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TcbufferType{.name = "TCBUFFER", .toText = TcbufferToText, .fromText = TcbufferFromText};
+constexpr ExtensionType TcbufferType{.name = "TCBUFFER", .fromText = TcbufferFromText};
 
 /* textset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string TextsetToText(std::span<const std::byte> bytes)
@@ -1576,7 +1761,7 @@ std::vector<std::byte> TextsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TextsetType{.name = "TEXTSET", .toText = TextsetToText, .fromText = TextsetFromText};
+constexpr ExtensionType TextsetType{.name = "TEXTSET", .fromText = TextsetFromText};
 
 /* tfloat: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TfloatToText(std::span<const std::byte> bytes)
@@ -1607,7 +1792,7 @@ std::vector<std::byte> TfloatFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TfloatType{.name = "TFLOAT", .toText = TfloatToText, .fromText = TfloatFromText};
+constexpr ExtensionType TfloatType{.name = "TFLOAT", .fromText = TfloatFromText};
 
 /* tgeogpoint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TgeogpointToText(std::span<const std::byte> bytes)
@@ -1638,7 +1823,7 @@ std::vector<std::byte> TgeogpointFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TgeogpointType{.name = "TGEOGPOINT", .toText = TgeogpointToText, .fromText = TgeogpointFromText};
+constexpr ExtensionType TgeogpointType{.name = "TGEOGPOINT", .fromText = TgeogpointFromText};
 
 /* tgeography: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TgeographyToText(std::span<const std::byte> bytes)
@@ -1669,7 +1854,7 @@ std::vector<std::byte> TgeographyFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TgeographyType{.name = "TGEOGRAPHY", .toText = TgeographyToText, .fromText = TgeographyFromText};
+constexpr ExtensionType TgeographyType{.name = "TGEOGRAPHY", .fromText = TgeographyFromText};
 
 /* tgeometry: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TgeometryToText(std::span<const std::byte> bytes)
@@ -1700,7 +1885,7 @@ std::vector<std::byte> TgeometryFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TgeometryType{.name = "TGEOMETRY", .toText = TgeometryToText, .fromText = TgeometryFromText};
+constexpr ExtensionType TgeometryType{.name = "TGEOMETRY", .fromText = TgeometryFromText};
 
 /* tgeompoint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TgeompointToText(std::span<const std::byte> bytes)
@@ -1731,7 +1916,7 @@ std::vector<std::byte> TgeompointFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TgeompointType{.name = "TGEOMPOINT", .toText = TgeompointToText, .fromText = TgeompointFromText};
+constexpr ExtensionType TgeompointType{.name = "TGEOMPOINT", .fromText = TgeompointFromText};
 
 /* th3index: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string Th3indexToText(std::span<const std::byte> bytes)
@@ -1762,7 +1947,7 @@ std::vector<std::byte> Th3indexFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType Th3indexType{.name = "TH3INDEX", .toText = Th3indexToText, .fromText = Th3indexFromText};
+constexpr ExtensionType Th3indexType{.name = "TH3INDEX", .fromText = Th3indexFromText};
 
 /* tint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TintToText(std::span<const std::byte> bytes)
@@ -1793,7 +1978,7 @@ std::vector<std::byte> TintFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TintType{.name = "TINT", .toText = TintToText, .fromText = TintFromText};
+constexpr ExtensionType TintType{.name = "TINT", .fromText = TintFromText};
 
 /* tjsonb: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TjsonbToText(std::span<const std::byte> bytes)
@@ -1824,7 +2009,7 @@ std::vector<std::byte> TjsonbFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TjsonbType{.name = "TJSONB", .toText = TjsonbToText, .fromText = TjsonbFromText};
+constexpr ExtensionType TjsonbType{.name = "TJSONB", .fromText = TjsonbFromText};
 
 /* tnpoint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TnpointToText(std::span<const std::byte> bytes)
@@ -1855,7 +2040,7 @@ std::vector<std::byte> TnpointFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TnpointType{.name = "TNPOINT", .toText = TnpointToText, .fromText = TnpointFromText};
+constexpr ExtensionType TnpointType{.name = "TNPOINT", .fromText = TnpointFromText};
 
 /* tpcbox: C type TPCBox, carried as its memory image (tpcbox_copy / 88 bytes), read and written as the hex of its WKB */
 std::string TpcboxToText(std::span<const std::byte> bytes)
@@ -1886,7 +2071,7 @@ std::vector<std::byte> TpcboxFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TpcboxType{.name = "TPCBOX", .toText = TpcboxToText, .fromText = TpcboxFromText};
+constexpr ExtensionType TpcboxType{.name = "TPCBOX", .fromText = TpcboxFromText};
 
 /* tpcpatch: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TpcpatchToText(std::span<const std::byte> bytes)
@@ -1917,7 +2102,7 @@ std::vector<std::byte> TpcpatchFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TpcpatchType{.name = "TPCPATCH", .toText = TpcpatchToText, .fromText = TpcpatchFromText};
+constexpr ExtensionType TpcpatchType{.name = "TPCPATCH", .fromText = TpcpatchFromText};
 
 /* tpcpoint: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TpcpointToText(std::span<const std::byte> bytes)
@@ -1948,7 +2133,7 @@ std::vector<std::byte> TpcpointFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TpcpointType{.name = "TPCPOINT", .toText = TpcpointToText, .fromText = TpcpointFromText};
+constexpr ExtensionType TpcpointType{.name = "TPCPOINT", .fromText = TpcpointFromText};
 
 /* tpose: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TposeToText(std::span<const std::byte> bytes)
@@ -1979,7 +2164,7 @@ std::vector<std::byte> TposeFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TposeType{.name = "TPOSE", .toText = TposeToText, .fromText = TposeFromText};
+constexpr ExtensionType TposeType{.name = "TPOSE", .fromText = TposeFromText};
 
 /* tposechain: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TposechainToText(std::span<const std::byte> bytes)
@@ -2010,7 +2195,7 @@ std::vector<std::byte> TposechainFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TposechainType{.name = "TPOSECHAIN", .toText = TposechainToText, .fromText = TposechainFromText};
+constexpr ExtensionType TposechainType{.name = "TPOSECHAIN", .fromText = TposechainFromText};
 
 /* tquadbin: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TquadbinToText(std::span<const std::byte> bytes)
@@ -2041,7 +2226,7 @@ std::vector<std::byte> TquadbinFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TquadbinType{.name = "TQUADBIN", .toText = TquadbinToText, .fromText = TquadbinFromText};
+constexpr ExtensionType TquadbinType{.name = "TQUADBIN", .fromText = TquadbinFromText};
 
 /* trgeometry: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TrgeometryToText(std::span<const std::byte> bytes)
@@ -2072,7 +2257,7 @@ std::vector<std::byte> TrgeometryFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TrgeometryType{.name = "TRGEOMETRY", .toText = TrgeometryToText, .fromText = TrgeometryFromText};
+constexpr ExtensionType TrgeometryType{.name = "TRGEOMETRY", .fromText = TrgeometryFromText};
 
 /* ts2cell: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string Ts2cellToText(std::span<const std::byte> bytes)
@@ -2103,7 +2288,7 @@ std::vector<std::byte> Ts2cellFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType Ts2cellType{.name = "TS2CELL", .toText = Ts2cellToText, .fromText = Ts2cellFromText};
+constexpr ExtensionType Ts2cellType{.name = "TS2CELL", .fromText = Ts2cellFromText};
 
 /* tstzset: C type Set, carried as its memory image (set_copy / set_mem_size), read and written as the hex of its WKB */
 std::string TstzsetToText(std::span<const std::byte> bytes)
@@ -2134,7 +2319,7 @@ std::vector<std::byte> TstzsetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TstzsetType{.name = "TSTZSET", .toText = TstzsetToText, .fromText = TstzsetFromText};
+constexpr ExtensionType TstzsetType{.name = "TSTZSET", .fromText = TstzsetFromText};
 
 /* tstzspan: C type Span, carried as its memory image (span_copy / 24 bytes), read and written as the hex of its WKB */
 std::string TstzspanToText(std::span<const std::byte> bytes)
@@ -2165,7 +2350,7 @@ std::vector<std::byte> TstzspanFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TstzspanType{.name = "TSTZSPAN", .toText = TstzspanToText, .fromText = TstzspanFromText};
+constexpr ExtensionType TstzspanType{.name = "TSTZSPAN", .fromText = TstzspanFromText};
 
 /* tstzspanset: C type SpanSet, carried as its memory image (spanset_copy / spanset_mem_size), read and written as the hex of its WKB */
 std::string TstzspansetToText(std::span<const std::byte> bytes)
@@ -2196,7 +2381,7 @@ std::vector<std::byte> TstzspansetFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TstzspansetType{.name = "TSTZSPANSET", .toText = TstzspansetToText, .fromText = TstzspansetFromText};
+constexpr ExtensionType TstzspansetType{.name = "TSTZSPANSET", .fromText = TstzspansetFromText};
 
 /* ttext: C type Temporal, carried as its memory image (temporal_copy / temporal_mem_size), read and written as the hex of its WKB */
 std::string TtextToText(std::span<const std::byte> bytes)
@@ -2227,7 +2412,7 @@ std::vector<std::byte> TtextFromText(std::string_view text)
     return carried;
 }
 
-constexpr ExtensionType TtextType{.name = "TTEXT", .toText = TtextToText, .fromText = TtextFromText};
+constexpr ExtensionType TtextType{.name = "TTEXT", .fromText = TtextFromText};
 
 /* bytea: the bytes of a WKB, carried as they are, read and written as their hex */
 std::string ByteaToText(std::span<const std::byte> bytes)
@@ -2245,1843 +2430,953 @@ std::vector<std::byte> ByteaFromText(std::string_view text)
     return bytesOf(std::span{wkb});
 }
 
-constexpr ExtensionType ByteaType{.name = "BYTEA", .toText = ByteaToText, .fromText = ByteaFromText};
+constexpr ExtensionType ByteaType{.name = "BYTEA", .fromText = ByteaFromText};
 
-/* bigintspan[]: an array of bigintspan, carried as its number of elements, then each element's memory image after its length */
+/* bigintspan[]: an array of bigintspan, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of bigintspan */
 std::string BigintspanArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += BigintspanToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, BigintspanToText);
 }
 
 std::vector<std::byte> BigintspanArrayFromText(std::string_view text)
 {
-    cannotRead("bigintspan[]", text);
+    return arrayFromText(text, "bigintspan[]", BigintspanFromText);
 }
 
-constexpr ExtensionType BigintspanArrayType{.name = "BIGINTSPAN_ARRAY", .toText = BigintspanArrayToText, .fromText = BigintspanArrayFromText, .element = &BigintspanType};
+constexpr ExtensionType BigintspanArrayType{.name = "BIGINTSPAN_ARRAY", .fromText = BigintspanArrayFromText, .element = &BigintspanType};
 
-/* cbuffer[]: an array of cbuffer, carried as its number of elements, then each element's memory image after its length */
+/* cbuffer[]: an array of cbuffer, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of cbuffer */
 std::string CbufferArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += CbufferToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, CbufferToText);
 }
 
 std::vector<std::byte> CbufferArrayFromText(std::string_view text)
 {
-    cannotRead("cbuffer[]", text);
+    return arrayFromText(text, "cbuffer[]", CbufferFromText);
 }
 
-constexpr ExtensionType CbufferArrayType{.name = "CBUFFER_ARRAY", .toText = CbufferArrayToText, .fromText = CbufferArrayFromText, .element = &CbufferType};
+constexpr ExtensionType CbufferArrayType{.name = "CBUFFER_ARRAY", .fromText = CbufferArrayFromText, .element = &CbufferType};
 
-/* datespan[]: an array of datespan, carried as its number of elements, then each element's memory image after its length */
+/* datespan[]: an array of datespan, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of datespan */
 std::string DatespanArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += DatespanToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, DatespanToText);
 }
 
 std::vector<std::byte> DatespanArrayFromText(std::string_view text)
 {
-    cannotRead("datespan[]", text);
+    return arrayFromText(text, "datespan[]", DatespanFromText);
 }
 
-constexpr ExtensionType DatespanArrayType{.name = "DATESPAN_ARRAY", .toText = DatespanArrayToText, .fromText = DatespanArrayFromText, .element = &DatespanType};
+constexpr ExtensionType DatespanArrayType{.name = "DATESPAN_ARRAY", .fromText = DatespanArrayFromText, .element = &DatespanType};
 
-/* floatspan[]: an array of floatspan, carried as its number of elements, then each element's memory image after its length */
+/* floatspan[]: an array of floatspan, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of floatspan */
 std::string FloatspanArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += FloatspanToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, FloatspanToText);
 }
 
 std::vector<std::byte> FloatspanArrayFromText(std::string_view text)
 {
-    cannotRead("floatspan[]", text);
+    return arrayFromText(text, "floatspan[]", FloatspanFromText);
 }
 
-constexpr ExtensionType FloatspanArrayType{.name = "FLOATSPAN_ARRAY", .toText = FloatspanArrayToText, .fromText = FloatspanArrayFromText, .element = &FloatspanType};
+constexpr ExtensionType FloatspanArrayType{.name = "FLOATSPAN_ARRAY", .fromText = FloatspanArrayFromText, .element = &FloatspanType};
 
-/* geography[]: an array of geography, carried as its number of elements, then each element's memory image after its length */
+/* geography[]: an array of geography, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of geography */
 std::string GeographyArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += GeographyToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, GeographyToText);
 }
 
 std::vector<std::byte> GeographyArrayFromText(std::string_view text)
 {
-    cannotRead("geography[]", text);
+    return arrayFromText(text, "geography[]", GeographyFromText);
 }
 
-constexpr ExtensionType GeographyArrayType{.name = "GEOGRAPHY_ARRAY", .toText = GeographyArrayToText, .fromText = GeographyArrayFromText, .element = &GeographyType};
+constexpr ExtensionType GeographyArrayType{.name = "GEOGRAPHY_ARRAY", .fromText = GeographyArrayFromText, .element = &GeographyType};
 
-/* geometry[]: an array of geometry, carried as its number of elements, then each element's memory image after its length */
+/* geometry[]: an array of geometry, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of geometry */
 std::string GeometryArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += GeometryToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, GeometryToText);
 }
 
 std::vector<std::byte> GeometryArrayFromText(std::string_view text)
 {
-    cannotRead("geometry[]", text);
+    return arrayFromText(text, "geometry[]", GeometryFromText);
 }
 
-constexpr ExtensionType GeometryArrayType{.name = "GEOMETRY_ARRAY", .toText = GeometryArrayToText, .fromText = GeometryArrayFromText, .element = &GeometryType};
+constexpr ExtensionType GeometryArrayType{.name = "GEOMETRY_ARRAY", .fromText = GeometryArrayFromText, .element = &GeometryType};
 
-/* intspan[]: an array of intspan, carried as its number of elements, then each element's memory image after its length */
+/* h3index[]: an array of h3index, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of h3index */
+std::string H3indexArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, H3indexToText);
+}
+
+std::vector<std::byte> H3indexArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "h3index[]", H3indexFromText);
+}
+
+constexpr ExtensionType H3indexArrayType{.name = "H3INDEX_ARRAY", .fromText = H3indexArrayFromText, .element = &H3indexType};
+
+/* intspan[]: an array of intspan, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of intspan */
 std::string IntspanArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += IntspanToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, IntspanToText);
 }
 
 std::vector<std::byte> IntspanArrayFromText(std::string_view text)
 {
-    cannotRead("intspan[]", text);
+    return arrayFromText(text, "intspan[]", IntspanFromText);
 }
 
-constexpr ExtensionType IntspanArrayType{.name = "INTSPAN_ARRAY", .toText = IntspanArrayToText, .fromText = IntspanArrayFromText, .element = &IntspanType};
+constexpr ExtensionType IntspanArrayType{.name = "INTSPAN_ARRAY", .fromText = IntspanArrayFromText, .element = &IntspanType};
 
-/* jsonb[]: an array of jsonb, carried as its number of elements, then each element's memory image after its length */
+/* jsonb[]: an array of jsonb, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of jsonb */
 std::string JsonbArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += JsonbToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, JsonbToText);
 }
 
 std::vector<std::byte> JsonbArrayFromText(std::string_view text)
 {
-    cannotRead("jsonb[]", text);
+    return arrayFromText(text, "jsonb[]", JsonbFromText);
 }
 
-constexpr ExtensionType JsonbArrayType{.name = "JSONB_ARRAY", .toText = JsonbArrayToText, .fromText = JsonbArrayFromText, .element = &JsonbType};
+constexpr ExtensionType JsonbArrayType{.name = "JSONB_ARRAY", .fromText = JsonbArrayFromText, .element = &JsonbType};
 
-/* npoint[]: an array of npoint, carried as its number of elements, then each element's memory image after its length */
+/* npoint[]: an array of npoint, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of npoint */
 std::string NpointArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += NpointToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, NpointToText);
 }
 
 std::vector<std::byte> NpointArrayFromText(std::string_view text)
 {
-    cannotRead("npoint[]", text);
+    return arrayFromText(text, "npoint[]", NpointFromText);
 }
 
-constexpr ExtensionType NpointArrayType{.name = "NPOINT_ARRAY", .toText = NpointArrayToText, .fromText = NpointArrayFromText, .element = &NpointType};
+constexpr ExtensionType NpointArrayType{.name = "NPOINT_ARRAY", .fromText = NpointArrayFromText, .element = &NpointType};
 
-/* nsegment[]: an array of nsegment, carried as its number of elements, then each element's memory image after its length */
+/* nsegment[]: an array of nsegment, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of nsegment */
 std::string NsegmentArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += NsegmentToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, NsegmentToText);
 }
 
 std::vector<std::byte> NsegmentArrayFromText(std::string_view text)
 {
-    cannotRead("nsegment[]", text);
+    return arrayFromText(text, "nsegment[]", NsegmentFromText);
 }
 
-constexpr ExtensionType NsegmentArrayType{.name = "NSEGMENT_ARRAY", .toText = NsegmentArrayToText, .fromText = NsegmentArrayFromText, .element = &NsegmentType};
+constexpr ExtensionType NsegmentArrayType{.name = "NSEGMENT_ARRAY", .fromText = NsegmentArrayFromText, .element = &NsegmentType};
 
-/* pcpatch[]: an array of pcpatch, carried as its number of elements, then each element's memory image after its length */
+/* pcpatch[]: an array of pcpatch, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of pcpatch */
 std::string PcpatchArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += PcpatchToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, PcpatchToText);
 }
 
 std::vector<std::byte> PcpatchArrayFromText(std::string_view text)
 {
-    cannotRead("pcpatch[]", text);
+    return arrayFromText(text, "pcpatch[]", PcpatchFromText);
 }
 
-constexpr ExtensionType PcpatchArrayType{.name = "PCPATCH_ARRAY", .toText = PcpatchArrayToText, .fromText = PcpatchArrayFromText, .element = &PcpatchType};
+constexpr ExtensionType PcpatchArrayType{.name = "PCPATCH_ARRAY", .fromText = PcpatchArrayFromText, .element = &PcpatchType};
 
-/* pcpoint[]: an array of pcpoint, carried as its number of elements, then each element's memory image after its length */
+/* pcpoint[]: an array of pcpoint, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of pcpoint */
 std::string PcpointArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += PcpointToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, PcpointToText);
 }
 
 std::vector<std::byte> PcpointArrayFromText(std::string_view text)
 {
-    cannotRead("pcpoint[]", text);
+    return arrayFromText(text, "pcpoint[]", PcpointFromText);
 }
 
-constexpr ExtensionType PcpointArrayType{.name = "PCPOINT_ARRAY", .toText = PcpointArrayToText, .fromText = PcpointArrayFromText, .element = &PcpointType};
+constexpr ExtensionType PcpointArrayType{.name = "PCPOINT_ARRAY", .fromText = PcpointArrayFromText, .element = &PcpointType};
 
-/* pose[]: an array of pose, carried as its number of elements, then each element's memory image after its length */
+/* pose[]: an array of pose, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of pose */
 std::string PoseArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += PoseToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, PoseToText);
 }
 
 std::vector<std::byte> PoseArrayFromText(std::string_view text)
 {
-    cannotRead("pose[]", text);
+    return arrayFromText(text, "pose[]", PoseFromText);
 }
 
-constexpr ExtensionType PoseArrayType{.name = "POSE_ARRAY", .toText = PoseArrayToText, .fromText = PoseArrayFromText, .element = &PoseType};
+constexpr ExtensionType PoseArrayType{.name = "POSE_ARRAY", .fromText = PoseArrayFromText, .element = &PoseType};
 
-/* posechain[]: an array of posechain, carried as its number of elements, then each element's memory image after its length */
+/* posechain[]: an array of posechain, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of posechain */
 std::string PosechainArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += PosechainToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, PosechainToText);
 }
 
 std::vector<std::byte> PosechainArrayFromText(std::string_view text)
 {
-    cannotRead("posechain[]", text);
+    return arrayFromText(text, "posechain[]", PosechainFromText);
 }
 
-constexpr ExtensionType PosechainArrayType{.name = "POSECHAIN_ARRAY", .toText = PosechainArrayToText, .fromText = PosechainArrayFromText, .element = &PosechainType};
+constexpr ExtensionType PosechainArrayType{.name = "POSECHAIN_ARRAY", .fromText = PosechainArrayFromText, .element = &PosechainType};
 
-/* raquet[]: an array of raquet, carried as its number of elements, then each element's memory image after its length */
+/* quadbin[]: an array of quadbin, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of quadbin */
+std::string QuadbinArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, QuadbinToText);
+}
+
+std::vector<std::byte> QuadbinArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "quadbin[]", QuadbinFromText);
+}
+
+constexpr ExtensionType QuadbinArrayType{.name = "QUADBIN_ARRAY", .fromText = QuadbinArrayFromText, .element = &QuadbinType};
+
+/* raquet[]: an array of raquet, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of raquet */
 std::string RaquetArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += RaquetToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, RaquetToText);
 }
 
 std::vector<std::byte> RaquetArrayFromText(std::string_view text)
 {
-    cannotRead("raquet[]", text);
+    return arrayFromText(text, "raquet[]", RaquetFromText);
 }
 
-constexpr ExtensionType RaquetArrayType{.name = "RAQUET_ARRAY", .toText = RaquetArrayToText, .fromText = RaquetArrayFromText, .element = &RaquetType};
+constexpr ExtensionType RaquetArrayType{.name = "RAQUET_ARRAY", .fromText = RaquetArrayFromText, .element = &RaquetType};
 
-/* stbox[]: an array of stbox, carried as its number of elements, then each element's memory image after its length */
+/* raster[]: an array of raster, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of raster */
+std::string RasterArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, RasterToText);
+}
+
+std::vector<std::byte> RasterArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "raster[]", RasterFromText);
+}
+
+constexpr ExtensionType RasterArrayType{.name = "RASTER_ARRAY", .fromText = RasterArrayFromText, .element = &RasterType};
+
+/* s2cell[]: an array of s2cell, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of s2cell */
+std::string S2cellArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, S2cellToText);
+}
+
+std::vector<std::byte> S2cellArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "s2cell[]", S2cellFromText);
+}
+
+constexpr ExtensionType S2cellArrayType{.name = "S2CELL_ARRAY", .fromText = S2cellArrayFromText, .element = &S2cellType};
+
+/* stbox[]: an array of stbox, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of stbox */
 std::string StboxArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += StboxToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, StboxToText);
 }
 
 std::vector<std::byte> StboxArrayFromText(std::string_view text)
 {
-    cannotRead("stbox[]", text);
+    return arrayFromText(text, "stbox[]", StboxFromText);
 }
 
-constexpr ExtensionType StboxArrayType{.name = "STBOX_ARRAY", .toText = StboxArrayToText, .fromText = StboxArrayFromText, .element = &StboxType};
+constexpr ExtensionType StboxArrayType{.name = "STBOX_ARRAY", .fromText = StboxArrayFromText, .element = &StboxType};
 
-/* tbigint[]: an array of tbigint, carried as its number of elements, then each element's memory image after its length */
+/* tbigint[]: an array of tbigint, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tbigint */
 std::string TbigintArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TbigintToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TbigintToText);
 }
 
 std::vector<std::byte> TbigintArrayFromText(std::string_view text)
 {
-    cannotRead("tbigint[]", text);
+    return arrayFromText(text, "tbigint[]", TbigintFromText);
 }
 
-constexpr ExtensionType TbigintArrayType{.name = "TBIGINT_ARRAY", .toText = TbigintArrayToText, .fromText = TbigintArrayFromText, .element = &TbigintType};
+constexpr ExtensionType TbigintArrayType{.name = "TBIGINT_ARRAY", .fromText = TbigintArrayFromText, .element = &TbigintType};
 
-/* tbool[]: an array of tbool, carried as its number of elements, then each element's memory image after its length */
+/* tbool[]: an array of tbool, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tbool */
 std::string TboolArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TboolToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TboolToText);
 }
 
 std::vector<std::byte> TboolArrayFromText(std::string_view text)
 {
-    cannotRead("tbool[]", text);
+    return arrayFromText(text, "tbool[]", TboolFromText);
 }
 
-constexpr ExtensionType TboolArrayType{.name = "TBOOL_ARRAY", .toText = TboolArrayToText, .fromText = TboolArrayFromText, .element = &TboolType};
+constexpr ExtensionType TboolArrayType{.name = "TBOOL_ARRAY", .fromText = TboolArrayFromText, .element = &TboolType};
 
-/* tbox[]: an array of tbox, carried as its number of elements, then each element's memory image after its length */
+/* tbox[]: an array of tbox, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tbox */
 std::string TboxArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TboxToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TboxToText);
 }
 
 std::vector<std::byte> TboxArrayFromText(std::string_view text)
 {
-    cannotRead("tbox[]", text);
+    return arrayFromText(text, "tbox[]", TboxFromText);
 }
 
-constexpr ExtensionType TboxArrayType{.name = "TBOX_ARRAY", .toText = TboxArrayToText, .fromText = TboxArrayFromText, .element = &TboxType};
+constexpr ExtensionType TboxArrayType{.name = "TBOX_ARRAY", .fromText = TboxArrayFromText, .element = &TboxType};
 
-/* tcbuffer[]: an array of tcbuffer, carried as its number of elements, then each element's memory image after its length */
+/* tcbuffer[]: an array of tcbuffer, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tcbuffer */
 std::string TcbufferArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TcbufferToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TcbufferToText);
 }
 
 std::vector<std::byte> TcbufferArrayFromText(std::string_view text)
 {
-    cannotRead("tcbuffer[]", text);
+    return arrayFromText(text, "tcbuffer[]", TcbufferFromText);
 }
 
-constexpr ExtensionType TcbufferArrayType{.name = "TCBUFFER_ARRAY", .toText = TcbufferArrayToText, .fromText = TcbufferArrayFromText, .element = &TcbufferType};
+constexpr ExtensionType TcbufferArrayType{.name = "TCBUFFER_ARRAY", .fromText = TcbufferArrayFromText, .element = &TcbufferType};
 
-/* tfloat[]: an array of tfloat, carried as its number of elements, then each element's memory image after its length */
+/* tfloat[]: an array of tfloat, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tfloat */
 std::string TfloatArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TfloatToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TfloatToText);
 }
 
 std::vector<std::byte> TfloatArrayFromText(std::string_view text)
 {
-    cannotRead("tfloat[]", text);
+    return arrayFromText(text, "tfloat[]", TfloatFromText);
 }
 
-constexpr ExtensionType TfloatArrayType{.name = "TFLOAT_ARRAY", .toText = TfloatArrayToText, .fromText = TfloatArrayFromText, .element = &TfloatType};
+constexpr ExtensionType TfloatArrayType{.name = "TFLOAT_ARRAY", .fromText = TfloatArrayFromText, .element = &TfloatType};
 
-/* tgeogpoint[]: an array of tgeogpoint, carried as its number of elements, then each element's memory image after its length */
+/* tgeogpoint[]: an array of tgeogpoint, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tgeogpoint */
 std::string TgeogpointArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TgeogpointToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TgeogpointToText);
 }
 
 std::vector<std::byte> TgeogpointArrayFromText(std::string_view text)
 {
-    cannotRead("tgeogpoint[]", text);
+    return arrayFromText(text, "tgeogpoint[]", TgeogpointFromText);
 }
 
-constexpr ExtensionType TgeogpointArrayType{.name = "TGEOGPOINT_ARRAY", .toText = TgeogpointArrayToText, .fromText = TgeogpointArrayFromText, .element = &TgeogpointType};
+constexpr ExtensionType TgeogpointArrayType{.name = "TGEOGPOINT_ARRAY", .fromText = TgeogpointArrayFromText, .element = &TgeogpointType};
 
-/* tgeography[]: an array of tgeography, carried as its number of elements, then each element's memory image after its length */
+/* tgeography[]: an array of tgeography, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tgeography */
 std::string TgeographyArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TgeographyToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TgeographyToText);
 }
 
 std::vector<std::byte> TgeographyArrayFromText(std::string_view text)
 {
-    cannotRead("tgeography[]", text);
+    return arrayFromText(text, "tgeography[]", TgeographyFromText);
 }
 
-constexpr ExtensionType TgeographyArrayType{.name = "TGEOGRAPHY_ARRAY", .toText = TgeographyArrayToText, .fromText = TgeographyArrayFromText, .element = &TgeographyType};
+constexpr ExtensionType TgeographyArrayType{.name = "TGEOGRAPHY_ARRAY", .fromText = TgeographyArrayFromText, .element = &TgeographyType};
 
-/* tgeometry[]: an array of tgeometry, carried as its number of elements, then each element's memory image after its length */
+/* tgeometry[]: an array of tgeometry, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tgeometry */
 std::string TgeometryArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TgeometryToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TgeometryToText);
 }
 
 std::vector<std::byte> TgeometryArrayFromText(std::string_view text)
 {
-    cannotRead("tgeometry[]", text);
+    return arrayFromText(text, "tgeometry[]", TgeometryFromText);
 }
 
-constexpr ExtensionType TgeometryArrayType{.name = "TGEOMETRY_ARRAY", .toText = TgeometryArrayToText, .fromText = TgeometryArrayFromText, .element = &TgeometryType};
+constexpr ExtensionType TgeometryArrayType{.name = "TGEOMETRY_ARRAY", .fromText = TgeometryArrayFromText, .element = &TgeometryType};
 
-/* tgeompoint[]: an array of tgeompoint, carried as its number of elements, then each element's memory image after its length */
+/* tgeompoint[]: an array of tgeompoint, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tgeompoint */
 std::string TgeompointArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TgeompointToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TgeompointToText);
 }
 
 std::vector<std::byte> TgeompointArrayFromText(std::string_view text)
 {
-    cannotRead("tgeompoint[]", text);
+    return arrayFromText(text, "tgeompoint[]", TgeompointFromText);
 }
 
-constexpr ExtensionType TgeompointArrayType{.name = "TGEOMPOINT_ARRAY", .toText = TgeompointArrayToText, .fromText = TgeompointArrayFromText, .element = &TgeompointType};
+constexpr ExtensionType TgeompointArrayType{.name = "TGEOMPOINT_ARRAY", .fromText = TgeompointArrayFromText, .element = &TgeompointType};
 
-/* th3index[]: an array of th3index, carried as its number of elements, then each element's memory image after its length */
+/* th3index[]: an array of th3index, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of th3index */
 std::string Th3indexArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += Th3indexToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, Th3indexToText);
 }
 
 std::vector<std::byte> Th3indexArrayFromText(std::string_view text)
 {
-    cannotRead("th3index[]", text);
+    return arrayFromText(text, "th3index[]", Th3indexFromText);
 }
 
-constexpr ExtensionType Th3indexArrayType{.name = "TH3INDEX_ARRAY", .toText = Th3indexArrayToText, .fromText = Th3indexArrayFromText, .element = &Th3indexType};
+constexpr ExtensionType Th3indexArrayType{.name = "TH3INDEX_ARRAY", .fromText = Th3indexArrayFromText, .element = &Th3indexType};
 
-/* tint[]: an array of tint, carried as its number of elements, then each element's memory image after its length */
+/* tint[]: an array of tint, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tint */
 std::string TintArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TintToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TintToText);
 }
 
 std::vector<std::byte> TintArrayFromText(std::string_view text)
 {
-    cannotRead("tint[]", text);
+    return arrayFromText(text, "tint[]", TintFromText);
 }
 
-constexpr ExtensionType TintArrayType{.name = "TINT_ARRAY", .toText = TintArrayToText, .fromText = TintArrayFromText, .element = &TintType};
+constexpr ExtensionType TintArrayType{.name = "TINT_ARRAY", .fromText = TintArrayFromText, .element = &TintType};
 
-/* tjsonb[]: an array of tjsonb, carried as its number of elements, then each element's memory image after its length */
+/* tjsonb[]: an array of tjsonb, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tjsonb */
 std::string TjsonbArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TjsonbToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TjsonbToText);
 }
 
 std::vector<std::byte> TjsonbArrayFromText(std::string_view text)
 {
-    cannotRead("tjsonb[]", text);
+    return arrayFromText(text, "tjsonb[]", TjsonbFromText);
 }
 
-constexpr ExtensionType TjsonbArrayType{.name = "TJSONB_ARRAY", .toText = TjsonbArrayToText, .fromText = TjsonbArrayFromText, .element = &TjsonbType};
+constexpr ExtensionType TjsonbArrayType{.name = "TJSONB_ARRAY", .fromText = TjsonbArrayFromText, .element = &TjsonbType};
 
-/* tnpoint[]: an array of tnpoint, carried as its number of elements, then each element's memory image after its length */
+/* tnpoint[]: an array of tnpoint, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tnpoint */
 std::string TnpointArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TnpointToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TnpointToText);
 }
 
 std::vector<std::byte> TnpointArrayFromText(std::string_view text)
 {
-    cannotRead("tnpoint[]", text);
+    return arrayFromText(text, "tnpoint[]", TnpointFromText);
 }
 
-constexpr ExtensionType TnpointArrayType{.name = "TNPOINT_ARRAY", .toText = TnpointArrayToText, .fromText = TnpointArrayFromText, .element = &TnpointType};
+constexpr ExtensionType TnpointArrayType{.name = "TNPOINT_ARRAY", .fromText = TnpointArrayFromText, .element = &TnpointType};
 
-/* tpcpatch[]: an array of tpcpatch, carried as its number of elements, then each element's memory image after its length */
+/* tpcbox[]: an array of tpcbox, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tpcbox */
+std::string TpcboxArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, TpcboxToText);
+}
+
+std::vector<std::byte> TpcboxArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "tpcbox[]", TpcboxFromText);
+}
+
+constexpr ExtensionType TpcboxArrayType{.name = "TPCBOX_ARRAY", .fromText = TpcboxArrayFromText, .element = &TpcboxType};
+
+/* tpcpatch[]: an array of tpcpatch, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tpcpatch */
 std::string TpcpatchArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TpcpatchToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TpcpatchToText);
 }
 
 std::vector<std::byte> TpcpatchArrayFromText(std::string_view text)
 {
-    cannotRead("tpcpatch[]", text);
+    return arrayFromText(text, "tpcpatch[]", TpcpatchFromText);
 }
 
-constexpr ExtensionType TpcpatchArrayType{.name = "TPCPATCH_ARRAY", .toText = TpcpatchArrayToText, .fromText = TpcpatchArrayFromText, .element = &TpcpatchType};
+constexpr ExtensionType TpcpatchArrayType{.name = "TPCPATCH_ARRAY", .fromText = TpcpatchArrayFromText, .element = &TpcpatchType};
 
-/* tpcpoint[]: an array of tpcpoint, carried as its number of elements, then each element's memory image after its length */
+/* tpcpoint[]: an array of tpcpoint, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tpcpoint */
 std::string TpcpointArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TpcpointToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TpcpointToText);
 }
 
 std::vector<std::byte> TpcpointArrayFromText(std::string_view text)
 {
-    cannotRead("tpcpoint[]", text);
+    return arrayFromText(text, "tpcpoint[]", TpcpointFromText);
 }
 
-constexpr ExtensionType TpcpointArrayType{.name = "TPCPOINT_ARRAY", .toText = TpcpointArrayToText, .fromText = TpcpointArrayFromText, .element = &TpcpointType};
+constexpr ExtensionType TpcpointArrayType{.name = "TPCPOINT_ARRAY", .fromText = TpcpointArrayFromText, .element = &TpcpointType};
 
-/* tpose[]: an array of tpose, carried as its number of elements, then each element's memory image after its length */
+/* tpose[]: an array of tpose, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tpose */
 std::string TposeArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TposeToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TposeToText);
 }
 
 std::vector<std::byte> TposeArrayFromText(std::string_view text)
 {
-    cannotRead("tpose[]", text);
+    return arrayFromText(text, "tpose[]", TposeFromText);
 }
 
-constexpr ExtensionType TposeArrayType{.name = "TPOSE_ARRAY", .toText = TposeArrayToText, .fromText = TposeArrayFromText, .element = &TposeType};
+constexpr ExtensionType TposeArrayType{.name = "TPOSE_ARRAY", .fromText = TposeArrayFromText, .element = &TposeType};
 
-/* tposechain[]: an array of tposechain, carried as its number of elements, then each element's memory image after its length */
+/* tposechain[]: an array of tposechain, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tposechain */
 std::string TposechainArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TposechainToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TposechainToText);
 }
 
 std::vector<std::byte> TposechainArrayFromText(std::string_view text)
 {
-    cannotRead("tposechain[]", text);
+    return arrayFromText(text, "tposechain[]", TposechainFromText);
 }
 
-constexpr ExtensionType TposechainArrayType{.name = "TPOSECHAIN_ARRAY", .toText = TposechainArrayToText, .fromText = TposechainArrayFromText, .element = &TposechainType};
+constexpr ExtensionType TposechainArrayType{.name = "TPOSECHAIN_ARRAY", .fromText = TposechainArrayFromText, .element = &TposechainType};
 
-/* tquadbin[]: an array of tquadbin, carried as its number of elements, then each element's memory image after its length */
+/* tquadbin[]: an array of tquadbin, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tquadbin */
 std::string TquadbinArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TquadbinToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TquadbinToText);
 }
 
 std::vector<std::byte> TquadbinArrayFromText(std::string_view text)
 {
-    cannotRead("tquadbin[]", text);
+    return arrayFromText(text, "tquadbin[]", TquadbinFromText);
 }
 
-constexpr ExtensionType TquadbinArrayType{.name = "TQUADBIN_ARRAY", .toText = TquadbinArrayToText, .fromText = TquadbinArrayFromText, .element = &TquadbinType};
+constexpr ExtensionType TquadbinArrayType{.name = "TQUADBIN_ARRAY", .fromText = TquadbinArrayFromText, .element = &TquadbinType};
 
-/* trgeometry[]: an array of trgeometry, carried as its number of elements, then each element's memory image after its length */
+/* trgeometry[]: an array of trgeometry, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of trgeometry */
 std::string TrgeometryArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TrgeometryToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TrgeometryToText);
 }
 
 std::vector<std::byte> TrgeometryArrayFromText(std::string_view text)
 {
-    cannotRead("trgeometry[]", text);
+    return arrayFromText(text, "trgeometry[]", TrgeometryFromText);
 }
 
-constexpr ExtensionType TrgeometryArrayType{.name = "TRGEOMETRY_ARRAY", .toText = TrgeometryArrayToText, .fromText = TrgeometryArrayFromText, .element = &TrgeometryType};
+constexpr ExtensionType TrgeometryArrayType{.name = "TRGEOMETRY_ARRAY", .fromText = TrgeometryArrayFromText, .element = &TrgeometryType};
 
-/* ts2cell[]: an array of ts2cell, carried as its number of elements, then each element's memory image after its length */
+/* ts2cell[]: an array of ts2cell, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of ts2cell */
 std::string Ts2cellArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += Ts2cellToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, Ts2cellToText);
 }
 
 std::vector<std::byte> Ts2cellArrayFromText(std::string_view text)
 {
-    cannotRead("ts2cell[]", text);
+    return arrayFromText(text, "ts2cell[]", Ts2cellFromText);
 }
 
-constexpr ExtensionType Ts2cellArrayType{.name = "TS2CELL_ARRAY", .toText = Ts2cellArrayToText, .fromText = Ts2cellArrayFromText, .element = &Ts2cellType};
+constexpr ExtensionType Ts2cellArrayType{.name = "TS2CELL_ARRAY", .fromText = Ts2cellArrayFromText, .element = &Ts2cellType};
 
-/* tstzspan[]: an array of tstzspan, carried as its number of elements, then each element's memory image after its length */
+/* tstzspan[]: an array of tstzspan, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of tstzspan */
 std::string TstzspanArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TstzspanToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TstzspanToText);
 }
 
 std::vector<std::byte> TstzspanArrayFromText(std::string_view text)
 {
-    cannotRead("tstzspan[]", text);
+    return arrayFromText(text, "tstzspan[]", TstzspanFromText);
 }
 
-constexpr ExtensionType TstzspanArrayType{.name = "TSTZSPAN_ARRAY", .toText = TstzspanArrayToText, .fromText = TstzspanArrayFromText, .element = &TstzspanType};
+constexpr ExtensionType TstzspanArrayType{.name = "TSTZSPAN_ARRAY", .fromText = TstzspanArrayFromText, .element = &TstzspanType};
 
-/* ttext[]: an array of ttext, carried as its number of elements, then each element's memory image after its length */
+/* ttext[]: an array of ttext, carried as its number of elements, then each element after its length, read and written as PostgreSQL writes an array of ttext */
 std::string TtextArrayToText(std::span<const std::byte> bytes)
 {
-    if (bytes.empty())
-    {
-        return {};
-    }
-    uint32_t count = 0;
-    std::memcpy(&count, bytes.data(), sizeof(count));
-    size_t at = sizeof(count);
-    std::string text{"{"};
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        uint32_t size = 0;
-        std::memcpy(&size, bytes.data() + at, sizeof(size));
-        at += sizeof(size);
-        if (i > 0)
-        {
-            text += ", ";
-        }
-        text += TtextToText(bytes.subspan(at, size));
-        at += size;
-    }
-    text += "}";
-    return text;
+    return arrayToText(bytes, TtextToText);
 }
 
 std::vector<std::byte> TtextArrayFromText(std::string_view text)
 {
-    cannotRead("ttext[]", text);
+    return arrayFromText(text, "ttext[]", TtextFromText);
 }
 
-constexpr ExtensionType TtextArrayType{.name = "TTEXT_ARRAY", .toText = TtextArrayToText, .fromText = TtextArrayFromText, .element = &TtextType};
+constexpr ExtensionType TtextArrayType{.name = "TTEXT_ARRAY", .fromText = TtextArrayFromText, .element = &TtextType};
+
+/* bigint[]: an array of bigint, each element carried as its C value (int64_t), read and written by int64_in and int64_out */
+std::string BigintElementToText(std::span<const std::byte> bytes)
+{
+    int64_t value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = int64_out(value, &size);
+    if (written == nullptr) { cannotWrite("bigint"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> BigintElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    int64_t value = int64_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string BigintArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, BigintElementToText);
+}
+
+std::vector<std::byte> BigintArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "bigint[]", BigintElementFromText);
+}
+
+constexpr ExtensionType BigintArrayType{.name = "BIGINT_ARRAY", .fromText = BigintArrayFromText};
+
+/* boolean[]: an array of boolean, each element carried as its C value (bool), read and written by bool_in and bool_out */
+std::string BooleanElementToText(std::span<const std::byte> bytes)
+{
+    bool value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = bool_out(value, &size);
+    if (written == nullptr) { cannotWrite("boolean"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> BooleanElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    bool value = bool_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string BooleanArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, BooleanElementToText);
+}
+
+std::vector<std::byte> BooleanArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "boolean[]", BooleanElementFromText);
+}
+
+constexpr ExtensionType BooleanArrayType{.name = "BOOLEAN_ARRAY", .fromText = BooleanArrayFromText};
+
+/* date[]: an array of date, each element carried as its C value (DateADT), read and written by date_in and date_out */
+std::string DateElementToText(std::span<const std::byte> bytes)
+{
+    DateADT value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = date_out(value, &size);
+    if (written == nullptr) { cannotWrite("date"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> DateElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    DateADT value = date_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string DateArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, DateElementToText);
+}
+
+std::vector<std::byte> DateArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "date[]", DateElementFromText);
+}
+
+constexpr ExtensionType DateArrayType{.name = "DATE_ARRAY", .fromText = DateArrayFromText};
+
+/* double precision[]: an array of double precision, each element carried as its C value (double), read and written by float8_in and float8_out */
+std::string DoublePrecisionElementToText(std::span<const std::byte> bytes)
+{
+    double value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = float8_out(value, 15, &size);
+    if (written == nullptr) { cannotWrite("double precision"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> DoublePrecisionElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    double value = float8_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string DoublePrecisionArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, DoublePrecisionElementToText);
+}
+
+std::vector<std::byte> DoublePrecisionArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "double precision[]", DoublePrecisionElementFromText);
+}
+
+constexpr ExtensionType DoublePrecisionArrayType{.name = "DOUBLE_PRECISION_ARRAY", .fromText = DoublePrecisionArrayFromText};
+
+/* float[]: an array of float, each element carried as its C value (double), read and written by float8_in and float8_out */
+std::string FloatElementToText(std::span<const std::byte> bytes)
+{
+    double value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = float8_out(value, 15, &size);
+    if (written == nullptr) { cannotWrite("float"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> FloatElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    double value = float8_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string FloatArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, FloatElementToText);
+}
+
+std::vector<std::byte> FloatArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "float[]", FloatElementFromText);
+}
+
+constexpr ExtensionType FloatArrayType{.name = "FLOAT_ARRAY", .fromText = FloatArrayFromText};
+
+/* integer[]: an array of integer, each element carried as its C value (int), read and written by int32_in and int32_out */
+std::string IntegerElementToText(std::span<const std::byte> bytes)
+{
+    int value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = int32_out(value, &size);
+    if (written == nullptr) { cannotWrite("integer"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> IntegerElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    int value = int32_in(terminated.c_str());
+    return image(&value, sizeof(value));
+}
+
+std::string IntegerArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, IntegerElementToText);
+}
+
+std::vector<std::byte> IntegerArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "integer[]", IntegerElementFromText);
+}
+
+constexpr ExtensionType IntegerArrayType{.name = "INTEGER_ARRAY", .fromText = IntegerArrayFromText};
+
+/* text[]: an array of text, each element carried as its C value (text *), read and written by text_in and text_out */
+std::string TextElementToText(std::span<const std::byte> bytes)
+{
+    return textOf(bytes);
+}
+
+std::vector<std::byte> TextElementFromText(std::string_view text)
+{
+    return bytesOf(std::span{text});
+}
+
+std::string TextArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, TextElementToText);
+}
+
+std::vector<std::byte> TextArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "text[]", TextElementFromText);
+}
+
+constexpr ExtensionType TextArrayType{.name = "TEXT_ARRAY", .fromText = TextArrayFromText};
+
+/* timestamptz[]: an array of timestamptz, each element carried as its C value (TimestampTz), read and written by timestamptz_in and timestamptz_out */
+std::string TimestamptzElementToText(std::span<const std::byte> bytes)
+{
+    TimestampTz value{};
+    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));
+    [[maybe_unused]] size_t size = 0;
+    char* written = timestamptz_out(value, &size);
+    if (written == nullptr) { cannotWrite("timestamptz"); }
+    std::string text{written};
+    std::free(written);
+    return text;
+}
+
+std::vector<std::byte> TimestamptzElementFromText(std::string_view text)
+{
+    MEOS::Meos::ensureMeosInitialized();
+    const std::string terminated{text};
+    TimestampTz value = timestamptz_in(terminated.c_str(), -1);
+    return image(&value, sizeof(value));
+}
+
+std::string TimestamptzArrayToText(std::span<const std::byte> bytes)
+{
+    return arrayToText(bytes, TimestamptzElementToText);
+}
+
+std::vector<std::byte> TimestamptzArrayFromText(std::string_view text)
+{
+    return arrayFromText(text, "timestamptz[]", TimestamptzElementFromText);
+}
+
+constexpr ExtensionType TimestamptzArrayType{.name = "TIMESTAMPTZ_ARRAY", .fromText = TimestamptzArrayFromText};
 
 }
 
 namespace NES
 {
 
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterBIGINTSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &BigintsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterBIGINTSPANDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &BigintspanType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterBIGINTSPANSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &BigintspansetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterBOX2DDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &Box2dType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterBOX3DDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &Box3dType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterCBUFFERDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &CbufferType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterCBUFFERSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &CbuffersetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterDATESETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &DatesetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterDATESPANDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &DatespanType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterDATESPANSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &DatespansetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterFLOATSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &FloatsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterFLOATSPANDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &FloatspanType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterFLOATSPANSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &FloatspansetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterGEOGRAPHYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &GeographyType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterGEOGSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &GeogsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterGEOMETRYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &GeometryType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterGEOMSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &GeomsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterH3INDEXDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &H3indexType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterH3INDEXSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &H3indexsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterINTSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &IntsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterINTSPANDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &IntspanType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterINTSPANSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &IntspansetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterJSONBDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &JsonbType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterJSONBSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &JsonbsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterJSONPATHDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &JsonpathType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterNPOINTDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &NpointType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterNPOINTSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &NpointsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterNSEGMENTDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &NsegmentType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPCPATCHDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PcpatchType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPCPATCHSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PcpatchsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPCPOINTDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PcpointType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPCPOINTSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PcpointsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPOSEDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PoseType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPOSECHAINDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PosechainType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPOSECHAINSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PosechainsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPOSESETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PosesetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterQUADBINDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &QuadbinType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterQUADBINSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &QuadbinsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterRAQUETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &RaquetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterRASTERDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &RasterType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterS2CELLDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &S2cellType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterS2CELLSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &S2cellsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterSTBOXDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &StboxType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTBIGINTDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TbigintType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTBOOLDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TboolType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTBOXDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TboxType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTCBUFFERDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TcbufferType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTEXTSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TextsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTFLOATDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TfloatType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOGPOINTDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeogpointType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOGRAPHYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeographyType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOMETRYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeometryType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOMPOINTDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeompointType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTH3INDEXDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &Th3indexType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTINTDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TintType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTJSONBDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TjsonbType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTNPOINTDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TnpointType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPCBOXDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TpcboxType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPCPATCHDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TpcpatchType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPCPOINTDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TpcpointType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPOSEDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TposeType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPOSECHAINDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TposechainType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTQUADBINDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TquadbinType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTRGEOMETRYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TrgeometryType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTS2CELLDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &Ts2cellType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTSTZSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TstzsetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTSTZSPANDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TstzspanType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTSTZSPANSETDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TstzspansetType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTTEXTDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TtextType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterBYTEADataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &ByteaType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterBIGINTSPAN_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &BigintspanArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterCBUFFER_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &CbufferArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterDATESPAN_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &DatespanArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterFLOATSPAN_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &FloatspanArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterGEOGRAPHY_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &GeographyArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterGEOMETRY_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &GeometryArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterINTSPAN_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &IntspanArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterJSONB_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &JsonbArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterNPOINT_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &NpointArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterNSEGMENT_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &NsegmentArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPCPATCH_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PcpatchArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPCPOINT_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PcpointArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPOSE_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PoseArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterPOSECHAIN_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &PosechainArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterRAQUET_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &RaquetArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterSTBOX_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &StboxArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTBIGINT_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TbigintArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTBOOL_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TboolArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTBOX_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TboxArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTCBUFFER_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TcbufferArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTFLOAT_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TfloatArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOGPOINT_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeogpointArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOGRAPHY_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeographyArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOMETRY_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeometryArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTGEOMPOINT_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TgeompointArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTH3INDEX_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &Th3indexArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTINT_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TintArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTJSONB_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TjsonbArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTNPOINT_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TnpointArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPCPATCH_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TpcpatchArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPCPOINT_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TpcpointArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPOSE_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TposeArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTPOSECHAIN_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TposechainArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTQUADBIN_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TquadbinArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTRGEOMETRY_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TrgeometryArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTS2CELL_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &Ts2cellArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTSTZSPAN_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TstzspanArrayType};
-}
-
-DataTypeRegistryReturnType DataTypeGeneratedRegistrar::RegisterTTEXT_ARRAYDataType(DataTypeRegistryArguments)
-{
-    return DataType{.type = DataType::Type::VARSIZED, .extension = &TtextArrayType};
+std::span<const MeosType> meosTypes()
+{
+    static constexpr std::array<MeosType, 122> types{{
+    MeosType{&BigintsetType, BigintsetToText},
+    MeosType{&BigintspanType, BigintspanToText},
+    MeosType{&BigintspansetType, BigintspansetToText},
+    MeosType{&Box2dType, Box2dToText},
+    MeosType{&Box3dType, Box3dToText},
+    MeosType{&CbufferType, CbufferToText},
+    MeosType{&CbuffersetType, CbuffersetToText},
+    MeosType{&DatesetType, DatesetToText},
+    MeosType{&DatespanType, DatespanToText},
+    MeosType{&DatespansetType, DatespansetToText},
+    MeosType{&FloatsetType, FloatsetToText},
+    MeosType{&FloatspanType, FloatspanToText},
+    MeosType{&FloatspansetType, FloatspansetToText},
+    MeosType{&GeographyType, GeographyToText},
+    MeosType{&GeogsetType, GeogsetToText},
+    MeosType{&GeometryType, GeometryToText},
+    MeosType{&GeomsetType, GeomsetToText},
+    MeosType{&H3indexType, H3indexToText},
+    MeosType{&H3indexsetType, H3indexsetToText},
+    MeosType{&IntsetType, IntsetToText},
+    MeosType{&IntspanType, IntspanToText},
+    MeosType{&IntspansetType, IntspansetToText},
+    MeosType{&JsonbType, JsonbToText},
+    MeosType{&JsonbsetType, JsonbsetToText},
+    MeosType{&JsonpathType, JsonpathToText},
+    MeosType{&NpointType, NpointToText},
+    MeosType{&NpointsetType, NpointsetToText},
+    MeosType{&NsegmentType, NsegmentToText},
+    MeosType{&PcpatchType, PcpatchToText},
+    MeosType{&PcpatchsetType, PcpatchsetToText},
+    MeosType{&PcpointType, PcpointToText},
+    MeosType{&PcpointsetType, PcpointsetToText},
+    MeosType{&PoseType, PoseToText},
+    MeosType{&PosechainType, PosechainToText},
+    MeosType{&PosechainsetType, PosechainsetToText},
+    MeosType{&PosesetType, PosesetToText},
+    MeosType{&QuadbinType, QuadbinToText},
+    MeosType{&QuadbinsetType, QuadbinsetToText},
+    MeosType{&RaquetType, RaquetToText},
+    MeosType{&RasterType, RasterToText},
+    MeosType{&S2cellType, S2cellToText},
+    MeosType{&S2cellsetType, S2cellsetToText},
+    MeosType{&StboxType, StboxToText},
+    MeosType{&SummarystatsType, SummarystatsToText},
+    MeosType{&TbigintType, TbigintToText},
+    MeosType{&TboolType, TboolToText},
+    MeosType{&TboxType, TboxToText},
+    MeosType{&TcbufferType, TcbufferToText},
+    MeosType{&TextsetType, TextsetToText},
+    MeosType{&TfloatType, TfloatToText},
+    MeosType{&TgeogpointType, TgeogpointToText},
+    MeosType{&TgeographyType, TgeographyToText},
+    MeosType{&TgeometryType, TgeometryToText},
+    MeosType{&TgeompointType, TgeompointToText},
+    MeosType{&Th3indexType, Th3indexToText},
+    MeosType{&TintType, TintToText},
+    MeosType{&TjsonbType, TjsonbToText},
+    MeosType{&TnpointType, TnpointToText},
+    MeosType{&TpcboxType, TpcboxToText},
+    MeosType{&TpcpatchType, TpcpatchToText},
+    MeosType{&TpcpointType, TpcpointToText},
+    MeosType{&TposeType, TposeToText},
+    MeosType{&TposechainType, TposechainToText},
+    MeosType{&TquadbinType, TquadbinToText},
+    MeosType{&TrgeometryType, TrgeometryToText},
+    MeosType{&Ts2cellType, Ts2cellToText},
+    MeosType{&TstzsetType, TstzsetToText},
+    MeosType{&TstzspanType, TstzspanToText},
+    MeosType{&TstzspansetType, TstzspansetToText},
+    MeosType{&TtextType, TtextToText},
+    MeosType{&ByteaType, ByteaToText},
+    MeosType{&BigintspanArrayType, BigintspanArrayToText},
+    MeosType{&CbufferArrayType, CbufferArrayToText},
+    MeosType{&DatespanArrayType, DatespanArrayToText},
+    MeosType{&FloatspanArrayType, FloatspanArrayToText},
+    MeosType{&GeographyArrayType, GeographyArrayToText},
+    MeosType{&GeometryArrayType, GeometryArrayToText},
+    MeosType{&H3indexArrayType, H3indexArrayToText},
+    MeosType{&IntspanArrayType, IntspanArrayToText},
+    MeosType{&JsonbArrayType, JsonbArrayToText},
+    MeosType{&NpointArrayType, NpointArrayToText},
+    MeosType{&NsegmentArrayType, NsegmentArrayToText},
+    MeosType{&PcpatchArrayType, PcpatchArrayToText},
+    MeosType{&PcpointArrayType, PcpointArrayToText},
+    MeosType{&PoseArrayType, PoseArrayToText},
+    MeosType{&PosechainArrayType, PosechainArrayToText},
+    MeosType{&QuadbinArrayType, QuadbinArrayToText},
+    MeosType{&RaquetArrayType, RaquetArrayToText},
+    MeosType{&RasterArrayType, RasterArrayToText},
+    MeosType{&S2cellArrayType, S2cellArrayToText},
+    MeosType{&StboxArrayType, StboxArrayToText},
+    MeosType{&TbigintArrayType, TbigintArrayToText},
+    MeosType{&TboolArrayType, TboolArrayToText},
+    MeosType{&TboxArrayType, TboxArrayToText},
+    MeosType{&TcbufferArrayType, TcbufferArrayToText},
+    MeosType{&TfloatArrayType, TfloatArrayToText},
+    MeosType{&TgeogpointArrayType, TgeogpointArrayToText},
+    MeosType{&TgeographyArrayType, TgeographyArrayToText},
+    MeosType{&TgeometryArrayType, TgeometryArrayToText},
+    MeosType{&TgeompointArrayType, TgeompointArrayToText},
+    MeosType{&Th3indexArrayType, Th3indexArrayToText},
+    MeosType{&TintArrayType, TintArrayToText},
+    MeosType{&TjsonbArrayType, TjsonbArrayToText},
+    MeosType{&TnpointArrayType, TnpointArrayToText},
+    MeosType{&TpcboxArrayType, TpcboxArrayToText},
+    MeosType{&TpcpatchArrayType, TpcpatchArrayToText},
+    MeosType{&TpcpointArrayType, TpcpointArrayToText},
+    MeosType{&TposeArrayType, TposeArrayToText},
+    MeosType{&TposechainArrayType, TposechainArrayToText},
+    MeosType{&TquadbinArrayType, TquadbinArrayToText},
+    MeosType{&TrgeometryArrayType, TrgeometryArrayToText},
+    MeosType{&Ts2cellArrayType, Ts2cellArrayToText},
+    MeosType{&TstzspanArrayType, TstzspanArrayToText},
+    MeosType{&TtextArrayType, TtextArrayToText},
+    MeosType{&BigintArrayType, BigintArrayToText},
+    MeosType{&BooleanArrayType, BooleanArrayToText},
+    MeosType{&DateArrayType, DateArrayToText},
+    MeosType{&DoublePrecisionArrayType, DoublePrecisionArrayToText},
+    MeosType{&FloatArrayType, FloatArrayToText},
+    MeosType{&IntegerArrayType, IntegerArrayToText},
+    MeosType{&TextArrayType, TextArrayToText},
+    MeosType{&TimestamptzArrayType, TimestamptzArrayToText}
+    }};
+    return types;
 }
 
 }

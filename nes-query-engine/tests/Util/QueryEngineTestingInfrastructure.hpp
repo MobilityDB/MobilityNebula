@@ -27,6 +27,7 @@
 #include <optional>
 #include <ostream>
 #include <random>
+#include <semaphore>
 #include <stop_token>
 #include <thread>
 #include <tuple>
@@ -40,9 +41,10 @@
 #include <Identifiers/NESStrongType.hpp>
 #include <Listeners/AbstractQueryStatusListener.hpp>
 #include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/Allocator/NesDefaultMemoryAllocator.hpp>
 #include <Runtime/BufferManager.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
-#include <Runtime/Execution/QueryStatus.hpp>
+#include <Runtime/MemoryUtils.hpp>
 #include <Runtime/QueryTerminationType.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Sources/SourceDescriptor.hpp>
@@ -57,16 +59,22 @@
 #include <ExecutablePipelineStage.hpp>
 #include <ExecutableQueryPlan.hpp>
 #include <Interfaces.hpp>
-#include <MemoryTestUtils.hpp>
 #include <QueryEngine.hpp>
 #include <QueryEngineStatisticListener.hpp>
+#include <QueryId.hpp>
+#include <QueryStatus.hpp>
 #include <RunningQueryPlan.hpp>
 #include <Task.hpp>
 #include <TestSource.hpp>
 
-namespace NES::Testing
+namespace NES
 {
 static constexpr size_t DEFAULT_BUFFER_SIZE = 8192;
+static constexpr uint32_t POOLED_BUFFER_SIZE = 8192;
+static constexpr uint32_t NUMBER_OF_POOLED_BUFFERS = 1024;
+static constexpr NES::BufferAlignment BUFFER_ALIGNMENT{64};
+static constexpr double UNPOOLED_MEMORY_FRACTION = 0.9;
+static constexpr size_t TOTAL_MEMORY_IN_BYTES = 10 * static_cast<size_t>(NUMBER_OF_POOLED_BUFFERS) * POOLED_BUFFER_SIZE;
 static constexpr size_t NUMBER_OF_TUPLES_PER_BUFFER = 23;
 static constexpr size_t NUMBER_OF_BUFFERS_PER_SOURCE = 300;
 static constexpr size_t NUMBER_OF_THREADS = 2;
@@ -97,18 +105,14 @@ struct ExpectStats
     { \
         size_t lower; \
         size_t upper; \
-        Name(size_t lower, size_t upper) : lower(lower), upper(upper) \
-        { \
-        } \
-        Name(size_t exact) : lower(exact), upper(exact) \
-        { \
-        } \
+        Name(size_t lower, size_t upper) : lower(lower), upper(upper) { } \
+        Name(size_t exact) : lower(exact), upper(exact) { } \
     }; \
 \
     void apply(Name v) \
     { \
         EXPECT_CALL(*listener, onEvent(::testing::VariantWith<NES::Name>(::testing::_))).Times(::testing::Between(v.lower, v.upper)); \
-    } /// TODO #1035: remove namespace testing
+    }
     STAT_TYPE(QueryStart);
     STAT_TYPE(QueryStop);
     STAT_TYPE(QueryStopRequest);
@@ -158,7 +162,7 @@ class QueryStatusListener final : public AbstractQueryStatusListener
 public:
     MOCK_METHOD(bool, logSourceTermination, (QueryId, OriginId, QueryTerminationType, std::chrono::system_clock::time_point), (override));
     MOCK_METHOD(bool, logQueryFailure, (QueryId, Exception, std::chrono::system_clock::time_point), (override));
-    MOCK_METHOD(bool, logQueryStatusChange, (QueryId, QueryState, std::chrono::system_clock::time_point), (override));
+    MOCK_METHOD(bool, logQueryStatusChange, (QueryId, QueryStatus, std::chrono::system_clock::time_point), (override));
 };
 
 /// Mock implementation for internal interfaces of the QueryEngine. These are used when verifying the behavior of internal
@@ -206,21 +210,32 @@ public:
     std::atomic<std::chrono::milliseconds> stopDuration = std::chrono::milliseconds(0);
     std::atomic_bool failOnStart = false;
     std::atomic_bool failOnStop = false;
+    std::atomic_bool blockOnStart = false;
     std::atomic<size_t> throwOnNthInvocation = -1;
     std::atomic<size_t> repeatCount = 0;
     std::atomic<size_t> repeatCountDuringStop = 0;
 
     std::promise<void> start;
+    std::promise<void> startEntered;
     std::promise<void> stop;
     std::promise<void> destruction;
     std::shared_future<void> startFuture = start.get_future().share();
+    std::shared_future<void> startEnteredFuture = startEntered.get_future().share();
     std::shared_future<void> stopFuture = stop.get_future().share();
     std::shared_future<void> destructionFuture = destruction.get_future().share();
+    std::binary_semaphore startGate{0};
 
     /// Back reference this is set during construction of a TestPipeline
     ExecutablePipelineStage* stage = nullptr;
 
     [[nodiscard]] testing::AssertionResult waitForStart() const { return waitForFuture(startFuture, DEFAULT_LONG_AWAIT_TIMEOUT); }
+
+    [[nodiscard]] testing::AssertionResult waitUntilStartEntered() const
+    {
+        return waitForFuture(startEnteredFuture, DEFAULT_LONG_AWAIT_TIMEOUT);
+    }
+
+    void unblockStart() { startGate.release(); }
 
     [[nodiscard]] testing::AssertionResult waitForStop() const { return waitForFuture(stopFuture, DEFAULT_LONG_AWAIT_TIMEOUT); }
 
@@ -256,6 +271,11 @@ struct TestPipeline final : ExecutablePipelineStage
 
     void start(PipelineExecutionContext&) override
     {
+        if (controller->blockOnStart)
+        {
+            controller->startEntered.set_value();
+            controller->startGate.acquire();
+        }
         std::this_thread::sleep_for(controller->startDuration.load());
         controller->start.set_value();
         if (controller->failOnStart)
@@ -301,11 +321,12 @@ struct TestPipeline final : ExecutablePipelineStage
         const size_t maxRepeats = controller->repeatCount.load();
         if (maxRepeats > 0)
         {
-            /// Get current repeat count from creation timestamp
-            const uint64_t currentRepeatCount = inputTupleBuffer.getWatermark().getRawValue();
+            /// The repeat count is kept in the watermark field; data buffers from sources start without a watermark.
+            const auto watermark = inputTupleBuffer.getWatermark().getRawValue();
+            const uint64_t currentRepeatCount = watermark == Timestamp::INVALID_VALUE ? 0 : watermark;
             if (currentRepeatCount < maxRepeats)
             {
-                auto copiedBuffer = Testing::copyBuffer(inputTupleBuffer, *pipelineExecutionContext.getBufferManager());
+                auto copiedBuffer = deepCopyBuffer(inputTupleBuffer, *pipelineExecutionContext.getBufferManager());
                 copiedBuffer.setWatermark(Timestamp(currentRepeatCount + 1));
                 pipelineExecutionContext.repeatTask(copiedBuffer, std::chrono::milliseconds(10));
                 return;
@@ -323,6 +344,10 @@ protected:
 
 struct TestSinkController
 {
+    explicit TestSinkController(BackpressureController backpressureController) : backpressureController(std::move(backpressureController))
+    {
+    }
+
     /// Waits for *at least* `numberOfExpectedBuffers`
     testing::AssertionResult waitForNumberOfReceivedBuffersOrMore(size_t numberOfExpectedBuffers);
 
@@ -351,6 +376,8 @@ struct TestSinkController
     std::atomic<size_t> repeatCount = 0;
     std::atomic<size_t> repeatCountDuringStop = 0;
 
+    BackpressureController backpressureController;
+
 private:
     folly::Synchronized<std::vector<TupleBuffer>, std::mutex> receivedBuffers;
     std::condition_variable receivedBufferTrigger;
@@ -370,17 +397,18 @@ public:
 
     void execute(const TupleBuffer& inputBuffer, PipelineExecutionContext& pipelineExecutionContext) override
     {
-        controller->insertBuffer(Testing::copyBuffer(inputBuffer, *bufferProvider));
+        controller->insertBuffer(deepCopyBuffer(inputBuffer, *bufferProvider));
 
         /// Handle repeat functionality
         const size_t maxRepeats = controller->repeatCount.load();
         if (maxRepeats > 0)
         {
-            /// Get current repeat count from creation timestamp
-            const uint64_t currentRepeatCount = inputBuffer.getWatermark().getRawValue();
+            /// The repeat count is kept in the watermark field; data buffers from sources start without a watermark.
+            const auto watermark = inputBuffer.getWatermark().getRawValue();
+            const uint64_t currentRepeatCount = watermark == Timestamp::INVALID_VALUE ? 0 : watermark;
             if (currentRepeatCount < maxRepeats)
             {
-                auto copiedBuffer = Testing::copyBuffer(inputBuffer, *bufferProvider);
+                auto copiedBuffer = deepCopyBuffer(inputBuffer, *bufferProvider);
                 copiedBuffer.setWatermark(Timestamp(currentRepeatCount + 1));
                 pipelineExecutionContext.repeatTask(copiedBuffer, std::chrono::milliseconds(10));
             }
@@ -428,7 +456,7 @@ private:
 };
 
 std::tuple<std::shared_ptr<ExecutablePipeline>, std::shared_ptr<TestSinkController>>
-createSinkPipeline(PipelineId id, std::shared_ptr<AbstractBufferProvider> bm);
+createSinkPipeline(PipelineId id, BackpressureController backpressureController, std::shared_ptr<AbstractBufferProvider> bm);
 
 std::tuple<std::shared_ptr<ExecutablePipeline>, std::shared_ptr<TestPipelineController>>
 createPipeline(PipelineId id, const std::vector<std::shared_ptr<ExecutablePipeline>>& successors);
@@ -491,16 +519,21 @@ struct TestingHarness
     explicit TestingHarness(size_t numberOfThreads, size_t numberOfBuffers);
     explicit TestingHarness();
 
-    std::shared_ptr<BufferManager> bm = BufferManager::create();
+    std::shared_ptr<BufferManager> bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
     std::shared_ptr<TestQueryStatisticListener> statListener = std::make_shared<TestQueryStatisticListener>();
     ExpectStats stats{statListener};
     std::shared_ptr<QueryStatusListener> status = std::make_shared<QueryStatusListener>();
     std::unique_ptr<QueryEngine> qm;
     size_t numberOfThreads;
 
-    QueryId::Underlying queryIdCounter = INITIAL<QueryId>.getRawValue();
-    QueryId::Underlying lastOriginIdCounter = INITIAL<OriginId>.getRawValue();
-    QueryId::Underlying lastPipelineIdCounter = INITIAL<PipelineId>.getRawValue();
+    std::vector<QueryId> queryIds;
+    OriginId::Underlying lastOriginIdCounter = INITIAL<OriginId>.getRawValue();
+    PipelineId::Underlying lastPipelineIdCounter = INITIAL<PipelineId>.getRawValue();
 
     QueryPlanBuilder::identifier_t lastIdentifier = 0;
     std::unordered_map<QueryPlanBuilder::identifier_t, ExecutablePipelineStage*> stages;
@@ -530,16 +563,18 @@ struct TestingHarness
     std::unique_ptr<ExecutableQueryPlan> addNewQuery(QueryPlanBuilder&& builder);
 
     /// List of status events to be emitted by a query with QueryId `id`
-    void expectQueryStatusEvents(QueryId id, std::initializer_list<QueryState> states);
+    void expectQueryStatusEvents(const QueryId& id, std::initializer_list<QueryStatus> states);
 
     /// Expects a source for a given query to be terminated (gracefully or due to a failure)
     void expectSourceTermination(QueryId id, QueryPlanBuilder::identifier_t source, QueryTerminationType type);
 
+    /// Returns the QueryId assigned to the Nth query added via addNewQuery (0-indexed).
+    [[nodiscard]] QueryId queryId(size_t index) const { return queryIds.at(index); }
 
     /// Starts the query engine and initializes internal futures used to track query termination events.
     /// All expected query runtime events should be declared beforehand
     /// ```c++
-    ///  test.expectQueryStatusEvents(QueryId(1), {QueryStatus::Running});
+    ///  test.expectQueryStatusEvents(test.queryId(0), {QueryStatus::Running});
     ///  test.start();
     /// ```
     void start();

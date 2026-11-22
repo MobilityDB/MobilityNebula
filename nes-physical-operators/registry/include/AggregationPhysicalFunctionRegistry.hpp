@@ -14,16 +14,17 @@
 
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
-#include <vector>
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <DataTypes/DataType.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
-#include <Nautilus/Interface/Record.hpp>
-#include <Util/Registry.hpp>
+#include <Interface/PagedVector/PagedVectorRef.hpp>
+#include <Interface/Record.hpp>
+#include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Util/RuntimeRegistry.hpp>
 
 namespace NES
 {
@@ -36,20 +37,26 @@ struct AggregationPhysicalFunctionRegistryArguments
     DataType resultType;
     PhysicalFunction inputFunction;
     Record::RecordFieldIdentifier resultFieldIdentifier;
-    std::optional<std::shared_ptr<Interface::BufferRef::TupleBufferRef>> bufferRefPagedVector;
-    /// Query-literal constants of a parameterized aggregation, as its logical function states them
-    std::vector<std::string> literals;
+    std::optional<std::shared_ptr<PagedVectorTupleLayout>> tupleLayout;
+    bool includeNullValues;
+    /// The logical aggregation lowered, from which an aggregation a plugin adds reads what its logical function
+    /// holds, as the constants of its query
+    std::optional<WindowAggregationLogicalFunction> logicalFunction{};
 };
 
-class AggregationPhysicalFunctionRegistry : public BaseRegistry<
+using AggregationPhysicalFunctionFn
+    = std::function<AggregationPhysicalFunctionRegistryReturnType(AggregationPhysicalFunctionRegistryArguments)>;
+
+/// Entries are static create members on the aggregation function classes (constructor
+/// signatures differ between aggregations).
+class AggregationPhysicalFunctionRegistry : public RuntimeRegistry<
                                                 AggregationPhysicalFunctionRegistry,
                                                 std::string,
-                                                AggregationPhysicalFunctionRegistryReturnType,
-                                                AggregationPhysicalFunctionRegistryArguments>
+                                                AggregationPhysicalFunctionFn,
+                                                /*CaseSensitive*/ false>
 {
+public:
+    static AggregationPhysicalFunctionRegistry& instance();
 };
-}
 
-#define INCLUDED_FROM_REGISTRY_AGGREGATION_PHYSICAL_FUNCTION
-#include <AggregationPhysicalFunctionGeneratedRegistrar.inc>
-#undef INCLUDED_FROM_REGISTRY_AGGREGATION_PHYSICAL_FUNCTION
+}

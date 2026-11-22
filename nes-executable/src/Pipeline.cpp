@@ -27,14 +27,14 @@
 #include <vector>
 #include <Identifiers/Identifiers.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
-#include <Util/ExecutionMode.hpp>
+#include <Util/ExecutionConfiguration.hpp>
 #include <fmt/base.h>
 #include <fmt/format.h>
 #include <magic_enum/magic_enum.hpp>
 #include <ErrorHandling.hpp>
 #include <PhysicalOperator.hpp>
 #include <SinkPhysicalOperator.hpp>
-#include <SourcePhysicalOperator.hpp>
+#include <SourceDescriptorPhysicalOperator.hpp>
 
 namespace NES
 {
@@ -59,7 +59,8 @@ std::string pipelineToString(const Pipeline& pipeline, uint16_t indent)
 
     constexpr std::string_view kNoMode = "None";
 
-    const std::string_view modeName = pipeline.getExecutionMode() ? magic_enum::enum_name(*pipeline.getExecutionMode()) : kNoMode;
+    const auto executionConfiguration = pipeline.getExecutionConfiguration();
+    const std::string_view modeName = executionConfiguration ? magic_enum::enum_name(executionConfiguration->getExecutionMode()) : kNoMode;
 
     fmt::format_to(
         std::back_inserter(buf), "{}Pipeline(ID({}), Provider({}))\n", indentStr, pipeline.getPipelineId().getRawValue(), modeName);
@@ -75,11 +76,11 @@ std::string pipelineToString(const Pipeline& pipeline, uint16_t indent)
     return fmt::to_string(buf);
 }
 
-std::atomic_uint64_t nextId{INITIAL_PIPELINE_ID.getRawValue()};
 }
 
 PipelineId getNextPipelineId()
 {
+    static std::atomic_uint64_t nextId{INITIAL_PIPELINE_ID.getRawValue()};
     return PipelineId(nextId++);
 }
 
@@ -87,7 +88,7 @@ Pipeline::Pipeline(PhysicalOperator op) : rootOperator(std::move(op)), pipelineI
 {
 }
 
-Pipeline::Pipeline(const SourcePhysicalOperator& op) : rootOperator(op), pipelineId(getNextPipelineId())
+Pipeline::Pipeline(const SourceDescriptorPhysicalOperator& op) : rootOperator(op), pipelineId(getNextPipelineId())
 {
 }
 
@@ -97,7 +98,7 @@ Pipeline::Pipeline(const SinkPhysicalOperator& op) : rootOperator(op), pipelineI
 
 bool Pipeline::isSourcePipeline() const
 {
-    return getRootOperator().tryGet<SourcePhysicalOperator>().has_value();
+    return getRootOperator().tryGet<SourceDescriptorPhysicalOperator>().has_value();
 }
 
 bool Pipeline::isOperatorPipeline() const
@@ -199,9 +200,9 @@ std::ostream& operator<<(std::ostream& os, const Pipeline& p)
     return os;
 }
 
-std::optional<ExecutionMode> Pipeline::getExecutionMode() const
+std::optional<ExecutionConfiguration> Pipeline::getExecutionConfiguration() const
 {
-    return executionMode;
+    return executionConfiguration;
 }
 
 const PhysicalOperator& Pipeline::getRootOperator() const
@@ -224,9 +225,9 @@ std::unordered_map<OperatorHandlerId, std::shared_ptr<OperatorHandler>>& Pipelin
     return operatorHandlers;
 }
 
-void Pipeline::setExecutionMode(ExecutionMode mode)
+void Pipeline::setExecutionConfiguration(ExecutionConfiguration executionConfiguration)
 {
-    executionMode = mode;
+    this->executionConfiguration = std::move(executionConfiguration);
 }
 
 void Pipeline::setRootOperator(const PhysicalOperator& op)

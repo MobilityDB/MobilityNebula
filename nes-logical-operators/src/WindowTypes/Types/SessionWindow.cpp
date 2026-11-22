@@ -14,19 +14,18 @@
 
 #include <WindowTypes/Types/SessionWindow.hpp>
 
-#include <string>
+#include <cstddef>
+#include <functional>
+#include <ostream>
 #include <utility>
-#include <WindowTypes/Measures/TimeCharacteristic.hpp>
+#include <Util/Reflection.hpp>
 #include <WindowTypes/Measures/TimeMeasure.hpp>
-#include <WindowTypes/Types/TimeBasedWindowType.hpp>
-#include <WindowTypes/Types/WindowType.hpp>
 #include <fmt/format.h>
 
 namespace NES::Windowing
 {
 
-SessionWindow::SessionWindow(TimeCharacteristic timeCharacteristic, TimeMeasure gap)
-    : TimeBasedWindowType(std::move(timeCharacteristic)), gap(std::move(gap))
+SessionWindow::SessionWindow(TimeMeasure gap) : gap(std::move(gap))
 {
 }
 
@@ -35,28 +34,38 @@ TimeMeasure SessionWindow::getGap() const
     return gap;
 }
 
-TimeMeasure SessionWindow::getSize()
+TimeMeasure SessionWindow::getSize() const
 {
     return gap;
 }
 
-TimeMeasure SessionWindow::getSlide()
+std::ostream& operator<<(std::ostream& os, const SessionWindow& sessionWindow)
 {
-    return gap;
+    return os << fmt::format("SessionWindow: gap={}", sessionWindow.getGap());
 }
 
-std::string SessionWindow::toString() const
-{
-    return fmt::format("SessionWindow: gap={} timeCharacteristic={}", gap.getTime(), timeCharacteristic);
+bool SessionWindow::operator==(const SessionWindow& otherWindowType) const = default;
+
 }
 
-bool SessionWindow::operator==(const WindowType& otherWindowType) const
+namespace NES
 {
-    if (const auto* other = dynamic_cast<const SessionWindow*>(&otherWindowType))
-    {
-        return (this->gap == other->gap) && (this->timeCharacteristic == (other->timeCharacteristic));
-    }
-    return false;
+
+Reflected
+Reflector<Windowing::SessionWindow>::operator()(const Windowing::SessionWindow& sessionWindow, const ReflectionContext& context) const
+{
+    return context.reflect(sessionWindow.getGap());
 }
 
+Windowing::SessionWindow
+Unreflector<Windowing::SessionWindow>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto gap = context.unreflect<Windowing::TimeMeasure>(reflected);
+    return Windowing::SessionWindow{gap};
+}
+}
+
+std::size_t std::hash<NES::Windowing::SessionWindow>::operator()(const NES::Windowing::SessionWindow& window) const noexcept
+{
+    return std::hash<NES::Windowing::TimeMeasure>{}(window.getGap());
 }

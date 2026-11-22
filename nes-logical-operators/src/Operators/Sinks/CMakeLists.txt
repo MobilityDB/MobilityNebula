@@ -11,6 +11,9 @@
 # limitations under the License.
 
 add_source_files(nes-logical-operators
-        InlineSinkLogicalOperator.cpp
+        AnonymousSinkLogicalOperator.cpp
         SinkLogicalOperator.cpp
 )
+
+add_unreflection_entry(LogicalOperator AnonymousSink)
+add_unreflection_entry(LogicalOperator Sink)

@@ -15,39 +15,33 @@
 #include <WindowTypes/Measures/TimeMeasure.hpp>
 
 #include <cstdint>
+#include <ostream>
 #include <string>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 
 namespace NES::Windowing
 {
 
-TimeMeasure::TimeMeasure(uint64_t milliseconds) : milliSeconds(milliseconds)
+[[nodiscard]] std::ostream& operator<<(std::ostream& ostream, const TimeMeasure& measure)
 {
+    return ostream << fmt::format("TimeMeasure: {}ms", std::to_string(measure.milliSeconds));
 }
 
-uint64_t TimeMeasure::getTime() const
-{
-    return milliSeconds;
+
 }
 
-std::string TimeMeasure::toString() const
+namespace NES
 {
-    return fmt::format("TimeMeasure: {}ms", std::to_string(milliSeconds));
+Reflected Reflector<Windowing::TimeMeasure>::operator()(const Windowing::TimeMeasure& measure, const ReflectionContext& context) const
+{
+    return context.reflect(measure.getTime());
 }
 
-bool TimeMeasure::operator<(const TimeMeasure& other) const
+Windowing::TimeMeasure Unreflector<Windowing::TimeMeasure>::operator()(const Reflected& reflected, const ReflectionContext& context) const
 {
-    return milliSeconds < other.milliSeconds;
-}
-
-bool TimeMeasure::operator<=(const TimeMeasure& other) const
-{
-    return milliSeconds <= other.milliSeconds;
-}
-
-bool TimeMeasure::operator==(const TimeMeasure& other) const
-{
-    return milliSeconds == other.milliSeconds;
+    const auto milliseconds = context.unreflect<uint64_t>(reflected);
+    return Windowing::TimeMeasure(milliseconds);
 }
 
 }

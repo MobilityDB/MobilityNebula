@@ -14,18 +14,19 @@
 
 #include <SourceThread.hpp>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <exception>
 #include <functional>
 #include <future>
-#include <iostream>
 #include <memory>
 #include <optional>
 #include <stop_token>
 #include <string>
-#include <thread>
+#include <tuple>
 #include <utility>
+#include <variant>
 #include <Identifiers/Identifiers.hpp>
 #include <Runtime/AbstractBufferProvider.hpp>
 #include <Runtime/TupleBuffer.hpp>
@@ -33,30 +34,47 @@
 #include <Sources/SourceReturnType.hpp>
 #include <Time/Timestamp.hpp>
 #include <Util/Logger/Logger.hpp>
-#include <Util/ThreadNaming.hpp>
 #include <cpptrace/from_current.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
+#include <Thread.hpp>
+#include <scope_guard.hpp>
 
 namespace NES
 {
 
 SourceThread::SourceThread(
-    OriginId originId, std::shared_ptr<AbstractBufferProvider> poolProvider, std::unique_ptr<Source> sourceImplementation)
-    : originId(originId), localBufferManager(std::move(poolProvider)), sourceImplementation(std::move(sourceImplementation))
+    BackpressureListener backpressureListener,
+    OriginId originId,
+    std::shared_ptr<AbstractBufferProvider> poolProvider,
+    std::unique_ptr<Source> sourceImplementation)
+    : originId(originId)
+    , localBufferManager(std::move(poolProvider))
+    , sourceImplementation(std::move(sourceImplementation))
+    , backpressureListener(std::move(backpressureListener))
 {
     PRECONDITION(this->localBufferManager, "Invalid buffer manager");
 }
 
-namespace detail
+/// Returns nullopt iff stop was requested.
+static std::optional<TupleBuffer> getBufferUnlessStopped(AbstractBufferProvider& bufferProvider, const std::stop_token& stopToken)
+{
+    std::optional<TupleBuffer> buffer;
+    while (!buffer && !stopToken.stop_requested())
+    {
+        buffer = bufferProvider.getBufferWithTimeout(std::chrono::milliseconds(25));
+    }
+    return buffer;
+}
+
+namespace
 {
 void addBufferMetaData(OriginId originId, SequenceNumber sequenceNumber, TupleBuffer& buffer)
 {
     /// set the origin id for this source
     buffer.setOriginId(originId);
     /// set the creation timestamp
-    buffer.setCreationTimestampInMS(Timestamp(
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()));
+    buffer.setCreationTimestampInMS(Timestamp::nowInMilliseconds());
     /// Set the sequence number of this buffer.
     /// A data source generates a monotonic increasing sequence number
     buffer.setSequenceNumber(sequenceNumber);
@@ -71,44 +89,32 @@ void addBufferMetaData(OriginId originId, SequenceNumber sequenceNumber, TupleBu
         buffer.isLastChunk());
 }
 
-using EmitFn = std::function<void(TupleBuffer, bool addBufferMetadata)>;
+using EmitFn = std::function<void(TupleBuffer&&, bool addBufferMetadata)>;
 
-void threadSetup(OriginId originId)
+SourceImplementationTermination dataSourceThreadRoutine(
+    const std::stop_token& stopToken,
+    BackpressureListener backpressureListener,
+    Source& source,
+    std::shared_ptr<AbstractBufferProvider> bufferProvider,
+    const EmitFn& emit)
 {
-    setThreadName(fmt::format("DataSrc-{}", originId));
-}
-
-/// RAII-Wrapper around source open and close
-struct SourceHandle
-{
-    explicit SourceHandle(Source& source) : source(source) { source.open(); }
-
-    SourceHandle(const SourceHandle& other) = delete;
-    SourceHandle(SourceHandle&& other) noexcept = delete;
-    SourceHandle& operator=(const SourceHandle& other) = delete;
-    SourceHandle& operator=(SourceHandle&& other) noexcept = delete;
-
-    ~SourceHandle()
+    source.open(bufferProvider);
+    SCOPE_SUCCESS
     {
-        /// Throwing in a destructor would terminate the application
-        CPPTRACE_TRY
-        {
-            source.close();
-        }
-        CPPTRACE_CATCH(...)
-        {
-            tryLogCurrentException();
-        }
-    }
+        source.close();
+    };
 
-    Source& source; ///NOLINT Source handle should never outlive the source
-};
+    /// If a source fails during fillTupleBuffer we still want to call close. However This will be handled during stack unwinding.
+    /// If the close method throws again the system would terminate, we have to resort to swalling and logging the exception.
+    /// The actual fillTupleBuffer failure is handled in the parent exception handler.
+    SCOPE_FAIL
+    {
+        cpptrace::try_catch(
+            [&]() { source.close(); }, []() { NES_ERROR("Source threw during failure shutdown: ", wrapExternalException().what()); });
+    };
 
-SourceImplementationTermination
-dataSourceThreadRoutine(const std::stop_token& stopToken, Source& source, AbstractBufferProvider& bufferProvider, const EmitFn& emit)
-{
-    const SourceHandle sourceHandle(source);
-    while (!stopToken.stop_requested())
+    const bool requiresMetadata = !source.addsMetadata();
+    while (backpressureListener.wait(stopToken), !stopToken.stop_requested())
     {
         /// 4 Things that could happen:
         /// 1. Happy Path: Source produces a tuple buffer and emit is called. The loop continues.
@@ -118,24 +124,29 @@ dataSourceThreadRoutine(const std::stop_token& stopToken, Source& source, Abstra
         ///    The thread exits with `EndOfStream`
         /// 4. Failure. The fillTupleBuffer method will throw an exception, the exception is propagted to the SourceThread via the return promise.
         ///    The thread exists with an exception
-        auto emptyBuffer = bufferProvider.getBufferBlocking();
-        const auto numReadBytes = source.fillTupleBuffer(emptyBuffer, stopToken);
 
-        if (numReadBytes != 0)
-        {
-            /// The source read in raw bytes, thus we don't know the number of tuples yet.
-            /// The InputFormatterTask expects that the source set the number of bytes this way and uses it to determine the number of tuples.
-            emptyBuffer.setNumberOfTuples(numReadBytes);
-            emit(emptyBuffer, true);
-        }
-
-        if (stopToken.stop_requested())
+        auto emptyBuffer = getBufferUnlessStopped(*bufferProvider, stopToken);
+        if (!emptyBuffer)
         {
             return {SourceImplementationTermination::StopRequested};
         }
 
-        if (numReadBytes == 0)
+        const auto fillTupleResult = source.fillTupleBuffer(*emptyBuffer, stopToken);
+
+        if (!fillTupleResult.isEoS())
         {
+            /// The source read in raw bytes, thus we don't know the number of tuples yet.
+            /// The InputFormatter expects that the source set the number of bytes this way and uses it to determine the number of tuples.
+            emptyBuffer->setNumberOfTuples(fillTupleResult.getNumberOfBytes());
+            emit(std::move(*emptyBuffer), requiresMetadata);
+        }
+        else
+        {
+            if (stopToken.stop_requested())
+            {
+                return {SourceImplementationTermination::StopRequested};
+            }
+
             return {SourceImplementationTermination::EndOfStream};
         }
     }
@@ -144,6 +155,7 @@ dataSourceThreadRoutine(const std::stop_token& stopToken, Source& source, Abstra
 
 void dataSourceThread(
     const std::stop_token& stopToken,
+    BackpressureListener backpressureListener,
     std::promise<SourceImplementationTermination> result,
     Source* source,
     SourceReturnType::EmitFunction emit,
@@ -151,8 +163,6 @@ void dataSourceThread(
     ///NOLINTNEXTLINE(performance-unnecessary-value-param) `jthread` does not allow references
     std::shared_ptr<AbstractBufferProvider> bufferProvider)
 {
-    threadSetup(originId);
-
     size_t sequenceNumberGenerator = SequenceNumber::INITIAL;
     const EmitFn dataEmit = [&](TupleBuffer&& buffer, bool shouldAddMetadata)
     {
@@ -160,23 +170,49 @@ void dataSourceThread(
         {
             addBufferMetaData(originId, SequenceNumber(sequenceNumberGenerator++), buffer);
         }
+        else
+        {
+            sequenceNumberGenerator = std::max(sequenceNumberGenerator, static_cast<size_t>(buffer.getSequenceNumber().getRawValue() + 1));
+        }
         emit(originId, SourceReturnType::Data{std::move(buffer)}, stopToken);
     };
 
-    try
-    {
-        result.set_value_at_thread_exit(dataSourceThreadRoutine(stopToken, *source, *bufferProvider, dataEmit));
-        if (!stopToken.stop_requested())
+
+    cpptrace::try_catch(
+        [&]()
         {
-            emit(originId, SourceReturnType::EoS{}, stopToken);
-        }
-    }
-    catch (const std::exception& e)
-    {
-        auto ingestionException = RunningRoutineFailure(e.what());
-        result.set_exception_at_thread_exit(std::make_exception_ptr(ingestionException));
-        emit(originId, SourceReturnType::Error{std::move(ingestionException)}, stopToken);
-    }
+            const auto termination = dataSourceThreadRoutine(stopToken, std::move(backpressureListener), *source, bufferProvider, dataEmit);
+            if (termination.result == SourceImplementationTermination::EndOfStream)
+            {
+                /// A stop request must be able to interrupt every wait of the source thread, as the owner joins it after requesting stop.
+                /// A stopped query does not need the final watermark or the EoS.
+                if (auto watermarkBuffer = getBufferUnlessStopped(*bufferProvider, stopToken))
+                {
+                    watermarkBuffer->setNumberOfTuples(0);
+                    addBufferMetaData(originId, SequenceNumber(sequenceNumberGenerator), *watermarkBuffer);
+                    watermarkBuffer->setWatermark(Timestamp{Timestamp::INFINITE_VALUE});
+                    /// A watermark-only buffer is regular data and must pass through execute before EoS.
+                    if (emit(originId, SourceReturnType::Data{std::move(*watermarkBuffer)}, stopToken)
+                        == SourceReturnType::EmitResult::SUCCESS)
+                    {
+                        emit(originId, SourceReturnType::EoS{}, stopToken);
+                    }
+                }
+            }
+            result.set_value_at_thread_exit(termination);
+        },
+        [&](NES::Exception& e)
+        {
+            result.set_exception_at_thread_exit(std::make_exception_ptr(e));
+            emit(originId, SourceReturnType::Error{std::move(e)}, stopToken);
+        },
+        [&]()
+        {
+            auto exception = NES::wrapExternalException();
+            auto backpressureListenerException = RunningRoutineFailure(exception.what());
+            result.set_exception_at_thread_exit(std::make_exception_ptr(backpressureListenerException));
+            emit(originId, SourceReturnType::Error{std::move(backpressureListenerException)}, stopToken);
+        });
 }
 }
 
@@ -192,8 +228,10 @@ bool SourceThread::start(SourceReturnType::EmitFunction&& emitFunction)
     std::promise<SourceImplementationTermination> terminationPromise;
     this->terminationFuture = terminationPromise.get_future();
 
-    std::jthread sourceThread(
-        detail::dataSourceThread,
+    Thread sourceThread(
+        fmt::format("DataSrc-{}", originId),
+        dataSourceThread,
+        backpressureListener,
         std::move(terminationPromise),
         sourceImplementation.get(),
         std::move(emitFunction),
@@ -205,10 +243,10 @@ bool SourceThread::start(SourceReturnType::EmitFunction&& emitFunction)
 
 void SourceThread::stop()
 {
-    PRECONDITION(thread.get_id() != std::this_thread::get_id(), "DataSrc Thread should never request the source termination");
+    PRECONDITION(!thread.isCurrentThread(), "DataSrc Thread should never request the source termination");
 
     NES_DEBUG("SourceThread  {} : stop source", originId);
-    thread.request_stop();
+    thread.requestStop();
     {
         auto deletedOnScopeExit = std::move(thread);
     }
@@ -216,7 +254,7 @@ void SourceThread::stop()
 
     try
     {
-        this->terminationFuture.get();
+        std::ignore = this->terminationFuture.get();
     }
     catch (const Exception& exception)
     {
@@ -226,16 +264,21 @@ void SourceThread::stop()
 
 SourceReturnType::TryStopResult SourceThread::tryStop(std::chrono::milliseconds timeout)
 {
-    PRECONDITION(thread.get_id() != std::this_thread::get_id(), "DataSrc Thread should never request the source termination");
-    NES_DEBUG("SourceThread  {} : attempting to stop source", originId);
-    thread.request_stop();
+    if (!thread.joinable())
+    {
+        NES_DEBUG("SourceThread {}: thread is not running", originId);
+        return SourceReturnType::TryStopResult::NOT_RUNNING;
+    }
+    PRECONDITION(!thread.isCurrentThread(), "DataSrc Thread should never request the source termination");
+    NES_DEBUG("SourceThread {}: attempting to stop source", originId);
+    thread.requestStop();
 
     try
     {
         auto result = this->terminationFuture.wait_for(timeout);
         if (result == std::future_status::timeout)
         {
-            NES_DEBUG("SourceThread  {} : source was not stopped during timeout", originId);
+            NES_DEBUG("SourceThread {}: source was not stopped during timeout", originId);
             return SourceReturnType::TryStopResult::TIMEOUT;
         }
         auto deletedOnScopeExit = std::move(thread);
@@ -245,7 +288,7 @@ SourceReturnType::TryStopResult SourceThread::tryStop(std::chrono::milliseconds 
         NES_ERROR("Source encountered an error: {}", exception.what());
     }
 
-    NES_DEBUG("SourceThread  {} : stopped", originId);
+    NES_DEBUG("SourceThread {}: stopped", originId);
     return SourceReturnType::TryStopResult::SUCCESS;
 }
 
@@ -262,5 +305,4 @@ std::ostream& operator<<(std::ostream& out, const SourceThread& sourceThread)
     out << ")\n";
     return out;
 }
-
 }

@@ -15,31 +15,30 @@
 #pragma once
 
 #include <optional>
-#include <string>
 #include <utility>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <Interface/Record.hpp>
 #include <PhysicalOperator.hpp>
 
 namespace NES
 {
 
 /// Passes each record on once per element of the array its function answers, the element in the element field. An array
-/// is variable-sized: the number of its elements, then each element as a variable-sized value, its length then its
-/// bytes, so the element field refers to the element where the array holds it.
+/// is variable-sized: the number of its elements, then each element after its length, so the element field refers to the
+/// element where the array holds it. A null array, or one of no element, passes no record on.
 class UnnestPhysicalOperator final : public PhysicalOperatorConcept
 {
 public:
-    UnnestPhysicalOperator(PhysicalFunction array, std::string elementFieldName)
-        : array(std::move(array)), elementFieldName(std::move(elementFieldName)) { };
+    UnnestPhysicalOperator(PhysicalFunction array, Record::RecordFieldIdentifier elementField)
+        : array(std::move(array)), elementField(std::move(elementField)) { };
     void execute(ExecutionContext& ctx, Record& record) const override;
+
     [[nodiscard]] std::optional<PhysicalOperator> getChild() const override;
     void setChild(PhysicalOperator child) override;
 
 private:
     const PhysicalFunction array;
-    const std::string elementFieldName;
+    const Record::RecordFieldIdentifier elementField;
     std::optional<PhysicalOperator> child;
 };
-
 }

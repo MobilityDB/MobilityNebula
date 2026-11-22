@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # The dependency image contains a prebuilt sdk of all vcpkg depedencies used in the NebulaStream manifest
 # This image is intended to be built as a multi-platform image where the ARCH is injected into the docker build.
 # We do not use the builtin TARGETPLATFORM because it would not match the archtiecture names expected by VCPKG.
@@ -11,47 +12,121 @@ FROM alpine:latest AS llvm-download
 ARG ARCH
 ARG SANITIZER="none"
 ARG STDLIB=libcxx
-ARG LLVM_VERSION=20
+ARG LLVM_VERSION=22-clang22-v2
 RUN apk update && apk add zstd
 ADD https://github.com/nebulastream/clang-binaries/releases/download/vmlir-${LLVM_VERSION}/nes-llvm-${LLVM_VERSION}-${ARCH}-${SANITIZER}-${STDLIB}.tar.zstd llvm.tar.zstd
+
 RUN zstd --decompress llvm.tar.zstd --stdout | tar -x
 
-FROM nebulastream/nes-development-base:${TAG}
+FROM nebulastream/nes-development-base:${TAG} as dep-build
 ARG STDLIB=libcxx
+ARG ARCH
+ARG SANITIZER="none"
+# Public URL for read-only S3-compatible cache (no credentials needed)
+ARG VCPKG_CACHE_PUBLIC_URL=""
+# Set to true to skip the debug builds of all dependencies, which makes the image and Debug binaries much smaller.
+# Debug builds of NebulaStream then link the release builds of the dependencies.
+# This is appended to a triplet file, so that these builds get their own entries in the vcpkg binary cache.
+ARG RELEASE_ONLY_DEPENDENCIES="false"
+
+# Install AWS CLI (only needed for authenticated S3 access)
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        URL="https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+        URL="https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip"; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi && \
+    curl "$URL" -o "awscliv2.zip" && \
+    unzip -q awscliv2.zip && \
+    ./aws/install -i /usr/local/aws-cli -b /usr/local/bin && \
+    rm -rf awscliv2.zip aws
 
 COPY --from=llvm-download /clang /clang
 ENV CMAKE_PREFIX_PATH="/clang/:${CMAKE_PREFIX_PATH}"
 
 ADD vcpkg /vcpkg_input
-ARG SANITIZER="none"
-ARG ARCH
 ENV VCPKG_FORCE_SYSTEM_BINARIES=1
 
-RUN \
-    if [ "$STDLIB" = "libcxx" ]; then \
-      export VCPKG_STDLIB="libcxx"; \
+# Three-tier vcpkg binary caching:
+#   1. S3 credentials provided: authenticated readwrite cache
+#   2. Only VCPKG_CACHE_PUBLIC_URL provided: read-only HTTP cache (public bucket)
+#   3. Nothing provided: no cloud cache, local build only
+#
+# We enable retry due to rate limits.
+#
+# The vcpkg clone below must stay a full clone. Port versions in the builtin registry are recorded
+# as git-tree SHAs from the commits that introduced them, not from the baseline, so a shallow clone
+# fails with "vcpkg was cloned as a shallow repository" on the first port whose version predates it.
+RUN --mount=type=secret,id=VCPKG_CACHE_ACCESS_KEY \
+    --mount=type=secret,id=VCPKG_CACHE_SECRET_KEY \
+    --mount=type=secret,id=VCPKG_CACHE_ENDPOINT \
+    --mount=type=secret,id=VCPKG_CACHE_BUCKET \
+    --mount=type=secret,id=VCPKG_CACHE_REGION \
+    bash -c ' \
+    set -eo pipefail; \
+    if [ -f /run/secrets/VCPKG_CACHE_ACCESS_KEY ] && [ -s /run/secrets/VCPKG_CACHE_ACCESS_KEY ] && [ -f /run/secrets/VCPKG_CACHE_BUCKET ] && [ -s /run/secrets/VCPKG_CACHE_BUCKET ]; then \
+        echo "S3 credentials found. Using authenticated readwrite cache..."; \
+        export AWS_ACCESS_KEY_ID=$(cat /run/secrets/VCPKG_CACHE_ACCESS_KEY); \
+        export AWS_SECRET_ACCESS_KEY=$(cat /run/secrets/VCPKG_CACHE_SECRET_KEY); \
+        export AWS_ENDPOINT_URL_S3=$(cat /run/secrets/VCPKG_CACHE_ENDPOINT); \
+        export AWS_REGION=$(cat /run/secrets/VCPKG_CACHE_REGION); \
+        BUCKET=$(cat /run/secrets/VCPKG_CACHE_BUCKET); \
+        export AWS_RETRY_MODE=standard; \
+        export AWS_MAX_ATTEMPTS=10; \
+        export VCPKG_BINARY_SOURCES="clear;x-aws,s3://${BUCKET}/,readwrite"; \
+    elif [ -n "${VCPKG_CACHE_PUBLIC_URL}" ]; then \
+        echo "Public cache URL found. Using read-only HTTP cache..."; \
+        export VCPKG_BINARY_SOURCES="clear;http,${VCPKG_CACHE_PUBLIC_URL}/{sha}.zip,read"; \
     else \
-      export VCPKG_STDLIB="local"; \
+        echo "No cache configured. Building without cloud cache..."; \
+        export VCPKG_BINARY_SOURCES="clear;default,readwrite"; \
     fi; \
-    cd /vcpkg_input \
-    && git clone https://github.com/microsoft/vcpkg.git vcpkg_repository \
-    && vcpkg_repository/bootstrap-vcpkg.sh --disableMetrics \
-    && vcpkg_repository/vcpkg install \
-         --overlay-triplets=custom-triplets \
-         --overlay-ports=vcpkg-registry/ports \
-         --triplet="${ARCH}-linux-${SANITIZER}-${VCPKG_STDLIB}" \
-         --host-triplet="${ARCH}-linux-none-${VCPKG_STDLIB}" \
-    && vcpkg_repository/vcpkg export \
-         --overlay-triplets=custom-triplets \
-         --overlay-ports=vcpkg-registry/ports \
-         --triplet="${ARCH}-linux-${SANITIZER}-${VCPKG_STDLIB}" \
-         --host-triplet="${ARCH}-linux-none-${VCPKG_STDLIB}" \
-         --raw --output-dir / --output vcpkg \
-    && rm -rf /vcpkg_input \
-    && chmod -R g=u,o=u /vcpkg
+    \
+    if [ "$STDLIB" = "libcxx" ]; then VCPKG_STDLIB="libcxx"; else VCPKG_STDLIB="local"; fi; \
+    \
+    cd /vcpkg_input; \
+    if [ "$RELEASE_ONLY_DEPENDENCIES" = "true" ]; then \
+        echo "set(VCPKG_BUILD_TYPE release)" >> "custom-triplets/bits/arch/${ARCH}.cmake"; \
+    fi; \
+    git clone https://github.com/microsoft/vcpkg.git vcpkg_repository; \
+    git -C vcpkg_repository checkout "$(grep -o "\"builtin-baseline\": \"[0-9a-f]*\"" vcpkg.json | cut -d\" -f4)"; \
+    ./vcpkg_repository/bootstrap-vcpkg.sh --disableMetrics; \
+    ./vcpkg_repository/vcpkg install \
+        --keep-going \
+        --overlay-triplets=custom-triplets \
+        --overlay-ports=vcpkg-registry/ports \
+        --triplet="${ARCH}-linux-${SANITIZER}-${VCPKG_STDLIB}" \
+        --host-triplet="${ARCH}-linux-none-${VCPKG_STDLIB}" \
+        2>&1 | tee /tmp/vcpkg-install.log || { \
+            build_status=$?; \
+            bash ./print-build-failure-logs.sh /tmp/vcpkg-install.log ./vcpkg_repository/buildtrees || true; \
+            exit "$build_status"; \
+        }'
 
+RUN bash -c ' \
+    set -e; \
+    if [ "$STDLIB" = "libcxx" ]; then VCPKG_STDLIB="libcxx"; else VCPKG_STDLIB="local"; fi; \
+    cd /vcpkg_input; \
+    ./vcpkg_repository/vcpkg export \
+        --overlay-triplets=custom-triplets \
+        --overlay-ports=vcpkg-registry/ports \
+        --triplet="${ARCH}-linux-${SANITIZER}-${VCPKG_STDLIB}" \
+        --raw --output-dir=/ --output=vcpkg; \
+    \
+    chmod -R g=u,o=u /vcpkg'
+
+FROM nebulastream/nes-development-base:${TAG}
+
+COPY --from=llvm-download /clang /clang
+COPY --from=dep-build /vcpkg /vcpkg
 # This hash is used to determine if a development/dependency image is compatible with the current checked out branch
+
+ENV CMAKE_PREFIX_PATH="/clang/:${CMAKE_PREFIX_PATH}"
+ARG STDLIB=libcxx
 ARG VCPKG_DEPENDENCY_HASH
+ARG SANITIZER="none"
 ENV VCPKG_DEPENDENCY_HASH=${VCPKG_DEPENDENCY_HASH}
 ENV VCPKG_STDLIB=${STDLIB}
 ENV VCPKG_SANITIZER=${SANITIZER}

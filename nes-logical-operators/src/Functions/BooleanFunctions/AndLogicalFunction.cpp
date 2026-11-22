@@ -14,28 +14,30 @@
 
 #include <Functions/BooleanFunctions/AndLogicalFunction.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-AndLogicalFunction::AndLogicalFunction(LogicalFunction left, LogicalFunction right)
-    : dataType(DataTypeProvider::provideDataType(DataType::Type::BOOLEAN))
-    , left(std::move(std::move(left)))
-    , right(std::move(std::move(right)))
+AndLogicalFunction::AndLogicalFunction(LogicalFunction left, LogicalFunction right) : left(std::move(left)), right(std::move(right))
 {
 }
 
@@ -44,19 +46,12 @@ DataType AndLogicalFunction::getDataType() const
     return dataType;
 };
 
-LogicalFunction AndLogicalFunction::withDataType(const DataType& dataType) const
-{
-    auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
 std::vector<LogicalFunction> AndLogicalFunction::getChildren() const
 {
     return {left, right};
 };
 
-LogicalFunction AndLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+AndLogicalFunction AndLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 2, "AndLogicalFunction requires exactly two children, but got {}", children.size());
     auto copy = *this;
@@ -70,15 +65,11 @@ std::string_view AndLogicalFunction::getType() const
     return NAME;
 }
 
-bool AndLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool AndLogicalFunction::operator==(const AndLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const AndLogicalFunction*>(&rhs))
-    {
-        const bool simpleMatch = left == other->left and right == other->right;
-        const bool commutativeMatch = left == other->right and right == other->left;
-        return simpleMatch or commutativeMatch;
-    }
-    return false;
+    const bool simpleMatch = left == rhs.left and right == rhs.right;
+    const bool commutativeMatch = left == rhs.right and right == rhs.left;
+    return simpleMatch or commutativeMatch;
 }
 
 std::string AndLogicalFunction::explain(ExplainVerbosity verbosity) const
@@ -86,46 +77,38 @@ std::string AndLogicalFunction::explain(ExplainVerbosity verbosity) const
     return fmt::format("{} AND {}", left.explain(verbosity), right.explain(verbosity));
 }
 
-LogicalFunction AndLogicalFunction::withInferredDataType(const Schema& schema) const
+LogicalFunction AndLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
-    std::vector<LogicalFunction> newChildren;
-    for (auto& node : getChildren())
+    auto copy = *this;
+    copy.left = left.withInferredDataType(schema);
+    copy.right = right.withInferredDataType(schema);
+
+    if (!copy.left.getDataType().isType(DataType::Type::BOOLEAN) || !copy.right.getDataType().isType(DataType::Type::BOOLEAN))
     {
-        newChildren.push_back(node.withInferredDataType(schema));
+        throw CannotInferStamp("Can only apply and to two boolean input function, but got left: {}, right: {}", copy.left, copy.right);
     }
-    /// check the dataType of each child as inferred: a function's dataType is known only once inferred
-    if (not newChildren[0].getDataType().isType(DataType::Type::BOOLEAN))
-    {
-        throw CannotInferSchema("the dataType of left child must be boolean, but was: {}", newChildren[0].getDataType());
-    }
-    if (not newChildren[1].getDataType().isType(DataType::Type::BOOLEAN))
-    {
-        throw CannotInferSchema("the dataType of right child must be boolean, but was: {}", newChildren[1].getDataType());
-    }
-    return this->withChildren(newChildren);
+
+    copy.dataType = DataTypeProvider::provideDataType(DataType::Type::BOOLEAN);
+    copy.dataType.nullable = std::ranges::any_of(copy.getChildren(), [](const auto& child) { return child.getDataType().nullable; });
+    return copy;
 }
 
-SerializableFunction AndLogicalFunction::serialize() const
+Reflected Reflector<AndLogicalFunction>::operator()(const AndLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(right.serialize());
-    serializedFunction.add_children()->CopyFrom(left.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedAndLogicalFunction{.left = function.left, .right = function.right});
 }
 
-LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterAndLogicalFunction(LogicalFunctionRegistryArguments arguments)
+AndLogicalFunction Unreflector<AndLogicalFunction>::operator()(const Reflected& rfl, const ReflectionContext& context) const
+{
+    auto [left, right] = context.unreflect<detail::ReflectedAndLogicalFunction>(rfl);
+    return {std::move(left), std::move(right)};
+}
+
+LogicalFunctionRegistryReturnType AndLogicalFunction::createAnd(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 2)
     {
         throw CannotDeserialize("AndLogicalFunction requires exactly two children, but got {}", arguments.children.size());
-    }
-    if (arguments.children[0].getDataType().type != DataType::Type::BOOLEAN
-        || arguments.children[1].getDataType().type != DataType::Type::BOOLEAN)
-    {
-        throw CannotDeserialize(
-            "requires children of type bool, but got {} and {}", arguments.children[0].getDataType(), arguments.children[1].getDataType());
     }
     return AndLogicalFunction(arguments.children[0], arguments.children[1]);
 }

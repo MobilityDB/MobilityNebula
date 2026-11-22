@@ -15,16 +15,22 @@ include(${PROJECT_SOURCE_DIR}/cmake/PluginRegistrationUtil.cmake)
 
 include_directories(tests/include)
 
+# Add interface library
+add_library(nes-runtime-interface interface/Configuration/WorkerConfiguration.cpp)
+target_include_directories(nes-runtime-interface PUBLIC interface)
+target_link_libraries(nes-runtime-interface PUBLIC nes-configurations nes-query-engine-interface nes-query-compiler-interface nes-network-interface)
+
 # Set Sources and Headers
 add_subdirectory(src)
 get_source(nes-runtime NES_EXECUTION_ENGINE_SOURCE_FILES)
 
 # Add Library
 add_library(nes-runtime ${NES_EXECUTION_ENGINE_SOURCE_FILES})
-target_link_libraries(nes-runtime PUBLIC nes-common nes-logical-operators nes-physical-operators nes-data-types nes-memory nes-nautilus nes-sources nes-query-engine)
+target_link_libraries(nes-runtime PUBLIC nes-common nes-logical-operators nes-physical-operators nes-data-types nes-memory nes-nautilus nes-sources nes-query-engine nes-query-compiler-interface nes-query-optimizer-interface nes-single-node-worker-interface)
 target_include_directories(nes-runtime PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include/nebulastream/>)
+nautilus_inline(nes-runtime)
 
 # folly
 include(CMakeFindDependencyMacro)
@@ -32,10 +38,6 @@ find_package(folly CONFIG REQUIRED)
 target_link_libraries(nes-runtime PRIVATE folly::folly)
 target_include_directories(nes-runtime PRIVATE ${FOLLY_INCLUDE_DIR})
 
-
-if (NES_ENABLE_PRECOMPILED_HEADERS)
-    target_precompile_headers(nes-runtime REUSE_FROM nes-common)
-endif ()
 
 target_compile_options(nes-runtime PUBLIC "-Wno-bitwise-instead-of-logical")
 

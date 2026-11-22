@@ -14,6 +14,8 @@
 
 
 #pragma once
+
+#include <cstddef>
 #include <cstdint>
 #include <expected>
 #include <functional>
@@ -23,15 +25,17 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <variant>
 #include <vector>
-
-#include <Plans/LogicalPlan.hpp>
-
 #include <AntlrSQLParser.h>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/UnboundField.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Identifiers/Identifiers.hpp>
-#include <Sinks/SinkDescriptor.hpp>
+#include <Identifiers/NESStrongType.hpp>
+#include <Plans/LogicalPlan.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Sources/LogicalSource.hpp>
 #include <Sources/SourceCatalog.hpp>
 #include <Sources/SourceDescriptor.hpp>
@@ -41,6 +45,9 @@
 
 namespace NES
 {
+
+using DistributedQueryId = NESStrongStringType<struct DistributedQueryId_, "invalid">; /// NOLINT(misc-include-cleaner)
+using LogicalSourceName = Identifier;
 
 enum class StatementOutputFormat : uint8_t
 {
@@ -52,32 +59,35 @@ enum class StatementOutputFormat : uint8_t
 /// Should we require this in the future, we can change these structs to some intermediate representation with which the frontends have to go to the source catalog with.
 struct CreateLogicalSourceStatement
 {
-    std::string name;
-    Schema schema;
+    Identifier name;
+    Schema<UnqualifiedUnboundField, Ordered> schema;
 };
 
 struct CreatePhysicalSourceStatement
 {
-    LogicalSource attachedTo;
-    std::string sourceType;
-    std::unordered_map<std::string, std::string> sourceConfig;
-    std::unordered_map<std::string, std::string> parserConfig;
+    LogicalSourceName attachedTo;
+    Identifier sourceType;
+    std::optional<Host> host;
+    std::unordered_map<Identifier, std::string> sourceConfig;
+    std::unordered_map<Identifier, std::string> parserConfig;
     friend std::ostream& operator<<(std::ostream& os, const CreatePhysicalSourceStatement& obj);
 };
 
 struct CreateSinkStatement
 {
-    std::string name;
-    std::string sinkType;
-    Schema schema;
-    std::unordered_map<std::string, std::string> sinkConfig;
+    Identifier name;
+    Identifier sinkType;
+    Schema<UnqualifiedUnboundField, Ordered> schema;
+    std::optional<Host> host;
+    std::unordered_map<Identifier, std::string> sinkConfig;
+    std::unordered_map<Identifier, std::string> formatConfig;
 };
 
 /// ShowLogicalSourcesStatement only contains a name not bound to a logical statement,
 /// because searching for a name for which no logical source exists is not a syntax error but just returns an empty result
 struct ShowLogicalSourcesStatement
 {
-    std::optional<std::string> name;
+    std::optional<Identifier> name;
     std::optional<StatementOutputFormat> format;
 };
 
@@ -85,20 +95,20 @@ struct ShowLogicalSourcesStatement
 /// referencing a dms object
 struct ShowPhysicalSourcesStatement
 {
-    std::optional<LogicalSource> logicalSource;
+    std::optional<LogicalSourceName> logicalSource;
     std::optional<uint32_t> id;
     std::optional<StatementOutputFormat> format;
 };
 
 struct ShowSinksStatement
 {
-    std::optional<std::string> name;
+    std::optional<Identifier> name;
     std::optional<StatementOutputFormat> format;
 };
 
 struct DropLogicalSourceStatement
 {
-    LogicalSource source;
+    LogicalSourceName source;
 };
 
 struct DropPhysicalSourceStatement
@@ -108,34 +118,109 @@ struct DropPhysicalSourceStatement
 
 struct DropSinkStatement
 {
-    std::string name;
+    Identifier name;
 };
 
-using QueryStatement = LogicalPlan;
+struct QueryStatement
+{
+    LogicalPlan plan;
+    std::optional<DistributedQueryId> id;
+};
+
+enum class ExplainFormat : uint8_t
+{
+    Visual,
+    Text,
+    Verbose
+};
+
+enum class ExplainStage : uint8_t
+{
+    Logical,
+    Optimized,
+    Distributed
+};
+
+struct ExplainQueryStatement
+{
+    LogicalPlan plan;
+    ExplainFormat explainFormat = ExplainFormat::Visual;
+    std::unordered_set<ExplainStage> explainStages = {ExplainStage::Logical, ExplainStage::Optimized, ExplainStage::Distributed};
+};
 
 struct ShowQueriesStatement
 {
-    std::optional<QueryId> id;
+    std::optional<DistributedQueryId> id;
     std::optional<StatementOutputFormat> format;
 };
 
 struct DropQueryStatement
 {
-    QueryId id;
+    DistributedQueryId id;
+};
+
+struct CreateModelStatement
+{
+    std::string name;
+    std::string path;
+    Schema<UnqualifiedUnboundField, Ordered> inputs;
+    Schema<UnqualifiedUnboundField, Ordered> outputs;
+};
+
+struct ShowModelsStatement
+{
+    std::optional<StatementOutputFormat> format;
+};
+
+struct ShowVersionStatement
+{
+    std::optional<StatementOutputFormat> format;
+};
+
+struct DropModelStatement
+{
+    std::string name;
+};
+
+struct WorkerStatusStatement
+{
+    std::vector<std::string> host;
+};
+
+struct CreateWorkerStatement
+{
+    std::string host;
+    std::string dataAddress;
+    std::optional<size_t> maxOperators;
+    std::vector<std::string> downstream;
+    std::unordered_map<std::string, std::string> config; /// Flat dot-separated config map (e.g., "worker.receiver_queue_size" -> "2")
+};
+
+struct DropWorkerStatement
+{
+    std::string host;
 };
 
 using Statement = std::variant<
+    WorkerStatusStatement,
+    CreateWorkerStatement,
+    DropWorkerStatement,
     CreateLogicalSourceStatement,
     CreatePhysicalSourceStatement,
     CreateSinkStatement,
+    CreateModelStatement,
     ShowLogicalSourcesStatement,
     ShowPhysicalSourcesStatement,
     DropLogicalSourceStatement,
     DropPhysicalSourceStatement,
     DropSinkStatement,
+    DropModelStatement,
     QueryStatement,
+    ExplainQueryStatement,
     ShowQueriesStatement,
     ShowSinksStatement,
+    ShowModelsStatement,
+    ShowVersionStatement,
     DropQueryStatement>;
 
 inline std::optional<StatementOutputFormat> getOutputFormat(const Statement& statement)
@@ -164,7 +249,7 @@ class StatementBinder
 public:
     explicit StatementBinder(
         const std::shared_ptr<const SourceCatalog>& sourceCatalog,
-        const std::function<LogicalPlan(AntlrSQLParser::QueryContext*)>& queryPlanBinder) noexcept;
+        const std::function<LogicalPlan(AntlrSQLParser::QueryContext*)>& queryPlanBinder);
 
     StatementBinder(const StatementBinder& other) = delete;
     StatementBinder& operator=(const StatementBinder& other) = delete;
@@ -174,10 +259,10 @@ public:
     /// If the destructor was implicitly defaulted, it would call the destructor of the unique ptr, which would require the definition of Impl.
     /// Deferring the destructor default to the implementation, where also the definition of Impl is, solves this problem.
     ~StatementBinder();
-    [[nodiscard]] std::expected<Statement, Exception> bind(AntlrSQLParser::StatementContext* statementAST) const noexcept;
+    [[nodiscard]] std::expected<Statement, Exception> bind(AntlrSQLParser::StatementContext* statementAST) const;
     [[nodiscard]] std::expected<std::vector<std::expected<Statement, Exception>>, Exception>
-    parseAndBind(std::string_view statementString) const noexcept;
-    [[nodiscard]] std::expected<Statement, Exception> parseAndBindSingle(std::string_view statementStrings) const noexcept;
+    parseAndBind(std::string_view statementString) const;
+    [[nodiscard]] std::expected<Statement, Exception> parseAndBindSingle(std::string_view statementStrings) const;
 };
 }
 
@@ -188,7 +273,7 @@ struct formatter<std::unordered_map<std::string, std::string>>
 {
     [[nodiscard]] static constexpr auto parse(const format_parse_context& ctx) noexcept -> decltype(ctx.begin()) { return ctx.begin(); }
 
-    static constexpr auto format(const std::unordered_map<std::string, std::string>& mapToFormat, format_context& ctx) noexcept
+    static constexpr auto format(const std::unordered_map<std::string, std::string>& mapToFormat, format_context& ctx)
         -> decltype(ctx.out())
     {
         auto out = ctx.out();
@@ -216,3 +301,7 @@ FMT_OSTREAM(NES::CreatePhysicalSourceStatement);
 FMT_OSTREAM(NES::DropLogicalSourceStatement);
 FMT_OSTREAM(NES::DropPhysicalSourceStatement);
 FMT_OSTREAM(NES::DropQueryStatement);
+FMT_OSTREAM(NES::WorkerStatusStatement);
+FMT_OSTREAM(NES::ExplainQueryStatement);
+FMT_OSTREAM(NES::CreateWorkerStatement);
+FMT_OSTREAM(NES::DropWorkerStatement);

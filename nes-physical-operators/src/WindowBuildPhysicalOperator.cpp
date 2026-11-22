@@ -13,13 +13,15 @@
 */
 #include <WindowBuildPhysicalOperator.hpp>
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <utility>
 #include <Identifiers/Identifiers.hpp>
+#include <Interface/RecordBuffer.hpp>
 #include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
+#include <SliceStore/SliceStoreRef.hpp>
 #include <Time/Timestamp.hpp>
 #include <Watermark/TimeFunction.hpp>
 #include <CompilationContext.hpp>
@@ -44,32 +46,47 @@ void checkWindowsTriggerProxy(
 {
     PRECONDITION(ptrOpHandler != nullptr, "opHandler context should not be null!");
     PRECONDITION(pipelineCtx != nullptr, "pipeline context should not be null");
+    INVARIANT(
+        watermarkTs.getRawValue() != Timestamp::INVALID_VALUE,
+        "Window build received a buffer of origin {} without a watermark; the pipeline lacks a watermark assigner",
+        originId);
 
     auto* opHandler = dynamic_cast<WindowBasedOperatorHandler*>(ptrOpHandler);
     const BufferMetaData bufferMetaData(watermarkTs, SequenceData(sequenceNumber, chunkNumber, lastChunk), originId);
     opHandler->checkAndTriggerWindows(bufferMetaData, pipelineCtx);
 }
 
-void triggerAllWindowsProxy(OperatorHandler* ptrOpHandler, PipelineExecutionContext* piplineContext)
+uint64_t startBuildBufferProxy(OperatorHandler* ptrOpHandler, const OriginId originId)
 {
     PRECONDITION(ptrOpHandler != nullptr, "opHandler context should not be null!");
-    PRECONDITION(piplineContext != nullptr, "pipeline context should not be null");
-
-    auto* opHandler = dynamic_cast<WindowBasedOperatorHandler*>(ptrOpHandler);
-    opHandler->triggerAllWindows(piplineContext);
+    return dynamic_cast<WindowBasedOperatorHandler*>(ptrOpHandler)->startBuildBuffer(originId).getRawValue();
 }
 
-/// The slice store needs to know in how many pipelines this operator appears, and consequently, how many terminations it will receive
-void registerActivePipeline(OperatorHandler* ptrOpHandler)
+void finishBuildBufferProxy(OperatorHandler* ptrOpHandler, const Timestamp lowerBound)
 {
     PRECONDITION(ptrOpHandler != nullptr, "opHandler context should not be null!");
-    auto* opHandler = dynamic_cast<WindowBasedOperatorHandler*>(ptrOpHandler);
-    opHandler->getSliceAndWindowStore().incrementNumberOfInputPipelines();
+    dynamic_cast<WindowBasedOperatorHandler*>(ptrOpHandler)->finishBuildBuffer(lowerBound);
 }
 
-WindowBuildPhysicalOperator::WindowBuildPhysicalOperator(OperatorHandlerId operatorHandlerId, std::unique_ptr<TimeFunction> timeFunction)
-    : operatorHandlerId(operatorHandlerId), timeFunction(std::move(timeFunction))
+void WindowBuildPhysicalOperator::failIfOutOfOrder(ExecutionContext& executionCtx, const nautilus::val<Timestamp>& timestamp) const
 {
+    auto* const localState = dynamic_cast<WindowOperatorBuildLocalState*>(executionCtx.getLocalState(id));
+    const auto lowerBound = localState->getLowerBound();
+    if (timestamp < lowerBound)
+    {
+        invoke(
+            +[](const Timestamp timestamp, const Timestamp lowerBound, const OriginId originId)
+            {
+                throw WindowingError(
+                    "Out-of-order timestamps are not supported: timestamp {} is below the watermark {} of origin {}.",
+                    timestamp,
+                    lowerBound,
+                    originId);
+            },
+            timestamp,
+            lowerBound,
+            executionCtx.originId);
+    }
 }
 
 void WindowBuildPhysicalOperator::close(ExecutionContext& executionCtx, RecordBuffer&) const
@@ -85,13 +102,15 @@ void WindowBuildPhysicalOperator::close(ExecutionContext& executionCtx, RecordBu
         executionCtx.chunkNumber,
         executionCtx.lastChunk,
         executionCtx.originId);
+
+    auto* const localState = dynamic_cast<WindowOperatorBuildLocalState*>(executionCtx.getLocalState(id));
+    invoke(finishBuildBufferProxy, operatorHandlerMemRef, localState->getLowerBound());
 }
 
 void WindowBuildPhysicalOperator::setup(ExecutionContext& executionCtx, CompilationContext&) const
 {
-    auto operatorHandlerMemRef = executionCtx.getGlobalOperatorHandler(operatorHandlerId);
-    invoke(registerActivePipeline, operatorHandlerMemRef);
-};
+    sliceStoreRef->setupSliceStore(executionCtx.pipelineContext);
+}
 
 void WindowBuildPhysicalOperator::open(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const
 {
@@ -100,13 +119,8 @@ void WindowBuildPhysicalOperator::open(ExecutionContext& executionCtx, RecordBuf
 
     /// Creating the local state for the window operator build.
     const auto operatorHandler = executionCtx.getGlobalOperatorHandler(operatorHandlerId);
-    executionCtx.setLocalOperatorState(id, std::make_unique<WindowOperatorBuildLocalState>(operatorHandler));
-}
-
-void WindowBuildPhysicalOperator::terminate(ExecutionContext& executionCtx) const
-{
-    auto operatorHandlerMemRef = executionCtx.getGlobalOperatorHandler(operatorHandlerId);
-    invoke(triggerAllWindowsProxy, operatorHandlerMemRef, executionCtx.pipelineContext);
+    const nautilus::val<Timestamp> lowerBound{invoke(startBuildBufferProxy, operatorHandler, executionCtx.originId)};
+    executionCtx.setLocalOperatorState(id, std::make_unique<WindowOperatorBuildLocalState>(operatorHandler, lowerBound));
 }
 
 std::optional<PhysicalOperator> WindowBuildPhysicalOperator::getChild() const
@@ -119,11 +133,18 @@ void WindowBuildPhysicalOperator::setChild(PhysicalOperator child)
     this->child = std::move(child);
 }
 
+WindowBuildPhysicalOperator::WindowBuildPhysicalOperator(
+    const OperatorHandlerId operatorHandlerId, std::unique_ptr<TimeFunction> timeFunction, std::unique_ptr<SliceStoreRef> sliceStoreRef)
+    : operatorHandlerId(operatorHandlerId), timeFunction(std::move(timeFunction)), sliceStoreRef(std::move(sliceStoreRef))
+{
+}
+
 WindowBuildPhysicalOperator::WindowBuildPhysicalOperator(const WindowBuildPhysicalOperator& other)
     : PhysicalOperatorConcept(other.id)
     , child(other.child)
     , operatorHandlerId(other.operatorHandlerId)
     , timeFunction(other.timeFunction ? other.timeFunction->clone() : nullptr)
+    , sliceStoreRef(other.sliceStoreRef ? other.sliceStoreRef->clone() : nullptr)
 {
 }
 }

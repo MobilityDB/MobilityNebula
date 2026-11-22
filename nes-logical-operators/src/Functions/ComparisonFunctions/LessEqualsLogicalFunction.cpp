@@ -14,38 +14,37 @@
 
 #include <Functions/ComparisonFunctions/LessEqualsLogicalFunction.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
 LessEqualsLogicalFunction::LessEqualsLogicalFunction(LogicalFunction left, LogicalFunction right)
-    : left(std::move(left)), right(std::move(right)), dataType(DataTypeProvider::provideDataType(DataType::Type::BOOLEAN))
+    : left(std::move(left)), right(std::move(right))
 {
 }
 
-bool LessEqualsLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool LessEqualsLogicalFunction::operator==(const LessEqualsLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const LessEqualsLogicalFunction*>(&rhs))
-    {
-        const bool simpleMatch = left == other->left and right == other->right;
-        const bool commutativeMatch = left == other->right and right == other->left;
-        return simpleMatch or commutativeMatch;
-    }
-    return false;
+    return left == rhs.left and right == rhs.right;
 }
 
 std::string LessEqualsLogicalFunction::explain(ExplainVerbosity verbosity) const
@@ -58,21 +57,21 @@ DataType LessEqualsLogicalFunction::getDataType() const
     return dataType;
 };
 
-LogicalFunction LessEqualsLogicalFunction::withDataType(const DataType& dataType) const
+LogicalFunction LessEqualsLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
     auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
-LogicalFunction LessEqualsLogicalFunction::withInferredDataType(const Schema& schema) const
-{
-    std::vector<LogicalFunction> newChildren;
-    for (auto& child : getChildren())
+    copy.left = copy.left.withInferredDataType(schema);
+    copy.right = copy.right.withInferredDataType(schema);
+    if (!copy.left.getDataType().isNumeric() or !copy.right.getDataType().isNumeric())
     {
-        newChildren.push_back(child.withInferredDataType(schema));
+        throw CannotInferStamp(
+            "Can only apply less than or equals to two functions with numeric data types, but got left: {}, right: {}",
+            copy.left,
+            copy.right);
     }
-    return this->withChildren(newChildren);
+    copy.dataType = DataTypeProvider::provideDataType(DataType::Type::BOOLEAN);
+    copy.dataType.nullable = std::ranges::any_of(copy.getChildren(), [](const auto& child) { return child.getDataType().nullable; });
+    return copy;
 };
 
 std::vector<LogicalFunction> LessEqualsLogicalFunction::getChildren() const
@@ -80,7 +79,7 @@ std::vector<LogicalFunction> LessEqualsLogicalFunction::getChildren() const
     return {left, right};
 };
 
-LogicalFunction LessEqualsLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+LessEqualsLogicalFunction LessEqualsLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 2, "LessEqualsLogicalFunction requires exactly two children, but got {}", children.size());
     auto copy = *this;
@@ -94,18 +93,20 @@ std::string_view LessEqualsLogicalFunction::getType() const
     return NAME;
 }
 
-SerializableFunction LessEqualsLogicalFunction::serialize() const
+Reflected
+Reflector<LessEqualsLogicalFunction>::operator()(const LessEqualsLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(left.serialize());
-    serializedFunction.add_children()->CopyFrom(right.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedLessEqualsLogicalFunction{.left = function.left, .right = function.right});
 }
 
-LogicalFunctionRegistryReturnType
-LogicalFunctionGeneratedRegistrar::RegisterLessEqualsLogicalFunction(LogicalFunctionRegistryArguments arguments)
+LessEqualsLogicalFunction
+Unreflector<LessEqualsLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [left, right] = context.unreflect<detail::ReflectedLessEqualsLogicalFunction>(reflected);
+    return {std::move(left), std::move(right)};
+}
+
+LogicalFunctionRegistryReturnType LessEqualsLogicalFunction::createLessEquals(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 2)
     {

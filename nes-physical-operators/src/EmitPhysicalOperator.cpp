@@ -14,21 +14,23 @@
 
 #include <EmitPhysicalOperator.hpp>
 
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <utility>
 #include <Identifiers/Identifiers.hpp>
-#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
-#include <Nautilus/Interface/NESStrongTypeRef.hpp>
-#include <Nautilus/Interface/Record.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
+#include <Identifiers/NESStrongType.hpp>
+#include <Interface/BufferRef/TupleBufferRef.hpp>
+#include <Interface/NESStrongTypeRef.hpp>
+#include <Interface/Record.hpp>
+#include <Interface/RecordBuffer.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
+#include <Runtime/TupleBuffer.hpp>
 #include <Util/Logger/Logger.hpp>
-#include <Util/StdInt.hpp>
+#include <nautilus/inline.hpp>
 #include <nautilus/val.hpp>
 #include <EmitOperatorHandler.hpp>
+#include <ErrorHandling.hpp>
 #include <ExecutionContext.hpp>
 #include <OperatorState.hpp>
 #include <PhysicalOperator.hpp>
@@ -37,56 +39,6 @@
 
 namespace NES
 {
-
-uint64_t getNextChunkNumberProxy(void* operatorHandlerPtr, OriginId originId, SequenceNumber sequenceNumber)
-{
-    PRECONDITION(operatorHandlerPtr != nullptr, "operator handler should not be null");
-    auto* pipelineCtx = static_cast<EmitOperatorHandler*>(operatorHandlerPtr);
-    auto chunkNumber = pipelineCtx->getNextChunkNumber({.sequenceNumber = SequenceNumber(sequenceNumber), .originId = OriginId(originId)});
-    NES_TRACE("(Sequence Number: {}, Chunk Number: {})", sequenceNumber, chunkNumber);
-    return chunkNumber;
-}
-
-bool isLastChunkProxy(void* operatorHandlerPtr, OriginId originId, SequenceNumber sequenceNumber, ChunkNumber chunkNumber, bool isLastChunk)
-{
-    PRECONDITION(operatorHandlerPtr != nullptr, "operator handler should not be null");
-    auto* pipelineCtx = static_cast<EmitOperatorHandler*>(operatorHandlerPtr);
-    return pipelineCtx->processChunkNumber(
-        {.sequenceNumber = SequenceNumber(sequenceNumber), .originId = OriginId(originId)}, ChunkNumber(chunkNumber), isLastChunk);
-}
-
-void removeSequenceStateProxy(void* operatorHandlerPtr, OriginId originId, SequenceNumber sequenceNumber)
-{
-    PRECONDITION(operatorHandlerPtr != nullptr, "operator handler should not be null");
-    auto* pipelineCtx = static_cast<EmitOperatorHandler*>(operatorHandlerPtr);
-    pipelineCtx->removeSequenceState({.sequenceNumber = SequenceNumber(sequenceNumber), .originId = OriginId(originId)});
-}
-
-namespace
-{
-nautilus::val<bool> isLastChunk(ExecutionContext& context, OperatorHandlerId operatorHandlerId)
-{
-    return nautilus::invoke(
-        isLastChunkProxy,
-        context.getGlobalOperatorHandler(operatorHandlerId),
-        context.originId,
-        context.sequenceNumber,
-        context.chunkNumber,
-        context.lastChunk);
-}
-
-nautilus::val<ChunkNumber> getNextChunkNr(ExecutionContext& context, OperatorHandlerId operatorHandlerId)
-{
-    return nautilus::invoke(
-        getNextChunkNumberProxy, context.getGlobalOperatorHandler(operatorHandlerId), context.originId, context.sequenceNumber);
-}
-
-void removeSequenceState(ExecutionContext& context, OperatorHandlerId operatorHandlerId)
-{
-    nautilus::invoke(
-        removeSequenceStateProxy, context.getGlobalOperatorHandler(operatorHandlerId), context.originId, context.sequenceNumber);
-}
-}
 
 class EmitState : public OperatorState
 {
@@ -101,8 +53,7 @@ public:
 void EmitPhysicalOperator::open(ExecutionContext& ctx, RecordBuffer&) const
 {
     /// initialize state variable and create new buffer
-    const auto resultBufferRef = ctx.allocateBuffer();
-    const auto resultBuffer = RecordBuffer(resultBufferRef);
+    const RecordBuffer resultBuffer{ctx.allocateBuffer()};
     auto emitState = std::make_unique<EmitState>(resultBuffer);
     ctx.setLocalOperatorState(id, std::move(emitState));
 }
@@ -110,21 +61,26 @@ void EmitPhysicalOperator::open(ExecutionContext& ctx, RecordBuffer&) const
 void EmitPhysicalOperator::execute(ExecutionContext& ctx, Record& record) const
 {
     auto* const emitState = dynamic_cast<EmitState*>(ctx.getLocalState(id));
-    /// emit buffer if it reached the maximal capacity
-    if (emitState->outputIndex >= getMaxRecordsPerBuffer())
-    {
-        emitRecordBuffer(ctx, emitState->resultBuffer, emitState->outputIndex, false);
-        const auto resultBufferRef = ctx.allocateBuffer();
-        emitState->resultBuffer = RecordBuffer(resultBufferRef);
-        emitState->bufferMemoryArea = emitState->resultBuffer.getMemArea();
-        emitState->outputIndex = 0_u64;
-    }
 
     /// We need to first check if the buffer has to be emitted and then write to it. Otherwise, it can happen that we will
     /// emit a tuple twice. Once in the execute() and then again in close(). This happens only for buffers that are filled
     /// to the brim, i.e., have no more space left.
-    bufferRef->writeRecord(emitState->outputIndex, emitState->resultBuffer, record, ctx.pipelineMemoryProvider.bufferProvider);
-    emitState->outputIndex = emitState->outputIndex + 1;
+    auto writeResult
+        = bufferRef->writeRecord(emitState->outputIndex, emitState->resultBuffer, record, ctx.pipelineMemoryProvider.bufferProvider);
+    /// An unsuccessful writeResult means, that the current record buffer is filled up completely and needs to be emitted first.
+    /// We emit and create a new record buffer
+    if (!writeResult.successful)
+    {
+        emitRecordBuffer(ctx, emitState->resultBuffer, emitState->outputIndex, false);
+        emitState->resultBuffer = RecordBuffer{ctx.allocateBuffer()};
+        emitState->bufferMemoryArea = emitState->resultBuffer.getMemArea();
+        emitState->outputIndex = uint64_t{0};
+
+        /// This write record call should succeed since a newly allocated tuple buffer should be able to store at least one record
+        writeResult
+            = bufferRef->writeRecord(emitState->outputIndex, emitState->resultBuffer, record, ctx.pipelineMemoryProvider.bufferProvider);
+    }
+    emitState->outputIndex = emitState->outputIndex + writeResult.writtenRecords;
 }
 
 void EmitPhysicalOperator::close(ExecutionContext& ctx, RecordBuffer&) const
@@ -132,6 +88,24 @@ void EmitPhysicalOperator::close(ExecutionContext& ctx, RecordBuffer&) const
     /// emit current buffer and set the metadata
     auto* const emitState = dynamic_cast<EmitState*>(ctx.getLocalState(id));
     emitRecordBuffer(ctx, emitState->resultBuffer, emitState->outputIndex, true);
+}
+
+namespace
+{
+NAUTILUS_INLINE void setChunkNumberProxy(
+    OperatorHandler* ptrOpHandler,
+    bool closesChunk,
+    ChunkNumber currentChunkNumber,
+    bool isCurrentBufferTheLastChunk,
+    TupleBuffer* newBuffer)
+{
+    PRECONDITION(ptrOpHandler != nullptr, "Expects a valid handler");
+    PRECONDITION(newBuffer != nullptr, "Expects a valid buffer");
+    PRECONDITION(currentChunkNumber != INVALID<ChunkNumber>, "Expects a valid chunkNumber");
+
+    dynamic_cast<EmitOperatorHandler*>(ptrOpHandler)
+        ->setChunkNumber(closesChunk, currentChunkNumber, isCurrentBufferTheLastChunk, *newBuffer);
+}
 }
 
 void EmitPhysicalOperator::emitRecordBuffer(
@@ -146,33 +120,25 @@ void EmitPhysicalOperator::emitRecordBuffer(
     recordBuffer.setSequenceNumber(ctx.sequenceNumber);
     recordBuffer.setCreationTs(ctx.currentTs);
 
-    /// Chunk Logic. Order matters.
-    /// A worker thread will clean up the sequence state for the current sequence number if its told it is the last
-    /// chunk number. Thus it is important to query the state first to get the next chunk number, before asking for the lastChunk
-    /// as this will mark the current chunknumber as processed and my allow a different worker thread to concurrently clean up.
-    recordBuffer.setChunkNumber(getNextChunkNr(ctx, operatorHandlerId));
-    if (potentialLastChunk && isLastChunk(ctx, operatorHandlerId))
-    {
-        removeSequenceState(ctx, operatorHandlerId);
-        recordBuffer.setLastChunk(true);
-    }
-    else
-    {
-        recordBuffer.setLastChunk(false);
-    }
+    invoke(
+        setChunkNumberProxy,
+        ctx.getGlobalOperatorHandler(operatorHandlerId),
+        potentialLastChunk,
+        ctx.chunkNumber,
+        ctx.lastChunk,
+        recordBuffer.getReference());
 
     ctx.emitBuffer(recordBuffer);
 }
 
-EmitPhysicalOperator::EmitPhysicalOperator(
-    OperatorHandlerId operatorHandlerId, std::shared_ptr<Interface::BufferRef::TupleBufferRef> memoryProvider)
+EmitPhysicalOperator::EmitPhysicalOperator(OperatorHandlerId operatorHandlerId, std::shared_ptr<TupleBufferRef> memoryProvider)
     : bufferRef(std::move(memoryProvider)), operatorHandlerId(operatorHandlerId)
 {
 }
 
 [[nodiscard]] uint64_t EmitPhysicalOperator::getMaxRecordsPerBuffer() const
 {
-    return bufferRef->getMemoryLayout()->getCapacity();
+    return bufferRef->getCapacity();
 }
 
 std::optional<PhysicalOperator> EmitPhysicalOperator::getChild() const

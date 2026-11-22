@@ -18,17 +18,21 @@
 #include <memory>
 #include <vector>
 #include <Functions/PhysicalFunction.hpp>
+#include <Interface/Record.hpp>
+#include <Interface/RecordBuffer.hpp>
 #include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/Record.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
+#include <Operators/Windows/WindowMetaData.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
+#include <Schema/Schema.hpp>
 #include <Time/Timestamp.hpp>
-#include <Windowing/WindowMetaData.hpp>
 #include <WindowProbePhysicalOperator.hpp>
 #include <val_concepts.hpp>
 
 namespace NES
 {
+
+/// Forward-declared, not included: ExecutionContext.hpp pulls this module's OperatorState.hpp back in, which would be a cyclic include.
+struct ExecutionContext;
 
 /// This class is the second phase of the stream join. The actual implementation (nested-loops, probing hash tables)
 /// is not part of this class. This class takes care of the close() functionality as this universal.
@@ -47,6 +51,15 @@ protected:
         const nautilus::val<Timestamp>& windowEnd,
         const std::vector<Record::RecordFieldIdentifier>& projectionsOuter,
         const std::vector<Record::RecordFieldIdentifier>& projectionsInner) const;
+
+    /// Creates a joined record for an unmatched outer tuple: preserved-side fields are written
+    /// normally; null-side fields are filled with typed null VarVals.
+    [[nodiscard]] Record createNullFilledJoinedRecord(
+        const Record& preservedRecord,
+        const nautilus::val<Timestamp>& windowStart,
+        const nautilus::val<Timestamp>& windowEnd,
+        const std::vector<Record::RecordFieldIdentifier>& preservedProjections,
+        const Schema<QualifiedUnboundField, Ordered>& nullSideSchema) const;
 
     PhysicalFunction joinFunction;
     JoinSchema joinSchema;

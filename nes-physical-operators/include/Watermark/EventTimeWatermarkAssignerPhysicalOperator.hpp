@@ -12,7 +12,6 @@
     limitations under the License.
 */
 #pragma once
-#include <cstdint>
 #include <memory>
 #include <optional>
 #include <Watermark/TimeFunction.hpp>

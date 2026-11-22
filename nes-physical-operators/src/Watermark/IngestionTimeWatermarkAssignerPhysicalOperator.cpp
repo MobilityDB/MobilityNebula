@@ -12,11 +12,14 @@
     limitations under the License.
 */
 
+#include <Watermark/IngestionTimeWatermarkAssignerPhysicalOperator.hpp>
+
 #include <optional>
 #include <utility>
-#include <Nautilus/Interface/Record.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
-#include <Watermark/IngestionTimeWatermarkAssignerPhysicalOperator.hpp>
+#include <Interface/Record.hpp>
+#include <Interface/RecordBuffer.hpp>
+#include <Interface/TimestampRef.hpp>
+#include <Time/Timestamp.hpp>
 #include <Watermark/TimeFunction.hpp>
 #include <ExecutionContext.hpp>
 #include <PhysicalOperator.hpp>
@@ -29,6 +32,11 @@ IngestionTimeWatermarkAssignerPhysicalOperator::IngestionTimeWatermarkAssignerPh
 
 void IngestionTimeWatermarkAssignerPhysicalOperator::open(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const
 {
+    /// Buffers from sources carry no watermark; the assigner is where event-time progress starts.
+    if (executionCtx.watermarkTs == nautilus::val<Timestamp>(Timestamp(Timestamp::INVALID_VALUE)))
+    {
+        executionCtx.watermarkTs = nautilus::val<Timestamp>(Timestamp(Timestamp::INITIAL_VALUE));
+    }
     openChild(executionCtx, recordBuffer);
     timeFunction.open(executionCtx, recordBuffer);
     auto emptyRecord = Record();

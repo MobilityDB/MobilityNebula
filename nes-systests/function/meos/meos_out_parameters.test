@@ -1,0 +1,24 @@
+# name: MEOS_OutParameters
+# description: MEOS functions answering true and the value written to their out parameter, or false and no value, which a number answers as 0: valueN of a float set, a timestamp set and a geometry set (n from 1, as MEOS counts), valueAtTimestamp of a temporal float and a temporal text (strict, as the SQL signature binds it), xMin and xMinInc of a temporal box, each where it answers and where it answers false (an element past the last, a timestamp after the value, a box without its value dimension). The answers are those of libmeos over the same values (floatset_value_n, tstzset_value_n, geoset_value_n, tfloat_value_at_timestamptz, ttext_value_at_timestamptz, tbox_xmin and tbox_xmin_inc; the geometry written by geo_as_text with 15 digits), in UTC; 2024-01-02 and 2024-01-05 are 1704153600000 and 1704412800000 ms.
+# groups: [Function, MEOS]
+CREATE LOGICAL SOURCE vals(id UINT32, fs VARSIZED, ts VARSIZED, gs VARSIZED, tf VARSIZED, tt VARSIZED, box VARSIZED, timebox VARSIZED, mid UINT64, after UINT64);
+CREATE PHYSICAL SOURCE FOR vals TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|{1.5, 2.5}|{2024-01-01 00:00:00+00, 2024-01-02 00:00:00+00}|{"POINT(1 1)", "POINT(2 2)"}|[1@2024-01-01 00:00:00+00, 3@2024-01-03 00:00:00+00]|[a@2024-01-01 00:00:00+00, b@2024-01-03 00:00:00+00]|TBOXFLOAT XT([1, 5),[2024-01-01 00:00:00+00, 2024-01-02 00:00:00+00])|TBOX T([2024-01-01 00:00:00+00, 2024-01-02 00:00:00+00])|1704153600000|1704412800000
+
+CREATE SINK numbers(id UINT32, second FLOAT64, third FLOAT64, at FLOAT64, past FLOAT64, low FLOAT64, lowInc BOOLEAN, noValue FLOAT64, time UINT64) TYPE File;
+SELECT id, valueN(floatsetFromText(fs), INT32(2)) AS second, valueN(floatsetFromText(fs), INT32(3)) AS third,
+       valueAtTimestamp(tfloatFromText(tf), mid) AS at, valueAtTimestamp(tfloatFromText(tf), after) AS past,
+       xMin(tboxFromText(box)) AS low, xMinInc(tboxFromText(box)) AS lowInc, xMin(tboxFromText(timebox)) AS noValue,
+       valueN(tstzsetFromText(ts), INT32(2)) AS time
+FROM vals INTO numbers;
+----
+1,2.5,0,2,0,1,1,0,1704153600000
+
+CREATE SINK written(id UINT32) TYPE File;
+SELECT id FROM vals
+WHERE asText(valueN(geomsetFromText(gs), INT32(2))) == VARSIZED('POINT(2 2)')
+  AND valueAtTimestamp(ttextFromText(tt), mid) == VARSIZED('a')
+INTO written;
+----
+1

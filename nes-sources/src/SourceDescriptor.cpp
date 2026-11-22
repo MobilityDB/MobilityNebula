@@ -14,94 +14,84 @@
 
 #include <Sources/SourceDescriptor.hpp>
 
+#include <cstddef>
+#include <optional>
 #include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <utility>
-#include <Configurations/Descriptor.hpp>
+
+#include <DataTypes/UnboundField.hpp>
+#include <Identifiers/Identifier.hpp>
 #include <Identifiers/Identifiers.hpp>
-#include <Serialization/SchemaSerializationUtil.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Sources/LogicalSource.hpp>
-#include <Util/Logger/Logger.hpp>
+#include <Util/Any.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <Util/Strings.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
-#include <ProtobufHelper.hpp> /// NOLINT
-#include <SerializableOperator.pb.h>
+#include <InputFormatterDescriptor.hpp>
+#include <SourceConfigRegistry.hpp>
 
 namespace NES
 {
 
-ParserConfig ParserConfig::create(std::unordered_map<std::string, std::string> configMap)
-{
-    ParserConfig created{};
-    if (const auto parserType = configMap.find("type"); parserType != configMap.end())
-    {
-        created.parserType = parserType->second;
-    }
-    else
-    {
-        throw InvalidConfigParameter("Parser configuration must contain: type");
-    }
-    if (const auto tupleDelimiter = configMap.find("tuple_delimiter"); tupleDelimiter != configMap.end())
-    {
-        /// TODO #651: Add full support for tuple delimiters that are larger than one byte.
-        PRECONDITION(tupleDelimiter->second.size() == 1, "We currently do not support tuple delimiters larger than one byte.");
-        created.tupleDelimiter = tupleDelimiter->second;
-    }
-    else
-    {
-        NES_DEBUG("Parser configuration did not contain: tuple_delimiter, using default: \\n");
-        created.tupleDelimiter = '\n';
-    }
-    if (const auto fieldDelimiter = configMap.find("field_delimiter"); fieldDelimiter != configMap.end())
-    {
-        created.fieldDelimiter = fieldDelimiter->second;
-    }
-    else
-    {
-        NES_DEBUG("Parser configuration did not contain: field_delimiter, using default: ,");
-        created.fieldDelimiter = ",";
-    }
-    return created;
-}
-
-std::ostream& operator<<(std::ostream& os, const ParserConfig& obj)
-{
-    return os << fmt::format(
-               "ParserConfig(type: {}, tupleDelimiter: {}, fieldDelimiter: {})", obj.parserType, obj.tupleDelimiter, obj.fieldDelimiter);
-}
-
 SourceDescriptor::SourceDescriptor(
     const PhysicalSourceId physicalSourceId,
-    LogicalSource logicalSource,
-    std::string_view sourceType,
-    DescriptorConfig::Config config,
-    ParserConfig parserConfig)
-    : Descriptor(std::move(config))
-    , physicalSourceId(physicalSourceId)
-    , logicalSource(std::move(logicalSource))
-    , sourceType(std::move(sourceType))
-    , parserConfig(std::move(parserConfig))
+    Schema<UnqualifiedUnboundField, Ordered> schema,
+    Host host,
+    const std::optional<size_t> maxInflightBuffers,
+    PluginSourceConfiguration pluginData,
+    InputFormatterDescriptor inputFormatterDescriptor,
+    std::optional<Identifier> logicalSourceName)
+    : physicalSourceId(physicalSourceId)
+    , schema(std::move(schema))
+    , host(std::move(host))
+    , maxInflightBuffers(maxInflightBuffers)
+    , pluginSourceConfig(std::move(pluginData))
+    , inputFormatterDescriptor(std::move(inputFormatterDescriptor))
+    , logicalSourceName(std::move(logicalSourceName))
 {
 }
 
-LogicalSource SourceDescriptor::getLogicalSource() const
+const Schema<UnqualifiedUnboundField, Ordered>& SourceDescriptor::getSchema() const
 {
-    return logicalSource;
+    return schema;
 }
 
-std::string SourceDescriptor::getSourceType() const
+const Identifier& SourceDescriptor::getSourceType() const
 {
-    return sourceType;
+    return pluginSourceConfig.getType();
 }
 
-ParserConfig SourceDescriptor::getParserConfig() const
+InputFormatterDescriptor SourceDescriptor::getInputFormatterDescriptor() const
 {
-    return parserConfig;
+    return inputFormatterDescriptor;
+}
+
+const Identifier& SourceDescriptor::getInputFormatType() const
+{
+    return inputFormatterDescriptor.getInputFormatterType();
+}
+
+Host SourceDescriptor::getHost() const
+{
+    return host;
+}
+
+std::optional<size_t> SourceDescriptor::getMaxInflightBuffers() const
+{
+    return maxInflightBuffers;
+}
+
+const ExplicitAny& SourceDescriptor::getPluginData() const
+{
+    return pluginSourceConfig.getPluginData();
 }
 
 PhysicalSourceId SourceDescriptor::getPhysicalSourceId() const
@@ -123,7 +113,8 @@ std::string SourceDescriptor::explain(ExplainVerbosity verbosity) const
     }
     else if (verbosity == ExplainVerbosity::Short)
     {
-        stringstream << fmt::format("{}", logicalSource.getLogicalSourceName());
+        stringstream << logicalSourceName.transform([](const auto& name) { return fmt::format("{}", name); })
+                            .value_or(fmt::format("{}", getSourceType()));
     }
     return stringstream.str();
 }
@@ -131,38 +122,67 @@ std::string SourceDescriptor::explain(ExplainVerbosity verbosity) const
 std::ostream& operator<<(std::ostream& out, const SourceDescriptor& descriptor)
 {
     return out << fmt::format(
-               "SourceDescriptor(sourceId: {}, sourceType: {}, logicalSource:{}, parserConfig: {{type: {}, tupleDelimiter: {}, "
-               "stringDelimiter: {} }})",
+               "SourceDescriptor(sourceId: {}, sourceType: {}, logicalSource:{}, host: {}, inputFormatterDescriptor: {})",
                descriptor.getPhysicalSourceId(),
                descriptor.getSourceType(),
-               descriptor.getLogicalSource(),
-               descriptor.getParserConfig().parserType,
-               Util::escapeSpecialCharacters(descriptor.getParserConfig().tupleDelimiter),
-               Util::escapeSpecialCharacters(descriptor.getParserConfig().fieldDelimiter));
+               descriptor.logicalSourceName,
+               descriptor.getHost(),
+               descriptor.getInputFormatterDescriptor());
 }
 
-SerializableSourceDescriptor SourceDescriptor::serialize() const
+const std::optional<Identifier>& SourceDescriptor::getLogicalSourceName() const
 {
-    SerializableSourceDescriptor serializableSourceDescriptor;
-    SchemaSerializationUtil::serializeSchema(*logicalSource.getSchema(), serializableSourceDescriptor.mutable_sourceschema());
-    serializableSourceDescriptor.set_logicalsourcename(logicalSource.getLogicalSourceName());
-    serializableSourceDescriptor.set_sourcetype(sourceType);
+    return logicalSourceName;
+}
 
-    serializableSourceDescriptor.set_physicalsourceid(physicalSourceId.getRawValue());
+Reflected Reflector<PluginSourceConfiguration>::operator()(const PluginSourceConfiguration& config, const ReflectionContext& context) const
+{
+    const auto entry = SourceConfigRegistry::instance().find(config.getType().asCanonicalString());
+    PRECONDITION(entry.has_value(), "Unknown source type: {}", config.getType());
 
-    /// Serialize parser config.
-    auto* const serializedParserConfig = SerializableParserConfig().New();
-    serializedParserConfig->set_type(parserConfig.parserType);
-    serializedParserConfig->set_tupledelimiter(parserConfig.tupleDelimiter);
-    serializedParserConfig->set_fielddelimiter(parserConfig.fieldDelimiter);
-    serializableSourceDescriptor.set_allocated_parserconfig(serializedParserConfig);
+    const detail::ReflectedPluginSourceConfiguration pluginSourceConfig{
+        .type = config.getType(), .pluginData = entry->reflect(config.getPluginData(), context)};
 
-    /// Iterate over SourceDescriptor config and serialize all key-value pairs.
-    for (const auto& [key, value] : getConfig())
+    return context.reflect(pluginSourceConfig);
+}
+
+PluginSourceConfiguration Unreflector<PluginSourceConfiguration>::operator()(const Reflected& rfl, const ReflectionContext& context) const
+{
+    auto [type, configData] = context.unreflect<detail::ReflectedPluginSourceConfiguration>(rfl);
+    const auto entry = SourceConfigRegistry::instance().find(type.asCanonicalString());
+    if (not entry.has_value())
     {
-        auto* kv = serializableSourceDescriptor.mutable_config();
-        kv->emplace(key, descriptorConfigTypeToProto(value));
+        throw CannotDeserialize("Unknown source type {}", type);
     }
-    return serializableSourceDescriptor;
+
+    return PluginSourceConfiguration{std::move(type), ExplicitAny{entry->unreflect(configData, context)}};
+}
+
+Reflected Reflector<SourceDescriptor>::operator()(const SourceDescriptor& sourceDescriptor, const ReflectionContext& context) const
+{
+    const detail::ReflectedSourceDescriptor descriptor{
+        .physicalSourceId = sourceDescriptor.physicalSourceId,
+        .schema = sourceDescriptor.schema,
+        .host = sourceDescriptor.host,
+        .maxInflightBuffers = sourceDescriptor.maxInflightBuffers,
+        .pluginSourceConfig = sourceDescriptor.pluginSourceConfig,
+        .inputFormatterDescriptor = sourceDescriptor.inputFormatterDescriptor,
+        .logicalSourceName = sourceDescriptor.logicalSourceName};
+
+    return context.reflect(descriptor);
+}
+
+SourceDescriptor Unreflector<SourceDescriptor>::operator()(const Reflected& rfl, const ReflectionContext& context) const
+{
+    auto reflectedSourceDescriptor = context.unreflect<detail::ReflectedSourceDescriptor>(rfl);
+
+    return SourceDescriptor{
+        PhysicalSourceId{reflectedSourceDescriptor.physicalSourceId},
+        std::move(reflectedSourceDescriptor.schema),
+        std::move(reflectedSourceDescriptor.host),
+        reflectedSourceDescriptor.maxInflightBuffers,
+        std::move(reflectedSourceDescriptor.pluginSourceConfig),
+        std::move(reflectedSourceDescriptor.inputFormatterDescriptor),
+        std::move(reflectedSourceDescriptor.logicalSourceName)};
 }
 }

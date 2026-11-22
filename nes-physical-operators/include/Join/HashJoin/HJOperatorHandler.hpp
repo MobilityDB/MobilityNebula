@@ -17,18 +17,18 @@
 #include <bit>
 #include <cstdint>
 #include <functional>
+#include <map>
 #include <memory>
 #include <utility>
 #include <vector>
 #include <Identifiers/Identifiers.hpp>
+#include <Interface/HashMap/HashMap.hpp>
 #include <Join/StreamJoinOperatorHandler.hpp>
 #include <Join/StreamJoinUtil.hpp>
-#include <Nautilus/Interface/HashMap/HashMap.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <Sequencing/SequenceData.hpp>
 #include <SliceStore/Slice.hpp>
 #include <SliceStore/WindowSlicesStoreInterface.hpp>
-#include <Util/RollingAverage.hpp>
 #include <HashMapSlice.hpp>
 
 namespace NES
@@ -38,28 +38,18 @@ namespace NES
 struct EmittedHJWindowTrigger
 {
     EmittedHJWindowTrigger(
-        const WindowInfo windowInfo,
-        const std::vector<Nautilus::Interface::HashMap*>& leftHashMaps,
-        const std::vector<Nautilus::Interface::HashMap*>& rightHashMaps)
-        : windowInfo(windowInfo), leftNumberOfHashMaps(leftHashMaps.size()), rightNumberOfHashMaps(rightHashMaps.size())
+        const WindowInfo windowInfo, const uint64_t leftNumberOfHashMaps, const uint64_t rightNumberOfHashMaps, ProbeTaskType probeTaskType)
+        : windowInfo(windowInfo)
+        , leftNumberOfHashMaps(leftNumberOfHashMaps)
+        , rightNumberOfHashMaps(rightNumberOfHashMaps)
+        , probeTaskType(probeTaskType)
     {
-        /// Copying the left and right hashmap pointer pointers after this object, hence this + 1
-        const auto leftHashMapPtrSizeInByte = leftHashMaps.size() * sizeof(Nautilus::Interface::HashMap*);
-        auto* addressFirstLeftHashMapPtr = std::bit_cast<int8_t*>(this + 1);
-        auto* addressFirstRightHashMapPtr = std::bit_cast<int8_t*>(this + 1) + leftHashMapPtrSizeInByte;
-        this->leftHashMaps = std::bit_cast<Nautilus::Interface::HashMap**>(addressFirstLeftHashMapPtr);
-        this->rightHashMaps = std::bit_cast<Nautilus::Interface::HashMap**>(addressFirstRightHashMapPtr);
-        std::ranges::copy(leftHashMaps, std::bit_cast<Nautilus::Interface::HashMap**>(addressFirstLeftHashMapPtr));
-        std::ranges::copy(rightHashMaps, std::bit_cast<Nautilus::Interface::HashMap**>(addressFirstRightHashMapPtr));
     }
 
     WindowInfo windowInfo;
     uint64_t leftNumberOfHashMaps;
     uint64_t rightNumberOfHashMaps;
-    Nautilus::Interface::HashMap**
-        leftHashMaps; /// Pointer to the stored pointers of all hash maps of the left input stream that the probe should iterate over
-    Nautilus::Interface::HashMap**
-        rightHashMaps; /// Pointer to the stored pointers of all hash maps of the right input stream that the probe should iterate over
+    ProbeTaskType probeTaskType;
 };
 
 class HJOperatorHandler final : public StreamJoinOperatorHandler
@@ -69,34 +59,26 @@ public:
         const std::vector<OriginId>& inputOrigins,
         OriginId outputOriginId,
         std::unique_ptr<WindowSlicesStoreInterface> sliceAndWindowStore,
-        uint64_t maxNumberOfBuckets);
+        JoinTriggerStrategy triggerStrategy);
 
     [[nodiscard]] std::function<std::vector<std::shared_ptr<Slice>>(SliceStart, SliceEnd)>
     getCreateNewSlicesFunction(const CreateNewSlicesArguments& newSlicesArguments) const override;
 
     bool wasSetupCalled(const JoinBuildSideType& buildSide);
-    void setNautilusCleanupExec(
-        std::shared_ptr<CreateNewHashMapSliceArgs::NautilusCleanupExec> nautilusCleanupExec, const JoinBuildSideType& buildSide);
-    [[nodiscard]] std::vector<std::shared_ptr<CreateNewHashMapSliceArgs::NautilusCleanupExec>> getNautilusCleanupExec() const;
 
 private:
     /// Is required to not perform the setup again and resolving a race condition to the cleanup state function
     std::atomic<bool> setupAlreadyCalledLeft;
     std::atomic<bool> setupAlreadyCalledRight;
-    /// shared_ptr as multiple slices need access to it
-    std::shared_ptr<CreateNewHashMapSliceArgs::NautilusCleanupExec> leftCleanupStateNautilusFunction;
-    std::shared_ptr<CreateNewHashMapSliceArgs::NautilusCleanupExec> rightCleanupStateNautilusFunction;
 
-
+protected:
     void emitSlicesToProbe(
-        Slice& sliceLeft,
-        Slice& sliceRight,
+        const std::vector<std::shared_ptr<Slice>>& leftSlices,
+        const std::vector<std::shared_ptr<Slice>>& rightSlices,
+        ProbeTaskType probeTaskType,
         const WindowInfo& windowInfo,
         const SequenceData& sequenceData,
         PipelineExecutionContext* pipelineCtx) override;
-
-    folly::Synchronized<RollingAverage<uint64_t>> rollingAverageNumberOfKeys;
-    uint64_t maxNumberOfBuckets;
 };
 
 }

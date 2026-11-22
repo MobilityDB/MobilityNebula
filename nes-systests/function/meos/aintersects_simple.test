@@ -1,27 +1,26 @@
 # name: MEOS_AIntersects_Simple
-# description: aIntersects for temporal-temporal (6-arg) and temporal-static-geometry (4-arg, geometry constant).
+# description: aIntersects of two temporal points, and of a temporal point and a point, the temporal points read by tgeompointFromText and the point by geometryFromHexEWKB, the readers the catalog states.
 # groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, AIntersects]
-
-CREATE LOGICAL SOURCE ai_tt(test_id UINT32, lonA FLOAT64, latA FLOAT64, tsA UINT64, lonB FLOAT64, latB FLOAT64, tsB UINT64);
-CREATE PHYSICAL SOURCE FOR ai_tt TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+CREATE LOGICAL SOURCE ai_tt(test_id UINT32, a VARSIZED, b VARSIZED);
+CREATE PHYSICAL SOURCE FOR ai_tt TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
 ATTACH INLINE
-1|-73.9857|40.7484|1609459200|-73.9857|40.7484|1609459200
-2|-73.9857|40.7484|1609459200|-73.9800|40.7450|1609459200
+1|SRID=4326;POINT(-73.9857 40.7484)@2021-01-01 00:00:00+00|SRID=4326;POINT(-73.9857 40.7484)@2021-01-01 00:00:00+00
+2|SRID=4326;POINT(-73.9857 40.7484)@2021-01-01 00:00:00+00|SRID=4326;POINT(-73.98 40.745)@2021-01-01 00:00:00+00
 
-CREATE SINK ai_tt_out(ai_tt.test_id UINT32, aintersects INT32) TYPE File;
-SELECT test_id, aIntersects(lonA, latA, tsA, lonB, latB, tsB) AS aintersects FROM ai_tt INTO ai_tt_out;
+CREATE SINK ai_tt_out(test_id UINT32, aintersects BOOLEAN) TYPE File;
+SELECT test_id, aIntersects(tgeompointFromText(a), tgeompointFromText(b)) AS aintersects FROM ai_tt INTO ai_tt_out;
 ----
 1,1
 2,0
 
-CREATE LOGICAL SOURCE ai_ts(test_id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64);
-CREATE PHYSICAL SOURCE FOR ai_ts TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+CREATE LOGICAL SOURCE ai_ts(test_id UINT32, trip VARSIZED);
+CREATE PHYSICAL SOURCE FOR ai_ts TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
 ATTACH INLINE
-1|-73.9855|40.7485|1609459200
-2|-73.9800|40.7450|1609459200
+1|SRID=4326;POINT(-73.9855 40.7485)@2021-01-01 00:00:00+00
+2|SRID=4326;POINT(-73.98 40.745)@2021-01-01 00:00:00+00
 
-CREATE SINK ai_ts_out(ai_ts.test_id UINT32, aintersects INT32) TYPE File;
-SELECT test_id, aIntersects(lon, lat, timestamp, 'SRID=4326;POINT(-73.9855 40.7485)') AS aintersects FROM ai_ts INTO ai_ts_out;
+CREATE SINK ai_ts_out(test_id UINT32, aintersects BOOLEAN) TYPE File;
+SELECT test_id, aIntersects(tgeompointFromText(trip), geometryFromHexEWKB(VARSIZED('0101000020E6100000508D976E127F52C02B8716D9CE5F4440'))) AS aintersects FROM ai_ts INTO ai_ts_out;
 ----
 1,1
 2,0

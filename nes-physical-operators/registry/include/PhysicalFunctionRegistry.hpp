@@ -13,10 +13,13 @@
 */
 
 #pragma once
+
+#include <functional>
 #include <string>
 #include <vector>
+#include <DataTypes/DataType.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Util/Registry.hpp>
+#include <Util/RuntimeRegistry.hpp>
 
 namespace NES
 {
@@ -26,14 +29,18 @@ using PhysicalFunctionRegistryReturnType = PhysicalFunction;
 struct PhysicalFunctionRegistryArguments
 {
     std::vector<PhysicalFunction> childFunctions;
+    std::vector<DataType> inputTypes;
+    DataType outputType;
 };
 
-class PhysicalFunctionRegistry
-    : public BaseRegistry<PhysicalFunctionRegistry, std::string, PhysicalFunctionRegistryReturnType, PhysicalFunctionRegistryArguments>
+using PhysicalFunctionFn = std::function<PhysicalFunctionRegistryReturnType(PhysicalFunctionRegistryArguments)>;
+
+/// Entries are static create<Key> members on the function classes (construction differs per
+/// function, and a single class can register under several keys).
+class PhysicalFunctionRegistry : public RuntimeRegistry<PhysicalFunctionRegistry, std::string, PhysicalFunctionFn, /*CaseSensitive*/ false>
 {
+public:
+    static PhysicalFunctionRegistry& instance();
 };
-}
 
-#define INCLUDED_FROM_REGISTRY_PHYSICAL_FUNCTION
-#include <PhysicalFunctionGeneratedRegistrar.inc>
-#undef INCLUDED_FROM_REGISTRY_PHYSICAL_FUNCTION
+}

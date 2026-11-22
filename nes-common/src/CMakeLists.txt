@@ -12,6 +12,11 @@
 
 add_subdirectory(Sequencing)
 add_subdirectory(Util)
+add_subdirectory(Identifiers)
+add_subdirectory(Plugins)
 
 add_source_files(nes-common
-        ErrorHandling.cpp)
+        Thread.cpp
+        ErrorHandling.cpp
+        QueryId.cpp
+        Version.cpp)

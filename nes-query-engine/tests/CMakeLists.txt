@@ -13,7 +13,7 @@
 macro(add_query_engine_test)
     add_nes_test(${ARGN})
     set(TARGET_NAME ${ARGV0})
-    target_link_libraries(${TARGET_NAME} nes-sources-test-utils nes-memory-test-utils nes-query-engine nes-query-manager-test-utils-lib)
+    target_link_libraries(${TARGET_NAME} nes-sources-test-utils nes-query-engine nes-query-manager-test-utils-lib)
     target_include_directories(${TARGET_NAME} PRIVATE ..)
 endmacro()
 
@@ -22,5 +22,6 @@ add_query_engine_test(query-engine-test QueryEngineTest.cpp)
 add_query_engine_test(query-engine-task-queue-test TaskQueueTest.cpp)
 add_query_engine_test(running-query-plan-test QueryPlanTest.cpp)
 add_query_engine_test(query-engine-configuration-test QueryEngineConfigurationTest.cpp)
+add_query_engine_test(callback-test CallbackTest.cpp)
 
 add_subdirectory(Util)

@@ -16,13 +16,17 @@
 
 #include <cstddef>
 #include <memory>
+
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <DataTypes/DataType.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
-#include <Nautilus/Interface/Record.hpp>
-#include <Runtime/AbstractBufferProvider.hpp>
+#include <Interface/NautilusBuffer.hpp>
+#include <Interface/PagedVector/PagedVectorRef.hpp>
+#include <Interface/Record.hpp>
+#include <Runtime/TupleBuffer.hpp>
+#include <AggregationPhysicalFunctionRegistry.hpp>
 #include <val_concepts.hpp>
+#include <val_ptr.hpp>
 
 namespace NES
 {
@@ -34,24 +38,35 @@ public:
         DataType inputType,
         DataType resultType,
         PhysicalFunction inputFunction,
-        Nautilus::Record::RecordFieldIdentifier resultFieldIdentifier,
-        std::shared_ptr<Nautilus::Interface::BufferRef::TupleBufferRef> bufferRefPagedVector);
+        Record::RecordFieldIdentifier resultFieldIdentifier,
+        std::shared_ptr<PagedVectorTupleLayout> tupleLayout);
     void lift(
         const nautilus::val<AggregationState*>& aggregationState,
+        BorrowedNautilusBuffer parentBuffer,
         PipelineMemoryProvider& pipelineMemoryProvider,
-        const Nautilus::Record& record) override;
+        const Record& record) override;
     void combine(
         nautilus::val<AggregationState*> aggregationState1,
+        BorrowedNautilusBuffer parentBuffer1,
         nautilus::val<AggregationState*> aggregationState2,
+        BorrowedNautilusBuffer parentBuffer2,
         PipelineMemoryProvider& pipelineMemoryProvider) override;
-    Nautilus::Record lower(nautilus::val<AggregationState*> aggregationState, PipelineMemoryProvider& pipelineMemoryProvider) override;
-    void reset(nautilus::val<AggregationState*> aggregationState, PipelineMemoryProvider& pipelineMemoryProvider) override;
+    Record lower(
+        nautilus::val<AggregationState*> aggregationState,
+        BorrowedNautilusBuffer parentBuffer,
+        PipelineMemoryProvider& pipelineMemoryProvider) override;
+    void reset(
+        nautilus::val<AggregationState*> aggregationState,
+        BorrowedNautilusBuffer parentBuffer,
+        PipelineMemoryProvider& pipelineMemoryProvider) override;
     void cleanup(nautilus::val<AggregationState*> aggregationState) override;
     [[nodiscard]] size_t getSizeOfStateInBytes() const override;
     ~MedianAggregationPhysicalFunction() override = default;
 
+    static AggregationPhysicalFunctionRegistryReturnType create(AggregationPhysicalFunctionRegistryArguments arguments);
+
 private:
-    std::shared_ptr<Nautilus::Interface::BufferRef::TupleBufferRef> bufferRefPagedVector;
+    std::shared_ptr<PagedVectorTupleLayout> tupleLayout;
 };
 
 }

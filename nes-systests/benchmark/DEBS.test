@@ -3,24 +3,24 @@
 # groups: [milestone, benchmark, large]
 
 # Source definitions
-CREATE LOGICAL SOURCE solarPanels(producerId INT32, groupId INT32, producedPower FLOAT64, timestamp UINT64);
+CREATE LOGICAL SOURCE solarPanels(producerId INT32 NOT NULL, groupId INT32 NOT NULL, producedPower FLOAT64 NOT NULL, timestamp UINT64 NOT NULL);
 CREATE PHYSICAL SOURCE FOR solarPanels TYPE File;
 ATTACH FILE large/debs/SOLAR_PANELS_TOPIC_1G.csv
 
-CREATE LOGICAL SOURCE windTurbines(producerId INT32, groupId INT32, producedPower FLOAT64, timestamp UINT64);
+CREATE LOGICAL SOURCE windTurbines(producerId INT32 NOT NULL, groupId INT32 NOT NULL, producedPower FLOAT64 NOT NULL, timestamp UINT64 NOT NULL);
 CREATE PHYSICAL SOURCE FOR windTurbines TYPE File;
 ATTACH FILE large/debs/WIND_TURBINES_TOPIC_5M.csv
 
-CREATE LOGICAL SOURCE consumers(consumerId INT32, sectorId INT32, consumedPower FLOAT64, consumerType VARSIZED, timestamp UINT64);
+CREATE LOGICAL SOURCE consumers(consumerId INT32 NOT NULL, sectorId INT32 NOT NULL, consumedPower FLOAT64 NOT NULL, consumerType VARSIZED NOT NULL, timestamp UINT64 NOT NULL);
 CREATE PHYSICAL SOURCE FOR consumers TYPE File;
 ATTACH FILE large/debs/CONSUMERS_TOPIC_1G.csv
 
-CREATE SINK consumersChecksum(consumers.consumerId INT32, consumers.sectorId INT32, consumers.consumedPower FLOAT64, consumers.consumerType VARSIZED, consumers.timestamp UINT64)  TYPE Checksum;
-CREATE SINK solarPanelsChecksum(solarPanels.producerId INT32, solarPanels.groupId INT32, solarPanels.producedPower FLOAT64, solarPanels.timestamp UINT64)  TYPE Checksum;
-CREATE SINK q4Checksum(consumedPower FLOAT64)  TYPE Checksum;
-CREATE SINK q5Checksum(producerId INT32, groupId INT32, producedPower FLOAT64, ts UINT64)  TYPE Checksum;
-CREATE SINK q6Checksum(source UINT64, producerId INT32, groupId INT32, producedPower FLOAT64, ts UINT64)  TYPE Checksum;
-CREATE SINK winPowerProductionChecksum(solarPanels.start UINT64, solarPanels.end UINT64, solarPanels.groupId INT32, solarPanels.producedPower FLOAT64)  TYPE Checksum;
+CREATE SINK consumersChecksum(consumerId INT32 NOT NULL, sectorId INT32 NOT NULL, consumedPower FLOAT64 NOT NULL, consumerType VARSIZED NOT NULL, timestamp UINT64 NOT NULL)  TYPE Checksum;
+CREATE SINK solarPanelsChecksum(producerId INT32 NOT NULL, groupId INT32 NOT NULL, producedPower FLOAT64 NOT NULL, timestamp UINT64 NOT NULL)  TYPE Checksum;
+CREATE SINK q4Checksum(consumedPower FLOAT64 NOT NULL)  TYPE Checksum;
+CREATE SINK q5Checksum(producerId INT32 NOT NULL, groupId INT32 NOT NULL, producedPower FLOAT64 NOT NULL, ts UINT64 NOT NULL)  TYPE Checksum;
+CREATE SINK q6Checksum(source UINT64 NOT NULL, producerId INT32 NOT NULL, groupId INT32 NOT NULL, producedPower FLOAT64 NOT NULL, ts UINT64 NOT NULL)  TYPE Checksum;
+CREATE SINK winPowerProductionChecksum(start UINT64 NOT NULL, end UINT64 NOT NULL, groupId INT32 NOT NULL, producedPower FLOAT64 NOT NULL)  TYPE Checksum;
 
 # Query 0a - Simple Source Sink with consumers stream
 SELECT * FROM consumers INTO consumersChecksum;
@@ -33,22 +33,22 @@ SELECT * FROM solarPanels INTO solarPanelsChecksum;
 42700000, 74759775379
 
 # Query 1 - Filter tuples
-SELECT * FROM consumers WHERE consumedPower >= FLOAT64(400) INTO consumersChecksum;
+SELECT * FROM consumers WHERE consumedPower >= 400 INTO consumersChecksum;
 ----
 14236360, 36138915427
 
 # Query 2 - Filter with multiple attributes
-SELECT * FROM consumers WHERE consumedPower >= FLOAT64(400) AND sectorId = INT32(1) INTO consumersChecksum;
+SELECT * FROM consumers WHERE consumedPower >= 400 AND sectorId = 1 INTO consumersChecksum;
 ----
 3556803, 9027432231
 
 # Query 3 - Filter with complex expression
-SELECT * FROM consumers WHERE consumedPower >= FLOAT64(1) AND consumedPower < FLOAT64(61) INTO consumersChecksum;
+SELECT * FROM consumers WHERE consumedPower >= 1 AND consumedPower < 61 INTO consumersChecksum;
 ----
 4271223, 10579920660
 
 # Query 4 - Filter with complex expression
-SELECT consumedPower / FLOAT64(1000) AS consumedPower FROM consumers INTO q4Checksum;
+SELECT consumedPower / 1000 AS consumedPower FROM consumers INTO q4Checksum;
 ----
 42700000, 15336467257
 

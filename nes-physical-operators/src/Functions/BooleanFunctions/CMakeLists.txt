@@ -10,7 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_plugin(And PhysicalFunction nes-physical-operators AndPhysicalFunction.cpp)
-add_plugin(Equals PhysicalFunction nes-physical-operators EqualsPhysicalFunction.cpp)
-add_plugin(Negate PhysicalFunction nes-physical-operators NegatePhysicalFunction.cpp)
-add_plugin(Or PhysicalFunction nes-physical-operators OrPhysicalFunction.cpp)
+add_source_files(nes-physical-operators
+        AndPhysicalFunction.cpp
+        EqualsPhysicalFunction.cpp
+        NegatePhysicalFunction.cpp
+        OrPhysicalFunction.cpp
+        IsNullCheckPhysicalFunction.cpp
+)
+
+add_registry_entry(PhysicalFunction And)
+add_registry_entry(PhysicalFunction Equals)
+add_registry_entry(PhysicalFunction IsNullCheck KEY IsNull)
+add_registry_entry(PhysicalFunction Negate)
+add_registry_entry(PhysicalFunction Or)

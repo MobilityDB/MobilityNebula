@@ -17,11 +17,14 @@
 #include <chrono>
 #include <concepts>
 #include <cstddef>
+#include <cstdint>
 #include <iterator>
 #include <memory>
 #include <mutex>
+#include <ostream>
 #include <ranges>
 #include <source_location>
+#include <stop_token>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -29,18 +32,21 @@
 #include <Identifiers/Identifiers.hpp>
 #include <Identifiers/NESStrongType.hpp>
 #include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/Allocator/NesDefaultMemoryAllocator.hpp>
 #include <Runtime/BufferManager.hpp>
+#include <Runtime/MemoryUtils.hpp>
 #include <Sources/SourceReturnType.hpp>
 #include <Util/Logger/LogLevel.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <Util/Logger/impl/NesLogger.hpp>
+#include <fmt/chrono.h>
 #include <folly/Synchronized.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <BaseUnitTest.hpp>
-#include <MemoryTestUtils.hpp>
 #include <SourceThread.hpp>
 #include <TestSource.hpp>
+#include <nameof.hpp>
 
 namespace NES
 {
@@ -51,6 +57,42 @@ constexpr std::chrono::milliseconds DEFAULT_LONG_TIMEOUT = std::chrono::millisec
 constexpr size_t DEFAULT_BUFFER_SIZE = 8192;
 constexpr size_t DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER = 23;
 constexpr size_t DEFAULT_NUMBER_OF_LOCAL_BUFFERS = 100;
+constexpr uint32_t POOLED_BUFFER_SIZE = 8192;
+constexpr uint32_t NUMBER_OF_POOLED_BUFFERS = 1024;
+constexpr NES::BufferAlignment BUFFER_ALIGNMENT{64};
+constexpr double UNPOOLED_MEMORY_FRACTION = 0.9;
+constexpr size_t TOTAL_MEMORY_IN_BYTES = 10 * static_cast<size_t>(NUMBER_OF_POOLED_BUFFERS) * POOLED_BUFFER_SIZE;
+
+class MetadataSource final : public Source
+{
+public:
+    explicit MetadataSource(Timestamp watermark) : watermark(watermark) { }
+
+    void open(std::shared_ptr<AbstractBufferProvider>) override { }
+
+    void close() override { }
+
+    FillTupleBufferResult fillTupleBuffer(TupleBuffer& buffer, const std::stop_token&) override
+    {
+        if (emitted)
+        {
+            return FillTupleBufferResult::eos();
+        }
+        emitted = true;
+        buffer.setSequenceNumber(SequenceNumber{42});
+        buffer.setWatermark(watermark);
+        return FillTupleBufferResult::withBytes(0);
+    }
+
+    [[nodiscard]] bool addsMetadata() const override { return true; }
+
+protected:
+    [[nodiscard]] std::ostream& toString(std::ostream& str) const override { return str << "MetadataSource"; }
+
+private:
+    Timestamp watermark;
+    bool emitted = false;
+};
 
 }
 
@@ -80,7 +122,7 @@ struct RecordingEmitFunction
                 if constexpr (std::same_as<T, SourceReturnType::Data>)
                 {
                     /// Release old Buffer
-                    return SourceReturnType::Data{Testing::copyBuffer(emitted.buffer, bm)};
+                    return SourceReturnType::Data{deepCopyBuffer(emitted.buffer, bm)};
                 }
                 else
                 {
@@ -115,8 +157,8 @@ void verify_non_blocking_stop(SourceThread& sourceThread, std::source_location l
     auto calledStop = std::chrono::high_resolution_clock::now();
     sourceThread.stop();
     auto stopDone = std::chrono::high_resolution_clock::now();
-    EXPECT_LT(stopDone - calledStop, DEFAULT_TIMEOUT)
-        << "Stopping a SourceThread should be non blocking. We estimate a block with around 100 ms";
+    EXPECT_LT(stopDone - calledStop, DEFAULT_LONG_TIMEOUT)
+        << fmt::format("Stopping a SourceThread exceeded its {} deadline", DEFAULT_LONG_TIMEOUT);
 }
 
 void verify_non_blocking_start(
@@ -127,7 +169,7 @@ void verify_non_blocking_start(
     EXPECT_TRUE(sourceThread.start(std::move(emitFn)));
     auto startDone = std::chrono::high_resolution_clock::now();
     EXPECT_LT(startDone - calledStart, DEFAULT_TIMEOUT)
-        << "Starting a SourceThread should be non blocking. We estimate a block with around 100 ms";
+        << fmt::format("Starting a SourceThread should be non blocking. We estimate a block with around {}", DEFAULT_TIMEOUT);
 }
 
 void verify_no_events(RecordingEmitFunction& recorder, std::source_location location = std::source_location::current())
@@ -142,7 +184,7 @@ void verify_last_event(RecordingEmitFunction& recorder, std::source_location loc
     const testing::ScopedTrace scopedTrace(location.file_name(), static_cast<int>(location.line()), "verify_last_event");
     EXPECT_THAT(*recorder.recordedEmits.lock(), ::testing::SizeIs(::testing::Gt(0))) << "Expected source events to be emitted";
     auto& lastEvent = recorder.recordedEmits.lock()->back();
-    EXPECT_TRUE(std::holds_alternative<T>(lastEvent)) << "Last event was not a `" << typeid(T).name() << "` event";
+    EXPECT_TRUE(std::holds_alternative<T>(lastEvent)) << "Last event was not a `" << NAMEOF_TYPE(T) << "` event";
 }
 
 void verify_number_of_emits(
@@ -161,21 +203,112 @@ void verify_number_of_emits(
             sequenceNumbers.push_back(data->buffer.getSequenceNumber());
         }
     }
-    auto expected_view
-        = std::views::iota(size_t(0), sequenceNumbers.size()) | std::views::transform([](auto s) { return SequenceNumber(s + 1); });
+    auto expectedView = std::views::iota(static_cast<size_t>(0), sequenceNumbers.size())
+        | std::views::transform([](auto seq) { return SequenceNumber(seq + 1); });
     std::vector<SequenceNumber> expected;
-    std::ranges::copy(expected_view, std::back_inserter(expected));
+    std::ranges::copy(expectedView, std::back_inserter(expected));
     EXPECT_THAT(sequenceNumbers, ::testing::ContainerEq(expected));
+}
+
+/// The final watermark is the last data buffer, directly before the EoS.
+void verify_final_watermark(RecordingEmitFunction& recorder)
+{
+    const auto events = recorder.recordedEmits.lock();
+    ASSERT_GE(events->size(), 2U);
+    const auto& event = events->at(events->size() - 2);
+    const auto* data = std::get_if<SourceReturnType::Data>(&event);
+    ASSERT_NE(data, nullptr);
+    EXPECT_EQ(data->buffer.getNumberOfTuples(), 0);
+    EXPECT_EQ(data->buffer.getWatermark().getRawValue(), Timestamp::INFINITE_VALUE);
+}
+
+TEST_F(SourceThreadTest, CompletesAlreadyInfiniteMetadataSource)
+{
+    auto bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
+    auto [backpressureController, backpressureListener] = createBackpressureChannel();
+    RecordingEmitFunction recorder(*bm);
+    SourceThread sourceThread(
+        std::move(backpressureListener), INITIAL<OriginId>, bm, std::make_unique<MetadataSource>(Timestamp{Timestamp::INFINITE_VALUE}));
+    verify_non_blocking_start(
+        sourceThread,
+        [&](const OriginId originId, SourceReturnType::SourceReturnType ret, const std::stop_token&)
+        {
+            recorder(originId, std::move(ret));
+            return SourceReturnType::EmitResult::SUCCESS;
+        });
+    wait_for_emits(recorder, 3);
+    verify_non_blocking_stop(sourceThread);
+
+    const auto events = recorder.recordedEmits.lock();
+    ASSERT_EQ(events->size(), 3);
+    const auto* data = std::get_if<SourceReturnType::Data>(&events->at(0));
+    const auto* finalWatermark = std::get_if<SourceReturnType::Data>(&events->at(1));
+    ASSERT_NE(data, nullptr);
+    ASSERT_NE(finalWatermark, nullptr);
+    EXPECT_EQ(data->buffer.getSequenceNumber(), SequenceNumber{42});
+    EXPECT_EQ(data->buffer.getWatermark(), Timestamp{Timestamp::INFINITE_VALUE});
+    EXPECT_EQ(finalWatermark->buffer.getSequenceNumber(), SequenceNumber{43});
+    EXPECT_EQ(finalWatermark->buffer.getWatermark(), Timestamp{Timestamp::INFINITE_VALUE});
+    EXPECT_TRUE(std::holds_alternative<SourceReturnType::EoS>(events->at(2)));
+}
+
+TEST_F(SourceThreadTest, CompletesFiniteMetadataSourceWithNextSequenceNumber)
+{
+    auto bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
+    auto [backpressureController, backpressureListener] = createBackpressureChannel();
+    RecordingEmitFunction recorder(*bm);
+    SourceThread sourceThread(std::move(backpressureListener), INITIAL<OriginId>, bm, std::make_unique<MetadataSource>(Timestamp{5000}));
+    verify_non_blocking_start(
+        sourceThread,
+        [&](const OriginId originId, SourceReturnType::SourceReturnType ret, const std::stop_token&)
+        {
+            recorder(originId, std::move(ret));
+            return SourceReturnType::EmitResult::SUCCESS;
+        });
+    wait_for_emits(recorder, 3);
+    verify_non_blocking_stop(sourceThread);
+
+    const auto events = recorder.recordedEmits.lock();
+    ASSERT_EQ(events->size(), 3);
+    const auto* data = std::get_if<SourceReturnType::Data>(&events->at(0));
+    const auto* finalWatermark = std::get_if<SourceReturnType::Data>(&events->at(1));
+    ASSERT_NE(data, nullptr);
+    ASSERT_NE(finalWatermark, nullptr);
+    EXPECT_EQ(data->buffer.getSequenceNumber(), SequenceNumber{42});
+    EXPECT_EQ(finalWatermark->buffer.getSequenceNumber(), SequenceNumber{43});
+    EXPECT_EQ(finalWatermark->buffer.getWatermark(), Timestamp{Timestamp::INFINITE_VALUE});
+    EXPECT_TRUE(std::holds_alternative<SourceReturnType::EoS>(events->at(2)));
 }
 
 /// Internal Stop by destroying the SourceThread
 TEST_F(SourceThreadTest, DestructionOfStartedSourceThread)
 {
-    auto bm = BufferManager::create();
+    auto bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
+    auto [backpressureController, backpressureListener] = createBackpressureChannel();
     RecordingEmitFunction recorder(*bm);
     auto control = std::make_shared<TestSourceControl>();
     {
-        SourceThread sourceThread(INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
+        SourceThread sourceThread(
+            std::move(backpressureListener),
+            INITIAL<OriginId>,
+            bm,
+
+            std::make_unique<TestSource>(INITIAL<OriginId>, control));
         verify_non_blocking_start(
             sourceThread,
             [&](const OriginId originId, SourceReturnType::SourceReturnType ret, const std::stop_token&)
@@ -193,11 +326,18 @@ TEST_F(SourceThreadTest, DestructionOfStartedSourceThread)
 
 TEST_F(SourceThreadTest, NoOpDestruction)
 {
-    auto bm = BufferManager::create();
+    auto bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
+    auto [backpressureController, backpressureListener] = createBackpressureChannel();
     RecordingEmitFunction recorder(*bm);
     auto control = std::make_shared<TestSourceControl>();
     {
-        const SourceThread sourceThread(INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
+        const SourceThread sourceThread(
+            backpressureListener, INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
     }
 
     verify_no_events(recorder);
@@ -208,14 +348,20 @@ TEST_F(SourceThreadTest, NoOpDestruction)
 
 TEST_F(SourceThreadTest, FailureDuringRunning)
 {
-    auto bm = BufferManager::create();
+    auto bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
+    auto [backpressureController, backpressureListener] = createBackpressureChannel();
     RecordingEmitFunction recorder(*bm);
     auto control = std::make_shared<TestSourceControl>();
     control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
     control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
     control->injectError("I should fail");
     {
-        SourceThread sourceThread(INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
+        SourceThread sourceThread(backpressureListener, INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
         verify_non_blocking_start(
             sourceThread,
             [&](const OriginId originId, SourceReturnType::SourceReturnType ret, const std::stop_token&)
@@ -236,12 +382,18 @@ TEST_F(SourceThreadTest, FailureDuringRunning)
 
 TEST_F(SourceThreadTest, FailureDuringOpen)
 {
-    auto bm = BufferManager::create();
+    auto bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
+    auto [backpressureController, backpressureListener] = createBackpressureChannel();
     RecordingEmitFunction recorder(*bm);
     auto control = std::make_shared<TestSourceControl>();
     control->failDuringOpen(std::chrono::milliseconds(0));
     {
-        SourceThread sourceThread(INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
+        SourceThread sourceThread(backpressureListener, INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
         verify_non_blocking_start(
             sourceThread,
             [&](const OriginId originId, SourceReturnType::SourceReturnType ret, const std::stop_token&)
@@ -262,14 +414,20 @@ TEST_F(SourceThreadTest, FailureDuringOpen)
 
 TEST_F(SourceThreadTest, SimpleCaseWithInternalStop)
 {
-    auto bm = BufferManager::create();
+    auto bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
+    auto [backpressureController, backpressureListener] = createBackpressureChannel();
     RecordingEmitFunction recorder(*bm);
     auto control = std::make_shared<TestSourceControl>();
     control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
     control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
     control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
     {
-        SourceThread sourceThread(INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
+        SourceThread sourceThread(backpressureListener, INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
         verify_non_blocking_start(
             sourceThread,
             [&](const OriginId originId, SourceReturnType::SourceReturnType ret, const std::stop_token&)
@@ -290,15 +448,20 @@ TEST_F(SourceThreadTest, SimpleCaseWithInternalStop)
 
 TEST_F(SourceThreadTest, EoSFromSourceWithStop)
 {
-    auto bm = BufferManager::create();
+    auto bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
     RecordingEmitFunction recorder(*bm);
+    auto [backpressureController, backpressureListener] = createBackpressureChannel();
     auto control = std::make_shared<TestSourceControl>();
     control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
     control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
     control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
-    control->injectEoS();
     {
-        SourceThread sourceThread(INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
+        SourceThread sourceThread(backpressureListener, INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
         verify_non_blocking_start(
             sourceThread,
             [&](const OriginId originId, SourceReturnType::SourceReturnType ret, const std::stop_token&)
@@ -308,15 +471,97 @@ TEST_F(SourceThreadTest, EoSFromSourceWithStop)
             });
         wait_for_emits(recorder, 3);
         control->injectEoS();
-        wait_for_emits(recorder, 4);
+        wait_for_emits(recorder, 5);
         verify_non_blocking_stop(sourceThread);
     }
 
-    verify_number_of_emits(recorder, 4);
+    verify_number_of_emits(recorder, 5);
     verify_last_event<SourceReturnType::EoS>(recorder);
+    verify_final_watermark(recorder);
     EXPECT_TRUE(control->wasOpened());
     EXPECT_TRUE(control->wasClosed());
     EXPECT_TRUE(control->wasDestroyed());
 }
+
+TEST_F(SourceThreadTest, ApplyBackbressure)
+{
+    auto bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
+    RecordingEmitFunction recorder(*bm);
+    auto [backpressureController, backpressureListener] = createBackpressureChannel();
+    backpressureController.applyPressure();
+    auto control = std::make_shared<TestSourceControl>();
+    control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
+    control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
+    control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
+    control->injectEoS();
+    {
+        SourceThread sourceThread(backpressureListener, INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
+        verify_non_blocking_start(
+            sourceThread,
+            [&](const OriginId originId, SourceReturnType::SourceReturnType ret, const auto&)
+            {
+                recorder(originId, std::move(ret));
+                return SourceReturnType::EmitResult::SUCCESS;
+            });
+        wait_for_emits(recorder, 0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        EXPECT_FALSE(control->wasClosed());
+        wait_for_emits(recorder, 0);
+        backpressureController.releasePressure();
+        wait_for_emits(recorder, 5);
+        verify_non_blocking_stop(sourceThread);
+    }
+
+    verify_number_of_emits(recorder, 5);
+    verify_last_event<SourceReturnType::EoS>(recorder);
+    verify_final_watermark(recorder);
+    EXPECT_TRUE(control->wasOpened());
+    EXPECT_TRUE(control->wasClosed());
+    EXPECT_TRUE(control->wasDestroyed());
+}
+
+TEST_F(SourceThreadTest, StopDuringBackpressure)
+{
+    auto bm = BufferManager::create(
+        TOTAL_MEMORY_IN_BYTES,
+        UNPOOLED_MEMORY_FRACTION,
+        BUFFER_ALIGNMENT,
+        POOLED_BUFFER_SIZE,
+        std::make_shared<NesDefaultMemoryAllocator>());
+    RecordingEmitFunction recorder(*bm);
+    auto [backpressureController, ingestion] = createBackpressureChannel();
+    backpressureController.applyPressure();
+    auto control = std::make_shared<TestSourceControl>();
+    control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
+    control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
+    control->injectData(std::vector{DEFAULT_BUFFER_SIZE, std::byte(0)}, DEFAULT_NUMBER_OF_TUPLES_IN_BUFFER);
+    control->injectEoS();
+    {
+        SourceThread sourceThread(ingestion, INITIAL<OriginId>, bm, std::make_unique<TestSource>(INITIAL<OriginId>, control));
+        verify_non_blocking_start(
+            sourceThread,
+            [&](const OriginId originId, SourceReturnType::SourceReturnType ret, const auto&)
+            {
+                recorder(originId, std::move(ret));
+                return SourceReturnType::EmitResult::SUCCESS;
+            });
+        wait_for_emits(recorder, 0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        EXPECT_FALSE(control->wasClosed());
+        wait_for_emits(recorder, 0);
+        verify_non_blocking_stop(sourceThread);
+    }
+
+    verify_no_events(recorder);
+    EXPECT_TRUE(control->wasOpened());
+    EXPECT_TRUE(control->wasClosed());
+    EXPECT_TRUE(control->wasDestroyed());
+}
+
 
 }

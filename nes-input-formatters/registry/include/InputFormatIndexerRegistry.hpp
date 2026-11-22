@@ -14,63 +14,45 @@
 
 #pragma once
 
-#include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
 
-#include <DataTypes/Schema.hpp>
-#include <Identifiers/Identifiers.hpp>
-#include <InputFormatters/InputFormatterTaskPipeline.hpp>
-#include <Sources/SourceDescriptor.hpp>
-#include <Util/Registry.hpp>
-#include <Concepts.hpp>
-#include <InputFormatterTask.hpp>
+#include <Interface/BufferRef/TupleBufferRef.hpp>
+#include <Util/RuntimeRegistry.hpp>
+#include <InputFormatter.hpp>
+#include <InputFormatterDescriptor.hpp>
 
 namespace NES
 {
 
+/// Maps an input formatter type name to a factory that assembles an InputFormatter from a
+/// descriptor and the memory provider of the pipeline.
+using InputFormatterFactoryFn
+    = std::function<std::unique_ptr<InputFormatter>(const InputFormatterDescriptor&, std::shared_ptr<TupleBufferRef>)>;
 
-using InputFormatIndexerRegistryReturnType = std::unique_ptr<InputFormatterTaskPipeline>;
-
-/// Allows specific InputFormatter to construct templated Formatter using the 'createInputFormatterTaskPipeline()' method.
-/// Calls constructor of specific InputFormatter and exposes public members to it.
-struct InputFormatIndexerRegistryArguments
+class InputFormatIndexerRegistry
+    : public RuntimeRegistry<InputFormatIndexerRegistry, std::string, InputFormatterFactoryFn, /*CaseSensitive*/ false>
 {
-    InputFormatIndexerRegistryArguments(ParserConfig config, const Schema& schema)
-        : inputFormatIndexerConfig(std::move(config)), schema(schema)
-    {
-    }
-
-    /// @tparam: FormatterType: the concrete formatter implementation, e.g., CSVInputFormatter
-    /// @tparam: FieldAccessType: function used to index fields when parsing/processing the data of the (raw) input buffer
-    /// @tparam: HasSpanningTuple: hardcode to 'true' if format cannot guarantee buffers with tuples that never span across buffers
-    template <InputFormatIndexerType FormatterType>
-    InputFormatIndexerRegistryReturnType createInputFormatterTaskPipeline(FormatterType inputFormatter, const QuotationType quotationType)
-    {
-        auto inputFormatterTask
-            = InputFormatterTask<FormatterType>(std::move(inputFormatter), schema, quotationType, inputFormatIndexerConfig);
-        return std::make_unique<InputFormatterTaskPipeline>(std::move(inputFormatterTask));
-    }
-
-    size_t getNumberOfFieldsInSchema() const { return schema.getNumberOfFields(); }
-
-    ParserConfig inputFormatIndexerConfig;
-
-private:
-    Schema schema;
+public:
+    static InputFormatIndexerRegistry& instance();
 };
 
-class InputFormatIndexerRegistry : public BaseRegistry<
-                                       InputFormatIndexerRegistry,
-                                       std::string,
-                                       InputFormatIndexerRegistryReturnType,
-                                       InputFormatIndexerRegistryArguments>
+/// Factory for the common case: the descriptor's type-erased config is the formatter's own config
+/// struct (put there by this formatter's InputFormatterConfigRegistry entry), so the any_cast is
+/// safe. We discourage keeping state in an indexer implementation, since the InputFormatter uses
+/// its indexer concurrently — the indexer only receives its config and the buffer layout at
+/// creation time, not the memory provider.
+template <typename IndexerImpl, typename ConfigStruct>
+InputFormatterFactoryFn makeInputFormatterFactory()
 {
-};
-
+    return [](const InputFormatterDescriptor& descriptor, std::shared_ptr<TupleBufferRef> memoryProvider)
+    {
+        auto config = descriptor.getConfig().getAs<ConfigStruct>();
+        auto indexer = IndexerImpl::create(std::move(config), *memoryProvider);
+        return std::make_unique<InputFormatter>(std::move(indexer), std::move(memoryProvider));
+    };
 }
 
-#define INCLUDED_FROM_INPUT_FORMAT_INDEXER_REGISTRY
-#include <InputFormatIndexerGeneratedRegistrar.inc>
-#undef INCLUDED_FROM_INPUT_FORMAT_INDEXER_REGISTRY
+}

@@ -25,15 +25,10 @@
 """Unified MEOS-surface code generator for the MobilityDB JVM bindings.
 
 ONE generator, its engines selected by ``--engine``. Every
-JVM binding (MobilitySpark, MobilityFlink, MobilityKafka) vendors this identical
-file plus its ``codegen_spark_udfs.py`` sibling, so the generated surface can never
-drift between engines — the North Star that MEOS is the single source of truth and
+JVM binding (MobilitySpark, MobilityFlink, MobilityKafka) stages this identical
+file, so the generated surface can never drift between engines — the North Star that MEOS is the single source of truth and
 all bindings are GENERATED from it.
 
-  * ``spark``        -> the MobilitySpark SQL-UDF surface. This path delegates
-                        VERBATIM to the sibling ``codegen_spark_udfs.py``: the same
-                        code runs, so the emitted files are byte-identical to what
-                        that generator produces on its own.
   * ``flink|kafka``  -> the thin ``MeosOps*`` Java static-forwarder facades.
                         Covers the FULL jar surface (every
                         functions.GeneratedFunctions symbol), grouped by the
@@ -54,18 +49,15 @@ all bindings are GENERATED from it.
 
 Shared front-end (facade back-end only): load the catalog, list the jar symbols,
 and derive each function's object-model class / role / header directly from the
-catalog's ``objectModel``. The spark back-end owns its own catalog+jar front-end
-(it needs jar arities the facade parse does not), so nothing about it changes.
+catalog's ``objectModel``.
 
 Usage:
-  codegen_jvm.py --engine spark --catalog meos-idl.json --jar JMEOS.jar --out DIR
   codegen_jvm.py --engine flink --catalog meos-idl.json --jar JMEOS.jar --out DIR
   codegen_jvm.py --engine kafka --catalog meos-idl.json --jar JMEOS.jar --out DIR
   codegen_jvm.py --engine flink-sql --catalog meos-idl.json --jar JMEOS.jar --out DIR
   codegen_jvm.py --engine spark-sql --catalog meos-idl.json --jar JMEOS.jar --out DIR
 """
 import argparse
-import importlib.util
 import json
 import re
 import subprocess
@@ -143,43 +135,6 @@ def object_model_index(cat):
         fn_seq[n] = seq_typed(f['returnType'].get('canonical',
                                                    f['returnType'].get('c', '')))
     return fn_class, fn_role, fn_header, fn_seq
-
-
-# ───────────────────────── spark back-end ─────────────────────────
-
-def _spark_module():
-    """The sibling codegen_spark_udfs.py as a module, loaded as #run_spark loaded it. Every
-    binding vendors it next to this file, so the import target is always the sibling."""
-    spark_path = Path(__file__).resolve().parent / 'codegen_spark_udfs.py'
-    spec = importlib.util.spec_from_file_location('codegen_spark_udfs', spark_path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
-
-
-def run_spark(args):
-    """Delegate to the sibling codegen_spark_udfs.py so output is byte-identical.
-
-    The reference generator owns the whole catalog+jar front-end and the SQL-UDF
-    emit; running its own code (rather than a re-implementation) is what makes the
-    output provably identical to today's. The module comes from #_spark_module."""
-    mod = _spark_module()
-    argv = ['codegen_spark_udfs',
-            '--catalog', args.catalog,
-            '--out', args.out,
-            '--jar', args.jar]
-    if args.report:
-        argv.append('--report')
-    if args.gaps:
-        argv += ['--gaps', args.gaps]
-    if args.rebaseline:
-        argv.append('--rebaseline')
-    saved = sys.argv
-    try:
-        sys.argv = argv
-        mod.main()
-    finally:
-        sys.argv = saved
 
 
 # ───────────────────────── facade back-end ─────────────────────────
@@ -324,11 +279,87 @@ PAIRS_HOLDER = [
 ]
 
 
-def emit_method(r, prop):
+# The portable input and output names of chapter 18 of MobilityDB: a writer as<Format>, a reader
+# <type>From<Format>, for each format the dialect names.
+PORTABLE_IO = re.compile(r'^(as(Text|EWKT|Binary|EWKB|HexWKB|HexEWKB|MFJSON)'
+                         r'|\w+From(Text|EWKT|Binary|EWKB|HexWKB|HexEWKB|MFJSON))$')
+
+
+def portable_io_names(f):
+    """The portable input and output names of public function `f`, in signature order: each
+    signature's name as #SqlModel.signatures reads it, its altSqlName where the catalog states
+    one, else its sqlName, else the function's sqlfn, where it is a reader or writer of chapter
+    18 (#PORTABLE_IO) and no type support function, which the dialect never names (the
+    signature's typeSupport, rule 3 of MobilityDB's doc/contributing/io/00-INDEX.md)."""
+    if not f or f.get('api') != 'public':
+        return []
+    out = []
+    for s in f.get('sqlSignatures') or []:
+        n = s.get('altSqlName') or s.get('sqlName') or f.get('sqlfn')
+        if n and PORTABLE_IO.match(n) and not s.get('typeSupport') and n not in out:
+            out.append(n)
+    return out
+
+
+def is_type_support(f):
+    """Whether catalog function `f` backs a type support function of a SQL type, `<type>_in`,
+    `<type>_out`, `<type>_recv` or `<type>_send` (a signature's typeSupport). Its C name
+    is plumbing the dialect never names (rule 3 of MobilityDB's
+    doc/contributing/io/00-INDEX.md): a binding reaches it through its portable reader or
+    writer alone."""
+    return any(s.get('typeSupport') for s in (f or {}).get('sqlSignatures') or [])
+
+
+def emit_portable(r, prop):
+    """A method under each portable input or output name of the row's function
+    (#portable_io_names). For a type support function (#is_type_support), which has no
+    C-named method, the method calls MEOS under the guards #emit_body writes; otherwise it
+    forwards to the C-named method beside it, whose guards it keeps."""
+    args = ', '.join(f'{short_type(t)} {n}' for (t, n) in r['java_params'])
+    call_args = ', '.join(n for (t, n) in r['java_params'])
+    ret = short_type(r['java_ret'])
+    ret_stmt = '' if ret == 'void' else 'return '
+    L = []
+    for n in portable_io_names(r.get('cat')):
+        L += ['    /**',
+              f'     * {{@code {n}}}, the portable name of MEOS {{@code {r["name"]}}}.',
+              '     */']
+        if is_type_support(r.get('cat')):
+            L += emit_body(r, prop, n)
+        else:
+            L += [f'    public static {ret} {n}({args}) {{',
+                  f'        {ret_stmt}{r["name"]}({call_args});',
+                  '    }', '']
+    return L
+
+
+def emit_body(r, prop, name):
+    """The method `name` calling MEOS function `r`, under the sequence-only guard of a
+    function building a whole sequence, else under the MEOS_AVAILABLE guard."""
     fname = r['name']
     args = ', '.join(f'{short_type(t)} {n}' for (t, n) in r['java_params'])
     call_args = ', '.join(n for (t, n) in r['java_params'])
     ret = short_type(r['java_ret'])
+    if r['seq']:
+        return [f'    public static {ret} {name}({args}) {{',
+                '        throw new UnsupportedOperationException(',
+                f'            "{fname} is sequence-only — not supported in a '
+                'streaming context");',
+                '    }', '']
+    ret_stmt = '' if ret == 'void' else 'return '
+    return [f'    public static {ret} {name}({args}) {{',
+            '        if (!MEOS_AVAILABLE) {',
+            '            throw new UnsupportedOperationException(',
+            f'                "{fname} requires libmeos — set -D{prop}=true");',
+            '        }',
+            f'        {ret_stmt}GeneratedFunctions.{fname}({call_args});',
+            '    }', '']
+
+
+def emit_method(r, prop):
+    fname = r['name']
+    if is_type_support(r.get('cat')):
+        return emit_portable(r, prop)
     L = ['    /**',
          f'     * MEOS {{@code {fname}}}.']
     if r.get('oo_class'):
@@ -341,26 +372,11 @@ def emit_method(r, prop):
         L.append('     * <p>Sequence-only: builds a whole sequence — '
                  'not supported in a streaming context.</p>')
     L.append('     */')
-    if r['seq']:
-        # sequence-only guard
-        L += [f'    public static {ret} {fname}({args}) {{',
-              '        throw new UnsupportedOperationException(',
-              f'            "{fname} is sequence-only — not supported in a '
-              'streaming context");',
-              '    }', '']
-    else:
-        # runtime MEOS_AVAILABLE guard
-        ret_stmt = '' if ret == 'void' else 'return '
-        L += [f'    public static {ret} {fname}({args}) {{',
-              '        if (!MEOS_AVAILABLE) {',
-              '            throw new UnsupportedOperationException(',
-              f'                "{fname} requires libmeos — set -D{prop}=true");',
-              '        }',
-              f'        {ret_stmt}GeneratedFunctions.{fname}({call_args});',
-              '    }', '']
+    L += emit_body(r, prop, fname)
     fold = folded_nxn(r)
     if fold:
         L += emit_folded(r, fold, prop)
+    L += emit_portable(r, prop)
     return L
 
 
@@ -583,10 +599,6 @@ SQL_DATATYPE = {
 
 # The WKB variant the WKB writers take: the extended form, which keeps the SRID.
 WKB_VARIANT = 4
-# The catalog encodings that carry a value as its hex WKB, in the order a codec takes them: the
-# plain form where the C type states it, else the extended one (geometry and geography state
-# only `hexewkb`). The catalog's `wkb` and `ewkb` are the binary forms.
-HEX_WKB_ENCODINGS = ('hexwkb', 'hexewkb')
 
 # A SQL array MEOS reads as a contiguous C array of scalars, keyed by the SQL element type
 # and the C element type together: the Flink-side element class and the MeosSqlRuntime
@@ -642,6 +654,51 @@ def _single_pointer(t):
     return n.endswith('*') and n.count('*') == 1
 
 
+# The byte size of each scalar C type a catalog struct field takes, as
+# ObjectLayerGenerator#structSize sizes them for the 64-bit targets the bindings ship for.
+SCALAR_BYTES = {'bool': 1, 'char': 1, 'int8': 1, 'int8_t': 1, 'uint8': 1, 'uint8_t': 1,
+                'short': 2, 'int16': 2, 'int16_t': 2, 'uint16': 2, 'uint16_t': 2,
+                'int': 4, 'int32': 4, 'int32_t': 4, 'uint32': 4, 'uint32_t': 4, 'float': 4,
+                'Oid': 4, 'DateADT': 4,
+                'long': 8, 'int64': 8, 'int64_t': 8, 'uint64': 8, 'uint64_t': 8, 'double': 8,
+                'float8': 8, 'Datum': 8, 'Timestamp': 8, 'TimestampTz': 8, 'TimeADT': 8,
+                'size_t': 8, 'uintptr_t': 8}
+
+
+def _size_align(structs, ctype):
+    """(size, alignment) in bytes of a struct field's C type, or None when the catalog does
+    not state it: a scalar, a pointer, a fixed-size array or a nested catalog struct of
+    `structs`, the catalog's structs by name."""
+    c = _norm(ctype)
+    if c.endswith('*'):
+        return 8, 8
+    if '[' in c:
+        b = _size_align(structs, c[:c.index('[')])
+        return None if b is None else (b[0] * int(c[c.index('[') + 1:c.index(']')]), b[1])
+    if c in structs:
+        lay = struct_layout(structs, c)
+        return None if lay is None else (lay[0], lay[1])
+    n = SCALAR_BYTES.get(c)
+    return None if n is None else (n, n)
+
+
+def struct_layout(structs, name):
+    """(size, alignment, {field: (offset, ctype)}) of catalog struct `name` of `structs` under
+    the C layout rules of the 64-bit targets the bindings ship for, or None when a field's size
+    is unknown. The rows of a set-returning signature and a contiguous array of structs
+    (#_array_arg) read their fields at these offsets."""
+    offset, widest, fields = 0, 1, {}
+    for f in structs[name].get('fields') or []:
+        sa = _size_align(structs, f['cType'])
+        if sa is None:
+            return None
+        widest = max(widest, sa[1])
+        offset = (offset + sa[1] - 1) // sa[1] * sa[1]
+        fields[f['name']] = (offset, _norm(f['cType']))
+        offset += sa[0]
+    return (offset + widest - 1) // widest * widest, widest, fields
+
+
 def _deployed_type(t):
     """The SQL type `t` as PostgreSQL deploys a function over it: CREATE FUNCTION discards a
     parenthesized type modifier, so geometry(Point) is geometry and geography(Point)[] is
@@ -672,13 +729,11 @@ class SqlModel:
         self.jmeos = jmeos
         self.fns = cat['functions']
         self.by_name = {f['name']: f for f in self.fns}
-        # The catalog struct layouts, under #struct_layout of codegen_spark_udfs.py, the rule the
-        # Spark arm sizes them by: the rows of a set-returning signature and a contiguous array
-        # of structs (#_array_arg) read them, on both engines.
-        spark = _spark_module()
-        spark.STRUCTS.update({s['name']: s for s in cat.get('structs') or []})
-        self.layout = lambda name: (spark.struct_layout(name)  # noqa: E731
-                                    if name in spark.STRUCTS else None)
+        # The catalog struct layouts (#struct_layout): the rows of a set-returning signature and
+        # a contiguous array of structs (#_array_arg) read them, on both engines.
+        self.structs = {s['name']: s for s in cat.get('structs') or []}
+        self.layout = lambda name: (struct_layout(self.structs, name)  # noqa: E731
+                                    if name in self.structs else None)
         self.enc = cat.get('typeEncodings', {})
         self.enums = {e['name'] for e in cat.get('enums', [])}
         # The value of each macro and enum member a wrapper binds by name.
@@ -688,7 +743,7 @@ class SqlModel:
                             for v in e.get('values') or []
                             if isinstance(v, dict) and isinstance(v.get('value'), int)})
         # The subtypes the object model's subtype axis lists (TInstant, TSequence, TSequenceSet),
-        # each a Temporal, as #derive_codecs of codegen_spark_udfs.py reads them.
+        # each a Temporal.
         axis = ((cat.get('objectModel') or {}).get('axes') or {}).get('subtype') or {}
         self.subtype_of = {v['class']: 'Temporal' for v in axis.get('values') or []
                            if v.get('class') and v['class'] != 'Temporal'}
@@ -784,104 +839,32 @@ class SqlModel:
                    {**fbound, **(s.get('boundArgs') or {}), **present})
 
     def _align(self):
-        """The C base type each SQL type stands for, read off the signatures that
-        pair it with a single C value: a parameter that is one pointer, or the return
-        of a function with no out-parameters.  A pointer to pointers, or a return that
-        an out-parameter counts, is an array, and the SQL type opposite it is an array
-        or a record, not a value.
-
-        The SQL arguments pair with the visible C parameters as #_inputs pairs them:
-        a parameter the signature's wrapper binds, and the count of an input array,
-        stand for no SQL argument, and the catalog's sqlArgParams, where stated, gives
-        the order the wrapper reads them in."""
-        seen = defaultdict(lambda: defaultdict(int))
-        byvalue = set()
-        for f in self.fns:
-            if not f.get('sqlfn'):
-                continue
-            vis, outs = self.visible(f)
-            counts = {(a.get('lengthFrom') or {}).get('name')
-                      for a in (f.get('shape') or {}).get('inputArrays') or []}
-            for (_, args, ret, _, bound), sig in zip(self.signatures(f),
-                                                     f.get('sqlSignatures') or []):
-                walk = [p for p in vis if p['name'] not in bound and p['name'] not in counts]
-                order = sig.get('sqlArgParams') or (f.get('shape') or {}).get('sqlArgParams')
-                at = {p['name']: p for p in walk}
-                if order and set(order) == set(at):
-                    walk = [at[n] for n in order]
-                if len(args) == len(walk):
-                    for a, p in zip(args, walk):
-                        if _single_pointer(p['canonical']):
-                            seen[a][_base(p['canonical'])] += 1
-                        elif p.get('typedef') in self.enc:
-                            seen[a][p['typedef']] += 1
-                            byvalue.add(p['typedef'])
-                rt = f['returnType']
-                rc = rt['canonical']
-                if ret and not outs and _single_pointer(rc) and _norm(rc) != 'char *':
-                    seen[ret][_base(rc)] += 1
-                elif ret and not outs and rt.get('typedef') in self.enc:
-                    seen[ret][rt['typedef']] += 1
-                    byvalue.add(rt['typedef'])
-        self.sql_cbase = {s: max(c, key=c.get) for s, c in seen.items()
-                          if re.fullmatch(r'\w+', s)}
-        # The SQL types whose C value travels by value, a typedef the catalog encodes (the
-        # H3Index, Quadbin and S2CellId cells), which the jar passes as the integer it is.
-        self.sql_byvalue = {s for s, cb in self.sql_cbase.items() if cb in byvalue}
+        """The C base type each SQL type stands for, and the SQL types whose C value travels by
+        value (the H3Index, Quadbin and S2CellId cells, which the jar passes as the integer it
+        is), as the catalog's sqlTypes states them (MEOS-API parser/sqltypes.py): read off the
+        signatures that pair each SQL type with a single C value. A SQL type the catalog states no C
+        type for (a scalar stating only the element of its arrays) is no value type."""
+        st = self.cat.get('sqlTypes') or {}
+        self.sql_cbase = {s: e['cType'] for s, e in st.items() if 'cType' in e}
+        self.sql_byvalue = {s for s, e in st.items() if e.get('byValue')}
 
     def _codecs(self):
-        """Value types and the codec each crosses Flink with.
-
-        The WKB bytes where the catalog states the byte codec of the C type, and its
-        hex WKB where it states a WKB decoder and an asHexWKB encoder: a C type has one
-        WKB reader, so one codec serves every SQL type the C type stands for.  The hex
-        WKB of a SQL type where the catalog keys a WKB reader by it among the readers of a
-        C type several SQL types share (geometry: geom_from_hexewkb, geography:
-        geog_from_hexewkb), written by the C type's WKB encoder with the inputs the catalog
-        states for it.  Text otherwise, and only for a C type a single SQL type stands for,
-        since a text decoder cannot tell those SQL types apart.  The Spark generator chooses
-        by the same rule (#derive_codecs in codegen_spark_udfs.py).
-
-        The hex WKB is the catalog's `hexwkb` encoding, or its `hexewkb` where the C type
-        states no `hexwkb` (geometry and geography); its `wkb` is the binary WKB, which a hex
-        string cannot be read with (HEX_WKB_ENCODINGS)."""
-        hexwkb = {}
-        for f in self.fns:
-            if f.get('sqlfn') == 'asHexWKB' and f['params'] and f['name'] in self.jmeos:
-                hexwkb.setdefault(_base(f['params'][0]['canonical']), f['name'])
-        by_cbase = defaultdict(set)
-        for s, cb in self.sql_cbase.items():
-            by_cbase[cb].add(s)
+        """Value types, the codec each crosses Flink with and the memory image each carries in
+        the place of its codec's form, as the catalog's sqlTypes states them (MEOS-API
+        parser/sqltypes.py): the byte codec of the C type, else its hex WKB, the extended one
+        where the C type states it, which keeps the SRID, else its text where its C type stands
+        for no other SQL type. A codec or an image naming a function the jar does not bind is
+        none the surface may call."""
         self.codec = {}
-        for sql, cb in self.sql_cbase.items():
-            if sql in SQL_SCALAR or sql == 'internal':
-                continue
-            e = self.enc.get(cb) or {}
-            dec = (e.get('decoders') or {})
-            encd = (e.get('encoders') or {})
-            byt = (e.get('bytes') or {})
-            if byt.get('decoder') in self.jmeos and byt.get('encoder') in self.jmeos:
-                self.codec[sql] = ('bytes', byt['decoder'], byt['encoder'], [], [])
-            elif dec.get('hexwkb') in self.jmeos and cb in hexwkb:
-                self.codec[sql] = ('wkb', dec['hexwkb'], hexwkb[cb], [], [])
-            elif (k := next((k for k in HEX_WKB_ENCODINGS
-                             if ((e.get('readers') or {}).get(k) or {}).get(sql) in self.jmeos
-                             and encd.get(k) in self.jmeos), None)):
-                self.codec[sql] = ('wkb', e['readers'][k][sql], encd[k],
-                                   e['readerAux'][k][sql], e['encoderAux'][k])
-            elif len(by_cbase[cb]) == 1 and dec.get('text') in self.jmeos \
-                    and encd.get('text') in self.jmeos:
-                self.codec[sql] = ('text', dec['text'], encd['text'],
-                                   e.get('in_aux') or [], e.get('out_aux') or [])
-        # The memory image a value type carries in the place of its codec's form, where the
-        # catalog states one for its C type (typeEncodings[C].image): the function copying a
-        # value from its image, and the function answering the image's length or, for a
-        # fixed-size structure, the bytes it is laid out in. A cell travels by value and a C
-        # type stating no image keeps its codec, so the codec keeps the user-facing forms.
         self.image = {}
-        for sql in self.codec:
-            im = (self.enc.get(self.sql_cbase[sql]) or {}).get('image') or {}
-            if sql not in self.sql_byvalue and im.get('copy') in self.jmeos \
+        for sql, e in (self.cat.get('sqlTypes') or {}).items():
+            c = e.get('codec')
+            if not c or c['decoder'] not in self.jmeos or c['encoder'] not in self.jmeos:
+                continue
+            self.codec[sql] = (c['kind'], c['decoder'], c['encoder'],
+                               c['decoderAux'], c['encoderAux'])
+            im = e.get('image') or {}
+            if im.get('copy') in self.jmeos \
                     and (im.get('size') in self.jmeos or isinstance(im.get('sizeBytes'), int)):
                 self.image[sql] = im
         om = {k.lower(): k for k in (self.cat.get('objectModel') or {}).get('classes', {})}
@@ -896,8 +879,7 @@ class SqlModel:
 
     def _enum_parsers(self):
         """For each C enum, the public catalog function reading it from its name, as a binding
-        calls the public API alone; the Spark arm reads the same (ENUM_PARSER in
-        codegen_spark_udfs.py)."""
+        calls the public API alone."""
         self.enum_parser = {}
         readers = defaultdict(list)
         for f in self.fns:
@@ -1075,8 +1057,7 @@ def _ret(m, sql, f, jt, outs):
                  'finally { MeosSqlRuntime.freeResult(_r, _in); }'])
     if sql in ('text', 'cstring') and jt == 'jnr.ffi.Pointer' and rc == 'text *' \
             and 'text_out' in m.jmeos:
-        # A text MEOS allocates, read into a String through text_out and freed after, as the
-        # Spark arm reads it (#ret_emit in codegen_spark_udfs.py).
+        # A text MEOS allocates, read into a String through text_out and freed after.
         return ('String',
                 ['if (_r == null) return null;',
                  'try { return GeneratedFunctions.text_out(_r); }',
@@ -1155,8 +1136,8 @@ def _array_arg(m, elem, a, p, jt, name, temps):
         temps.append((t, f'{name}, {cls}::decode', 'values'))
         return f'{cls}[]', t
     # A contiguous array of structs (spanset_make reads Span *spans): each element decodes as
-    # above and its bytes are copied into the C array, each the size #struct_layout of
-    # codegen_spark_udfs.py gives the catalog struct.
+    # above and its bytes are copied into the C array, each the size #struct_layout gives the
+    # catalog struct.
     lay = m.layout(_base(el['canonical'])) if c.count('*') == 1 else None
     if elem in m.value_class and lay is not None \
             and m.sql_cbase.get(elem) == _base(el['canonical']):
@@ -1244,7 +1225,7 @@ def _inputs(m, f, args, jtypes, bound=None, order=None):
     names, which the eval passes as the length of the Flink array, and that a parameter
     the signature's wrapper binds (`bound`, from boundArgs) takes that literal: a count
     takes it with its array (raster_clip's first signature binds bands to NULL and nbands
-    to 0)."""
+    to 0), and a count whose array alone is bound takes 0."""
     vis, _ = m.visible(f)
     jsig = {'arg_types': jtypes}
     nullable = set((f.get('shape') or {}).get('nullable') or ())
@@ -1306,7 +1287,10 @@ def _inputs(m, f, args, jtypes, bound=None, order=None):
         if p['name'] in counts and p['name'] not in bound:
             if jsig['arg_types'][i] not in ('int', 'long'):
                 return None, f'arraycount:{jsig["arg_types"][i]}'
-            call[i] = f'{passed[counts[p["name"]]]}.length'
+            # An array the signature binds alone passes the count of no array, as the wrapper
+            # does (Raster_as_gdal passes count 0 with options NULL)
+            call[i] = ('0' if counts[p['name']] in bound
+                       else f'{passed[counts[p["name"]]]}.length')
     return (params, call, temps), None
 
 
@@ -1361,8 +1345,7 @@ def _emit_eval(ov, defaults=None):
 # "return", an out-parameter or "ordinal" (the row's 1-based ordinality), `field` reads a
 # member of a struct element, and `element` with `offset` reads one member of a group of
 # shape.arrayReturn.groupSize values. The eval returns ARRAY<value> for a single unnamed
-# column and ARRAY<ROW<columns>> otherwise, which CROSS JOIN UNNEST unfolds into the rows, as
-# the Spark arm returns array<value> and array<struct> (#emit_setret in codegen_spark_udfs.py).
+# column and ARRAY<ROW<columns>> otherwise, which CROSS JOIN UNNEST unfolds into the rows.
 
 # Contiguous scalar elements, keyed by C element type and SQL column type: the Flink class and
 # the Java read of element {i} of the array at {p}.
@@ -1392,8 +1375,7 @@ SETRET_FIELD = {
 
 
 def _setret_column(m, f, col, layout):
-    """How to read one column of a returned row, as #row_column in codegen_spark_udfs.py reads
-    it for Spark: (Flink class, source array, Java read of row `_i` from the array `{a}`,
+    """How to read one column of a returned row: (Flink class, source array, Java read of row `_i` from the array `{a}`,
     whether each element is a MEOS allocation to free), or None when it cannot be read. The
     last is (stride, offset) for a pointer field of a struct element, each a MEOS allocation
     the wrapper frees before the array, as geomval_arr_free frees the geom of each GeomVal."""
@@ -1576,6 +1558,10 @@ def _sql_overloads(m, cat, jmeos, layout, skipped, keep):
             continue
         for (sqlname, sargs, sret, sdef, sbound), sig in zip(m.signatures(f),
                                                              f.get('sqlSignatures') or []):
+            # A type support function is plumbing the dialect never names (#is_type_support):
+            # the engine reaches its MEOS function through the portable signatures beside it
+            if sig.get('typeSupport'):
+                continue
             ov, why, isset = _signature_overload(m, f, sig, sargs, sret, jsig, sbound, layout)
             yield sqlname, sargs, sdef, ov, why, isset, None
             # The shorter calls drop the left-out arguments from the order the SQL arguments
@@ -2354,22 +2340,14 @@ import org.apache.flink.table.types.inference.TypeStrategy;
 '''
 _FLINK_RUNTIME_DOC = '''/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
  * Conversions between Flink's SQL values and the ones MEOS takes, and the release of
- * what MEOS allocates.  MEOS counts days and microseconds from the PostgreSQL epoch. */
+ * what MEOS allocates.  Each time value converts through the casts of JMEOS. */
 '''
-_RUNTIME_FIELDS = '''    private static final long PG_EPOCH_DAY = 10957L;
-    private static final long PG_EPOCH_SECOND = 946684800L;
-
-    private static final jnr.ffi.Runtime RUNTIME = jnr.ffi.Runtime.getSystemRuntime();
+_RUNTIME_FIELDS = '''    private static final jnr.ffi.Runtime RUNTIME = jnr.ffi.Runtime.getSystemRuntime();
     private static final String NULL_ELEMENT = "null array element not allowed in this context";
 
     /** jffi's MemoryIO frees through the system free, which MEOS allocates with; jffi is the
      * native layer jnr-ffi runs on and needs no internal JDK API. */
     private static final com.kenai.jffi.MemoryIO IO = com.kenai.jffi.MemoryIO.getInstance();
-
-    private static final ThreadLocal<Boolean> ISO_INTERVALS = ThreadLocal.withInitial(() -> {
-        GeneratedFunctions.meos_set_intervalstyle("iso_8601", 0);
-        return Boolean.TRUE;
-    });
 
     private MeosSqlRuntime() { }
 
@@ -2708,32 +2686,29 @@ _RUNTIME_CORE = '''    /** Free each value MEOS allocated.  Null-safe. */
         return b;
     }
 
-    /** Microseconds from the PostgreSQL epoch, the TimestampTz MEOS reads. */
+    /** The TimestampTz MEOS reads, through the cast of JMEOS. */
     public static long micros(java.time.Instant t) {
-        return Math.addExact(Math.multiplyExact(t.getEpochSecond() - PG_EPOCH_SECOND, 1000000L),
-                t.getNano() / 1000);
+        return utils.TimestampTzConverter.toTimestampTz(t.atOffset(java.time.ZoneOffset.UTC));
     }
 
     public static int dateAdt(java.time.LocalDate d) {
-        return (int) (d.toEpochDay() - PG_EPOCH_DAY);
+        return utils.ConversionUtils.date_to_date_adt(d);
     }
 
     public static java.time.LocalDate date(int d) {
-        return java.time.LocalDate.ofEpochDay(d + PG_EPOCH_DAY);
+        return utils.ConversionUtils.date_adt_to_date(d);
     }
 
-    public static java.time.Instant timestamptz(long micros) {
-        return java.time.Instant.ofEpochSecond(PG_EPOCH_SECOND + Math.floorDiv(micros, 1000000L),
-                Math.floorMod(micros, 1000000L) * 1000L);
+    public static java.time.Instant timestamptz(long t) {
+        return utils.TimestampTzConverter.toOffsetDateTime(t).toInstant();
     }
 
     public static Pointer interval(java.time.Duration d) {
-        return GeneratedFunctions.interval_in(d.toString(), -1);
+        return utils.ConversionUtils.timedelta_to_interval(d);
     }
 
     public static java.time.Duration duration(Pointer p) {
-        ISO_INTERVALS.get();
-        return java.time.Duration.parse(GeneratedFunctions.interval_out(p));
+        return utils.ConversionUtils.interval_to_timedelta(p);
     }
 }
 '''
@@ -2949,6 +2924,72 @@ def run_flink_sql(args):
           f'({sum(len(v) for v in aggs.values())} overloads)')
     for why, n in sorted(agg_left.items()):
         print(f'  aggregate left out {n:3d}  {why}')
+    check_sql_gaps(args, cat, jmeos, keep, m)
+
+
+# ───────────────────────── the ledger of unreached SQL functions ─────────────────────────
+
+def check_sql_gaps(args, cat, jmeos, keep, m):
+    """The ledger of the public SQL functions a typed SQL surface does not reach. A function `keep` admits (a public
+    function with its SQL name) the jar exposes, with a signature that is no type support
+    function (#is_type_support), is reached when a class the engine wrote under --out calls it,
+    or when each of its signatures that is no type support function is an overload the engine
+    registers through another function (#_sql_overloads of model `m`): one SQL signature with two
+    C functions behind it, of which the surface needs one.
+    It is out of the surface by the catalog's own statement when its `network` reasons say it is
+    internal, lifecycle or index. Every other function not reached is a gap: --gaps names the
+    ledger of the known ones, and a gap missing from it fails the run, so a function a catalog
+    change drops is refused instead of disappearing. A ledger entry the surface reaches is a
+    notice: the ledger shrinks with --rebaseline."""
+    if not args.gaps:
+        return
+    reached = set()
+    for path in Path(args.out).rglob('*.java'):
+        reached.update(re.findall(r'GeneratedFunctions\.([a-z][A-Za-z0-9_]+)', path.read_text()))
+    registered = {(n, tuple(a)) for n, a, _, ov, _, _, _ in
+                  _sql_overloads(m, cat, jmeos, m.layout, defaultdict(int), keep) if ov is not None}
+    gaps = {}
+    for f in cat['functions']:
+        nm = f['name']
+        if not keep(f) or nm not in jmeos or nm in reached:
+            continue
+        sigs = [(n, tuple(a)) for s, (n, a, _, _, _) in
+                zip(f.get('sqlSignatures') or [], m.signatures(f)) if not s.get('typeSupport')]
+        if not sigs or all(key in registered for key in sigs):
+            continue
+        why = [r.strip() for r in ((f.get('network') or {}).get('reason') or '').split(';')
+               if r.strip()]
+        if any(r in ('internal', 'lifecycle', 'index') for r in why):
+            continue
+        gaps[nm] = '; '.join(why) or 'not emitted'
+    if args.rebaseline:
+        with open(args.gaps, 'w') as fh:
+            fh.write('# The public SQL functions the generated typed SQL surfaces (spark-sql,\n'
+                     '# flink-sql) do not reach, one per line with the reason the catalog\n'
+                     '# states. Written by codegen_jvm.py --rebaseline; a function missing from\n'
+                     '# it fails the run of either engine, and the two engines reach the same\n'
+                     '# functions. The ledger only shrinks, as types get their mappings.\n')
+            for nm in sorted(gaps):
+                fh.write(f'{nm}\t{gaps[nm]}\n')
+        print(f'  gaps ledger rewritten: {len(gaps)} functions')
+        return
+    known = set()
+    if Path(args.gaps).exists():
+        for line in open(args.gaps):
+            if line.strip() and not line.startswith('#'):
+                known.add(line.split('\t')[0].strip())
+    new = sorted(set(gaps) - known)
+    stale = sorted(known - set(gaps))
+    if stale:
+        print(f'  NOTICE: {len(stale)} ledger functions are reached or gone, shrink it with '
+              f'--rebaseline: {", ".join(stale[:20])}')
+    if new:
+        print(f'  ERROR: {len(new)} public SQL functions the surface does not reach and the '
+              'ledger does not list; map their types or record them with --rebaseline:')
+        for nm in new:
+            print(f'     {nm}\t{gaps[nm]}')
+        sys.exit(1)
+    print(f'  gaps ledger: {len(gaps)} functions, none new')
 
 
 # ───────────────────────── spark-sql: the typed Spark SQL surface ─────────────────────────
@@ -3037,7 +3078,7 @@ import scala.runtime.AbstractFunction1;
 _SPARK_RUNTIME_DOC = '''/* AUTO-GENERATED by tools/codegen_jvm.py — do not edit by hand.
  * Conversions between Spark's SQL values and the ones MEOS takes, the release of what MEOS
  * allocates, and the registration of each SQL name with the builder that resolves its
- * overloads.  MEOS counts days and microseconds from the PostgreSQL epoch. */
+ * overloads.  Each time value converts through the casts of JMEOS. */
 '''
 
 
@@ -3110,8 +3151,8 @@ def _spark_planning(arity):
      * they reach by widening a number, as PostgreSQL's implicit casts reach it. A name Spark
      * itself answers keeps a call no overload takes exactly as it stands for that built-in:
      * round(2.5) stays Spark's own, as PostgreSQL resolves it to its numeric round, not to
-     * MEOS's. A function held before that is not Spark's own, such as the one the UDF surface
-     * registers under the same name, comes after the widening: eDwithin(t1, t2, 300) over two
+     * MEOS's. A function held before that is not Spark's own, one another surface registers
+     * under the same name, comes after the widening: eDwithin(t1, t2, 300) over two
      * tgeompoint values reaches the overload taking a double distance. */
     static Expression resolve(String name, Overload[] overloads, Seq<Expression> args,
             Option<Function1<Seq<Expression>, Expression>> before, boolean builtin) {
@@ -3896,8 +3937,7 @@ def _flink_aggregate_src(sqlname, cls, ovs):
 
 # The aggregates of the typed Spark surface: each SQL name registered once with the builder that
 # chooses its overload from the type of its argument, as #_spark_planning's register chooses a
-# function's, a call over any other argument going to the function held before under the name,
-# the aggregate of the UDF surface over binary values.
+# function's, a call over any other argument going to the function held before under the name.
 _SPARK_AGGREGATES = '''package {pkg};
 
 import java.io.IOException;
@@ -4364,6 +4404,7 @@ def run_spark_sql(args):
           f'({sum(len(v) for v in aggs.values())} overloads)')
     for why, n in sorted(agg_left.items()):
         print(f'  aggregate left out {n:3d}  {why}')
+    check_sql_gaps(args, cat, jmeos, keep, m)
 
 
 # ───────────────────────── entry point ─────────────────────────
@@ -4371,21 +4412,20 @@ def run_spark_sql(args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--engine', required=True, choices=['spark', 'flink', 'kafka', 'flink-sql', 'spark-sql'])
+    ap.add_argument('--engine', required=True, choices=['flink', 'kafka', 'flink-sql', 'spark-sql'])
     ap.add_argument('--catalog', required=True, help='MEOS-API meos-idl.json')
     ap.add_argument('--jar', required=True,
                     help='JMEOS jar with functions.GeneratedFunctions')
     ap.add_argument('--out', required=True, help='output directory')
     ap.add_argument('--package', default='org.mobilitydb.meos',
                     help='facade package (flink/kafka only)')
-    ap.add_argument('--report', action='store_true', help='spark only')
-    ap.add_argument('--gaps', help='spark only: the ledger of unreached public functions')
-    ap.add_argument('--rebaseline', action='store_true', help='spark only: rewrite --gaps')
+    ap.add_argument('--gaps', help='spark-sql and flink-sql: the ledger of unreached '
+                                   'public functions')
+    ap.add_argument('--rebaseline', action='store_true',
+                    help='spark-sql and flink-sql: rewrite --gaps')
     args = ap.parse_args()
 
-    if args.engine == 'spark':
-        run_spark(args)
-    elif args.engine == 'flink-sql':
+    if args.engine == 'flink-sql':
         run_flink_sql(args)
     elif args.engine == 'spark-sql':
         run_spark_sql(args)

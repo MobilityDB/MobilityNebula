@@ -1,9 +1,9 @@
 # name: window/WindowAggregationDifferentDataTypes.test
 # description: Test window aggregations over different data types
-# groups: [Aggregation, WindowOperators]
+# groups: [Aggregation, WindowOperators, CompilationIntensive] TODO #1272
 
 
-CREATE LOGICAL SOURCE stream(i8 INT8, i16 INT16, i32 INT32, i64 INT64, u8 UINT8, u16 UINT16, u32 UINT32, u64 UINT64, f32 FLOAT32, f64 FLOAT64, c CHAR, ts UINT64);
+CREATE LOGICAL SOURCE stream(i8 INT8 NOT NULL, i16 INT16 NOT NULL, i32 INT32 NOT NULL, i64 INT64 NOT NULL, u8 UINT8 NOT NULL, u16 UINT16 NOT NULL, u32 UINT32 NOT NULL, u64 UINT64 NOT NULL, f32 FLOAT32 NOT NULL, f64 FLOAT64 NOT NULL, c CHAR NOT NULL, ts UINT64 NOT NULL);
 CREATE PHYSICAL SOURCE FOR stream TYPE File;
 ATTACH INLINE
 1,2,3,4,5,6,7,8,9,10,a,100
@@ -15,11 +15,13 @@ ATTACH INLINE
 1,2,3,4,5,6,7,8,9,10,g,325
 2,3,4,5,6,7,8,9,10,11,h,350
 
-CREATE SINK sinkStream(stream.start UINT64, stream.end UINT64, stream.i8_out INT8, stream.i16_out INT16, stream.i32_out INT32, stream.i64_out INT64, stream.u8_out UINT8, stream.u16_out UINT16, stream.u32_out UINT32, stream.u64_out UINT64, stream.f32_out FLOAT32, stream.f64_out FLOAT64)  TYPE File;
-CREATE SINK sinkStreamAllU64(stream.start UINT64, stream.end UINT64, stream.i8_out UINT64, stream.i16_out UINT64, stream.i32_out UINT64, stream.i64_out UINT64, stream.u8_out UINT64, stream.u16_out UINT64, stream.u32_out UINT64, stream.u64_out UINT64, stream.f32_out UINT64, stream.f64_out UINT64, stream.c_out UINT64)  TYPE File;
-CREATE SINK sinkStreamAllF64(stream.start UINT64, stream.end UINT64, stream.i8_out FLOAT64, stream.i16_out FLOAT64, stream.i32_out FLOAT64, stream.i64_out FLOAT64, stream.u8_out FLOAT64, stream.u16_out FLOAT64, stream.u32_out FLOAT64, stream.u64_out FLOAT64, stream.f32_out FLOAT64, stream.f64_out FLOAT64)  TYPE File;
-CREATE SINK sinkStreamAllAggsTW(stream.start UINT64, stream.end UINT64, stream.i8_out FLOAT64, stream.i16_out INT16, stream.i32_out INT32, stream.i64_out INT64, stream.u8_out UINT8, stream.u16_out UINT16, stream.u32_out FLOAT64, stream.u64_out FLOAT64, stream.f32_out UINT64, stream.f64_out FLOAT64)  TYPE File;
-CREATE SINK sinkStreamAllAggsSW(stream.start UINT64, stream.end UINT64, stream.i8_out INT8, stream.i16_out INT16, stream.i32_out FLOAT64, stream.i64_out INT64, stream.u8_out UINT64, stream.u16_out UINT16, stream.u32_out UINT64, stream.u64_out FLOAT64, stream.f32_out FLOAT32, stream.f64_out FLOAT64)  TYPE File;
+CREATE SINK sinkStream(start UINT64 NOT NULL, end UINT64 NOT NULL, i8_out INT8 NOT NULL, i16_out INT16 NOT NULL, i32_out INT32 NOT NULL, i64_out INT64 NOT NULL, u8_out UINT8 NOT NULL, u16_out UINT16 NOT NULL, u32_out UINT32 NOT NULL, u64_out UINT64 NOT NULL, f32_out FLOAT32 NOT NULL, f64_out FLOAT64 NOT NULL)  TYPE File;
+CREATE SINK sinkStreamSum(start UINT64 NOT NULL, end UINT64 NOT NULL, i8_out INT64 NOT NULL, i16_out INT64 NOT NULL, i32_out INT64 NOT NULL, i64_out INT64 NOT NULL, u8_out UINT64 NOT NULL, u16_out UINT64 NOT NULL, u32_out UINT64 NOT NULL, u64_out UINT64 NOT NULL, f32_out FLOAT32 NOT NULL, f64_out FLOAT64 NOT NULL)  TYPE File;
+CREATE SINK sinkStreamAllU64(start UINT64 NOT NULL, end UINT64 NOT NULL, i8_out UINT64 NOT NULL, i16_out UINT64 NOT NULL, i32_out UINT64 NOT NULL, i64_out UINT64 NOT NULL, u8_out UINT64 NOT NULL, u16_out UINT64 NOT NULL, u32_out UINT64 NOT NULL, u64_out UINT64 NOT NULL, f32_out UINT64 NOT NULL, f64_out UINT64 NOT NULL, c_out UINT64 NOT NULL)  TYPE File;
+CREATE SINK sinkStreamAllF64(start UINT64 NOT NULL, end UINT64 NOT NULL, i8_out FLOAT64 NOT NULL, i16_out FLOAT64 NOT NULL, i32_out FLOAT64 NOT NULL, i64_out FLOAT64 NOT NULL, u8_out FLOAT64 NOT NULL, u16_out FLOAT64 NOT NULL, u32_out FLOAT64 NOT NULL, u64_out FLOAT64 NOT NULL, f32_out FLOAT64 NOT NULL, f64_out FLOAT64 NOT NULL)  TYPE File;
+CREATE SINK sinkStreamAllAggsTW(start UINT64 NOT NULL, end UINT64 NOT NULL, i8_out FLOAT64 NOT NULL, i16_out INT16 NOT NULL, i32_out INT32 NOT NULL, i64_out INT64 NOT NULL, u8_out UINT64 NOT NULL, u16_out UINT64 NOT NULL, u32_out FLOAT64 NOT NULL, u64_out FLOAT64 NOT NULL, f32_out UINT64 NOT NULL, f64_out FLOAT64 NOT NULL)  TYPE File;
+CREATE SINK sinkStreamAllAggsSW(start UINT64 NOT NULL, end UINT64 NOT NULL, i8_out INT8 NOT NULL, i16_out INT64 NOT NULL, i32_out FLOAT64 NOT NULL, i64_out INT64 NOT NULL, u8_out UINT64 NOT NULL, u16_out UINT64 NOT NULL, u32_out UINT64 NOT NULL, u64_out FLOAT64 NOT NULL, f32_out FLOAT32 NOT NULL, f64_out FLOAT64 NOT NULL)  TYPE File;
+CREATE SINK sinkStreamOne(start UINT64 NOT NULL, end UINT64 NOT NULL, i8_out FLOAT64 NOT NULL)  TYPE File;
 
 # Checking if a count over a tumbling window works for all data types
 SELECT start, end, COUNT(i8) as i8_out, COUNT(i16) as i16_out, COUNT(i32) as i32_out, COUNT(i64) as i64_out,
@@ -47,7 +49,7 @@ FROM stream WINDOW TUMBLING(ts, size 100 ms) INTO sinkStreamAllF64;
 SELECT start, end, SUM(i8) as i8_out, SUM(i16) as i16_out, SUM(i32) as i32_out, SUM(i64) as i64_out,
        SUM(u8) as u8_out, SUM(u16) as u16_out, SUM(u32) as u32_out, SUM(u64) as u64_out,
        SUM(f32) as f32_out, SUM(f64) as f64_out
-FROM stream WINDOW TUMBLING(ts, size 100 ms) INTO sinkStream;
+FROM stream WINDOW TUMBLING(ts, size 100 ms) INTO sinkStreamSum;
 ----
 100,200,3,5,7,9,11,13,15,17,19,21
 200,300,-41,-128,-32768,-2147483648,43,257,65537,4294967297,24,24
@@ -133,7 +135,7 @@ FROM stream WINDOW SLIDING(ts, size 100 ms, advance by 50 ms) INTO sinkStreamAll
 SELECT start, end, SUM(i8) as i8_out, SUM(i16) as i16_out, SUM(i32) as i32_out, SUM(i64) as i64_out,
        SUM(u8) as u8_out, SUM(u16) as u16_out, SUM(u32) as u32_out, SUM(u64) as u64_out,
        SUM(f32) as f32_out, SUM(f64) as f64_out
-FROM stream WINDOW SLIDING(ts, size 100 ms, advance by 50 ms) INTO sinkStream;
+FROM stream WINDOW SLIDING(ts, size 100 ms, advance by 50 ms) INTO sinkStreamSum;
 ----
 50,150,3,5,7,9,11,13,15,17,19,21
 100,200,3,5,7,9,11,13,15,17,19,21
@@ -201,3 +203,14 @@ FROM stream WINDOW SLIDING(ts, size 100 ms, advance by 50 ms) INTO sinkStreamAll
 250,350,-42,-126,-10921.6666666667,4,3,263,3,8,23,10
 300,400,-42,-124,-10920.6666666667,5,3,269,3,9,23,11
 350,450,2,3,4,5,1,7,1,9,10,11
+
+SELECT start, end, MEDIAN(i8) as i8_out
+FROM stream WINDOW SLIDING(ts, size 100 ms, advance by 50 ms) INTO sinkStreamOne;
+----
+50,150,1.5
+100,200,1
+150,250,-21
+200,300,-20.5
+250,350,1
+300,400,1
+350,450,2

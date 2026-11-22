@@ -1,33 +1,43 @@
-name: NES PR Code Pipeline
-
-# The code pipeline of a pull request, called by pr.yml. Both jobs run on GitHub-hosted runners.
+name: NES PR Code CI
+description: |
+  Reusable code pipeline for pull requests. Called by pr.yml (via `uses:`) only when the classify
+  gate detects non-documentation changes, so no job here re-checks for code changes. It builds the
+  PR and runs its unit tests and system tests in NebulaStream's prebuilt CI image, and runs the
+  generators of the MEOS plugin against the MEOS catalog of the commit the plugin pins.
+  The "Code CI Done" required-status gate lives in pr.yml, not here.
+  If this is run with act, it has to be used with a custom event.json and called via `act -e event.json`.
+  Otherwise, we are not running the job, as mentioned: https://github.com/nektos/act/issues/720
 on:
   workflow_call:
 
 jobs:
-  # Build MobilityNebula with MEOS enabled, the configuration the dependency image ships, and run
-  # the unit tests and the systests.
-  build-and-test:
-    name: "Build and Test (MEOS)"
-    uses: ./.github/workflows/nix-build.yml
+  container-build:
+    name: "Run Container Build"
+    uses: ./.github/workflows/container-build.yml
     with:
       head_sha: ${{ github.event.pull_request.head.sha || github.sha }}
 
-  # Run the operator generators against the MEOS-API catalog of MobilityDB master: a generator that
-  # stops, or that states a MEOS fact the catalog does not, fails the job.
+  # Run the generators against the MEOS catalog of the MobilityDB commit nes-plugins/MEOS/MEOS_COMMIT pins, the
+  # commit libmeos is built from, derived from its installed headers as the committed plugin is: a generator that
+  # stops, that states a MEOS fact the catalog does not, or whose plugin differs from the committed one fails the job.
   generators:
     name: "Generators"
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      - id: pin
+        name: Read the MobilityDB commit the plugin pins
+        run: echo "commit=$(cat nes-plugins/MEOS/MEOS_COMMIT)" >> "$GITHUB_OUTPUT"
+
       - id: meos
         uses: MobilityDB/MEOS-API/.github/actions/provision-meos@master
         with:
-          mobilitydb-ref: master
+          mobilitydb-ref: ${{ steps.pin.outputs.commit }}
+          build-libmeos: "true"
 
       - name: Check the generator tables against the catalog
         run: python3 tools/codegen/check_no_hand_meos_facts.py "${{ steps.meos.outputs.catalog-path }}"
@@ -50,8 +60,12 @@ jobs:
             --output-root "$ROOT" \
             --no-parser-glue --no-cmake-entries
 
-      - name: Emit the MEOS data types
+      - name: Generate the MEOS plugin and compare it with the committed one
         run: |
           python3 tools/codegen/codegen_nebula_sql.py \
             --catalog "${{ steps.meos.outputs.catalog-path }}" \
-            --output-root "$RUNNER_TEMP/emit"
+            --output-root .
+          if ! git diff --exit-code --stat -- nes-plugins/MEOS; then
+            echo "::error::the MEOS plugin generated from the catalog of MEOS_COMMIT differs from the committed one: run tools/codegen/codegen_nebula_sql.py and commit its output"
+            exit 1
+          fi

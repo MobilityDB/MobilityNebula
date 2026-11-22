@@ -1,0 +1,29 @@
+# name: guide/guide2.test
+# description: Simple selection tests with variable sized data
+# groups: [Selection]
+
+CREATE LOGICAL SOURCE s(t VARSIZED NOT NULL);
+CREATE PHYSICAL SOURCE FOR s TYPE File;
+ATTACH INLINE
+sometext
+othertext
+sometext
+anothertext
+sometext
+SOMETEXT
+some text
+sometext
+random
+sometext
+
+CREATE SINK string_sink(t VARSIZED NOT NULL) TYPE File;
+
+SELECT * FROM s
+WHERE t == 'sometext'
+INTO string_sink;
+----
+sometext
+sometext
+sometext
+sometext
+sometext

@@ -1,13 +1,14 @@
-# name: MEOS_TGeoAtStbox
-# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry, AtStbox]
-CREATE LOGICAL SOURCE tas(id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64);
-CREATE PHYSICAL SOURCE FOR tas TYPE File SET('|' AS PARSER.FIELD_DELIMITER);
+# name: MEOS_TGeo_At_STBox
+# description: atStbox of a temporal point and a box, as the catalog states it: the instant restricted to the box SRID=4326;STBOX XT(((4.0,50.0),(4.6,50.8)),[2021-01-01,2021-01-02]), the instant itself where it lies in the box and no value where it lies outside. The temporal point is read by tgeompointFromText and the box by stboxFromText; the answers are libmeos's.
+# groups: [Function, MEOS, SpatioTemporal, TemporalGeometry]
+CREATE LOGICAL SOURCE tas(id UINT32, trip VARSIZED);
+CREATE PHYSICAL SOURCE FOR tas TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
 ATTACH INLINE
-1|4.3000|50.3000|1609459200
-2|4.8000|50.9000|1609459200
+1|SRID=4326;POINT(4.3 50.3)@2021-01-01 00:00:00+00
+2|SRID=4326;POINT(4.8 50.9)@2021-01-01 00:00:00+00
 
-CREATE SINK tas_out(tas.id UINT32, inside INT32) TYPE File;
-SELECT id, TGEO_AT_STBOX(lon, lat, timestamp, 'SRID=4326;STBOX XT(((4.0,50.0),(4.6,50.8)),[2021-01-01,2021-01-02])') AS inside FROM tas INTO tas_out;
+CREATE SINK tas_out(id UINT32, inside TGEOMPOINT) TYPE File;
+SELECT id, atStbox(tgeompointFromText(trip), stboxFromText(VARSIZED('SRID=4326;STBOX XT(((4.0,50.0),(4.6,50.8)),[2021-01-01,2021-01-02])'))) AS inside FROM tas INTO tas_out;
 ----
-1,1
-2,0
+1,012E0041E610000001010000003333333333331140666666666626494000A0AD30CA5A0200
+2,

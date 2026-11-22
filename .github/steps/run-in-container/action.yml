@@ -1,0 +1,41 @@
+name: Run Command in Container
+description: |
+  Runs script or command directly in a development container. The container is mounted in the current working directory
+  and uses the current user. sccache environment variables are forwarded into the container.
+
+inputs:
+  image_name:
+    description: 'name of the docker image to use'
+    required: true
+  run:
+    description: 'bash command(s) to run within the container'
+    required: true
+  additional_mounts:
+    description: 'Additional Docker mounts, one source:destination[:options] entry per line'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: run in container
+      shell: bash
+      env:
+        ADDITIONAL_MOUNTS: ${{ inputs.additional_mounts }}
+      run: |
+        MOUNT_ARGS=()
+        while IFS= read -r mount; do
+          [ -z "$mount" ] || MOUNT_ARGS+=(-v "$mount")
+        done <<< "$ADDITIONAL_MOUNTS"
+        docker run \
+             --pull=never \
+             -v /var/run/docker.sock:/var/run/docker.sock \
+             --group-add "$(stat -c '%g' /var/run/docker.sock)" \
+             "${MOUNT_ARGS[@]}" \
+             -v "$(pwd):$(pwd)" -e "HOME=$(pwd)" --workdir "$(pwd)" -u "$(id -u):$(id -g)" \
+             -e SCCACHE_BUCKET -e SCCACHE_ENDPOINT -e SCCACHE_REGION -e SCCACHE_S3_USE_SSL \
+             -e SCCACHE_STARTUP_TIMEOUT -e SCCACHE_IDLE_TIMEOUT \
+             -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY \
+             -e NES_PRUNE_DOCKER_BUILD_CACHE \
+             ${{inputs.image_name}} \
+              /usr/bin/bash -e -c '${{inputs.run}}'

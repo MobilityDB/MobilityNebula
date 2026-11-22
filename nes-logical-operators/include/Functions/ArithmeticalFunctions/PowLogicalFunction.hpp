@@ -14,42 +14,71 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Util/Logger/Formatter.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <SerializableVariantDescriptor.pb.h>
+#include <Util/Reflection.hpp>
+#include <LogicalFunctionRegistry.hpp>
 
 namespace NES
 {
-class PowLogicalFunction final : public LogicalFunctionConcept
+class PowLogicalFunction final
 {
 public:
     static constexpr std::string_view NAME = "Pow";
 
-    PowLogicalFunction(const LogicalFunction& left, const LogicalFunction& right);
+    PowLogicalFunction(LogicalFunction left, LogicalFunction right);
 
-    [[nodiscard]] SerializableFunction serialize() const override;
 
-    [[nodiscard]] bool operator==(const LogicalFunctionConcept& rhs) const override;
+    [[nodiscard]] bool operator==(const PowLogicalFunction& rhs) const;
 
-    [[nodiscard]] DataType getDataType() const override;
-    [[nodiscard]] LogicalFunction withDataType(const DataType& dataType) const override;
-    [[nodiscard]] LogicalFunction withInferredDataType(const Schema& schema) const override;
+    [[nodiscard]] DataType getDataType() const;
+    [[nodiscard]] LogicalFunction withInferredDataType(const Schema<Field, Unordered>& schema) const;
 
-    [[nodiscard]] std::vector<LogicalFunction> getChildren() const override;
-    [[nodiscard]] LogicalFunction withChildren(const std::vector<LogicalFunction>& children) const override;
+    [[nodiscard]] std::vector<LogicalFunction> getChildren() const;
+    [[nodiscard]] PowLogicalFunction withChildren(const std::vector<LogicalFunction>& children) const;
 
-    [[nodiscard]] std::string_view getType() const override;
-    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const override;
+    [[nodiscard]] std::string_view getType() const;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
+
+    static LogicalFunctionRegistryReturnType createPow(LogicalFunctionRegistryArguments arguments);
 
 private:
     DataType dataType;
     LogicalFunction left, right;
+    friend Reflector<PowLogicalFunction>;
+};
+
+template <>
+struct Reflector<PowLogicalFunction>
+{
+    Reflected operator()(const PowLogicalFunction& function, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<PowLogicalFunction>
+{
+    PowLogicalFunction operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
+
+static_assert(LogicalFunctionConcept<PowLogicalFunction>);
+
+}
+
+namespace NES::detail
+{
+struct ReflectedPowLogicalFunction
+{
+    LogicalFunction left;
+    LogicalFunction right;
 };
 }
 

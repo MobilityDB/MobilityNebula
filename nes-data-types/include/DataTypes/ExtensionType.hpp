@@ -15,8 +15,6 @@
 #pragma once
 
 #include <cstddef>
-#include <span>
-#include <string>
 #include <string_view>
 #include <vector>
 
@@ -24,10 +22,12 @@ namespace NES
 {
 
 /// A type a plugin adds over VARSIZED. Its values are byte strings whose form the plugin owns, as a
-/// MEOS temporal point is the memory image of its value, and they are read from and written to
-/// text through the plugin. A field of such a type is VARSIZED to every operator, so it is stored,
-/// copied, hashed and shipped as any other variable-sized value; only the parser, the formatters and
-/// the functions naming the type read it.
+/// MEOS temporal point is the memory image of its value. A field of such a type is VARSIZED to every
+/// operator, so it is stored, copied, hashed and shipped as any other variable-sized value; it is read
+/// from text by the ValueDeserializer and written to text by the ValueSerializer the plugin registers
+/// under the name of the type, and only the functions naming the type read its bytes. A typed constant
+/// of the type in a query, as `TGEOMPOINT('...')`, is read once, when the query is compiled, by the
+/// type's fromText.
 ///
 /// Each extension type is one object of static storage registered in the DataType registry under
 /// its name, and a DataType refers to it by address, so two fields have the same extension type
@@ -36,13 +36,12 @@ struct ExtensionType
 {
     /// The name the type is declared by in a schema and registered under, as `TGEOMPOINT`.
     std::string_view name;
-    /// The text of the value whose bytes are given.
-    std::string (*toText)(std::span<const std::byte> bytes);
-    /// The bytes of the value the text states. Throws if the text states no value of the type.
-    std::vector<std::byte> (*fromText)(std::string_view text);
-    /// The type of the elements of an array type, whose values are the number of their elements, then each element as
-    /// a variable-sized value; null for a type of no array.
-    const ExtensionType* element{nullptr};
+    /// The bytes of the value a text states, which a typed constant of the type holds; a type without it
+    /// has no typed constants.
+    std::vector<std::byte> (*fromText)(std::string_view text) = nullptr;
+    /// The type of the elements of an array type, whose values are the number of their elements, then each element after
+    /// its length; null for a type of no array.
+    const ExtensionType* element = nullptr;
 };
 
 }

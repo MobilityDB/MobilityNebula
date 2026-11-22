@@ -15,48 +15,117 @@
 #pragma once
 
 #include <cstddef>
+#include <expected>
+#include <memory>
 #include <ostream>
+#include <string>
 #include <string_view>
+#include <vector>
 
-#include <DataTypes/Schema.hpp>
-#include <InputFormatters/InputFormatterTaskPipeline.hpp>
-#include <Sources/SourceDescriptor.hpp>
-#include <FieldOffsets.hpp>
+#include <Configurations/ConfigField.hpp>
+#include <Configurations/InstantiatedConfigValue.hpp>
+#include <Interface/BufferRef/TupleBufferRef.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <ErrorHandling.hpp>
 #include <InputFormatIndexer.hpp>
+#include <RawBufferIndex.hpp>
+#include <ValueDeserializerUtil.hpp>
+#include <static.hpp>
 
 namespace NES
 {
 
-constexpr auto CSV_NUM_OFFSETS_PER_FIELD = NumRequiredOffsetsPerField::ONE;
-
-struct CSVMetaData
+/// Formatter-defined config struct: instantiated from the generic config by the
+/// InputFormatterConfig registry entry, carried through the InputFormatterDescriptor as std::any,
+/// and serialized via reflection of exactly this struct (all members are reflectable).
+struct CSVInputFormatterConfig
 {
-    explicit CSVMetaData(const ParserConfig& config, const Schema&) : tupleDelimiter(config.tupleDelimiter) { };
+    bool allowCommasInStrings;
+    char tupleDelimiter;
+    char fieldDelimiter;
+    std::string valueDeserializers;
 
-    [[nodiscard]] std::string_view getTupleDelimitingBytes() const { return this->tupleDelimiter; }
-
-private:
-    std::string tupleDelimiter;
+    static std::expected<CSVInputFormatterConfig, Exception> fromConfig(const InstantiatedConfig& config);
 };
 
-class CSVInputFormatIndexer : public InputFormatIndexer<CSVInputFormatIndexer>
+class CSVInputFormatIndexer : public InputFormatIndexer
 {
+    /// Passkey idiom (to enforce checks before calling the constructor)
+    struct Private
+    {
+        explicit Private() = default;
+    };
+
 public:
-    static constexpr bool IsFormattingRequired = true;
-    static constexpr bool HasSpanningTuple = true;
-    using IndexerMetaData = CSVMetaData;
-    using FieldIndexFunctionType = FieldOffsets<CSV_NUM_OFFSETS_PER_FIELD>;
+    static constexpr std::string_view NAME = "CSV";
+    static constexpr size_t SIZE_OF_TUPLE_DELIMITER = 1;
+    static constexpr size_t SIZE_OF_FIELD_DELIMITER = 1;
 
-    explicit CSVInputFormatIndexer(ParserConfig config, size_t numberOfFieldsInSchema);
-    ~CSVInputFormatIndexer() = default;
+    explicit CSVInputFormatIndexer(
+        Private,
+        const char tupleDelimiter,
+        const char fieldDelimiter,
+        const bool allowCommasInStrings,
+        const std::vector<Record::RecordFieldIdentifier>& fieldNames,
+        const std::string& deserializerOverrides)
+        : tupleDelimiter(tupleDelimiter)
+        , fieldDelimiter(fieldDelimiter)
+        , allowCommasInStrings(allowCommasInStrings)
+        , numberOfFields(fieldNames.size())
+        , nullValues({""})
+    {
+        deserializerTypes[DataType::Type::UINT8] = "DefaultUINT8";
+        deserializerTypes[DataType::Type::UINT16] = "DefaultUINT16";
+        deserializerTypes[DataType::Type::UINT32] = "DefaultUINT32";
+        deserializerTypes[DataType::Type::UINT64] = "DefaultUINT64";
+        deserializerTypes[DataType::Type::INT8] = "DefaultINT8";
+        deserializerTypes[DataType::Type::INT16] = "DefaultINT16";
+        deserializerTypes[DataType::Type::INT32] = "DefaultINT32";
+        deserializerTypes[DataType::Type::INT64] = "DefaultINT64";
+        deserializerTypes[DataType::Type::FLOAT32] = "DefaultF32";
+        deserializerTypes[DataType::Type::FLOAT64] = "DefaultF64";
+        deserializerTypes[DataType::Type::BOOLEAN] = "DefaultBOOL";
+        deserializerTypes[DataType::Type::CHAR] = "DefaultCHAR";
+        deserializerTypes[DataType::Type::VARSIZED] = "DefaultVARSIZED";
 
-    void indexRawBuffer(FieldOffsets<CSV_NUM_OFFSETS_PER_FIELD>& fieldOffsets, const RawTupleBuffer& rawBuffer, const CSVMetaData&) const;
+        /// Override the datatype defaults for the fields that the user configured a deserializer for
+        fieldDeserializerTypes = parseValueDeserializerOverrides(deserializerOverrides, fieldNames);
+    }
 
-    friend std::ostream& operator<<(std::ostream& os, const CSVInputFormatIndexer& obj);
+    /// Delegate constructor that applies preconditions before safely calling the constructor
+    static std::unique_ptr<CSVInputFormatIndexer> create(const CSVInputFormatterConfig& config, const TupleBufferRef& tupleBufferRef)
+    {
+        return std::make_unique<CSVInputFormatIndexer>(
+            Private{},
+            config.tupleDelimiter,
+            config.fieldDelimiter,
+            config.allowCommasInStrings,
+            tupleBufferRef.getAllFieldNames(),
+            config.valueDeserializers);
+    }
+
+    ~CSVInputFormatIndexer() override = default;
+
+    [[nodiscard]] std::unique_ptr<RawBufferIndex> indexRawBuffer(std::string_view rawBuffer) const override;
+
+    [[nodiscard]] std::string_view getTupleDelimitingBytes() const override { return {&tupleDelimiter, SIZE_OF_TUPLE_DELIMITER}; }
+
+    [[nodiscard]] std::string_view getFieldDelimitingBytes() const override { return {&fieldDelimiter, SIZE_OF_FIELD_DELIMITER}; }
+
+    [[nodiscard]] const std::vector<std::string>& getNullValues() const override { return nullValues; }
+
+    static Schema<QualifiedErasedConfigField, Ordered> getConfigSchema();
+
+protected:
+    [[nodiscard]] std::ostream& toString(std::ostream& str) const override;
 
 private:
-    ParserConfig config;
-    size_t numberOfFieldsInSchema;
+    char tupleDelimiter;
+    char fieldDelimiter;
+    bool allowCommasInStrings{};
+    size_t numberOfFields;
+    std::vector<std::string> nullValues;
 };
 
 }

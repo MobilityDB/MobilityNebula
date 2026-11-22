@@ -28,6 +28,7 @@
 #include <cpptrace/from_current.hpp>
 #include <ErrorHandling.hpp>
 #include <ExecutableQueryPlan.hpp>
+#include <QueryId.hpp>
 
 namespace NES
 {
@@ -117,7 +118,7 @@ public:
 
     void fail(Exception exception);
 
-    QueryId queryId = INVALID<QueryId>;
+    QueryId queryId = INVALID_QUERY_ID;
     TaskCallback callback;
 
 private:
@@ -210,24 +211,24 @@ void failTask(Task& task, Exception exception);
 
 void handleTask(const auto& handler, Task task)
 {
-    CPPTRACE_TRY
-    {
-        /// if handler returns true, the task has been successfully handled, which implies that the task has not been moved
-        if (std::visit(handler, task))
+    cpptrace::try_catch(
+        [&]
         {
-            succeedTask(task);
-        }
-    }
-    CPPTRACE_CATCH(const Exception& exception)
-    {
-        failTask(task, exception);
-    }
-    CPPTRACE_CATCH_ALT(...)
-    {
-        NES_ERROR("Worker thread produced unknown exception during processing");
-        tryLogCurrentException();
-        failTask(task, wrapExternalException());
-    }
+            /// if handler returns true, the task has been successfully handled, which implies that the task has not been moved
+            if (std::visit(handler, task))
+            {
+                succeedTask(task);
+            }
+        },
+        [&](const Exception& exception) { failTask(task, exception); },
+        [&]()
+        {
+            NES_ERROR("Worker thread produced unknown exception during processing");
+            auto exception = wrapExternalException();
+            tryLogCurrentException();
+            failTask(task, exception);
+        });
+
     completeTask(task);
 }
 

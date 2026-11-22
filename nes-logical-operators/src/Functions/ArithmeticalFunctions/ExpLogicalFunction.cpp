@@ -16,29 +16,33 @@
 
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
+
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataTypeProvider.hpp>
+#include <Functions/ArithmeticalFunctions/PowLogicalFunction.hpp>
+#include <Functions/ConstantValueLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-ExpLogicalFunction::ExpLogicalFunction(const LogicalFunction& child) : dataType(child.getDataType()), child(child) { };
+ExpLogicalFunction::ExpLogicalFunction(LogicalFunction child) : child(std::move(child)) { };
 
-bool ExpLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool ExpLogicalFunction::operator==(const ExpLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const ExpLogicalFunction*>(&rhs))
-    {
-        return child == other->child;
-    }
-    return false;
+    return child == rhs.child;
 }
 
 DataType ExpLogicalFunction::getDataType() const
@@ -46,21 +50,15 @@ DataType ExpLogicalFunction::getDataType() const
     return dataType;
 };
 
-LogicalFunction ExpLogicalFunction::withDataType(const DataType& dataType) const
+LogicalFunction ExpLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
-    auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
-LogicalFunction ExpLogicalFunction::withInferredDataType(const Schema& schema) const
-{
-    std::vector<LogicalFunction> newChildren;
-    for (auto& child : getChildren())
-    {
-        newChildren.push_back(child.withInferredDataType(schema));
-    }
-    return this->withChildren(newChildren);
+    const auto newChild = child.withInferredDataType(schema);
+    const std::string eulerNumber = "2.7182818284590452353602874713527";
+    const ConstantValueLogicalFunction expConstantValue{
+        DataTypeProvider::provideDataType(
+            DataType::Type::FLOAT64, newChild.getDataType().nullable ? DataType::NULLABLE::IS_NULLABLE : DataType::NULLABLE::NOT_NULLABLE),
+        eulerNumber};
+    return PowLogicalFunction(expConstantValue, newChild).withInferredDataType(schema);
 };
 
 std::vector<LogicalFunction> ExpLogicalFunction::getChildren() const
@@ -68,7 +66,7 @@ std::vector<LogicalFunction> ExpLogicalFunction::getChildren() const
     return {child};
 };
 
-LogicalFunction ExpLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+ExpLogicalFunction ExpLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 1, "ExpLogicalFunction requires exactly one child, but got {}", children.size());
     auto copy = *this;
@@ -90,16 +88,18 @@ std::string ExpLogicalFunction::explain(ExplainVerbosity verbosity) const
     return fmt::format("EXP({})", child.explain(verbosity));
 }
 
-SerializableFunction ExpLogicalFunction::serialize() const
+Reflected Reflector<ExpLogicalFunction>::operator()(const ExpLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(child.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedExpLogicalFunction{.child = function.child});
 }
 
-LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::RegisterExpLogicalFunction(LogicalFunctionRegistryArguments arguments)
+ExpLogicalFunction Unreflector<ExpLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [child] = context.unreflect<detail::ReflectedExpLogicalFunction>(reflected);
+    return ExpLogicalFunction(std::move(child));
+}
+
+LogicalFunctionRegistryReturnType ExpLogicalFunction::createExp(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 1)
     {

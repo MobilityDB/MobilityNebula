@@ -16,44 +16,45 @@
 #include <memory>
 #include <optional>
 #include <utility>
-#include <Nautilus/Interface/Record.hpp>
-#include <Nautilus/Interface/RecordBuffer.hpp>
-#include <Nautilus/Interface/TimestampRef.hpp>
+#include <Interface/Record.hpp>
+#include <Interface/RecordBuffer.hpp>
+#include <Interface/TimestampRef.hpp>
 #include <Time/Timestamp.hpp>
-#include <Util/Common.hpp>
 #include <Watermark/TimeFunction.hpp>
-#include <ErrorHandling.hpp>
 #include <ExecutionContext.hpp>
-#include <OperatorState.hpp>
 #include <PhysicalOperator.hpp>
 
 namespace NES
 {
 
-struct WatermarkState final : OperatorState
-{
-    explicit WatermarkState() = default;
-    nautilus::val<Timestamp> currentWatermark{Timestamp(Timestamp::INITIAL_VALUE)};
-};
-
 EventTimeWatermarkAssignerPhysicalOperator::EventTimeWatermarkAssignerPhysicalOperator(
     EventTimeFunction timeFunction, const uint64_t allowedLateness)
-    : timeFunction(std::move(std::move(timeFunction))), allowedLateness(allowedLateness) { };
+    : timeFunction(std::move(timeFunction)), allowedLateness(allowedLateness) { };
 
 void EventTimeWatermarkAssignerPhysicalOperator::open(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const
 {
+    /// Buffers from sources carry no watermark; the assigner is where event-time progress starts.
+    if (executionCtx.watermarkTs == nautilus::val<Timestamp>(Timestamp(Timestamp::INVALID_VALUE)))
+    {
+        executionCtx.watermarkTs = nautilus::val<Timestamp>(Timestamp(Timestamp::INITIAL_VALUE));
+    }
     openChild(executionCtx, recordBuffer);
-    executionCtx.setLocalOperatorState(id, std::make_unique<WatermarkState>());
     timeFunction.open(executionCtx, recordBuffer);
 }
 
 void EventTimeWatermarkAssignerPhysicalOperator::execute(ExecutionContext& ctx, Record& record) const
 {
-    auto* const state = dynamic_cast<WatermarkState*>(ctx.getLocalState(id));
-    const auto tsField = timeFunction.getTs(ctx, record);
-    if (tsField > state->currentWatermark)
+    /// The watermark is the largest event time read less the lateness the query allows, none before the first instant
+    const nautilus::val<uint64_t> ts = timeFunction.getTs(ctx, record).convertToValue();
+    nautilus::val<uint64_t> trailing = Timestamp::INITIAL_VALUE;
+    if (ts > nautilus::val<uint64_t>(allowedLateness))
     {
-        state->currentWatermark = tsField;
+        trailing = ts - nautilus::val<uint64_t>(allowedLateness);
+    }
+    const nautilus::val<Timestamp> candidate{trailing};
+    if (candidate > ctx.watermarkTs)
+    {
+        ctx.watermarkTs = candidate;
     }
     /// call next operator
     executeChild(ctx, record);
@@ -61,19 +62,6 @@ void EventTimeWatermarkAssignerPhysicalOperator::execute(ExecutionContext& ctx, 
 
 void EventTimeWatermarkAssignerPhysicalOperator::close(ExecutionContext& executionCtx, RecordBuffer& recordBuffer) const
 {
-    PRECONDITION(
-        NES::Util::instanceOf<const WatermarkState>(*executionCtx.getLocalState(id)), /// TODO #1035
-        "Expects the local state to be of type WatermarkState");
-    auto* const state = dynamic_cast<WatermarkState*>(executionCtx.getLocalState(id));
-    /// The largest event time read less the lateness the query allows, none before the first instant
-    const nautilus::val<uint64_t> largest = state->currentWatermark.convertToValue();
-    const nautilus::val<uint64_t> lateness = allowedLateness;
-    nautilus::val<uint64_t> watermark = Timestamp::INITIAL_VALUE;
-    if (largest > lateness)
-    {
-        watermark = largest - lateness;
-    }
-    executionCtx.watermarkTs = nautilus::val<Timestamp>(watermark);
     PhysicalOperatorConcept::close(executionCtx, recordBuffer);
 }
 

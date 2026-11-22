@@ -18,29 +18,30 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/DataTypes/VariableSizedData.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <DataTypes/VarVal.hpp>
+#include <DataTypes/VariableSizedData.hpp>
+#include <Interface/Record.hpp>
 #include <ExecutionContext.hpp>
 
 namespace NES
 {
-ConstantValueVariableSizePhysicalFunction::ConstantValueVariableSizePhysicalFunction(const int8_t* value, const size_t size)
-    : data(size + sizeof(uint32_t))
+ConstantValueVariableSizePhysicalFunction::ConstantValueVariableSizePhysicalFunction(const int8_t* value, const size_t size) : data(size)
 {
     /// We copy the value into the data vector owned by the function
     /// since the value might be destroyed during the lifetime of the function.
     /// In the constructor, we have allocated the memory for the value via the std::vector ctor.
-    ///
-    /// The first four bytes of the VariableSizedData contain the size...
-    *std::bit_cast<uint32_t*>(data.data()) = size;
-    /// ...followed by the value
-    std::memcpy(data.data() + sizeof(uint32_t), value, size);
+    /// An empty value may come with a null pointer, which memcpy must not be given even for a size of zero.
+    if (size > 0)
+    {
+        std::memcpy(data.data(), value, size);
+    }
 }
 
 VarVal ConstantValueVariableSizePhysicalFunction::execute(const Record&, ArenaRef&) const
 {
-    VariableSizedData result(const_cast<int8_t*>(data.data()));
+    /// NOLINTBEGIN(cppcoreguidelines-pro-type-const-cast) - VariableSizedData requires non-const pointer but data is not modified
+    VariableSizedData result(const_cast<int8_t*>(data.data()), data.size());
+    /// NOLINTEND(cppcoreguidelines-pro-type-const-cast) - VariableSizedData requires non-const pointer but data is not modified
     return result;
 }
 

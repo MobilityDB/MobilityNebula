@@ -12,15 +12,18 @@
     limitations under the License.
 */
 
+#include <Functions/BooleanFunctions/OrPhysicalFunction.hpp>
+
 #include <utility>
 #include <vector>
-#include <Functions/BooleanFunctions/OrPhysicalFunction.hpp>
+#include <DataTypes/VarVal.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <Interface/Record.hpp>
 #include <ErrorHandling.hpp>
 #include <ExecutionContext.hpp>
 #include <PhysicalFunctionRegistry.hpp>
+#include <select.hpp>
+#include <val_bool.hpp>
 
 namespace NES
 {
@@ -29,18 +32,25 @@ VarVal OrPhysicalFunction::execute(const Record& record, ArenaRef& arena) const
 {
     const auto leftValue = leftPhysicalFunction.execute(record, arena);
     const auto rightValue = rightPhysicalFunction.execute(record, arena);
-    return leftValue || rightValue;
+
+    /// Any expression involving null results in NULL, except for NULL or True.
+    /// As NULL or True can be determined without evaluation the NULL value.
+    const auto specialCondition = (leftValue.getRawValueAs<nautilus::val<bool>>() == true and not leftValue.isNull())
+        or (rightValue.getRawValueAs<nautilus::val<bool>>() == true and not rightValue.isNull());
+    const auto newValue
+        = nautilus::select(specialCondition, nautilus::val<bool>{true}, (leftValue || rightValue).getRawValueAs<nautilus::val<bool>>());
+    const auto newNull = nautilus::select(specialCondition, nautilus::val<bool>{false}, leftValue.isNull() or rightValue.isNull());
+    return VarVal{newValue, leftValue.isNullable() or rightValue.isNullable(), newNull};
 }
 
 OrPhysicalFunction::OrPhysicalFunction(PhysicalFunction leftPhysicalFunction, PhysicalFunction rightPhysicalFunction)
-    : leftPhysicalFunction(std::move(std::move(leftPhysicalFunction))), rightPhysicalFunction(std::move(std::move(rightPhysicalFunction)))
+    : leftPhysicalFunction(std::move(leftPhysicalFunction)), rightPhysicalFunction(std::move(rightPhysicalFunction))
 {
 }
 
-PhysicalFunctionRegistryReturnType
-PhysicalFunctionGeneratedRegistrar::RegisterOrPhysicalFunction(PhysicalFunctionRegistryArguments physicalFunctionRegistryArguments)
+PhysicalFunctionRegistryReturnType OrPhysicalFunction::createOr(PhysicalFunctionRegistryArguments physicalFunctionRegistryArguments)
 {
-    PRECONDITION(physicalFunctionRegistryArguments.childFunctions.size() == 2, "Or function must have exactly two sub-functions");
+    PRECONDITION(physicalFunctionRegistryArguments.childFunctions.size() == 2, "Or function must have exactly two child functions");
     return OrPhysicalFunction(physicalFunctionRegistryArguments.childFunctions[0], physicalFunctionRegistryArguments.childFunctions[1]);
 }
 

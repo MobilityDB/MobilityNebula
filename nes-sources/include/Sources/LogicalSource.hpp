@@ -20,33 +20,49 @@
 #include <memory>
 #include <string>
 
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/UnboundField.hpp>
+#include <Identifiers/Identifier.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Util/Logger/Formatter.hpp>
+#include <Util/ReflectionFwd.hpp>
 
 namespace NES
 {
-class SourceCatalog;
 class OperatorSerializationUtil;
 
 class LogicalSource
 {
-    friend SourceCatalog;
     friend OperatorSerializationUtil;
-    explicit LogicalSource(std::string logicalSourceName, const Schema& schema);
+    friend struct Unreflector<LogicalSource>;
 
 public:
-    [[nodiscard]] std::string getLogicalSourceName() const;
+    explicit LogicalSource(Identifier logicalSourceName, const Schema<UnqualifiedUnboundField, Ordered>& schema);
 
-    [[nodiscard]] std::shared_ptr<const Schema> getSchema() const;
+    [[nodiscard]] Identifier getLogicalSourceName() const;
+
+    [[nodiscard]] std::shared_ptr<const Schema<UnqualifiedUnboundField, Ordered>> getSchema() const;
     friend std::ostream& operator<<(std::ostream& os, const LogicalSource& logicalSource);
 
     friend bool operator==(const LogicalSource& lhs, const LogicalSource& rhs);
     friend bool operator!=(const LogicalSource& lhs, const LogicalSource& rhs);
 
 private:
-    std::string logicalSourceName;
+    Identifier logicalSourceName;
     /// Keep schemas in logical sources dynamically allocated to avoid unnecessary copies
-    std::shared_ptr<const Schema> schema;
+    std::shared_ptr<const Schema<UnqualifiedUnboundField, Ordered>> schema;
+};
+
+template <>
+struct Reflector<LogicalSource>
+{
+    Reflected operator()(const LogicalSource& logicalSource, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<LogicalSource>
+{
+    LogicalSource operator()(const Reflected& rfl, const ReflectionContext& context) const;
 };
 
 }

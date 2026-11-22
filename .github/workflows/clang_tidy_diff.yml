@@ -1,7 +1,9 @@
-# This workflow computes the clang-tidy check for the git diff between base and head.
-# we generate GitHub PR annotations based on the output of clang-tidy if this workflow was called within the context
-# of a pr.
 name: Clang-Tidy-Diff
+description: |
+  This workflow computes the clang-tidy check for the git diff between base and head.
+  Any finding flagged in .clang-tidy's WarningsAsErrors list fails the job. Findings are reported in
+  the job log and the uploaded fixes.yml artifact — not as PR comments, so this needs no write
+  permissions and therefore runs on the normal pull_request path for forks too.
 on:
   workflow_call:
     inputs:
@@ -22,109 +24,80 @@ on:
         required: false
         default: -1
 
-  # Clang-Tidy runs in the development image on a self-hosted runner, which MobilityNebula does not
-  # register, so it starts only when a workflow calls it; the pull request pipeline is pr.yml.
-
+# Read-only: findings are hard errors, not PR comments.
 permissions:
   contents: read
-  pull-requests: write
-  checks: write
 
 jobs:
-  get-dev-images:
-    uses: ./.github/workflows/get_dev_images.yml
-    secrets: inherit
-    with:
-      branch-name: ${{ github.head_ref }}
-      head_sha: ${{ github.event.pull_request.head.sha }}
-
-  setup:
-    needs: [get-dev-images]
-    name: Setup inputs
-    runs-on: ubuntu-latest
-    outputs:
-      dev_image_tag: ${{ steps.set_vars.outputs.dev_image_tag }}
-      head_sha: ${{ steps.set_vars.outputs.head_sha }}
-      base_sha: ${{ steps.set_vars.outputs.base_sha }}
-      number_of_commits: ${{ steps.set_vars.outputs.number_of_commits }}
-    steps:
-      - name: Set workflow inputs
-        id: set_vars
-        run: |
-          # If this workflow is called via workflow_call, we want to use the inputs.
-          # Otherwise, we want to use "default" values
-          if [[ "${{ github.event_name }}" == "pull_request" || "${{ github.event_name }}" == "pull_request_target" ]]; then
-            echo "Running in PR context"
-            echo "dev_image_tag=${{ needs.get-dev-images.outputs.image-tag }}" >> $GITHUB_OUTPUT
-            echo "head_sha=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
-            echo "base_sha=${{ github.event.pull_request.base.sha }}" >> $GITHUB_OUTPUT
-            echo "number_of_commits=${{ github.event.pull_request.commits || -1 }}" >> $GITHUB_OUTPUT
-          else
-            echo "Running in workflow_call or non-PR context"
-            echo "dev_image_tag=${{ inputs.dev_image_tag }}" >> $GITHUB_OUTPUT
-            echo "head_sha=${{ inputs.head_sha || github.sha }}" >> $GITHUB_OUTPUT
-            echo "base_sha=${{ inputs.base_sha || github.event.before || github.sha }}" >> $GITHUB_OUTPUT
-            echo "number_of_commits=${{ inputs.number_of_commits || -1 }}" >> $GITHUB_OUTPUT
-          fi
-
   check-clang-tidy:
-    timeout-minutes: 90
+    # The diff check runs clang-tidy on the GitHub-hosted runner, which is slow;
+    # give it generous headroom so it doesn't time out spuriously.
+    timeout-minutes: 180
     name: Clang-Tidy Diff
-    needs: [setup, get-dev-images]
-    # Due to limited ARM server capacity we only run on x64
-    runs-on: [ self-hosted, linux, Build, x64]
-    if: >
-      (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.fork == true) ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
-    container:
-      image: nebulastream/nes-ci:${{ needs.setup.outputs.dev_image_tag }}
-      options: --user root
-      volumes:
-        - ccache:/ccache
-      env:
-        CCACHE_DIR: /ccache
-        MOLD_JOBS: 1
-        GH_TOKEN: ${{ github.token }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        arch: [ x64 ]
+        stdlib: [ 'libcxx' ]
+        sanitizer: [ 'none' ]
+        build_type: [ 'Debug' ]
+        include:
+          - arch: x64
+            runner: [ "ubuntu-24.04" ]
     steps:
       - name: Include base commit
         id: increment
-        run: echo "result=$((${{ needs.setup.outputs.number_of_commits }} + 1))" >> $GITHUB_OUTPUT
+        run: echo "result=$((${{ inputs.number_of_commits }} + 1))" >> $GITHUB_OUTPUT
       - name: Checkout Branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: ${{ steps.increment.outputs.result }}
-          ref: ${{ needs.setup.outputs.head_sha }}
-      - name: Configure NebulaStream for Clang-Tidy
-        run: cmake -GNinja -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-      # We need to build the project, as some headers are only created during the build.
-      - name: Build NebulaStream
-        run: cmake --build build -j -- -k 0
-      - name: Create results directory
-        run: mkdir clang-tidy-result
-      - name: Clang-Tidy Precheck
-        # quickly check for compile errors
-        run: git diff -U0 ${{ needs.setup.outputs.base_sha }} -- ':!*.inc' | clang-tidy-diff-19.py -clang-tidy-binary clang-tidy-19 -p1 -path build -export-fixes clang-tidy-result/fixes.yml  -checks='-*,readability-duplicate-include' -j $(nproc)
-      - name: Analyze by running Clang-Tidy
-        run: git diff -U0 ${{ needs.setup.outputs.base_sha }} -- ':!*.inc' | clang-tidy-diff-19.py -clang-tidy-binary clang-tidy-19 -p1 -path build -export-fixes clang-tidy-result/fixes.yml -j $(nproc)
+          ref: ${{ inputs.head_sha }}
+      - uses: ./.github/steps/setup-sccache
+        with:
+          bucket: ${{ secrets.SCCACHE_CACHE_BUCKET }}
+          endpoint: ${{ secrets.SCCACHE_CACHE_ENDPOINT }}
+          access_key: ${{ secrets.SCCACHE_CACHE_ACCESS_KEY }}
+          secret_key: ${{ secrets.SCCACHE_CACHE_SECRET_KEY }}
+      - uses: ./.github/steps/prepare-github
+        with:
+          images: |
+            nebulastream/nes-ci:${{ inputs.dev_image_tag }}-${{ matrix.stdlib }}-${{matrix.sanitizer}}
+      - uses: ./.github/steps/run-in-container
+        name: CMake Build
+        with:
+          image_name: nebulastream/nes-ci:${{ inputs.dev_image_tag }}-${{ matrix.stdlib }}-${{matrix.sanitizer}}
+          run: |
+            source .github/.env/test-${{matrix.sanitizer}}.env
+            cmake -GNinja -B build -DUSE_SANITIZER=${{ matrix.sanitizer }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DNES_LOG_LEVEL=DEBUG -DNES_SPLIT_TEST_BINARIES=OFF
+            # Only generates the sources and headers clang-tidy needs (grpc, ANTLR, cxxbridge); nothing is compiled or linked.
+            cmake --build build --target nes-codegen -j -- -k 0
+      - uses: ./.github/steps/run-in-container
+        name: Run Clang Tidy Pre-check
+        with:
+          image_name: nebulastream/nes-ci:${{ inputs.dev_image_tag }}-${{ matrix.stdlib }}-${{matrix.sanitizer}}
+          run: |
+            # Fast-fail pass: only duplicate includes, so trivial mistakes surface
+            # before the full all-checks pass below.
+            printf "Checks: \"-*,readability-duplicate-include\"\nWarningsAsErrors: \"*\"\n" > build/clang-tidy-precheck.yaml
+            export NES_TIDY_DIFF_BASE=${{ inputs.base_sha }}
+            export NES_TIDY_CONFIG_FILE=$(pwd)/build/clang-tidy-precheck.yaml
+            # Export fixes here too: if this pass fails the job stops, so the
+            # uploaded artifact would otherwise be empty.
+            export NES_TIDY_EXPORT_FIXES=$(pwd)/clang-tidy-result/fixes.yml
+            cmake --build build --target tidy-diff
+      - uses: ./.github/steps/run-in-container
+        name: Run Clang Tidy with all Checks
+        with:
+          image_name: nebulastream/nes-ci:${{ inputs.dev_image_tag }}-${{ matrix.stdlib }}-${{matrix.sanitizer}}
+          run: |
+            git diff -U0 ${{ inputs.base_sha }} -- ':!*.inc' ':!vcpkg/**' | clang-tidy-diff-22.py -clang-tidy-binary clang-tidy-22 -p1 -path build -export-fixes clang-tidy-result/fixes.yml -j $(nproc)
+      # Findings are printed by clang-tidy-diff in the steps above and exported here for download.
+      # A failing step means clang-tidy flagged something in .clang-tidy's WarningsAsErrors list.
       - name: Upload Clang-Tidy Results
         if: ${{ !cancelled() && !github.event.act }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           if-no-files-found: warn
           name: clang-tidy-result
           path: clang-tidy-result
-      - name: Run clang-tidy-pr-comments action
-        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
-        # requires python3-venv
-        uses: platisd/clang-tidy-pr-comments@v1
-        with:
-          github_token: ${{ github.token }}
-          clang_tidy_fixes: clang-tidy-result/fixes.yml
-          request_changes: false
-          # Optionally set the number of comments per review to avoid GitHub API timeouts for heavily loaded pull requests
-          suggestions_per_comment: 100
-          auto_resolve_conversations: true
-          # As we are running it in a docker, we need to set the repo path prefix to /__w
-          # This is mentioned in https://github.com/platisd/clang-tidy-pr-comments/blob/master/action.yml
-          repo_path_prefix: /__w
-          python_path: /usr/bin/python3

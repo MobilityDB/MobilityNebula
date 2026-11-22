@@ -18,7 +18,7 @@ ATTACH INLINE
 3,5,38000
 1,5,40000
 
-CREATE SINK sessions(stream.start UINT64, stream.end UINT64, stream.id UINT64, stream.records UINT64, stream.total UINT64) TYPE File;
+CREATE SINK sessions(start UINT64 NOT NULL, end UINT64 NOT NULL, id UINT64, records UINT64 NOT NULL, total UINT64) TYPE File;
 SELECT start, end, id, COUNT(value) AS records, SUM(value) AS total
 FROM stream GROUP BY (id) WINDOW SESSION(ts, GAP 10 sec) INTO sessions;
 ----

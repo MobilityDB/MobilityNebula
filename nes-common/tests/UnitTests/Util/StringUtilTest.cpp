@@ -19,9 +19,8 @@
 #include <Util/Strings.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <BaseUnitTest.hpp>
 
-namespace NES::Util
+namespace NES
 {
 
 TEST(TrimWhiteSpacesTest, TrimLeadingAndTrailingSpaces)
@@ -117,6 +116,33 @@ TEST(FormatFloatTests, HandlesNegativeNumbers)
     EXPECT_EQ(formatFloat(-0.1000), "-0.1");
 }
 
+TEST(SafeStodThrowTests, HandlesValidNumbers)
+{
+    EXPECT_EQ(from_chars<double>("3.14"), 3.14);
+    EXPECT_EQ(from_chars<double>("-123.45"), -123.45);
+    EXPECT_EQ(from_chars<double>("  42  "), 42.0);
+}
+
+TEST(SafeStodThrowTests, ThrowsOnTrailingCharacters)
+{
+    EXPECT_FALSE(from_chars<double>("3.14abc").has_value());
+    EXPECT_FALSE(from_chars<double>("42_").has_value());
+}
+
+TEST(SafeStodThrowTests, ThrowsOnOutOfRange)
+{
+    EXPECT_FALSE(from_chars<double>("1e500").has_value());
+    EXPECT_FALSE(from_chars<double>("-1e500").has_value());
+}
+
+TEST(SafeStodThrowTests, ThrowsOnInvalidInput)
+{
+    EXPECT_FALSE(from_chars<double>("").has_value());
+    EXPECT_FALSE(from_chars<double>("   ").has_value());
+    EXPECT_FALSE(from_chars<double>("--1.0").has_value());
+    EXPECT_FALSE(from_chars<double>("3.14.15").has_value());
+}
+
 TEST(TrimWhiteSpacesTest, TrimLeadingSpacesOnly)
 {
     EXPECT_EQ(trimWhiteSpaces("   hello"), "hello");
@@ -206,8 +232,7 @@ TEST(FromCharsTest, ValidNegativeFloatInput)
 TEST(FromCharsTest, InvalidFloatInput)
 {
     auto result = from_chars<float>("3.14abc");
-    EXPECT_TRUE(result.has_value());
-    EXPECT_FLOAT_EQ(result.value(), 3.14F);
+    EXPECT_FALSE(result.has_value());
 }
 
 TEST(FromCharsTest, InfinityInput)
@@ -279,9 +304,46 @@ TEST(FromCharsTest, SmallFloatInput)
 
 TEST(FromCharsTest, DigitsWithCharacterInTheMiddle)
 {
+    /// The whole string must be consumed; a trailing non-digit suffix is a parse error, not truncation.
     auto result = from_chars<int>("12a34");
-    EXPECT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), 12);
+    EXPECT_FALSE(result.has_value());
+}
+
+TEST(FromCharsTest, WholeStringConsumedSucceeds)
+{
+    auto result = from_chars<int>("42");
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.value(), 42);
+}
+
+TEST(FromCharsTest, DecimalPointRejectedForIntegerType)
+{
+    /// "1.5" must not silently parse as 1.
+    EXPECT_FALSE(from_chars<int>("1.5").has_value());
+}
+
+TEST(FromCharsTest, TrailingCharactersRejectedForIntegerType)
+{
+    EXPECT_FALSE(from_chars<int>("12abc").has_value());
+}
+
+TEST(FromCharsTest, TrailingNonWhitespaceCharacterRejected)
+{
+    EXPECT_FALSE(from_chars<int>("42x").has_value());
+}
+
+TEST(FromCharsTest, TrailingWhitespaceIsTrimmedAndAccepted)
+{
+    /// Trailing whitespace is trimmed (not "consumed" by from_chars), so this must still succeed.
+    auto result = from_chars<int>("42   ");
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.value(), 42);
+}
+
+TEST(FromCharsTest, EmbeddedWhitespaceRejected)
+{
+    /// A space in the middle of the value is not outer whitespace, so it must not be silently trimmed away.
+    EXPECT_FALSE(from_chars<int>("42 3").has_value());
 }
 
 TEST(FromCharsTest, FromCharsWithBoolean)
@@ -468,16 +530,116 @@ TEST(EscapeSpecialCharactersTest, MixedContent)
     EXPECT_EQ("\\aAlert!\\bBackspace", escapeSpecialCharacters("\aAlert!\bBackspace"));
 }
 
-TEST(EscapeSpecialCharactersTest, AlreadyEscapedCharacters)
-{
-    /// Backslashes that are already part of the string should be preserved
-    EXPECT_EQ("\\n", escapeSpecialCharacters("\\n"));
-}
-
 TEST(EscapeSpecialCharactersTest, UnicodeAndSpecialMixed)
 {
     EXPECT_EQ("Unicode: 😀\\nNext line", escapeSpecialCharacters("Unicode: 😀\nNext line"));
     EXPECT_EQ("\\tÆØÅ\\r\\næøå", escapeSpecialCharacters("\tÆØÅ\r\næøå"));
+}
+
+TEST(UnescapeSpecialCharactersTest, EmptyString)
+{
+    EXPECT_EQ("", unescapeSpecialCharacters(""));
+}
+
+TEST(UnescapeSpecialCharactersTest, NoEscapedCharacters)
+{
+    EXPECT_EQ("Hello World", unescapeSpecialCharacters("Hello World"));
+    EXPECT_EQ("abc123!@#", unescapeSpecialCharacters("abc123!@#"));
+}
+
+TEST(UnescapeSpecialCharactersTest, SingleEscapedCharacters)
+{
+    EXPECT_EQ("\a", unescapeSpecialCharacters("\\a")); /// Bell
+    EXPECT_EQ("\b", unescapeSpecialCharacters("\\b")); /// Backspace
+    EXPECT_EQ("\f", unescapeSpecialCharacters("\\f")); /// Form feed
+    EXPECT_EQ("\n", unescapeSpecialCharacters("\\n")); /// Newline
+    EXPECT_EQ("\r", unescapeSpecialCharacters("\\r")); /// Carriage return
+    EXPECT_EQ("\t", unescapeSpecialCharacters("\\t")); /// Tab
+    EXPECT_EQ("\v", unescapeSpecialCharacters("\\v")); /// Vertical tab
+}
+
+TEST(UnescapeSpecialCharactersTest, MultipleEscapedCharacters)
+{
+    EXPECT_EQ("Line1\nLine2", unescapeSpecialCharacters("Line1\\nLine2"));
+    EXPECT_EQ("Text\tTabbed", unescapeSpecialCharacters("Text\\tTabbed"));
+    EXPECT_EQ("\r\n", unescapeSpecialCharacters("\\r\\n")); /// Windows line ending
+}
+
+TEST(UnescapeSpecialCharactersTest, MixedContent)
+{
+    EXPECT_EQ("Hello\nWorld\tTab\r\nNewLine", unescapeSpecialCharacters("Hello\\nWorld\\tTab\\r\\nNewLine"));
+    EXPECT_EQ("\aAlert!\bBackspace", unescapeSpecialCharacters("\\aAlert!\\bBackspace"));
+}
+
+TEST(UnescapeSpecialCharactersTest, BackslashAtEnd)
+{
+    /// Backslash at the end should be preserved
+    EXPECT_EQ("test\\", unescapeSpecialCharacters("test\\"));
+}
+
+TEST(UnescapeSpecialCharactersTest, InvalidEscapeSequence)
+{
+    /// Unknown escape sequences should preserve the backslash
+    EXPECT_EQ("\\x", unescapeSpecialCharacters("\\x"));
+    EXPECT_EQ("\\z", unescapeSpecialCharacters("\\z"));
+    EXPECT_EQ("test\\qmore", unescapeSpecialCharacters("test\\qmore"));
+}
+
+TEST(UnescapeSpecialCharactersTest, UnicodeAndEscapedMixed)
+{
+    EXPECT_EQ("Unicode: 😀\nNext line", unescapeSpecialCharacters("Unicode: 😀\\nNext line"));
+    EXPECT_EQ("\tÆØÅ\r\næøå", unescapeSpecialCharacters("\\tÆØÅ\\r\\næøå"));
+}
+
+TEST(UnescapeSpecialCharactersTest, RoundTripWithEscape)
+{
+    /// Test that escaping and then unescaping returns the original string
+    const std::string original = "Hello\nWorld\tTab\r\nNewLine";
+    const std::string escaped = escapeSpecialCharacters(original);
+    const std::string unescaped = unescapeSpecialCharacters(escaped);
+    EXPECT_EQ(original, unescaped);
+}
+
+TEST(EscapeUnescapeRoundTripTest, EscapeThenUnescape)
+{
+    /// Test that escape -> unescape returns the original string
+    const std::string original1 = "Hello\nWorld";
+    EXPECT_EQ(original1, unescapeSpecialCharacters(escapeSpecialCharacters(original1)));
+
+    const std::string original2 = "Tab\there\nand\rthere\vvertical";
+    EXPECT_EQ(original2, unescapeSpecialCharacters(escapeSpecialCharacters(original2)));
+
+    const std::string original3 = "\a\b\f\n\r\t\v";
+    EXPECT_EQ(original3, unescapeSpecialCharacters(escapeSpecialCharacters(original3)));
+
+    const std::string original4 = "Mixed content\nwith text\tand more";
+    EXPECT_EQ(original4, unescapeSpecialCharacters(escapeSpecialCharacters(original4)));
+}
+
+TEST(EscapeUnescapeRoundTripTest, UnescapeThenEscape)
+{
+    /// Test that unescape -> escape returns the original escaped string
+    const std::string escaped1 = "Hello\\nWorld";
+    EXPECT_EQ(escaped1, escapeSpecialCharacters(unescapeSpecialCharacters(escaped1)));
+
+    const std::string escaped2 = R"(Tab\there\nand\rthere\vvertical)";
+    EXPECT_EQ(escaped2, escapeSpecialCharacters(unescapeSpecialCharacters(escaped2)));
+
+    const std::string escaped3 = R"(\a\b\f\n\r\t\v)";
+    EXPECT_EQ(escaped3, escapeSpecialCharacters(unescapeSpecialCharacters(escaped3)));
+
+    const std::string escaped4 = R"(Mixed content\nwith text\tand more)";
+    EXPECT_EQ(escaped4, escapeSpecialCharacters(unescapeSpecialCharacters(escaped4)));
+}
+
+TEST(EscapeUnescapeRoundTripTest, DoubleBackslashRoundTrip)
+{
+    /// Test that double backslash is handled correctly in both directions
+    const std::string withBackslash = "path\\to\\file";
+    const std::string escaped = escapeSpecialCharacters(withBackslash);
+    EXPECT_EQ("path\\\\to\\\\file", escaped);
+    const std::string unescaped = unescapeSpecialCharacters(escaped);
+    EXPECT_EQ(withBackslash, unescaped);
 }
 
 TEST(SplitStringViewTest, SingleSplit)

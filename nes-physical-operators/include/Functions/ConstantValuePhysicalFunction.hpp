@@ -16,9 +16,10 @@
 
 #include <cstdint>
 #include <type_traits>
+#include <DataTypes/VarVal.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <Interface/Record.hpp>
+#include <Arena.hpp>
 #include <ExecutionContext.hpp>
 
 namespace NES
@@ -26,12 +27,12 @@ namespace NES
 
 template <typename T>
 requires std::is_integral_v<T> || std::is_floating_point_v<T>
-class ConstantValuePhysicalFunction final : public PhysicalFunctionConcept
+class ConstantValuePhysicalFunction final
 {
 public:
     explicit ConstantValuePhysicalFunction(T value) : value(value) { }
 
-    VarVal execute(const Record&, ArenaRef&) const override { return VarVal(value); }
+    VarVal execute(const Record&, ArenaRef&) const { return VarVal(value); }
 
 private:
     const T value;

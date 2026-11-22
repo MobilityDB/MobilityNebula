@@ -1,0 +1,30 @@
+# name: MEOS_ScalarArrays
+# description: Arrays of SQL scalars passed to and answered by MEOS functions, each read and written in PostgreSQL's array text form by the reader and the writer the catalog states for its element: setMake makes a set of integers, floats, texts or timestamps from an array of them, and getValues answers the values of a set as an array. The answers are libmeos's over the same values (intset_make, floatset_make, textset_make and tstzset_make over the values int32_in, float8_in, text_in and timestamptz_in read, written back by int32_out, float8_out with 15 digits and text_out), in UTC.
+# groups: [Function, MEOS]
+CREATE LOGICAL SOURCE scalars(id UINT32, ints INTEGER_ARRAY, nums FLOAT_ARRAY, words TEXT_ARRAY, times TIMESTAMPTZ_ARRAY);
+CREATE PHYSICAL SOURCE FOR scalars TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|{3,1,2}|{1.5,0.25}|{b,a}|{"2024-01-02 00:00:00+00","2024-01-01 00:00:00+00"}
+
+CREATE SINK sets(id UINT32) TYPE File;
+SELECT id FROM scalars
+WHERE asText(setMake(ints)) == VARSIZED('{1, 2, 3}')
+  AND asText(setMake(nums)) == VARSIZED('{0.25, 1.5}')
+  AND asText(setMake(words)) == VARSIZED('{"a", "b"}')
+  AND asText(setMake(times)) == VARSIZED('{"2024-01-01 00:00:00+00", "2024-01-02 00:00:00+00"}')
+INTO sets;
+----
+1
+
+CREATE SINK arrays(id UINT32, ints INTEGER_ARRAY, nums FLOAT_ARRAY, words TEXT_ARRAY) TYPE File;
+SELECT id, getValues(setMake(ints)) AS ints, getValues(setMake(nums)) AS nums, getValues(setMake(words)) AS words
+FROM scalars INTO arrays;
+----
+1,{1,2,3},{0.25,1.5},{a,b}
+
+CREATE SINK times(id UINT32) TYPE File;
+SELECT id FROM scalars
+WHERE asText(setMake(getValues(setMake(times)))) == VARSIZED('{"2024-01-01 00:00:00+00", "2024-01-02 00:00:00+00"}')
+INTO times;
+----
+1

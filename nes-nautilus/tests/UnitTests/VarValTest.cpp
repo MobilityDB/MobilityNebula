@@ -23,7 +23,7 @@
 #include <utility>
 #include <vector>
 #include <DataTypes/DataType.hpp>
-#include <Nautilus/DataTypes/VarVal.hpp>
+#include <DataTypes/VarVal.hpp>
 #include <Util/Logger/LogLevel.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <Util/Logger/impl/NesLogger.hpp>
@@ -32,6 +32,7 @@
 #include <BaseUnitTest.hpp>
 #include <function.hpp>
 #include <val.hpp>
+#include <val_arith.hpp>
 #include <val_concepts.hpp>
 #include <val_ptr.hpp>
 
@@ -62,9 +63,8 @@ TEST_F(VarValTest, SimpleConstruction)
 {
     auto testVarValConstruction = []<typename T>(const T value)
     {
-        using namespace NES::Nautilus;
         const VarVal varVal = nautilus::val<T>(value);
-        EXPECT_EQ(varVal.cast<nautilus::val<T>>(), value);
+        EXPECT_EQ(varVal.getRawValueAs<nautilus::val<T>>(), value);
         return 0;
     };
     testVarValConstruction.operator()<int8_t>(-someRandomNumber);
@@ -85,12 +85,11 @@ TEST_F(VarValTest, SimpleMove)
 {
     auto testVarValMove = []<typename T>(const T value)
     {
-        using namespace NES::Nautilus;
         const VarVal varVal = nautilus::val<T>(value);
-        const VarVal varValCopy = varVal;
+        const VarVal varValCopy = varVal; /// NOLINT(performance-unnecessary-copy-initialization) - intentional copy for testing
         const VarVal varValMove = std::move(varVal);
-        EXPECT_EQ(varValMove.cast<nautilus::val<T>>(), value);
-        EXPECT_EQ(varValCopy.cast<nautilus::val<T>>(), value);
+        EXPECT_EQ(varValMove.getRawValueAs<nautilus::val<T>>(), value);
+        EXPECT_EQ(varValCopy.getRawValueAs<nautilus::val<T>>(), value);
         return 0;
     };
 
@@ -112,14 +111,13 @@ TEST_F(VarValTest, SimpleMove)
     { \
         auto testVarValArithOperation = []<typename T>(const T value1, const T value2) -> int \
         { \
-            using namespace NES::Nautilus; \
             if constexpr (requires { nautilus::val<T>(value1) op nautilus::val<T>(value2); }) \
             { \
                 const VarVal varVal1 = nautilus::val<T>(value1); \
                 const VarVal varVal2 = nautilus::val<T>(value2); \
                 const VarVal varValResult = varVal1 op varVal2; \
                 using ResultType = decltype(nautilus::val<T>(value1) op nautilus::val<T>(value2)); \
-                EXPECT_EQ(varValResult.cast<ResultType>(), static_cast<T>(value1 op value2)); \
+                EXPECT_EQ(varValResult.getRawValueAs<ResultType>(), static_cast<ResultType>(value1 op value2)); \
                 return 0; \
             } \
             else \
@@ -142,14 +140,13 @@ TEST_F(VarValTest, SimpleMove)
     { \
         auto testVarValLogicalOperation = []<typename T>(const T value1, const T value2) -> int \
         { \
-            using namespace NES::Nautilus; \
             if constexpr (requires { nautilus::val<T>(value1) op nautilus::val<T>(value2); }) \
             { \
                 const VarVal varVal1 = nautilus::val<T>(value1); \
                 const VarVal varVal2 = nautilus::val<T>(value2); \
                 const VarVal varValResult = varVal1 op varVal2; \
                 using ResultType = decltype(nautilus::val<T>(value1) op nautilus::val<T>(value2)); \
-                EXPECT_EQ(varValResult.cast<ResultType>(), static_cast<T>(value1 op value2)); \
+                EXPECT_EQ(varValResult.getRawValueAs<ResultType>(), static_cast<T>(value1 op value2)); \
                 return 0; \
             } \
             else \
@@ -166,14 +163,13 @@ TEST_F(VarValTest, SimpleMove)
     { \
         auto testVarValLogicalOperation = []<typename T>(const T value1, const T value2) -> int \
         { \
-            using namespace NES::Nautilus; \
             if constexpr (requires { nautilus::val<T>(value1) op nautilus::val<T>(value2); }) \
             { \
                 const VarVal varVal1 = nautilus::val<T>(value1); \
                 const VarVal varVal2 = nautilus::val<T>(value2); \
                 const VarVal varValResult = varVal1 op varVal2; \
                 using ResultType = decltype(nautilus::val<T>(value1) op nautilus::val<T>(value2)); \
-                EXPECT_EQ(varValResult.cast<ResultType>(), static_cast<T>(value1 op value2)); \
+                EXPECT_EQ(varValResult.getRawValueAs<ResultType>(), static_cast<T>(value1 op value2)); \
                 return 0; \
             } \
             else \
@@ -227,10 +223,9 @@ TEST_F(VarValTest, unaryOperatorOverloads)
 {
     auto testVarValOperation = []<typename T>(const T value)
     {
-        using namespace NES::Nautilus;
         const VarVal varVal = nautilus::val<T>(value);
         const VarVal result = !varVal;
-        EXPECT_EQ(result.cast<nautilus::val<bool>>(), !value);
+        EXPECT_EQ(result.getRawValueAs<nautilus::val<bool>>(), !value);
         return 0;
     };
 
@@ -252,7 +247,6 @@ TEST_F(VarValTest, writeToMemoryTest)
 {
     auto testVarValWriteToMemory = []<typename T>(const T value)
     {
-        using namespace NES::Nautilus;
         const VarVal varVal = nautilus::val<T>(value);
         std::vector<int8_t> memory(sizeof(T));
         const auto memoryRef = nautilus::val<int8_t*>(memory.data());
@@ -279,35 +273,33 @@ TEST_F(VarValTest, writeToMemoryTest)
 
 TEST_F(VarValTest, readFromMemoryTest)
 {
-    auto testVarValReadFromMemory = []<typename T>(const T value, const DataType::Type& type)
+    auto testVarValReadFromMemory = []<typename T>(const T value, const DataType& type)
     {
-        using namespace NES::Nautilus;
         std::vector<int8_t> memory(sizeof(T));
         std::memcpy(memory.data(), &value, sizeof(T));
-        const VarVal varVal = VarVal::readVarValFromMemory(memory.data(), type);
-        EXPECT_EQ(varVal.cast<nautilus::val<T>>(), value);
+        const VarVal varVal = VarVal::readNonNullableVarValFromMemory(memory.data(), type);
+        EXPECT_EQ(varVal.getRawValueAs<nautilus::val<T>>(), value);
         return 0;
     };
 
-    testVarValReadFromMemory.operator()<int8_t>(-someRandomNumber, DataType::Type::INT8);
-    testVarValReadFromMemory.operator()<int16_t>(minI8Minus1, DataType::Type::INT16);
-    testVarValReadFromMemory.operator()<int32_t>(minI16Minus1, DataType::Type::INT32);
-    testVarValReadFromMemory.operator()<int64_t>(minI32Minus1, DataType::Type::INT64);
-    testVarValReadFromMemory.operator()<uint8_t>(someRandomNumber, DataType::Type::UINT8);
-    testVarValReadFromMemory.operator()<uint16_t>(maxUI8Plus1, DataType::Type::UINT16);
-    testVarValReadFromMemory.operator()<uint32_t>(maxUI16Plus1, DataType::Type::UINT32);
-    testVarValReadFromMemory.operator()<uint64_t>(maxUI32Plus1, DataType::Type::UINT64);
-    testVarValReadFromMemory.operator()<float>(someRandomNumber, DataType::Type::FLOAT32);
-    testVarValReadFromMemory.operator()<double>(someRandomNumber, DataType::Type::FLOAT64);
-    testVarValReadFromMemory.operator()<bool>(true, DataType::Type::BOOLEAN);
-    testVarValReadFromMemory.operator()<bool>(false, DataType::Type::BOOLEAN);
+    testVarValReadFromMemory.operator()<int8_t>(-someRandomNumber, DataType{DataType::Type::INT8, DataType::NULLABLE::NOT_NULLABLE});
+    testVarValReadFromMemory.operator()<int16_t>(minI8Minus1, DataType{DataType::Type::INT16, DataType::NULLABLE::NOT_NULLABLE});
+    testVarValReadFromMemory.operator()<int32_t>(minI16Minus1, DataType{DataType::Type::INT32, DataType::NULLABLE::NOT_NULLABLE});
+    testVarValReadFromMemory.operator()<int64_t>(minI32Minus1, DataType{DataType::Type::INT64, DataType::NULLABLE::NOT_NULLABLE});
+    testVarValReadFromMemory.operator()<uint8_t>(someRandomNumber, DataType{DataType::Type::UINT8, DataType::NULLABLE::NOT_NULLABLE});
+    testVarValReadFromMemory.operator()<uint16_t>(maxUI8Plus1, DataType{DataType::Type::UINT16, DataType::NULLABLE::NOT_NULLABLE});
+    testVarValReadFromMemory.operator()<uint32_t>(maxUI16Plus1, DataType{DataType::Type::UINT32, DataType::NULLABLE::NOT_NULLABLE});
+    testVarValReadFromMemory.operator()<uint64_t>(maxUI32Plus1, DataType{DataType::Type::UINT64, DataType::NULLABLE::NOT_NULLABLE});
+    testVarValReadFromMemory.operator()<float>(someRandomNumber, DataType{DataType::Type::FLOAT32, DataType::NULLABLE::NOT_NULLABLE});
+    testVarValReadFromMemory.operator()<double>(someRandomNumber, DataType{DataType::Type::FLOAT64, DataType::NULLABLE::NOT_NULLABLE});
+    testVarValReadFromMemory.operator()<bool>(true, DataType{DataType::Type::BOOLEAN, DataType::NULLABLE::NOT_NULLABLE});
+    testVarValReadFromMemory.operator()<bool>(false, DataType{DataType::Type::BOOLEAN, DataType::NULLABLE::NOT_NULLABLE});
 }
 
 TEST_F(VarValTest, operatorBoolTest)
 {
     auto testVarValOperatorBool = []<typename T>(const T value, const bool expectedValue)
     {
-        using namespace NES::Nautilus;
         const VarVal varVal = nautilus::val<T>(value);
         const auto varValBool = static_cast<bool>(varVal);
         EXPECT_EQ(varValBool, expectedValue);
@@ -342,14 +334,13 @@ void writeToFileProxy(const char* content)
 {
     std::ofstream ofs("actual.txt");
     ofs << content;
-    ofs << std::endl;
+    ofs << '\n';
 };
 
 TEST_F(VarValTest, ostreamTest)
 {
     auto testVarValOstream = []<typename T>(const T value)
     {
-        using namespace NES::Nautilus;
         VarVal varVal = nautilus::val<T>(value);
         nautilus::stringstream strStreamVarVal;
         std::stringstream strStreamExpected;
@@ -367,15 +358,15 @@ TEST_F(VarValTest, ostreamTest)
         /// Writing the actual and the expected output to a file
         /// We have to do this, as it is not possible to access the underlying data of the nautilus::stringstream object
         nautilus::invoke(writeToFileProxy, strStreamVarVal.str().c_str());
-        std::ofstream ofs("expected.txt");
-        ofs << strStreamExpected.str() << std::endl;
-
+        std::ofstream ofs{"expected.txt"};
+        ofs << strStreamExpected.str() << '\n';
+        ofs.flush();
 
         /// Comparing the actual and the expected output
-        std::ifstream expectedFile("expected.txt");
-        std::ifstream actualFile("actual.txt");
-        std::string expected((std::istreambuf_iterator<char>(expectedFile)), std::istreambuf_iterator<char>());
-        std::string actual((std::istreambuf_iterator<char>(actualFile)), std::istreambuf_iterator<char>());
+        std::ifstream expectedFile{"expected.txt"};
+        std::ifstream actualFile{"actual.txt"};
+        std::string expected{std::istreambuf_iterator<char>{expectedFile}, std::istreambuf_iterator<char>()};
+        std::string actual{std::istreambuf_iterator<char>{actualFile}, std::istreambuf_iterator<char>()};
 
         EXPECT_EQ(expected, actual);
         return 0;
@@ -406,14 +397,14 @@ TEST_F(VarValTest, testDataTypesChange)
         /// Checking if the data types are equal / the same
         if constexpr (std::is_same_v<std::decay_t<From>, std::decay_t<From>>)
         {
-            const Nautilus::VarVal varValFrom{nautilus::val<From>(42)};
-            Nautilus::VarVal varValTo{nautilus::val<To>(43)};
+            const VarVal varValFrom{nautilus::val<From>(42)};
+            VarVal varValTo{nautilus::val<To>(43)};
             ASSERT_NO_THROW(varValTo = varValFrom);
         }
         else
         {
-            const Nautilus::VarVal varValFrom{nautilus::val<From>(42)};
-            Nautilus::VarVal varValTo{nautilus::val<To>(43)};
+            const VarVal varValFrom{nautilus::val<From>(42)};
+            VarVal varValTo{nautilus::val<To>(43)};
             ASSERT_EXCEPTION_ERRORCODE(varValTo = varValFrom, ErrorCode::UnknownOperation);
         }
     };
@@ -421,8 +412,8 @@ TEST_F(VarValTest, testDataTypesChange)
     /// Explicit data type change should work
     auto testExplicitDataTypeChange = []<typename From, typename To>(From, To)
     {
-        const Nautilus::VarVal varValFrom{nautilus::val<From>(42)};
-        Nautilus::VarVal varValTo{nautilus::val<To>(43)};
+        const VarVal varValFrom{nautilus::val<From>(42)};
+        VarVal varValTo{nautilus::val<To>(43)};
         ASSERT_NO_THROW(varValTo = varValFrom);
         ASSERT_EQ(varValTo, varValFrom);
     };
@@ -431,6 +422,139 @@ TEST_F(VarValTest, testDataTypesChange)
     /// Calls it for every combination of Types
     std::apply([&](auto&&... args) { ((testImplicitDataTypeChange(args, args)), ...); }, std::tuple_cat(Types{}, Types{}));
     std::apply([&](auto&&... args) { ((testExplicitDataTypeChange(args, args)), ...); }, std::tuple_cat(Types{}, Types{}));
+}
+
+TEST_F(VarValTest, nullableConstruction)
+{
+    /// Test non-nullable construction (default)
+    const VarVal nonNull(42);
+    EXPECT_FALSE(nonNull.isNullable());
+    EXPECT_FALSE(static_cast<bool>(nonNull.isNull()));
+
+    /// Test nullable but non-null value
+    const VarVal nullable{42, true, nautilus::val<bool>{false}};
+    EXPECT_TRUE(nullable.isNullable());
+    EXPECT_FALSE(static_cast<bool>(nullable.isNull()));
+
+    /// Test nullable null value
+    const VarVal nullValue{0, true, nautilus::val<bool>{true}};
+    EXPECT_TRUE(nullValue.isNullable());
+    EXPECT_TRUE(static_cast<bool>(nullValue.isNull()));
+}
+
+TEST_F(VarValTest, nullPropagationArithmetic)
+{
+    const VarVal nullVal{nautilus::val<int32_t>(0), true, nautilus::val<bool>{true}};
+    const VarVal nonNull{nautilus::val<int32_t>(5)};
+
+    /// NULL + 5 = NULL
+    const auto resultAdd = nullVal + nonNull;
+    EXPECT_TRUE(resultAdd.isNullable());
+    EXPECT_TRUE(static_cast<bool>(resultAdd.isNull()));
+
+    /// 5 + NULL = NULL
+    const auto resultAdd2 = nonNull + nullVal;
+    EXPECT_TRUE(resultAdd2.isNullable());
+    EXPECT_TRUE(static_cast<bool>(resultAdd2.isNull()));
+
+    /// NULL - 5 = NULL
+    const auto resultSub = nullVal - nonNull;
+    EXPECT_TRUE(static_cast<bool>(resultSub.isNull()));
+
+    /// NULL * 5 = NULL
+    const auto resultMul = nullVal * nonNull;
+    EXPECT_TRUE(static_cast<bool>(resultMul.isNull()));
+
+    /// NULL / 5 = NULL (using our improved division operator)
+    const auto resultDiv = nullVal / nonNull;
+    EXPECT_TRUE(static_cast<bool>(resultDiv.isNull()));
+
+    /// 5 / NULL = NULL
+    const auto resultDiv2 = nonNull / nullVal;
+    EXPECT_TRUE(static_cast<bool>(resultDiv2.isNull()));
+}
+
+TEST_F(VarValTest, nullPropagationComparison)
+{
+    const VarVal nullVal{nautilus::val<int32_t>(0), true, nautilus::val<bool>{true}};
+    const VarVal nonNull{nautilus::val<int32_t>(5)};
+
+    /// NULL == 5 → NULL
+    const auto resultEq = nullVal == nonNull;
+    EXPECT_TRUE(static_cast<bool>(resultEq.isNull()));
+
+    /// NULL != 5 → NULL
+    const auto resultNeq = nullVal != nonNull;
+    EXPECT_TRUE(static_cast<bool>(resultNeq.isNull()));
+
+    /// NULL < 5 → NULL
+    const auto resultLt = nullVal < nonNull;
+    EXPECT_TRUE(static_cast<bool>(resultLt.isNull()));
+
+    /// NULL > 5 → NULL
+    const auto resultGt = nullVal > nonNull;
+    EXPECT_TRUE(static_cast<bool>(resultGt.isNull()));
+}
+
+TEST_F(VarValTest, nullBooleanConversion)
+{
+    /// Non-null true in non-nullable context
+    const VarVal trueNonNullable{nautilus::val<bool>(true), false, nautilus::val<bool>{false}};
+    EXPECT_TRUE(static_cast<bool>(trueNonNullable));
+
+    /// Non-null false in non-nullable context
+    const VarVal falseNonNullable{nautilus::val<bool>(false), false, nautilus::val<bool>{false}};
+    EXPECT_FALSE(static_cast<bool>(falseNonNullable));
+
+    /// NULL in nullable context, but with different underlying value (should still be false)
+    const VarVal nullValWithTrue{nautilus::val<bool>(false), true, nautilus::val<bool>{true}};
+    EXPECT_FALSE(static_cast<bool>(nullValWithTrue));
+
+    /// NULL in nullable context, but with different underlying value (should still be false)
+    const VarVal nullValWithFalse{nautilus::val<bool>(true), true, nautilus::val<bool>{true}};
+    EXPECT_FALSE(static_cast<bool>(nullValWithFalse));
+
+    /// Copy constructor/assignment: NULL remains NULL
+    const VarVal nullValOriginal{nautilus::val<bool>(true), true, nautilus::val<bool>{true}};
+    VarVal nullValCopy = nullValOriginal;
+    EXPECT_FALSE(static_cast<bool>(nullValCopy));
+
+    /// Move constructor/assignment: NULL remains NULL
+    const VarVal nullValMoved = std::move(nullValCopy);
+    EXPECT_FALSE(static_cast<bool>(nullValMoved));
+}
+
+TEST_F(VarValTest, booleanComparisonOperators)
+{
+    /// NULL value
+    const VarVal nullVal{nautilus::val<bool>(true), true, nautilus::val<bool>{true}};
+    /// Non-null true value
+    const VarVal trueVal{nautilus::val<bool>(true), true, nautilus::val<bool>{false}};
+    const VarVal trueVal2{nautilus::val<bool>(true), true, nautilus::val<bool>{false}};
+    /// Non-null false value
+    const VarVal falseVal{nautilus::val<bool>(false), true, nautilus::val<bool>{false}};
+    const VarVal falseVal2{nautilus::val<bool>(false), true, nautilus::val<bool>{false}};
+
+    /// NULL == true -> NULL (evaluates to false in boolean context)
+    const auto eqResult1 = nullVal == trueVal;
+    EXPECT_FALSE(static_cast<bool>(eqResult1));
+
+    /// NULL != true -> NULL (evaluates to false in boolean context, or true if your logic inverts NULL comparisons)
+    const auto neqResult1 = nullVal != trueVal;
+    /// Adjust expectation based on your logic for NULL != non-NULL
+    EXPECT_FALSE(static_cast<bool>(neqResult1));
+
+    /// true == true -> true
+    const auto eqResult2 = trueVal == trueVal2;
+    EXPECT_TRUE(static_cast<bool>(eqResult2));
+
+    /// true != false -> true
+    const auto neqResult2 = trueVal != falseVal;
+    EXPECT_TRUE(static_cast<bool>(neqResult2));
+
+    /// false == false -> true
+    const auto eqResult3 = falseVal == falseVal2;
+    EXPECT_TRUE(static_cast<bool>(eqResult3));
 }
 
 

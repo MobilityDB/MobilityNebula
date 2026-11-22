@@ -14,24 +14,30 @@
 
 #pragma once
 
+#include <DataTypes/VarVal.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/DataTypes/VarVal.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <Interface/Record.hpp>
+#include <Arena.hpp>
 #include <ExecutionContext.hpp>
+#include <PhysicalFunctionRegistry.hpp>
 
 namespace NES
 {
 
 /// Performs leftPhysicalFunction / rightPhysicalFunction
-class DivPhysicalFunction final : public PhysicalFunctionConcept
+class DivPhysicalFunction final
 {
 public:
     DivPhysicalFunction(PhysicalFunction leftPhysicalFunction, PhysicalFunction rightPhysicalFunction);
-    [[nodiscard]] VarVal execute(const Record& record, ArenaRef& arena) const override;
+    [[nodiscard]] VarVal execute(const Record& record, ArenaRef& arena) const;
+
+    static PhysicalFunctionRegistryReturnType createDiv(PhysicalFunctionRegistryArguments arguments);
 
 private:
     PhysicalFunction leftPhysicalFunction;
     PhysicalFunction rightPhysicalFunction;
 };
+
+static_assert(PhysicalFunctionConcept<DivPhysicalFunction>);
 
 }

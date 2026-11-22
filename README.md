@@ -1,19 +1,3 @@
-
-MobilityNebula
-===============
-
-An open-source geospatial trajectory data streaming platform based on [NebulaStream](https://nebula.stream/).
-
-<img src="docs/images/mobilitydb-logo.svg" width="200" alt="MobilityDB Logo" />
-
-MobilityNebula explores the advantages of [MobilityDB](https://github.com/MobilityDB/MobilityDB) datatypes and functions in the NebulaStream environment, using the [MEOS](https://libmeos.org/) library as middleware.
-
-The MobilityDB project is developed by the Computer & Decision Engineering Department of the [Université libre de Bruxelles](https://www.ulb.be/) (ULB) under the direction of [Prof. Esteban Zimányi](http://cs.ulb.ac.be/members/esteban/). ULB is an OGC Associate Member and member of the OGC Moving Feature Standard Working Group ([MF-SWG](https://www.ogc.org/projects/groups/movfeatswg)).
-
-<img src="docs/images/OGC_Associate_Member_3DR.png" width="100" alt="OGC Associate Member Logo" />
-
-More information about MobilityDB, including publications, presentations, etc., can be found in the MobilityDB [website](https://mobilitydb.com).
-
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="docs/resources/NebulaBanner.png">
@@ -30,63 +14,162 @@ More information about MobilityDB, including publications, presentations, etc., 
     <img src="https://img.shields.io/badge/Benchmark-Conbench-blue?labelColor=3D444C"
          alt="Conbench" />
   </a>
+  <a href="https://codecov.io/github/nebulastream/nebulastream" > 
+    <img src="https://codecov.io/github/nebulastream/nebulastream/graph/badge.svg?token=ER83Nm1crF" alt="Codecov"/> 
+  </a>  
 </div>
 
 ----
-NebulaStream is TU Berlin/ BIFOLD attempt to develop a general-purpose, end-to-end data management system for the IoT.
-It provides an out-of-the-box experience with rich data processing functionalities and a high ease-of-use.
 
-NebulaStream is a joint research project between the DIMA group at TU Berlin and BIFOLD.
+NebulaStream is an end-to-end data-management system for cloud-edge-sensor deployments.
+The platform combines ease of use, extensibility, and efficiency to let teams focus on business logic while the engine optimizes the data path.
 
-Learn more about Nebula Stream at https://www.nebula.stream or take a look at our [documentation](docs).
+**Core Pillars**
+- **Ease of Use** - Rich, out-of-the-box functionality for a variety of stream processing queries.
+- **Extensibility** - Uniform plugin registries for custom connectors, formats, operators, and optimizations.
+- **Efficiency** - Hardware-tailored code, adaptive execution, and interleaved I/O to handle large workloads.
 
-# Clang-Format, Clang-Tidy, License & Pragma Once Check, and Ensure Correct Comments
-We use `clang-format` and `clang-tidy` to ensure code quality and consistency.
-To run the checks, you can use the target `format`. 
+## Vision
 
-## Project Structure
-Check the [Project Structure](docs/project_structure.md) to understand the dependency between components. 
+NebulaStream is a joint research project at BIFOLD with contributors from the DIMA Group at TU Berlin and the DFKI IAM Group.
+It aims to execute thousands of queries over millions of heterogeneous sources in massively distributed environments.
+We advance this vision through five core technologies:
+- **Heterogeneous Hardware Support** - Targets diverse CPU architectures and accelerators such as GPUs and TPUs.
+- **Code Generation** - Compiles every query to efficient native code for low latency and energy usage.
+- **In-Network Processing** - Pushes operators toward data sources to reduce network traffic.
+- **Adaptive Resource Management** - Reacts to topology or workload changes without interrupting queries.
 
-## Development
-NebulaStream targets C++23 using all features implemented in both `libc++` 18 and `libstdc++` 13.2. All tests are using
-`Clang` 18.
-Follow the [development guide](docs/technical/development.md) to learn how to set up the development environment.
-To see our code of conduct, please refer to [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md).
+The system architecture spans sensor to cloud:
+1. **Sources & Sinks** - Built-in connectors (MQTT, TCP, Kafka, files) and formats (CSV, JSON) with plugin hooks for custom components; extend them via the plugin framework in the [Extensibility guide](docs/guide/extensibility.md).
+2. **I/O Handling** - Thread-shared source processing and asynchronous callbacks minimize waiting time.
+3. **Query Submission** - SQL-like language with prebuilt operators such as join and aggregation, plus user-defined operator plugins.
+4. **Query Optimization** - Rule-based optimizer generates hardware-aware plans; users can extend the rule engine.
+5. **Adaptive Runtime** - Task-based scheduling keeps execution responsive under dynamic workloads.
 
-## Build Types
-This project supports multiple build types to cater to different stages of development and deployment. Below are the details of each build type:
+## Quick Start
 
-### Debug
-- **Default Logging Level**: All logging messages are compiled.
-- **Assert Checks**: Enabled.
-- **Use Case**: Ideal for development, providing comprehensive logging and assert checks to help identify and fix issues.
+### Build & Tooling
 
-### RelWithDebInfo (Release with Debug Information)
-- **Default Logging Level**: Warning.
-- **Assert Checks**: Enabled.
-- **Use Case**: Balances performance and debugging, including warning-level logging and assert checks for useful debugging information without full logging overhead.
+#### Use the Nix flake
+Install [Nix with flakes enabled](https://nixos.org/download/) and generate build links:
 
-### Release
-- **Default Logging Level**: Error.
-- **Assert Checks**: Enabled.
-- **Use Case**: Optimized for performance, with logging set to error level and assert checks disabled, ensuring only critical issues are logged.
+```shell
+nix run .#clion-setup
+```
 
-### Benchmark
-- **Logging Level**: None.
-- **Assert Checks**: Disabled.
-- **Use Case**: Designed for maximum performance, omitting all logging and assert checks, including null pointer checks. Suitable for thoroughly tested environments where performance is critical.
-- Use this with care, as this is not regularly tested, i.e., Release terminates deterministically if a bug occurs (failed invariant/precondition), whereas Benchmark will be in an undefined state.
+Configure, build, and test through the Nix-wrapped helpers:
 
+```shell
+./.nix/nix-cmake.sh \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -G Ninja \
+  -S . -B cmake-build-debug
 
+./.nix/nix-cmake.sh --build cmake-build-debug
+./.nix/ctest --test-dir cmake-build-debug -j
+```
 
-# Publications
-[1] Mariana M. Garcez Duarte, Dwi P. A. Nugroho, Georges Tod, Evert Bevernage, Pieter Moelans, Emine Tas, Esteban Zimányi, Mahmoud Sakr, Steffen Zeuch, and Volker Markl. 2025. Mobility Stream Processing on NebulaStream and MEOS. In Companion of the 2025 International Conference on Management of Data (SIGMOD/PODS '25). Association for Computing Machinery, New York, NY, USA, 79–82. https://doi.org/10.1145/3722212.3725116
+For formatting and clang-tidy fixes, run `nix run .#format` and `nix run .#clang-tidy`.
 
-[2] Mariana M. Garcez Duarte, Dwi P. A. Nugroho, Georges Tod, Evert Bevernage, Pieter Moelans, Elias Saerens, Esteban Zimányi, Mahmoud Sakr, Steffen Zeuch. 2025. 
-Mobility Data Stream Processing Beyond the Cloud. 33rd ACM SIGSPATIAL
-International Conference on Advances in Geographic Information Systems
-(ACM SIGSPATIAL 2025).
+#### Use the development container
+Build or reuse the local development image (installs the current user inside the container to avoid permission issues):
 
+```shell
+./scripts/install-local-docker-environment.sh
+```
 
-# Acknowledgements
-This work was supported in part by the Horizon Framework Programme of the European Union under grant agreement No. 101070279 ([MobiSpaces](https://mobispaces.eu)).
+Configure, build, and test by mounting the repository into the container:
+
+```shell
+docker run \
+  --workdir $(pwd) \
+  -v $(pwd):$(pwd) \
+  nebulastream/nes-development:local \
+  cmake -B cmake-build-debug
+
+docker run \
+  --workdir $(pwd) \
+  -v $(pwd):$(pwd) \
+  nebulastream/nes-development:local \
+  cmake --build cmake-build-debug -j
+
+docker run \
+  --workdir $(pwd) \
+  -v $(pwd):$(pwd) \
+  nebulastream/nes-development:local \
+  ctest --test-dir cmake-build-debug -j
+```
+
+#### Package the binaries as Docker images
+Build the runtime base and package each executable into a slim image (`nebulastream/nes-cli`, `nes-repl`,
+`nes-repl-embedded`, `nes-worker`):
+
+```shell
+cmake --build cmake-build-debug --target package-docker-images-all -j
+```
+
+Use `package-docker-<nes-cli|nes-repl|nes-repl-embedded|nes-worker>` for a single image. These targets are excluded from the
+default build. See [Packaging Docker images](docs/development/packaging_docker_images.md) for image names and
+tags.
+
+### Execute Queries & Tests
+
+#### Run systest for a query
+Build the `systest` executable in your chosen build directory and execute a specific query. The example below targets the first query in the arithmetic function suite and writes logs and working files under `cmake-build-debug/nes-systests` by default:
+
+```shell
+cmake --build cmake-build-debug -j --target systest
+cmake-build-debug/nes-systests/systest/systest -t nes-systests/function/arithmetical/FunctionAdd.test:1
+```
+
+Append worker configuration overrides after `--` (for example `-- --worker.default_query_execution.execution_mode=INTERPRETER`). See the [systest guide](docs/development/systests.md) for authoring custom `.test` files and the complete CLI reference.
+
+#### Start the client with a worker
+Build the client and worker binaries, start the worker in one terminal, register it in the distributed REPL, and submit a short-lived query from another terminal using `nes-repl`:
+
+```shell
+cmake --build cmake-build-debug -j --target nes-single-node-worker nes-repl
+
+# Terminal 1: start the worker
+cmake-build-debug/nes-single-node-worker/nes-single-node-worker -- --grpc=localhost:8080 --data_address=localhost:9090
+
+# Terminal 2: prepare a tiny CSV and submit a query via nes-repl
+printf '1\n2\n3\n' > demo-input.csv
+
+cat > demo.sql <<'EOF'
+CREATE WORKER 'localhost:8080' SET ('localhost:9090' AS DATA);
+CREATE LOGICAL SOURCE demo(value UINT64);
+CREATE PHYSICAL SOURCE FOR demo TYPE File SET('./demo-input.csv' AS "SOURCE".FILE_PATH, 'localhost:8080' AS "SOURCE"."HOST", 'CSV' AS INPUT_FORMATTER."TYPE", '\n' AS INPUT_FORMATTER.TUPLE_DELIMITER, ',' AS INPUT_FORMATTER.FIELD_DELIMITER);
+CREATE SINK result(value UINT64) TYPE File SET('./demo-output.csv' AS "SINK".FILE_PATH, 'localhost:8080' AS "SINK"."HOST", 'CSV' AS "SINK".OUTPUT_FORMAT);
+SELECT value FROM demo INTO result;
+EOF
+
+cmake-build-debug/nes-frontend/apps/nes-repl -s localhost:8080 --on-exit WAIT_FOR_QUERY_TERMINATION < demo.sql
+```
+
+The generated CSV appears at `demo-output.csv`. For a single-process setup without worker registration or `HOST` settings, use `nes-repl-embedded`.
+
+For further information about our frontends, check out the [Frontend Reference](docs/guide/nebulastream-frontend.md).
+
+## Documentation
+- Design proposals and architectural notes: [Design index](docs/design/README.md)
+- Developer workflows and environment setup: [Development environment](docs/development/development.md), [Run workflows locally](docs/development/running_workflows_locally.md), [Packaging Docker images](docs/development/packaging_docker_images.md)
+- Implementation guides: [Add a source](docs/guide/how_to_add_a_source.md), [Add a sink](docs/guide/how_to_add_a_sink.md), [Add a function](docs/guide/how_to_add_a_function.md), [Add a placement strategy](docs/guide/how_to_add_a_placement_strategy.md)
+- Technical deep dives: [Dependency architecture](docs/technical/dependency.md), [Query engine task queue](docs/technical/QueryEngine_TaskQueue.md), [Watermarking trigger details](docs/technical/watermarking_progress_window_triggering.md)
+- Organizational guidelines and processes: [Meetings overview](docs/organizational/meetings.md), [Nightly CI process](docs/organizational/processes/nightly_ci.md)
+
+## Contributing & Quality
+- Follow the [development guide](docs/development/development.md) for environment setup and tooling expectations.
+- Code style is enforced with `clang-format`, `clang-tidy`, license checks, and pragma guards; run the `format` target before submitting patches.
+- Review the Git workflow aids in [Useful git commands](docs/git/useful_commands.md), [PR checklist](docs/git/checklist_pr.md), and IDE tips in [CLion tricks](docs/git/clion_tricks.md).
+- Before working on an issue or opening a pull request, ask a maintainer to assign the issue to you. Otherwise, we will have to close the pull request.
+- Before opening a pull request, verify that the project completes a clean configure and build and that all unit and system tests pass.
+- Describe your pull request using our [pull request template](.github/PULL_REQUEST_TEMPLATE.md).
+- External contributors should work from personal forks and open pull requests referencing their forked branches; direct pushes to this repository are reserved for maintainers.
+- Adhere to our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+### Build Types
+- Debug - Compiles all logging and keeps asserts enabled; best during active development.
+- RelWithDebInfo - Keeps warning-level logging and asserts for balanced debugging/performance.
+- Release - Optimizes for throughput with error-level logging. Asserts are enabled.
+- Benchmark - Strips logging and assertions for maximum performance; use only with well-tested queries because undefined behavior is not guarded.

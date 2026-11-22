@@ -14,41 +14,69 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Util/Logger/Formatter.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <SerializableVariantDescriptor.pb.h>
+#include <Util/Reflection.hpp>
+#include <LogicalFunctionRegistry.hpp>
 
 namespace NES
 {
-class RoundLogicalFunction final : public LogicalFunctionConcept
+class RoundLogicalFunction final
 {
 public:
     static constexpr std::string_view NAME = "Round";
 
-    explicit RoundLogicalFunction(const LogicalFunction& child);
+    explicit RoundLogicalFunction(LogicalFunction child);
 
-    [[nodiscard]] SerializableFunction serialize() const override;
+    [[nodiscard]] bool operator==(const RoundLogicalFunction& rhs) const;
 
-    [[nodiscard]] bool operator==(const LogicalFunctionConcept& rhs) const override;
+    [[nodiscard]] DataType getDataType() const;
+    [[nodiscard]] LogicalFunction withInferredDataType(const Schema<Field, Unordered>& schema) const;
 
-    [[nodiscard]] DataType getDataType() const override;
-    [[nodiscard]] LogicalFunction withDataType(const DataType& dataType) const override;
-    [[nodiscard]] LogicalFunction withInferredDataType(const Schema& schema) const override;
+    [[nodiscard]] std::vector<LogicalFunction> getChildren() const;
+    [[nodiscard]] RoundLogicalFunction withChildren(const std::vector<LogicalFunction>& children) const;
 
-    [[nodiscard]] std::vector<LogicalFunction> getChildren() const override;
-    [[nodiscard]] LogicalFunction withChildren(const std::vector<LogicalFunction>& children) const override;
+    [[nodiscard]] std::string_view getType() const;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
 
-    [[nodiscard]] std::string_view getType() const override;
-    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const override;
+    static LogicalFunctionRegistryReturnType createRound(LogicalFunctionRegistryArguments arguments);
 
 private:
     DataType dataType;
+    LogicalFunction child;
+
+    friend Reflector<RoundLogicalFunction>;
+};
+
+template <>
+struct Reflector<RoundLogicalFunction>
+{
+    Reflected operator()(const RoundLogicalFunction& function, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<RoundLogicalFunction>
+{
+    RoundLogicalFunction operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
+
+static_assert(LogicalFunctionConcept<RoundLogicalFunction>);
+
+}
+
+namespace NES::detail
+{
+struct ReflectedRoundLogicalFunction
+{
     LogicalFunction child;
 };
 }

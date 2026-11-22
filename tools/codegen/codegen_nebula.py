@@ -280,7 +280,8 @@ PHYSICAL_CPP_TEMPLATE_TEMPORAL_POINT = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
+#include <memory>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -333,8 +334,6 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                     return 0;
                 }}
 
-                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string temporalGeometryWkt = fmt::format("SRID=4326;Point({{}} {{}})@{{}}", lonValue, latValue, timestampString);
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\\'' || staticGeometryWkt.front() == '"'))
@@ -342,11 +341,14 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\\'' || staticGeometryWkt.back() == '"'))
                     staticGeometryWkt.pop_back();
 
-                if (temporalGeometryWkt.empty() || staticGeometryWkt.empty())
+                if (staticGeometryWkt.empty())
                     return 0;
 
-                MEOS::Meos::TemporalGeometry temporalGeometry(temporalGeometryWkt);
-                if (!temporalGeometry.getGeometry()) return 0;
+                GSERIALIZED* temporalGeometryPoint = geompoint_make2d(4326, lonValue, latValue);
+                Temporal* temporalGeometryInstant = temporalGeometryPoint ? (Temporal*) tpointinst_make(temporalGeometryPoint, NES::MeosRuntime::timestamptz(timestampValue)) : nullptr;
+                free(temporalGeometryPoint);
+                const std::unique_ptr<Temporal, decltype(&free)> temporalGeometry(temporalGeometryInstant, &free);
+                if (!temporalGeometry) return 0;
                 MEOS::Meos::StaticGeometry staticGeometry(staticGeometryWkt);
                 if (!staticGeometry.getGeometry()) return 0;
 
@@ -354,7 +356,7 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 // edwithin_tgeo_geo, but specific MEOS function per generated operator.
                 // Real MEOS spatial-rel signature: int fn(const Temporal *, const GSERIALIZED *)
                 // (no `atstart` flag — that's specific to geog_dwithin / edwithin's 3-arg variant).
-                return {meos_call}(temporalGeometry.getGeometry(),
+                return {meos_call}(temporalGeometry.get(),
                                    staticGeometry.getGeometry());
             }}
             catch (const std::exception&)
@@ -403,7 +405,8 @@ PHYSICAL_CPP_TEMPLATE_TWO_TEMPORAL_POINTS = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
+#include <memory>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <PhysicalFunctionRegistry.hpp>
@@ -453,19 +456,21 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 if (!(lonAValue >= -180.0 && lonAValue <= 180.0 && latAValue >= -90.0 && latAValue <= 90.0)) return 0;
                 if (!(lonBValue >= -180.0 && lonBValue <= 180.0 && latBValue >= -90.0 && latBValue <= 90.0)) return 0;
 
-                const std::string tsAString = MEOS::Meos::convertEpochToTimestamp(tsAValue);
-                const std::string tsBString = MEOS::Meos::convertEpochToTimestamp(tsBValue);
-                std::string temporalGeometryAWkt = fmt::format("SRID=4326;Point({{}} {{}})@{{}}", lonAValue, latAValue, tsAString);
-                std::string temporalGeometryBWkt = fmt::format("SRID=4326;Point({{}} {{}})@{{}}", lonBValue, latBValue, tsBString);
 
-                MEOS::Meos::TemporalGeometry temporalGeometryA(temporalGeometryAWkt);
-                if (!temporalGeometryA.getGeometry()) return 0;
-                MEOS::Meos::TemporalGeometry temporalGeometryB(temporalGeometryBWkt);
-                if (!temporalGeometryB.getGeometry()) return 0;
+                GSERIALIZED* temporalGeometryAPoint = geompoint_make2d(4326, lonAValue, latAValue);
+                Temporal* temporalGeometryAInstant = temporalGeometryAPoint ? (Temporal*) tpointinst_make(temporalGeometryAPoint, NES::MeosRuntime::timestamptz(tsAValue)) : nullptr;
+                free(temporalGeometryAPoint);
+                const std::unique_ptr<Temporal, decltype(&free)> temporalGeometryA(temporalGeometryAInstant, &free);
+                if (!temporalGeometryA) return 0;
+                GSERIALIZED* temporalGeometryBPoint = geompoint_make2d(4326, lonBValue, latBValue);
+                Temporal* temporalGeometryBInstant = temporalGeometryBPoint ? (Temporal*) tpointinst_make(temporalGeometryBPoint, NES::MeosRuntime::timestamptz(tsBValue)) : nullptr;
+                free(temporalGeometryBPoint);
+                const std::unique_ptr<Temporal, decltype(&free)> temporalGeometryB(temporalGeometryBInstant, &free);
+                if (!temporalGeometryB) return 0;
 
                 // MEOS *_tgeo_tgeo spatial-relation: int fn(const Temporal*, const Temporal*).
-                return {meos_call}(temporalGeometryA.getGeometry(),
-                                   temporalGeometryB.getGeometry());
+                return {meos_call}(temporalGeometryA.get(),
+                                   temporalGeometryB.get());
             }}
             catch (const std::exception&)
             {{
@@ -512,7 +517,8 @@ PHYSICAL_CPP_TEMPLATE_TEMPORAL_POINT_WITH_DIST = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
+#include <memory>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -565,8 +571,6 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 MEOS::Meos::ensureMeosInitialized();
                 if (!(lonValue >= -180.0 && lonValue <= 180.0 && latValue >= -90.0 && latValue <= 90.0)) return 0;
 
-                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string temporalGeometryWkt = fmt::format("SRID=4326;Point({{}} {{}})@{{}}", lonValue, latValue, timestampString);
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\\'' || staticGeometryWkt.front() == '"'))
@@ -574,16 +578,19 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\\'' || staticGeometryWkt.back() == '"'))
                     staticGeometryWkt.pop_back();
 
-                if (temporalGeometryWkt.empty() || staticGeometryWkt.empty()) return 0;
+                if (staticGeometryWkt.empty()) return 0;
 
-                MEOS::Meos::TemporalGeometry temporalGeometry(temporalGeometryWkt);
-                if (!temporalGeometry.getGeometry()) return 0;
+                GSERIALIZED* temporalGeometryPoint = geompoint_make2d(4326, lonValue, latValue);
+                Temporal* temporalGeometryInstant = temporalGeometryPoint ? (Temporal*) tpointinst_make(temporalGeometryPoint, NES::MeosRuntime::timestamptz(timestampValue)) : nullptr;
+                free(temporalGeometryPoint);
+                const std::unique_ptr<Temporal, decltype(&free)> temporalGeometry(temporalGeometryInstant, &free);
+                if (!temporalGeometry) return 0;
                 MEOS::Meos::StaticGeometry staticGeometry(staticGeometryWkt);
                 if (!staticGeometry.getGeometry()) return 0;
 
                 // MEOS *_tgeo_geo with trailing distance arg
                 // — int fn(const Temporal*, const GSERIALIZED*, double).
-                return {meos_call}(temporalGeometry.getGeometry(),
+                return {meos_call}(temporalGeometry.get(),
                                    staticGeometry.getGeometry(),
                                    distValue);
             }}
@@ -629,7 +636,8 @@ PHYSICAL_CPP_TEMPLATE_TWO_TEMPORAL_POINTS_WITH_DIST = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
+#include <memory>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <PhysicalFunctionRegistry.hpp>
@@ -681,20 +689,22 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 if (!(lonAValue >= -180.0 && lonAValue <= 180.0 && latAValue >= -90.0 && latAValue <= 90.0)) return 0;
                 if (!(lonBValue >= -180.0 && lonBValue <= 180.0 && latBValue >= -90.0 && latBValue <= 90.0)) return 0;
 
-                const std::string tsAString = MEOS::Meos::convertEpochToTimestamp(tsAValue);
-                const std::string tsBString = MEOS::Meos::convertEpochToTimestamp(tsBValue);
-                std::string temporalGeometryAWkt = fmt::format("SRID=4326;Point({{}} {{}})@{{}}", lonAValue, latAValue, tsAString);
-                std::string temporalGeometryBWkt = fmt::format("SRID=4326;Point({{}} {{}})@{{}}", lonBValue, latBValue, tsBString);
 
-                MEOS::Meos::TemporalGeometry temporalGeometryA(temporalGeometryAWkt);
-                if (!temporalGeometryA.getGeometry()) return 0;
-                MEOS::Meos::TemporalGeometry temporalGeometryB(temporalGeometryBWkt);
-                if (!temporalGeometryB.getGeometry()) return 0;
+                GSERIALIZED* temporalGeometryAPoint = geompoint_make2d(4326, lonAValue, latAValue);
+                Temporal* temporalGeometryAInstant = temporalGeometryAPoint ? (Temporal*) tpointinst_make(temporalGeometryAPoint, NES::MeosRuntime::timestamptz(tsAValue)) : nullptr;
+                free(temporalGeometryAPoint);
+                const std::unique_ptr<Temporal, decltype(&free)> temporalGeometryA(temporalGeometryAInstant, &free);
+                if (!temporalGeometryA) return 0;
+                GSERIALIZED* temporalGeometryBPoint = geompoint_make2d(4326, lonBValue, latBValue);
+                Temporal* temporalGeometryBInstant = temporalGeometryBPoint ? (Temporal*) tpointinst_make(temporalGeometryBPoint, NES::MeosRuntime::timestamptz(tsBValue)) : nullptr;
+                free(temporalGeometryBPoint);
+                const std::unique_ptr<Temporal, decltype(&free)> temporalGeometryB(temporalGeometryBInstant, &free);
+                if (!temporalGeometryB) return 0;
 
                 // MEOS *_tgeo_tgeo with trailing distance arg
                 // — int fn(const Temporal*, const Temporal*, double).
-                return {meos_call}(temporalGeometryA.getGeometry(),
-                                   temporalGeometryB.getGeometry(),
+                return {meos_call}(temporalGeometryA.get(),
+                                   temporalGeometryB.get(),
                                    distValue);
             }}
             catch (const std::exception&)
@@ -748,7 +758,7 @@ _TRGEO_LICENSE = """\
 
 _TRGEO_PHYS_INCLUDES_VS = """\
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -763,7 +773,7 @@ _TRGEO_PHYS_INCLUDES_VS = """\
 
 _TRGEO_PHYS_INCLUDES_NO_VS = """\
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <PhysicalFunctionRegistry.hpp>
@@ -779,11 +789,12 @@ _TRGEO_PHYS_INCLUDES_NO_VS = """\
 def _stream_instant(var):
     """The C++ expression turning a stream event-time field into a TimestampTz.
 
-    A stream field carries a Unix epoch, which MEOS::Meos::convertEpochToTimestamp
-    renders as a zoned timestamp text and timestamptz_in reads back, so every
-    operator places an instant on the time line the text form uses.
+    A stream field carries NebulaStream's milliseconds from the Unix epoch, which
+    NES::MeosRuntime::timestamptz casts to a TimestampTz exactly, as the generated
+    kernels of the plugin cast them.
     """
-    return f"timestamptz_in(MEOS::Meos::convertEpochToTimestamp({var}).c_str(), -1)"
+    return f"NES::MeosRuntime::timestamptz({var})"
+
 
 
 def _trgeo_phys_header(nebula_name, includes):
@@ -1753,8 +1764,7 @@ def input_spec(op):
             build=(base["build"].replace("STBox", spec["cpp_type"])
                                 .replace("stbox_in", spec["parser"])))
     # Build the instant through the constructor rather than by spelling a WKT
-    # literal. The timestamp goes through the same epoch helper the text form
-    # uses, so the two agree on the stream's epoch convention by construction.
+    # literal, over the timestamp NES::MeosRuntime::timestamptz casts exactly.
     cast = f'({spec["cast"]}) ' if spec.get("cast") else ""
     return dict(
         spec,
@@ -1807,12 +1817,9 @@ def emit_operator(op, output_root: Path):
         "ctor_physical_pushes": ctor_physical_pushes,
         "registrar_pushes": registrar_l,
         # tnumber-shape extras (only consumed by the two tnumber templates).
-        # tnumber_wkt_format is a fmt::format pattern that ends up in C++ as-is;
-        # Python single-pass .format() means we want raw `{}@{}` here (no doubling).
         "tnumber_value_cpp_type": op.get("tnumber_value_cpp_type", "double"),
         "scalar_cpp_type":        op.get("scalar_cpp_type", "double"),
-        "tnumber_wkt_format":     op.get("tnumber_wkt_format", "{}@{}"),
-        "tnumber_in_fn":          op.get("tnumber_in_fn", "tfloat_in"),
+        "tnumber_inst_make":      op.get("tnumber_inst_make", "tfloatinst_make"),
     }
 
     logical_hpp_path = output_root / "nes-logical-operators/include/Functions/Meos" / f"{nebula_name}LogicalFunction.hpp"
@@ -1908,7 +1915,8 @@ PHYSICAL_CPP_TEMPLATE_TEMPORAL_POINT_RESTRICTION = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
+#include <memory>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -1959,8 +1967,6 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 MEOS::Meos::ensureMeosInitialized();
                 if (!(lonValue >= -180.0 && lonValue <= 180.0 && latValue >= -90.0 && latValue <= 90.0)) return 0;
 
-                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string temporalGeometryWkt = fmt::format("SRID=4326;Point({{}} {{}})@{{}}", lonValue, latValue, timestampString);
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\\'' || staticGeometryWkt.front() == '"'))
@@ -1968,10 +1974,13 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\\'' || staticGeometryWkt.back() == '"'))
                     staticGeometryWkt.pop_back();
 
-                if (temporalGeometryWkt.empty() || staticGeometryWkt.empty()) return 0;
+                if (staticGeometryWkt.empty()) return 0;
 
-                MEOS::Meos::TemporalGeometry temporalGeometry(temporalGeometryWkt);
-                if (!temporalGeometry.getGeometry()) return 0;
+                GSERIALIZED* temporalGeometryPoint = geompoint_make2d(4326, lonValue, latValue);
+                Temporal* temporalGeometryInstant = temporalGeometryPoint ? (Temporal*) tpointinst_make(temporalGeometryPoint, NES::MeosRuntime::timestamptz(timestampValue)) : nullptr;
+                free(temporalGeometryPoint);
+                const std::unique_ptr<Temporal, decltype(&free)> temporalGeometry(temporalGeometryInstant, &free);
+                if (!temporalGeometry) return 0;
                 MEOS::Meos::StaticGeometry staticGeometry(staticGeometryWkt);
                 if (!staticGeometry.getGeometry()) return 0;
 
@@ -1979,7 +1988,7 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 // input survived the restriction, null if clipped/empty).
                 // For per-event single-instant inputs this collapses to a
                 // filter predicate: 1 if the point survives, 0 if clipped.
-                Temporal* clipped = {meos_call}(temporalGeometry.getGeometry(),
+                Temporal* clipped = {meos_call}(temporalGeometry.get(),
                                                 staticGeometry.getGeometry());
                 if (clipped == nullptr) return 0;
                 free(clipped);
@@ -2032,7 +2041,7 @@ PHYSICAL_CPP_TEMPLATE_TCBUFFER_POINT = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -2086,9 +2095,6 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 if (!(lonValue >= -180.0 && lonValue <= 180.0 && latValue >= -90.0 && latValue <= 90.0)) return 0;
                 if (radiusValue < 0.0) return 0;
 
-                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string tcbufferWkt = fmt::format("Cbuffer(Point({{}} {{}}),{{}})@{{}}",
-                                                     lonValue, latValue, radiusValue, timestampString);
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\\'' || staticGeometryWkt.front() == '"'))
@@ -2096,9 +2102,13 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\\'' || staticGeometryWkt.back() == '"'))
                     staticGeometryWkt.pop_back();
 
-                if (tcbufferWkt.empty() || staticGeometryWkt.empty()) return 0;
+                if (staticGeometryWkt.empty()) return 0;
 
-                Temporal* tcbuffer = tcbuffer_in(tcbufferWkt.c_str());
+                GSERIALIZED* tcbufferPoint = geompoint_make2d(0, lonValue, latValue);
+                Cbuffer* tcbufferCbuffer = tcbufferPoint ? cbuffer_make(tcbufferPoint, radiusValue) : nullptr;
+                Temporal* tcbuffer = tcbufferCbuffer ? (Temporal*) tcbufferinst_make(tcbufferCbuffer, NES::MeosRuntime::timestamptz(timestampValue)) : nullptr;
+                free(tcbufferCbuffer);
+                free(tcbufferPoint);
                 if (!tcbuffer) return 0;
                 MEOS::Meos::StaticGeometry staticGeometry(staticGeometryWkt);
                 if (!staticGeometry.getGeometry()) {{ free(tcbuffer); return 0; }}
@@ -2155,7 +2165,7 @@ PHYSICAL_CPP_TEMPLATE_TPOSE_POINT_VIA_COMPOSITION = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -2205,9 +2215,6 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 MEOS::Meos::ensureMeosInitialized();
                 if (!(xValue >= -180.0 && xValue <= 180.0 && yValue >= -90.0 && yValue <= 90.0)) return 0;
 
-                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string tposeWkt = fmt::format("Pose(Point({{}} {{}}), {{}})@{{}}",
-                                                  xValue, yValue, thetaValue, timestampString);
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\\'' || staticGeometryWkt.front() == '"'))
@@ -2215,9 +2222,11 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\\'' || staticGeometryWkt.back() == '"'))
                     staticGeometryWkt.pop_back();
 
-                if (tposeWkt.empty() || staticGeometryWkt.empty()) return 0;
+                if (staticGeometryWkt.empty()) return 0;
 
-                Temporal* tpose = tpose_in(tposeWkt.c_str());
+                Pose* tposePose = pose_make_2d(xValue, yValue, thetaValue, false, 0);
+                Temporal* tpose = tposePose ? (Temporal*) tposeinst_make(tposePose, NES::MeosRuntime::timestamptz(timestampValue)) : nullptr;
+                free(tposePose);
                 if (!tpose) return 0;
                 Temporal* tgeo = tpose_to_tpoint(tpose);
                 if (!tgeo) {{ free(tpose); return 0; }}
@@ -2277,7 +2286,7 @@ PHYSICAL_CPP_TEMPLATE_TWO_TPOSE_POINTS_VIA_COMPOSITION = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -2331,18 +2340,17 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 if (!(xAValue >= -180.0 && xAValue <= 180.0 && yAValue >= -90.0 && yAValue <= 90.0)) return 0;
                 if (!(xBValue >= -180.0 && xBValue <= 180.0 && yBValue >= -90.0 && yBValue <= 90.0)) return 0;
 
-                const std::string tsAString = MEOS::Meos::convertEpochToTimestamp(tsAValue);
-                const std::string tsBString = MEOS::Meos::convertEpochToTimestamp(tsBValue);
-                std::string tposeAWkt = fmt::format("Pose(Point({{}} {{}}), {{}})@{{}}", xAValue, yAValue, thetaAValue, tsAString);
-                std::string tposeBWkt = fmt::format("Pose(Point({{}} {{}}), {{}})@{{}}", xBValue, yBValue, thetaBValue, tsBString);
 
-                if (tposeAWkt.empty() || tposeBWkt.empty()) return 0;
 
-                Temporal* tposeA = tpose_in(tposeAWkt.c_str());
+                Pose* tposeAPose = pose_make_2d(xAValue, yAValue, thetaAValue, false, 0);
+                Temporal* tposeA = tposeAPose ? (Temporal*) tposeinst_make(tposeAPose, NES::MeosRuntime::timestamptz(tsAValue)) : nullptr;
+                free(tposeAPose);
                 if (!tposeA) return 0;
                 Temporal* tgeoA = tpose_to_tpoint(tposeA);
                 if (!tgeoA) {{ free(tposeA); return 0; }}
-                Temporal* tposeB = tpose_in(tposeBWkt.c_str());
+                Pose* tposeBPose = pose_make_2d(xBValue, yBValue, thetaBValue, false, 0);
+                Temporal* tposeB = tposeBPose ? (Temporal*) tposeinst_make(tposeBPose, NES::MeosRuntime::timestamptz(tsBValue)) : nullptr;
+                free(tposeBPose);
                 if (!tposeB) {{ free(tgeoA); free(tposeA); return 0; }}
                 Temporal* tgeoB = tpose_to_tpoint(tposeB);
                 if (!tgeoB) {{ free(tposeB); free(tgeoA); free(tposeA); return 0; }}
@@ -2404,7 +2412,7 @@ PHYSICAL_CPP_TEMPLATE_TNPOINT_POINT_VIA_COMPOSITION = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -2452,8 +2460,6 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
             {{
                 MEOS::Meos::ensureMeosInitialized();
 
-                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string tnpointWkt = fmt::format("NPoint({{}}, {{}})@{{}}", ridValue, fractionValue, timestampString);
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\\'' || staticGeometryWkt.front() == '"'))
@@ -2461,9 +2467,11 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\\'' || staticGeometryWkt.back() == '"'))
                     staticGeometryWkt.pop_back();
 
-                if (tnpointWkt.empty() || staticGeometryWkt.empty()) return 0;
+                if (staticGeometryWkt.empty()) return 0;
 
-                Temporal* tnpoint = tnpoint_in(tnpointWkt.c_str());
+                Npoint* tnpointNpoint = npoint_make(ridValue, fractionValue);
+                Temporal* tnpoint = tnpointNpoint ? (Temporal*) tnpointinst_make(tnpointNpoint, NES::MeosRuntime::timestamptz(timestampValue)) : nullptr;
+                free(tnpointNpoint);
                 if (!tnpoint) return 0;
                 Temporal* tgeo = tnpoint_to_tgeompoint(tnpoint);
                 if (!tgeo) {{ free(tnpoint); return 0; }}
@@ -2522,7 +2530,7 @@ PHYSICAL_CPP_TEMPLATE_TWO_TNPOINT_POINTS_VIA_COMPOSITION = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -2572,18 +2580,17 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
             {{
                 MEOS::Meos::ensureMeosInitialized();
 
-                const std::string tsAString = MEOS::Meos::convertEpochToTimestamp(tsAValue);
-                const std::string tsBString = MEOS::Meos::convertEpochToTimestamp(tsBValue);
-                std::string tnpointAWkt = fmt::format("NPoint({{}}, {{}})@{{}}", ridAValue, fractionAValue, tsAString);
-                std::string tnpointBWkt = fmt::format("NPoint({{}}, {{}})@{{}}", ridBValue, fractionBValue, tsBString);
 
-                if (tnpointAWkt.empty() || tnpointBWkt.empty()) return 0;
 
-                Temporal* tnpointA = tnpoint_in(tnpointAWkt.c_str());
+                Npoint* tnpointANpoint = npoint_make(ridAValue, fractionAValue);
+                Temporal* tnpointA = tnpointANpoint ? (Temporal*) tnpointinst_make(tnpointANpoint, NES::MeosRuntime::timestamptz(tsAValue)) : nullptr;
+                free(tnpointANpoint);
                 if (!tnpointA) return 0;
                 Temporal* tgeoA = tnpoint_to_tgeompoint(tnpointA);
                 if (!tgeoA) {{ free(tnpointA); return 0; }}
-                Temporal* tnpointB = tnpoint_in(tnpointBWkt.c_str());
+                Npoint* tnpointBNpoint = npoint_make(ridBValue, fractionBValue);
+                Temporal* tnpointB = tnpointBNpoint ? (Temporal*) tnpointinst_make(tnpointBNpoint, NES::MeosRuntime::timestamptz(tsBValue)) : nullptr;
+                free(tnpointBNpoint);
                 if (!tnpointB) {{ free(tgeoA); free(tnpointA); return 0; }}
                 Temporal* tgeoB = tnpoint_to_tgeompoint(tnpointB);
                 if (!tgeoB) {{ free(tnpointB); free(tgeoA); free(tnpointA); return 0; }}
@@ -2640,7 +2647,7 @@ PHYSICAL_CPP_TEMPLATE_TPOSE_POINT_WITH_DIST_VIA_COMPOSITION = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -2691,9 +2698,6 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 MEOS::Meos::ensureMeosInitialized();
                 if (!(xValue >= -180.0 && xValue <= 180.0 && yValue >= -90.0 && yValue <= 90.0)) return 0;
 
-                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string tposeWkt = fmt::format("Pose(Point({{}} {{}}), {{}})@{{}}",
-                                                  xValue, yValue, thetaValue, timestampString);
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\\'' || staticGeometryWkt.front() == '"'))
@@ -2701,9 +2705,11 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\\'' || staticGeometryWkt.back() == '"'))
                     staticGeometryWkt.pop_back();
 
-                if (tposeWkt.empty() || staticGeometryWkt.empty()) return 0;
+                if (staticGeometryWkt.empty()) return 0;
 
-                Temporal* tpose = tpose_in(tposeWkt.c_str());
+                Pose* tposePose = pose_make_2d(xValue, yValue, thetaValue, false, 0);
+                Temporal* tpose = tposePose ? (Temporal*) tposeinst_make(tposePose, NES::MeosRuntime::timestamptz(timestampValue)) : nullptr;
+                free(tposePose);
                 if (!tpose) return 0;
                 Temporal* tgeo = tpose_to_tpoint(tpose);
                 if (!tgeo) {{ free(tpose); return 0; }}
@@ -2759,7 +2765,7 @@ PHYSICAL_CPP_TEMPLATE_TWO_TPOSE_POINTS_WITH_DIST_VIA_COMPOSITION = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -2815,18 +2821,17 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 if (!(xAValue >= -180.0 && xAValue <= 180.0 && yAValue >= -90.0 && yAValue <= 90.0)) return 0;
                 if (!(xBValue >= -180.0 && xBValue <= 180.0 && yBValue >= -90.0 && yBValue <= 90.0)) return 0;
 
-                const std::string tsAString = MEOS::Meos::convertEpochToTimestamp(tsAValue);
-                const std::string tsBString = MEOS::Meos::convertEpochToTimestamp(tsBValue);
-                std::string tposeAWkt = fmt::format("Pose(Point({{}} {{}}), {{}})@{{}}", xAValue, yAValue, thetaAValue, tsAString);
-                std::string tposeBWkt = fmt::format("Pose(Point({{}} {{}}), {{}})@{{}}", xBValue, yBValue, thetaBValue, tsBString);
 
-                if (tposeAWkt.empty() || tposeBWkt.empty()) return 0;
 
-                Temporal* tposeA = tpose_in(tposeAWkt.c_str());
+                Pose* tposeAPose = pose_make_2d(xAValue, yAValue, thetaAValue, false, 0);
+                Temporal* tposeA = tposeAPose ? (Temporal*) tposeinst_make(tposeAPose, NES::MeosRuntime::timestamptz(tsAValue)) : nullptr;
+                free(tposeAPose);
                 if (!tposeA) return 0;
                 Temporal* tgeoA = tpose_to_tpoint(tposeA);
                 if (!tgeoA) {{ free(tposeA); return 0; }}
-                Temporal* tposeB = tpose_in(tposeBWkt.c_str());
+                Pose* tposeBPose = pose_make_2d(xBValue, yBValue, thetaBValue, false, 0);
+                Temporal* tposeB = tposeBPose ? (Temporal*) tposeinst_make(tposeBPose, NES::MeosRuntime::timestamptz(tsBValue)) : nullptr;
+                free(tposeBPose);
                 if (!tposeB) {{ free(tgeoA); free(tposeA); return 0; }}
                 Temporal* tgeoB = tpose_to_tpoint(tposeB);
                 if (!tgeoB) {{ free(tposeB); free(tgeoA); free(tposeA); return 0; }}
@@ -2883,7 +2888,7 @@ PHYSICAL_CPP_TEMPLATE_TNPOINT_POINT_WITH_DIST_VIA_COMPOSITION = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -2932,8 +2937,6 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
             {{
                 MEOS::Meos::ensureMeosInitialized();
 
-                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string tnpointWkt = fmt::format("NPoint({{}}, {{}})@{{}}", ridValue, fractionValue, timestampString);
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\\'' || staticGeometryWkt.front() == '"'))
@@ -2941,9 +2944,11 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\\'' || staticGeometryWkt.back() == '"'))
                     staticGeometryWkt.pop_back();
 
-                if (tnpointWkt.empty() || staticGeometryWkt.empty()) return 0;
+                if (staticGeometryWkt.empty()) return 0;
 
-                Temporal* tnpoint = tnpoint_in(tnpointWkt.c_str());
+                Npoint* tnpointNpoint = npoint_make(ridValue, fractionValue);
+                Temporal* tnpoint = tnpointNpoint ? (Temporal*) tnpointinst_make(tnpointNpoint, NES::MeosRuntime::timestamptz(timestampValue)) : nullptr;
+                free(tnpointNpoint);
                 if (!tnpoint) return 0;
                 Temporal* tgeo = tnpoint_to_tgeompoint(tnpoint);
                 if (!tgeo) {{ free(tnpoint); return 0; }}
@@ -2999,7 +3004,7 @@ PHYSICAL_CPP_TEMPLATE_TWO_TNPOINT_POINTS_WITH_DIST_VIA_COMPOSITION = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -3051,18 +3056,17 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
             {{
                 MEOS::Meos::ensureMeosInitialized();
 
-                const std::string tsAString = MEOS::Meos::convertEpochToTimestamp(tsAValue);
-                const std::string tsBString = MEOS::Meos::convertEpochToTimestamp(tsBValue);
-                std::string tnpointAWkt = fmt::format("NPoint({{}}, {{}})@{{}}", ridAValue, fractionAValue, tsAString);
-                std::string tnpointBWkt = fmt::format("NPoint({{}}, {{}})@{{}}", ridBValue, fractionBValue, tsBString);
 
-                if (tnpointAWkt.empty() || tnpointBWkt.empty()) return 0;
 
-                Temporal* tnpointA = tnpoint_in(tnpointAWkt.c_str());
+                Npoint* tnpointANpoint = npoint_make(ridAValue, fractionAValue);
+                Temporal* tnpointA = tnpointANpoint ? (Temporal*) tnpointinst_make(tnpointANpoint, NES::MeosRuntime::timestamptz(tsAValue)) : nullptr;
+                free(tnpointANpoint);
                 if (!tnpointA) return 0;
                 Temporal* tgeoA = tnpoint_to_tgeompoint(tnpointA);
                 if (!tgeoA) {{ free(tnpointA); return 0; }}
-                Temporal* tnpointB = tnpoint_in(tnpointBWkt.c_str());
+                Npoint* tnpointBNpoint = npoint_make(ridBValue, fractionBValue);
+                Temporal* tnpointB = tnpointBNpoint ? (Temporal*) tnpointinst_make(tnpointBNpoint, NES::MeosRuntime::timestamptz(tsBValue)) : nullptr;
+                free(tnpointBNpoint);
                 if (!tnpointB) {{ free(tgeoA); free(tnpointA); return 0; }}
                 Temporal* tgeoB = tnpoint_to_tgeompoint(tnpointB);
                 if (!tgeoB) {{ free(tnpointB); free(tgeoA); free(tnpointA); return 0; }}
@@ -3119,7 +3123,7 @@ PHYSICAL_CPP_TEMPLATE_TCBUFFER_POINT_WITH_DIST = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -3170,9 +3174,6 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 if (!(lonValue >= -180.0 && lonValue <= 180.0 && latValue >= -90.0 && latValue <= 90.0)) return 0;
                 if (radiusValue < 0.0) return 0;
 
-                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string tcbufferWkt = fmt::format("Cbuffer(Point({{}} {{}}),{{}})@{{}}",
-                                                     lonValue, latValue, radiusValue, timestampString);
                 std::string staticGeometryWkt(geometryPtr, geometrySize);
 
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.front() == '\\'' || staticGeometryWkt.front() == '"'))
@@ -3180,9 +3181,13 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 while (!staticGeometryWkt.empty() && (staticGeometryWkt.back() == '\\'' || staticGeometryWkt.back() == '"'))
                     staticGeometryWkt.pop_back();
 
-                if (tcbufferWkt.empty() || staticGeometryWkt.empty()) return 0;
+                if (staticGeometryWkt.empty()) return 0;
 
-                Temporal* tcbuffer = tcbuffer_in(tcbufferWkt.c_str());
+                GSERIALIZED* tcbufferPoint = geompoint_make2d(0, lonValue, latValue);
+                Cbuffer* tcbufferCbuffer = tcbufferPoint ? cbuffer_make(tcbufferPoint, radiusValue) : nullptr;
+                Temporal* tcbuffer = tcbufferCbuffer ? (Temporal*) tcbufferinst_make(tcbufferCbuffer, NES::MeosRuntime::timestamptz(timestampValue)) : nullptr;
+                free(tcbufferCbuffer);
+                free(tcbufferPoint);
                 if (!tcbuffer) return 0;
                 MEOS::Meos::StaticGeometry staticGeometry(staticGeometryWkt);
                 if (!staticGeometry.getGeometry()) {{ free(tcbuffer); return 0; }}
@@ -3234,7 +3239,7 @@ PHYSICAL_CPP_TEMPLATE_TCBUFFER_POINT_CBUFFER_WITH_DIST = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -3285,9 +3290,6 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 if (!(lonValue >= -180.0 && lonValue <= 180.0 && latValue >= -90.0 && latValue <= 90.0)) return 0;
                 if (radiusValue < 0.0) return 0;
 
-                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string tcbufferWkt = fmt::format("Cbuffer(Point({{}} {{}}),{{}})@{{}}",
-                                                     lonValue, latValue, radiusValue, timestampString);
                 std::string cbufferLiteral(cbufLitPtr, cbufLitSize);
 
                 while (!cbufferLiteral.empty() && (cbufferLiteral.front() == '\\'' || cbufferLiteral.front() == '"'))
@@ -3295,9 +3297,13 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 while (!cbufferLiteral.empty() && (cbufferLiteral.back() == '\\'' || cbufferLiteral.back() == '"'))
                     cbufferLiteral.pop_back();
 
-                if (tcbufferWkt.empty() || cbufferLiteral.empty()) return 0;
+                if (cbufferLiteral.empty()) return 0;
 
-                Temporal* tcbuffer = tcbuffer_in(tcbufferWkt.c_str());
+                GSERIALIZED* tcbufferPoint = geompoint_make2d(0, lonValue, latValue);
+                Cbuffer* tcbufferCbuffer = tcbufferPoint ? cbuffer_make(tcbufferPoint, radiusValue) : nullptr;
+                Temporal* tcbuffer = tcbufferCbuffer ? (Temporal*) tcbufferinst_make(tcbufferCbuffer, NES::MeosRuntime::timestamptz(timestampValue)) : nullptr;
+                free(tcbufferCbuffer);
+                free(tcbufferPoint);
                 if (!tcbuffer) return 0;
                 Cbuffer* cb = cbuffer_in(cbufferLiteral.c_str());
                 if (!cb) {{ free(tcbuffer); return 0; }}
@@ -3350,7 +3356,7 @@ PHYSICAL_CPP_TEMPLATE_TWO_TCBUFFER_POINTS_WITH_DIST = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <PhysicalFunctionRegistry.hpp>
@@ -3405,14 +3411,18 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 if (!(lonBValue >= -180.0 && lonBValue <= 180.0 && latBValue >= -90.0 && latBValue <= 90.0)) return 0;
                 if (radiusAValue < 0.0 || radiusBValue < 0.0) return 0;
 
-                const std::string tsAString = MEOS::Meos::convertEpochToTimestamp(tsAValue);
-                const std::string tsBString = MEOS::Meos::convertEpochToTimestamp(tsBValue);
-                std::string wktA = fmt::format("Cbuffer(Point({{}} {{}}),{{}})@{{}}", lonAValue, latAValue, radiusAValue, tsAString);
-                std::string wktB = fmt::format("Cbuffer(Point({{}} {{}}),{{}})@{{}}", lonBValue, latBValue, radiusBValue, tsBString);
 
-                Temporal* tA = tcbuffer_in(wktA.c_str());
+                GSERIALIZED* tAPoint = geompoint_make2d(0, lonAValue, latAValue);
+                Cbuffer* tACbuffer = tAPoint ? cbuffer_make(tAPoint, radiusAValue) : nullptr;
+                Temporal* tA = tACbuffer ? (Temporal*) tcbufferinst_make(tACbuffer, NES::MeosRuntime::timestamptz(tsAValue)) : nullptr;
+                free(tACbuffer);
+                free(tAPoint);
                 if (!tA) return 0;
-                Temporal* tB = tcbuffer_in(wktB.c_str());
+                GSERIALIZED* tBPoint = geompoint_make2d(0, lonBValue, latBValue);
+                Cbuffer* tBCbuffer = tBPoint ? cbuffer_make(tBPoint, radiusBValue) : nullptr;
+                Temporal* tB = tBCbuffer ? (Temporal*) tcbufferinst_make(tBCbuffer, NES::MeosRuntime::timestamptz(tsBValue)) : nullptr;
+                free(tBCbuffer);
+                free(tBPoint);
                 if (!tB) {{ free(tA); return 0; }}
 
                 {return_type} r = {meos_call}(tA, tB, distValue);
@@ -3466,7 +3476,7 @@ PHYSICAL_CPP_TEMPLATE_TWO_TCBUFFER_POINTS = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <PhysicalFunctionRegistry.hpp>
@@ -3519,14 +3529,18 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 if (!(lonBValue >= -180.0 && lonBValue <= 180.0 && latBValue >= -90.0 && latBValue <= 90.0)) return 0;
                 if (radiusAValue < 0.0 || radiusBValue < 0.0) return 0;
 
-                const std::string tsAString = MEOS::Meos::convertEpochToTimestamp(tsAValue);
-                const std::string tsBString = MEOS::Meos::convertEpochToTimestamp(tsBValue);
-                std::string wktA = fmt::format("Cbuffer(Point({{}} {{}}),{{}})@{{}}", lonAValue, latAValue, radiusAValue, tsAString);
-                std::string wktB = fmt::format("Cbuffer(Point({{}} {{}}),{{}})@{{}}", lonBValue, latBValue, radiusBValue, tsBString);
 
-                Temporal* tA = tcbuffer_in(wktA.c_str());
+                GSERIALIZED* tAPoint = geompoint_make2d(0, lonAValue, latAValue);
+                Cbuffer* tACbuffer = tAPoint ? cbuffer_make(tAPoint, radiusAValue) : nullptr;
+                Temporal* tA = tACbuffer ? (Temporal*) tcbufferinst_make(tACbuffer, NES::MeosRuntime::timestamptz(tsAValue)) : nullptr;
+                free(tACbuffer);
+                free(tAPoint);
                 if (!tA) return 0;
-                Temporal* tB = tcbuffer_in(wktB.c_str());
+                GSERIALIZED* tBPoint = geompoint_make2d(0, lonBValue, latBValue);
+                Cbuffer* tBCbuffer = tBPoint ? cbuffer_make(tBPoint, radiusBValue) : nullptr;
+                Temporal* tB = tBCbuffer ? (Temporal*) tcbufferinst_make(tBCbuffer, NES::MeosRuntime::timestamptz(tsBValue)) : nullptr;
+                free(tBCbuffer);
+                free(tBPoint);
                 if (!tB) {{ free(tA); return 0; }}
 
                 {return_type} r = {meos_call}(tA, tB);
@@ -3582,7 +3596,7 @@ PHYSICAL_CPP_TEMPLATE_TCBUFFER_POINT_CBUFFER = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -3636,9 +3650,6 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 if (!(lonValue >= -180.0 && lonValue <= 180.0 && latValue >= -90.0 && latValue <= 90.0)) return 0;
                 if (radiusValue < 0.0) return 0;
 
-                const std::string timestampString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string tcbufferWkt = fmt::format("Cbuffer(Point({{}} {{}}),{{}})@{{}}",
-                                                     lonValue, latValue, radiusValue, timestampString);
                 std::string cbufferLiteral(cbufLitPtr, cbufLitSize);
 
                 while (!cbufferLiteral.empty() && (cbufferLiteral.front() == '\\'' || cbufferLiteral.front() == '"'))
@@ -3646,9 +3657,13 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
                 while (!cbufferLiteral.empty() && (cbufferLiteral.back() == '\\'' || cbufferLiteral.back() == '"'))
                     cbufferLiteral.pop_back();
 
-                if (tcbufferWkt.empty() || cbufferLiteral.empty()) return 0;
+                if (cbufferLiteral.empty()) return 0;
 
-                Temporal* tcbuffer = tcbuffer_in(tcbufferWkt.c_str());
+                GSERIALIZED* tcbufferPoint = geompoint_make2d(0, lonValue, latValue);
+                Cbuffer* tcbufferCbuffer = tcbufferPoint ? cbuffer_make(tcbufferPoint, radiusValue) : nullptr;
+                Temporal* tcbuffer = tcbufferCbuffer ? (Temporal*) tcbufferinst_make(tcbufferCbuffer, NES::MeosRuntime::timestamptz(timestampValue)) : nullptr;
+                free(tcbufferCbuffer);
+                free(tcbufferPoint);
                 if (!tcbuffer) return 0;
                 Cbuffer* cb = cbuffer_in(cbufferLiteral.c_str());
                 if (!cb) {{ free(tcbuffer); return 0; }}
@@ -3703,7 +3718,7 @@ PHYSICAL_CPP_TEMPLATE_TNUMBER_POINT_WITH_SCALAR = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <PhysicalFunctionRegistry.hpp>
@@ -3747,9 +3762,7 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
             try
             {{
                 MEOS::Meos::ensureMeosInitialized();
-                const std::string tsString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string wkt = fmt::format("{tnumber_wkt_format}", valueValue, tsString);
-                Temporal* temp = {tnumber_in_fn}(wkt.c_str());
+                Temporal* temp = (Temporal*) {tnumber_inst_make}(valueValue, NES::MeosRuntime::timestamptz(timestampValue));
                 if (!temp) return 0;
                 {return_type} r = {meos_call}(temp, scalarValue);
                 free(temp);
@@ -3798,7 +3811,7 @@ PHYSICAL_CPP_TEMPLATE_TWO_TNUMBER_POINTS = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <PhysicalFunctionRegistry.hpp>
@@ -3842,13 +3855,9 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
             try
             {{
                 MEOS::Meos::ensureMeosInitialized();
-                const std::string tsAStr = MEOS::Meos::convertEpochToTimestamp(tsAValue);
-                const std::string tsBStr = MEOS::Meos::convertEpochToTimestamp(tsBValue);
-                std::string wktA = fmt::format("{tnumber_wkt_format}", valueAValue, tsAStr);
-                std::string wktB = fmt::format("{tnumber_wkt_format}", valueBValue, tsBStr);
-                Temporal* tempA = {tnumber_in_fn}(wktA.c_str());
+                Temporal* tempA = (Temporal*) {tnumber_inst_make}(valueAValue, NES::MeosRuntime::timestamptz(tsAValue));
                 if (!tempA) return 0;
-                Temporal* tempB = {tnumber_in_fn}(wktB.c_str());
+                Temporal* tempB = (Temporal*) {tnumber_inst_make}(valueBValue, NES::MeosRuntime::timestamptz(tsBValue));
                 if (!tempB) {{ free(tempA); return 0; }}
                 {return_type} r = {meos_call}(tempA, tempB);
                 free(tempA);
@@ -3901,7 +3910,7 @@ PHYSICAL_CPP_TEMPLATE_TNUMBER_SCALAR_FIRST = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/Interface/Record.hpp>
 #include <PhysicalFunctionRegistry.hpp>
@@ -3945,9 +3954,7 @@ VarVal {nebula_name}PhysicalFunction::execute(const Record& record, ArenaRef& ar
             try
             {{
                 MEOS::Meos::ensureMeosInitialized();
-                const std::string tsString = MEOS::Meos::convertEpochToTimestamp(timestampValue);
-                std::string wkt = fmt::format("{tnumber_wkt_format}", valueValue, tsString);
-                Temporal* temp = {tnumber_in_fn}(wkt.c_str());
+                Temporal* temp = (Temporal*) {tnumber_inst_make}(valueValue, NES::MeosRuntime::timestamptz(timestampValue));
                 if (!temp) return 0;
                 {return_type} r = {meos_call}(scalarValue, temp);
                 free(temp);
@@ -3994,37 +4001,41 @@ PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::Register{
 # defines `Temporal* {var}` (NULL-checked) from the fields. {z} = zero-return literal.
 GENERIC_INPUTS = {
     "tgeompoint": dict(fields=[("lon", "double"), ("lat", "double"), ("ts", "uint64_t")], header="meos_geo.h", build=(
-        '                std::string {var}Wkt = fmt::format("SRID=4326;Point({{}} {{}})@{{}}", lon, lat, MEOS::Meos::convertEpochToTimestamp(ts));\n'
-        '                Temporal* {var} = tgeompoint_in({var}Wkt.c_str());\n'
+        '                GSERIALIZED* {var}Point = geompoint_make2d(4326, lon, lat);\n'
+        '                Temporal* {var} = {var}Point ? (Temporal*) tpointinst_make({var}Point, NES::MeosRuntime::timestamptz(ts)) : nullptr;\n'
+        '                free({var}Point);\n'
         '                if (!{var}) return {z};\n')),
     "tgeometry": dict(fields=[("geomWkt", "VariableSizedData"), ("ts", "uint64_t")], header="meos_geo.h", build=(
         '                std::string {var}G(geomWktPtr, geomWktSize);\n'
-        '                std::string {var}Wkt = {var}G + "@" + MEOS::Meos::convertEpochToTimestamp(ts);\n'
-        '                Temporal* {var} = tgeometry_in({var}Wkt.c_str());\n'
+        '                GSERIALIZED* {var}Geometry = geom_in({var}G.c_str(), -1);\n'
+        '                Temporal* {var} = {var}Geometry ? (Temporal*) tgeoinst_make({var}Geometry, NES::MeosRuntime::timestamptz(ts)) : nullptr;\n'
+        '                free({var}Geometry);\n'
         '                if (!{var}) return {z};\n')),
     "tcbuffer": dict(fields=[("lon", "double"), ("lat", "double"), ("radius", "double"), ("ts", "uint64_t")], header="meos_cbuffer.h", build=(
-        '                std::string {var}Wkt = fmt::format("Cbuffer(Point({{}} {{}}),{{}})@{{}}", lon, lat, radius, MEOS::Meos::convertEpochToTimestamp(ts));\n'
-        '                Temporal* {var} = tcbuffer_in({var}Wkt.c_str());\n'
+        '                GSERIALIZED* {var}Point = geompoint_make2d(0, lon, lat);\n'
+        '                Cbuffer* {var}Cbuffer = {var}Point ? cbuffer_make({var}Point, radius) : nullptr;\n'
+        '                Temporal* {var} = {var}Cbuffer ? (Temporal*) tcbufferinst_make({var}Cbuffer, NES::MeosRuntime::timestamptz(ts)) : nullptr;\n'
+        '                free({var}Cbuffer);\n'
+        '                free({var}Point);\n'
         '                if (!{var}) return {z};\n')),
     "tpose": dict(fields=[("x", "double"), ("y", "double"), ("theta", "double"), ("ts", "uint64_t")], header="meos_pose.h", build=(
-        '                std::string {var}Wkt = fmt::format("Pose(Point({{}} {{}}),{{}})@{{}}", x, y, theta, MEOS::Meos::convertEpochToTimestamp(ts));\n'
-        '                Temporal* {var} = tpose_in({var}Wkt.c_str());\n'
+        '                Pose* {var}Pose = pose_make_2d(x, y, theta, false, 0);\n'
+        '                Temporal* {var} = {var}Pose ? (Temporal*) tposeinst_make({var}Pose, NES::MeosRuntime::timestamptz(ts)) : nullptr;\n'
+        '                free({var}Pose);\n'
         '                if (!{var}) return {z};\n')),
     "tnpoint": dict(fields=[("rid", "int64_t"), ("frac", "double"), ("ts", "uint64_t")], header="meos_npoint.h", build=(
-        '                std::string {var}Wkt = fmt::format("NPoint({{}},{{}})@{{}}", rid, frac, MEOS::Meos::convertEpochToTimestamp(ts));\n'
-        '                Temporal* {var} = tnpoint_in({var}Wkt.c_str());\n'
+        '                Npoint* {var}Npoint = npoint_make(rid, frac);\n'
+        '                Temporal* {var} = {var}Npoint ? (Temporal*) tnpointinst_make({var}Npoint, NES::MeosRuntime::timestamptz(ts)) : nullptr;\n'
+        '                free({var}Npoint);\n'
         '                if (!{var}) return {z};\n')),
     "tfloat": dict(fields=[("value", "double"), ("ts", "uint64_t")], header="meos_geo.h", build=(
-        '                std::string {var}Wkt = fmt::format("{{}}@{{}}", value, MEOS::Meos::convertEpochToTimestamp(ts));\n'
-        '                Temporal* {var} = tfloat_in({var}Wkt.c_str());\n'
+        '                Temporal* {var} = (Temporal*) tfloatinst_make(value, NES::MeosRuntime::timestamptz(ts));\n'
         '                if (!{var}) return {z};\n')),
     "tint": dict(fields=[("value", "int32_t"), ("ts", "uint64_t")], header="meos_geo.h", build=(
-        '                std::string {var}Wkt = fmt::format("{{}}@{{}}", value, MEOS::Meos::convertEpochToTimestamp(ts));\n'
-        '                Temporal* {var} = tint_in({var}Wkt.c_str());\n'
+        '                Temporal* {var} = (Temporal*) tintinst_make(value, NES::MeosRuntime::timestamptz(ts));\n'
         '                if (!{var}) return {z};\n')),
     "tbool": dict(fields=[("value", "bool"), ("ts", "uint64_t")], header="meos_geo.h", build=(
-        '                std::string {var}Wkt = fmt::format("{{}}@{{}}", value ? "t" : "f", MEOS::Meos::convertEpochToTimestamp(ts));\n'
-        '                Temporal* {var} = tbool_in({var}Wkt.c_str());\n'
+        '                Temporal* {var} = (Temporal*) tboolinst_make(value, NES::MeosRuntime::timestamptz(ts));\n'
         '                if (!{var}) return {z};\n')),
     # The efficient mechanism: the operand is an UPSTREAM MEOS value (a windowed
     # mini-trip trajectory, or any temporal) carried as a VARSIZED hex-WKB field,
@@ -4240,7 +4251,7 @@ GENERIC_PHYSICAL_TEMPLATE = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>
@@ -4325,7 +4336,7 @@ GENERIC_PHYSICAL_WKB_TEMPLATE = """\
 #include <Functions/Meos/{nebula_name}PhysicalFunction.hpp>
 
 #include <Functions/PhysicalFunction.hpp>
-#include <MEOSWrapper.hpp>
+#include <MeosKernelRuntime.hpp>
 #include <Nautilus/DataTypes/VarVal.hpp>
 #include <Nautilus/DataTypes/VariableSizedData.hpp>
 #include <Nautilus/Interface/Record.hpp>

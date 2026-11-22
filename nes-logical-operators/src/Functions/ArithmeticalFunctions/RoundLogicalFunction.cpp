@@ -14,32 +14,35 @@
 
 #include <Functions/ArithmeticalFunctions/RoundLogicalFunction.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
+#include <DataTypes/DataTypeProvider.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-RoundLogicalFunction::RoundLogicalFunction(const LogicalFunction& child) : dataType(child.getDataType()), child(child) { };
+RoundLogicalFunction::RoundLogicalFunction(LogicalFunction child) : child(std::move(child)) { };
 
-bool RoundLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool RoundLogicalFunction::operator==(const RoundLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const RoundLogicalFunction*>(&rhs))
-    {
-        return child == other->getChildren()[0];
-    }
-    return false;
+    return child == rhs.getChildren()[0];
 }
 
 std::string RoundLogicalFunction::explain(ExplainVerbosity verbosity) const
@@ -56,21 +59,20 @@ DataType RoundLogicalFunction::getDataType() const
     return dataType;
 };
 
-LogicalFunction RoundLogicalFunction::withDataType(const DataType& dataType) const
+LogicalFunction RoundLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
     auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
-LogicalFunction RoundLogicalFunction::withInferredDataType(const Schema& schema) const
-{
-    std::vector<LogicalFunction> newChildren;
-    for (auto& child : getChildren())
+    copy.child = child.withInferredDataType(schema);
+    if (!copy.child.getDataType().isNumeric())
     {
-        newChildren.push_back(child.withInferredDataType(schema));
+        throw CannotInferStamp("Cannot apply round function on non-numeric input function {}", copy.child);
     }
-    return withChildren(newChildren);
+    /// Single-argument ROUND is not part of ISO/IEC 9075, but PostgreSQL, DuckDB, MySQL, and SQLite agree on preserving the input
+    /// type: floats stay floats and integers pass through unchanged (ROUND of an integer is the identity), so we do the same and
+    /// never cast to INT64. Ties round half away from zero (see RoundPhysicalFunction).
+    copy.dataType = copy.child.getDataType();
+    copy.dataType.nullable = std::ranges::any_of(copy.getChildren(), [](const auto& child) { return child.getDataType().nullable; });
+    return copy;
 };
 
 std::vector<LogicalFunction> RoundLogicalFunction::getChildren() const
@@ -78,7 +80,7 @@ std::vector<LogicalFunction> RoundLogicalFunction::getChildren() const
     return {child};
 };
 
-LogicalFunction RoundLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+RoundLogicalFunction RoundLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 1, "RoundLogicalFunction requires exactly one child, but got {}", children.size());
     auto copy = *this;
@@ -91,17 +93,18 @@ std::string_view RoundLogicalFunction::getType() const
     return NAME;
 }
 
-SerializableFunction RoundLogicalFunction::serialize() const
+Reflected Reflector<RoundLogicalFunction>::operator()(const RoundLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(child.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedRoundLogicalFunction{.child = function.child});
 }
 
-LogicalFunctionRegistryReturnType
-LogicalFunctionGeneratedRegistrar::RegisterRoundLogicalFunction(LogicalFunctionRegistryArguments arguments)
+RoundLogicalFunction Unreflector<RoundLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [child] = context.unreflect<detail::ReflectedRoundLogicalFunction>(reflected);
+    return RoundLogicalFunction(std::move(child));
+}
+
+LogicalFunctionRegistryReturnType RoundLogicalFunction::createRound(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 1)
     {

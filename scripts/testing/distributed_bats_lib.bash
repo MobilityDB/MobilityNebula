@@ -1,0 +1,462 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#    https://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Shared bats helpers for the distributed/docker-compose test suites in this
+# repo. Sourced by individual *.bats files via the NES_BATS_LIB env var
+# injected from CMake.
+#
+# The library has two layers:
+#
+#   Layer 1 — primitives (use anywhere):
+#     nes_require_env, nes_require_executable
+#     nes_cleanup_leaked_resources, nes_build_runtime_image, nes_build_app_image
+#     assert_json_equal, assert_json_contains, wait_until
+#     assert_success_within_deadline
+#
+#   Layer 2 — preset for the cli/repl/MQTT-style suites:
+#     nes_distributed_setup_file, nes_distributed_teardown_file
+#     nes_distributed_setup, nes_distributed_teardown
+#     setup_distributed, nes_distributed_start
+#     docker_nes_cli, wait_until_status [--require-healthy <regex>]
+#                                            (used by cli/MQTT* suites)
+#
+#   Layer-2 callers pass the client binary path to nes_distributed_setup_file
+#   (e.g. "$NES_CLI") plus a suite name when more than one suite drives that
+#   binary; see nes_derive_image_names. Testdata is the directory containing the
+#   .bats file.
+
+# Load the standard bats helper libraries when sourced from inside a bats test
+# (bats injects `bats_load_library`). They are resolved via BATS_LIB_PATH, which
+# CMake's CheckTestUtilities.cmake sets after verifying they're installed.
+if declare -F bats_load_library >/dev/null 2>&1; then
+    bats_load_library bats-support
+    bats_load_library bats-assert
+    bats_load_library bats-file
+fi
+
+# ---------------------------------------------------------------------------
+# Layer 1 — primitives
+# ---------------------------------------------------------------------------
+
+nes_require_env() {
+  local var="$1"
+  if [ -z "${!var}" ]; then
+    echo "ERROR: $var environment variable must be set" >&2
+    exit 1
+  fi
+}
+
+nes_require_executable() {
+  local path="$1"
+  if [ ! -f "$path" ]; then
+    echo "ERROR: file does not exist: $path" >&2
+    exit 1
+  fi
+  if [ ! -x "$path" ]; then
+    echo "ERROR: file is not executable: $path" >&2
+    exit 1
+  fi
+}
+
+assert_file_line_count() {
+  local file="$1"
+  local expected="$2"
+  local flag="${3:-}"
+  assert_file_exists "$file"
+  if [ -n "$flag" ] && [ "$flag" != "--ignore-empty-lines" ]; then
+    fail "unknown assert_file_line_count flag: $flag"
+  fi
+  local actual
+  if [ "$flag" = "--ignore-empty-lines" ]; then
+    actual=$(grep -c . "$file" || true)
+  else
+    actual=$(wc -l < "$file")
+  fi
+  if [ "$actual" -ne "$expected" ]; then
+    fail "expected file $file to have $expected lines but has $actual"
+  fi
+}
+
+wait_until() {
+  local deadline=$((SECONDS + 10))
+
+  until "$@" >/dev/null 2>&1; do
+    if ((SECONDS >= deadline)); then
+      fail "timed out waiting for: $*"
+      return 1
+    fi
+    sleep 0.1
+  done
+}
+
+assert_success_within_deadline() {
+  local deadline_seconds="$1"
+  shift
+  local started_at_ns finished_at_ns elapsed_ms
+
+  started_at_ns=$(date +%s%N)
+  run "$@"
+  finished_at_ns=$(date +%s%N)
+  elapsed_ms=$(((finished_at_ns - started_at_ns) / 1000000))
+
+  assert_success || return 1
+  if ((elapsed_ms >= deadline_seconds * 1000)); then
+    fail "command exceeded ${deadline_seconds}s deadline: $* (${elapsed_ms}ms)"
+    return 1
+  fi
+}
+
+# Clean up containers, networks and images leaked by previous (potentially
+# crashed) test runs. Networks are matched by `nes-test=<label>`; images are
+# matched against the reference patterns passed as remaining args.
+nes_cleanup_leaked_resources() {
+  local label="$1"
+  shift
+
+  for net in $(docker network ls --filter label=nes-test=$label -q 2>/dev/null); do
+    docker network inspect "$net" -f '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null | xargs -r docker rm -f 2>/dev/null || true
+  done
+  docker network prune -f --filter label=nes-test=$label 2>/dev/null || true
+
+  if [ "$#" -eq 0 ]; then
+    return 0
+  fi
+
+  local filter_args=()
+  for ref in "$@"; do
+    filter_args+=(--filter "reference=$ref")
+  done
+
+  for img in $(docker images "${filter_args[@]}" -q 2>/dev/null); do
+    docker ps -aq --filter ancestor="$img" 2>/dev/null | xargs -r docker rm -f 2>/dev/null || true
+  done
+  docker images "${filter_args[@]}" -q | xargs -r docker image rm -f 2>/dev/null || true
+}
+
+# Each image build adds a copy of its binary to the Docker build cache, which CI cannot afford.
+# Opt-in, because this removes the whole build cache of the Docker daemon, which others may use.
+nes_prune_build_cache() {
+  if [ "${NES_PRUNE_DOCKER_BUILD_CACHE:-}" = "true" ]; then
+    docker builder prune -af > /dev/null
+  fi
+}
+
+# Build a worker-style image (FROM $NES_RUNTIME_BASE_IMAGE, COPY <bin>, ENTRYPOINT <bin>).
+# Exports the resulting image tag under the env var named in arg1.
+nes_build_runtime_image() {
+  local image_var="$1"
+  local prefix="$2"
+  local bin_path="$3"
+  local container_bin="$4"
+
+  local suffix=$(head -c 8 /dev/urandom | od -An -tx1 | tr -d ' \n')
+  local image_tag="${prefix}-${suffix}"
+  local ctx=$(mktemp -d)
+  cp "$(realpath "$bin_path")" "$ctx/$container_bin"
+  docker build --pull=false --network=none --load -t "$image_tag" -f - "$ctx" <<EOF
+    FROM $NES_RUNTIME_BASE_IMAGE
+    COPY $container_bin /usr/bin
+    ENTRYPOINT ["$container_bin"]
+EOF
+  rm -rf "$ctx"
+  nes_prune_build_cache
+  export "$image_var=$image_tag"
+}
+
+# Build an app-style image (FROM $NES_RUNTIME_BASE_IMAGE, COPY <bin>, no entrypoint —
+# invoked via `docker compose exec`). Exports the tag under arg1.
+nes_build_app_image() {
+  local image_var="$1"
+  local prefix="$2"
+  local bin_path="$3"
+  local container_bin="$4"
+
+  local suffix=$(head -c 8 /dev/urandom | od -An -tx1 | tr -d ' \n')
+  local image_tag="${prefix}-${suffix}"
+  local ctx=$(mktemp -d)
+  cp "$(realpath "$bin_path")" "$ctx/$container_bin"
+  docker build --pull=false --network=none --load -t "$image_tag" -f - "$ctx" <<EOF
+    FROM $NES_RUNTIME_BASE_IMAGE
+    COPY $container_bin /usr/bin
+EOF
+  rm -rf "$ctx"
+  nes_prune_build_cache
+  export "$image_var=$image_tag"
+}
+
+# Normalize JSON (sort keys, pretty-print). On parse failure, print a labelled
+# error with the raw input and the jq diagnostic, then return 1.
+_nes_jq_normalize() {
+  local label="$1"
+  local input="$2"
+  local out
+  if ! out=$(echo "$input" | jq --sort-keys . 2>&1); then
+    {
+      echo "JSON parse error in $label:"
+      echo "--- raw $label ---"
+      echo "$input"
+      echo "--- jq error ---"
+      echo "$out"
+    } >&2
+    return 1
+  fi
+  printf '%s\n' "$out"
+}
+
+assert_json_equal() {
+  local expected="$1"
+  local actual="$2"
+
+  local exp_norm act_norm
+  exp_norm=$(_nes_jq_normalize expected "$expected") || return 1
+  act_norm=$(_nes_jq_normalize actual   "$actual")   || return 1
+
+  if [ "$exp_norm" = "$act_norm" ]; then
+    return 0
+  fi
+
+  {
+    echo "assert_json_equal: JSON differs"
+    diff -u --label expected --label actual \
+      <(printf '%s\n' "$exp_norm") \
+      <(printf '%s\n' "$act_norm")
+  } >&2
+  return 1
+}
+
+assert_json_contains() {
+  local expected="$1"
+  local actual="$2"
+
+  local exp_norm act_norm result
+  exp_norm=$(_nes_jq_normalize 'expected (subset)' "$expected") || return 1
+  act_norm=$(_nes_jq_normalize actual              "$actual")   || return 1
+
+  result=$(jq -n --argjson exp "$expected" --argjson act "$actual" '$act | contains($exp)')
+  if [ "$result" = "true" ]; then
+    return 0
+  fi
+
+  {
+    echo "assert_json_contains: actual does not contain expected subset"
+    echo "--- expected (subset) ---"
+    printf '%s\n' "$exp_norm"
+    echo "--- actual ---"
+    printf '%s\n' "$act_norm"
+  } >&2
+  return 1
+}
+
+# ---------------------------------------------------------------------------
+# Layer 2 — preset for cli/repl/MQTT distributed suites
+# ---------------------------------------------------------------------------
+
+# Derive this suite's docker identity from the client binary path and a suite
+# name (default: binary name without `nes-`). Suites sharing a binary need
+# distinct names: setup_file force-removes everything matching these, so a
+# shared identity wipes a sibling suite's running stack.
+nes_derive_image_names() {
+  local bin_path="$1"
+  local bin_name
+  bin_name=$(basename "$bin_path")
+  local bin_suffix="${bin_name#nes-}"
+  local suite="${2:-$bin_suffix}"
+
+  export NES_BATS_TEST_LABEL="distributed-${suite}"
+  export NES_BATS_WORKER_PREFIX="nes-worker-${suite}-test"
+  export NES_BATS_APP_PREFIX="nes-${suite}-image"
+  export NES_BATS_APP_IMAGE_VAR="${bin_suffix^^}_IMAGE"
+}
+
+nes_distributed_setup_file() {
+  # Pass the client binary path (e.g. "$NES_CLI") and, when more than one suite
+  # drives that binary, a suite name.
+  local bin_path="$1"
+  local bin_name
+  bin_name=$(basename "$bin_path")
+  nes_derive_image_names "$bin_path" "${2:-}"
+
+  nes_cleanup_leaked_resources "$NES_BATS_TEST_LABEL" \
+    "${NES_BATS_WORKER_PREFIX}-*" "${NES_BATS_APP_PREFIX}-*"
+
+  nes_require_env NES_WORKER
+  nes_require_env NES_TEST_TMP_DIR
+  nes_require_env NES_RUNTIME_BASE_IMAGE
+  nes_require_executable "$NES_WORKER"
+  nes_require_executable "$bin_path"
+
+  # Per-test images use random suffixes so parallel checkouts don't collide.
+  # Docker's COPY layer is content-addressed, so unchanged binaries hit cache.
+  nes_build_runtime_image WORKER_IMAGE "$NES_BATS_WORKER_PREFIX" \
+    "$NES_WORKER" nes-single-node-worker
+  nes_build_app_image "$NES_BATS_APP_IMAGE_VAR" "$NES_BATS_APP_PREFIX" \
+    "$bin_path" "$bin_name"
+
+  echo "# Using client binary: $bin_path" >&3
+  echo "# Using NES_WORKER: $NES_WORKER" >&3
+  echo "# Using WORKER_IMAGE: $WORKER_IMAGE" >&3
+  echo "# Using ${NES_BATS_APP_IMAGE_VAR}: ${!NES_BATS_APP_IMAGE_VAR}" >&3
+}
+
+nes_distributed_teardown_file() {
+  echo "# Test suite completed" >&3
+  docker rmi "$WORKER_IMAGE" || true
+  docker rmi "${!NES_BATS_APP_IMAGE_VAR}" || true
+}
+
+nes_distributed_setup() {
+  # Docker Compose talks to the host daemon, so its bind source must be a path
+  # that exists both on the host and in the development container. CI mounts
+  # the repository at the same absolute path in both places.
+  mkdir -p "$NES_TEST_TMP_DIR"
+  export TMP_DIR=$(mktemp -d -p "$NES_TEST_TMP_DIR")
+  # Testdata lives in the same dir as the .bats file (by convention named
+  # `tests/`); copying it as a subdir of TMP_DIR matches the path prefix used
+  # in the @test bodies (e.g. tests/good/example.yaml).
+  cp -r "$(dirname "$BATS_TEST_FILENAME")" "$TMP_DIR"
+  # Give the unprivileged nes user (uid 10000) and any host user access.
+  chmod -R a+rwX "$TMP_DIR"
+  cd "$TMP_DIR" || exit
+  echo "# Using TEST_DIR: $TMP_DIR" >&3
+
+  export TEST_DIR="$TMP_DIR"
+}
+
+nes_distributed_teardown() {
+  docker compose down -v || true
+  if [ -n "${NES_COMPOSE_LOG_PID:-}" ]; then
+    kill "$NES_COMPOSE_LOG_PID" 2>/dev/null || true
+    wait "$NES_COMPOSE_LOG_PID" 2>/dev/null || true
+    unset NES_COMPOSE_LOG_PID
+  fi
+}
+
+# Create containers before attaching so the follower has services to watch,
+# including while startup waits for dependencies to become healthy.
+nes_distributed_start() {
+  local compose_output exit_code=0
+  compose_output=$(docker compose create 2>&1) || exit_code=$?
+  if [ "$exit_code" -ne 0 ]; then
+    printf '%s\n' "$compose_output" > "$TEST_DIR/docker-compose.log"
+    echo "# [docker compose create] (status=$exit_code):" >&3
+    while IFS= read -r line; do echo "#   $line" >&3; done <<< "$compose_output"
+    return $exit_code
+  fi
+  # Close Bats' reporting pipe in the background process to avoid holding it open.
+  docker compose logs --follow --no-color --timestamps \
+    > "$TEST_DIR/docker-compose.log" 2>&1 3>&- &
+  NES_COMPOSE_LOG_PID=$!
+
+  compose_output=$(docker compose up -d --wait 2>&1) || exit_code=$?
+  if [ "$exit_code" -ne 0 ]; then
+    echo "# [docker compose up] (status=$exit_code):" >&3
+    while IFS= read -r line; do echo "#   $line" >&3; done <<< "$compose_output"
+  fi
+  return $exit_code
+}
+
+# Generate docker-compose.yaml from a topology file using the suite's local
+# tests/util/create_compose.sh, then bring the stack up. Assumes the suite has
+# `cd`'d into a working directory containing tests/util/create_compose.sh.
+setup_distributed() {
+  tests/util/create_compose.sh "$1" > docker-compose.yaml
+  nes_distributed_start
+}
+
+docker_nes_cli() {
+  # docker compose exec v2 disconnects the session when its stdin reaches EOF
+  # (docker/compose#10418). In bats subshells stdin is closed, so we pipe from
+  # tail to keep the connection alive.
+  tail -f /dev/null | docker compose exec -T nes-cli nes-cli "$@"
+}
+
+wait_until_status() {
+  local topology_file=$1
+  local desired_status=$2
+  local query_id=$3
+  local healthy_service_regex=
+  local query_status=
+
+  if [ "$#" -eq 5 ]; then
+    if [ "$4" != "--require-healthy" ]; then
+      fail "unknown wait_until_status flag: $4"
+      return 1
+    fi
+    healthy_service_regex=$5
+  elif [ "$#" -ne 3 ]; then
+    fail "usage: wait_until_status <topology> <status> <query_id> [--require-healthy <regex>]"
+    return 1
+  fi
+
+  for i in $(seq 1 80); do
+    sleep 1
+    run docker_nes_cli -t "$topology_file" status "$query_id"
+    [ "$status" -eq 0 ]
+    query_status=$(echo "$output" | jq -r --arg query_id "$query_id" '.[] | select(.query_id == $query_id and (has("local_query_id") | not)) | .query_status')
+    if [ -n "$healthy_service_regex" ]; then
+      local compose_status service health matching_services=0 unhealthy_services=
+      if ! compose_status=$(docker compose ps --all --format '{{.Service}} {{.Health}}'); then
+        echo "# Could not inspect Docker Compose service health" >&3
+        return 1
+      fi
+      while read -r service health; do
+        if [[ "$service" =~ $healthy_service_regex ]]; then
+          matching_services=$((matching_services + 1))
+          if [ "$health" != "healthy" ]; then
+            unhealthy_services+=" $service(${health:-no healthcheck})"
+          fi
+        fi
+      done <<< "$compose_status"
+      if [ "$matching_services" -eq 0 ] || [ -n "$unhealthy_services" ]; then
+        echo "# Services matching $healthy_service_regex are not healthy:${unhealthy_services:- none found}" >&3
+        docker compose ps --all >&3
+        return 1
+      fi
+    fi
+    if [ "$query_status" = "$desired_status" ]; then
+      break
+    fi
+  done
+  [ "$query_status" = "$desired_status" ]
+}
+
+# ---------------------------------------------------------------------------
+# Offline preset — for bats suites that run binaries directly without docker.
+# Suites reference the CMake-injected $NES_CLI / $NES_REPL / $NES_REPL_EMBEDDED
+# / $NES_SYSTEST vars directly. Testdata is the directory containing the .bats
+# file.
+# ---------------------------------------------------------------------------
+
+nes_offline_setup_file() {
+  nes_require_env NES_CLI
+  nes_require_env NES_REPL_EMBEDDED
+  nes_require_env NES_REPL
+  nes_require_env NES_SYSTEST
+  nes_require_env NES_TEST_TMP_DIR
+
+  echo "# Using NES_CLI: $NES_CLI" >&3
+  echo "# Using NES_REPL_EMBEDDED: $NES_REPL_EMBEDDED" >&3
+  echo "# Using NES_REPL: $NES_REPL" >&3
+  echo "# Using NES_SYSTEST: $NES_SYSTEST" >&3
+}
+
+nes_offline_teardown_file() {
+  echo "# Test suite completed" >&3
+}
+
+nes_offline_setup() {
+  mkdir -p "$NES_TEST_TMP_DIR"
+  export TMP_DIR=$(mktemp -d -p "$NES_TEST_TMP_DIR")
+  cp -r "$(dirname "$BATS_TEST_FILENAME")" "$TMP_DIR"
+  cd "$TMP_DIR" || exit
+  echo "# Using TEST_DIR: $TMP_DIR" >&3
+}

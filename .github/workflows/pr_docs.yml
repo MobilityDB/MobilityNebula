@@ -1,0 +1,15 @@
+name: NES PR Docs CI
+description: |
+  Reusable documentation pipeline for pull requests. Called by pr.yml (via `uses:`) only when the
+  classify gate detects documentation changes. Companion to pr_code.yml.
+  The "Docs CI Done" required-status gate lives in pr.yml, not here.
+on:
+  workflow_call:
+
+jobs:
+  docs-website:
+    name: "Build Docs Website"
+    uses: ./.github/workflows/docs_website_build.yml
+    with:
+      head_sha: ${{ github.event.pull_request.head.sha || github.sha }}
+      should_publish: false

@@ -14,34 +14,55 @@
 
 #pragma once
 
-#include <string>
-#include <WindowTypes/Measures/TimeCharacteristic.hpp>
+#include <cstddef>
+#include <functional>
+#include <ostream>
+#include <Util/Logger/Formatter.hpp>
+#include <Util/ReflectionFwd.hpp>
 #include <WindowTypes/Measures/TimeMeasure.hpp>
-#include <WindowTypes/Types/TimeBasedWindowType.hpp>
-#include <WindowTypes/Types/WindowType.hpp>
 
 namespace NES::Windowing
 {
 
 /// A SessionWindow groups the records of each key into sessions: a session holds the records of a key whose
-/// event times follow one another by less than the gap, and it closes once the key is silent for the gap.
-/// The window of a session starts at its first event time and ends at its last event time plus the gap.
-/// The engine cuts time into slices one gap long, so getSize() and getSlide() both answer the gap.
-class SessionWindow final : public TimeBasedWindowType
+/// event times follow one another by at most the gap, and its window is [first event time, last event time + gap).
+/// The engine cuts time into slices one gap long, so the size and the slide of the window are both the gap.
+class SessionWindow
 {
 public:
-    SessionWindow(TimeCharacteristic timeCharacteristic, TimeMeasure gap);
+    explicit SessionWindow(TimeMeasure gap);
 
     [[nodiscard]] TimeMeasure getGap() const;
-    TimeMeasure getSize() override;
-    TimeMeasure getSlide() override;
+    [[nodiscard]] TimeMeasure getSize() const;
 
-    [[nodiscard]] std::string toString() const override;
-
-    bool operator==(const WindowType& otherWindowType) const override;
+    bool operator==(const SessionWindow& otherWindowType) const;
+    friend std::ostream& operator<<(std::ostream& os, const SessionWindow& sessionWindow);
 
 private:
-    const TimeMeasure gap;
+    TimeMeasure gap;
 };
 
 }
+
+namespace NES
+{
+template <>
+struct Reflector<Windowing::SessionWindow>
+{
+    Reflected operator()(const Windowing::SessionWindow& sessionWindow, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<Windowing::SessionWindow>
+{
+    Windowing::SessionWindow operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
+}
+
+template <>
+struct std::hash<NES::Windowing::SessionWindow>
+{
+    std::size_t operator()(const NES::Windowing::SessionWindow& window) const noexcept;
+};
+
+FMT_OSTREAM(NES::Windowing::SessionWindow);

@@ -12,29 +12,30 @@
     limitations under the License.
 */
 
-#include <InputFormatters/InputFormatterProvider.hpp>
+#include <InputFormatterProvider.hpp>
 
 #include <memory>
 #include <utility>
 
-#include <DataTypes/Schema.hpp>
-#include <Identifiers/Identifiers.hpp>
-#include <InputFormatters/InputFormatterTaskPipeline.hpp>
+#include <Interface/BufferRef/TupleBufferRef.hpp>
 #include <Sources/SourceDescriptor.hpp>
 #include <ErrorHandling.hpp>
 #include <InputFormatIndexerRegistry.hpp>
+#include <InputFormatterDescriptor.hpp>
+#include <ScanPhysicalOperator.hpp>
 
 namespace NES
 {
 
-std::unique_ptr<InputFormatterTaskPipeline> provideInputFormatterTask(const Schema& schema, const ParserConfig& config)
+std::shared_ptr<TupleBufferRef>
+provideInputFormatter(const InputFormatterDescriptor& formatScanConfig, std::shared_ptr<TupleBufferRef> memoryProvider)
 {
-    if (auto inputFormatter
-        = InputFormatIndexerRegistry::instance().create(config.parserType, InputFormatIndexerRegistryArguments(config, schema)))
+    if (const auto inputFormatterFactory
+        = InputFormatIndexerRegistry::instance().find(formatScanConfig.getInputFormatterType().asCanonicalString()))
     {
-        return std::move(inputFormatter.value());
+        return (*inputFormatterFactory)(formatScanConfig, std::move(memoryProvider));
     }
-    throw UnknownParserType("unknown type of input formatter: {}", config.parserType);
+    throw UnknownInputFormatterType("unknown type of input formatter: {}", formatScanConfig.getInputFormatterType());
 }
 
 bool contains(const std::string& parserType)

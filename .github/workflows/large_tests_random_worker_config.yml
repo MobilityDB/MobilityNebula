@@ -1,5 +1,5 @@
-# This workflow builds and tests a head_sha over our large tests with random worker configurations
 name: Large Tests Random Worker Config
+description: This workflow builds and tests a head_sha over our large tests with random worker configurations
 on:
   workflow_call:
     inputs:
@@ -61,3 +61,4 @@ jobs:
       buffer_size: ${{ needs.create_random_worker_config.outputs.buffer_size }}
       page_size: ${{ needs.create_random_worker_config.outputs.page_size }}
       number_of_partitions: ${{ needs.create_random_worker_config.outputs.number_of_partitions }}
+      total_memory_in_bytes: "214748364800"

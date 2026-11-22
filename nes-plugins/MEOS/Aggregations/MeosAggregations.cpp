@@ -16,13 +16,9 @@
  * Every MEOS aggregate by its name, each with the overloads the catalog states for it. */
 
 #include <array>
-#include <memory>
+#include <span>
 #include <string_view>
-#include <utility>
-#include <Functions/FieldAccessLogicalFunction.hpp>
-#include <Operators/Windows/Aggregations/Meos/MeosAggregationLogicalFunction.hpp>
-#include <AggregationLogicalFunctionRegistry.hpp>
-#include <ErrorHandling.hpp>
+#include <Aggregations/MeosAggregationLogicalFunction.hpp>
 
 namespace NES
 {
@@ -217,7 +213,10 @@ constexpr std::array<std::string_view, 0> literals6_28{};
 constexpr std::array<std::string_view, 0> literals6_29{};
 constexpr std::array<std::string_view, 0> literals6_30{};
 constexpr std::array<std::string_view, 0> literals6_31{};
-constexpr std::array<MeosAggregateOverload, 32> overloads6{MeosAggregateOverload{"CBUFFER", literals6_0, "CBUFFERSET", "MeosAggregate_setUnionAgg_0"}, MeosAggregateOverload{"CBUFFERSET", literals6_1, "CBUFFERSET", "MeosAggregate_setUnionAgg_1"}, MeosAggregateOverload{"GEOMETRY", literals6_2, "GEOMSET", "MeosAggregate_setUnionAgg_2"}, MeosAggregateOverload{"GEOGRAPHY", literals6_3, "GEOGSET", "MeosAggregate_setUnionAgg_3"}, MeosAggregateOverload{"GEOMSET", literals6_4, "GEOMSET", "MeosAggregate_setUnionAgg_4"}, MeosAggregateOverload{"GEOGSET", literals6_5, "GEOGSET", "MeosAggregate_setUnionAgg_5"}, MeosAggregateOverload{"H3INDEXSET", literals6_6, "H3INDEXSET", "MeosAggregate_setUnionAgg_6"}, MeosAggregateOverload{"JSONB", literals6_7, "JSONBSET", "MeosAggregate_setUnionAgg_7"}, MeosAggregateOverload{"JSONBSET", literals6_8, "JSONBSET", "MeosAggregate_setUnionAgg_8"}, MeosAggregateOverload{"NPOINT", literals6_9, "NPOINTSET", "MeosAggregate_setUnionAgg_9"}, MeosAggregateOverload{"NPOINTSET", literals6_10, "NPOINTSET", "MeosAggregate_setUnionAgg_10"}, MeosAggregateOverload{"PCPOINT", literals6_11, "PCPOINTSET", "MeosAggregate_setUnionAgg_11"}, MeosAggregateOverload{"PCPOINTSET", literals6_12, "PCPOINTSET", "MeosAggregate_setUnionAgg_12"}, MeosAggregateOverload{"PCPATCH", literals6_13, "PCPATCHSET", "MeosAggregate_setUnionAgg_13"}, MeosAggregateOverload{"PCPATCHSET", literals6_14, "PCPATCHSET", "MeosAggregate_setUnionAgg_14"}, MeosAggregateOverload{"POSE", literals6_15, "POSESET", "MeosAggregate_setUnionAgg_15"}, MeosAggregateOverload{"POSESET", literals6_16, "POSESET", "MeosAggregate_setUnionAgg_16"}, MeosAggregateOverload{"POSECHAIN", literals6_17, "POSECHAINSET", "MeosAggregate_setUnionAgg_17"}, MeosAggregateOverload{"POSECHAINSET", literals6_18, "POSECHAINSET", "MeosAggregate_setUnionAgg_18"}, MeosAggregateOverload{"QUADBINSET", literals6_19, "QUADBINSET", "MeosAggregate_setUnionAgg_19"}, MeosAggregateOverload{"S2CELLSET", literals6_20, "S2CELLSET", "MeosAggregate_setUnionAgg_20"}, MeosAggregateOverload{"INT32", literals6_21, "INTSET", "MeosAggregate_setUnionAgg_21"}, MeosAggregateOverload{"INT64", literals6_22, "BIGINTSET", "MeosAggregate_setUnionAgg_22"}, MeosAggregateOverload{"FLOAT64", literals6_23, "FLOATSET", "MeosAggregate_setUnionAgg_23"}, MeosAggregateOverload{"VARSIZED", literals6_24, "TEXTSET", "MeosAggregate_setUnionAgg_24"}, MeosAggregateOverload{"UINT64", literals6_25, "TSTZSET", "MeosAggregate_setUnionAgg_25"}, MeosAggregateOverload{"INTSET", literals6_26, "INTSET", "MeosAggregate_setUnionAgg_26"}, MeosAggregateOverload{"BIGINTSET", literals6_27, "BIGINTSET", "MeosAggregate_setUnionAgg_27"}, MeosAggregateOverload{"FLOATSET", literals6_28, "FLOATSET", "MeosAggregate_setUnionAgg_28"}, MeosAggregateOverload{"TEXTSET", literals6_29, "TEXTSET", "MeosAggregate_setUnionAgg_29"}, MeosAggregateOverload{"DATESET", literals6_30, "DATESET", "MeosAggregate_setUnionAgg_30"}, MeosAggregateOverload{"TSTZSET", literals6_31, "TSTZSET", "MeosAggregate_setUnionAgg_31"}};
+constexpr std::array<std::string_view, 0> literals6_32{};
+constexpr std::array<std::string_view, 0> literals6_33{};
+constexpr std::array<std::string_view, 0> literals6_34{};
+constexpr std::array<MeosAggregateOverload, 35> overloads6{MeosAggregateOverload{"CBUFFER", literals6_0, "CBUFFERSET", "MeosAggregate_setUnionAgg_0"}, MeosAggregateOverload{"CBUFFERSET", literals6_1, "CBUFFERSET", "MeosAggregate_setUnionAgg_1"}, MeosAggregateOverload{"GEOMETRY", literals6_2, "GEOMSET", "MeosAggregate_setUnionAgg_2"}, MeosAggregateOverload{"GEOGRAPHY", literals6_3, "GEOGSET", "MeosAggregate_setUnionAgg_3"}, MeosAggregateOverload{"GEOMSET", literals6_4, "GEOMSET", "MeosAggregate_setUnionAgg_4"}, MeosAggregateOverload{"GEOGSET", literals6_5, "GEOGSET", "MeosAggregate_setUnionAgg_5"}, MeosAggregateOverload{"H3INDEX", literals6_6, "H3INDEXSET", "MeosAggregate_setUnionAgg_6"}, MeosAggregateOverload{"H3INDEXSET", literals6_7, "H3INDEXSET", "MeosAggregate_setUnionAgg_7"}, MeosAggregateOverload{"JSONB", literals6_8, "JSONBSET", "MeosAggregate_setUnionAgg_8"}, MeosAggregateOverload{"JSONBSET", literals6_9, "JSONBSET", "MeosAggregate_setUnionAgg_9"}, MeosAggregateOverload{"NPOINT", literals6_10, "NPOINTSET", "MeosAggregate_setUnionAgg_10"}, MeosAggregateOverload{"NPOINTSET", literals6_11, "NPOINTSET", "MeosAggregate_setUnionAgg_11"}, MeosAggregateOverload{"PCPOINT", literals6_12, "PCPOINTSET", "MeosAggregate_setUnionAgg_12"}, MeosAggregateOverload{"PCPOINTSET", literals6_13, "PCPOINTSET", "MeosAggregate_setUnionAgg_13"}, MeosAggregateOverload{"PCPATCH", literals6_14, "PCPATCHSET", "MeosAggregate_setUnionAgg_14"}, MeosAggregateOverload{"PCPATCHSET", literals6_15, "PCPATCHSET", "MeosAggregate_setUnionAgg_15"}, MeosAggregateOverload{"POSE", literals6_16, "POSESET", "MeosAggregate_setUnionAgg_16"}, MeosAggregateOverload{"POSESET", literals6_17, "POSESET", "MeosAggregate_setUnionAgg_17"}, MeosAggregateOverload{"POSECHAIN", literals6_18, "POSECHAINSET", "MeosAggregate_setUnionAgg_18"}, MeosAggregateOverload{"POSECHAINSET", literals6_19, "POSECHAINSET", "MeosAggregate_setUnionAgg_19"}, MeosAggregateOverload{"QUADBIN", literals6_20, "QUADBINSET", "MeosAggregate_setUnionAgg_20"}, MeosAggregateOverload{"QUADBINSET", literals6_21, "QUADBINSET", "MeosAggregate_setUnionAgg_21"}, MeosAggregateOverload{"S2CELL", literals6_22, "S2CELLSET", "MeosAggregate_setUnionAgg_22"}, MeosAggregateOverload{"S2CELLSET", literals6_23, "S2CELLSET", "MeosAggregate_setUnionAgg_23"}, MeosAggregateOverload{"INT32", literals6_24, "INTSET", "MeosAggregate_setUnionAgg_24"}, MeosAggregateOverload{"INT64", literals6_25, "BIGINTSET", "MeosAggregate_setUnionAgg_25"}, MeosAggregateOverload{"FLOAT64", literals6_26, "FLOATSET", "MeosAggregate_setUnionAgg_26"}, MeosAggregateOverload{"VARSIZED", literals6_27, "TEXTSET", "MeosAggregate_setUnionAgg_27"}, MeosAggregateOverload{"UINT64", literals6_28, "TSTZSET", "MeosAggregate_setUnionAgg_28"}, MeosAggregateOverload{"INTSET", literals6_29, "INTSET", "MeosAggregate_setUnionAgg_29"}, MeosAggregateOverload{"BIGINTSET", literals6_30, "BIGINTSET", "MeosAggregate_setUnionAgg_30"}, MeosAggregateOverload{"FLOATSET", literals6_31, "FLOATSET", "MeosAggregate_setUnionAgg_31"}, MeosAggregateOverload{"TEXTSET", literals6_32, "TEXTSET", "MeosAggregate_setUnionAgg_32"}, MeosAggregateOverload{"DATESET", literals6_33, "DATESET", "MeosAggregate_setUnionAgg_33"}, MeosAggregateOverload{"TSTZSET", literals6_34, "TSTZSET", "MeosAggregate_setUnionAgg_34"}};
 constexpr std::array<std::string_view, 0> literals7_0{};
 constexpr std::array<std::string_view, 0> literals7_1{};
 constexpr std::array<std::string_view, 0> literals7_2{};
@@ -230,311 +229,130 @@ constexpr std::array<std::string_view, 0> literals8_2{};
 constexpr std::array<std::string_view, 0> literals8_3{};
 constexpr std::array<std::string_view, 0> literals8_4{};
 constexpr std::array<MeosAggregateOverload, 5> overloads8{MeosAggregateOverload{"INTSPANSET", literals8_0, "INTSPANSET", "MeosAggregate_spansetUnionAgg_0"}, MeosAggregateOverload{"BIGINTSPANSET", literals8_1, "BIGINTSPANSET", "MeosAggregate_spansetUnionAgg_1"}, MeosAggregateOverload{"FLOATSPANSET", literals8_2, "FLOATSPANSET", "MeosAggregate_spansetUnionAgg_2"}, MeosAggregateOverload{"DATESPANSET", literals8_3, "DATESPANSET", "MeosAggregate_spansetUnionAgg_3"}, MeosAggregateOverload{"TSTZSPANSET", literals8_4, "TSTZSPANSET", "MeosAggregate_spansetUnionAgg_4"}};
-constexpr std::array<std::string_view, 0> literals9_0{};
-constexpr std::array<MeosAggregateOverload, 1> overloads9{MeosAggregateOverload{"TBOOL", literals9_0, "TBOOL", "MeosAggregate_tAndAgg_0"}};
+constexpr std::array<std::string_view, 2> literals9_0{"INT32", "BOOLEAN"};
+constexpr std::array<std::string_view, 1> literals9_1{"BOOLEAN"};
+constexpr std::array<MeosAggregateOverload, 2> overloads9{MeosAggregateOverload{"RASTER", literals9_0, "SUMMARYSTATS", "MeosAggregate_summaryStatsAgg_0"}, MeosAggregateOverload{"RASTER", literals9_1, "SUMMARYSTATS", "MeosAggregate_summaryStatsAgg_1"}};
 constexpr std::array<std::string_view, 0> literals10_0{};
-constexpr std::array<std::string_view, 0> literals10_1{};
-constexpr std::array<std::string_view, 0> literals10_2{};
-constexpr std::array<MeosAggregateOverload, 3> overloads10{MeosAggregateOverload{"TINT", literals10_0, "TFLOAT", "MeosAggregate_tAvg_0"}, MeosAggregateOverload{"TBIGINT", literals10_1, "TFLOAT", "MeosAggregate_tAvg_1"}, MeosAggregateOverload{"TFLOAT", literals10_2, "TFLOAT", "MeosAggregate_tAvg_2"}};
+constexpr std::array<MeosAggregateOverload, 1> overloads10{MeosAggregateOverload{"TBOOL", literals10_0, "TBOOL", "MeosAggregate_tAndAgg_0"}};
 constexpr std::array<std::string_view, 0> literals11_0{};
 constexpr std::array<std::string_view, 0> literals11_1{};
-constexpr std::array<MeosAggregateOverload, 2> overloads11{MeosAggregateOverload{"TGEOMPOINT", literals11_0, "TGEOMPOINT", "MeosAggregate_tCentroid_0"}, MeosAggregateOverload{"TNPOINT", literals11_1, "TGEOMPOINT", "MeosAggregate_tCentroid_1"}};
+constexpr std::array<std::string_view, 0> literals11_2{};
+constexpr std::array<MeosAggregateOverload, 3> overloads11{MeosAggregateOverload{"TINT", literals11_0, "TFLOAT", "MeosAggregate_tAvg_0"}, MeosAggregateOverload{"TBIGINT", literals11_1, "TFLOAT", "MeosAggregate_tAvg_1"}, MeosAggregateOverload{"TFLOAT", literals11_2, "TFLOAT", "MeosAggregate_tAvg_2"}};
 constexpr std::array<std::string_view, 0> literals12_0{};
 constexpr std::array<std::string_view, 0> literals12_1{};
-constexpr std::array<std::string_view, 0> literals12_2{};
-constexpr std::array<std::string_view, 0> literals12_3{};
-constexpr std::array<std::string_view, 0> literals12_4{};
-constexpr std::array<std::string_view, 0> literals12_5{};
-constexpr std::array<std::string_view, 0> literals12_6{};
-constexpr std::array<std::string_view, 0> literals12_7{};
-constexpr std::array<std::string_view, 0> literals12_8{};
-constexpr std::array<std::string_view, 0> literals12_9{};
-constexpr std::array<std::string_view, 0> literals12_10{};
-constexpr std::array<std::string_view, 0> literals12_11{};
-constexpr std::array<std::string_view, 0> literals12_12{};
-constexpr std::array<std::string_view, 0> literals12_13{};
-constexpr std::array<std::string_view, 0> literals12_14{};
-constexpr std::array<std::string_view, 0> literals12_15{};
-constexpr std::array<std::string_view, 0> literals12_16{};
-constexpr std::array<std::string_view, 0> literals12_17{};
-constexpr std::array<std::string_view, 0> literals12_18{};
-constexpr std::array<std::string_view, 0> literals12_19{};
-constexpr std::array<std::string_view, 0> literals12_20{};
-constexpr std::array<std::string_view, 0> literals12_21{};
-constexpr std::array<std::string_view, 0> literals12_22{};
-constexpr std::array<std::string_view, 0> literals12_23{};
-constexpr std::array<MeosAggregateOverload, 24> overloads12{MeosAggregateOverload{"TCBUFFER", literals12_0, "TINT", "MeosAggregate_tCount_0"}, MeosAggregateOverload{"TGEOMETRY", literals12_1, "TINT", "MeosAggregate_tCount_1"}, MeosAggregateOverload{"TGEOGRAPHY", literals12_2, "TINT", "MeosAggregate_tCount_2"}, MeosAggregateOverload{"TGEOMPOINT", literals12_3, "TINT", "MeosAggregate_tCount_3"}, MeosAggregateOverload{"TGEOGPOINT", literals12_4, "TINT", "MeosAggregate_tCount_4"}, MeosAggregateOverload{"TH3INDEX", literals12_5, "TINT", "MeosAggregate_tCount_5"}, MeosAggregateOverload{"TJSONB", literals12_6, "TINT", "MeosAggregate_tCount_6"}, MeosAggregateOverload{"TNPOINT", literals12_7, "TINT", "MeosAggregate_tCount_7"}, MeosAggregateOverload{"TPCPOINT", literals12_8, "TINT", "MeosAggregate_tCount_8"}, MeosAggregateOverload{"TPCPATCH", literals12_9, "TINT", "MeosAggregate_tCount_9"}, MeosAggregateOverload{"TPOSE", literals12_10, "TINT", "MeosAggregate_tCount_10"}, MeosAggregateOverload{"TPOSECHAIN", literals12_11, "TINT", "MeosAggregate_tCount_11"}, MeosAggregateOverload{"TQUADBIN", literals12_12, "TINT", "MeosAggregate_tCount_12"}, MeosAggregateOverload{"TRGEOMETRY", literals12_13, "TINT", "MeosAggregate_tCount_13"}, MeosAggregateOverload{"TS2CELL", literals12_14, "TINT", "MeosAggregate_tCount_14"}, MeosAggregateOverload{"UINT64", literals12_15, "TINT", "MeosAggregate_tCount_15"}, MeosAggregateOverload{"TSTZSET", literals12_16, "TINT", "MeosAggregate_tCount_16"}, MeosAggregateOverload{"TSTZSPAN", literals12_17, "TINT", "MeosAggregate_tCount_17"}, MeosAggregateOverload{"TSTZSPANSET", literals12_18, "TINT", "MeosAggregate_tCount_18"}, MeosAggregateOverload{"TBOOL", literals12_19, "TINT", "MeosAggregate_tCount_19"}, MeosAggregateOverload{"TINT", literals12_20, "TINT", "MeosAggregate_tCount_20"}, MeosAggregateOverload{"TBIGINT", literals12_21, "TINT", "MeosAggregate_tCount_21"}, MeosAggregateOverload{"TFLOAT", literals12_22, "TINT", "MeosAggregate_tCount_22"}, MeosAggregateOverload{"TTEXT", literals12_23, "TINT", "MeosAggregate_tCount_23"}};
+constexpr std::array<MeosAggregateOverload, 2> overloads12{MeosAggregateOverload{"TGEOMPOINT", literals12_0, "TGEOMPOINT", "MeosAggregate_tCentroid_0"}, MeosAggregateOverload{"TNPOINT", literals12_1, "TGEOMPOINT", "MeosAggregate_tCentroid_1"}};
 constexpr std::array<std::string_view, 0> literals13_0{};
 constexpr std::array<std::string_view, 0> literals13_1{};
 constexpr std::array<std::string_view, 0> literals13_2{};
 constexpr std::array<std::string_view, 0> literals13_3{};
-constexpr std::array<MeosAggregateOverload, 4> overloads13{MeosAggregateOverload{"TINT", literals13_0, "TINT", "MeosAggregate_tMaxAgg_0"}, MeosAggregateOverload{"TBIGINT", literals13_1, "TBIGINT", "MeosAggregate_tMaxAgg_1"}, MeosAggregateOverload{"TFLOAT", literals13_2, "TFLOAT", "MeosAggregate_tMaxAgg_2"}, MeosAggregateOverload{"TTEXT", literals13_3, "TTEXT", "MeosAggregate_tMaxAgg_3"}};
+constexpr std::array<std::string_view, 0> literals13_4{};
+constexpr std::array<std::string_view, 0> literals13_5{};
+constexpr std::array<std::string_view, 0> literals13_6{};
+constexpr std::array<std::string_view, 0> literals13_7{};
+constexpr std::array<std::string_view, 0> literals13_8{};
+constexpr std::array<std::string_view, 0> literals13_9{};
+constexpr std::array<std::string_view, 0> literals13_10{};
+constexpr std::array<std::string_view, 0> literals13_11{};
+constexpr std::array<std::string_view, 0> literals13_12{};
+constexpr std::array<std::string_view, 0> literals13_13{};
+constexpr std::array<std::string_view, 0> literals13_14{};
+constexpr std::array<std::string_view, 0> literals13_15{};
+constexpr std::array<std::string_view, 0> literals13_16{};
+constexpr std::array<std::string_view, 0> literals13_17{};
+constexpr std::array<std::string_view, 0> literals13_18{};
+constexpr std::array<std::string_view, 0> literals13_19{};
+constexpr std::array<std::string_view, 0> literals13_20{};
+constexpr std::array<std::string_view, 0> literals13_21{};
+constexpr std::array<std::string_view, 0> literals13_22{};
+constexpr std::array<std::string_view, 0> literals13_23{};
+constexpr std::array<MeosAggregateOverload, 24> overloads13{MeosAggregateOverload{"TCBUFFER", literals13_0, "TINT", "MeosAggregate_tCount_0"}, MeosAggregateOverload{"TGEOMETRY", literals13_1, "TINT", "MeosAggregate_tCount_1"}, MeosAggregateOverload{"TGEOGRAPHY", literals13_2, "TINT", "MeosAggregate_tCount_2"}, MeosAggregateOverload{"TGEOMPOINT", literals13_3, "TINT", "MeosAggregate_tCount_3"}, MeosAggregateOverload{"TGEOGPOINT", literals13_4, "TINT", "MeosAggregate_tCount_4"}, MeosAggregateOverload{"TH3INDEX", literals13_5, "TINT", "MeosAggregate_tCount_5"}, MeosAggregateOverload{"TJSONB", literals13_6, "TINT", "MeosAggregate_tCount_6"}, MeosAggregateOverload{"TNPOINT", literals13_7, "TINT", "MeosAggregate_tCount_7"}, MeosAggregateOverload{"TPCPOINT", literals13_8, "TINT", "MeosAggregate_tCount_8"}, MeosAggregateOverload{"TPCPATCH", literals13_9, "TINT", "MeosAggregate_tCount_9"}, MeosAggregateOverload{"TPOSE", literals13_10, "TINT", "MeosAggregate_tCount_10"}, MeosAggregateOverload{"TPOSECHAIN", literals13_11, "TINT", "MeosAggregate_tCount_11"}, MeosAggregateOverload{"TQUADBIN", literals13_12, "TINT", "MeosAggregate_tCount_12"}, MeosAggregateOverload{"TRGEOMETRY", literals13_13, "TINT", "MeosAggregate_tCount_13"}, MeosAggregateOverload{"TS2CELL", literals13_14, "TINT", "MeosAggregate_tCount_14"}, MeosAggregateOverload{"UINT64", literals13_15, "TINT", "MeosAggregate_tCount_15"}, MeosAggregateOverload{"TSTZSET", literals13_16, "TINT", "MeosAggregate_tCount_16"}, MeosAggregateOverload{"TSTZSPAN", literals13_17, "TINT", "MeosAggregate_tCount_17"}, MeosAggregateOverload{"TSTZSPANSET", literals13_18, "TINT", "MeosAggregate_tCount_18"}, MeosAggregateOverload{"TBOOL", literals13_19, "TINT", "MeosAggregate_tCount_19"}, MeosAggregateOverload{"TINT", literals13_20, "TINT", "MeosAggregate_tCount_20"}, MeosAggregateOverload{"TBIGINT", literals13_21, "TINT", "MeosAggregate_tCount_21"}, MeosAggregateOverload{"TFLOAT", literals13_22, "TINT", "MeosAggregate_tCount_22"}, MeosAggregateOverload{"TTEXT", literals13_23, "TINT", "MeosAggregate_tCount_23"}};
 constexpr std::array<std::string_view, 0> literals14_0{};
 constexpr std::array<std::string_view, 0> literals14_1{};
 constexpr std::array<std::string_view, 0> literals14_2{};
 constexpr std::array<std::string_view, 0> literals14_3{};
-constexpr std::array<MeosAggregateOverload, 4> overloads14{MeosAggregateOverload{"TINT", literals14_0, "TINT", "MeosAggregate_tMinAgg_0"}, MeosAggregateOverload{"TBIGINT", literals14_1, "TBIGINT", "MeosAggregate_tMinAgg_1"}, MeosAggregateOverload{"TFLOAT", literals14_2, "TFLOAT", "MeosAggregate_tMinAgg_2"}, MeosAggregateOverload{"TTEXT", literals14_3, "TTEXT", "MeosAggregate_tMinAgg_3"}};
+constexpr std::array<MeosAggregateOverload, 4> overloads14{MeosAggregateOverload{"TINT", literals14_0, "TINT", "MeosAggregate_tMaxAgg_0"}, MeosAggregateOverload{"TBIGINT", literals14_1, "TBIGINT", "MeosAggregate_tMaxAgg_1"}, MeosAggregateOverload{"TFLOAT", literals14_2, "TFLOAT", "MeosAggregate_tMaxAgg_2"}, MeosAggregateOverload{"TTEXT", literals14_3, "TTEXT", "MeosAggregate_tMaxAgg_3"}};
 constexpr std::array<std::string_view, 0> literals15_0{};
-constexpr std::array<MeosAggregateOverload, 1> overloads15{MeosAggregateOverload{"TBOOL", literals15_0, "TBOOL", "MeosAggregate_tOrAgg_0"}};
+constexpr std::array<std::string_view, 0> literals15_1{};
+constexpr std::array<std::string_view, 0> literals15_2{};
+constexpr std::array<std::string_view, 0> literals15_3{};
+constexpr std::array<MeosAggregateOverload, 4> overloads15{MeosAggregateOverload{"TINT", literals15_0, "TINT", "MeosAggregate_tMinAgg_0"}, MeosAggregateOverload{"TBIGINT", literals15_1, "TBIGINT", "MeosAggregate_tMinAgg_1"}, MeosAggregateOverload{"TFLOAT", literals15_2, "TFLOAT", "MeosAggregate_tMinAgg_2"}, MeosAggregateOverload{"TTEXT", literals15_3, "TTEXT", "MeosAggregate_tMinAgg_3"}};
 constexpr std::array<std::string_view, 0> literals16_0{};
-constexpr std::array<std::string_view, 0> literals16_1{};
-constexpr std::array<std::string_view, 0> literals16_2{};
-constexpr std::array<MeosAggregateOverload, 3> overloads16{MeosAggregateOverload{"TINT", literals16_0, "TINT", "MeosAggregate_tSum_0"}, MeosAggregateOverload{"TBIGINT", literals16_1, "TBIGINT", "MeosAggregate_tSum_1"}, MeosAggregateOverload{"TFLOAT", literals16_2, "TFLOAT", "MeosAggregate_tSum_2"}};
+constexpr std::array<MeosAggregateOverload, 1> overloads16{MeosAggregateOverload{"TBOOL", literals16_0, "TBOOL", "MeosAggregate_tOrAgg_0"}};
 constexpr std::array<std::string_view, 0> literals17_0{};
-constexpr std::array<MeosAggregateOverload, 1> overloads17{MeosAggregateOverload{"TPCPATCH", literals17_0, "TFLOAT", "MeosAggregate_tdensity_0"}};
+constexpr std::array<std::string_view, 0> literals17_1{};
+constexpr std::array<std::string_view, 0> literals17_2{};
+constexpr std::array<MeosAggregateOverload, 3> overloads17{MeosAggregateOverload{"TINT", literals17_0, "TINT", "MeosAggregate_tSum_0"}, MeosAggregateOverload{"TBIGINT", literals17_1, "TBIGINT", "MeosAggregate_tSum_1"}, MeosAggregateOverload{"TFLOAT", literals17_2, "TFLOAT", "MeosAggregate_tSum_2"}};
 constexpr std::array<std::string_view, 0> literals18_0{};
-constexpr std::array<MeosAggregateOverload, 1> overloads18{MeosAggregateOverload{"TPCPATCH", literals18_0, "TINT", "MeosAggregate_tnpoints_0"}};
-constexpr std::array<std::string_view, 1> literals19_0{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals19_1{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals19_2{"VARSIZED"};
-constexpr std::array<MeosAggregateOverload, 3> overloads19{MeosAggregateOverload{"TINT", literals19_0, "TFLOAT", "MeosAggregate_wAvgAgg_0"}, MeosAggregateOverload{"TBIGINT", literals19_1, "TFLOAT", "MeosAggregate_wAvgAgg_1"}, MeosAggregateOverload{"TFLOAT", literals19_2, "TFLOAT", "MeosAggregate_wAvgAgg_2"}};
+constexpr std::array<MeosAggregateOverload, 1> overloads18{MeosAggregateOverload{"TPCPATCH", literals18_0, "TFLOAT", "MeosAggregate_tdensity_0"}};
+constexpr std::array<std::string_view, 0> literals19_0{};
+constexpr std::array<MeosAggregateOverload, 1> overloads19{MeosAggregateOverload{"TPCPATCH", literals19_0, "TINT", "MeosAggregate_tnpoints_0"}};
 constexpr std::array<std::string_view, 1> literals20_0{"VARSIZED"};
 constexpr std::array<std::string_view, 1> literals20_1{"VARSIZED"};
 constexpr std::array<std::string_view, 1> literals20_2{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_3{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_4{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_5{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_6{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_7{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_8{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_9{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_10{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_11{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_12{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_13{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_14{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_15{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_16{"VARSIZED"};
-constexpr std::array<std::string_view, 1> literals20_17{"VARSIZED"};
-constexpr std::array<MeosAggregateOverload, 18> overloads20{MeosAggregateOverload{"TCBUFFER", literals20_0, "TINT", "MeosAggregate_wCount_0"}, MeosAggregateOverload{"TGEOMETRY", literals20_1, "TINT", "MeosAggregate_wCount_1"}, MeosAggregateOverload{"TGEOGRAPHY", literals20_2, "TINT", "MeosAggregate_wCount_2"}, MeosAggregateOverload{"TGEOMPOINT", literals20_3, "TINT", "MeosAggregate_wCount_3"}, MeosAggregateOverload{"TGEOGPOINT", literals20_4, "TINT", "MeosAggregate_wCount_4"}, MeosAggregateOverload{"TH3INDEX", literals20_5, "TINT", "MeosAggregate_wCount_5"}, MeosAggregateOverload{"TJSONB", literals20_6, "TINT", "MeosAggregate_wCount_6"}, MeosAggregateOverload{"TNPOINT", literals20_7, "TINT", "MeosAggregate_wCount_7"}, MeosAggregateOverload{"TPCPOINT", literals20_8, "TINT", "MeosAggregate_wCount_8"}, MeosAggregateOverload{"TPCPATCH", literals20_9, "TINT", "MeosAggregate_wCount_9"}, MeosAggregateOverload{"TPOSE", literals20_10, "TINT", "MeosAggregate_wCount_10"}, MeosAggregateOverload{"TPOSECHAIN", literals20_11, "TINT", "MeosAggregate_wCount_11"}, MeosAggregateOverload{"TQUADBIN", literals20_12, "TINT", "MeosAggregate_wCount_12"}, MeosAggregateOverload{"TRGEOMETRY", literals20_13, "TINT", "MeosAggregate_wCount_13"}, MeosAggregateOverload{"TS2CELL", literals20_14, "TINT", "MeosAggregate_wCount_14"}, MeosAggregateOverload{"TINT", literals20_15, "TINT", "MeosAggregate_wCount_15"}, MeosAggregateOverload{"TBIGINT", literals20_16, "TINT", "MeosAggregate_wCount_16"}, MeosAggregateOverload{"TFLOAT", literals20_17, "TINT", "MeosAggregate_wCount_17"}};
+constexpr std::array<MeosAggregateOverload, 3> overloads20{MeosAggregateOverload{"TINT", literals20_0, "TFLOAT", "MeosAggregate_wAvgAgg_0"}, MeosAggregateOverload{"TBIGINT", literals20_1, "TFLOAT", "MeosAggregate_wAvgAgg_1"}, MeosAggregateOverload{"TFLOAT", literals20_2, "TFLOAT", "MeosAggregate_wAvgAgg_2"}};
 constexpr std::array<std::string_view, 1> literals21_0{"VARSIZED"};
 constexpr std::array<std::string_view, 1> literals21_1{"VARSIZED"};
 constexpr std::array<std::string_view, 1> literals21_2{"VARSIZED"};
-constexpr std::array<MeosAggregateOverload, 3> overloads21{MeosAggregateOverload{"TINT", literals21_0, "TINT", "MeosAggregate_wMax_0"}, MeosAggregateOverload{"TBIGINT", literals21_1, "TBIGINT", "MeosAggregate_wMax_1"}, MeosAggregateOverload{"TFLOAT", literals21_2, "TFLOAT", "MeosAggregate_wMax_2"}};
+constexpr std::array<std::string_view, 1> literals21_3{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_4{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_5{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_6{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_7{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_8{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_9{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_10{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_11{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_12{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_13{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_14{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_15{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_16{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals21_17{"VARSIZED"};
+constexpr std::array<MeosAggregateOverload, 18> overloads21{MeosAggregateOverload{"TCBUFFER", literals21_0, "TINT", "MeosAggregate_wCount_0"}, MeosAggregateOverload{"TGEOMETRY", literals21_1, "TINT", "MeosAggregate_wCount_1"}, MeosAggregateOverload{"TGEOGRAPHY", literals21_2, "TINT", "MeosAggregate_wCount_2"}, MeosAggregateOverload{"TGEOMPOINT", literals21_3, "TINT", "MeosAggregate_wCount_3"}, MeosAggregateOverload{"TGEOGPOINT", literals21_4, "TINT", "MeosAggregate_wCount_4"}, MeosAggregateOverload{"TH3INDEX", literals21_5, "TINT", "MeosAggregate_wCount_5"}, MeosAggregateOverload{"TJSONB", literals21_6, "TINT", "MeosAggregate_wCount_6"}, MeosAggregateOverload{"TNPOINT", literals21_7, "TINT", "MeosAggregate_wCount_7"}, MeosAggregateOverload{"TPCPOINT", literals21_8, "TINT", "MeosAggregate_wCount_8"}, MeosAggregateOverload{"TPCPATCH", literals21_9, "TINT", "MeosAggregate_wCount_9"}, MeosAggregateOverload{"TPOSE", literals21_10, "TINT", "MeosAggregate_wCount_10"}, MeosAggregateOverload{"TPOSECHAIN", literals21_11, "TINT", "MeosAggregate_wCount_11"}, MeosAggregateOverload{"TQUADBIN", literals21_12, "TINT", "MeosAggregate_wCount_12"}, MeosAggregateOverload{"TRGEOMETRY", literals21_13, "TINT", "MeosAggregate_wCount_13"}, MeosAggregateOverload{"TS2CELL", literals21_14, "TINT", "MeosAggregate_wCount_14"}, MeosAggregateOverload{"TINT", literals21_15, "TINT", "MeosAggregate_wCount_15"}, MeosAggregateOverload{"TBIGINT", literals21_16, "TINT", "MeosAggregate_wCount_16"}, MeosAggregateOverload{"TFLOAT", literals21_17, "TINT", "MeosAggregate_wCount_17"}};
 constexpr std::array<std::string_view, 1> literals22_0{"VARSIZED"};
 constexpr std::array<std::string_view, 1> literals22_1{"VARSIZED"};
 constexpr std::array<std::string_view, 1> literals22_2{"VARSIZED"};
-constexpr std::array<MeosAggregateOverload, 3> overloads22{MeosAggregateOverload{"TINT", literals22_0, "TINT", "MeosAggregate_wMin_0"}, MeosAggregateOverload{"TBIGINT", literals22_1, "TBIGINT", "MeosAggregate_wMin_1"}, MeosAggregateOverload{"TFLOAT", literals22_2, "TFLOAT", "MeosAggregate_wMin_2"}};
+constexpr std::array<MeosAggregateOverload, 3> overloads22{MeosAggregateOverload{"TINT", literals22_0, "TINT", "MeosAggregate_wMax_0"}, MeosAggregateOverload{"TBIGINT", literals22_1, "TBIGINT", "MeosAggregate_wMax_1"}, MeosAggregateOverload{"TFLOAT", literals22_2, "TFLOAT", "MeosAggregate_wMax_2"}};
 constexpr std::array<std::string_view, 1> literals23_0{"VARSIZED"};
 constexpr std::array<std::string_view, 1> literals23_1{"VARSIZED"};
 constexpr std::array<std::string_view, 1> literals23_2{"VARSIZED"};
-constexpr std::array<MeosAggregateOverload, 3> overloads23{MeosAggregateOverload{"TINT", literals23_0, "TINT", "MeosAggregate_wSum_0"}, MeosAggregateOverload{"TBIGINT", literals23_1, "TBIGINT", "MeosAggregate_wSum_1"}, MeosAggregateOverload{"TFLOAT", literals23_2, "TFLOAT", "MeosAggregate_wSum_2"}};
+constexpr std::array<MeosAggregateOverload, 3> overloads23{MeosAggregateOverload{"TINT", literals23_0, "TINT", "MeosAggregate_wMin_0"}, MeosAggregateOverload{"TBIGINT", literals23_1, "TBIGINT", "MeosAggregate_wMin_1"}, MeosAggregateOverload{"TFLOAT", literals23_2, "TFLOAT", "MeosAggregate_wMin_2"}};
+constexpr std::array<std::string_view, 1> literals24_0{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals24_1{"VARSIZED"};
+constexpr std::array<std::string_view, 1> literals24_2{"VARSIZED"};
+constexpr std::array<MeosAggregateOverload, 3> overloads24{MeosAggregateOverload{"TINT", literals24_0, "TINT", "MeosAggregate_wSum_0"}, MeosAggregateOverload{"TBIGINT", literals24_1, "TBIGINT", "MeosAggregate_wSum_1"}, MeosAggregateOverload{"TFLOAT", literals24_2, "TFLOAT", "MeosAggregate_wSum_2"}};
 }
 
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterappendInstantAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
+std::span<const MeosAggregate> meosAggregates()
 {
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("appendInstantAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("appendInstantAgg", overloads0, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterappendSequenceAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("appendSequenceAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("appendSequenceAgg", overloads1, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterextentAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("extent takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("extent", overloads2, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistermergeAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("mergeAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("mergeAgg", overloads3, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterrasterUnionAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("rasterUnion takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("rasterUnion", overloads4, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterreachabilityFilterAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("reachabilityFilterAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("reachabilityFilterAgg", overloads5, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistersetUnionAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("setUnionAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("setUnionAgg", overloads6, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterspanUnionAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("spanUnionAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("spanUnionAgg", overloads7, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterspansetUnionAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("spansetUnionAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("spansetUnionAgg", overloads8, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistertAndAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("tAndAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("tAndAgg", overloads9, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistertAvgAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("tAvg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("tAvg", overloads10, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistertCentroidAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("tCentroid takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("tCentroid", overloads11, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistertCountAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("tCount takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("tCount", overloads12, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistertMaxAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("tMaxAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("tMaxAgg", overloads13, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistertMinAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("tMinAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("tMinAgg", overloads14, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistertOrAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("tOrAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("tOrAgg", overloads15, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistertSumAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("tSum takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("tSum", overloads16, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistertdensityAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("tdensity takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("tdensity", overloads17, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegistertnpointsAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("tnpoints takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("tnpoints", overloads18, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterwAvgAggAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("wAvgAgg takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("wAvgAgg", overloads19, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterwCountAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("wCount takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("wCount", overloads20, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterwMaxAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("wMax takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("wMax", overloads21, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterwMinAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("wMin takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("wMin", overloads22, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
-}
-
-AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::RegisterwSumAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
-{
-    if (arguments.fields.size() != 2)
-    {
-        throw CannotDeserialize("wSum takes an on and an as field, but got {}", arguments.fields.size());
-    }
-    return std::make_shared<MeosAggregationLogicalFunction>("wSum", overloads23, arguments.fields[0], arguments.fields[1], std::move(arguments.literals));
+    static constexpr std::array<MeosAggregate, 25> aggregates{{
+        MeosAggregate{"appendInstantAgg", overloads0},
+        MeosAggregate{"appendSequenceAgg", overloads1},
+        MeosAggregate{"extent", overloads2},
+        MeosAggregate{"mergeAgg", overloads3},
+        MeosAggregate{"rasterUnion", overloads4},
+        MeosAggregate{"reachabilityFilterAgg", overloads5},
+        MeosAggregate{"setUnionAgg", overloads6},
+        MeosAggregate{"spanUnionAgg", overloads7},
+        MeosAggregate{"spansetUnionAgg", overloads8},
+        MeosAggregate{"summaryStatsAgg", overloads9},
+        MeosAggregate{"tAndAgg", overloads10},
+        MeosAggregate{"tAvg", overloads11},
+        MeosAggregate{"tCentroid", overloads12},
+        MeosAggregate{"tCount", overloads13},
+        MeosAggregate{"tMaxAgg", overloads14},
+        MeosAggregate{"tMinAgg", overloads15},
+        MeosAggregate{"tOrAgg", overloads16},
+        MeosAggregate{"tSum", overloads17},
+        MeosAggregate{"tdensity", overloads18},
+        MeosAggregate{"tnpoints", overloads19},
+        MeosAggregate{"wAvgAgg", overloads20},
+        MeosAggregate{"wCount", overloads21},
+        MeosAggregate{"wMax", overloads22},
+        MeosAggregate{"wMin", overloads23},
+        MeosAggregate{"wSum", overloads24}
+    }};
+    return aggregates;
 }
 
 }

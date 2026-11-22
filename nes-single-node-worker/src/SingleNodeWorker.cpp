@@ -14,27 +14,39 @@
 
 #include <SingleNodeWorker.hpp>
 
-#include <atomic>
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <optional>
+#include <string>
 #include <utility>
 #include <unistd.h>
 #include <Identifiers/Identifiers.hpp>
 #include <Identifiers/NESStrongType.hpp>
+#include <Identifiers/NESStrongTypeFormat.hpp>
 #include <Listeners/QueryLog.hpp>
 #include <Plans/LogicalPlan.hpp>
 #include <Runtime/NodeEngineBuilder.hpp>
-#include <Runtime/QueryTerminationType.hpp>
+
+#include <Util/DumpMode.hpp>
+#include <Util/Logger/Logger.hpp>
 #include <Util/PlanRenderer.hpp>
 #include <Util/Pointers.hpp>
+#include <Util/UUID.hpp>
 #include <cpptrace/from_current.hpp>
+#include <fmt/format.h>
 #include <CompositeStatisticListener.hpp>
 #include <ErrorHandling.hpp>
 #include <GoogleEventTracePrinter.hpp>
+#include <NetworkOptions.hpp>
 #include <QueryCompiler.hpp>
-#include <QueryOptimizer.hpp>
+#include <QueryId.hpp>
+#include <QueryStatus.hpp>
 #include <SingleNodeWorkerConfiguration.hpp>
+#include <WorkerStatus.hpp>
+
+extern void initNetworkServices(const std::string& connectionAddr, const NES::Host& host, const NES::NetworkOptions& options);
 
 namespace NES
 {
@@ -43,48 +55,68 @@ SingleNodeWorker::~SingleNodeWorker() = default;
 SingleNodeWorker::SingleNodeWorker(SingleNodeWorker&& other) noexcept = default;
 SingleNodeWorker& SingleNodeWorker::operator=(SingleNodeWorker&& other) noexcept = default;
 
-SingleNodeWorker::SingleNodeWorker(const SingleNodeWorkerConfiguration& configuration)
+SingleNodeWorker::SingleNodeWorker(const SingleNodeWorkerConfiguration& configuration, const Host& host)
     : listener(std::make_shared<CompositeStatisticListener>()), configuration(configuration)
 {
-    if (configuration.enableGoogleEventTrace.getValue())
+    NES_INFO("Starting SingleNodeWorker {}", host.getRawValue());
+    if (configuration.enableGoogleEventTrace)
     {
         auto googleTracePrinter = std::make_shared<GoogleEventTracePrinter>(
-            fmt::format("GoogleEventTrace_{:%Y-%m-%d_%H-%M-%S}_{:d}.json", std::chrono::system_clock::now(), ::getpid()));
+            fmt::format("trace_{}_{:%Y-%m-%d_%H-%M-%S}_{:d}.json", host.getRawValue(), std::chrono::system_clock::now(), ::getpid()));
         googleTracePrinter->start();
         listener->addListener(googleTracePrinter);
     }
 
-    nodeEngine = NodeEngineBuilder(configuration.workerConfiguration, copyPtr(listener)).build();
+    nodeEngine = NodeEngineBuilder(configuration.workerConfiguration, copyPtr(listener)).build(host);
+    compiler = std::make_unique<QueryCompilation::QueryCompiler>(configuration.workerConfiguration.defaultQueryExecution);
 
-    optimizer = std::make_unique<QueryOptimizer>(configuration.workerConfiguration.defaultQueryExecution);
-    compiler = std::make_unique<QueryCompilation::QueryCompiler>();
-
-    if (configuration.workerConfiguration.bufferSizeInBytes.getValue()
-        < configuration.workerConfiguration.defaultQueryExecution.operatorBufferSize.getValue())
+    if (!configuration.dataAddress.empty())
     {
-        throw InvalidConfigParameter(
-            "Currently, we require the bufferSizeInBytes {} to be at least the operatorBufferSize {}",
-            configuration.workerConfiguration.bufferSizeInBytes.getValue(),
-            configuration.workerConfiguration.defaultQueryExecution.operatorBufferSize.getValue());
+        const auto& networkConfig = configuration.workerConfiguration.network;
+        initNetworkServices(
+            configuration.dataAddress,
+            host,
+            NetworkOptions{
+                .senderQueueSize = static_cast<uint32_t>(networkConfig.senderQueueSize),
+                .maxPendingAcks = static_cast<uint32_t>(networkConfig.maxPendingAcks),
+                .receiverQueueSize = static_cast<uint32_t>(networkConfig.receiverQueueSize),
+                .senderIOThreads = static_cast<uint32_t>(networkConfig.senderIOThreads),
+                .receiverIOThreads = static_cast<uint32_t>(networkConfig.receiverIOThreads),
+            });
     }
 }
 
-/// TODO #305: This is a hotfix to get again unique queryId after our initial worker refactoring.
-/// We might want to move this to the engine.
-static std::atomic queryIdCounter = INITIAL<QueryId>.getRawValue();
-
-std::expected<QueryId, Exception> SingleNodeWorker::registerQuery(LogicalPlan plan) noexcept
+std::expected<QueryId, Exception> SingleNodeWorker::startQuery(LogicalPlan plan) noexcept
 {
     CPPTRACE_TRY
     {
-        plan.setQueryId(QueryId(queryIdCounter++));
-        auto queryPlan = optimizer->optimize(plan);
-        listener->onEvent(SubmitQuerySystemEvent{queryPlan.getQueryId(), explain(plan, ExplainVerbosity::Debug)});
-        auto request = std::make_unique<QueryCompilation::QueryCompilationRequest>(queryPlan);
-        request->dumpCompilationResult = configuration.workerConfiguration.dumpQueryCompilationIntermediateRepresentations.getValue();
+        /// Check if the plan already has a local query ID, generate one if needed
+        /// but preserve the distributed query ID if present
+        if (plan.getQueryId().getLocalQueryId() == INVALID_LOCAL_QUERY_ID)
+        {
+            auto localId = LocalQueryId(generateUUID());
+            if (plan.getQueryId().isDistributed())
+            {
+                plan.setQueryId(QueryId::create(localId, plan.getQueryId().getDistributedQueryId()));
+            }
+            else
+            {
+                plan.setQueryId(QueryId::createLocal(localId));
+            }
+        }
+
+        const LogContext context("queryId", plan.getQueryId());
+
+        const auto planStr = explain(plan, ExplainVerbosity::Debug);
+        NES_INFO("Registering query {} with plan:\n{}", plan.getQueryId(), planStr);
+        listener->onEvent(SubmitQuerySystemEvent{plan.getQueryId(), planStr});
+        const DumpMode dumpMode(configuration.workerConfiguration.dumpQueryCompilationIR, configuration.workerConfiguration.dumpGraph);
+        auto request = std::make_unique<QueryCompilation::QueryCompilationRequest>(plan);
+        request->dumpCompilationResult = dumpMode;
         auto result = compiler->compileQuery(std::move(request));
-        INVARIANT(result, "expected successfull query compilation or exception, but got nothing");
-        return nodeEngine->registerCompiledQueryPlan(std::move(result));
+        INVARIANT(result, "expected successful query compilation or exception, but got nothing");
+        nodeEngine->startQuery(plan.getQueryId(), std::move(result));
+        return plan.getQueryId();
     }
     CPPTRACE_CATCH(...)
     {
@@ -93,27 +125,12 @@ std::expected<QueryId, Exception> SingleNodeWorker::registerQuery(LogicalPlan pl
     std::unreachable();
 }
 
-std::expected<void, Exception> SingleNodeWorker::startQuery(QueryId queryId) noexcept
+std::expected<void, Exception> SingleNodeWorker::stopQuery(QueryId queryId) noexcept
 {
     CPPTRACE_TRY
     {
         PRECONDITION(queryId != INVALID_QUERY_ID, "QueryId must be not invalid!");
-        nodeEngine->startQuery(queryId);
-        return {};
-    }
-    CPPTRACE_CATCH(...)
-    {
-        return std::unexpected(wrapExternalException());
-    }
-    std::unreachable();
-}
-
-std::expected<void, Exception> SingleNodeWorker::stopQuery(QueryId queryId, QueryTerminationType type) noexcept
-{
-    CPPTRACE_TRY
-    {
-        PRECONDITION(queryId != INVALID_QUERY_ID, "QueryId must be not invalid!");
-        nodeEngine->stopQuery(queryId, type);
+        nodeEngine->stopQuery(queryId);
         return {};
     }
     CPPTRACE_CATCH(...)
@@ -123,22 +140,7 @@ std::expected<void, Exception> SingleNodeWorker::stopQuery(QueryId queryId, Quer
     std::unreachable();
 }
 
-std::expected<void, Exception> SingleNodeWorker::unregisterQuery(QueryId queryId) noexcept
-{
-    CPPTRACE_TRY
-    {
-        PRECONDITION(queryId != INVALID_QUERY_ID, "QueryId must be not invalid!");
-        nodeEngine->unregisterQuery(queryId);
-        return {};
-    }
-    CPPTRACE_CATCH(...)
-    {
-        return std::unexpected(wrapExternalException());
-    }
-    std::unreachable();
-}
-
-std::expected<LocalQueryStatus, Exception> SingleNodeWorker::getQueryStatus(QueryId queryId) const noexcept
+std::expected<LocalQueryStatusSnapshot, Exception> SingleNodeWorker::getQueryStatus(QueryId queryId) const noexcept
 {
     CPPTRACE_TRY
     {
@@ -156,9 +158,55 @@ std::expected<LocalQueryStatus, Exception> SingleNodeWorker::getQueryStatus(Quer
     std::unreachable();
 }
 
-std::optional<QueryLog::Log> SingleNodeWorker::getQueryLog(QueryId queryId) const
+WorkerStatus SingleNodeWorker::getWorkerStatus(std::chrono::system_clock::time_point after) const
 {
-    return nodeEngine->getQueryLog()->getLogForQuery(queryId);
+    const std::chrono::system_clock::time_point until = std::chrono::system_clock::now();
+    const auto summaries = nodeEngine->getQueryLog()->getStatus();
+    WorkerStatus status;
+    status.after = after;
+    status.until = until;
+    for (const auto& [queryId, state, metrics] : summaries)
+    {
+        switch (state)
+        {
+            case QueryStatus::Registered:
+                /// Ignore these for the worker status
+                break;
+            case QueryStatus::Started:
+                INVARIANT(metrics.start.has_value(), "If query is started, it should have a start timestamp");
+                if (metrics.start.value() >= after)
+                {
+                    status.activeQueries.emplace_back(queryId, std::nullopt);
+                }
+                break;
+            case QueryStatus::Running: {
+                INVARIANT(metrics.running.has_value(), "If query is running, it should have a running timestamp");
+                if (metrics.running.value() >= after)
+                {
+                    status.activeQueries.emplace_back(queryId, metrics.running.value());
+                }
+                break;
+            }
+            case QueryStatus::Stopped: {
+                /// A query stopped during setup may never have reported Running.
+                INVARIANT(metrics.stop.has_value(), "If query is stopped, it should have a stopped timestamp");
+                if (metrics.stop.value() >= after)
+                {
+                    status.terminatedQueries.emplace_back(queryId, metrics.running, metrics.stop.value(), metrics.error);
+                }
+                break;
+            }
+            case QueryStatus::Failed: {
+                INVARIANT(metrics.stop.has_value(), "If query has failed, it should have a stopped timestamp");
+                if (metrics.stop.value() >= after)
+                {
+                    status.terminatedQueries.emplace_back(queryId, metrics.running, metrics.stop.value(), metrics.error);
+                }
+                break;
+            }
+        }
+    }
+    return status;
 }
 
 }

@@ -14,32 +14,46 @@
 
 #pragma once
 
-#include <cstdint>
+#include <expected>
+#include <filesystem>
 #include <fstream>
-#include <memory>
 #include <ostream>
-#include <string>
 #include <string_view>
-#include <unordered_map>
 
-#include <Configurations/Descriptor.hpp>
-#include <Identifiers/Identifiers.hpp>
+#include <folly/Synchronized.h>
+
+#include <Configurations/ConfigField.hpp>
+#include <Configurations/InstantiatedConfigValue.hpp>
 #include <Runtime/TupleBuffer.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Sinks/Sink.hpp>
 #include <Sinks/SinkDescriptor.hpp>
-#include <SinksParsing/CSVFormat.hpp>
-#include <SinksParsing/Format.hpp>
-#include <folly/Synchronized.h>
+#include <SinksParsing/SchemaFormatter.hpp>
+#include <BackpressureChannel.hpp>
+#include <ErrorHandling.hpp>
 #include <PipelineExecutionContext.hpp>
 
 namespace NES
 {
+
+/// Sink-defined config struct: instantiated from the generic config by the SinkConfig registry
+/// entry, carried through the SinkDescriptor as std::any, and serialized via reflection of
+/// exactly this struct (all members are reflectable).
+struct FileSinkConfig
+{
+    std::filesystem::path filePath;
+    bool append;
+
+    static std::expected<FileSinkConfig, Exception> fromConfig(const InstantiatedConfig& config);
+};
+
 /// A sink that writes formatted TupleBuffers to arbitrary files.
 class FileSink final : public Sink
 {
 public:
     static constexpr std::string_view NAME = "File";
-    explicit FileSink(const SinkDescriptor& sinkDescriptor);
+    explicit FileSink(BackpressureController backpressureController, const FileSinkConfig& config, const SinkDescriptor& sinkDescriptor);
     ~FileSink() override = default;
 
     FileSink(const FileSink&) = delete;
@@ -51,7 +65,7 @@ public:
     void execute(const TupleBuffer& inputTupleBuffer, PipelineExecutionContext& pipelineExecutionContext) override;
     void stop(PipelineExecutionContext& pipelineExecutionContext) override;
 
-    static DescriptorConfig::Config validateAndFormat(std::unordered_map<std::string, std::string> config);
+    static Schema<QualifiedErasedConfigField, Ordered> getConfigSchema();
 
 protected:
     std::ostream& toString(std::ostream& str) const override;
@@ -61,25 +75,8 @@ private:
     std::string outputFilePath;
     bool isAppend;
     bool isOpen;
-    std::unique_ptr<Format> formatter;
     folly::Synchronized<std::ofstream> outputFileStream;
-};
-
-/// Todo #355 : combine configuration with source configuration (get rid of duplicated code)
-struct ConfigParametersFile
-{
-    static inline const DescriptorConfig::ConfigParameter<EnumWrapper, InputFormat> INPUT_FORMAT{
-        "input_format",
-        std::nullopt,
-        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(INPUT_FORMAT, config); }};
-    static inline const DescriptorConfig::ConfigParameter<bool> APPEND{
-        "append",
-        false,
-        [](const std::unordered_map<std::string, std::string>& config) { return DescriptorConfig::tryGet(APPEND, config); }};
-
-    static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
-        = DescriptorConfig::createConfigParameterContainerMap(
-            SinkDescriptor::parameterMap, SinkDescriptor::FILE_PATH, INPUT_FORMAT, APPEND);
+    SchemaFormatter schemaFormatter;
 };
 
 }

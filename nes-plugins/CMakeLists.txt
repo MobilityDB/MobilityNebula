@@ -15,45 +15,28 @@ include(${PROJECT_SOURCE_DIR}/cmake/PluginRegistrationUtil.cmake)
 # NOTE: Since these plugins are part of the main NebulaStream repo,
 #       we apply the same care and test coverage requirements to these plugins that we apply to the rest of the system.
 
-# activate optional plugins and add the path "THE/PATH" to the build (adding all dependencies of the optional plugin)
-activate_optional_plugin("Sources/TCPSource" ON)
-# Enable the Generator source plugin; required by systests and repl tests
-activate_optional_plugin("Sources/GeneratorSource" ON)
-activate_optional_plugin("Sinks/VoidSink" ON)
-option(NES_ENABLE_MQTT "Enable MQTT source and sink plugins (requires PahoMqttCpp)" ON)
-activate_optional_plugin("Sources/MQTTSource" ${NES_ENABLE_MQTT})
-activate_optional_plugin("Sinks/MQTTSink" ${NES_ENABLE_MQTT})
+# add plugin directories to the build (adding all dependencies of each plugin)
+add_plugin("Sources/TCPSource")
+add_plugin("Sources/MQTTSource")
+add_plugin("Sources/GeneratorSource")
+add_plugin("Sinks/VoidSink")
+add_plugin("Sinks/MQTTSink")
+add_plugin("Sinks/KafkaSink")
+add_plugin("Sinks/TCPSink")
+add_plugin("InputFormatters/JSONInputFormatter")
+add_plugin("OutputFormatters/JSONOutputFormatter")
+add_plugin("Rules/RedundantUnionRemovalRule")
+add_plugin("Functions/Conditional")
+add_plugin("OutputFormatters/JSONOutputFormatter/Serializers")
+add_plugin("InputFormatters/JSONInputFormatter/Deserializers")
 
-option(NES_ENABLE_MEOS "Enable MEOS plugin (requires libmeos installed on the system)" ON)
-activate_optional_plugin("MEOS" ${NES_ENABLE_MEOS})
+# The MEOS types and functions over libmeos, found under MEOS_ROOT (cmake/Findmeos.cmake)
+option(NES_ENABLE_MEOS "Build the MEOS plugin over libmeos" ON)
 if (NES_ENABLE_MEOS)
-    message(STATUS "Enable MEOS Plugin")
-
-    # Detect the platform
-    if (APPLE)
-        message(STATUS "Building on macOS")
-        # Set the include and library directories for Homebrew (macOS)
-        set(MEOS_INCLUDE_DIR "/opt/homebrew/include" CACHE PATH "Path to MEOS include directory")
-        set(MEOS_PLUGIN_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" CACHE PATH "Path to MEOS plugin include directory")
-        include_directories(SYSTEM ${MEOS_INCLUDE_DIR} ${MEOS_PLUGIN_INCLUDE_DIR})
-        include_directories(SYSTEM ${MEOS_INCLUDE_DIR} ${MEOS_PLUGIN_INCLUDE_DIR})
-        link_directories(${MEOS_LIBRARY_DIR} )
-
-    else()
-        message(STATUS "Building on Linux")
-
-        # Default behavior for Linux
-        find_package(meos REQUIRED)
-        if(meos_FOUND)
-            message(STATUS "MEOS found: include=${meos_INCLUDE_DIR}, library=${meos}")
-            include_directories(SYSTEM ${meos_INCLUDE_DIR})
-        else()
-            message(FATAL_ERROR "MEOS library not found")
-        endif()
-    endif()
+  add_plugin("MEOS")
 endif()
 
 if (NES_ENABLES_TESTS)
   # ChecksumSink depends on Checksum.cpp from systest which is only added when tests are enabled.
-  activate_optional_plugin("Sinks/ChecksumSink" ON)
+  add_plugin("Sinks/ChecksumSink")
 endif()

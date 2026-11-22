@@ -16,7 +16,9 @@
 
 #include <cstdint>
 #include <Identifiers/Identifiers.hpp>
-#include <Nautilus/Interface/HashMap/HashMap.hpp>
+#include <Interface/HashMap/HashMap.hpp>
+#include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/TupleBuffer.hpp>
 #include <SliceStore/Slice.hpp>
 #include <HashMapSlice.hpp>
 
@@ -32,10 +34,9 @@ public:
     AggregationSlice(
         SliceStart sliceStart, SliceEnd sliceEnd, const CreateNewHashMapSliceArgs& createNewHashMapSliceArgs, uint64_t numberOfHashMaps);
 
-    /// Returns the pointer to the underlying hashmap.
-    /// IMPORTANT: This method should only be used for passing the hashmap to the nautilus executable.
-    [[nodiscard]] Nautilus::Interface::HashMap* getHashMapPtr(WorkerThreadId workerThreadId) const;
-    [[nodiscard]] Nautilus::Interface::HashMap* getHashMapPtrOrCreate(WorkerThreadId workerThreadId);
+    [[nodiscard]] const TupleBuffer* getHashMapBufferRefForWorker(WorkerThreadId workerThreadId) const;
+    [[nodiscard]] const TupleBuffer*
+    getOrCreateHashMapBufferRefForWorker(AbstractBufferProvider& bufferProvider, WorkerThreadId workerThreadId);
 };
 
 }

@@ -18,7 +18,9 @@
 #include <string_view>
 #include <utility>
 #include <vector>
-#include <Functions/CastFieldPhysicalFunction.hpp>
+
+#include <DataTypes/DataType.hpp>
+#include <DataTypes/ExtensionType.hpp>
 #include <Functions/CastToTypeLogicalFunction.hpp>
 #include <Functions/ConstantValueLogicalFunction.hpp>
 #include <Functions/ConstantValuePhysicalFunction.hpp>
@@ -27,43 +29,43 @@
 #include <Functions/FieldAccessPhysicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Functions/PhysicalFunction.hpp>
+#include <Schema/Binder.hpp>
+#include <Traits/FieldMappingTrait.hpp>
 #include <Util/Strings.hpp>
 #include <ErrorHandling.hpp>
 #include <PhysicalFunctionRegistry.hpp>
 
 namespace NES::QueryCompilation
 {
-PhysicalFunction FunctionProvider::lowerFunction(LogicalFunction logicalFunction)
+PhysicalFunction FunctionProvider::lowerFunction(LogicalFunction logicalFunction, const FieldMappingTrait& fieldMappingTrait)
 {
     /// 1. Recursively lower the children of the function node.
-    std::vector<PhysicalFunction> childFunction;
+    std::vector<PhysicalFunction> childFunctions;
+    std::vector<DataType> inputTypes;
     for (const auto& child : logicalFunction.getChildren())
     {
-        childFunction.emplace_back(lowerFunction(child));
+        childFunctions.emplace_back(lowerFunction(child, fieldMappingTrait));
+        inputTypes.emplace_back(child.getDataType());
     }
 
     /// 2. The field access and constant value nodes are special as they require a different treatment,
     /// due to them not simply getting a childFunction as a parameter.
-    if (const auto fieldAccessFunction = logicalFunction.tryGet<FieldAccessLogicalFunction>())
+    if (const auto fieldAccessFunction = logicalFunction.tryGetAs<FieldAccessLogicalFunction>())
     {
-        return FieldAccessPhysicalFunction(fieldAccessFunction->getFieldName());
+        const auto mappedName = fieldMappingTrait.getMapping(unbind(fieldAccessFunction.value()->getField()));
+        INVARIANT(mappedName.has_value(), "Can not find mapping for {}", fieldAccessFunction.value()->getField());
+        return FieldAccessPhysicalFunction(mappedName.value());
     }
-    if (const auto constantValueFunction = logicalFunction.tryGet<ConstantValueLogicalFunction>())
+    if (const auto constantValueFunction = logicalFunction.tryGetAs<ConstantValueLogicalFunction>())
     {
-        return lowerConstantFunction(*constantValueFunction);
-    }
-    if (const auto castToTypeNode = logicalFunction.tryGet<CastToTypeLogicalFunction>())
-    {
-        INVARIANT(childFunction.size() == 1, "CastFieldPhysicalFunction expects exact one child!");
-        return CastFieldPhysicalFunction(childFunction[0], castToTypeNode->getDataType());
+        return lowerConstantFunction(constantValueFunction->get());
     }
 
     /// 3. Calling the registry to create an executable function.
-    auto executableFunctionArguments = PhysicalFunctionRegistryArguments(childFunction);
-    if (const auto function
-        = PhysicalFunctionRegistry::instance().create(std::string(logicalFunction.getType()), std::move(executableFunctionArguments)))
+    if (const auto factory = PhysicalFunctionRegistry::instance().find(std::string(logicalFunction.getType())))
     {
-        return function.value();
+        return (*factory)(PhysicalFunctionRegistryArguments{
+            .childFunctions = childFunctions, .inputTypes = inputTypes, .outputType = logicalFunction.getDataType()});
     }
     throw UnknownFunctionType("Can not lower function: {}", logicalFunction);
 }
@@ -71,14 +73,14 @@ PhysicalFunction FunctionProvider::lowerFunction(LogicalFunction logicalFunction
 namespace
 {
 template <typename T>
-requires requires(std::string_view input) { NES::Util::from_chars<T>(input); } /// TODO #1035: check if two Util namespaces are needed
+requires requires(std::string_view input) { from_chars<T>(input); }
 T parseConstantValue(std::string_view input)
 {
-    if (auto value = NES::Util::from_chars<T>(input))
+    if (auto value = from_chars<T>(input))
     {
         return *value;
     }
-    throw QueryCompilerError("Can not parse constant value \"{}\" into {}", input, typeid(T).name());
+    throw QueryCompilerError("Can not parse constant value \"{}\" into {}", input, NAMEOF_TYPE(T));
 }
 }
 
@@ -88,9 +90,9 @@ PhysicalFunction FunctionProvider::lowerConstantFunction(const ConstantValueLogi
     switch (constantFunction.getDataType().type)
     {
         case DataType::Type::UINT8:
-            return ConstantUInt8ValueFunction(parseConstantValue<int8_t>(stringValue));
+            return ConstantUInt8ValueFunction(parseConstantValue<uint8_t>(stringValue));
         case DataType::Type::UINT16:
-            return ConstantUInt16ValueFunction(parseConstantValue<int16_t>(stringValue));
+            return ConstantUInt16ValueFunction(parseConstantValue<uint16_t>(stringValue));
         case DataType::Type::UINT32:
             return ConstantUInt32ValueFunction(parseConstantValue<uint32_t>(stringValue));
         case DataType::Type::UINT64:
@@ -111,15 +113,18 @@ PhysicalFunction FunctionProvider::lowerConstantFunction(const ConstantValueLogi
             return ConstantBooleanValueFunction(parseConstantValue<bool>(stringValue));
         case DataType::Type::CHAR:
             return ConstantCharValueFunction(parseConstantValue<char>(stringValue));
-        case DataType::Type::VARSIZED_POINTER_REP:
         case DataType::Type::VARSIZED: {
-            /// A constant of a type a plugin adds holds the bytes the type reads from its text
+            /// A constant of a type a plugin adds holds the bytes of the value its text states, read once here
             if (const auto* extension = constantFunction.getDataType().extension)
             {
+                if (extension->fromText == nullptr)
+                {
+                    throw QueryCompilerError("{} has no typed constants: \"{}\" cannot be read as one", extension->name, stringValue);
+                }
                 const auto bytes = extension->fromText(stringValue);
-                return ConstantValueVariableSizePhysicalFunction(std::bit_cast<const int8_t*>(bytes.data()), bytes.size());
+                return ConstantValueVariableSizePhysicalFunction(reinterpret_cast<const int8_t*>(bytes.data()), bytes.size());
             }
-            return ConstantValueVariableSizePhysicalFunction(std::bit_cast<const int8_t*>(stringValue.c_str()), stringValue.size());
+            return ConstantValueVariableSizePhysicalFunction(reinterpret_cast<const int8_t*>(stringValue.c_str()), stringValue.size());
         };
         case DataType::Type::UNDEFINED: {
             throw UnknownPhysicalType("the UNKNOWN type is not supported");

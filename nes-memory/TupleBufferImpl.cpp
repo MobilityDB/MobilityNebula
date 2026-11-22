@@ -19,23 +19,21 @@
 #include <memory>
 #include <utility>
 #include <Identifiers/Identifiers.hpp>
-#include <MemoryLayout/VariableSizedAccess.hpp>
 #include <Runtime/TupleBuffer.hpp>
 #include <Time/Timestamp.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <magic_enum/magic_enum.hpp>
+#include <nautilus/inline.hpp>
+#include <sanitizer/asan_interface.h>
 #include <ErrorHandling.hpp>
 
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
     #include <mutex>
     #include <thread>
-    #include <cpptrace.hpp>
+    #include <cpptrace/cpptrace.hpp>
 #endif
 
-namespace NES
-{
-
-namespace detail
+namespace NES::detail
 {
 
 /// -----------------------------------------------------------------------------
@@ -51,7 +49,7 @@ MemorySegment::MemorySegment(
     const uint32_t size,
     std::function<void(MemorySegment*, BufferRecycler*)>&& recycleFunction,
     uint8_t* controlBlock) /// NOLINT (readability-non-const-parameter)
-    : ptr(ptr), size(size), controlBlock(new(controlBlock) BufferControlBlock(this, std::move(recycleFunction)))
+    : ptr(ptr), size(size), controlBlock(new (controlBlock) BufferControlBlock(this, std::move(recycleFunction)))
 {
     INVARIANT(this->ptr, "invalid pointer");
     INVARIANT(this->size, "invalid size={}", this->size);
@@ -63,7 +61,9 @@ MemorySegment::MemorySegment(uint8_t* ptr, const uint32_t size, std::function<vo
 {
     INVARIANT(this->ptr, "invalid pointer");
     INVARIANT(this->size, "invalid size={}", this->size);
+    /// NOLINTBEGIN(cppcoreguidelines-owning-memory) - ownership transferred to TaggedPointer
     controlBlock.reset(new BufferControlBlock(this, std::move(recycleFunction)), magic_enum::enum_integer(MemorySegmentType::Wrapped));
+    /// NOLINTEND(cppcoreguidelines-owning-memory) - ownership transferred to TaggedPointer
 }
 
 MemorySegment::~MemorySegment()
@@ -123,6 +123,11 @@ void fillThreadOwnershipInfo(std::string& threadName, cpptrace::raw_trace& calls
 #endif
 bool BufferControlBlock::prepare(const std::shared_ptr<BufferRecycler>& recycler)
 {
+    /// Hand-out is an exclusive point: one thread has dequeued the segment and it is not published yet.
+    /// Unpoison the control block before touching its reference counter. For pooled buffers it was poisoned
+    /// while idle in the pool (see BufferManager); wrapped/unpooled control blocks are heap-allocated and
+    /// never poisoned, so this is a harmless no-op there. It is re-poisoned on recycle.
+    ASAN_UNPOISON_MEMORY_REGION(this, sizeof(*this));
     int32_t expected = 0;
 #ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
     /// store the current thread that owns the buffer and track which function obtained the buffer
@@ -135,6 +140,7 @@ bool BufferControlBlock::prepare(const std::shared_ptr<BufferRecycler>& recycler
     {
         const auto previousOwner = std::exchange(this->owningBufferRecycler, recycler);
         INVARIANT(previousOwner == nullptr, "Buffer should not retain a reference to its owner while unused");
+        watermark = Timestamp(Timestamp::INVALID_VALUE);
         return true;
     }
     NES_ERROR("Invalid reference counter: {}", expected);
@@ -158,13 +164,13 @@ BufferControlBlock* BufferControlBlock::retain()
 void BufferControlBlock::dumpOwningThreadInfo()
 {
     std::unique_lock lock(owningThreadsMutex);
-    throw UnknownException("Buffer {} has {} live references", fmt::ptr(getOwner()), referenceCounter.load());
+    NES_ERROR("Buffer {} has {} live references", fmt::ptr(getOwner()), referenceCounter.load());
     for (auto& item : owningThreads)
     {
         for (auto& v : item.second)
         {
-            throw UnknownException(
-                "Thread {} has buffer {} requested on callstack: {}",
+            NES_ERROR(
+                "Thread {} has buffer {} requested on callstack:\n{}",
                 v.threadName,
                 fmt::ptr(getOwner()),
                 v.callstack.resolve().to_string());
@@ -180,7 +186,18 @@ int32_t BufferControlBlock::getReferenceCount() const noexcept
 
 bool BufferControlBlock::release()
 {
-    if (const uint32_t prevRefCnt = referenceCounter.fetch_sub(1); prevRefCnt == 1)
+#ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
+    {
+        std::unique_lock lock(owningThreadsMutex);
+        auto& v = owningThreads[std::this_thread::get_id()];
+        if (!v.empty())
+        {
+            v.pop_front();
+        }
+    }
+#endif
+    const uint32_t prevRefCnt = referenceCounter.fetch_sub(1);
+    if (prevRefCnt == 1)
     {
         for (auto&& child : children)
         {
@@ -198,20 +215,7 @@ bool BufferControlBlock::release()
         recycleCallback(owner, recycler.get());
         return true;
     }
-    else
-    {
-        INVARIANT(prevRefCnt != 0, "releasing an already released buffer");
-    }
-#ifdef NES_DEBUG_TUPLE_BUFFER_LEAKS
-    {
-        std::unique_lock lock(owningThreadsMutex);
-        auto& v = owningThreads[std::this_thread::get_id()];
-        if (!v.empty())
-        {
-            v.pop_front();
-        }
-    }
-#endif
+    INVARIANT(prevRefCnt != 0, "releasing an already released buffer");
     return false;
 }
 
@@ -232,72 +236,72 @@ BufferControlBlock::ThreadOwnershipInfo::ThreadOwnershipInfo() : threadName("NOT
 /// ------------------ Utility functions for TupleBuffer ------------------------
 /// -----------------------------------------------------------------------------
 
-uint64_t BufferControlBlock::getNumberOfTuples() const noexcept
+NAUTILUS_INLINE uint64_t BufferControlBlock::getNumberOfTuples() const noexcept
 {
     return numberOfTuples;
 }
 
-void BufferControlBlock::setNumberOfTuples(const uint64_t numberOfTuples)
+NAUTILUS_INLINE void BufferControlBlock::setNumberOfTuples(const uint64_t numberOfTuples)
 {
     this->numberOfTuples = numberOfTuples;
 }
 
-Timestamp BufferControlBlock::getWatermark() const noexcept
+NAUTILUS_INLINE Timestamp BufferControlBlock::getWatermark() const noexcept
 {
     return watermark;
 }
 
-void BufferControlBlock::setWatermark(const Timestamp watermark)
+NAUTILUS_INLINE void BufferControlBlock::setWatermark(const Timestamp watermark)
 {
     this->watermark = watermark;
 }
 
-SequenceNumber BufferControlBlock::getSequenceNumber() const noexcept
+NAUTILUS_INLINE SequenceNumber BufferControlBlock::getSequenceNumber() const noexcept
 {
     return sequenceNumber;
 }
 
-void BufferControlBlock::setSequenceNumber(const SequenceNumber sequenceNumber)
+NAUTILUS_INLINE void BufferControlBlock::setSequenceNumber(const SequenceNumber sequenceNumber)
 {
     this->sequenceNumber = sequenceNumber;
 }
 
-ChunkNumber BufferControlBlock::getChunkNumber() const noexcept
+NAUTILUS_INLINE ChunkNumber BufferControlBlock::getChunkNumber() const noexcept
 {
     return chunkNumber;
 }
 
-void BufferControlBlock::setChunkNumber(const ChunkNumber chunkNumber)
+NAUTILUS_INLINE void BufferControlBlock::setChunkNumber(const ChunkNumber chunkNumber)
 {
     this->chunkNumber = chunkNumber;
 }
 
-bool BufferControlBlock::isLastChunk() const noexcept
+NAUTILUS_INLINE bool BufferControlBlock::isLastChunk() const noexcept
 {
     return lastChunk;
 }
 
-void BufferControlBlock::setLastChunk(const bool lastChunk)
+NAUTILUS_INLINE void BufferControlBlock::setLastChunk(const bool lastChunk)
 {
     this->lastChunk = lastChunk;
 }
 
-void BufferControlBlock::setCreationTimestamp(const Timestamp timestamp)
+NAUTILUS_INLINE void BufferControlBlock::setCreationTimestamp(const Timestamp timestamp)
 {
     this->creationTimestamp = timestamp;
 }
 
-Timestamp BufferControlBlock::getCreationTimestamp() const noexcept
+NAUTILUS_INLINE Timestamp BufferControlBlock::getCreationTimestamp() const noexcept
 {
     return creationTimestamp;
 }
 
-OriginId BufferControlBlock::getOriginId() const noexcept
+NAUTILUS_INLINE OriginId BufferControlBlock::getOriginId() const noexcept
 {
     return originId;
 }
 
-void BufferControlBlock::setOriginId(const OriginId originId)
+NAUTILUS_INLINE void BufferControlBlock::setOriginId(const OriginId originId)
 {
     this->originId = originId;
 }
@@ -306,24 +310,22 @@ void BufferControlBlock::setOriginId(const OriginId originId)
 /// ------------------ VarLen fields support for TupleBuffer --------------------
 /// -----------------------------------------------------------------------------
 
-VariableSizedAccess::Index BufferControlBlock::storeChildBuffer(BufferControlBlock* control)
+ChildBufferIndex BufferControlBlock::storeChildBuffer(BufferControlBlock* control)
 {
     control->retain();
     children.emplace_back(control->owner);
-    return VariableSizedAccess::Index{children.size() - 1};
+    return ChildBufferIndex{static_cast<uint32_t>(children.size() - 1)};
 }
 
-bool BufferControlBlock::loadChildBuffer(
-    const VariableSizedAccess::Index index, BufferControlBlock*& control, uint8_t*& ptr, uint32_t& size) const
+bool BufferControlBlock::loadChildBuffer(const ChildBufferIndex index, BufferControlBlock*& control, uint8_t*& ptr, uint32_t& size) const
 {
-    PRECONDITION(index.index < children.size(), "Index={} is out of range={}", index, children.size());
+    PRECONDITION(index.getRawValue() < children.size(), "Index={} is out of range={}", index, children.size());
 
-    auto* child = children[index.index];
+    auto* child = children[index.getRawValue()];
     control = child->controlBlock->retain();
     ptr = child->ptr;
     size = child->size;
 
     return true;
-}
 }
 }

@@ -10,16 +10,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+add_subdirectory(ValueDeserializers)
 add_source_files(nes-input-formatters
-        InputFormatterProvider.cpp
+        InputFormatIndexer.cpp
+        InputFormatIndexerRegistry.cpp
+        InputFormatterConfigRegistry.cpp
+        InputFormatterConfigSchemaRegistry.cpp
         SequenceShredder.cpp
-        STBuffer.cpp
-        STBufferState.cpp
-        RawValueParser.cpp
-        InputFormatterTaskPipeline.cpp
+        SpanningTupleBuffer.cpp
+        SpanningTupleBufferState.cpp
+        ValueDeserializerUtil.cpp
+        InputFormatter.cpp
+        FieldOffsetRawBufferIndex.cpp
+        InputFormatterDescriptor.cpp
+        CSVInputFormatIndexer.cpp
 )
 
-# Register plugins
-add_plugin(CSV InputFormatIndexer nes-input-formatters CSVInputFormatIndexer.cpp)
-add_plugin(JSON InputFormatIndexer nes-input-formatters JSONInputFormatIndexer.cpp)
-add_plugin(Native InputFormatIndexer nes-input-formatters NativeInputFormatIndexer.cpp)
+# Runtime registry entries (formatter factory, config schema, typed config)
+add_registry_entry(InputFormatIndexer CSV)
+add_registry_entry(InputFormatterConfigSchema CSV)
+add_registry_entry(InputFormatterConfig CSV)

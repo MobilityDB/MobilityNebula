@@ -10,30 +10,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.21.0)
+cmake_minimum_required(VERSION 3.24.0)
 include(CMakeDependentOption)
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
-set(LLVM_TOOLCHAIN_VERSION 19)
+set(LLVM_TOOLCHAIN_VERSION 22)
 
 # Enable native mtune/march for optimizations
 option(NES_BUILD_NATIVE "Override mtune/march to load native support (might improve performance significantly)" OFF)
 option(CMAKE_EXPORT_COMPILE_COMMANDS "Write JSON compile commands database" ON)
-option(ENABLE_IWYU "Enable include-what-you-use suggestions (if found on the system)" OFF)
 option(ENABLE_FTIME_TRACE "Enable ftime-trace as a compilation flag to profile the compiler" OFF)
 option(CODE_COVERAGE "Compute test coverage" OFF)
 option(NES_ENABLES_TESTS "Enable tests" ON)
-option(NES_ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers (might improve compilation time)" OFF)
-option(NES_ENABLE_EXPERIMENTAL_EXECUTION_MLIR "Enables the MLIR backend." ON)
-option(NES_LOG_WITH_STACKTRACE "Log exceptions with stacktrace" ON)
 option(ENABLE_LARGE_TESTS "Runs testcases with larger input data" OFF)
-option(NES_DEBUG_TUPLE_BUFFER_LEAKS "Heavyweight instrumentation for Tuplebuffer debugging" OFF)
+set(LARGE_TEST_DOWNLOAD_TIMEOUT 1200 CACHE STRING "Absolute timeout in seconds for downloading large test data files")
+option(ENABLE_DOCKER_TESTS "Runs testcases that require docker" OFF)
 
+option(NES_LOG_WITH_STACKTRACE "Log exceptions with stacktrace" ON)
+option(NES_DEBUG_TUPLE_BUFFER_LEAKS "Heavyweight instrumentation for Tuplebuffer debugging" OFF)
+option(ALL_HASHMAP_TESTS "Run all hashmap test combinations." OFF)
+option(ALL_SLICE_CACHE_TESTS "Run system tests with and without slice cache." OFF)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Benchmark")
     add_compile_definitions(NO_ASSERT)
     set(NES_BUILD_NATIVE ON)
     set(NES_LOG_LEVEL "LEVEL_NONE" CACHE STRING "LogLevel")
+    # CMake only auto-populates -O3 -DNDEBUG for the built-in configs (Debug/Release/...); set them for the custom Benchmark config explicitly.
+    set(CMAKE_C_FLAGS_BENCHMARK   "-O3 -DNDEBUG" CACHE STRING "Benchmark C flags"   FORCE)
+    set(CMAKE_CXX_FLAGS_BENCHMARK "-O3 -DNDEBUG" CACHE STRING "Benchmark C++ flags" FORCE)
     message(STATUS "Building without any asserts, invariants or preconditions enabled!")
     message(STATUS "NES_BUILD_NATIVE enabling by default in Benchmark!")
     message(STATUS "Setting NES_LOG_LEVEL to LEVEL_NONE in Benchmark!")
@@ -54,12 +58,18 @@ else ()
 endif ()
 
 
-if (NES_LOG_WITH_STACKTRACE)
-    add_compile_definitions(NES_LOG_WITH_STACKTRACE)
-endif ()
-
 set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+include(cmake/HostIdentification.cmake)
 include(cmake/Sanitizers.cmake)
+
+if (NES_LOG_WITH_STACKTRACE)
+    if (SANITIZER_OPTION STREQUAL "thread")
+        message(WARNING "NES_LOG_WITH_STACKTRACE is ON but is disabled because the thread sanitizer is active. "
+                "Stack trace resolution is prohibitively slow under TSAN and causes test timeouts.")
+    else ()
+        add_compile_definitions(NES_LOG_WITH_STACKTRACE)
+    endif ()
+endif ()
 include(cmake/ImportDependencies.cmake)
 project(NES LANGUAGES C CXX)
 set(VCPKG_POLICY_ALLOW_RESTRICTED_HEADERS enabled)
@@ -73,6 +83,7 @@ endif ()
 # Custom CMake find instructions and macros
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 include(cmake/macros.cmake)
+include(cmake/ClangTidy.cmake)
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 
 # C++ Standard
@@ -93,14 +104,14 @@ endif ()
 # Notice that these is a compilation time provided value.
 # Consequently, it is not possible to activate at runtime a log level,
 # which is lower then the log level that is provided here.
-set_nes_log_level_value(NES_LOGGING_VALUE)
+set_nes_log_level_value()
 
 # Set Optimization Flags
-set(NES_WARNINGS "-Wall -Wconstant-conversion -Wbitwise-instead-of-logical -Wextra -pedantic -Wno-null-character -Wno-dollar-in-identifier-extension -Werror=extra -Werror=exceptions -Werror=all -Werror=integer-overflow -Werror=return-type -Werror=return-stack-address -Werror=delete-non-virtual-dtor -Werror=deprecated -Werror=writable-strings -Werror=array-bounds -Werror=ignored-qualifiers -Werror=sign-compare -Wno-deprecated-copy-with-dtor -Wno-unused-variable -Wno-unused-but-set-variable -Wno-deprecated-declarations -Wno-invalid-offsetof -Wno-nullability-extension")
+set(NES_WARNINGS "-Wall -Wconstant-conversion -Wbitwise-instead-of-logical -Wextra -pedantic -Wno-null-character -Wno-dollar-in-identifier-extension -Werror=extra -Werror=exceptions -Werror=all -Werror=integer-overflow -Werror=return-type -Werror=return-stack-address -Werror=delete-non-virtual-dtor -Werror=deprecated -Werror=writable-strings -Werror=array-bounds -Werror=ignored-qualifiers -Werror=sign-compare -Wno-deprecated-copy-with-dtor -Wno-unused-variable -Wno-unused-but-set-variable -Wno-deprecated-declarations -Wno-invalid-offsetof -Wno-nullability-extension -Wno-c2y-extensions")
 set(CMAKE_CXX_FLAGS "${NES_WARNINGS} -fno-omit-frame-pointer ${NES_SPECIFIC_FLAGS}")
 
 # setup rpath for linker
-set(CMAKE_BUILD_RPATH "${CMAKE_BINARY_DIR}/nes-plugins")
+list(APPEND CMAKE_BUILD_RPATH "${CMAKE_BINARY_DIR}/nes-plugins")
 set(CMAKE_INSTALL_RPATH "$ORIGIN/nes-plugins")
 
 if (ENABLE_FTIME_TRACE)
@@ -111,19 +122,11 @@ endif ()
 
 include(cmake/Sanitizers.cmake)
 include(cmake/CheckToolchain.cmake)
-include(cmake/UseCCache.cmake)
+include(cmake/UseCompilerCache.cmake)
 include(cmake/UseMold.cmake)
-
-if (ENABLE_IWYU)
-    find_program(iwyu_path NAMES include-what-you-use iwyu)
-    if (iwyu_path)
-        message(STATUS "IWYU enabled and found! Suggestions will be printed to stderr.")
-        set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
-        set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
-    else ()
-        message(WARNING "IWYU is enabled but not found! You will not get any suggestions")
-    endif ()
-endif ()
+include(cmake/EnableRust.cmake)
+include(cmake/CheckTestUtilities.cmake)
+include(cmake/NautilusInlining.cmake)
 
 # Native/Generic march support
 if (NES_BUILD_NATIVE)
@@ -144,20 +147,13 @@ if (NES_BUILD_NATIVE)
     endif ()
 else ()
     # Compiler should produce specific code for system architecture
-    if (CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-        message(STATUS "CMAKE detects generic x86_64 arch support")
+    if (NES_ARCH STREQUAL "x64")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64 -mtune=generic")
-    elseif (APPLE AND CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
-        message(STATUS "CMAKE detects APPLE ARM64 support")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=apple-m1")
-    elseif (NOT APPLE AND CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
-        message(STATUS "CMAKE detects generic ARM64 support")
+    elseif (NES_ARCH STREQUAL "arm64")
         # Arm themselves suggest using -mcpu=native, or in general,
         # to use -mcpu=CPU_TYPE. For more info, here:
         # https://community.arm.com/developer/tools-software/tools/b/tools-software-ides-blog/posts/compiler-flags-across-architectures-march-mtune-and-mcpu
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8-a")
-    else ()
-        message(FATAL_ERROR "CMAKE_SYSTEM_PROCESSOR was ${CMAKE_SYSTEM_PROCESSOR} this is a unsupported architecture.")
     endif ()
 endif ()
 
@@ -171,7 +167,7 @@ message(STATUS "CMAKE_CXX_FLAGS_BENCHMARK: ${CMAKE_CXX_FLAGS_BENCHMARK}")
 # Find Protobuf installation
 # Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
 set(protobuf_MODULE_COMPATIBLE TRUE)
-find_package(Protobuf REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${protobuf_VERSION}")
 
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
@@ -197,15 +193,14 @@ set(GRPC_LIBRARIES ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 # Library containing dlopen and dlcose.
 set(LIBRARIES ${LIBRARIES} ${CMAKE_DL_LIBS})
 
-find_package(nlohmann_json REQUIRED)
-set(LIBRARIES ${LIBRARIES} nlohmann_json::nlohmann_json)
-
 if (NES_ENABLES_TESTS)
     find_package(GTest CONFIG REQUIRED)
     if (NOT ${GTest_FOUND})
         message(FATAL_ERROR "Unable to find GTest")
     endif ()
-    set(GTEST_LIBRARIES ${GTEST_LIBRARIES} GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+    # Deliberately no gtest_main/gmock_main: nes-test-util provides the shared main
+    # (which loads the built-in plugins), so linking gtest's main would be ambiguous.
+    set(GTEST_LIBRARIES ${GTEST_LIBRARIES} GTest::gtest GTest::gmock)
 endif ()
 
 message(STATUS " Libraries: ${LIBRARIES}")
@@ -228,6 +223,18 @@ if (NES_ENABLES_TESTS)
     # Add tests with command
     enable_testing()
     message(STATUS "Tests are enabled")
+    if (ENABLE_DOCKER_TESTS)
+        add_test(NAME build-runtime-base-image
+                COMMAND bash -c "docker image inspect \"$0\" >/dev/null 2>&1 || docker build --load -t \"$0\" -f \"$1\" \"$2\""
+                ${NES_RUNTIME_BASE_IMAGE}
+                ${CMAKE_SOURCE_DIR}/docker/runtime/RuntimeBase.dockerfile
+                ${CMAKE_SOURCE_DIR}/docker/runtime
+        )
+        set_tests_properties(build-runtime-base-image PROPERTIES
+                FIXTURES_SETUP RuntimeBaseImage
+                LABELS "DockerCompose"
+        )
+    endif ()
     if (CODE_COVERAGE)
         include(cmake/CodeCoverage.cmake)
         add_code_coverage_all_targets(EXCLUDE ${CMAKE_BINARY_DIR}/* tests/*)
@@ -239,35 +246,51 @@ endif ()
 
 add_custom_target(build_all_plugins)
 
-# Declared here so add_compile_definitions reaches all sibling nes-* targets.
-# nes-plugins/CMakeLists.txt re-declares the same option (no-op when cached).
-option(NES_ENABLE_MEOS "Enable MEOS plugin (requires libmeos installed on the system)" ON)
-if(NES_ENABLE_MEOS)
-    add_compile_definitions(NES_ENABLE_MEOS)
-endif()
+# Produces every source and header that only exists after a build (gRPC, ANTLR, cxxbridge) without
+# compiling or linking anything, which is all static analysis needs on top of a configured tree.
+# A new code generator has to register itself here via add_dependencies(nes-codegen ...): CMake only
+# resolves file-level DEPENDS within the generating directory, so this target cannot collect them.
+add_custom_target(nes-codegen)
 
-# Add target for common lib, which contains a minimal set
-# of shared functionality used by all components of nes
-file(GLOB NES_DIRECTORIES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "nes-*")
-foreach (NES_DIR ${NES_DIRECTORIES})
-    add_subdirectory(${NES_DIR})
+# Adds sub-directories
+file(GLOB NES_DIRECTORIES_ALL RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "nes-*")
+set(NES_DIRECTORIES)
+foreach (NES_DIR ${NES_DIRECTORIES_ALL})
+    if (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${NES_DIR} AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${NES_DIR}/CMakeLists.txt)
+        list(APPEND NES_DIRECTORIES ${NES_DIR})
+        add_subdirectory(${NES_DIR})
+    endif ()
 endforeach ()
+
+# Registered here, not in a suite directory, because it checks all suites at once.
+add_e2e_test(
+    NAME bats-lib-test
+    BATS_FILE scripts/testing/tests/bats_lib.bats
+)
 
 # Other configurations
 project_enable_format()
+project_enable_tidy()
 
 # Adding targets for code coverage if it is enabled
 if (CODE_COVERAGE)
-    file(GLOB NES_DIRECTORIES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "nes-*")
-    list(REMOVE_ITEM NES_DIRECTORIES "nes-systests")
-    list(REMOVE_ITEM NES_DIRECTORIES "nes-nebuli")
-    list(REMOVE_ITEM NES_DIRECTORIES "nes-single-node-worker")
+    set(NES_COVERAGE_DIRECTORIES ${NES_DIRECTORIES})
+    list(REMOVE_ITEM NES_COVERAGE_DIRECTORIES "nes-systests")
+    list(REMOVE_ITEM NES_COVERAGE_DIRECTORIES "nes-frontend")
+    list(REMOVE_ITEM NES_COVERAGE_DIRECTORIES "nes-single-node-worker")
     # 'nes-optional-plugins' is not a target on its own, the plugins are part of other targets
-    list(REMOVE_ITEM NES_DIRECTORIES "nes-plugins")
-
-    foreach (NES_DIR ${NES_DIRECTORIES})
+    list(REMOVE_ITEM NES_COVERAGE_DIRECTORIES "nes-plugins")
+    list(REMOVE_ITEM NES_COVERAGE_DIRECTORIES "nes-network")
+    foreach (NES_DIR ${NES_COVERAGE_DIRECTORIES})
         target_code_coverage(${NES_DIR} PUBLIC AUTO ALL)
     endforeach ()
     target_code_coverage(nes-single-node-worker-lib PUBLIC AUTO ALL)
-    target_code_coverage(nes-nebuli-lib PUBLIC AUTO ALL)
+    target_code_coverage(nes-frontend-lib PUBLIC AUTO ALL)
 endif ()
+
+# Registers the `package-docker-images-all` target (and per-binary sub-targets) that
+# packages the already-built cli/repl/embedded-repl/worker binaries into slim
+# Docker runtime images. Included here, after add_subdirectory() has defined the
+# binary targets, so the packaging targets can depend on them. The targets are
+# only registered when a Docker daemon is reachable at configure time.
+include(cmake/PackageDockerImages.cmake)

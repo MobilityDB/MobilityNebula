@@ -23,8 +23,9 @@
 #include <vector>
 #include <Util/Ranges.hpp>
 #include <ErrorHandling.hpp>
+#include <nameof.hpp>
 
-namespace NES::Util
+namespace NES
 {
 
 /// Removes leading and trailing whitespaces from the input string_view.
@@ -52,7 +53,9 @@ requires(requires(T value) { std::from_chars<T>(input.data(), input.data() + inp
 {
     auto trimmed = trimWhiteSpaces(input);
     T value;
-    if (auto result = std::from_chars<T>(trimmed.data(), trimmed.data() + trimmed.size(), value); result.ec != std::errc())
+    const auto* const end = trimmed.data() + trimmed.size();
+    auto result = std::from_chars<T>(trimmed.data(), end, value);
+    if (result.ec != std::errc() || result.ptr != end)
     {
         return {};
     }
@@ -72,39 +75,17 @@ std::optional<bool> from_chars(std::string_view input);
 template <>
 std::optional<char> from_chars(std::string_view input);
 
-
-template <typename T>
-T from_chars_with_exception(std::string_view input) = delete;
-
+/// Same as from_chars, but throws CannotFormatMalformedStringValue instead of returning an empty optional.
 template <typename T>
 T from_chars_with_exception(std::string_view input)
-requires(requires(T value) { std::from_chars<T>(input.data(), input.data() + input.size(), value); })
+requires(requires { from_chars<T>(input); })
 {
-    T value;
-    auto [_, ec] = std::from_chars<T>(input.data(), input.data() + input.size(), value);
-    if (ec == std::errc())
+    if (auto value = from_chars<T>(input))
     {
-        return value;
+        return *value;
     }
-    if (ec == std::errc::invalid_argument)
-    {
-        throw CannotFormatMalformedStringValue("Value '{}', is not a valid value of type: {}.", input, typeid(T).name());
-    }
-    if (ec == std::errc::result_out_of_range)
-    {
-        throw CannotFormatMalformedStringValue("Value '{}', is too large for type: {}.", input, typeid(T).name());
-    }
-    throw CannotFormatMalformedStringValue("Unknown from_chars error.");
+    throw CannotFormatMalformedStringValue("'{}' is not a valid value of type {}.", input, NAMEOF_TYPE(T));
 }
-
-template <>
-float from_chars_with_exception(std::string_view input);
-template <>
-double from_chars_with_exception(std::string_view input);
-template <>
-bool from_chars_with_exception(std::string_view input);
-template <>
-char from_chars_with_exception(std::string_view input);
 
 /// Formats floating points similiar to flink:
 /// We preserve at least 1 digit and at most 6 digits after the decimal point
@@ -132,6 +113,9 @@ std::string formatFloat(std::floating_point auto value);
 /// escape characters such as '\n', e.g., for logging
 std::string escapeSpecialCharacters(std::string_view input);
 
+/// Unescape escaped character sequences (e.g., "\\n" -> '\n', "\\t" -> '\t')
+std::string unescapeSpecialCharacters(std::string_view input);
+
 /// splits a string given a delimiter into multiple substrings stored in a T vector
 /// the delimiter is allowed to be a string rather than a char only.
 template <typename T>
@@ -145,5 +129,10 @@ std::vector<T> splitWithStringDelimiter(std::string_view inputString, std::strin
 
 /// Splits the given input string_view on all characters of the delimiters string_view.
 std::vector<std::string_view> splitOnMultipleDelimiters(std::string_view input, const std::vector<char>& delimiters);
+
+/// Splits the given input string_view on all characters of the delimiters string_view.
+/// Ignores delimiters that appear within a character sequence encapsulated by an identical pair of characters out of the encapsulators vector.
+std::vector<std::string_view>
+splitOnMultipleDelimiters(std::string_view input, const std::vector<char>& delimiters, const std::vector<char>& encapsulators);
 
 }

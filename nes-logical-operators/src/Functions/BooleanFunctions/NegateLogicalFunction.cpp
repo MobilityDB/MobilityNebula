@@ -20,30 +20,28 @@
 #include <vector>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/DataTypeProvider.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Serialization/DataTypeSerializationUtil.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
 #include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
 #include <fmt/format.h>
 #include <ErrorHandling.hpp>
 #include <LogicalFunctionRegistry.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-NegateLogicalFunction::NegateLogicalFunction(LogicalFunction child)
-    : dataType(DataTypeProvider::provideDataType(DataType::Type::BOOLEAN)), child(std::move(std::move(child)))
+NegateLogicalFunction::NegateLogicalFunction(LogicalFunction child) : child(std::move(child))
 {
 }
 
-bool NegateLogicalFunction::operator==(const LogicalFunctionConcept& rhs) const
+bool NegateLogicalFunction::operator==(const NegateLogicalFunction& rhs) const
 {
-    if (const auto* other = dynamic_cast<const NegateLogicalFunction*>(&rhs))
-    {
-        return this->child == other->getChildren()[0];
-    }
-    return false;
+    return this->child == rhs.getChildren()[0];
 }
 
 std::string NegateLogicalFunction::explain(ExplainVerbosity verbosity) const
@@ -51,14 +49,16 @@ std::string NegateLogicalFunction::explain(ExplainVerbosity verbosity) const
     return fmt::format("NOT({})", child.explain(verbosity));
 }
 
-LogicalFunction NegateLogicalFunction::withInferredDataType(const Schema& schema) const
+LogicalFunction NegateLogicalFunction::withInferredDataType(const Schema<Field, Unordered>& schema) const
 {
-    auto newChild = child.withInferredDataType(schema);
-    if (not newChild.getDataType().isType(DataType::Type::BOOLEAN))
+    auto copy = *this;
+    copy.child = child.withInferredDataType(schema);
+    if (not copy.child.getDataType().isType(DataType::Type::BOOLEAN))
     {
-        throw CannotInferSchema("Negate Function Node: the dataType of child must be boolean, but was: {}", newChild.getDataType());
+        throw CannotInferSchema("Negate Function Node: the dataType of child must be boolean, but was: {}", copy.child.getDataType());
     }
-    return withChildren({newChild});
+    copy.dataType = copy.child.getDataType();
+    return copy;
 }
 
 DataType NegateLogicalFunction::getDataType() const
@@ -66,19 +66,12 @@ DataType NegateLogicalFunction::getDataType() const
     return dataType;
 };
 
-LogicalFunction NegateLogicalFunction::withDataType(const DataType& dataType) const
-{
-    auto copy = *this;
-    copy.dataType = dataType;
-    return copy;
-};
-
 std::vector<LogicalFunction> NegateLogicalFunction::getChildren() const
 {
     return {child};
 };
 
-LogicalFunction NegateLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
+NegateLogicalFunction NegateLogicalFunction::withChildren(const std::vector<LogicalFunction>& children) const
 {
     PRECONDITION(children.size() == 1, "NegateLogicalFunction requires exactly one child, but got {}", children.size());
     auto copy = *this;
@@ -91,17 +84,19 @@ std::string_view NegateLogicalFunction::getType() const
     return NAME;
 }
 
-SerializableFunction NegateLogicalFunction::serialize() const
+Reflected Reflector<NegateLogicalFunction>::operator()(const NegateLogicalFunction& function, const ReflectionContext& context) const
 {
-    SerializableFunction serializedFunction;
-    serializedFunction.set_function_type(NAME);
-    serializedFunction.add_children()->CopyFrom(child.serialize());
-    DataTypeSerializationUtil::serializeDataType(this->getDataType(), serializedFunction.mutable_data_type());
-    return serializedFunction;
+    return context.reflect(detail::ReflectedNegateLogicalFunction{.child = function.child});
 }
 
-LogicalFunctionRegistryReturnType
-LogicalFunctionGeneratedRegistrar::RegisterNegateLogicalFunction(LogicalFunctionRegistryArguments arguments)
+NegateLogicalFunction Unreflector<NegateLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    auto [function] = context.unreflect<detail::ReflectedNegateLogicalFunction>(reflected);
+
+    return NegateLogicalFunction(std::move(function));
+}
+
+LogicalFunctionRegistryReturnType NegateLogicalFunction::createNegate(LogicalFunctionRegistryArguments arguments)
 {
     if (arguments.children.size() != 1)
     {

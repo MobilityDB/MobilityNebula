@@ -14,38 +14,65 @@
 
 #pragma once
 
-#include <memory>
+
+#include <cstddef>
+#include <functional>
+#include <string>
 #include <string_view>
 
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <AggregationLogicalFunctionRegistry.hpp>
 #include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-class MedianAggregationLogicalFunction : public WindowAggregationLogicalFunction
+class MedianAggregationLogicalFunction
 {
 public:
-    /// Creates a new MedianAggregationLogicalFunction
-    /// @param onField field on which the aggregation should be performed
-    /// @param asField function describing how the aggregated field should be called
-    MedianAggregationLogicalFunction(const FieldAccessLogicalFunction& onField, FieldAccessLogicalFunction asField);
-    explicit MedianAggregationLogicalFunction(const FieldAccessLogicalFunction& onField);
+    explicit MedianAggregationLogicalFunction(AggregationFieldAccess inputFunction);
 
-    void inferStamp(const Schema& schema) override;
+    [[nodiscard]] MedianAggregationLogicalFunction withInferredType(const Schema<Field, Unordered>& schema) const;
+    [[nodiscard]] static std::string_view getName() noexcept;
+    [[nodiscard]] DataType getAggregateType() const;
+    [[nodiscard]] static bool shallIncludeNullValues() noexcept;
+    [[nodiscard]] AggregationFieldAccess getInputFunction() const;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
+    [[nodiscard]] bool operator==(const MedianAggregationLogicalFunction& other) const;
 
-    ~MedianAggregationLogicalFunction() override = default;
-
-    [[nodiscard]] SerializableAggregationFunction serialize() const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
-
+    static AggregationLogicalFunctionRegistryReturnType create(AggregationLogicalFunctionRegistryArguments arguments);
 
 private:
+    AggregationFieldAccess inputFunction;
+    bool nullable{};
     static constexpr std::string_view NAME = "Median";
-    static constexpr DataType::Type partialAggregateStampType = DataType::Type::FLOAT64;
     static constexpr DataType::Type finalAggregateStampType = DataType::Type::FLOAT64;
 };
+
+template <>
+struct Reflector<MedianAggregationLogicalFunction>
+{
+    Reflected operator()(const MedianAggregationLogicalFunction& function, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<MedianAggregationLogicalFunction>
+{
+    MedianAggregationLogicalFunction operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
 }
+
+template <>
+struct std::hash<NES::MedianAggregationLogicalFunction>
+{
+    size_t operator()(const NES::MedianAggregationLogicalFunction& aggregationFunction) const noexcept;
+};
+
+static_assert(NES::WindowAggregationFunctionConcept<NES::MedianAggregationLogicalFunction>);

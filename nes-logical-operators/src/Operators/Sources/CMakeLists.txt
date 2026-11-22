@@ -13,5 +13,10 @@
 add_source_files(nes-logical-operators
         SourceDescriptorLogicalOperator.cpp
         SourceNameLogicalOperator.cpp
-        InlineSourceLogicalOperator.cpp
+        AnonymousSourceLogicalOperator.cpp
 )
+
+
+add_unreflection_entry(LogicalOperator SourceDescriptor)
+add_unreflection_entry(LogicalOperator AnonymousSource)
+add_unreflection_entry(LogicalOperator SourceName)

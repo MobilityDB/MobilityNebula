@@ -1,0 +1,26 @@
+# name: guide/guide13.test
+# description: Add constant to integer field
+# groups: [Projection, Expression, Arithmetic]
+
+CREATE LOGICAL SOURCE s(
+    x INT32 NOT NULL
+);
+
+CREATE PHYSICAL SOURCE FOR s TYPE File;
+ATTACH INLINE
+1
+5
+10
+
+CREATE SINK sink(
+    x_plus_10 INT32 NOT NULL
+) TYPE File;
+
+SELECT
+    x + 10 AS x_plus_10
+FROM s
+INTO sink;
+----
+11
+15
+20

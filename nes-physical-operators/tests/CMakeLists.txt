@@ -13,8 +13,25 @@
 function(add_nes_physical_operator_test)
     add_nes_test(${ARGN})
     set(TARGET_NAME ${ARGV0})
-    target_link_libraries(${TARGET_NAME} nes-data-types nes-physical-operators nes-memory-test-utils nes-test-util)
+    target_link_libraries(${TARGET_NAME} nes-data-types nes-physical-operators nes-test-util)
 endfunction()
 
 add_nes_physical_operator_test(EmitPhysicalOperatorTest EmitPhysicalOperatorTest.cpp)
+add_nes_physical_operator_test(AndOrPhysicalFunctionTest AndOrPhysicalFunctionTest.cpp)
+add_nes_physical_operator_test(ExtensionTypeConstantTest ExtensionTypeConstantTest.cpp)
 add_nes_physical_operator_test(SliceAssignerTest SliceAssignerTest.cpp)
+add_nes_physical_operator_test(SliceCacheTest SliceCacheTest.cpp)
+
+if (ENABLE_INFERENCE_TESTS)
+    add_definitions(-DINFERENCE_TEST_DATA="${CMAKE_SOURCE_DIR}/nes-inference/tests/testdata")
+
+    function(add_nes_inference_physical_operator_test)
+        add_nes_physical_operator_test(${ARGN})
+        set(TARGET_NAME ${ARGV0})
+        target_link_libraries(${TARGET_NAME} nes-inference nes-nautilus-test-util)
+    endfunction()
+
+    add_nes_inference_physical_operator_test(InferModelPhysicalOperatorTest InferModelPhysicalOperatorTest.cpp)
+endif ()
+
+add_nes_physical_operator_test(StreamJoinProbePhysicalOperatorTest StreamJoinProbePhysicalOperatorTest.cpp)

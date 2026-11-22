@@ -10,15 +10,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_plugin(Absolute LogicalFunction nes-logical-operators AbsoluteLogicalFunction.cpp)
-add_plugin(Add LogicalFunction nes-logical-operators AddLogicalFunction.cpp)
-add_plugin(Ceil LogicalFunction nes-logical-operators CeilLogicalFunction.cpp)
-add_plugin(Div LogicalFunction nes-logical-operators DivLogicalFunction.cpp)
-add_plugin(Exp LogicalFunction nes-logical-operators ExpLogicalFunction.cpp)
-add_plugin(Floor LogicalFunction nes-logical-operators FloorLogicalFunction.cpp)
-add_plugin(Mod LogicalFunction nes-logical-operators ModuloLogicalFunction.cpp)
-add_plugin(Mul LogicalFunction nes-logical-operators MulLogicalFunction.cpp)
-add_plugin(Pow LogicalFunction nes-logical-operators PowLogicalFunction.cpp)
-add_plugin(Round LogicalFunction nes-logical-operators RoundLogicalFunction.cpp)
-add_plugin(Sqrt LogicalFunction nes-logical-operators SqrtLogicalFunction.cpp)
-add_plugin(Sub LogicalFunction nes-logical-operators SubLogicalFunction.cpp)
+
+add_unreflection_entry(LogicalFunction Absolute KEY Abs)
+add_unreflection_entry(LogicalFunction Add)
+add_unreflection_entry(LogicalFunction Ceil)
+add_unreflection_entry(LogicalFunction Div)
+add_unreflection_entry(LogicalFunction Exp)
+add_unreflection_entry(LogicalFunction Floor)
+add_unreflection_entry(LogicalFunction Modulo KEY Mod)
+add_unreflection_entry(LogicalFunction Mul)
+add_unreflection_entry(LogicalFunction Pow)
+add_unreflection_entry(LogicalFunction Round)
+add_unreflection_entry(LogicalFunction Sqrt)
+add_unreflection_entry(LogicalFunction Sub)
+
+add_source_files(nes-logical-operators
+        AbsoluteLogicalFunction.cpp
+        AddLogicalFunction.cpp
+        CeilLogicalFunction.cpp
+        DivLogicalFunction.cpp
+        ExpLogicalFunction.cpp
+        FloorLogicalFunction.cpp
+        ModuloLogicalFunction.cpp
+        MulLogicalFunction.cpp
+        PowLogicalFunction.cpp
+        RoundLogicalFunction.cpp
+        SqrtLogicalFunction.cpp
+        SubLogicalFunction.cpp
+)
+
+add_registry_entry(LogicalFunction Absolute KEY Abs)
+add_registry_entry(LogicalFunction Add)
+add_registry_entry(LogicalFunction Ceil)
+add_registry_entry(LogicalFunction Div)
+add_registry_entry(LogicalFunction Exp)
+add_registry_entry(LogicalFunction Floor)
+add_registry_entry(LogicalFunction Modulo KEY Mod)
+add_registry_entry(LogicalFunction Mul)
+add_registry_entry(LogicalFunction Pow)
+add_registry_entry(LogicalFunction Round)
+add_registry_entry(LogicalFunction Sqrt)
+add_registry_entry(LogicalFunction Sub)

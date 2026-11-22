@@ -29,9 +29,11 @@
 #include <Runtime/AbstractBufferProvider.hpp>
 #include <Runtime/Execution/OperatorHandler.hpp>
 #include <Runtime/TupleBuffer.hpp>
+#include <Time/Timestamp.hpp>
 #include <Util/Logger/LogLevel.hpp>
 #include <Util/Logger/Logger.hpp>
 #include <Util/Logger/impl/NesLogger.hpp>
+#include <Util/UUID.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <BaseUnitTest.hpp>
@@ -40,6 +42,7 @@
 #include <Interfaces.hpp>
 #include <PipelineExecutionContext.hpp>
 #include <QueryEngineTestingInfrastructure.hpp>
+#include <QueryId.hpp>
 #include <RunningQueryPlan.hpp>
 #include <RunningSource.hpp>
 #include <Task.hpp>
@@ -50,6 +53,11 @@ namespace stdv = std::ranges::views;
 namespace NES::Testing
 {
 using namespace NES;
+
+static QueryId randomQueryId()
+{
+    return QueryId::createLocal(LocalQueryId(generateUUID()));
+}
 
 class QueryPlanTest : public BaseUnitTest
 {
@@ -139,7 +147,7 @@ concept RangeOf = std::ranges::range<R> && std::same_as<std::ranges::range_value
 struct TestPipelineExecutionContext : PipelineExecutionContext
 {
     MOCK_METHOD(void, repeatTask, (const TupleBuffer&, std::chrono::milliseconds), (override));
-    MOCK_METHOD(WorkerThreadId, getId, (), (const, override));
+    MOCK_METHOD(WorkerThreadId, getWorkerThreadId, (), (const, override));
     MOCK_METHOD(TupleBuffer, allocateTupleBuffer, (), (override));
     MOCK_METHOD(uint64_t, getNumberOfWorkerThreads, (), (const, override));
     MOCK_METHOD(std::shared_ptr<AbstractBufferProvider>, getBufferManager, (), (const, override));
@@ -259,8 +267,9 @@ std::unique_ptr<Terminations> Terminations::setup(const RangeOf<ExecutablePipeli
     for (auto* stage : stages)
     {
         EXPECT_CALL(emitter, emitPipelineStop(::testing::_, UniquePtrStageMatcher(stage), ::testing::_))
-            .WillOnce(::testing::Invoke([&terminations, stage](auto, auto termination, auto callback)
-                                        { terminations->add(stage, std::move(termination), std::move(callback)); }));
+            .WillOnce(
+                ::testing::Invoke([&terminations, stage](const auto&, auto termination, auto callback)
+                                  { terminations->add(stage, std::move(termination), std::move(callback)); }));
     }
 
     return terminations;
@@ -301,8 +310,9 @@ std::unique_ptr<Setups> Setups::setup(const RangeOf<ExecutablePipelineStage*> au
     for (auto* stage : stages)
     {
         EXPECT_CALL(emitter, emitPipelineStart(::testing::_, StageMatcher(stage), ::testing::_))
-            .WillOnce(::testing::Invoke([&setups, stage](auto, const auto& setup, auto callback)
-                                        { setups->add(stage, std::move(setup), std::move(callback)); }));
+            .WillOnce(
+                ::testing::Invoke([&setups, stage](const auto&, const auto& setup, auto callback)
+                                  { setups->add(stage, std::move(setup), std::move(callback)); }));
     }
 
     return setups;
@@ -391,7 +401,23 @@ void leak(std::unique_ptr<RunningQueryPlan> runningQueryPlan, std::shared_ptr<Te
 {
     ::testing::Mock::VerifyAndClearExpectations(listener.get());
     ::testing::Mock::AllowLeak(listener.get());
-    runningQueryPlan.release();
+    static_cast<void>(runningQueryPlan.release()); /// NOLINT(bugprone-unused-return-value) - intentional leak for test
+}
+
+/// A source that reaches EoS first emits a zero-record buffer with an infinite watermark to its successor.
+void expectEoSWatermarkBuffer(TestWorkEmitter& emitter)
+{
+    EXPECT_CALL(
+        emitter,
+        emitWork(
+            ::testing::_,
+            ::testing::_,
+            ::testing::Truly(
+                [](const TupleBuffer& buffer)
+                { return buffer.getNumberOfTuples() == 0 && buffer.getWatermark().getRawValue() == Timestamp::INFINITE_VALUE; }),
+            ::testing::_,
+            ::testing::_))
+        .WillOnce(::testing::Return(true));
 }
 
 TEST_F(QueryPlanTest, RunningQueryNodeSetup)
@@ -401,10 +427,10 @@ TEST_F(QueryPlanTest, RunningQueryNodeSetup)
     ::testing::MockFunction<void()> onExpirationCallback;
     EXPECT_CALL(onRunningCallback, Call()).Times(1);
     EXPECT_CALL(onExpirationCallback, Call()).Times(1);
-    auto [expirationOwner, expirationRef] = Callback::create("Expiration");
-    auto [setupOwner, setupRef] = Callback::create("Setup");
-    setupOwner.addCallback(onRunningCallback.AsStdFunction());
-    expirationOwner.addCallback(onExpirationCallback.AsStdFunction());
+    auto [expirationOwner, expirationRef] = Callback::create();
+    auto [setupOwner, setupRef] = Callback::create();
+    setupOwner.setCallback(onRunningCallback.AsStdFunction());
+    expirationOwner.setCallback(onExpirationCallback.AsStdFunction());
 
     auto pipeline1Ctrl = std::make_shared<TestPipelineController>();
     auto pipeline2Ctrl = std::make_shared<TestPipelineController>();
@@ -417,18 +443,11 @@ TEST_F(QueryPlanTest, RunningQueryNodeSetup)
     auto setups = Setups::setup(std::vector<ExecutablePipelineStage*>{stage1.get(), stage2.get()}, emitter);
 
     /// Build chain of two pipelines. Verify that on construction of a RunningQueryPlan node a setup task has been submitted
-    auto sink
-        = RunningQueryPlanNode::create(QueryId(1), PipelineId(1), emitter, {}, std::move(stage2), [](auto) { }, expirationRef, setupRef);
+    const auto testQid = randomQueryId();
+    auto sink = RunningQueryPlanNode::create(testQid, PipelineId(1), emitter, {}, std::move(stage2), [](auto) { }, expirationRef, setupRef);
     EXPECT_THAT(*setups, testing::SizeIs(1));
     auto pipeline = RunningQueryPlanNode::create(
-        QueryId(1),
-        PipelineId(2),
-        emitter,
-        {std::move(sink)},
-        std::move(stage1),
-        [](auto) { },
-        std::move(expirationRef),
-        std::move(setupRef));
+        testQid, PipelineId(2), emitter, {std::move(sink)}, std::move(stage1), [](auto) { }, std::move(expirationRef), std::move(setupRef));
     EXPECT_THAT(*setups, testing::SizeIs(2));
 
     /// Run all setup tasks.
@@ -462,7 +481,7 @@ TEST_F(QueryPlanTest, RunningQueryPlanDefaultDestructor)
     EXPECT_CALL(*listener, onDestruction()).Times(1);
     EXPECT_CALL(*listener, onRunning()).Times(0);
     {
-        auto runningQueryPlan = RunningQueryPlan::start(QueryId(0), std::move(queryPlan), controller, emitter, listener);
+        auto runningQueryPlan = RunningQueryPlan::start(randomQueryId(), std::move(queryPlan), controller, emitter, listener);
     }
     EXPECT_TRUE(srcCtrl->waitUntilDestroyed());
     EXPECT_FALSE(srcCtrl->wasOpened());
@@ -489,7 +508,7 @@ TEST_F(QueryPlanTest, RunningQueryPlanDispose)
     EXPECT_CALL(*listener, onRunning()).Times(0);
 
     {
-        auto runningQueryPlan = dropRef(RunningQueryPlan::start(QueryId(0), std::move(queryPlan), controller, emitter, listener));
+        auto runningQueryPlan = dropRef(RunningQueryPlan::start(randomQueryId(), std::move(queryPlan), controller, emitter, listener));
         RunningQueryPlan::dispose(std::move(runningQueryPlan));
     }
 
@@ -518,7 +537,7 @@ TEST_F(QueryPlanTest, RunningQueryPlanTestInitialPipelineSetup)
     EXPECT_CALL(*listener, onRunning()).Times(0);
 
     {
-        auto runningQueryPlan = RunningQueryPlan::start(QueryId(0), std::move(queryPlan), controller, emitter, listener);
+        auto runningQueryPlan = RunningQueryPlan::start(randomQueryId(), std::move(queryPlan), controller, emitter, listener);
         EXPECT_TRUE(setups->waitForTasks(2));
         EXPECT_FALSE(srcCtrl->waitUntilOpened());
     }
@@ -563,7 +582,7 @@ TEST_F(QueryPlanTest, RunningQueryPlanTestSourceSetup)
 
     std::unique_ptr<StoppingQueryPlan> stopping;
     {
-        auto runningQueryPlan = dropRef(RunningQueryPlan::start(QueryId(0), std::move(queryPlan), controller, emitter, listener));
+        auto runningQueryPlan = dropRef(RunningQueryPlan::start(randomQueryId(), std::move(queryPlan), controller, emitter, listener));
         EXPECT_FALSE(srcCtrl->wasOpened());
         EXPECT_FALSE(srcCtrl->wasClosed());
 
@@ -572,7 +591,9 @@ TEST_F(QueryPlanTest, RunningQueryPlanTestSourceSetup)
 
         EXPECT_TRUE(srcCtrl->waitUntilOpened());
         EXPECT_FALSE(srcCtrl->waitUntilClosed());
-        stopping = RunningQueryPlan::stop(std::move(runningQueryPlan));
+        auto [stoppingPlan, cb] = RunningQueryPlan::stop(std::move(runningQueryPlan));
+        stopping = std::move(stoppingPlan);
+        cb();
     }
 
     EXPECT_TRUE(terminations->handle(test.stages.at(pipeline)));
@@ -608,13 +629,16 @@ TEST_F(QueryPlanTest, RunningQueryPlanTestPartialConstruction)
 
     std::unique_ptr<StoppingQueryPlan> stopping;
     {
-        auto runningQueryPlan = dropRef(RunningQueryPlan::start(QueryId(0), std::move(queryPlan), controller, emitter, listener));
+        auto runningQueryPlan = dropRef(RunningQueryPlan::start(randomQueryId(), std::move(queryPlan), controller, emitter, listener));
         EXPECT_FALSE(srcCtrl->waitUntilOpened());
 
         EXPECT_TRUE(setups->waitForTasks(3));
         /// Only setup the pipeline1 pipeline
         EXPECT_TRUE(setups->handle(test.stages[pipeline1]));
-        stopping = RunningQueryPlan::stop(std::move(runningQueryPlan));
+
+        absl::AnyInvocable<void()> cb;
+        std::tie(stopping, cb) = RunningQueryPlan::stop(std::move(runningQueryPlan));
+        cb();
     }
 
     EXPECT_TRUE(terminations->handle(test.stages[pipeline1]));
@@ -652,8 +676,10 @@ TEST_F(QueryPlanTest, RefCountTestSourceEoS)
     auto setups = Setups::setup(stdv::values(test.stages), emitter);
     auto terminations = Terminations::setup(stdv::values(test.stages), emitter);
 
+    expectEoSWatermarkBuffer(emitter);
+
     {
-        auto runningQueryPlan = dropRef(RunningQueryPlan::start(QueryId(0), std::move(queryPlan), controller, emitter, listener));
+        auto runningQueryPlan = dropRef(RunningQueryPlan::start(randomQueryId(), std::move(queryPlan), controller, emitter, listener));
 
         EXPECT_TRUE(setups->handleAll());
         EXPECT_TRUE(test.sourceControls[source]->waitUntilOpened());
@@ -661,7 +687,6 @@ TEST_F(QueryPlanTest, RefCountTestSourceEoS)
 
         test.sourceControls[source]->injectEoS();
         EXPECT_TRUE(sourceStops->handle(test.sourceIds.at(source)));
-        EXPECT_TRUE(test.sourceControls[source]->waitUntilDestroyed());
         EXPECT_TRUE(test.sourceControls[source]->wasOpened());
         EXPECT_TRUE(test.sourceControls[source]->wasClosed());
 
@@ -670,7 +695,7 @@ TEST_F(QueryPlanTest, RefCountTestSourceEoS)
         EXPECT_THAT(*terminations, ::testing::SizeIs(1));
         EXPECT_TRUE(terminations->handle(test.stages[sink]));
         /// NOLINTNEXTLINE
-        runningQueryPlan.release();
+        leak(std::move(runningQueryPlan), std::move(listener));
     }
 }
 
@@ -696,8 +721,10 @@ TEST_F(QueryPlanTest, RefCountTestMultipleSourceOneOfThemEoS)
     /// No pipeline is terminated, because p is kept alive by source1
     auto sourceStops = SourceStops::setup(std::vector{test.sourceIds.at(source)}, controller);
     auto setups = Setups::setup(stdv::values(test.stages), emitter);
+    expectEoSWatermarkBuffer(emitter);
+
     {
-        auto runningQueryPlan = dropRef(RunningQueryPlan::start(QueryId(0), std::move(queryPlan), controller, emitter, listener));
+        auto runningQueryPlan = dropRef(RunningQueryPlan::start(randomQueryId(), std::move(queryPlan), controller, emitter, listener));
         EXPECT_TRUE(setups->handleAll());
         EXPECT_TRUE(test.sourceControls[source]->waitUntilOpened());
         EXPECT_TRUE(test.sourceControls[source1]->waitUntilOpened());
@@ -705,7 +732,6 @@ TEST_F(QueryPlanTest, RefCountTestMultipleSourceOneOfThemEoS)
         EXPECT_TRUE(test.sourceControls[source]->waitUntilClosed());
         EXPECT_TRUE(sourceStops->handle(test.sourceIds.at(source)));
 
-        EXPECT_TRUE(test.sourceControls[source]->waitUntilDestroyed());
         EXPECT_FALSE(test.sourceControls[source1]->waitUntilClosed());
         leak(std::move(runningQueryPlan), std::move(listener));
     }
@@ -732,8 +758,10 @@ TEST_F(QueryPlanTest, DisposingQueryPlanWhileSourceIsAboutToBeTerminated)
 
     EXPECT_CALL(*listener, onRunning()).Times(1);
 
+    expectEoSWatermarkBuffer(emitter);
+
     {
-        auto runningQueryPlan = dropRef(RunningQueryPlan::start(QueryId(0), std::move(queryPlan), controller, emitter, listener));
+        auto runningQueryPlan = dropRef(RunningQueryPlan::start(randomQueryId(), std::move(queryPlan), controller, emitter, listener));
         EXPECT_TRUE(setups->waitForTasks(2));
         EXPECT_TRUE(setups->handleAll());
         srcCtrl->injectEoS();
@@ -767,8 +795,10 @@ TEST_F(QueryPlanTest, DestroyingQueryPlanWhileSourceIsAboutToBeTerminated)
 
     EXPECT_CALL(*listener, onDestruction()).Times(1);
 
+    expectEoSWatermarkBuffer(emitter);
+
     {
-        auto runningQueryPlan = dropRef(RunningQueryPlan::start(QueryId(0), std::move(queryPlan), controller, emitter, listener));
+        auto runningQueryPlan = dropRef(RunningQueryPlan::start(randomQueryId(), std::move(queryPlan), controller, emitter, listener));
         EXPECT_TRUE(setups->waitForTasks(2));
         EXPECT_TRUE(setups->handleAll());
         srcCtrl->injectEoS();

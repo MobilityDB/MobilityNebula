@@ -11,18 +11,30 @@
 # limitations under the License.
 
 add_source_files(nes-logical-operators
+        LogicalOperatorRegistry.cpp
         LogicalOperator.cpp
+        SelectionLogicalOperator.cpp
+        UnnestLogicalOperator.cpp
+        InlineTableJoinLogicalOperator.cpp
+        ProjectionLogicalOperator.cpp
+        UnionLogicalOperator.cpp
+        IngestionTimeWatermarkAssignerLogicalOperator.cpp
+        EventTimeWatermarkAssignerLogicalOperator.cpp
+        InferModelLogicalOperator.cpp
+        InferModelNameLogicalOperator.cpp
 )
 
 add_subdirectory(Sinks)
 add_subdirectory(Sources)
 add_subdirectory(Windows)
 
-add_plugin(Selection LogicalOperator nes-logical-operators SelectionLogicalOperator.cpp)
-add_plugin(Unnest LogicalOperator nes-logical-operators UnnestLogicalOperator.cpp)
-add_plugin(InlineTableJoin LogicalOperator nes-logical-operators InlineTableJoinLogicalOperator.cpp)
-add_plugin(Projection LogicalOperator nes-logical-operators ProjectionLogicalOperator.cpp)
-add_plugin(Union LogicalOperator nes-logical-operators UnionLogicalOperator.cpp)
-add_plugin(IngestionTimeWatermarkAssigner LogicalOperator nes-logical-operators IngestionTimeWatermarkAssignerLogicalOperator.cpp)
-add_plugin(EventTimeWatermarkAssigner LogicalOperator nes-logical-operators EventTimeWatermarkAssignerLogicalOperator.cpp)
-add_plugin(Sequence LogicalOperator nes-logical-operators SequenceLogicalOperator.cpp)
+
+add_unreflection_entry(LogicalOperator Selection)
+add_unreflection_entry(LogicalOperator Unnest)
+add_unreflection_entry(LogicalOperator InlineTableJoin)
+add_unreflection_entry(LogicalOperator Projection)
+add_unreflection_entry(LogicalOperator Union)
+add_unreflection_entry(LogicalOperator IngestionTimeWatermarkAssigner)
+add_unreflection_entry(LogicalOperator EventTimeWatermarkAssigner)
+add_unreflection_entry(LogicalOperator InferModel)
+add_unreflection_entry(LogicalOperator InferModelName)

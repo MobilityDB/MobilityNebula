@@ -1,0 +1,82 @@
+# name: function/logical/FunctionOr.test
+# description: Simple function or tests
+# groups: [Function, FunctionOr]
+
+
+# We define a source that has for all signed data types the 1, for all unsigned data types the 2, and for all float data types the 3.
+CREATE LOGICAL SOURCE stream(i8 INT8 NOT NULL, i16 INT16 NOT NULL, i32 INT32 NOT NULL, i64 INT64 NOT NULL, u8 UINT8 NOT NULL, u16 UINT16 NOT NULL, u32 UINT32 NOT NULL, u64 UINT64 NOT NULL, f32 FLOAT32 NOT NULL, f64 FLOAT64 NOT NULL);
+CREATE PHYSICAL SOURCE FOR stream TYPE File;
+ATTACH INLINE
+1,1,1,1,2,2,2,2,3,3
+
+CREATE SINK sink4Booleans(a BOOLEAN NOT NULL, b BOOLEAN NOT NULL, c BOOLEAN NOT NULL, d BOOLEAN NOT NULL)  TYPE File;
+CREATE SINK sink5Booleans(a BOOLEAN NOT NULL, b BOOLEAN NOT NULL, c BOOLEAN NOT NULL, d BOOLEAN NOT NULL, e BOOLEAN NOT NULL)  TYPE File;
+
+
+# Check if the or operator works for no nested functions
+SELECT
+    (i8 == 2) or (i16 == 2) AS a,
+    (i32 == 2) or (i64 == 1) AS b,
+    (u8 == 2) or (i64 == 2) AS c,
+    (u8 == 2) or (u16 == 2) AS d
+FROM stream INTO sink4Booleans;
+----
+false,true,true,true
+
+
+# Check if the or operator works for simple nested functions
+SELECT
+    (i8 == 2) or ((i16 == 2) or (u32 == 1)) AS a,
+    (i32 == 2) or ((i64 == 2) or (u8 == 2)) AS b,
+    (u8 == 2) or ((u16 == 1) or (u32 == 1)) AS c,
+    (u8 == 2) or ((u16 == 1) or (u32 == 1)) AS d,
+    (i8 == 1) or not ((i16 == 2) or (i32 == 1)) AS e
+FROM stream INTO sink5Booleans;
+----
+false,true,true,true,true
+
+
+# Check if the or operator works together with comparison functions
+SELECT
+    (i8 == 2) or (i16 < 0) AS a,
+    (i32 == 2) or (i64 > 0) AS b,
+    (u8 == 2) or (u16 <= 2) AS c,
+    (u8 == 2) or (u16 >= 2) AS d,
+    (i8 == 1) or not (i16 == 2) AS e
+FROM stream INTO sink5Booleans;
+----
+false,true,true,true,true
+
+
+# Check if the or operator works together with comparison functions and nested functions
+SELECT
+    (i8 == 2) or ((i16 < 0) or (i32 == 2)) AS a,
+    (i32 == 2) or ((i64 > 0) or (u8 == 2)) AS b,
+    (u8 == 2) or ((u16 <= 2) or (u32 == 1)) AS c,
+    (u8 == 2) or ((u16 >= 2) or (u32 == 1)) AS d,
+    (i8 == 1) or not ((i16 == 2) or (i32 == 1)) AS e
+FROM stream INTO sink5Booleans;
+----
+false,true,true,true,true
+
+# Check that OR works with raw boolean fields (regression test for withInferredDataType checking pre-inference types)
+CREATE LOGICAL SOURCE boolStream(flag1 BOOLEAN NOT NULL, flag2 BOOLEAN NOT NULL, value INT32 NOT NULL);
+CREATE PHYSICAL SOURCE FOR boolStream TYPE File;
+ATTACH INLINE
+true,true,1
+true,false,2
+false,true,3
+false,false,4
+
+CREATE SINK sinkBoolOr(a BOOLEAN NOT NULL, b BOOLEAN NOT NULL, c BOOLEAN NOT NULL) TYPE File;
+
+SELECT
+    flag1 OR flag2 AS a,
+    flag1 OR (value == 3) AS b,
+    (value > 3) OR flag2 AS c
+FROM boolStream INTO sinkBoolOr;
+----
+true,true,true
+true,true,false
+true,true,true
+false,false,true

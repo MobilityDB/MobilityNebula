@@ -13,29 +13,68 @@
 */
 
 #pragma once
+
+
+#include <cstddef>
+#include <functional>
+#include <string>
+#include <string_view>
+
+#include <DataTypes/DataType.hpp>
+#include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <AggregationLogicalFunctionRegistry.hpp>
+#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
 
-class ArrayAggregationLogicalFunction : public WindowAggregationLogicalFunction
+/// ARRAY_AGG(x): the non-null values of x in a window, in the order the window met them, as the array of the type of x a
+/// plugin declares (ExtensionType::element): their number, then each value after its length, the array CROSS JOIN
+/// UNNEST reads. ARRAY_AGG over a TGEOMPOINT answers a TGEOMPOINT_ARRAY; a type of no array is refused.
+class ArrayAggregationLogicalFunction
 {
 public:
-    static std::shared_ptr<WindowAggregationLogicalFunction> create(const FieldAccessLogicalFunction& onField);
-    static std::shared_ptr<WindowAggregationLogicalFunction>
-    create(const FieldAccessLogicalFunction& onField, const FieldAccessLogicalFunction& asField);
-    ArrayAggregationLogicalFunction(const FieldAccessLogicalFunction& onField, const FieldAccessLogicalFunction& asField);
-    explicit ArrayAggregationLogicalFunction(const FieldAccessLogicalFunction& onField);
+    explicit ArrayAggregationLogicalFunction(AggregationFieldAccess inputFunction);
 
-    void inferStamp(const Schema& schema) override;
-    ~ArrayAggregationLogicalFunction() override = default;
-    [[nodiscard]] NES::SerializableAggregationFunction serialize() const override;
-    [[nodiscard]] std::string_view getName() const noexcept override;
-    [[nodiscard]] bool requiresSequentialAggregation() const { return true; }
+    [[nodiscard]] ArrayAggregationLogicalFunction withInferredType(const Schema<Field, Unordered>& schema) const;
+    [[nodiscard]] static std::string_view getName() noexcept;
+    [[nodiscard]] DataType getAggregateType() const;
+    [[nodiscard]] static bool shallIncludeNullValues() noexcept;
+    [[nodiscard]] AggregationFieldAccess getInputFunction() const;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
+    [[nodiscard]] bool operator==(const ArrayAggregationLogicalFunction& other) const;
+
+    static AggregationLogicalFunctionRegistryReturnType create(AggregationLogicalFunctionRegistryArguments arguments);
 
 private:
-    static constexpr std::string_view NAME = "ARRAY_AGG";
-    static constexpr DataType::Type partialAggregateStampType = DataType::Type::UNDEFINED;
+    AggregationFieldAccess inputFunction;
+    static constexpr std::string_view NAME = "Array_Agg";
     static constexpr DataType::Type finalAggregateStampType = DataType::Type::VARSIZED;
 };
+
+template <>
+struct Reflector<ArrayAggregationLogicalFunction>
+{
+    Reflected operator()(const ArrayAggregationLogicalFunction& function, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<ArrayAggregationLogicalFunction>
+{
+    ArrayAggregationLogicalFunction operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
 }
+
+template <>
+struct std::hash<NES::ArrayAggregationLogicalFunction>
+{
+    size_t operator()(const NES::ArrayAggregationLogicalFunction& aggregationFunction) const noexcept;
+};
+
+static_assert(NES::WindowAggregationFunctionConcept<NES::ArrayAggregationLogicalFunction>);

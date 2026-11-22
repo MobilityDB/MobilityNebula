@@ -14,87 +14,115 @@
 
 #include <Operators/Windows/Aggregations/MaxAggregationLogicalFunction.hpp>
 
+#include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
-#include <DataTypes/Schema.hpp>
+#include <variant>
+#include <DataTypes/DataType.hpp>
 #include <Functions/FieldAccessLogicalFunction.hpp>
 #include <Functions/LogicalFunction.hpp>
 #include <Operators/Windows/Aggregations/WindowAggregationLogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
+#include <Serialization/LogicalFunctionReflection.hpp>
+#include <Util/PlanRenderer.hpp>
+#include <Util/Reflection.hpp>
+#include <fmt/format.h>
+#include <folly/hash/Hash.h>
+#include <magic_enum/magic_enum.hpp>
 #include <AggregationLogicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
-#include <SerializableVariantDescriptor.pb.h>
 
 namespace NES
 {
-MaxAggregationLogicalFunction::MaxAggregationLogicalFunction(const FieldAccessLogicalFunction& field)
-    : WindowAggregationLogicalFunction(field.getDataType(), field.getDataType(), field.getDataType(), field)
+MaxAggregationLogicalFunction::MaxAggregationLogicalFunction(AggregationFieldAccess inputFunction)
+    : inputFunction(inputFunction), aggregateType(std::visit([](const auto& input) { return input->getDataType(); }, inputFunction))
 {
 }
 
-MaxAggregationLogicalFunction::MaxAggregationLogicalFunction(const FieldAccessLogicalFunction& field, FieldAccessLogicalFunction asField)
-    : WindowAggregationLogicalFunction(field.getDataType(), field.getDataType(), field.getDataType(), field, std::move(asField))
+MaxAggregationLogicalFunction::MaxAggregationLogicalFunction(AggregationFieldAccess inputFunction, DataType aggregateType)
+    : inputFunction(std::move(inputFunction)), aggregateType(aggregateType)
 {
 }
 
-std::string_view MaxAggregationLogicalFunction::getName() const noexcept
+bool MaxAggregationLogicalFunction::shallIncludeNullValues() noexcept
+{
+    return true;
+}
+
+std::string_view MaxAggregationLogicalFunction::getName() noexcept
 {
     return NAME;
 }
 
-void MaxAggregationLogicalFunction::inferStamp(const Schema& schema)
+DataType MaxAggregationLogicalFunction::getAggregateType() const
 {
-    /// We first infer the dataType of the input field and set the output dataType as the same.
-    onField = onField.withInferredDataType(schema).get<FieldAccessLogicalFunction>();
-    if (not onField.getDataType().isNumeric())
-    {
-        throw CannotDeserialize("aggregations on non numeric fields is not supported, but got {}", onField.getDataType());
-    }
-
-    ///Set fully qualified name for the as Field
-    auto onFieldName = onField.getFieldName();
-    auto asFieldName = asField.getFieldName();
-
-    const auto attributeNameResolver = onFieldName.substr(0, onFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR) + 1);
-    ///If on and as field name are different then append the attribute name resolver from on field to the as field
-    if (asFieldName.find(Schema::ATTRIBUTE_NAME_SEPARATOR) == std::string::npos)
-    {
-        asField = asField.withFieldName(attributeNameResolver + asFieldName).get<FieldAccessLogicalFunction>();
-    }
-    else
-    {
-        auto fieldName = asFieldName.substr(asFieldName.find_last_of(Schema::ATTRIBUTE_NAME_SEPARATOR) + 1);
-        asField = asField.withFieldName(attributeNameResolver + fieldName).get<FieldAccessLogicalFunction>();
-    }
-    inputStamp = onField.getDataType();
-    finalAggregateStamp = onField.getDataType();
-    asField = asField.withDataType(getFinalAggregateStamp()).get<FieldAccessLogicalFunction>();
+    return aggregateType;
 }
 
-SerializableAggregationFunction MaxAggregationLogicalFunction::serialize() const
+AggregationFieldAccess MaxAggregationLogicalFunction::getInputFunction() const
 {
-    SerializableAggregationFunction serializedAggregationFunction;
-    serializedAggregationFunction.set_type(NAME);
-
-    auto onFieldFuc = SerializableFunction();
-    onFieldFuc.CopyFrom(onField.serialize());
-
-    auto asFieldFuc = SerializableFunction();
-    asFieldFuc.CopyFrom(asField.serialize());
-
-    serializedAggregationFunction.mutable_as_field()->CopyFrom(asFieldFuc);
-    serializedAggregationFunction.mutable_on_field()->CopyFrom(onFieldFuc);
-    return serializedAggregationFunction;
+    return inputFunction;
 }
 
-AggregationLogicalFunctionRegistryReturnType
-AggregationLogicalFunctionGeneratedRegistrar::RegisterMaxAggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)
+std::string MaxAggregationLogicalFunction::explain(ExplainVerbosity verbosity) const
 {
-    if (arguments.fields.size() != 2)
+    if (verbosity == ExplainVerbosity::Short)
     {
-        throw CannotDeserialize("MaxAggregationLogicalFunction requires exactly two fields, but got {}", arguments.fields.size());
+        return fmt::format("{}()", NAME);
     }
-    return std::make_shared<MaxAggregationLogicalFunction>(arguments.fields[0], arguments.fields[1]);
+    auto inputExplain = std::visit([verbosity](const auto& input) { return input->explain(verbosity); }, inputFunction);
+    return fmt::format("{}({})", NAME, inputExplain);
 }
+
+bool MaxAggregationLogicalFunction::operator==(const MaxAggregationLogicalFunction& other) const
+{
+    return inputFunction == other.inputFunction && aggregateType == other.aggregateType;
+}
+
+MaxAggregationLogicalFunction MaxAggregationLogicalFunction::withInferredType(const Schema<Field, Unordered>& schema) const
+{
+    auto newInputFunction = inferFieldAccess(inputFunction, schema);
+
+    if (!newInputFunction->getDataType().isNumeric())
+    {
+        throw UnsupportedQuery(
+            "{} is only supported on numeric fields, but field {} has type {}",
+            NAME,
+            newInputFunction->getField().getLastName(),
+            magic_enum::enum_name(newInputFunction->getDataType().type));
+    }
+    return MaxAggregationLogicalFunction{newInputFunction, newInputFunction->getDataType()};
+}
+
+Reflected
+Reflector<MaxAggregationLogicalFunction>::operator()(const MaxAggregationLogicalFunction& function, const ReflectionContext& context) const
+{
+    return context.reflect(function.getInputFunction());
+}
+
+MaxAggregationLogicalFunction
+Unreflector<MaxAggregationLogicalFunction>::operator()(const Reflected& reflected, const ReflectionContext& context) const
+{
+    return MaxAggregationLogicalFunction{context.unreflect<AggregationFieldAccess>(reflected)};
+}
+
+AggregationLogicalFunctionRegistryReturnType MaxAggregationLogicalFunction::create(AggregationLogicalFunctionRegistryArguments arguments)
+{
+    if (arguments.on.size() != 1)
+    {
+        throw CannotDeserialize("MaxAggregationLogicalFunction requires exactly one field, but got {}", arguments.on.size());
+    }
+    return MaxAggregationLogicalFunction{arguments.on.at(0)};
+}
+}
+
+size_t
+std::hash<NES::MaxAggregationLogicalFunction>::operator()(const NES::MaxAggregationLogicalFunction& aggregationFunction) const noexcept
+{
+    return folly::hash::hash_combine(aggregationFunction.getInputFunction(), NES::MaxAggregationLogicalFunction::getName());
 }

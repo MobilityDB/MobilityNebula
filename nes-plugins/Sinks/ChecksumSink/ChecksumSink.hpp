@@ -14,41 +14,53 @@
 
 #pragma once
 
-#include <cstddef>
+#include <expected>
+#include <filesystem>
 #include <fstream>
-#include <memory>
-#include <optional>
 #include <ostream>
 #include <string>
 #include <string_view>
-#include <unordered_map>
-#include <Configurations/Descriptor.hpp>
+#include <Configurations/ConfigField.hpp>
+#include <Configurations/InstantiatedConfigValue.hpp>
 #include <Runtime/TupleBuffer.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Sinks/Sink.hpp>
 #include <Sinks/SinkDescriptor.hpp>
-#include <SinksParsing/Format.hpp>
 #include <Util/Logger/Formatter.hpp>
+#include <BackpressureChannel.hpp>
 #include <Checksum.hpp>
+#include <ErrorHandling.hpp>
 #include <PipelineExecutionContext.hpp>
 
 namespace NES
 {
 
+/// Sink-defined config struct: instantiated from the generic config by the SinkConfig registry
+/// entry, carried through the SinkDescriptor as std::any, and serialized via reflection of
+/// exactly this struct (all members are reflectable).
+struct ChecksumSinkConfig
+{
+    std::filesystem::path filePath;
+
+    static std::expected<ChecksumSinkConfig, Exception> fromConfig(const InstantiatedConfig& config);
+};
+
 /// A sink that counts the number of tuples and accumulates a checksum, which is written to file once the query is stopped.
 /// Example output of the sink:
-/// S$Count:UINT64,S$Checksum:UINT64
+/// S$Count:UINT64:NOT_NULLABLE,S$Checksum:UINT64:NOT_NULLABLE
 /// 1042, 12390478290
 class ChecksumSink : public Sink
 {
 public:
     static constexpr std::string_view NAME = "Checksum";
-    explicit ChecksumSink(const SinkDescriptor& sinkDescriptor);
+    explicit ChecksumSink(BackpressureController backpressureController, const ChecksumSinkConfig& config);
 
     /// Opens file and writes schema to file, if the file is empty.
     void start(PipelineExecutionContext&) override;
     void stop(PipelineExecutionContext&) override;
     void execute(const TupleBuffer& inputBuffer, PipelineExecutionContext&) override;
-    static DescriptorConfig::Config validateAndFormat(std::unordered_map<std::string, std::string> config);
+    static Schema<QualifiedErasedConfigField, Ordered> getConfigSchema();
 
 protected:
     std::ostream& toString(std::ostream& os) const override { return os << "ChecksumSink"; }
@@ -58,13 +70,6 @@ private:
     std::string outputFilePath;
     std::ofstream outputFileStream;
     Checksum checksum;
-    std::unique_ptr<Format> formatter;
-};
-
-struct ConfigParametersChecksum
-{
-    static inline std::unordered_map<std::string, DescriptorConfig::ConfigParameterContainer> parameterMap
-        = DescriptorConfig::createConfigParameterContainerMap(SinkDescriptor::FILE_PATH);
 };
 
 }

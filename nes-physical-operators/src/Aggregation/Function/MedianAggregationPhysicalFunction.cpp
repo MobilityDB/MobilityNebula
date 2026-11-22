@@ -18,18 +18,26 @@
 #include <cstdint>
 #include <memory>
 #include <utility>
+
 #include <Aggregation/Function/AggregationPhysicalFunction.hpp>
 #include <DataTypes/DataType.hpp>
+#include <DataTypes/UnboundSchema.hpp>
 #include <Functions/PhysicalFunction.hpp>
-#include <Nautilus/Interface/BufferRef/TupleBufferRef.hpp>
-#include <Nautilus/Interface/PagedVector/PagedVector.hpp>
-#include <Nautilus/Interface/PagedVector/PagedVectorRef.hpp>
-#include <Nautilus/Interface/Record.hpp>
+#include <Interface/NautilusBuffer.hpp>
+#include <Interface/PagedVector/PagedVector.hpp>
+#include <Interface/PagedVector/PagedVectorRef.hpp>
+#include <Interface/Record.hpp>
 #include <nautilus/function.hpp>
+
+#include <Runtime/AbstractBufferProvider.hpp>
+#include <Runtime/TupleBuffer.hpp>
+#include <nautilus/std/cstring.h>
 #include <AggregationPhysicalFunctionRegistry.hpp>
 #include <ErrorHandling.hpp>
 #include <ExecutionContext.hpp>
 #include <val.hpp>
+#include <val_arith.hpp>
+#include <val_bool.hpp>
 #include <val_ptr.hpp>
 
 namespace NES
@@ -39,119 +47,208 @@ MedianAggregationPhysicalFunction::MedianAggregationPhysicalFunction(
     DataType inputType,
     DataType resultType,
     PhysicalFunction inputFunction,
-    Nautilus::Record::RecordFieldIdentifier resultFieldIdentifier,
-    std::shared_ptr<Nautilus::Interface::BufferRef::TupleBufferRef> bufferRefPagedVector)
+    Record::RecordFieldIdentifier resultFieldIdentifier,
+    std::shared_ptr<PagedVectorTupleLayout> tupleLayout)
     : AggregationPhysicalFunction(std::move(inputType), std::move(resultType), std::move(inputFunction), std::move(resultFieldIdentifier))
-    , bufferRefPagedVector(std::move(bufferRefPagedVector))
+    , tupleLayout(std::move(tupleLayout))
 {
 }
 
 void MedianAggregationPhysicalFunction::lift(
-    const nautilus::val<AggregationState*>& aggregationState, PipelineMemoryProvider& pipelineMemoryProvider, const Record& record)
+    const nautilus::val<AggregationState*>& aggregationState,
+    BorrowedNautilusBuffer parentBuffer,
+    PipelineMemoryProvider& pipelineMemoryProvider,
+    const Record& record)
 {
-    /// Adding the record to the paged vector. We are storing the full record in the paged vector for now.
-    const auto memArea = static_cast<nautilus::val<int8_t*>>(aggregationState);
-    const Interface::PagedVectorRef pagedVectorRef(memArea, bufferRefPagedVector);
-    pagedVectorRef.writeRecord(record, pipelineMemoryProvider.bufferProvider);
+    const auto value = inputFunction.execute(record, pipelineMemoryProvider.arena);
+    if (inputType.nullable)
+    {
+        /// SQL-standard: NULL inputs are not part of the median set, so skip writing them. Flip the null flag to
+        /// false the first time we see a non-null value.
+        if (not value.isNull())
+        {
+            storeNull(aggregationState, false);
+
+            /// Skipping the first byte (null); the paged vector lives right after it.
+            const auto memArea = static_cast<nautilus::val<int8_t*>>(aggregationState + nautilus::val<uint64_t>{1});
+            OwnedNautilusBuffer pagedVecBuffer;
+            nautilus::invoke(
+                +[](TupleBuffer* parent, TupleBuffer* out, const uint32_t* indexPtr)
+                { *out = parent->loadChildBuffer(ChildBufferIndex{*indexPtr}); },
+                parentBuffer.asArg(),
+                pagedVecBuffer.asArg(),
+                static_cast<nautilus::val<uint32_t*>>(memArea));
+
+            PagedVectorRef pagedVectorRef(BorrowedNautilusBuffer::from(pagedVecBuffer.asArg()), tupleLayout);
+            pagedVectorRef.pushBack(record, pipelineMemoryProvider.bufferProvider);
+        }
+    }
+    else
+    {
+        /// Load the paged vector buffer from the parent via the stored child index
+        const auto memArea = static_cast<nautilus::val<int8_t*>>(aggregationState);
+        OwnedNautilusBuffer pagedVecBuffer;
+        nautilus::invoke(
+            +[](TupleBuffer* parent, TupleBuffer* out, const uint32_t* indexPtr)
+            { *out = parent->loadChildBuffer(ChildBufferIndex{*indexPtr}); },
+            parentBuffer.asArg(),
+            pagedVecBuffer.asArg(),
+            static_cast<nautilus::val<uint32_t*>>(memArea));
+
+        PagedVectorRef pagedVectorRef(BorrowedNautilusBuffer::from(pagedVecBuffer.asArg()), tupleLayout);
+        pagedVectorRef.pushBack(record, pipelineMemoryProvider.bufferProvider);
+    }
 }
 
 void MedianAggregationPhysicalFunction::combine(
     const nautilus::val<AggregationState*> aggregationState1,
+    BorrowedNautilusBuffer parentBuffer1,
     const nautilus::val<AggregationState*> aggregationState2,
-    PipelineMemoryProvider&)
+    BorrowedNautilusBuffer parentBuffer2,
+    PipelineMemoryProvider& pipelineMemoryProvider)
 {
-    /// Getting the paged vectors from the aggregation states
-    const auto memArea1 = static_cast<nautilus::val<Interface::PagedVector*>>(aggregationState1);
-    const auto memArea2 = static_cast<nautilus::val<Interface::PagedVector*>>(aggregationState2);
+    auto memArea1 = static_cast<nautilus::val<int8_t*>>(aggregationState1);
+    auto memArea2 = static_cast<nautilus::val<int8_t*>>(aggregationState2);
 
-    /// Calling the copyFrom function of the paged vector to combine the two paged vectors by copying the content of the second paged vector to the first paged vector
+    if (inputType.nullable)
+    {
+        /// Combining the null values
+        const auto containsNull1 = readNull(aggregationState1);
+        const auto containsNull2 = readNull(aggregationState2);
+        storeNull(aggregationState1, containsNull1 and containsNull2);
+
+        /// Skipping the first byte (null)
+        memArea1 += nautilus::val<uint64_t>{1};
+        memArea2 += nautilus::val<uint64_t>{1};
+    }
+
+    /// Load both paged vector buffers via their stored child indices, then copy pages from source into destination
     nautilus::invoke(
-        +[](Interface::PagedVector* vector1, const Interface::PagedVector* vector2) -> void { vector1->copyFrom(*vector2); },
-        memArea1,
-        memArea2);
+        +[](AbstractBufferProvider* bufferProvider,
+            TupleBuffer* parent1,
+            const uint32_t* indexPtr1,
+            TupleBuffer* parent2,
+            const uint32_t* indexPtr2) -> void
+        {
+            const TupleBuffer vec1Buf = parent1->loadChildBuffer(ChildBufferIndex{*indexPtr1});
+            const TupleBuffer vec2Buf = parent2->loadChildBuffer(ChildBufferIndex{*indexPtr2});
+            auto vector1 = PagedVector::load(vec1Buf);
+            const auto vector2 = PagedVector::load(vec2Buf);
+            vector1.copyPagesFrom(*bufferProvider, vector2);
+        },
+        pipelineMemoryProvider.bufferProvider,
+        parentBuffer1.asArg(),
+        static_cast<nautilus::val<uint32_t*>>(memArea1),
+        parentBuffer2.asArg(),
+        static_cast<nautilus::val<uint32_t*>>(memArea2));
 }
 
-Nautilus::Record MedianAggregationPhysicalFunction::lower(
-    const nautilus::val<AggregationState*> aggregationState, PipelineMemoryProvider& pipelineMemoryProvider)
+Record MedianAggregationPhysicalFunction::lower(
+    const nautilus::val<AggregationState*> aggregationState,
+    BorrowedNautilusBuffer parentBuffer,
+    PipelineMemoryProvider& pipelineMemoryProvider)
 {
-    /// Getting the paged vector from the aggregation state
-    const auto pagedVectorPtr = static_cast<nautilus::val<Interface::PagedVector*>>(aggregationState);
-    const Interface::PagedVectorRef pagedVectorRef(pagedVectorPtr, bufferRefPagedVector);
-    const auto allFieldNames = bufferRefPagedVector->getMemoryLayout()->getSchema().getFieldNames();
-    const auto numberOfEntries = invoke(
-        +[](const Interface::PagedVector* pagedVector)
-        {
-            const auto numberOfEntriesVal = pagedVector->getTotalNumberOfEntries();
-            INVARIANT(numberOfEntriesVal > 0, "The number of entries in the paged vector must be greater than 0");
-            return numberOfEntriesVal;
-        },
-        pagedVectorPtr);
-
-    /// Iterating in two nested loops over all the records in the paged vector to get the median.
-    /// We pick a candidate and then count for each item, if the candidate is smaller and also if the candidate is less than the item.
-    const nautilus::val<int64_t> medianPos1 = (numberOfEntries - 1) / 2;
-    const nautilus::val<int64_t> medianPos2 = numberOfEntries / 2;
-    nautilus::val<uint64_t> medianItemPos1 = 0;
-    nautilus::val<uint64_t> medianItemPos2 = 0;
-    nautilus::val<bool> medianFound1(false);
-    nautilus::val<bool> medianFound2(false);
-
-
-    /// Picking a candidate and counting how many items are smaller or equal to the candidate
-    const auto endIt = pagedVectorRef.end(allFieldNames);
-    for (auto candidateIt = pagedVectorRef.begin(allFieldNames); candidateIt != endIt; ++candidateIt)
+    /// If it contains null values, we simply return a null value
+    auto containsNull = nautilus::val<bool>{false};
+    if (inputType.nullable)
     {
-        nautilus::val<int64_t> countLessThan = 0;
-        nautilus::val<int64_t> countEqual = 0;
-        const auto candidateRecord = *candidateIt;
-        const auto candidateValue = inputFunction.execute(candidateRecord, pipelineMemoryProvider.arena);
-
-        /// Counting how many items are smaller or equal for the current candidate
-        for (auto itemIt = pagedVectorRef.begin(allFieldNames); itemIt != endIt; ++itemIt)
-        {
-            const auto itemRecord = *itemIt;
-            const auto itemValue = inputFunction.execute(itemRecord, pipelineMemoryProvider.arena);
-            if (itemValue < candidateValue)
-            {
-                countLessThan = countLessThan + 1;
-            }
-            if (itemValue == candidateValue)
-            {
-                countEqual = countEqual + 1;
-            }
-        }
-
-        /// Checking if the current candidate is the median, and if so, storing the position of the median
-        /// The current candidate is the median if the number of items that are smaller or equal to the candidate is larger than the median position
-        if (not medianFound1 && countLessThan <= medianPos1 && medianPos1 < countLessThan + countEqual)
-        {
-            medianItemPos1 = candidateIt - pagedVectorRef.begin(allFieldNames);
-            medianFound1 = true;
-        }
-        if (not medianFound2 && countLessThan <= medianPos2 && medianPos2 < countLessThan + countEqual)
-        {
-            medianItemPos2 = candidateIt - pagedVectorRef.begin(allFieldNames);
-            medianFound2 = true;
-        }
+        containsNull = readNull(aggregationState);
     }
 
-    /// Setting the default median value. If a median was found, the value will be overwritten
-    const VarVal zero(nautilus::val<uint64_t>(0));
+    const VarVal zero{nautilus::val<uint64_t>{0}, true, true};
     VarVal medianValue = zero.castToType(resultType.type);
-    if (medianFound1 and medianFound2)
-    {
-        /// Calculating the median value. Regardless if the number of entries is odd or even, we calculate the median as the average of the two middle values.
-        /// For even numbers of entries, this is its natural definition.
-        /// For odd numbers of entries, both positions are pointing to the same item and thus, we are calculating the average of the same item, which is the item itself.
-        const auto medianRecord1 = pagedVectorRef.readRecord(medianItemPos1, allFieldNames);
-        const auto medianRecord2 = pagedVectorRef.readRecord(medianItemPos2, allFieldNames);
 
-        const auto medianValue1 = inputFunction.execute(medianRecord1, pipelineMemoryProvider.arena);
-        const auto medianValue2 = inputFunction.execute(medianRecord2, pipelineMemoryProvider.arena);
-        const VarVal two = nautilus::val<uint64_t>(2);
-        medianValue
-            = (medianValue1.castToType(resultType.type) + medianValue2.castToType(resultType.type)) / two.castToType(resultType.type);
+    if (!containsNull)
+    {
+        /// Load the paged vector buffer from the parent via its stored child index
+        auto memArea
+            = static_cast<nautilus::val<int8_t*>>(aggregationState + nautilus::val<uint64_t>{static_cast<uint64_t>(inputType.nullable)});
+        OwnedNautilusBuffer pagedVecBuffer;
+        nautilus::invoke(
+            +[](TupleBuffer* parent, TupleBuffer* out, const uint32_t* indexPtr)
+            { *out = parent->loadChildBuffer(ChildBufferIndex{*indexPtr}); },
+            parentBuffer.asArg(),
+            pagedVecBuffer.asArg(),
+            static_cast<nautilus::val<uint32_t*>>(memArea));
+
+        const auto numberOfEntries = invoke(
+            +[](const TupleBuffer* pagedVectorBuffer)
+            {
+                const auto pagedVector = PagedVector::load(*pagedVectorBuffer);
+                const auto numberOfEntriesVal = pagedVector.getTotalNumberOfRecords();
+                INVARIANT(numberOfEntriesVal > 0, "The number of entries in the paged vector must be greater than 0");
+                return numberOfEntriesVal;
+            },
+            pagedVecBuffer.asArg());
+
+        /// Iterating in two nested loops over all the records in the paged vector to get the median.
+        /// We pick a candidate and then count for each item, if the candidate is smaller and also if the candidate is less than the item.
+        const nautilus::val<int64_t> medianPos1 = (numberOfEntries - 1) / 2;
+        const nautilus::val<int64_t> medianPos2 = numberOfEntries / 2;
+        nautilus::val<uint64_t> medianItemPos1 = 0;
+        nautilus::val<uint64_t> medianItemPos2 = 0;
+        nautilus::val<bool> medianFound1{false};
+        nautilus::val<bool> medianFound2{false};
+
+
+        /// Picking a candidate and counting how many items are smaller or equal to the candidate.
+        /// Iterator-based scan: the page lookup is amortized per page-crossing instead of paid per access,
+        /// which matters here because the outer/inner pair is O(N^2) over the paged vector.
+        const PagedVectorRef pagedVectorRef(BorrowedNautilusBuffer::from(pagedVecBuffer.asArg()), tupleLayout);
+        const auto pagedVectorEnd = pagedVectorRef.end();
+        nautilus::val<uint64_t> candidatePos = 0;
+        for (auto candidateIt = pagedVectorRef.begin(); candidateIt != pagedVectorEnd; ++candidateIt)
+        {
+            nautilus::val<int64_t> countLessThan = 0;
+            nautilus::val<int64_t> countEqual = 0;
+            const auto candidateRecord = *candidateIt;
+            const auto candidateValue = inputFunction.execute(candidateRecord, pipelineMemoryProvider.arena);
+
+            /// Counting how many items are smaller or equal for the current candidate
+            for (const auto& itemRecord : pagedVectorRef)
+            {
+                const auto itemValue = inputFunction.execute(itemRecord, pipelineMemoryProvider.arena);
+                if (itemValue < candidateValue)
+                {
+                    countLessThan = countLessThan + 1;
+                }
+                if (itemValue == candidateValue)
+                {
+                    countEqual = countEqual + 1;
+                }
+            }
+
+            /// Checking if the current candidate is the median, and if so, storing the position of the median
+            /// The current candidate is the median if the number of items that are smaller or equal to the candidate is larger than the median position
+            if (not medianFound1 && countLessThan <= medianPos1 && medianPos1 < countLessThan + countEqual)
+            {
+                medianItemPos1 = candidatePos;
+                medianFound1 = true;
+            }
+            if (not medianFound2 && countLessThan <= medianPos2 && medianPos2 < countLessThan + countEqual)
+            {
+                medianItemPos2 = candidatePos;
+                medianFound2 = true;
+            }
+            candidatePos = candidatePos + 1;
+        }
+
+        if (medianFound1 and medianFound2)
+        {
+            /// Calculating the median value. Regardless if the number of entries is odd or even, we calculate the median as the average of the two middle values.
+            /// For even numbers of entries, this is its natural definition.
+            /// For odd numbers of entries, both positions are pointing to the same item and thus, we are calculating the average of the same item, which is the item itself.
+            const auto medianRecord1 = pagedVectorRef.at(medianItemPos1);
+            const auto medianRecord2 = pagedVectorRef.at(medianItemPos2);
+
+            const auto medianValue1 = inputFunction.execute(medianRecord1, pipelineMemoryProvider.arena);
+            const auto medianValue2 = inputFunction.execute(medianRecord2, pipelineMemoryProvider.arena);
+            const VarVal two = nautilus::val<uint64_t>{2};
+            medianValue
+                = (medianValue1.castToType(resultType.type) + medianValue2.castToType(resultType.type)) / two.castToType(resultType.type);
+        }
     }
+
 
     /// Adding the median to the result record
     Record resultRecord;
@@ -160,46 +257,64 @@ Nautilus::Record MedianAggregationPhysicalFunction::lower(
     return resultRecord;
 }
 
-void MedianAggregationPhysicalFunction::reset(const nautilus::val<AggregationState*> aggregationState, PipelineMemoryProvider&)
+void MedianAggregationPhysicalFunction::reset(
+    const nautilus::val<AggregationState*> aggregationState,
+    BorrowedNautilusBuffer parentBuffer,
+    PipelineMemoryProvider& pipelineMemoryProvider)
 {
-    nautilus::invoke(
-        +[](AggregationState* pagedVectorMemArea) -> void
+    const nautilus::val<uint64_t> tupleSize = getSizeInBytes(tupleLayout->getSchema());
+    const nautilus::val<uint32_t> childBufferIndexVal = nautilus::invoke(
+        +[](TupleBuffer* parentBuffer, AbstractBufferProvider* bufferProvider, uint64_t tupleSize)
         {
-            /// Allocates a new PagedVector in the memory area provided by the pointer to the pagedvector
-            auto* pagedVector = reinterpret_cast<Nautilus::Interface::PagedVector*>(pagedVectorMemArea);
-            new (pagedVector) Nautilus::Interface::PagedVector();
+            /// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): aggregation state stores a TupleBuffer at this slot.
+            if (auto pagedVectorBufferOpt = bufferProvider->getUnpooledBuffer(PagedVector::getMainBufferSize()))
+            {
+                /// initialize paged vector buffer
+                auto pagedVectorBuffer = pagedVectorBufferOpt.value();
+                PagedVector::init(pagedVectorBuffer, bufferProvider->getBufferSize(), tupleSize);
+                auto childBufferIndex = parentBuffer->storeChildBuffer(pagedVectorBuffer);
+                return childBufferIndex.getRawValue();
+            }
+            throw BufferAllocationFailure("No unpooled TupleBuffer available for median aggregation paged vector!");
         },
-        aggregationState);
+        parentBuffer.asArg(),
+        pipelineMemoryProvider.bufferProvider,
+        tupleSize);
+
+    auto memArea = static_cast<nautilus::val<int8_t*>>(aggregationState);
+    if (inputType.nullable)
+    {
+        /// Initialize the null flag to "no value seen yet" so all-NULL windows correctly emit NULL
+        storeNull(aggregationState, true);
+        /// Skipping the first byte (null); the paged vector lives right after it.
+        memArea += nautilus::val<uint64_t>{1};
+    }
+    auto indexMemArea = static_cast<nautilus::val<uint32_t*>>(memArea);
+    *indexMemArea = childBufferIndexVal;
 }
 
-void MedianAggregationPhysicalFunction::cleanup(nautilus::val<AggregationState*> aggregationState)
+void MedianAggregationPhysicalFunction::cleanup(nautilus::val<AggregationState*> /*aggregationState*/)
 {
-    invoke(
-        +[](AggregationState* pagedVectorMemArea) -> void
-        {
-            /// Calls the destructor of the PagedVector
-            auto* pagedVector
-                = reinterpret_cast<Interface::PagedVector*>(pagedVectorMemArea); /// NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-            pagedVector->~PagedVector();
-        },
-        aggregationState);
+    /// No-op: the paged vector buffer is stored as a child of the parent hash map TupleBuffer and
+    /// is released automatically when the parent is released.
 }
 
 size_t MedianAggregationPhysicalFunction::getSizeOfStateInBytes() const
 {
-    return sizeof(Interface::PagedVector);
+    /// ContainsNullValues (1B, optional) + uint32_t child buffer index (4B)
+    return static_cast<uint64_t>(inputType.nullable) + sizeof(uint32_t);
 }
 
-AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::RegisterMedianAggregationPhysicalFunction(
-    AggregationPhysicalFunctionRegistryArguments arguments)
+AggregationPhysicalFunctionRegistryReturnType
+MedianAggregationPhysicalFunction::create(AggregationPhysicalFunctionRegistryArguments arguments)
 {
-    INVARIANT(arguments.bufferRefPagedVector.has_value(), "Memory provider paged vector not set");
+    INVARIANT(arguments.tupleLayout.has_value(), "Tuple layout paged vector not set");
     return std::make_shared<MedianAggregationPhysicalFunction>(
         std::move(arguments.inputType),
         std::move(arguments.resultType),
         arguments.inputFunction,
         arguments.resultFieldIdentifier,
-        arguments.bufferRefPagedVector.value());
+        arguments.tupleLayout.value());
 }
 
 }

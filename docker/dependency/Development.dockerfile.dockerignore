@@ -1,2 +1,7 @@
 # Ignore everything
 *
+
+# Allow only the workspace files needed by `cargo vendor`.
+!**/Cargo.toml
+!**/Cargo.lock
+!**/*.rs

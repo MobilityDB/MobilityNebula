@@ -14,41 +14,71 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 #include <DataTypes/DataType.hpp>
-#include <DataTypes/Schema.hpp>
 #include <Functions/LogicalFunction.hpp>
+#include <Schema/Field.hpp>
+#include <Schema/Schema.hpp>
+#include <Schema/SchemaFwd.hpp>
 #include <Util/Logger/Formatter.hpp>
 #include <Util/PlanRenderer.hpp>
-#include <SerializableVariantDescriptor.pb.h>
+#include <Util/Reflection.hpp>
+#include <LogicalFunctionRegistry.hpp>
 
 namespace NES
 {
-class GreaterEqualsLogicalFunction final : public LogicalFunctionConcept
+class GreaterEqualsLogicalFunction final
 {
 public:
     static constexpr std::string_view NAME = "GreaterEquals";
 
     GreaterEqualsLogicalFunction(LogicalFunction left, LogicalFunction right);
 
-    [[nodiscard]] SerializableFunction serialize() const override;
-    [[nodiscard]] bool operator==(const LogicalFunctionConcept& rhs) const override;
+    [[nodiscard]] bool operator==(const GreaterEqualsLogicalFunction& rhs) const;
 
-    [[nodiscard]] DataType getDataType() const override;
-    [[nodiscard]] LogicalFunction withDataType(const DataType& dataType) const override;
-    [[nodiscard]] LogicalFunction withInferredDataType(const Schema& schema) const override;
+    [[nodiscard]] DataType getDataType() const;
+    [[nodiscard]] LogicalFunction withInferredDataType(const Schema<Field, Unordered>& schema) const;
 
-    [[nodiscard]] std::vector<LogicalFunction> getChildren() const override;
-    [[nodiscard]] LogicalFunction withChildren(const std::vector<LogicalFunction>& children) const override;
+    [[nodiscard]] std::vector<LogicalFunction> getChildren() const;
+    [[nodiscard]] GreaterEqualsLogicalFunction withChildren(const std::vector<LogicalFunction>& children) const;
 
-    [[nodiscard]] std::string_view getType() const override;
-    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const override;
+    [[nodiscard]] std::string_view getType() const;
+    [[nodiscard]] std::string explain(ExplainVerbosity verbosity) const;
+
+    static LogicalFunctionRegistryReturnType createGreaterEquals(LogicalFunctionRegistryArguments arguments);
 
 private:
     LogicalFunction left, right;
     DataType dataType;
+
+    friend Reflector<GreaterEqualsLogicalFunction>;
+};
+
+template <>
+struct Reflector<GreaterEqualsLogicalFunction>
+{
+    Reflected operator()(const GreaterEqualsLogicalFunction& function, const ReflectionContext& context) const;
+};
+
+template <>
+struct Unreflector<GreaterEqualsLogicalFunction>
+{
+    GreaterEqualsLogicalFunction operator()(const Reflected& reflected, const ReflectionContext& context) const;
+};
+
+static_assert(LogicalFunctionConcept<GreaterEqualsLogicalFunction>);
+
+}
+
+namespace NES::detail
+{
+struct ReflectedGreaterEqualsLogicalFunction
+{
+    LogicalFunction left;
+    LogicalFunction right;
 };
 }
 

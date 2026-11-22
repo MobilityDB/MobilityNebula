@@ -20,6 +20,14 @@ add_nes_common_test(nes-common-tests
         "BFSIteratorTest.cpp"
         "RollingAverageTest.cpp"
         "TypeTraitsTest.cpp"
+        "PlanRendererTest.cpp"
+        "FilesTest.cpp"
+        "ReflectionTest.cpp"
+        "VersionTest.cpp"
+)
+
+add_nes_test(nes-thread-test
+        "ThreadTest.cpp"
 )
 
 add_nes_test(chunk-collector-test

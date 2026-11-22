@@ -31,12 +31,14 @@ every data type (INT8, VARSIZED), and a schema names it regardless of case. The 
 function is declared in is the catalog's `file` field.
 
 Emitted:
-  nes-plugins/MEOS/DataTypes/MeosDataTypes.cpp   one extension type per MEOS SQL type
-  nes-plugins/MEOS/DataTypes/CMakeLists.txt      their registration in the DataType registry
-  nes-plugins/MEOS/Functions/                    one logical function per SQL name, one kernel per SQL signature
-  nes-plugins/MEOS/Aggregations/                 one logical aggregation per aggregate name, one operations
-                                                 struct per overload, run by MeosAggregateRuntime.hpp as
-                                                 MobilityDuck's meos_aggregate.hpp runs the same catalog entries
+  nes-plugins/MEOS/DataTypes/MeosDataTypes.cpp   one extension type per MEOS SQL type, in the table meosTypes()
+  nes-plugins/MEOS/Functions/                    the table meosFunctions() of the logical functions by SQL name,
+                                                 one kernel per SQL signature, each file of kernels describing
+                                                 its physical functions to the plugin loader
+  each directory's CMakeLists.txt                its sources, in the plugin's logical or physical library
+
+The plugin registers the tables with the plugin loader (nes-plugins/MEOS/MeosLogicalRegistration.cpp,
+MeosPhysicalRegistration.cpp).
 
 Usage:
   codegen_nebula_sql.py --catalog meos-idl.json --output-root <MobilityNebula root>
@@ -44,6 +46,7 @@ Usage:
 import argparse
 import importlib.util
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -115,7 +118,12 @@ def literal(aux):
 
 
 def ident(sql):
-    return ''.join(p.capitalize() for p in sql.split('_'))
+    return ''.join(p.capitalize() for p in re.split(r'[_ ]', sql))
+
+
+def array_name(sql):
+    """The name of the extension type of an array of `sql` (DOUBLE_PRECISION_ARRAY)"""
+    return sql.upper().replace(' ', '_') + '_ARRAY'
 
 
 class TypeLayer:
@@ -210,7 +218,7 @@ class TypeLayer:
             out.append('    return bytesOf(std::span{wkb});' if kind == 'bytes'
                        else '    return bytesOf(std::span{terminated});')
         out += ['}', '',
-                f'constexpr ExtensionType {name}Type{{.name = "{sql.upper()}", .toText = {name}ToText, .fromText = {name}FromText}};',
+                f'constexpr ExtensionType {name}Type{{.name = "{sql.upper()}", .fromText = {name}FromText}};',
                 '']
         return '\n'.join(out)
 
@@ -225,43 +233,77 @@ class TypeLayer:
             '    return hex(bytes);', '}', '',
             'std::vector<std::byte> ByteaFromText(std::string_view text)', '{',
             '    const auto wkb = unhex(text);', '    return bytesOf(std::span{wkb});', '}', '',
-            'constexpr ExtensionType ByteaType{.name = "BYTEA", .toText = ByteaToText, .fromText = ByteaFromText};', ''])
+            'constexpr ExtensionType ByteaType{.name = "BYTEA", .fromText = ByteaFromText};', ''])
 
     def array_source(self, sql):
         """The C++ of the extension type of an array of `sql`, as MobilityFlink's ARRAY of the value class
-        carries it: the number of elements, then each element's memory image after its length, written as
-        the text of its elements in braces. An array passes between functions and is read from no text."""
+        carries it: the number of elements, then each element's bytes after their length, read and written in
+        PostgreSQL's array text form, each element by the reader and writer of `sql` (#arrayToText,
+        #arrayFromText)."""
         name = ident(sql)
         return '\n'.join([
-            f'/* {sql}[]: an array of {sql}, carried as its number of elements, then each element\'s memory image after its length */',
+            f'/* {sql}[]: an array of {sql}, carried as its number of elements, then each element after its length, '
+            f'read and written as PostgreSQL writes an array of {sql} */',
             f'std::string {name}ArrayToText(std::span<const std::byte> bytes)', '{',
-            '    if (bytes.empty())', '    {', '        return {};', '    }',
-            '    uint32_t count = 0;', '    std::memcpy(&count, bytes.data(), sizeof(count));',
-            '    size_t at = sizeof(count);', '    std::string text{"{"};',
-            '    for (uint32_t i = 0; i < count; ++i)', '    {',
-            '        uint32_t size = 0;', '        std::memcpy(&size, bytes.data() + at, sizeof(size));', '        at += sizeof(size);',
-            '        if (i > 0)', '        {', '            text += ", ";', '        }',
-            f'        text += {name}ToText(bytes.subspan(at, size));', '        at += size;', '    }',
-            '    text += "}";', '    return text;', '}', '',
+            f'    return arrayToText(bytes, {name}ToText);', '}', '',
             f'std::vector<std::byte> {name}ArrayFromText(std::string_view text)', '{',
-            f'    cannotRead("{sql}[]", text);', '}', '',
-            f'constexpr ExtensionType {name}ArrayType{{.name = "{sql.upper()}_ARRAY", .toText = {name}ArrayToText, '
-            f'.fromText = {name}ArrayFromText, .element = &{name}Type}};', ''])
+            f'    return arrayFromText(text, "{sql}[]", {name}FromText);', '}', '',
+            f'constexpr ExtensionType {name}ArrayType{{.name = "{sql.upper()}_ARRAY", .fromText = {name}ArrayFromText, '
+            f'.element = &{name}Type}};', ''])
 
-    def registrar(self, sqls, arrays=()):
-        out = ['}', '', 'namespace NES', '{', '']
-        for sql in sqls:
-            out += [f'DataTypeRegistryReturnType DataTypeGeneratedRegistrar::Register{sql.upper()}DataType(DataTypeRegistryArguments)',
-                    '{',
-                    f'    return DataType{{.type = DataType::Type::VARSIZED, .extension = &{ident(sql)}Type}};',
-                    '}', '']
-        for sql in arrays:
-            out += [f'DataTypeRegistryReturnType DataTypeGeneratedRegistrar::Register{sql.upper()}_ARRAYDataType(DataTypeRegistryArguments)',
-                    '{',
-                    f'    return DataType{{.type = DataType::Type::VARSIZED, .extension = &{ident(sql)}ArrayType}};',
-                    '}', '']
-        out.append('}')
-        return out
+    def scalar_array_source(self, sql, el):
+        """The C++ of the extension type of an array of the SQL scalar `sql`, as #array_source writes that of an
+        array of a MEOS type: each element carried as the C value it is laid in (text as its string), read and
+        written in PostgreSQL's array text form by the codec the catalog's sqlTypes[sql].element states
+        (int32_in and int32_out for integer), as JMEOS's #_array_arg reads each element of a Flink ARRAY. The
+        type has no element type, since no extension type stands for a SQL scalar."""
+        name = ident(sql) + 'Element'
+        ct = el['cType']
+        codec = el['codec']
+        out = [f'/* {sql}[]: an array of {sql}, each element carried as its C value ({ct}), read and written by '
+               f'{codec["decoder"]} and {codec["encoder"]} */']
+        if el['byValue']:
+            out += [f'std::string {name}ToText(std::span<const std::byte> bytes)', '{',
+                    f'    {ct} value{{}};',
+                    '    std::memcpy(&value, bytes.data(), std::min(bytes.size(), sizeof(value)));',
+                    '    [[maybe_unused]] size_t size = 0;',
+                    f'    char* written = {self.encoder_call(codec["encoder"], "value", codec["encoderAux"])};',
+                    f'    if (written == nullptr) {{ cannotWrite("{sql}"); }}',
+                    '    std::string text{written};', '    std::free(written);', '    return text;', '}', '',
+                    f'std::vector<std::byte> {name}FromText(std::string_view text)', '{',
+                    '    MEOS::Meos::ensureMeosInitialized();', '    const std::string terminated{text};',
+                    f'    {ct} value = {self.decoder_call("text", self.fn(codec["decoder"])["name"], codec["decoderAux"])};',
+                    '    return image(&value, sizeof(value));', '}', '']
+        else:
+            # a text is carried as its string, which the reader of its element makes a text of when a function
+            # takes it (MeosRuntime::Array#texts)
+            self.fn(codec['decoder'])
+            self.fn(codec['encoder'])
+            out += [f'std::string {name}ToText(std::span<const std::byte> bytes)', '{',
+                    '    return textOf(bytes);', '}', '',
+                    f'std::vector<std::byte> {name}FromText(std::string_view text)', '{',
+                    '    return bytesOf(std::span{text});', '}', '']
+        arr = ident(sql)
+        out += [f'std::string {arr}ArrayToText(std::span<const std::byte> bytes)', '{',
+                f'    return arrayToText(bytes, {name}ToText);', '}', '',
+                f'std::vector<std::byte> {arr}ArrayFromText(std::string_view text)', '{',
+                f'    return arrayFromText(text, "{sql}[]", {name}FromText);', '}', '',
+                f'constexpr ExtensionType {arr}ArrayType{{.name = "{array_name(sql)}", .fromText = {arr}ArrayFromText}};',
+                '']
+        return '\n'.join(out)
+
+    def table(self, sqls, arrays=()):
+        """The table of the types, each with the functions writing and reading its text, which the plugin
+        registers (nes-plugins/MEOS/MeosLogicalRegistration.cpp, MeosPhysicalRegistration.cpp), the arrays
+        #array_source writes among them"""
+        rows = [f'    MeosType{{&{ident(sql)}Type, {ident(sql)}ToText}}' for sql in sqls]
+        rows += [f'    MeosType{{&{ident(sql)}ArrayType, {ident(sql)}ArrayToText}}' for sql in arrays]
+        count = len(rows)
+        rows = ',\n'.join(rows)
+        return ['}', '', 'namespace NES', '{', '',
+                f'std::span<const MeosType> meosTypes()', '{',
+                f'    static constexpr std::array<MeosType, {count}> types{{{{', rows, '    }};',
+                '    return types;', '}', '', '}']
 
 
 PREAMBLE = r'''
@@ -276,16 +318,17 @@ PREAMBLE = r'''
 #include <string>
 #include <string_view>
 #include <vector>
+#include <strings.h>
 
 extern "C" {
 @HEADERS@
 }
 
-#include <DataTypes/DataType.hpp>
+#include <array>
 #include <DataTypes/ExtensionType.hpp>
 #include <MEOSWrapper.hpp>
-#include <DataTypeRegistry.hpp>
 #include <ErrorHandling.hpp>
+#include <MeosRegistration.hpp>
 
 namespace
 {
@@ -381,6 +424,157 @@ std::vector<std::byte> image(const void* value, const size_t size)
     return bytes;
 }
 
+/// The text of the array the bytes carry (its number of elements, then each element after its length) in the form
+/// PostgreSQL's array_out writes a one-dimensional array: the texts element writes, in braces, separated by commas,
+/// a text quoted where it is empty, is NULL or holds a brace, a comma, a double quote, a backslash or white space,
+/// each double quote and backslash in it escaped by a backslash. No bytes are no value, written as the empty text.
+std::string arrayToText(std::span<const std::byte> bytes, std::string (*element)(std::span<const std::byte>))
+{
+    if (bytes.empty())
+    {
+        return {};
+    }
+    uint32_t count = 0;
+    std::memcpy(&count, bytes.data(), sizeof(count));
+    size_t at = sizeof(count);
+    std::string text{"{"};
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        uint32_t size = 0;
+        std::memcpy(&size, bytes.data() + at, sizeof(size));
+        at += sizeof(size);
+        const auto written = element(bytes.subspan(at, size));
+        at += size;
+        if (i > 0)
+        {
+            text += ',';
+        }
+        const bool quoted = written.empty() or strcasecmp(written.c_str(), "NULL") == 0
+            or written.find_first_of("{},\"\\ \t\n\r\v\f") != std::string::npos;
+        if (not quoted)
+        {
+            text += written;
+            continue;
+        }
+        text += '"';
+        for (const char c : written)
+        {
+            if (c == '"' or c == '\\')
+            {
+                text += '\\';
+            }
+            text += c;
+        }
+        text += '"';
+    }
+    text += '}';
+    return text;
+}
+
+/// The bytes of the array of `type` the text states in the form PostgreSQL's array_in reads a one-dimensional
+/// array (braces around elements separated by commas, an element quoted in double quotes or not, a backslash
+/// escaping the character after it, the white space around an unquoted element dropped), each element read by
+/// element; an array of MEOS values holds no NULL.
+std::vector<std::byte> arrayFromText(std::string_view text, std::string_view type, std::vector<std::byte> (*element)(std::string_view))
+{
+    const auto space = [](const char c) { return c == ' ' or c == '\t' or c == '\n' or c == '\r' or c == '\v' or c == '\f'; };
+    size_t at = 0;
+    const auto skip = [&]
+    {
+        while (at < text.size() and space(text[at]))
+        {
+            ++at;
+        }
+    };
+    skip();
+    if (at == text.size() or text[at] != '{')
+    {
+        cannotRead(type, text);
+    }
+    ++at;
+    std::vector<std::byte> carried(sizeof(uint32_t));
+    uint32_t count = 0;
+    skip();
+    bool closed = at < text.size() and text[at] == '}';
+    if (closed)
+    {
+        ++at;
+    }
+    while (not closed)
+    {
+        skip();
+        std::string value;
+        if (at < text.size() and text[at] == '"')
+        {
+            ++at;
+            while (at < text.size() and text[at] != '"')
+            {
+                if (text[at] == '\\')
+                {
+                    ++at;
+                }
+                if (at < text.size())
+                {
+                    value += text[at++];
+                }
+            }
+            if (at == text.size())
+            {
+                cannotRead(type, text);
+            }
+            ++at;
+            skip();
+        }
+        else
+        {
+            size_t kept = 0;
+            while (at < text.size() and text[at] != ',' and text[at] != '}')
+            {
+                if (text[at] == '{' or text[at] == '"')
+                {
+                    cannotRead(type, text);
+                }
+                if (text[at] == '\\' and at + 1 < text.size())
+                {
+                    ++at;
+                    value += text[at++];
+                    kept = value.size();
+                    continue;
+                }
+                value += text[at++];
+                if (not space(value.back()))
+                {
+                    kept = value.size();
+                }
+            }
+            value.resize(kept);
+            if (value.empty() or strcasecmp(value.c_str(), "NULL") == 0)
+            {
+                cannotRead(type, text);
+            }
+        }
+        if (at == text.size() or (text[at] != ',' and text[at] != '}'))
+        {
+            cannotRead(type, text);
+        }
+        closed = text[at++] == '}';
+        const auto bytes = element(value);
+        const auto size = static_cast<uint32_t>(bytes.size());
+        const auto from = carried.size();
+        carried.resize(from + sizeof(size) + size);
+        std::memcpy(carried.data() + from, &size, sizeof(size));
+        std::memcpy(carried.data() + from + sizeof(size), bytes.data(), size);
+        ++count;
+    }
+    skip();
+    if (at != text.size())
+    {
+        cannotRead(type, text);
+    }
+    std::memcpy(carried.data(), &count, sizeof(count));
+    return carried;
+}
+
 '''
 
 
@@ -428,6 +622,9 @@ class FunctionLayer:
         self.kernels = []     # (key, C++ source, physical argument types, physical result type)
         self.left = {}        # reason -> count
         self.arrays = set()   # the SQL types an array of which some signature carries
+        # the element of an array of each SQL scalar, its C type and its codec (sqlTypes[<scalar>].element)
+        self.elements = {s: e['element'] for s, e in (cat.get('sqlTypes') or {}).items() if e.get('element')}
+        self.scalar_arrays = set()   # the SQL scalars an array of which some signature carries
 
     def leave(self, why):
         self.left[why] = self.left.get(why, 0) + 1
@@ -436,6 +633,14 @@ class FunctionLayer:
         """The NebulaStream data type a SQL type is carried in, and the physical type of its value; an array of
         values carried as their memory image is a type of its own (TypeLayer.array_source)"""
         if sql.endswith('[]') and sql[:-2] in self.m.image:
+            self.arrays.add(sql[:-2])
+            return f'{sql[:-2].upper()}_ARRAY', 'VARSIZED'
+        if sql.endswith('[]') and sql[:-2] in self.elements:
+            self.scalar_arrays.add(sql[:-2])
+            return array_name(sql[:-2]), 'VARSIZED'
+        # an array of a type carried by value (a cell), each element carried as a value of the type is, by its
+        # codec, as JMEOS's #_array_arg carries an array of cells (TypeLayer.array_source)
+        if sql.endswith('[]') and sql[:-2] in self.m.codec and sql[:-2] in self.m.sql_byvalue:
             self.arrays.add(sql[:-2])
             return f'{sql[:-2].upper()}_ARRAY', 'VARSIZED'
         if sql in self.m.codec:
@@ -525,12 +730,98 @@ class FunctionLayer:
         """The C array of the values an array argument k carries, as #_array_arg passes MEOS the array of
         the values a Flink ARRAY decodes to; MEOS reads its length off the parameter beside it"""
         ctype = c_spelling(p['canonical'])
-        if sql[:-2] not in self.m.image or not ctype.endswith('**'):
+        elem = sql[:-2]
+        image = self.m.image.get(elem)
+        if image is None and elem in self.elements:
+            return self.scalar_array_argument(k, self.elements[elem], p, pre)
+        if image is None and elem in self.m.codec and elem in self.m.sql_byvalue:
+            return self.byvalue_array_argument(k, elem, p, pre)
+        if image is None:
+            return None
+        if ctype.endswith('**'):
+            pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
+            pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
+            # through void*, since C++ refuses to cast void** to a const-qualified T**
+            return f'static_cast<{ctype}>(static_cast<void*>(v{k}.get()))'
+        # A contiguous array of structs (raster_value_series reads Span *spans), as JMEOS's #_array_arg
+        # passes one: each element is the memory image of a value whose C type is that struct, so its
+        # bytes are laid end to end at the size #struct_layout gives the catalog struct. An image of a size
+        # the catalog states (sizeBytes) is the struct's; one its size function measures (cbuffer_mem_size) is
+        # the value laid from its start, the struct its first bytes, as JMEOS copies them off the decoded value.
+        base = self.cj._base(p['canonical'])
+        lay = self.m.layout(base) if self.cj._single_pointer(p['canonical']) else None
+        if lay is None or self.m.sql_cbase.get(elem) != base or image.get('sizeBytes', lay[0]) != lay[0]:
             return None
         pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
         pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
-        # through void*, since C++ refuses to cast void** to a const-qualified T**
-        return f'static_cast<{ctype}>(static_cast<void*>(v{k}.get()))'
+        return f'static_cast<{ctype}>(v{k}.structs({lay[0]}))'
+
+    def byvalue_array_argument(self, k, sql, p, pre):
+        """The contiguous C array of the values of an array argument k of a type carried by value (a cell), or
+        None: each element read by the decoder of its bytes codec, as #argument reads one value of the type, and
+        the values laid end to end (MeosRuntime::Array#values), as JMEOS's #_array_arg passes MEOS an array of
+        cells (h3indexset_make reads uint64_t *values)"""
+        kind, dec, enc, in_aux, out_aux = self.m.codec[sql]
+        ctype = c_spelling(p['canonical'])
+        vt = c_spelling(self.t.fn(dec)['returnType']['canonical'])
+        if kind != 'bytes' or not self.cj._single_pointer(p['canonical']) or \
+                self.cj._base(p['canonical']) != self.cj._base(vt):
+            return None
+        pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
+        pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
+        return (f'static_cast<{ctype}>(v{k}.values<{vt}>([](const uint8_t* wkb, size_t size) '
+                f'{{ return {dec}(wkb, size); }}))')
+
+    def byvalue_array_answer(self, sql, f, length):
+        """The statements answering an array result `r` of a type carried by value (a cell), or None: the
+        contiguous C values MEOS answers (uint64_t *), each carried as the bytes the encoder of its codec writes,
+        as #answer carries one value of the type (MeosRuntime::encoded), as JMEOS's #_setret_column encodes each
+        cell of an array"""
+        kind, dec, enc, in_aux, out_aux = self.m.codec[sql]
+        rc = f['returnType']['canonical']
+        vt = c_spelling(self.t.fn(dec)['returnType']['canonical'])
+        if kind != 'bytes' or not self.cj._single_pointer(rc) or self.cj._base(rc) != self.cj._base(vt):
+            return None
+        call = self.t.encoder_call(enc, 'value', out_aux)
+        return [f'    return MeosRuntime::encoded<{vt}>(r, static_cast<int>({length}), '
+                f'[](const {vt} value, size_t* written) {{ size_t size = 0; uint8_t* w = {call}; *written = size; '
+                f'return w; }});']
+
+    def scalar_array_argument(self, k, el, p, pre):
+        """The C array of the values of an array argument k of a SQL scalar whose element is `el`, or None: the
+        contiguous C values MEOS reads (int *, TimestampTz *), as JMEOS's #_array_arg passes an array of scalars,
+        or the texts the reader of the element makes (text **), released after the call, as it passes a text
+        array"""
+        ctype = c_spelling(p['canonical'])
+        if self.cj._base(p['canonical']) != self.cj._base(el['cType']):
+            return None
+        if el['byValue'] and self.cj._single_pointer(p['canonical']):
+            call = f'static_cast<{ctype}>(v{k}.structs(sizeof({el["cType"]})))'
+        elif not el['byValue'] and ctype.endswith('**'):
+            dec = self.t.fn(el['codec']['decoder'])['name']
+            call = (f'static_cast<{ctype}>(static_cast<void*>(v{k}.texts([](const char* s) '
+                    f'{{ return static_cast<void*>({dec}(s)); }})))')
+        else:
+            return None
+        pre.append(f'    MeosRuntime::Array v{k}{{a{k}}};')
+        pre.append(f'    if (v{k}.empty())\n' + no_value('@NONE@'))
+        return call
+
+    def scalar_array_answer(self, el, f, length):
+        """The statements answering an array result `r` of a SQL scalar whose element is `el`, or None: the
+        contiguous C values MEOS answers (TimestampTz *), each carried as its C value, or its texts (text **),
+        each carried as the string the writer of the element gives it, as JMEOS's #_setret_column reads them"""
+        rc = f['returnType']['canonical']
+        if self.cj._base(rc) != self.cj._base(el['cType']):
+            return None
+        if el['byValue'] and self.cj._single_pointer(rc):
+            return [f'    return MeosRuntime::structs(r, static_cast<int>({length}), sizeof({el["cType"]}));']
+        if not el['byValue'] and c_spelling(rc).endswith('**'):
+            base = self.cj._base(rc)
+            call = self.t.encoder_call(el['codec']['encoder'], f'static_cast<const {base}*>(v)', el['codec']['encoderAux'])
+            return [f'    return MeosRuntime::texts(static_cast<void**>(static_cast<void*>(r)), static_cast<int>({length}), '
+                    f'[](void* v) -> char* {{ size_t size = 0; return {call}; }});']
+        return None
 
     def answer(self, sql, f, length=None):
         """The statements answering the result `r` of SQL type `sql`, and the answer of no value; None
@@ -539,8 +830,23 @@ class FunctionLayer:
         none = 'MeosRuntime::none()'
         if sql.endswith('[]'):
             image = self.m.image.get(sql[:-2])
-            if not image or not rc.endswith('**') or length is None:
+            if not image and sql[:-2] in self.elements and length is not None:
+                got = self.scalar_array_answer(self.elements[sql[:-2]], f, length)
+                return (got, none) if got else None
+            if not image and sql[:-2] in self.m.codec and sql[:-2] in self.m.sql_byvalue and length is not None:
+                got = self.byvalue_array_answer(sql[:-2], f, length)
+                return (got, none) if got else None
+            if not image or length is None:
                 return None
+            if not rc.endswith('**'):
+                # A contiguous array of structs (spanset_spans answers Span *), as JMEOS's
+                # #_setret_column reads one: element i is the struct at i times the size #struct_layout
+                # gives it, carried as the memory image of a value whose C type is that struct.
+                base = self.cj._base(f['returnType']['canonical'])
+                lay = self.m.layout(base) if self.cj._single_pointer(f['returnType']['canonical']) else None
+                if lay is None or self.m.sql_cbase.get(sql[:-2]) != base or image.get('sizeBytes', lay[0]) != lay[0]:
+                    return None
+                return [f'    return MeosRuntime::structs(r, static_cast<int>({length}), {lay[0]});'], none
             if image.get('size'):
                 sf = self.t.fn(image['size'])
                 pt = c_spelling(sf['params'][0]['canonical'])
@@ -630,6 +936,13 @@ class FunctionLayer:
         # the length of an array answer (shape.arrayReturn), which the answer reads
         returned = ((shape.get('arrayReturn') or {}).get('lengthFrom') or {}).get('name') \
             if ret and ret.endswith('[]') else None
+        # a bool+result function answers the value written to its one out parameter, its last parameter,
+        # or no value where it answers false, as JMEOS's #_ret reads it
+        value_out = outs[0] if (len(outs) == 1 and c_spelling(f['returnType']['canonical']) == 'bool'
+                                and c_spelling(outs[0]['canonical']) != 'size_t*'
+                                and f['params'][-1]['name'] == outs[0]['name']) else None
+        if value_out:
+            outs = []
         if [p for p in outs if c_spelling(p['canonical']) != 'size_t*' and p['name'] != returned]:
             return 'out parameters'
         # the length of an input array (shape.inputArrays) is read off the array, as #_inputs reads it
@@ -664,13 +977,16 @@ class FunctionLayer:
         for variant in self.cj._default_variants(args, defaults, len(args)):
             left = len(variant) if variant else 0
             why = self.emit(f, idx, name, args, types, rtype, ret, vis, outs, bound, walk, variant or [], left,
-                            arrays, counts) or why
+                            arrays, counts, value_out) or why
         return why
 
-    def emit(self, f, idx, name, args, types, rtype, ret, vis, outs, bound, walk, variant, left, arrays, counts):
+    def emit(self, f, idx, name, args, types, rtype, ret, vis, outs, bound, walk, variant, left, arrays, counts,
+             value_out=None):
         """The overload and kernel of the call of signature `idx` of f leaving its last `left` arguments to
         the defaults `variant`, as JMEOS's #_sql_overloads emits one eval per call; or the reason it is
-        left out"""
+        left out. The answer of a bool+result function is the value written to its out parameter
+        `value_out`, answered as a result of the type it points to, or no value where the call answers
+        false, as JMEOS's #_ret reads it"""
         stated = len(args) - left
         nes_args = tuple(t for t, _ in types[:stated])
         if any(o[0] == nes_args for o in self.overloads.get(name, [])):
@@ -704,7 +1020,20 @@ class FunctionLayer:
         for j, p in enumerate(outs):
             pre.append(f'    {c_spelling(p["canonical"])[:-1]} length{j} = 0;')
             call.append(f'&length{j}')
-        got = self.answer(ret, f, 'length0' if outs else None)
+        if value_out:
+            pre.append(f'    {c_spelling(value_out["canonical"])[:-1]} value{{}};')
+            call.append('&value')
+        length = 'length0' if outs else None
+        # an array answer as long as an input array (stboxarr_round answers count boxes) reads the count
+        # off that array, as the call passes it
+        lf = ((f.get('shape') or {}).get('arrayReturn') or {}).get('lengthFrom') or {}
+        if lf.get('kind') == 'param' and counts.get(lf.get('name')) in passed:
+            length = f'v{passed[counts[lf["name"]]]}.count()'
+        pointed = None
+        if value_out:
+            canonical = value_out['canonical'].rstrip()
+            pointed = dict(f, returnType=dict(f['returnType'], canonical=canonical[:-1].rstrip()))
+        got = self.answer(ret, pointed or f, length)
         if got is None:
             return f'result {ret} as {c_spelling(f["returnType"]["canonical"])}'
         answer, none = got
@@ -715,8 +1044,13 @@ class FunctionLayer:
         if 'MeosRuntime::number<' not in ''.join(answer) + none:
             body.append('    static_cast<void>(out);')
         body += [line.replace('@NONE@', none) for line in pre]
-        body.append(f'    auto r = {f["name"]}({", ".join(c for c in call if c is not None)});')
-        body += post
+        if value_out:
+            body.append(f'    const bool found = {f["name"]}({", ".join(c for c in call if c is not None)});')
+            body += post
+            body += ['    if (!found)\n' + no_value(none), '    auto r = value;']
+        else:
+            body.append(f'    auto r = {f["name"]}({", ".join(c for c in call if c is not None)});')
+            body += post
         body += answer
         body.append('}')
         self.kernels.append((key, '\n'.join(body), [pt for _, pt in types[:stated]], rtype[1]))
@@ -855,7 +1189,7 @@ class FunctionLayer:
         out = [LICENSE, '/* AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
                ' * Every MEOS function by its SQL name, each with the signatures the catalog states for it. */', '',
                '#include <array>', '#include <string_view>', '#include <utility>',
-               '#include <Functions/Meos/MeosLogicalFunction.hpp>', '#include <LogicalFunctionRegistry.hpp>', '',
+               '#include <span>', '#include <Functions/MeosLogicalFunction.hpp>', '',
                'namespace NES', '{', '', 'namespace', '{']
         for n, (name, overloads) in enumerate(sorted(self.overloads.items())):
             for o, (nes_args, _, _) in enumerate(overloads):
@@ -864,10 +1198,10 @@ class FunctionLayer:
             rows = ', '.join(f'MeosOverload{{arguments{n}_{o}, "{r}", "{k}"}}' for o, (_, r, k) in enumerate(overloads))
             out.append(f'constexpr std::array<MeosOverload, {len(overloads)}> overloads{n}{{{rows}}};')
         out += ['}', '']
-        for n, (name, _) in enumerate(sorted(self.overloads.items())):
-            out += [f'LogicalFunctionRegistryReturnType LogicalFunctionGeneratedRegistrar::Register{name}LogicalFunction('
-                    'LogicalFunctionRegistryArguments arguments)',
-                    '{', f'    return MeosLogicalFunction("{name}", overloads{n}, std::move(arguments.children));', '}', '']
+        rows = ',\n'.join(f'        MeosFunction{{"{name}", overloads{n}}}' for n, (name, _) in enumerate(sorted(self.overloads.items())))
+        out += ['std::span<const MeosFunction> meosFunctions()', '{',
+                f'    static constexpr std::array<MeosFunction, {len(self.overloads)}> functions{{{{', rows, '    }};',
+                '    return functions;', '}', '']
         out.append('}')
         return '\n'.join(out) + '\n'
 
@@ -879,18 +1213,26 @@ class FunctionLayer:
                    ' * The kernels of the MEOS functions, one per SQL signature, and their physical functions. */', '',
                    '#include <cstdint>', '#include <cstdlib>', '#include <cstring>', '#include <string>', '#include <utility>',
                    '', 'extern "C" {', headers, '}', '',
-                   '#include <DataTypes/DataType.hpp>', '#include <Functions/Meos/MeosPhysicalFunction.hpp>',
+                   '#include <any>', '#include <DataTypes/DataType.hpp>', '#include <Functions/MeosPhysicalFunction.hpp>',
+                   '#include <Plugins/BuiltinPlugins.hpp>', '#include <Plugins/PluginDescriptor.hpp>',
                    '#include <MeosKernelRuntime.hpp>', '#include <PhysicalFunctionRegistry.hpp>', '',
                    'namespace NES', '{', '', 'namespace', '{']
             for _, src, _, _ in chunk:
                 out += [src, '']
-            out += ['}', '']
+            out += ['void describe(PluginDescriptor& descriptor)', '{']
             for key, _, ptypes, rtype in chunk:
                 types = ', '.join(f'DataType::Type::{t}' for t in ptypes)
-                out += [f'PhysicalFunctionRegistryReturnType PhysicalFunctionGeneratedRegistrar::Register{key}PhysicalFunction('
-                        'PhysicalFunctionRegistryArguments arguments)',
-                        '{', f'    return MeosPhysicalFunction(MeosKernel{{&{key}}}, {{{types}}}, DataType::Type::{rtype}, '
-                        'std::move(arguments.childFunctions));', '}', '']
+                out += ['    descriptor.entries.push_back(EntryProvision{',
+                        '        .registryClassName = "PhysicalFunctionRegistry",',
+                        f'        .key = "{key}",',
+                        '        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction',
+                        f'            {{ return MeosPhysicalFunction(MeosKernel{{&{key}}}, {{{types}}}, DataType::Type::{rtype}, '
+                        'std::move(arguments.childFunctions)); }}}});']
+            out += ['}', '',
+                    '/// Static registration is the purpose of this initializer; it only stores a function pointer.',
+                    '/// NOLINTNEXTLINE(bugprone-throwing-static-initialization)',
+                    'const auto collected = []', '{', '    BuiltinPlugins::instance().addDescriber(&describe);',
+                    '    return 0;', '}();', '', '}', '']
             out.append('}')
             files.append('\n'.join(out) + '\n')
         return files
@@ -932,6 +1274,15 @@ class AggregateLayer:
         skip = f'\n        if ({at} == nullptr)\n        {{\n@RELEASE@            return false;\n        }}'
         if sql in self.m.codec:
             kind, dec = self.m.codec[sql][:2]
+            if not ctype.endswith('*') and kind == 'bytes' and sql in self.m.sql_byvalue:
+                # a value carried by value (a cell) is read by the decoder of its bytes codec into the C value
+                # the call takes, as FunctionLayer.argument reads one (h3index_union_transfn takes uint64_t)
+                vt = c_spelling(self.t.fn(dec)['returnType']['canonical'])
+                if base != vt:
+                    return None
+                decode = (f'const MeosRuntime::Value v{k}{{{src}}};\n        if (v{k}.empty())\n        {{\n'
+                          f'@RELEASE@            return false;\n        }}\n        {at} = {dec}(v{k}.bytes(), v{k}.size());')
+                return (f'{ctype} a{k};', decode, at, '', 'VARSIZED')
             if not ctype.endswith('*'):
                 return None
             if sql in self.m.image:
@@ -1025,6 +1376,7 @@ class AggregateLayer:
             return 'no combine over a value of no temporal type'
         ff = self.by_name.get(roles['final']) if roles['final'] else None
         keeps = bool(ff and ff.get('params') and ff['params'][0]['canonical'].startswith('const '))
+        stc = c_spelling(params[0]['canonical'])
         res = ff or tf
         rc = c_spelling(res['returnType']['canonical'])
         if not rc.endswith('*'):
@@ -1035,7 +1387,7 @@ class AggregateLayer:
         lines, _ = answer
         cast = lambda fn, i: f'static_cast<{c_spelling(fn["params"][i]["canonical"])}>'  # noqa: E731
         key = f'MeosAggregate_{name}_{len(self.overloads.get(name, []))}'
-        for fn in (tf, self.by_name.get(roles['combine']), ff):
+        for fn in (tf, ff):
             if fn:
                 self.t.fn(fn['name'])
         L = [f'struct {key}Ops', '{', '    struct Row', '    {', *(f'        {f}' for f in fields), '    };',
@@ -1049,16 +1401,11 @@ class AggregateLayer:
              f'        return {tf["name"]}({cast(tf, 0)}(s){"".join(", " + c for c in call)});', '    }',
              '    static void Free(Row& row)', '    {',
              *((f'        {f}' for f in frees) if frees else ['        static_cast<void>(row);']), '    }']
-        if roles['combine']:
-            cf = self.by_name[roles['combine']]
-            L += ['    static void* Combine(void* a, void* b)', '    {',
-                  f'        return {cf["name"]}({cast(cf, 0)}(a), {cast(cf, 1)}(b));', '    }']
-        else:
-            L += ['    static void* Combine(void*, void*)', '    {', '        return nullptr;', '    }']
         if ff:
             L += ['    static void* Final(void* s)', '    {', f'        return {ff["name"]}({cast(ff, 0)}(s));', '    }']
         else:
             L += ['    static void* Final(void* s)', '    {', '        return s;', '    }']
+        L += ['    static void Release(void* s)', '    {', f'        {self.release(stc, ff, keeps)};', '    }']
         body = [line.replace('\n', '\n    ') for line in lines]
         L += ['    static int8_t* Write(void* v, int8_t* out)', '    {',
               f'        auto* r = static_cast<{rc.replace("const ", "")}>(v);']
@@ -1076,6 +1423,28 @@ class AggregateLayer:
         self.ops.append((key, '\n'.join(L), first[1], tuple(literal_types)))
         self.overloads.setdefault(name, []).append((first[0], tuple(literal_types), rtype[0], key))
         return None
+
+    def method(self, ctype, oo):
+        """The MEOS function the catalog's object model states as the method `oo` of the class of the C type
+        (objectModel.classes.<C type>.methods[].ooName), as SkipList states free and Span states copy; None where
+        it states none"""
+        base = ctype.replace('const ', '').replace('struct ', '').rstrip('*').strip()
+        cls = ((self.f.cat.get('objectModel') or {}).get('classes') or {}).get(base) or {}
+        for m in cls.get('methods') or []:
+            if m.get('ooName') == oo and m.get('function') in self.by_name:
+                return self.t.fn(m['function'])['name']
+        return None
+
+    def release(self, stc, ff, keeps):
+        """The statement releasing a state `s` of the C type stc without its result: the free of its type, else
+        the free of the one block of memory a value of a type with a copy is, else as its final releases it, a
+        final consuming its state"""
+        free = self.method(stc, 'free')
+        if free:
+            return f'{free}(static_cast<{stc}>(s))'
+        if ff and not keeps and not self.method(stc, 'copy'):
+            return f'std::free({ff["name"]}(static_cast<{c_spelling(ff["params"][0]["canonical"])}>(s)))'
+        return 'std::free(s)'
 
     def build(self, functions):
         """Every entry of the catalog's `aggregates` section, one overload per name and argument types, as
@@ -1097,12 +1466,13 @@ class AggregateLayer:
             raise SystemExit(f'an aggregate and a function share a name: {", ".join(clash)}')
 
     def logical_source(self):
+        """The table of the MEOS aggregates by name, each with its overloads, which the plugin registers
+        (nes-plugins/MEOS/MeosLogicalRegistration.cpp), as #FunctionLayer.logical_source writes the table of
+        the functions"""
         out = [LICENSE, '/* AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
                ' * Every MEOS aggregate by its name, each with the overloads the catalog states for it. */', '',
-               '#include <array>', '#include <memory>', '#include <string_view>', '#include <utility>',
-               '#include <Functions/FieldAccessLogicalFunction.hpp>',
-               '#include <Operators/Windows/Aggregations/Meos/MeosAggregationLogicalFunction.hpp>',
-               '#include <AggregationLogicalFunctionRegistry.hpp>', '#include <ErrorHandling.hpp>', '',
+               '#include <array>', '#include <span>', '#include <string_view>',
+               '#include <Aggregations/MeosAggregationLogicalFunction.hpp>', '',
                'namespace NES', '{', '', 'namespace', '{']
         for n, (name, overloads) in enumerate(sorted(self.overloads.items())):
             for o, (_, lits, _, _) in enumerate(overloads):
@@ -1112,52 +1482,58 @@ class AggregateLayer:
                              for o, (a, _, r, k) in enumerate(overloads))
             out.append(f'constexpr std::array<MeosAggregateOverload, {len(overloads)}> overloads{n}{{{rows}}};')
         out += ['}', '']
-        for n, (name, _) in enumerate(sorted(self.overloads.items())):
-            out += [f'AggregationLogicalFunctionRegistryReturnType AggregationLogicalFunctionGeneratedRegistrar::'
-                    f'Register{name}AggregationLogicalFunction(AggregationLogicalFunctionRegistryArguments arguments)',
-                    '{', '    if (arguments.fields.size() != 2)', '    {',
-                    f'        throw CannotDeserialize("{name} takes an on and an as field, but got {{}}", arguments.fields.size());',
-                    '    }',
-                    f'    return std::make_shared<MeosAggregationLogicalFunction>("{name}", overloads{n}, arguments.fields[0], '
-                    'arguments.fields[1], std::move(arguments.literals));', '}', '']
-        out.append('}')
+        rows = ',\n'.join(f'        MeosAggregate{{"{name}", overloads{n}}}' for n, (name, _) in enumerate(sorted(self.overloads.items())))
+        out += ['std::span<const MeosAggregate> meosAggregates()', '{',
+                f'    static constexpr std::array<MeosAggregate, {len(self.overloads)}> aggregates{{{{', rows, '    }};',
+                '    return aggregates;', '}', '', '}']
         return '\n'.join(out) + '\n'
 
     def kernel_source(self, headers):
+        """The operations of the MEOS aggregates, one per overload, and the physical aggregation of each, which
+        the file describes to the plugin loader, as #FunctionLayer.kernel_sources describes the physical
+        functions"""
         out = [LICENSE, '/* AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
                ' * The operations of the MEOS aggregates, one per overload, and their physical aggregations. */', '',
-               '#include <array>', '#include <cstdint>', '#include <cstdlib>', '#include <cstring>', '#include <memory>',
+               '#include <any>', '#include <array>', '#include <cstdint>', '#include <cstdlib>', '#include <cstring>',
                '#include <string>', '#include <utility>', '', 'extern "C" {', headers, '}', '',
-               '#include <Aggregation/Function/Meos/MeosAggregationPhysicalFunction.hpp>', '#include <DataTypes/DataType.hpp>',
-               '#include <MeosAggregateRuntime.hpp>', '#include <MeosKernelRuntime.hpp>',
-               '#include <AggregationPhysicalFunctionRegistry.hpp>', '', 'namespace NES', '{', '', 'namespace', '{']
+               '#include <Aggregations/MeosAggregationPhysicalFunction.hpp>', '#include <DataTypes/DataType.hpp>',
+               '#include <Plugins/BuiltinPlugins.hpp>', '#include <Plugins/PluginDescriptor.hpp>',
+               '#include <AggregationPhysicalFunctionRegistry.hpp>', '#include <MeosAggregateRuntime.hpp>',
+               '#include <MeosKernelRuntime.hpp>', '', 'namespace NES', '{', '', 'namespace', '{']
         for key, src, _, lits in self.ops:
             types = ', '.join(f'DataType::Type::{t}' for t in lits)
-            out += [src, f'constexpr std::array<DataType::Type, {len(lits)}> {key}Literals{{{types}}};', f'using {key} = MeosRuntime::MeosAggregate<{key}Ops>;',
+            out += [src, f'constexpr std::array<DataType::Type, {len(lits)}> {key}Literals{{{types}}};',
+                    f'using {key} = MeosRuntime::MeosAggregate<{key}Ops>;',
                     f'constexpr MeosAggregateKernels {key}Kernels{{&{key}::Initialize, &{key}::Update, &{key}::Combine, '
-                    f'&{key}::Finish, &{key}::Destroy, {key}::StateSize}};', '']
-        out += ['}', '']
+                    f'&{key}::Finish, {key}::StateSize}};', '']
+        out += ['void describe(PluginDescriptor& descriptor)', '{']
         for key, _, ptype, _ in self.ops:
-            out += [f'AggregationPhysicalFunctionRegistryReturnType AggregationPhysicalFunctionGeneratedRegistrar::'
-                    f'Register{key}AggregationPhysicalFunction(AggregationPhysicalFunctionRegistryArguments arguments)',
-                    '{', '    return std::make_shared<MeosAggregationPhysicalFunction>(std::move(arguments.inputType), '
-                    'std::move(arguments.resultType), std::move(arguments.inputFunction), std::move(arguments.resultFieldIdentifier), '
-                    f'DataType::Type::{ptype}, {key}Literals, arguments.literals, {key}Kernels);', '}', '']
-        out.append('}')
+            out += ['    descriptor.entries.push_back(EntryProvision{',
+                    '        .registryClassName = "AggregationPhysicalFunctionRegistry",',
+                    f'        .key = "{key}",',
+                    '        .entry = std::any{AggregationPhysicalFunctionRegistry::EntryType{'
+                    '[](AggregationPhysicalFunctionRegistryArguments arguments) -> AggregationPhysicalFunctionRegistryReturnType',
+                    f'            {{ return meosAggregation(std::move(arguments), DataType::Type::{ptype}, {key}Literals, {key}Kernels); }}}}}}}});']
+        out += ['}', '',
+                '/// Static registration is the purpose of this initializer; it only stores a function pointer.',
+                '/// NOLINTNEXTLINE(bugprone-throwing-static-initialization)',
+                'const auto collected = []', '{', '    BuiltinPlugins::instance().addDescriber(&describe);',
+                '    return 0;', '}();', '', '}', '', '}']
         return '\n'.join(out) + '\n'
 
 
 def nebula_function_names(root):
-    """The names NebulaStream's own logical functions are registered under, read from the add_plugin
-    calls of the repository's CMakeLists"""
+    """The names NebulaStream's own logical functions are registered under, read from the add_registry_entry
+    calls of the repository's CMakeLists: the KEY an entry states, else its name"""
     import re
     names = set()
     own = Path(root) / 'nes-plugins' / 'MEOS' / 'Functions'
     for cm in Path(root).glob('nes-*/**/CMakeLists.txt'):
         if cm.parent == own:
             continue
-        text = cm.read_text()  # BINDING-HEADER-PARSE-OK: a CMakeLists' add_plugin names, never a header
-        names.update(mm.group(1) for mm in re.finditer(r'add_plugin\((\w+)\s+LogicalFunction', text))
+        text = cm.read_text()  # BINDING-HEADER-PARSE-OK: a CMakeLists' add_registry_entry names, never a header
+        names.update(mm.group(2) or mm.group(1) for mm in
+                     re.finditer(r'add_registry_entry\(LogicalFunction\s+(\w+)(?:\s+KEY\s+(\w+))?', text))
     return names
 
 
@@ -1176,32 +1552,40 @@ def run(args):
     sqls = sorted(layer.m.codec)
     # the MEOS types and `bytea`, the WKB a reader takes and a writer answers (TypeLayer.bytea_source)
     bodies = [layer.source(sql) for sql in sqls] + [layer.bytea_source()]
-    type_headers = '\n'.join(f'#include <{h}>' for h in sorted(layer.headers))
+    type_header_set = set(layer.headers)
 
     # The functions, whose kernels include the headers of the functions they call; the types written after
     # them carry an array of each type some signature passes or answers an array of
     layer.headers = set()
     functions = FunctionLayer(layer, cat, nebula_function_names(args.output_root), cj)
     functions.build()
-    arrays = sorted(functions.arrays)
+    # the arrays of the SQL scalars, whose element codecs' headers the types include, the kernels' kept apart
+    kernel_headers = layer.headers
+    layer.headers = set()
+    scalar_arrays = [layer.scalar_array_source(sql, functions.elements[sql]) for sql in sorted(functions.scalar_arrays)]
+    type_headers = '\n'.join(f'#include <{h}>' for h in sorted(type_header_set | layer.headers))
+    layer.headers = kernel_headers
     src = (LICENSE + PREAMBLE.replace('@HEADERS@', type_headers) + '\n'.join(bodies) + '\n'
-           + '\n'.join(layer.array_source(sql) for sql in arrays) + '\n'
-           + '\n'.join(layer.registrar(sqls + ['bytea'], arrays)) + '\n')
+           + '\n'.join(layer.array_source(sql) for sql in sorted(functions.arrays)) + '\n'
+           + '\n'.join(scalar_arrays) + '\n'
+           + '\n'.join(layer.table(sqls + ['bytea'], sorted(functions.arrays) + sorted(functions.scalar_arrays))) + '\n')
     out = Path(args.output_root) / 'nes-plugins' / 'MEOS' / 'DataTypes'
     out.mkdir(parents=True, exist_ok=True)
     write_if_changed(out / 'MeosDataTypes.cpp', src)
+    # The MobilityDB commit of the catalog, the commit whose libmeos the generated code calls, which the
+    # build of the plugin builds libmeos from
+    commit = cat.get('sourceCommit')
+    if not commit:
+        sys.exit('codegen_nebula_sql: the catalog states no sourceCommit; generate it from a git checkout of MobilityDB')
+    write_if_changed(Path(args.output_root) / 'nes-plugins' / 'MEOS' / 'MEOS_COMMIT', commit + '\n')
     cmake = [CMAKE_LICENSE,
              '# AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
-             '# Each MEOS SQL type is a data type of its own, registered under its name in upper case, and so is',
-             '# an array of it that a function passes or answers, under its name followed by _ARRAY.', '']
-    cmake += [f'add_plugin({sql.upper()} DataType nes-data-types MeosDataTypes.cpp)' for sql in sqls + ['bytea']]
-    cmake += [f'add_plugin({sql.upper()}_ARRAY DataType nes-data-types MeosDataTypes.cpp)' for sql in arrays]
-    cmake += ['', "# The types call libmeos and initialize MEOS through the plugin's wrapper.",
-              'target_link_libraries(nes-data-types PUBLIC nes-meos)', '']
+             '# The MEOS types, each a data type of its own under its name in upper case, which',
+             '# nes-plugins/MEOS/MeosLogicalRegistration.cpp registers.', '',
+             'target_sources(nes-meos-logical PRIVATE MeosDataTypes.cpp)', '']
     write_if_changed(out / 'CMakeLists.txt', '\n'.join(cmake))
     print(f'codegen_nebula_sql: {len(sqls)} MEOS data types '
-          f'({sum(1 for s in sqls if s in layer.m.image)} carried as their memory image) and {len(arrays)} arrays '
-          f'into {out}')
+          f'({sum(1 for s in sqls if s in layer.m.image)} carried as their memory image) into {out}')
     out = Path(args.output_root) / 'nes-plugins' / 'MEOS' / 'Functions'
     out.mkdir(parents=True, exist_ok=True)
     for old in out.glob('MeosKernels*.cpp'):
@@ -1213,15 +1597,14 @@ def run(args):
         write_if_changed(out / f'MeosKernels{i}.cpp', src)
     cmake = [CMAKE_LICENSE,
              '# AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
-             '# Each MEOS function is a logical function under its SQL name, and each of its SQL signatures a',
-             '# physical function computed by its kernel.', '']
-    cmake += [f'add_plugin({name} LogicalFunction nes-logical-operators MeosLogicalFunctions.cpp)'
-              for name in sorted(functions.overloads)]
-    cmake.append('')
-    for i in range(len(kernel_files)):
-        chunk = functions.kernels[i * KERNELS_PER_FILE:(i + 1) * KERNELS_PER_FILE]
-        cmake += [f'add_plugin({key} PhysicalFunction nes-physical-operators MeosKernels{i}.cpp)' for key, *_ in chunk]
-    write_if_changed(out / 'CMakeLists.txt', '\n'.join(cmake) + '\n')
+             '# Each MEOS function is a logical function under its SQL name, which',
+             '# nes-plugins/MEOS/MeosLogicalRegistration.cpp registers, and each of its SQL signatures a physical',
+             '# function computed by its kernel, which its file of kernels registers.', '',
+             'target_sources(nes-meos-logical PRIVATE MeosLogicalFunctions.cpp)',
+             'target_sources(nes-meos-physical PRIVATE']
+    cmake += [f'        MeosKernels{i}.cpp' for i in range(len(kernel_files))]
+    cmake += [')', '']
+    write_if_changed(out / 'CMakeLists.txt', '\n'.join(cmake))
     print(f'codegen_nebula_sql: {len(functions.overloads)} MEOS functions over {len(functions.kernels)} SQL signatures '
           f'into {out}')
     for why, n in sorted(functions.left.items(), key=lambda x: -x[1]):
@@ -1238,14 +1621,12 @@ def run(args):
     write_if_changed(out / 'MeosAggregationKernels.cpp', aggregates.kernel_source(headers))
     cmake = [CMAKE_LICENSE,
              '# AUTO-GENERATED by tools/codegen/codegen_nebula_sql.py from the MEOS catalog -- do not edit by hand.',
-             '# Each MEOS aggregate is a logical aggregation under its name, and each of its overloads a physical',
-             '# aggregation run by the MeosAggregate template over its operations.', '']
-    cmake += [f'add_plugin({name} AggregationLogicalFunction nes-logical-operators MeosAggregations.cpp)'
-              for name in sorted(aggregates.overloads)]
-    cmake.append('')
-    cmake += [f'add_plugin({key} AggregationPhysicalFunction nes-physical-operators MeosAggregationKernels.cpp)'
-              for key, *_ in aggregates.ops]
-    write_if_changed(out / 'CMakeLists.txt', '\n'.join(cmake) + '\n')
+             '# Each MEOS aggregate is a logical aggregation under its name, which',
+             '# nes-plugins/MEOS/MeosLogicalRegistration.cpp registers, and each of its overloads a physical',
+             '# aggregation run by the MeosAggregate template over its operations, which its file registers.', '',
+             'target_sources(nes-meos-logical PRIVATE MeosAggregations.cpp)',
+             'target_sources(nes-meos-physical PRIVATE MeosAggregationKernels.cpp)', '']
+    write_if_changed(out / 'CMakeLists.txt', '\n'.join(cmake))
     print(f'codegen_nebula_sql: {len(aggregates.overloads)} MEOS aggregates over {len(aggregates.ops)} overloads '
           f'into {out}')
     for why, n in sorted(aggregates.left.items(), key=lambda x: -x[1]):

@@ -58,6 +58,7 @@ INGORED_ENDINGS = {
     "dockerignore",
     "dummy",
     "env",
+    "gdbinit",
     "gitignore",
     "mailmap",
     "json",
@@ -77,14 +78,38 @@ INGORED_ENDINGS = {
     "nix",
     "lock",
     "nes",
-    "jsonl"
+    "jsonl",
+    "onnx",
+    "pb",
+    "pbtxt",
+    "meta",
+    "tflite",
+    "pdmodel",
+    "pdiparams",
+    "gitkeep",
+    "gitattributes",
+    "html",
+    "scss",
 }
 
 VENDORED_FILES = {
+    # TensorFlow SavedModel checkpoint shards have no usable suffix (`.index`,
+    # `.data-00000-of-00001`); they are binary fixtures for ModelLoaderTest.
+    "nes-inference/tests/testdata/tiny_savedmodel/variables/variables.index",
+    "nes-inference/tests/testdata/tiny_savedmodel/variables/variables.data-00000-of-00001",
     "cmake/CodeCoverage.cmake",
+    "cmake/corrosion/CMakeLists.txt",
+    "cmake/corrosion/cmake/Corrosion.cmake",
+    "cmake/corrosion/cmake/CorrosionGenerator.cmake",
+    "cmake/corrosion/cmake/FindRust.cmake",
     "nes-systests/utils/SystestPlugin/NES-Systest-Runner/gradlew",
     "nes-systests/utils/SystestPlugin/NES-Systest-Runner/gradlew.bat",
     "vcpkg/vcpkg-registry/ports/llvm/portfile.cmake",
+    "vcpkg/vcpkg-registry/ports/cpptrace/portfile.cmake",
+    "vcpkg/vcpkg-registry/ports/libuuid/CMakeLists.txt",
+    "vcpkg/vcpkg-registry/ports/libuuid/config.linux.h",
+    "vcpkg/vcpkg-registry/ports/libuuid/portfile.cmake",
+    "vcpkg/vcpkg-registry/ports/libuuid/unofficial-libuuid-config.cmake.in",
 }
 
 if __name__ == "__main__":
@@ -101,7 +126,7 @@ if __name__ == "__main__":
 
         if filename in VENDORED_FILES:
             pass
-        elif suffix in {"cpp", "proto", "java", "g4", "inc"}:
+        elif suffix in {"cpp", "proto", "java", "g4", "inc", "rs"} or filename.endswith(".cpp.in") or filename.endswith(".hpp.in"):
             with open(filename, "r", encoding="utf-8") as fp:
                 content = fp.read()
                 if not content.startswith(license_text):
@@ -121,7 +146,7 @@ if __name__ == "__main__":
                 if not content.startswith(license_text_cmake):
                     print(f'{COLOR_RED_BOLD}Error{COLOR_RESET}: file lacks license preamble: {filename}:1')
                     result = False
-        elif suffix in {"sh", "py"}:
+        elif suffix in {"sh", "py", "bats", "toml", "bash"}:
             with open(filename, "r", encoding="utf-8") as fp:
                 content = fp.read()
                 if license_text_cmake not in content:

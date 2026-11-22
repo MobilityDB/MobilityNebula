@@ -2,7 +2,7 @@
 
 The nine BerlinMOD queries ([MobilityDB-BerlinMOD](https://github.com/MobilityDB/MobilityDB-BerlinMOD)), each in three streaming forms, as NebulaStream query YAMLs under [`Queries/berlinmod/`](../Queries/berlinmod/). The same nine queries in the same three forms run on Flink ([MobilityFlink](https://github.com/MobilityDB/MobilityFlink)) and Kafka Streams ([MobilityKafka](https://github.com/MobilityDB/MobilityKafka)).
 
-They sit beside the SNCB query series ([Query0..Query5](../Queries/) and [sncb_brake_monitoring](../Queries/sncb_brake_monitoring.yaml)); the two are separate query sets.
+They sit beside the SNCB query series ([nes-systests/sncb](../nes-systests/sncb/)); the two are separate query sets.
 
 ## Logical source
 

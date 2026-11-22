@@ -22,10 +22,10 @@ name: Container Build
 # hash is not the one the runner's image is built from (/etc/nes-ci-hash). A GitHub-hosted runner runs the
 # image in Docker; without the S3 credentials of the remote compiler cache, sccache keeps a local cache in
 # the workspace, carried from run to run: a pull request restores the newest cache of its own head or of
-# the branch it targets, and every push to next saves the cache the next pull requests start from.
+# the branch it targets, and every push to main saves the cache the next pull requests start from.
 on:
   push:
-    branches: [ next ]
+    branches: [ main ]
   workflow_call:
     inputs:
       head_sha:

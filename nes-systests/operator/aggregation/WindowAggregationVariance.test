@@ -1,0 +1,47 @@
+# name: window/WindowAggregationVariance.test
+# description: VAR_POP and VAR_SAMP give the variance of a window as PostgreSQL's var_pop and var_samp do: the sum of the squared deviations from the mean divided by the number of values, or by one less. The window [0, 100) holds 1, 2, 3, 4 and 5, of variance 2 and sample variance 2.5; the window [100, 200) holds 6 and 7, of variance 0.25 and sample variance 0.5; the window [200, 300) holds only a NULL, so both are NULL. A single value has variance 0 and no sample variance. The expected values are those of PostgreSQL over the same rows.
+# groups: [Aggregation, WindowOperators, NullHandling]
+
+CREATE LOGICAL SOURCE stream(ts UINT64 NOT NULL, id INT32 NOT NULL, value INT32);
+CREATE PHYSICAL SOURCE FOR stream TYPE File;
+ATTACH INLINE
+10,1,1
+20,2,2
+60,3,3
+70,2,4
+80,1,5
+120,1,6
+130,1,7
+210,2,
+
+CREATE SINK sinkVariance(start UINT64 NOT NULL, end UINT64 NOT NULL, varPop FLOAT64, varSamp FLOAT64) TYPE File;
+SELECT start, end, VAR_POP(value) AS varPop, VAR_SAMP(value) AS varSamp
+FROM stream WINDOW TUMBLING(ts, size 100 ms)
+INTO sinkVariance;
+----
+0,100,2.0,2.5
+100,200,0.25,0.5
+200,300,NULL,NULL
+
+# The sliding windows merge the states of their slices
+CREATE SINK sinkVarianceSliding(start UINT64 NOT NULL, end UINT64 NOT NULL, varPop FLOAT64, varSamp FLOAT64) TYPE File;
+SELECT start, end, VAR_POP(value) AS varPop, VAR_SAMP(value) AS varSamp
+FROM stream WINDOW SLIDING(ts, size 100 ms, advance by 50 ms)
+INTO sinkVarianceSliding;
+----
+0,100,2.0,2.5
+50,150,2.0,2.5
+100,200,0.25,0.5
+150,250,NULL,NULL
+200,300,NULL,NULL
+
+CREATE SINK sinkVarianceKeyed(start UINT64 NOT NULL, end UINT64 NOT NULL, id INT32 NOT NULL, varPop FLOAT64, varSamp FLOAT64) TYPE File;
+SELECT start, end, id, VAR_POP(value) AS varPop, VAR_SAMP(value) AS varSamp
+FROM stream GROUP BY (id) WINDOW TUMBLING(ts, size 100 ms)
+INTO sinkVarianceKeyed;
+----
+0,100,1,4.0,8.0
+0,100,2,1.0,2.0
+0,100,3,0.0,NULL
+100,200,1,0.25,0.5
+200,300,2,NULL,NULL

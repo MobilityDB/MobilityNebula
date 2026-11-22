@@ -21,6 +21,7 @@ add_source_files(nes-logical-operators
         MedianAggregationLogicalFunction.cpp
         MinAggregationLogicalFunction.cpp
         SumAggregationLogicalFunction.cpp
+        VarianceAggregationLogicalFunction.cpp
 )
 
 
@@ -32,6 +33,8 @@ add_unreflection_entry(AggregationLogicalFunction Max)
 add_unreflection_entry(AggregationLogicalFunction Median)
 add_unreflection_entry(AggregationLogicalFunction Min)
 add_unreflection_entry(AggregationLogicalFunction Sum)
+add_unreflection_entry(AggregationLogicalFunction VarPop KEY Var_Pop HEADER "Operators/Windows/Aggregations/VarianceAggregationLogicalFunction.hpp")
+add_unreflection_entry(AggregationLogicalFunction VarSamp KEY Var_Samp HEADER "Operators/Windows/Aggregations/VarianceAggregationLogicalFunction.hpp")
 
 add_registry_entry(AggregationLogicalFunction Array KEY Array_Agg)
 add_registry_entry(AggregationLogicalFunction Avg)
@@ -41,3 +44,5 @@ add_registry_entry(AggregationLogicalFunction Max)
 add_registry_entry(AggregationLogicalFunction Median)
 add_registry_entry(AggregationLogicalFunction Min)
 add_registry_entry(AggregationLogicalFunction Sum)
+add_registry_entry(AggregationLogicalFunction VarPop KEY Var_Pop HEADER "Operators/Windows/Aggregations/VarianceAggregationLogicalFunction.hpp")
+add_registry_entry(AggregationLogicalFunction VarSamp KEY Var_Samp HEADER "Operators/Windows/Aggregations/VarianceAggregationLogicalFunction.hpp")

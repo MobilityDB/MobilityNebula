@@ -6,10 +6,6 @@
   </picture>
   <br />
   <!-- Badges -->
-  <a href="https://github.com/nebulastream/nebulastream-public/actions/workflows/nightly.yml">
-    <img src="https://github.com/nebulastream/nebulastream-public/actions/workflows/nightly.yml/badge.svg"
-         alt="NES Nightly" />
-  </a>
   <a href="https://bench.nebula.stream/c-benchmarks/">
     <img src="https://img.shields.io/badge/Benchmark-Conbench-blue?labelColor=3D444C"
          alt="Conbench" />
@@ -156,7 +152,7 @@ For further information about our frontends, check out the [Frontend Reference](
 - Developer workflows and environment setup: [Development environment](docs/development/development.md), [Run workflows locally](docs/development/running_workflows_locally.md), [Packaging Docker images](docs/development/packaging_docker_images.md)
 - Implementation guides: [Add a source](docs/guide/how_to_add_a_source.md), [Add a sink](docs/guide/how_to_add_a_sink.md), [Add a function](docs/guide/how_to_add_a_function.md), [Add a placement strategy](docs/guide/how_to_add_a_placement_strategy.md)
 - Technical deep dives: [Dependency architecture](docs/technical/dependency.md), [Query engine task queue](docs/technical/QueryEngine_TaskQueue.md), [Watermarking trigger details](docs/technical/watermarking_progress_window_triggering.md)
-- Organizational guidelines and processes: [Meetings overview](docs/organizational/meetings.md), [Nightly CI process](docs/organizational/processes/nightly_ci.md)
+- Organizational guidelines and processes: [Meetings overview](docs/organizational/meetings.md)
 
 ## Contributing & Quality
 - Follow the [development guide](docs/development/development.md) for environment setup and tooling expectations.
@@ -164,7 +160,6 @@ For further information about our frontends, check out the [Frontend Reference](
 - Review the Git workflow aids in [Useful git commands](docs/git/useful_commands.md), [PR checklist](docs/git/checklist_pr.md), and IDE tips in [CLion tricks](docs/git/clion_tricks.md).
 - Before working on an issue or opening a pull request, ask a maintainer to assign the issue to you. Otherwise, we will have to close the pull request.
 - Before opening a pull request, verify that the project completes a clean configure and build and that all unit and system tests pass.
-- Describe your pull request using our [pull request template](.github/PULL_REQUEST_TEMPLATE.md).
 - External contributors should work from personal forks and open pull requests referencing their forked branches; direct pushes to this repository are reserved for maintainers.
 - Adhere to our [Code of Conduct](CODE_OF_CONDUCT.md).
 

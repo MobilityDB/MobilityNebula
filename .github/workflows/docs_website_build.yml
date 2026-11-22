@@ -2,8 +2,8 @@ name: Build Documentation Website
 description: |
   Builds the NebulaStream documentation website (docs/website). Called with
   should_publish: false to validate the build, should_publish: true to also publish it.
-  Callers decide whether the site is worth building: pr.yml's classify gate already runs
-  this only for documentation changes, and pr-merge.yml publishes every merge to main.
+  Callers decide whether the site is worth building: pr.yml's classify gate runs this
+  only for documentation changes.
 
 on:
   workflow_call:

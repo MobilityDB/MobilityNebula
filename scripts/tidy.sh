@@ -114,8 +114,7 @@ else
     # Diff base: default to all uncommitted changes since the last commit (`git diff HEAD`).
     NES_TIDY_DIFF_BASE="${NES_TIDY_DIFF_BASE:-HEAD}"
 
-    # Path exclusions mirror the CI invocation (.github/workflows/clang_tidy_diff.yml):
-    # generated/vendored sources are not ours to lint. Rust files do not match
+    # Path exclusions: generated/vendored sources are not ours to lint. Rust files do not match
     # clang-tidy-diff's C/C++ extensions and need no per-crate exclusions.
     EXCLUDES=(':!*.inc' ':!vcpkg/**')
 

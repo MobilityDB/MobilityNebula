@@ -23,6 +23,7 @@ add_source_files(nes-physical-operators
         MedianAggregationPhysicalFunction.cpp
         SessionBoundsAggregationPhysicalFunction.cpp
         SumAggregationPhysicalFunction.cpp
+        VarianceAggregationPhysicalFunction.cpp
 )
 
 add_registry_entry(AggregationPhysicalFunction Array KEY Array_Agg)
@@ -33,3 +34,5 @@ add_registry_entry(AggregationPhysicalFunction Max)
 add_registry_entry(AggregationPhysicalFunction Median)
 add_registry_entry(AggregationPhysicalFunction Min)
 add_registry_entry(AggregationPhysicalFunction Sum)
+add_registry_entry(AggregationPhysicalFunction VarPop KEY Var_Pop HEADER "Aggregation/Function/VarianceAggregationPhysicalFunction.hpp")
+add_registry_entry(AggregationPhysicalFunction VarSamp KEY Var_Samp HEADER "Aggregation/Function/VarianceAggregationPhysicalFunction.hpp")

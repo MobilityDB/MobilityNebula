@@ -1,0 +1,73 @@
+name: Refresh the MEOS plugin from MobilityDB master
+
+# Keeps the committed MEOS plugin (nes-plugins/MEOS) tracking MobilityDB/MobilityDB master, as
+# MobilityDuck's and PyMEOS-CFFI's workflows of the same name keep their generated surfaces.
+#
+# The plugin is generated from the MEOS catalog, and the build makes libmeos of the MobilityDB commit
+# nes-plugins/MEOS/MEOS_COMMIT names. The generator writes MEOS_COMMIT itself, from the sourceCommit
+# the catalog stamps, so the regenerated plugin and the commit of the libmeos it calls always move
+# together, in one pull request. On a schedule (and on demand) this derives the catalog at master
+# from the headers libmeos installs, as the Generators job of pr_code.yml derives it at MEOS_COMMIT,
+# checks the generator tables against it, regenerates the plugin, and opens a pull request only when
+# something drifted (peter-evans/create-pull-request no-ops on a clean tree). The pull request is then
+# built and tested like any other change.
+
+on:
+  schedule:
+    # Daily; a refresh pull request carries every change master made since the last one.
+    - cron: '41 6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: meos-surface-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Derive the MEOS catalog at master
+        id: meos
+        uses: MobilityDB/MEOS-API/.github/actions/provision-meos@master
+        with:
+          mobilitydb-ref: master
+          build-libmeos: "true"
+
+      - name: Check the generator tables against the catalog
+        run: python3 tools/codegen/check_no_hand_meos_facts.py "${{ steps.meos.outputs.catalog-path }}"
+
+      - name: Regenerate the MEOS plugin
+        run: |
+          python3 tools/codegen/codegen_nebula_sql.py \
+            --catalog "${{ steps.meos.outputs.catalog-path }}" \
+            --output-root .
+          git diff --stat -- nes-plugins/MEOS
+
+      # A pull request opened with the default GITHUB_TOKEN starts no workflow run, so its build and
+      # tests would have to be started by hand; the MEOS_AUTOBUMP_TOKEN secret, a token of a user, makes
+      # the pull request run its CI, as it does for MobilityDuck and PyMEOS-CFFI.
+      - name: Open a refresh pull request if the plugin drifted
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.MEOS_AUTOBUMP_TOKEN || secrets.GITHUB_TOKEN }}
+          branch: tooling/refresh-meos-plugin
+          base: main
+          add-paths: |
+            nes-plugins/MEOS
+          commit-message: "Advance the MEOS commit and regenerate the MEOS plugin"
+          title: "Advance the MEOS commit and regenerate the MEOS plugin"
+          body: |
+            The committed MEOS plugin drifted from a fresh derivation of the MEOS catalog at
+            MobilityDB/MobilityDB master; this regenerates `nes-plugins/MEOS`, whose `MEOS_COMMIT` the
+            generator moves to the commit the catalog is derived from, so the plugin and the libmeos it
+            calls stay one commit.
+
+            Opened by the `Refresh the MEOS plugin from MobilityDB master` workflow.
+          delete-branch: true

@@ -36,7 +36,9 @@ BUILD_DIR="${BUILD_DIR:-cmake-build-local}"
 JOBS="${JOBS:-$(nproc)}"
 
 # libmeos of the MobilityDB commit the plugin is generated from, built in the devShell once per
-# commit, as CI's "libmeos of MEOS_COMMIT" step builds it.
+# commit, as CI's "libmeos of MEOS_COMMIT" step builds it: over the one H3 release the commit
+# requires, built from its tag by the commit's own .github/scripts/install-h3.sh into the prefix of
+# libmeos, never the devShell's package.
 MEOS_ROOT="${NES_MEOS_ROOT:-}"
 if [ -z "$MEOS_ROOT" ]; then
   sha=$(cat nes-plugins/MEOS/MEOS_COMMIT)
@@ -48,8 +50,10 @@ if [ -z "$MEOS_ROOT" ]; then
     git init -q "$src"
     git -C "$src" fetch -q --depth 1 https://github.com/MobilityDB/MobilityDB.git "$sha"
     git -C "$src" checkout -q FETCH_HEAD
+    ./.nix/nix-run.sh "$src/.github/scripts/install-h3.sh" "$MEOS_ROOT" -DCMAKE_INSTALL_LIBDIR=lib
     ./.nix/nix-run.sh cmake -S "$src" -B "$src-build" -G Ninja \
-      -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$MEOS_ROOT"
+      -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$MEOS_ROOT" \
+      -DH3_LIBRARY="$MEOS_ROOT/lib/libh3.so" -DH3_INCLUDE_DIR="$MEOS_ROOT/include/h3"
     ./.nix/nix-run.sh cmake --build "$src-build" -j"$JOBS"
     ./.nix/nix-run.sh cmake --install "$src-build"
     rm -rf "$src" "$src-build"

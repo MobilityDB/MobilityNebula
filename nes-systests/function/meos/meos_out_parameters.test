@@ -1,5 +1,5 @@
 # name: MEOS_OutParameters
-# description: MEOS functions answering true and the value written to their out parameter, or false and no value, which a number answers as 0: valueN of a float set, a timestamp set and a geometry set (n from 1, as MEOS counts), valueAtTimestamp of a temporal float and a temporal text (strict, as the SQL signature binds it), xMin and xMinInc of a temporal box, each where it answers and where it answers false (an element past the last, a timestamp after the value, a box without its value dimension). The answers are those of libmeos over the same values (floatset_value_n, tstzset_value_n, geoset_value_n, tfloat_value_at_timestamptz, ttext_value_at_timestamptz, tbox_xmin and tbox_xmin_inc; the geometry written by geo_as_text with 15 digits), in UTC; 2024-01-02 and 2024-01-05 are 1704153600000 and 1704412800000 ms.
+# description: MEOS functions answering true and the value written to their out parameter, or false and no value, answered NULL as in MobilityDB: valueN of a float set, a timestamp set and a geometry set (n from 1, as MEOS counts), valueAtTimestamp of a temporal float and a temporal text (strict, as the SQL signature binds it), xMin and xMinInc of a temporal box, each where it answers and where it answers false (an element past the last, a timestamp after the value, a box without its value dimension). The answers are those of libmeos over the same values (floatset_value_n, tstzset_value_n, geoset_value_n, tfloat_value_at_timestamptz, ttext_value_at_timestamptz, tbox_xmin and tbox_xmin_inc; the geometry written by geo_as_text with 15 digits), in UTC; 2024-01-02 and 2024-01-05 are 1704153600000 and 1704412800000 ms.
 # groups: [Function, MEOS]
 CREATE LOGICAL SOURCE vals(id UINT32, fs VARSIZED, ts VARSIZED, gs VARSIZED, tf VARSIZED, tt VARSIZED, box VARSIZED, timebox VARSIZED, mid UINT64, after UINT64);
 CREATE PHYSICAL SOURCE FOR vals TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
@@ -13,7 +13,7 @@ SELECT id, valueN(floatsetFromText(fs), INT32(2)) AS second, valueN(floatsetFrom
        valueN(tstzsetFromText(ts), INT32(2)) AS time
 FROM vals INTO numbers;
 ----
-1,2.5,0,2,0,1,1,0,1704153600000
+1,2.5,NULL,2.0,NULL,1.0,true,NULL,1704153600000
 
 CREATE SINK written(id UINT32) TYPE File;
 SELECT id FROM vals

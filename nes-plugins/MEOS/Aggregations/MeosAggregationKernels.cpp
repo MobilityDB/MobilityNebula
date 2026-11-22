@@ -92,7 +92,7 @@ struct MeosAggregate_setUnionAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -147,7 +147,7 @@ struct MeosAggregate_setUnionAgg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -202,7 +202,7 @@ struct MeosAggregate_extent_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -257,7 +257,7 @@ struct MeosAggregate_tCount_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -319,7 +319,7 @@ struct MeosAggregate_wCount_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -374,7 +374,7 @@ struct MeosAggregate_mergeAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -429,7 +429,7 @@ struct MeosAggregate_appendInstantAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -485,7 +485,7 @@ struct MeosAggregate_appendInstantAgg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -551,7 +551,7 @@ struct MeosAggregate_appendInstantAgg_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -606,7 +606,7 @@ struct MeosAggregate_appendSequenceAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -661,7 +661,7 @@ struct MeosAggregate_setUnionAgg_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -716,7 +716,7 @@ struct MeosAggregate_setUnionAgg_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -771,7 +771,7 @@ struct MeosAggregate_setUnionAgg_4Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -826,7 +826,7 @@ struct MeosAggregate_setUnionAgg_5Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -881,7 +881,7 @@ struct MeosAggregate_extent_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -936,7 +936,7 @@ struct MeosAggregate_extent_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -991,7 +991,7 @@ struct MeosAggregate_extent_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -1046,7 +1046,7 @@ struct MeosAggregate_tCount_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1101,7 +1101,7 @@ struct MeosAggregate_tCount_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1163,7 +1163,7 @@ struct MeosAggregate_wCount_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1225,7 +1225,7 @@ struct MeosAggregate_wCount_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1280,7 +1280,7 @@ struct MeosAggregate_mergeAgg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1335,7 +1335,7 @@ struct MeosAggregate_mergeAgg_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1390,7 +1390,7 @@ struct MeosAggregate_appendInstantAgg_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1446,7 +1446,7 @@ struct MeosAggregate_appendInstantAgg_4Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1512,7 +1512,7 @@ struct MeosAggregate_appendInstantAgg_5Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1567,7 +1567,7 @@ struct MeosAggregate_appendInstantAgg_6Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1623,7 +1623,7 @@ struct MeosAggregate_appendInstantAgg_7Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1689,7 +1689,7 @@ struct MeosAggregate_appendInstantAgg_8Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1744,7 +1744,7 @@ struct MeosAggregate_appendSequenceAgg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1799,7 +1799,7 @@ struct MeosAggregate_appendSequenceAgg_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -1854,7 +1854,7 @@ struct MeosAggregate_extent_4Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -1909,7 +1909,7 @@ struct MeosAggregate_extent_5Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -1964,7 +1964,7 @@ struct MeosAggregate_tCount_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2019,7 +2019,7 @@ struct MeosAggregate_tCount_4Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2081,7 +2081,7 @@ struct MeosAggregate_wCount_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2143,7 +2143,7 @@ struct MeosAggregate_wCount_4Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2198,7 +2198,7 @@ struct MeosAggregate_tCentroid_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2253,7 +2253,7 @@ struct MeosAggregate_mergeAgg_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2308,7 +2308,7 @@ struct MeosAggregate_mergeAgg_4Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2363,7 +2363,7 @@ struct MeosAggregate_appendInstantAgg_9Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2419,7 +2419,7 @@ struct MeosAggregate_appendInstantAgg_10Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2485,7 +2485,7 @@ struct MeosAggregate_appendInstantAgg_11Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2540,7 +2540,7 @@ struct MeosAggregate_appendInstantAgg_12Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2596,7 +2596,7 @@ struct MeosAggregate_appendInstantAgg_13Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2662,7 +2662,7 @@ struct MeosAggregate_appendInstantAgg_14Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2717,7 +2717,7 @@ struct MeosAggregate_appendSequenceAgg_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2772,7 +2772,7 @@ struct MeosAggregate_appendSequenceAgg_4Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2828,7 +2828,7 @@ struct MeosAggregate_reachabilityFilterAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2884,7 +2884,7 @@ struct MeosAggregate_reachabilityFilterAgg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -2940,7 +2940,7 @@ struct MeosAggregate_setUnionAgg_6Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -2995,7 +2995,7 @@ struct MeosAggregate_setUnionAgg_7Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -3050,7 +3050,7 @@ struct MeosAggregate_extent_6Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -3105,7 +3105,7 @@ struct MeosAggregate_tCount_5Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3167,7 +3167,7 @@ struct MeosAggregate_wCount_5Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3222,7 +3222,7 @@ struct MeosAggregate_mergeAgg_5Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3277,7 +3277,7 @@ struct MeosAggregate_appendInstantAgg_15Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3333,7 +3333,7 @@ struct MeosAggregate_appendInstantAgg_16Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3397,7 +3397,7 @@ struct MeosAggregate_appendInstantAgg_17Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3452,7 +3452,7 @@ struct MeosAggregate_appendSequenceAgg_5Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3507,7 +3507,7 @@ struct MeosAggregate_setUnionAgg_8Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -3562,7 +3562,7 @@ struct MeosAggregate_setUnionAgg_9Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -3617,7 +3617,7 @@ struct MeosAggregate_extent_7Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -3672,7 +3672,7 @@ struct MeosAggregate_tCount_6Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3734,7 +3734,7 @@ struct MeosAggregate_wCount_6Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3789,7 +3789,7 @@ struct MeosAggregate_mergeAgg_6Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3844,7 +3844,7 @@ struct MeosAggregate_appendInstantAgg_18Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3900,7 +3900,7 @@ struct MeosAggregate_appendInstantAgg_19Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -3964,7 +3964,7 @@ struct MeosAggregate_appendInstantAgg_20Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -4019,7 +4019,7 @@ struct MeosAggregate_appendSequenceAgg_6Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -4074,7 +4074,7 @@ struct MeosAggregate_setUnionAgg_10Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -4129,7 +4129,7 @@ struct MeosAggregate_setUnionAgg_11Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -4184,7 +4184,7 @@ struct MeosAggregate_extent_8Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -4239,7 +4239,7 @@ struct MeosAggregate_tCount_7Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -4301,7 +4301,7 @@ struct MeosAggregate_wCount_7Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -4356,7 +4356,7 @@ struct MeosAggregate_tCentroid_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -4411,7 +4411,7 @@ struct MeosAggregate_mergeAgg_7Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -4466,7 +4466,7 @@ struct MeosAggregate_appendInstantAgg_21Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -4522,7 +4522,7 @@ struct MeosAggregate_appendInstantAgg_22Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -4588,7 +4588,7 @@ struct MeosAggregate_appendInstantAgg_23Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -4643,7 +4643,7 @@ struct MeosAggregate_appendSequenceAgg_7Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -4698,7 +4698,7 @@ struct MeosAggregate_setUnionAgg_12Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -4753,7 +4753,7 @@ struct MeosAggregate_setUnionAgg_13Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -4808,7 +4808,7 @@ struct MeosAggregate_setUnionAgg_14Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -4863,7 +4863,7 @@ struct MeosAggregate_setUnionAgg_15Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -4918,7 +4918,7 @@ struct MeosAggregate_extent_9Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{88});
     }
@@ -4973,7 +4973,7 @@ struct MeosAggregate_extent_10Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{88});
     }
@@ -5028,7 +5028,7 @@ struct MeosAggregate_extent_11Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{88});
     }
@@ -5083,7 +5083,7 @@ struct MeosAggregate_tCount_8Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5138,7 +5138,7 @@ struct MeosAggregate_tCount_9Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5193,7 +5193,7 @@ struct MeosAggregate_tnpoints_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5248,7 +5248,7 @@ struct MeosAggregate_tdensity_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5310,7 +5310,7 @@ struct MeosAggregate_wCount_8Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5372,7 +5372,7 @@ struct MeosAggregate_wCount_9Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5427,7 +5427,7 @@ struct MeosAggregate_mergeAgg_8Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5482,7 +5482,7 @@ struct MeosAggregate_mergeAgg_9Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5537,7 +5537,7 @@ struct MeosAggregate_appendInstantAgg_24Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5593,7 +5593,7 @@ struct MeosAggregate_appendInstantAgg_25Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5657,7 +5657,7 @@ struct MeosAggregate_appendInstantAgg_26Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5712,7 +5712,7 @@ struct MeosAggregate_appendInstantAgg_27Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5768,7 +5768,7 @@ struct MeosAggregate_appendInstantAgg_28Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5832,7 +5832,7 @@ struct MeosAggregate_appendInstantAgg_29Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5887,7 +5887,7 @@ struct MeosAggregate_appendSequenceAgg_8Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5942,7 +5942,7 @@ struct MeosAggregate_appendSequenceAgg_9Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -5997,7 +5997,7 @@ struct MeosAggregate_setUnionAgg_16Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -6052,7 +6052,7 @@ struct MeosAggregate_setUnionAgg_17Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -6107,7 +6107,7 @@ struct MeosAggregate_tCount_10Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -6162,7 +6162,7 @@ struct MeosAggregate_extent_12Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -6224,7 +6224,7 @@ struct MeosAggregate_wCount_10Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -6279,7 +6279,7 @@ struct MeosAggregate_mergeAgg_10Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -6334,7 +6334,7 @@ struct MeosAggregate_appendInstantAgg_30Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -6390,7 +6390,7 @@ struct MeosAggregate_appendInstantAgg_31Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -6456,7 +6456,7 @@ struct MeosAggregate_appendInstantAgg_32Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -6511,7 +6511,7 @@ struct MeosAggregate_appendSequenceAgg_10Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -6566,7 +6566,7 @@ struct MeosAggregate_setUnionAgg_18Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -6621,7 +6621,7 @@ struct MeosAggregate_setUnionAgg_19Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -6676,7 +6676,7 @@ struct MeosAggregate_tCount_11Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -6731,7 +6731,7 @@ struct MeosAggregate_extent_13Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -6793,7 +6793,7 @@ struct MeosAggregate_wCount_11Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -6848,7 +6848,7 @@ struct MeosAggregate_mergeAgg_11Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -6903,7 +6903,7 @@ struct MeosAggregate_appendInstantAgg_33Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -6959,7 +6959,7 @@ struct MeosAggregate_appendInstantAgg_34Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -7023,7 +7023,7 @@ struct MeosAggregate_appendInstantAgg_35Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -7089,7 +7089,7 @@ struct MeosAggregate_appendInstantAgg_36Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -7144,7 +7144,7 @@ struct MeosAggregate_appendSequenceAgg_11Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -7200,7 +7200,7 @@ struct MeosAggregate_setUnionAgg_20Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -7255,7 +7255,7 @@ struct MeosAggregate_setUnionAgg_21Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -7310,7 +7310,7 @@ struct MeosAggregate_extent_14Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -7365,7 +7365,7 @@ struct MeosAggregate_tCount_12Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -7427,7 +7427,7 @@ struct MeosAggregate_wCount_12Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -7482,7 +7482,7 @@ struct MeosAggregate_mergeAgg_12Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -7537,7 +7537,7 @@ struct MeosAggregate_appendInstantAgg_37Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -7593,7 +7593,7 @@ struct MeosAggregate_appendInstantAgg_38Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -7657,7 +7657,7 @@ struct MeosAggregate_appendInstantAgg_39Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -7712,7 +7712,7 @@ struct MeosAggregate_appendSequenceAgg_12Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -7767,7 +7767,7 @@ struct MeosAggregate_rasterUnion_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(raster_mem_size(static_cast<const struct Raster*>(static_cast<const void*>(r)))));
     }
@@ -7823,7 +7823,7 @@ struct MeosAggregate_rasterUnion_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(raster_mem_size(static_cast<const struct Raster*>(static_cast<const void*>(r)))));
     }
@@ -7880,7 +7880,7 @@ struct MeosAggregate_rasterUnion_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(raster_mem_size(static_cast<const struct Raster*>(static_cast<const void*>(r)))));
     }
@@ -7939,7 +7939,7 @@ struct MeosAggregate_rasterUnion_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(raster_mem_size(static_cast<const struct Raster*>(static_cast<const void*>(r)))));
     }
@@ -7997,7 +7997,7 @@ struct MeosAggregate_summaryStatsAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{48});
     }
@@ -8053,7 +8053,7 @@ struct MeosAggregate_summaryStatsAgg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{48});
     }
@@ -8108,7 +8108,7 @@ struct MeosAggregate_tCount_13Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -8170,7 +8170,7 @@ struct MeosAggregate_wCount_13Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -8225,7 +8225,7 @@ struct MeosAggregate_mergeAgg_13Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -8280,7 +8280,7 @@ struct MeosAggregate_appendInstantAgg_40Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -8336,7 +8336,7 @@ struct MeosAggregate_appendInstantAgg_41Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -8402,7 +8402,7 @@ struct MeosAggregate_appendInstantAgg_42Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -8457,7 +8457,7 @@ struct MeosAggregate_appendSequenceAgg_13Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -8512,7 +8512,7 @@ struct MeosAggregate_extent_15Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -8568,7 +8568,7 @@ struct MeosAggregate_setUnionAgg_22Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -8623,7 +8623,7 @@ struct MeosAggregate_setUnionAgg_23Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -8678,7 +8678,7 @@ struct MeosAggregate_extent_16Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{80});
     }
@@ -8733,7 +8733,7 @@ struct MeosAggregate_tCount_14Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -8795,7 +8795,7 @@ struct MeosAggregate_wCount_14Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -8850,7 +8850,7 @@ struct MeosAggregate_mergeAgg_14Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -8905,7 +8905,7 @@ struct MeosAggregate_appendInstantAgg_43Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -8961,7 +8961,7 @@ struct MeosAggregate_appendInstantAgg_44Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -9025,7 +9025,7 @@ struct MeosAggregate_appendInstantAgg_45Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -9080,7 +9080,7 @@ struct MeosAggregate_appendSequenceAgg_14Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -9131,7 +9131,7 @@ struct MeosAggregate_setUnionAgg_24Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -9182,7 +9182,7 @@ struct MeosAggregate_setUnionAgg_25Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -9233,7 +9233,7 @@ struct MeosAggregate_setUnionAgg_26Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -9284,7 +9284,7 @@ struct MeosAggregate_setUnionAgg_27Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -9335,7 +9335,7 @@ struct MeosAggregate_setUnionAgg_28Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -9390,7 +9390,7 @@ struct MeosAggregate_setUnionAgg_29Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -9445,7 +9445,7 @@ struct MeosAggregate_setUnionAgg_30Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -9500,7 +9500,7 @@ struct MeosAggregate_setUnionAgg_31Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -9555,7 +9555,7 @@ struct MeosAggregate_setUnionAgg_32Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -9610,7 +9610,7 @@ struct MeosAggregate_setUnionAgg_33Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -9665,7 +9665,7 @@ struct MeosAggregate_setUnionAgg_34Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
     }
@@ -9720,7 +9720,7 @@ struct MeosAggregate_extent_17Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -9775,7 +9775,7 @@ struct MeosAggregate_extent_18Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -9830,7 +9830,7 @@ struct MeosAggregate_extent_19Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -9885,7 +9885,7 @@ struct MeosAggregate_extent_20Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -9940,7 +9940,7 @@ struct MeosAggregate_extent_21Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -9991,7 +9991,7 @@ struct MeosAggregate_extent_22Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10042,7 +10042,7 @@ struct MeosAggregate_extent_23Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10093,7 +10093,7 @@ struct MeosAggregate_extent_24Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10144,7 +10144,7 @@ struct MeosAggregate_extent_25Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10199,7 +10199,7 @@ struct MeosAggregate_extent_26Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10254,7 +10254,7 @@ struct MeosAggregate_extent_27Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10309,7 +10309,7 @@ struct MeosAggregate_extent_28Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10364,7 +10364,7 @@ struct MeosAggregate_extent_29Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10419,7 +10419,7 @@ struct MeosAggregate_extent_30Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10474,7 +10474,7 @@ struct MeosAggregate_extent_31Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10529,7 +10529,7 @@ struct MeosAggregate_extent_32Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10584,7 +10584,7 @@ struct MeosAggregate_extent_33Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10639,7 +10639,7 @@ struct MeosAggregate_extent_34Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10694,7 +10694,7 @@ struct MeosAggregate_extent_35Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -10749,7 +10749,7 @@ struct MeosAggregate_spanUnionAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(spanset_mem_size(static_cast<const SpanSet*>(static_cast<const void*>(r)))));
     }
@@ -10804,7 +10804,7 @@ struct MeosAggregate_spanUnionAgg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(spanset_mem_size(static_cast<const SpanSet*>(static_cast<const void*>(r)))));
     }
@@ -10859,7 +10859,7 @@ struct MeosAggregate_spanUnionAgg_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(spanset_mem_size(static_cast<const SpanSet*>(static_cast<const void*>(r)))));
     }
@@ -10914,7 +10914,7 @@ struct MeosAggregate_spanUnionAgg_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(spanset_mem_size(static_cast<const SpanSet*>(static_cast<const void*>(r)))));
     }
@@ -10969,7 +10969,7 @@ struct MeosAggregate_spanUnionAgg_4Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(spanset_mem_size(static_cast<const SpanSet*>(static_cast<const void*>(r)))));
     }
@@ -11024,7 +11024,7 @@ struct MeosAggregate_spansetUnionAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(spanset_mem_size(static_cast<const SpanSet*>(static_cast<const void*>(r)))));
     }
@@ -11079,7 +11079,7 @@ struct MeosAggregate_spansetUnionAgg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(spanset_mem_size(static_cast<const SpanSet*>(static_cast<const void*>(r)))));
     }
@@ -11134,7 +11134,7 @@ struct MeosAggregate_spansetUnionAgg_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(spanset_mem_size(static_cast<const SpanSet*>(static_cast<const void*>(r)))));
     }
@@ -11189,7 +11189,7 @@ struct MeosAggregate_spansetUnionAgg_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(spanset_mem_size(static_cast<const SpanSet*>(static_cast<const void*>(r)))));
     }
@@ -11244,7 +11244,7 @@ struct MeosAggregate_spansetUnionAgg_4Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(spanset_mem_size(static_cast<const SpanSet*>(static_cast<const void*>(r)))));
     }
@@ -11299,7 +11299,7 @@ struct MeosAggregate_extent_36Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{56});
     }
@@ -11354,7 +11354,7 @@ struct MeosAggregate_extent_37Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -11409,7 +11409,7 @@ struct MeosAggregate_extent_38Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{24});
     }
@@ -11464,7 +11464,7 @@ struct MeosAggregate_extent_39Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{56});
     }
@@ -11519,7 +11519,7 @@ struct MeosAggregate_extent_40Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{56});
     }
@@ -11574,7 +11574,7 @@ struct MeosAggregate_extent_41Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, size_t{56});
     }
@@ -11625,7 +11625,7 @@ struct MeosAggregate_tCount_15Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -11680,7 +11680,7 @@ struct MeosAggregate_tCount_16Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -11735,7 +11735,7 @@ struct MeosAggregate_tCount_17Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -11790,7 +11790,7 @@ struct MeosAggregate_tCount_18Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -11845,7 +11845,7 @@ struct MeosAggregate_tCount_19Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -11900,7 +11900,7 @@ struct MeosAggregate_tAndAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -11955,7 +11955,7 @@ struct MeosAggregate_tOrAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12010,7 +12010,7 @@ struct MeosAggregate_tCount_20Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12065,7 +12065,7 @@ struct MeosAggregate_tCount_21Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12120,7 +12120,7 @@ struct MeosAggregate_tMinAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12175,7 +12175,7 @@ struct MeosAggregate_tMaxAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12230,7 +12230,7 @@ struct MeosAggregate_tSum_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12285,7 +12285,7 @@ struct MeosAggregate_tAvg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12340,7 +12340,7 @@ struct MeosAggregate_tMinAgg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12395,7 +12395,7 @@ struct MeosAggregate_tMaxAgg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12450,7 +12450,7 @@ struct MeosAggregate_tSum_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12505,7 +12505,7 @@ struct MeosAggregate_tAvg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12560,7 +12560,7 @@ struct MeosAggregate_tCount_22Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12615,7 +12615,7 @@ struct MeosAggregate_tMinAgg_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12670,7 +12670,7 @@ struct MeosAggregate_tMaxAgg_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12725,7 +12725,7 @@ struct MeosAggregate_tSum_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12780,7 +12780,7 @@ struct MeosAggregate_tAvg_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12835,7 +12835,7 @@ struct MeosAggregate_tCount_23Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12890,7 +12890,7 @@ struct MeosAggregate_tMinAgg_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -12945,7 +12945,7 @@ struct MeosAggregate_tMaxAgg_3Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13000,7 +13000,7 @@ struct MeosAggregate_mergeAgg_15Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13055,7 +13055,7 @@ struct MeosAggregate_mergeAgg_16Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13110,7 +13110,7 @@ struct MeosAggregate_mergeAgg_17Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13165,7 +13165,7 @@ struct MeosAggregate_mergeAgg_18Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13220,7 +13220,7 @@ struct MeosAggregate_mergeAgg_19Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13275,7 +13275,7 @@ struct MeosAggregate_appendInstantAgg_46Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13331,7 +13331,7 @@ struct MeosAggregate_appendInstantAgg_47Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13395,7 +13395,7 @@ struct MeosAggregate_appendInstantAgg_48Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13450,7 +13450,7 @@ struct MeosAggregate_appendInstantAgg_49Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13506,7 +13506,7 @@ struct MeosAggregate_appendInstantAgg_50Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13572,7 +13572,7 @@ struct MeosAggregate_appendInstantAgg_51Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13627,7 +13627,7 @@ struct MeosAggregate_appendInstantAgg_52Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13683,7 +13683,7 @@ struct MeosAggregate_appendInstantAgg_53Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13749,7 +13749,7 @@ struct MeosAggregate_appendInstantAgg_54Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13804,7 +13804,7 @@ struct MeosAggregate_appendInstantAgg_55Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13860,7 +13860,7 @@ struct MeosAggregate_appendInstantAgg_56Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13926,7 +13926,7 @@ struct MeosAggregate_appendInstantAgg_57Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -13981,7 +13981,7 @@ struct MeosAggregate_appendInstantAgg_58Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14037,7 +14037,7 @@ struct MeosAggregate_appendInstantAgg_59Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14101,7 +14101,7 @@ struct MeosAggregate_appendInstantAgg_60Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14156,7 +14156,7 @@ struct MeosAggregate_appendSequenceAgg_15Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14211,7 +14211,7 @@ struct MeosAggregate_appendSequenceAgg_16Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14266,7 +14266,7 @@ struct MeosAggregate_appendSequenceAgg_17Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14321,7 +14321,7 @@ struct MeosAggregate_appendSequenceAgg_18Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14376,7 +14376,7 @@ struct MeosAggregate_appendSequenceAgg_19Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14438,7 +14438,7 @@ struct MeosAggregate_wMin_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14500,7 +14500,7 @@ struct MeosAggregate_wMax_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14562,7 +14562,7 @@ struct MeosAggregate_wSum_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14624,7 +14624,7 @@ struct MeosAggregate_wCount_15Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14686,7 +14686,7 @@ struct MeosAggregate_wAvgAgg_0Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14748,7 +14748,7 @@ struct MeosAggregate_wMin_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14810,7 +14810,7 @@ struct MeosAggregate_wMax_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14872,7 +14872,7 @@ struct MeosAggregate_wSum_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14934,7 +14934,7 @@ struct MeosAggregate_wCount_16Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -14996,7 +14996,7 @@ struct MeosAggregate_wAvgAgg_1Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -15058,7 +15058,7 @@ struct MeosAggregate_wMin_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -15120,7 +15120,7 @@ struct MeosAggregate_wMax_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -15182,7 +15182,7 @@ struct MeosAggregate_wSum_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -15244,7 +15244,7 @@ struct MeosAggregate_wCount_17Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -15306,7 +15306,7 @@ struct MeosAggregate_wAvgAgg_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }
@@ -15362,7 +15362,7 @@ struct MeosAggregate_reachabilityFilterAgg_2Ops
         static_cast<void>(out);
         if (r == nullptr)
         {
-            return MeosRuntime::none();
+            return MeosRuntime::absent();
         }
         return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
     }

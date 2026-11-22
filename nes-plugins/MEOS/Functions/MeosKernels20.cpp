@@ -60,7 +60,9 @@ int8_t* Meos_spatialset_as_ewkt_2_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(15), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -74,7 +76,9 @@ int8_t* Meos_spatialset_as_ewkt_3(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(15), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -88,7 +92,9 @@ int8_t* Meos_spatialset_as_ewkt_4(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -102,7 +108,9 @@ int8_t* Meos_spatialset_as_ewkt_4_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(15), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -116,7 +124,9 @@ int8_t* Meos_spatialset_as_ewkt_5(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(15), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -130,7 +140,9 @@ int8_t* Meos_spatialset_as_ewkt_6(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(15), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -144,7 +156,9 @@ int8_t* Meos_spatialset_as_ewkt_7(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -158,7 +172,9 @@ int8_t* Meos_spatialset_as_ewkt_7_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(15), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -172,7 +188,9 @@ int8_t* Meos_spatialset_as_ewkt_8(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -186,7 +204,9 @@ int8_t* Meos_spatialset_as_ewkt_8_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(15), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -200,7 +220,9 @@ int8_t* Meos_spatialset_as_ewkt_9(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(15), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -214,7 +236,9 @@ int8_t* Meos_spatialset_as_ewkt_10(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_ewkt(static_cast<Set*>(v0.get()), static_cast<int>(15), &length0);
+    MeosRuntime::raised("spatialset_as_ewkt");
     return MeosRuntime::string(r);
 }
 
@@ -229,7 +253,9 @@ int8_t* Meos_spatialset_as_hexewkb_0(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -243,7 +269,9 @@ int8_t* Meos_spatialset_as_hexewkb_0_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -258,7 +286,9 @@ int8_t* Meos_spatialset_as_hexewkb_1(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -272,7 +302,9 @@ int8_t* Meos_spatialset_as_hexewkb_1_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -287,7 +319,9 @@ int8_t* Meos_spatialset_as_hexewkb_2(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -301,7 +335,9 @@ int8_t* Meos_spatialset_as_hexewkb_2_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -316,7 +352,9 @@ int8_t* Meos_spatialset_as_hexewkb_3(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -330,7 +368,9 @@ int8_t* Meos_spatialset_as_hexewkb_3_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -345,7 +385,9 @@ int8_t* Meos_spatialset_as_hexewkb_4(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -359,7 +401,9 @@ int8_t* Meos_spatialset_as_hexewkb_4_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -374,7 +418,9 @@ int8_t* Meos_spatialset_as_hexewkb_5(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -388,7 +434,9 @@ int8_t* Meos_spatialset_as_hexewkb_5_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -403,7 +451,9 @@ int8_t* Meos_spatialset_as_hexewkb_6(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -417,7 +467,9 @@ int8_t* Meos_spatialset_as_hexewkb_6_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -432,7 +484,9 @@ int8_t* Meos_spatialset_as_hexewkb_7(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -446,7 +500,9 @@ int8_t* Meos_spatialset_as_hexewkb_7_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -461,7 +517,9 @@ int8_t* Meos_spatialset_as_hexewkb_8(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -475,7 +533,9 @@ int8_t* Meos_spatialset_as_hexewkb_8_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -490,7 +550,9 @@ int8_t* Meos_spatialset_as_hexewkb_9(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -504,7 +566,9 @@ int8_t* Meos_spatialset_as_hexewkb_9_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -519,7 +583,9 @@ int8_t* Meos_spatialset_as_hexewkb_10(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -533,7 +599,9 @@ int8_t* Meos_spatialset_as_hexewkb_10_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = spatialset_as_hexewkb(static_cast<Set*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("spatialset_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -546,10 +614,12 @@ int8_t* Meos_geoset_make_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geoset_make(static_cast<GSERIALIZED**>(static_cast<void*>(v0.get())), v0.count());
+    MeosRuntime::raised("geoset_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -563,10 +633,12 @@ int8_t* Meos_geoset_make_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geoset_make(static_cast<GSERIALIZED**>(static_cast<void*>(v0.get())), v0.count());
+    MeosRuntime::raised("geoset_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -580,10 +652,12 @@ int8_t* Meos_geo_to_set_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geo_to_set(static_cast<GSERIALIZED*>(v0.get()));
+    MeosRuntime::raised("geo_to_set");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -597,10 +671,12 @@ int8_t* Meos_geo_to_set_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geo_to_set(static_cast<GSERIALIZED*>(v0.get()));
+    MeosRuntime::raised("geo_to_set");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -614,10 +690,12 @@ int8_t* Meos_geoset_to_geo_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geoset_to_geo(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("geoset_to_geo");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
 }
@@ -631,10 +709,12 @@ int8_t* Meos_geoset_to_geo_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geoset_to_geo(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("geoset_to_geo");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
 }
@@ -648,10 +728,12 @@ int8_t* Meos_geomset_to_geogset_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geomset_to_geogset(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("geomset_to_geogset");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -665,10 +747,12 @@ int8_t* Meos_geogset_to_geomset_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geogset_to_geomset(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("geogset_to_geomset");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -682,10 +766,12 @@ int8_t* Meos_geoset_end_value_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geoset_end_value(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("geoset_end_value");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
 }
@@ -699,10 +785,12 @@ int8_t* Meos_geoset_end_value_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geoset_end_value(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("geoset_end_value");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
 }
@@ -716,10 +804,12 @@ int8_t* Meos_geoset_start_value_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geoset_start_value(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("geoset_start_value");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
 }
@@ -733,10 +823,12 @@ int8_t* Meos_geoset_start_value_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geoset_start_value(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("geoset_start_value");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
 }
@@ -751,15 +843,17 @@ int8_t* Meos_geoset_value_n_0(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     GSERIALIZED* value{};
+    meos_errno_reset();
     const bool found = geoset_value_n(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &value);
+    MeosRuntime::raised("geoset_value_n");
     if (!found)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto r = value;
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
 }
@@ -774,15 +868,17 @@ int8_t* Meos_geoset_value_n_1(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     GSERIALIZED* value{};
+    meos_errno_reset();
     const bool found = geoset_value_n(static_cast<Set*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &value);
+    MeosRuntime::raised("geoset_value_n");
     if (!found)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto r = value;
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
 }
@@ -797,7 +893,9 @@ int8_t* Meos_geoset_values_0(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     int length0 = 0;
+    meos_errno_reset();
     auto r = geoset_values(static_cast<Set*>(v0.get()), &length0);
+    MeosRuntime::raised("geoset_values");
     return MeosRuntime::array(reinterpret_cast<void**>(r), static_cast<int>(length0), [](const void* e) { return static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(e))); });
 }
 
@@ -811,7 +909,9 @@ int8_t* Meos_geoset_values_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     int length0 = 0;
+    meos_errno_reset();
     auto r = geoset_values(static_cast<Set*>(v0.get()), &length0);
+    MeosRuntime::raised("geoset_values");
     return MeosRuntime::array(reinterpret_cast<void**>(r), static_cast<int>(length0), [](const void* e) { return static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(e))); });
 }
 
@@ -828,7 +928,9 @@ int8_t* Meos_contained_geo_set_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_geo_set(static_cast<GSERIALIZED*>(v0.get()), static_cast<Set*>(v1.get()));
+    MeosRuntime::raised("contained_geo_set");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -845,7 +947,9 @@ int8_t* Meos_contained_geo_set_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_geo_set(static_cast<GSERIALIZED*>(v0.get()), static_cast<Set*>(v1.get()));
+    MeosRuntime::raised("contained_geo_set");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -862,7 +966,9 @@ int8_t* Meos_contains_set_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    MeosRuntime::raised("contains_set_geo");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -879,7 +985,9 @@ int8_t* Meos_contains_set_geo_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    MeosRuntime::raised("contains_set_geo");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -897,10 +1005,12 @@ int8_t* Meos_intersection_geo_set_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = intersection_geo_set(static_cast<GSERIALIZED*>(v0.get()), static_cast<Set*>(v1.get()));
+    MeosRuntime::raised("intersection_geo_set");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -919,10 +1029,12 @@ int8_t* Meos_intersection_geo_set_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = intersection_geo_set(static_cast<GSERIALIZED*>(v0.get()), static_cast<Set*>(v1.get()));
+    MeosRuntime::raised("intersection_geo_set");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -941,10 +1053,12 @@ int8_t* Meos_intersection_set_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = intersection_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    MeosRuntime::raised("intersection_set_geo");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -963,10 +1077,12 @@ int8_t* Meos_intersection_set_geo_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = intersection_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    MeosRuntime::raised("intersection_set_geo");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -985,10 +1101,12 @@ int8_t* Meos_minus_geo_set_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = minus_geo_set(static_cast<GSERIALIZED*>(v0.get()), static_cast<Set*>(v1.get()));
+    MeosRuntime::raised("minus_geo_set");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1007,10 +1125,12 @@ int8_t* Meos_minus_geo_set_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = minus_geo_set(static_cast<GSERIALIZED*>(v0.get()), static_cast<Set*>(v1.get()));
+    MeosRuntime::raised("minus_geo_set");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1029,10 +1149,12 @@ int8_t* Meos_minus_set_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = minus_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    MeosRuntime::raised("minus_set_geo");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1051,10 +1173,12 @@ int8_t* Meos_minus_set_geo_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = minus_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    MeosRuntime::raised("minus_set_geo");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1073,10 +1197,12 @@ int8_t* Meos_union_geo_set_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = union_geo_set(static_cast<GSERIALIZED*>(v0.get()), static_cast<Set*>(v1.get()));
+    MeosRuntime::raised("union_geo_set");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1095,10 +1221,12 @@ int8_t* Meos_union_geo_set_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = union_geo_set(static_cast<GSERIALIZED*>(v0.get()), static_cast<Set*>(v1.get()));
+    MeosRuntime::raised("union_geo_set");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1117,10 +1245,12 @@ int8_t* Meos_union_set_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = union_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    MeosRuntime::raised("union_set_geo");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1139,10 +1269,12 @@ int8_t* Meos_union_set_geo_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = union_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    MeosRuntime::raised("union_set_geo");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1160,7 +1292,13 @@ int8_t* Meos_distance_geoset_geoset_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = distance_geoset_geoset(static_cast<Set*>(v0.get()), static_cast<Set*>(v1.get()), true);
+    MeosRuntime::raised("distance_geoset_geoset");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -1177,7 +1315,13 @@ int8_t* Meos_distance_geoset_geoset_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = distance_geoset_geoset(static_cast<Set*>(v0.get()), static_cast<Set*>(v1.get()), static_cast<bool>(MeosRuntime::number<bool>(a2)));
+    MeosRuntime::raised("distance_geoset_geoset");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -1194,7 +1338,13 @@ int8_t* Meos_distance_geoset_geoset_1_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = distance_geoset_geoset(static_cast<Set*>(v0.get()), static_cast<Set*>(v1.get()), static_cast<bool>(true));
+    MeosRuntime::raised("distance_geoset_geoset");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -1211,7 +1361,13 @@ int8_t* Meos_distance_set_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = distance_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()), true);
+    MeosRuntime::raised("distance_set_geo");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -1228,7 +1384,13 @@ int8_t* Meos_distance_set_geo_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = distance_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()), static_cast<bool>(MeosRuntime::number<bool>(a2)));
+    MeosRuntime::raised("distance_set_geo");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -1245,7 +1407,13 @@ int8_t* Meos_distance_set_geo_1_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = distance_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()), static_cast<bool>(true));
+    MeosRuntime::raised("distance_set_geo");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -1262,7 +1430,13 @@ int8_t* Meos_distance_set_geo_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = distance_set_geo(static_cast<Set*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()), true);
+    MeosRuntime::raised("distance_set_geo");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -1279,7 +1453,13 @@ int8_t* Meos_distance_set_geo_3(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = distance_set_geo(static_cast<Set*>(v1.get()), static_cast<GSERIALIZED*>(v0.get()), static_cast<bool>(MeosRuntime::number<bool>(a2)));
+    MeosRuntime::raised("distance_set_geo");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -1296,7 +1476,13 @@ int8_t* Meos_distance_set_geo_3_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = distance_set_geo(static_cast<Set*>(v1.get()), static_cast<GSERIALIZED*>(v0.get()), static_cast<bool>(true));
+    MeosRuntime::raised("distance_set_geo");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -1309,10 +1495,12 @@ int8_t* Meos_spatialset_set_srid_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_set_srid(static_cast<Set*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("spatialset_set_srid");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1326,10 +1514,12 @@ int8_t* Meos_spatialset_set_srid_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_set_srid(static_cast<Set*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("spatialset_set_srid");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1343,10 +1533,12 @@ int8_t* Meos_spatialset_set_srid_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_set_srid(static_cast<Set*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("spatialset_set_srid");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1360,10 +1552,12 @@ int8_t* Meos_spatialset_set_srid_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_set_srid(static_cast<Set*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("spatialset_set_srid");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1377,10 +1571,12 @@ int8_t* Meos_spatialset_set_srid_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_set_srid(static_cast<Set*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("spatialset_set_srid");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1393,7 +1589,9 @@ int8_t* Meos_spatialset_srid_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<int32_t>(out, int32_t{});
     }
+    meos_errno_reset();
     auto r = spatialset_srid(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("spatialset_srid");
     return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
 }
 
@@ -1405,7 +1603,9 @@ int8_t* Meos_spatialset_srid_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<int32_t>(out, int32_t{});
     }
+    meos_errno_reset();
     auto r = spatialset_srid(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("spatialset_srid");
     return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
 }
 
@@ -1417,7 +1617,9 @@ int8_t* Meos_spatialset_srid_2(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<int32_t>(out, int32_t{});
     }
+    meos_errno_reset();
     auto r = spatialset_srid(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("spatialset_srid");
     return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
 }
 
@@ -1429,7 +1631,9 @@ int8_t* Meos_spatialset_srid_3(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<int32_t>(out, int32_t{});
     }
+    meos_errno_reset();
     auto r = spatialset_srid(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("spatialset_srid");
     return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
 }
 
@@ -1441,7 +1645,9 @@ int8_t* Meos_spatialset_srid_4(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<int32_t>(out, int32_t{});
     }
+    meos_errno_reset();
     auto r = spatialset_srid(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("spatialset_srid");
     return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
 }
 
@@ -1454,10 +1660,12 @@ int8_t* Meos_spatialset_transform_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_transform(static_cast<Set*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("spatialset_transform");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1471,10 +1679,12 @@ int8_t* Meos_spatialset_transform_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_transform(static_cast<Set*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("spatialset_transform");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1488,10 +1698,12 @@ int8_t* Meos_spatialset_transform_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_transform(static_cast<Set*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("spatialset_transform");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1505,10 +1717,12 @@ int8_t* Meos_spatialset_transform_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_transform(static_cast<Set*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("spatialset_transform");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1522,10 +1736,12 @@ int8_t* Meos_spatialset_transform_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_transform(static_cast<Set*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("spatialset_transform");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1540,10 +1756,12 @@ int8_t* Meos_spatialset_transform_pipeline_0(int8_t* a0, int8_t* a1, int8_t* a2,
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(MeosRuntime::number<bool>(a3)));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1558,10 +1776,12 @@ int8_t* Meos_spatialset_transform_pipeline_0_3(int8_t* a0, int8_t* a1, int8_t* a
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(true));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1576,10 +1796,12 @@ int8_t* Meos_spatialset_transform_pipeline_0_2(int8_t* a0, int8_t* a1, int8_t* o
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(0), static_cast<bool>(true));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1594,10 +1816,12 @@ int8_t* Meos_spatialset_transform_pipeline_1(int8_t* a0, int8_t* a1, int8_t* a2,
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(MeosRuntime::number<bool>(a3)));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1612,10 +1836,12 @@ int8_t* Meos_spatialset_transform_pipeline_1_3(int8_t* a0, int8_t* a1, int8_t* a
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(true));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1630,10 +1856,12 @@ int8_t* Meos_spatialset_transform_pipeline_1_2(int8_t* a0, int8_t* a1, int8_t* o
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(0), static_cast<bool>(true));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1648,10 +1876,12 @@ int8_t* Meos_spatialset_transform_pipeline_2(int8_t* a0, int8_t* a1, int8_t* a2,
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(MeosRuntime::number<bool>(a3)));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1666,10 +1896,12 @@ int8_t* Meos_spatialset_transform_pipeline_2_3(int8_t* a0, int8_t* a1, int8_t* a
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(true));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1684,10 +1916,12 @@ int8_t* Meos_spatialset_transform_pipeline_2_2(int8_t* a0, int8_t* a1, int8_t* o
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(0), static_cast<bool>(true));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1702,10 +1936,12 @@ int8_t* Meos_spatialset_transform_pipeline_3(int8_t* a0, int8_t* a1, int8_t* a2,
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(MeosRuntime::number<bool>(a3)));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1720,10 +1956,12 @@ int8_t* Meos_spatialset_transform_pipeline_3_3(int8_t* a0, int8_t* a1, int8_t* a
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(true));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1738,10 +1976,12 @@ int8_t* Meos_spatialset_transform_pipeline_3_2(int8_t* a0, int8_t* a1, int8_t* o
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(0), static_cast<bool>(true));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1756,10 +1996,12 @@ int8_t* Meos_spatialset_transform_pipeline_4(int8_t* a0, int8_t* a1, int8_t* a2,
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(MeosRuntime::number<bool>(a3)));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1774,10 +2016,12 @@ int8_t* Meos_spatialset_transform_pipeline_4_3(int8_t* a0, int8_t* a1, int8_t* a
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(true));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1792,10 +2036,12 @@ int8_t* Meos_spatialset_transform_pipeline_4_2(int8_t* a0, int8_t* a1, int8_t* o
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = spatialset_transform_pipeline(static_cast<Set*>(v0.get()), s1.c_str(), static_cast<int32_t>(0), static_cast<bool>(true));
+    MeosRuntime::raised("spatialset_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
@@ -1811,10 +2057,12 @@ int8_t* Meos_stbox_as_ewkb_0(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_as_ewkb(static_cast<STBox*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("stbox_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -1831,10 +2079,12 @@ int8_t* Meos_stbox_as_ewkb_0_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_as_ewkb(static_cast<STBox*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("stbox_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -1852,7 +2102,9 @@ int8_t* Meos_stbox_as_hexewkb_0(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_as_hexewkb(static_cast<STBox*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("stbox_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -1866,7 +2118,9 @@ int8_t* Meos_stbox_as_hexewkb_0_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_as_hexewkb(static_cast<STBox*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("stbox_as_hexewkb");
     return MeosRuntime::string(r);
 }
 
@@ -1881,7 +2135,9 @@ int8_t* Meos_stbox_as_hexwkb_0(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_as_hexwkb(static_cast<STBox*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("stbox_as_hexwkb");
     return MeosRuntime::string(r);
 }
 
@@ -1895,7 +2151,9 @@ int8_t* Meos_stbox_as_hexwkb_0_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_as_hexwkb(static_cast<STBox*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("stbox_as_hexwkb");
     return MeosRuntime::string(r);
 }
 
@@ -1909,7 +2167,9 @@ int8_t* Meos_stbox_as_text_0(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_as_text(static_cast<STBox*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
+    MeosRuntime::raised("stbox_as_text");
     return MeosRuntime::string(r);
 }
 
@@ -1923,7 +2183,9 @@ int8_t* Meos_stbox_as_text_0_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_as_text(static_cast<STBox*>(v0.get()), static_cast<int>(15), &length0);
+    MeosRuntime::raised("stbox_as_text");
     return MeosRuntime::string(r);
 }
 
@@ -1938,10 +2200,12 @@ int8_t* Meos_stbox_as_wkb_1(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_as_wkb(static_cast<STBox*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("stbox_as_wkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -1958,10 +2222,12 @@ int8_t* Meos_stbox_as_wkb_1_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_as_wkb(static_cast<STBox*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("stbox_as_wkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -1973,10 +2239,12 @@ int8_t* Meos_stbox_from_hexwkb_0(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = stbox_from_hexwkb(s0.c_str());
+    MeosRuntime::raised("stbox_from_hexwkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -1986,10 +2254,12 @@ int8_t* Meos_stbox_from_hexwkb_1(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = stbox_from_hexwkb(s0.c_str());
+    MeosRuntime::raised("stbox_from_hexwkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2003,10 +2273,12 @@ int8_t* Meos_stbox_from_wkb_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_from_wkb(v0.bytes(), v0.size());
+    MeosRuntime::raised("stbox_from_wkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2020,10 +2292,12 @@ int8_t* Meos_stbox_from_wkb_2(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_from_wkb(v0.bytes(), v0.size());
+    MeosRuntime::raised("stbox_from_wkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2033,10 +2307,12 @@ int8_t* Meos_stbox_in_1(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = stbox_in(s0.c_str());
+    MeosRuntime::raised("stbox_in");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2046,10 +2322,12 @@ int8_t* Meos_stbox_in_2(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = stbox_in(s0.c_str());
+    MeosRuntime::raised("stbox_in");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2064,7 +2342,9 @@ int8_t* Meos_stbox_out_1(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_out(static_cast<STBox*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
+    MeosRuntime::raised("stbox_out");
     return MeosRuntime::string(r);
 }
 
@@ -2078,7 +2358,9 @@ int8_t* Meos_stbox_out_1_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = stbox_out(static_cast<STBox*>(v0.get()), static_cast<int>(15), &length0);
+    MeosRuntime::raised("stbox_out");
     return MeosRuntime::string(r);
 }
 
@@ -2091,10 +2373,12 @@ int8_t* Meos_geo_timestamptz_to_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geo_timestamptz_to_stbox(static_cast<GSERIALIZED*>(v0.get()), MeosRuntime::timestamptz(MeosRuntime::number<uint64_t>(a1)));
+    MeosRuntime::raised("geo_timestamptz_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2108,10 +2392,12 @@ int8_t* Meos_geo_timestamptz_to_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geo_timestamptz_to_stbox(static_cast<GSERIALIZED*>(v0.get()), MeosRuntime::timestamptz(MeosRuntime::number<uint64_t>(a1)));
+    MeosRuntime::raised("geo_timestamptz_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2130,10 +2416,12 @@ int8_t* Meos_geo_tstzspan_to_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geo_tstzspan_to_stbox(static_cast<GSERIALIZED*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("geo_tstzspan_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2152,10 +2440,12 @@ int8_t* Meos_geo_tstzspan_to_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geo_tstzspan_to_stbox(static_cast<GSERIALIZED*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("geo_tstzspan_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2164,10 +2454,12 @@ int8_t* Meos_stbox_make_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
+    meos_errno_reset();
     auto r = stbox_make(true, false, false, static_cast<int32_t>(MeosRuntime::number<int32_t>(a4)), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a3)), 0.0, 0.0, nullptr);
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2176,10 +2468,12 @@ int8_t* Meos_stbox_make_0_4(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
+    meos_errno_reset();
     auto r = stbox_make(true, false, false, static_cast<int32_t>(0), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a3)), 0.0, 0.0, nullptr);
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2188,10 +2482,12 @@ int8_t* Meos_stbox_make_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
+    meos_errno_reset();
     auto r = stbox_make(true, true, false, static_cast<int32_t>(MeosRuntime::number<int32_t>(a6)), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a3)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a4)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a5)), nullptr);
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2200,10 +2496,12 @@ int8_t* Meos_stbox_make_1_6(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
+    meos_errno_reset();
     auto r = stbox_make(true, true, false, static_cast<int32_t>(0), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a3)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a4)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a5)), nullptr);
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2217,10 +2515,12 @@ int8_t* Meos_stbox_make_2(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_make(false, false, false, static_cast<int32_t>(0), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, static_cast<Span*>(v0.get()));
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2234,10 +2534,12 @@ int8_t* Meos_stbox_make_3(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_make(true, false, false, static_cast<int32_t>(MeosRuntime::number<int32_t>(a5)), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a3)), 0.0, 0.0, static_cast<Span*>(v4.get()));
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2251,10 +2553,12 @@ int8_t* Meos_stbox_make_3_5(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_make(true, false, false, static_cast<int32_t>(0), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a3)), 0.0, 0.0, static_cast<Span*>(v4.get()));
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2268,10 +2572,12 @@ int8_t* Meos_stbox_make_4(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_make(true, true, false, static_cast<int32_t>(MeosRuntime::number<int32_t>(a7)), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a3)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a4)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a5)), static_cast<Span*>(v6.get()));
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2285,10 +2591,12 @@ int8_t* Meos_stbox_make_4_7(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_make(true, true, false, static_cast<int32_t>(0), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a3)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a4)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a5)), static_cast<Span*>(v6.get()));
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2297,10 +2605,12 @@ int8_t* Meos_stbox_make_5(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
+    meos_errno_reset();
     auto r = stbox_make(true, true, true, static_cast<int32_t>(MeosRuntime::number<int32_t>(a6)), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a3)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a4)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a5)), nullptr);
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2309,10 +2619,12 @@ int8_t* Meos_stbox_make_5_6(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
+    meos_errno_reset();
     auto r = stbox_make(true, true, true, static_cast<int32_t>(4326), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a3)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a4)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a5)), nullptr);
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2326,10 +2638,12 @@ int8_t* Meos_stbox_make_6(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_make(true, true, true, static_cast<int32_t>(MeosRuntime::number<int32_t>(a7)), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a3)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a4)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a5)), static_cast<Span*>(v6.get()));
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2343,10 +2657,12 @@ int8_t* Meos_stbox_make_6_7(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_make(true, true, true, static_cast<int32_t>(4326), static_cast<double>(MeosRuntime::number<double>(a0)), static_cast<double>(MeosRuntime::number<double>(a3)), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a4)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a5)), static_cast<Span*>(v6.get()));
+    MeosRuntime::raised("stbox_make");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2360,10 +2676,12 @@ int8_t* Meos_geo_to_stbox_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geo_to_stbox(static_cast<GSERIALIZED*>(v0.get()));
+    MeosRuntime::raised("geo_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2377,10 +2695,12 @@ int8_t* Meos_geo_to_stbox_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = geo_to_stbox(static_cast<GSERIALIZED*>(v0.get()));
+    MeosRuntime::raised("geo_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2394,10 +2714,12 @@ int8_t* Meos_spatialset_to_stbox_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_to_stbox(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("spatialset_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2411,10 +2733,12 @@ int8_t* Meos_spatialset_to_stbox_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_to_stbox(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("spatialset_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2428,10 +2752,12 @@ int8_t* Meos_spatialset_to_stbox_2(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_to_stbox(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("spatialset_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2445,10 +2771,12 @@ int8_t* Meos_spatialset_to_stbox_3(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_to_stbox(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("spatialset_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2462,10 +2790,12 @@ int8_t* Meos_spatialset_to_stbox_4(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_to_stbox(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("spatialset_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2479,10 +2809,12 @@ int8_t* Meos_spatialset_to_stbox_5(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = spatialset_to_stbox(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("spatialset_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2496,10 +2828,12 @@ int8_t* Meos_stbox_to_box3d_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_to_box3d(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_to_box3d");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     size_t size = 0;
     char* w = box3d_out(r, 15, &size);
@@ -2516,10 +2850,12 @@ int8_t* Meos_stbox_to_gbox_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_to_gbox(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_to_gbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     size_t size = 0;
     char* w = gbox_out(r, 15, &size);
@@ -2536,10 +2872,12 @@ int8_t* Meos_stbox_to_geom_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_to_geom(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_to_geom");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
 }
@@ -2553,10 +2891,12 @@ int8_t* Meos_stbox_to_geog_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_to_geog(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_to_geog");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(geo_mem_size(static_cast<const GSERIALIZED*>(static_cast<const void*>(r)))));
 }
@@ -2570,10 +2910,12 @@ int8_t* Meos_stbox_to_tstzspan_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_to_tstzspan(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_to_tstzspan");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{24});
 }
@@ -2582,10 +2924,12 @@ int8_t* Meos_timestamptz_to_stbox_0(int8_t* a0, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
+    meos_errno_reset();
     auto r = timestamptz_to_stbox(MeosRuntime::timestamptz(MeosRuntime::number<uint64_t>(a0)));
+    MeosRuntime::raised("timestamptz_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2599,10 +2943,12 @@ int8_t* Meos_tstzset_to_stbox_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = tstzset_to_stbox(static_cast<Set*>(v0.get()));
+    MeosRuntime::raised("tstzset_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2616,10 +2962,12 @@ int8_t* Meos_tstzspan_to_stbox_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = tstzspan_to_stbox(static_cast<Span*>(v0.get()));
+    MeosRuntime::raised("tstzspan_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2633,10 +2981,12 @@ int8_t* Meos_tstzspanset_to_stbox_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = tstzspanset_to_stbox(static_cast<SpanSet*>(v0.get()));
+    MeosRuntime::raised("tstzspanset_to_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2649,7 +2999,13 @@ int8_t* Meos_stbox_area_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = stbox_area(static_cast<STBox*>(v0.get()), static_cast<bool>(MeosRuntime::number<bool>(a1)));
+    MeosRuntime::raised("stbox_area");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -2661,7 +3017,13 @@ int8_t* Meos_stbox_area_0_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = stbox_area(static_cast<STBox*>(v0.get()), static_cast<bool>(true));
+    MeosRuntime::raised("stbox_area");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -2673,7 +3035,9 @@ int8_t* Meos_stbox_hash_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<int32_t>(out, int32_t{});
     }
+    meos_errno_reset();
     auto r = stbox_hash(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_hash");
     return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
 }
 
@@ -2685,7 +3049,9 @@ int8_t* Meos_stbox_hash_extended_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<int64_t>(out, int64_t{});
     }
+    meos_errno_reset();
     auto r = stbox_hash_extended(static_cast<STBox*>(v0.get()), static_cast<uint64_t>(MeosRuntime::number<int64_t>(a1)));
+    MeosRuntime::raised("stbox_hash_extended");
     return MeosRuntime::number<int64_t>(out, static_cast<int64_t>(r));
 }
 
@@ -2697,7 +3063,9 @@ int8_t* Meos_stbox_hast_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = stbox_hast(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_hast");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2709,7 +3077,9 @@ int8_t* Meos_stbox_hasx_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = stbox_hasx(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_hasx");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2721,7 +3091,9 @@ int8_t* Meos_stbox_hasz_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = stbox_hasz(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_hasz");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2733,7 +3105,9 @@ int8_t* Meos_stbox_isgeodetic_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = stbox_isgeodetic(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_isgeodetic");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2745,7 +3119,13 @@ int8_t* Meos_stbox_perimeter_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = stbox_perimeter(static_cast<STBox*>(v0.get()), static_cast<bool>(MeosRuntime::number<bool>(a1)));
+    MeosRuntime::raised("stbox_perimeter");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -2757,7 +3137,13 @@ int8_t* Meos_stbox_perimeter_0_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = stbox_perimeter(static_cast<STBox*>(v0.get()), static_cast<bool>(true));
+    MeosRuntime::raised("stbox_perimeter");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -2770,10 +3156,12 @@ int8_t* Meos_stbox_tmax_0(int8_t* a0, int8_t* out)
         return MeosRuntime::number<uint64_t>(out, uint64_t{});
     }
     TimestampTz value{};
+    meos_errno_reset();
     const bool found = stbox_tmax(static_cast<STBox*>(v0.get()), &value);
+    MeosRuntime::raised("stbox_tmax");
     if (!found)
     {
-        return MeosRuntime::number<uint64_t>(out, uint64_t{});
+        return MeosRuntime::absent();
     }
     auto r = value;
     return MeosRuntime::number<uint64_t>(out, MeosRuntime::milliseconds(r));
@@ -2788,10 +3176,12 @@ int8_t* Meos_stbox_tmax_inc_0(int8_t* a0, int8_t* out)
         return MeosRuntime::number<bool>(out, bool{});
     }
     bool value{};
+    meos_errno_reset();
     const bool found = stbox_tmax_inc(static_cast<STBox*>(v0.get()), &value);
+    MeosRuntime::raised("stbox_tmax_inc");
     if (!found)
     {
-        return MeosRuntime::number<bool>(out, bool{});
+        return MeosRuntime::absent();
     }
     auto r = value;
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
@@ -2806,10 +3196,12 @@ int8_t* Meos_stbox_tmin_0(int8_t* a0, int8_t* out)
         return MeosRuntime::number<uint64_t>(out, uint64_t{});
     }
     TimestampTz value{};
+    meos_errno_reset();
     const bool found = stbox_tmin(static_cast<STBox*>(v0.get()), &value);
+    MeosRuntime::raised("stbox_tmin");
     if (!found)
     {
-        return MeosRuntime::number<uint64_t>(out, uint64_t{});
+        return MeosRuntime::absent();
     }
     auto r = value;
     return MeosRuntime::number<uint64_t>(out, MeosRuntime::milliseconds(r));
@@ -2824,10 +3216,12 @@ int8_t* Meos_stbox_tmin_inc_0(int8_t* a0, int8_t* out)
         return MeosRuntime::number<bool>(out, bool{});
     }
     bool value{};
+    meos_errno_reset();
     const bool found = stbox_tmin_inc(static_cast<STBox*>(v0.get()), &value);
+    MeosRuntime::raised("stbox_tmin_inc");
     if (!found)
     {
-        return MeosRuntime::number<bool>(out, bool{});
+        return MeosRuntime::absent();
     }
     auto r = value;
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
@@ -2841,7 +3235,13 @@ int8_t* Meos_stbox_volume_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<double>(out, double{});
     }
+    meos_errno_reset();
     auto r = stbox_volume(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_volume");
+    if (r == std::numeric_limits<double>::max())
+    {
+        return MeosRuntime::absent();
+    }
     return MeosRuntime::number<double>(out, static_cast<double>(r));
 }
 
@@ -2854,10 +3254,12 @@ int8_t* Meos_stbox_xmax_0(int8_t* a0, int8_t* out)
         return MeosRuntime::number<double>(out, double{});
     }
     double value{};
+    meos_errno_reset();
     const bool found = stbox_xmax(static_cast<STBox*>(v0.get()), &value);
+    MeosRuntime::raised("stbox_xmax");
     if (!found)
     {
-        return MeosRuntime::number<double>(out, double{});
+        return MeosRuntime::absent();
     }
     auto r = value;
     return MeosRuntime::number<double>(out, static_cast<double>(r));
@@ -2872,10 +3274,12 @@ int8_t* Meos_stbox_xmin_0(int8_t* a0, int8_t* out)
         return MeosRuntime::number<double>(out, double{});
     }
     double value{};
+    meos_errno_reset();
     const bool found = stbox_xmin(static_cast<STBox*>(v0.get()), &value);
+    MeosRuntime::raised("stbox_xmin");
     if (!found)
     {
-        return MeosRuntime::number<double>(out, double{});
+        return MeosRuntime::absent();
     }
     auto r = value;
     return MeosRuntime::number<double>(out, static_cast<double>(r));
@@ -2890,10 +3294,12 @@ int8_t* Meos_stbox_ymax_0(int8_t* a0, int8_t* out)
         return MeosRuntime::number<double>(out, double{});
     }
     double value{};
+    meos_errno_reset();
     const bool found = stbox_ymax(static_cast<STBox*>(v0.get()), &value);
+    MeosRuntime::raised("stbox_ymax");
     if (!found)
     {
-        return MeosRuntime::number<double>(out, double{});
+        return MeosRuntime::absent();
     }
     auto r = value;
     return MeosRuntime::number<double>(out, static_cast<double>(r));
@@ -2908,10 +3314,12 @@ int8_t* Meos_stbox_ymin_0(int8_t* a0, int8_t* out)
         return MeosRuntime::number<double>(out, double{});
     }
     double value{};
+    meos_errno_reset();
     const bool found = stbox_ymin(static_cast<STBox*>(v0.get()), &value);
+    MeosRuntime::raised("stbox_ymin");
     if (!found)
     {
-        return MeosRuntime::number<double>(out, double{});
+        return MeosRuntime::absent();
     }
     auto r = value;
     return MeosRuntime::number<double>(out, static_cast<double>(r));
@@ -2926,10 +3334,12 @@ int8_t* Meos_stbox_zmax_0(int8_t* a0, int8_t* out)
         return MeosRuntime::number<double>(out, double{});
     }
     double value{};
+    meos_errno_reset();
     const bool found = stbox_zmax(static_cast<STBox*>(v0.get()), &value);
+    MeosRuntime::raised("stbox_zmax");
     if (!found)
     {
-        return MeosRuntime::number<double>(out, double{});
+        return MeosRuntime::absent();
     }
     auto r = value;
     return MeosRuntime::number<double>(out, static_cast<double>(r));
@@ -2944,10 +3354,12 @@ int8_t* Meos_stbox_zmin_0(int8_t* a0, int8_t* out)
         return MeosRuntime::number<double>(out, double{});
     }
     double value{};
+    meos_errno_reset();
     const bool found = stbox_zmin(static_cast<STBox*>(v0.get()), &value);
+    MeosRuntime::raised("stbox_zmin");
     if (!found)
     {
-        return MeosRuntime::number<double>(out, double{});
+        return MeosRuntime::absent();
     }
     auto r = value;
     return MeosRuntime::number<double>(out, static_cast<double>(r));
@@ -2962,10 +3374,12 @@ int8_t* Meos_stbox_expand_space_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_expand_space(static_cast<STBox*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("stbox_expand_space");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2979,10 +3393,12 @@ int8_t* Meos_stbox_get_space_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_get_space(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_get_space");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -2997,7 +3413,9 @@ int8_t* Meos_stbox_quad_split_0(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     int length0 = 0;
+    meos_errno_reset();
     auto r = stbox_quad_split(static_cast<STBox*>(v0.get()), &length0);
+    MeosRuntime::raised("stbox_quad_split");
     return MeosRuntime::structs(r, static_cast<int>(length0), 80);
 }
 
@@ -3010,10 +3428,12 @@ int8_t* Meos_stbox_round_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_round(static_cast<STBox*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("stbox_round");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -3027,10 +3447,12 @@ int8_t* Meos_stbox_round_0_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_round(static_cast<STBox*>(v0.get()), static_cast<int>(0));
+    MeosRuntime::raised("stbox_round");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -3044,7 +3466,9 @@ int8_t* Meos_stboxarr_round_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stboxarr_round(static_cast<const STBox*>(v0.structs(80)), v0.count(), static_cast<int>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("stboxarr_round");
     return MeosRuntime::structs(r, static_cast<int>(v0.count()), 80);
 }
 
@@ -3057,7 +3481,9 @@ int8_t* Meos_stboxarr_round_0_1(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stboxarr_round(static_cast<const STBox*>(v0.structs(80)), v0.count(), static_cast<int>(0));
+    MeosRuntime::raised("stboxarr_round");
     return MeosRuntime::structs(r, static_cast<int>(v0.count()), 80);
 }
 
@@ -3070,10 +3496,12 @@ int8_t* Meos_stbox_set_srid_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_set_srid(static_cast<STBox*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("stbox_set_srid");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -3086,7 +3514,9 @@ int8_t* Meos_stbox_srid_0(int8_t* a0, int8_t* out)
     {
         return MeosRuntime::number<int32_t>(out, int32_t{});
     }
+    meos_errno_reset();
     auto r = stbox_srid(static_cast<STBox*>(v0.get()));
+    MeosRuntime::raised("stbox_srid");
     return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
 }
 
@@ -3099,10 +3529,12 @@ int8_t* Meos_stbox_transform_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = stbox_transform(static_cast<STBox*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("stbox_transform");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -3117,10 +3549,12 @@ int8_t* Meos_stbox_transform_pipeline_0(int8_t* a0, int8_t* a1, int8_t* a2, int8
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = stbox_transform_pipeline(static_cast<STBox*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(MeosRuntime::number<bool>(a3)));
+    MeosRuntime::raised("stbox_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -3135,10 +3569,12 @@ int8_t* Meos_stbox_transform_pipeline_0_3(int8_t* a0, int8_t* a1, int8_t* a2, in
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = stbox_transform_pipeline(static_cast<STBox*>(v0.get()), s1.c_str(), static_cast<int32_t>(MeosRuntime::number<int32_t>(a2)), static_cast<bool>(true));
+    MeosRuntime::raised("stbox_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -3153,10 +3589,12 @@ int8_t* Meos_stbox_transform_pipeline_0_2(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     const std::string s1 = MeosRuntime::text(a1);
+    meos_errno_reset();
     auto r = stbox_transform_pipeline(static_cast<STBox*>(v0.get()), s1.c_str(), static_cast<int32_t>(0), static_cast<bool>(true));
+    MeosRuntime::raised("stbox_transform_pipeline");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -3174,7 +3612,9 @@ int8_t* Meos_adjacent_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("adjacent_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3191,7 +3631,9 @@ int8_t* Meos_contained_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("contained_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3208,7 +3650,9 @@ int8_t* Meos_contains_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("contains_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3225,7 +3669,9 @@ int8_t* Meos_overlaps_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("overlaps_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3242,7 +3688,9 @@ int8_t* Meos_same_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("same_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3259,7 +3707,9 @@ int8_t* Meos_above_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = above_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("above_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3276,7 +3726,9 @@ int8_t* Meos_after_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = after_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("after_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3293,7 +3745,9 @@ int8_t* Meos_back_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = back_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("back_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3310,7 +3764,9 @@ int8_t* Meos_before_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = before_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("before_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3327,7 +3783,9 @@ int8_t* Meos_below_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = below_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("below_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3344,7 +3802,9 @@ int8_t* Meos_front_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = front_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("front_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3361,7 +3821,9 @@ int8_t* Meos_left_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = left_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("left_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3378,7 +3840,9 @@ int8_t* Meos_overabove_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overabove_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("overabove_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3395,7 +3859,9 @@ int8_t* Meos_overafter_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overafter_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("overafter_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3412,7 +3878,9 @@ int8_t* Meos_overback_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overback_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("overback_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3429,7 +3897,9 @@ int8_t* Meos_overbefore_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overbefore_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("overbefore_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3446,7 +3916,9 @@ int8_t* Meos_overbelow_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overbelow_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("overbelow_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3463,7 +3935,9 @@ int8_t* Meos_overfront_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overfront_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("overfront_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3480,7 +3954,9 @@ int8_t* Meos_overleft_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overleft_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("overleft_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3497,7 +3973,9 @@ int8_t* Meos_overright_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overright_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("overright_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3514,7 +3992,9 @@ int8_t* Meos_right_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = right_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("right_stbox_stbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3532,10 +4012,12 @@ int8_t* Meos_union_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = union_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()), true);
+    MeosRuntime::raised("union_stbox_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -3554,10 +4036,12 @@ int8_t* Meos_intersection_stbox_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::none();
     }
+    meos_errno_reset();
     auto r = intersection_stbox_stbox(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("intersection_stbox_stbox");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, size_t{80});
 }
@@ -3575,7 +4059,9 @@ int8_t* Meos_stbox_cmp_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<int32_t>(out, int32_t{});
     }
+    meos_errno_reset();
     auto r = stbox_cmp(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("stbox_cmp");
     return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
 }
 
@@ -3592,7 +4078,9 @@ int8_t* Meos_stbox_eq_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = stbox_eq(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("stbox_eq");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3609,7 +4097,9 @@ int8_t* Meos_stbox_ge_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = stbox_ge(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("stbox_ge");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3626,7 +4116,9 @@ int8_t* Meos_stbox_gt_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = stbox_gt(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("stbox_gt");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3643,7 +4135,9 @@ int8_t* Meos_stbox_le_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = stbox_le(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("stbox_le");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3660,7 +4154,9 @@ int8_t* Meos_stbox_lt_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = stbox_lt(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("stbox_lt");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3677,7 +4173,9 @@ int8_t* Meos_stbox_ne_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = stbox_ne(static_cast<STBox*>(v0.get()), static_cast<STBox*>(v1.get()));
+    MeosRuntime::raised("stbox_ne");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3686,10 +4184,12 @@ int8_t* Meos_tgeogpoint_from_mfjson_0(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeogpoint_from_mfjson(s0.c_str());
+    MeosRuntime::raised("tgeogpoint_from_mfjson");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3699,10 +4199,12 @@ int8_t* Meos_tgeogpoint_in_1(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeogpoint_in(s0.c_str());
+    MeosRuntime::raised("tgeogpoint_in");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3712,10 +4214,12 @@ int8_t* Meos_tgeogpoint_in_2(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeogpoint_in(s0.c_str());
+    MeosRuntime::raised("tgeogpoint_in");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3725,10 +4229,12 @@ int8_t* Meos_tgeography_from_mfjson_0(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeography_from_mfjson(s0.c_str());
+    MeosRuntime::raised("tgeography_from_mfjson");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3738,10 +4244,12 @@ int8_t* Meos_tgeography_in_1(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeography_in(s0.c_str());
+    MeosRuntime::raised("tgeography_in");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3751,10 +4259,12 @@ int8_t* Meos_tgeography_in_2(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeography_in(s0.c_str());
+    MeosRuntime::raised("tgeography_in");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3764,10 +4274,12 @@ int8_t* Meos_tgeometry_from_mfjson_0(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeometry_from_mfjson(s0.c_str());
+    MeosRuntime::raised("tgeometry_from_mfjson");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3777,10 +4289,12 @@ int8_t* Meos_tgeometry_in_1(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeometry_in(s0.c_str());
+    MeosRuntime::raised("tgeometry_in");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3790,10 +4304,12 @@ int8_t* Meos_tgeometry_in_2(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeometry_in(s0.c_str());
+    MeosRuntime::raised("tgeometry_in");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3803,10 +4319,12 @@ int8_t* Meos_tgeompoint_from_mfjson_0(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeompoint_from_mfjson(s0.c_str());
+    MeosRuntime::raised("tgeompoint_from_mfjson");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3816,10 +4334,12 @@ int8_t* Meos_tgeompoint_in_1(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeompoint_in(s0.c_str());
+    MeosRuntime::raised("tgeompoint_in");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3829,10 +4349,12 @@ int8_t* Meos_tgeompoint_in_2(int8_t* a0, int8_t* out)
     MeosRuntime::initialized();
     static_cast<void>(out);
     const std::string s0 = MeosRuntime::text(a0);
+    meos_errno_reset();
     auto r = tgeompoint_in(s0.c_str());
+    MeosRuntime::raised("tgeompoint_in");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
 }
@@ -3848,10 +4370,12 @@ int8_t* Meos_tspatial_as_ewkb_0(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -3868,10 +4392,12 @@ int8_t* Meos_tspatial_as_ewkb_0_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -3889,10 +4415,12 @@ int8_t* Meos_tspatial_as_ewkb_1(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -3909,10 +4437,12 @@ int8_t* Meos_tspatial_as_ewkb_1_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -3930,10 +4460,12 @@ int8_t* Meos_tspatial_as_ewkb_2(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -3950,10 +4482,12 @@ int8_t* Meos_tspatial_as_ewkb_2_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -3971,10 +4505,12 @@ int8_t* Meos_tspatial_as_ewkb_3(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -3991,10 +4527,12 @@ int8_t* Meos_tspatial_as_ewkb_3_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -4012,10 +4550,12 @@ int8_t* Meos_tspatial_as_ewkb_4(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -4032,10 +4572,12 @@ int8_t* Meos_tspatial_as_ewkb_4_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -4053,10 +4595,12 @@ int8_t* Meos_tspatial_as_ewkb_5(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -4073,10 +4617,12 @@ int8_t* Meos_tspatial_as_ewkb_5_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -4094,10 +4640,12 @@ int8_t* Meos_tspatial_as_ewkb_6(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -4114,10 +4662,12 @@ int8_t* Meos_tspatial_as_ewkb_6_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -4135,10 +4685,12 @@ int8_t* Meos_tspatial_as_ewkb_7(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -4155,10 +4707,12 @@ int8_t* Meos_tspatial_as_ewkb_7_1(int8_t* a0, int8_t* out)
         return MeosRuntime::none();
     }
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(""), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -4176,10 +4730,12 @@ int8_t* Meos_tspatial_as_ewkb_8(int8_t* a0, int8_t* a1, int8_t* out)
     }
     const std::string s1 = MeosRuntime::text(a1);
     size_t length0 = 0;
+    meos_errno_reset();
     auto r = tspatial_as_ewkb(static_cast<Temporal*>(v0.get()), wkb_variant_from_endian(s1.c_str()), &length0);
+    MeosRuntime::raised("tspatial_as_ewkb");
     if (r == nullptr)
     {
-        return MeosRuntime::none();
+        return MeosRuntime::absent();
     }
     auto* answer = MeosRuntime::bytes(r, length0);
     std::free(r);
@@ -4192,1252 +4748,1252 @@ void describe(PluginDescriptor& descriptor)
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_2_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_2_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_2_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_3}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_3}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_4}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_4}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_4_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_4_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_4_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_5}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_5}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_6}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_6}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_7}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_7}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_7_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_7_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_7_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_8}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_8}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_8_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_8_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_8_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_9",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_9}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_9}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_ewkt_10",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_10}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_ewkt_10}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_0_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_1_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_1_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_1_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_2_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_2_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_2_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_3_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_3_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_3_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_4_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_4_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_4_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_5_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_5_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_5_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_6_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_6_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_6_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_7_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_7_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_7_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_8_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_8_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_8_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_9",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_9_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_9_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_9_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_10",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_as_hexewkb_10_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_10_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_as_hexewkb_10_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_make_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_make_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_make_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_make_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_make_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_make_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geo_to_set_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_to_set_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_to_set_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geo_to_set_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_to_set_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_to_set_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_to_geo_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_to_geo_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_to_geo_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_to_geo_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_to_geo_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_to_geo_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geomset_to_geogset_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geomset_to_geogset_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geomset_to_geogset_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geogset_to_geomset_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geogset_to_geomset_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geogset_to_geomset_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_end_value_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_end_value_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_end_value_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_end_value_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_end_value_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_end_value_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_start_value_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_start_value_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_start_value_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_start_value_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_start_value_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_start_value_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_value_n_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_value_n_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_value_n_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_value_n_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_value_n_1}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_value_n_1}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_values_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_values_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_values_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geoset_values_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_values_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geoset_values_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_geo_set_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_geo_set_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_geo_set_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_geo_set_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_geo_set_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_geo_set_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_set_geo_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_set_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_set_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_set_geo_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_set_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_set_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_intersection_geo_set_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_intersection_geo_set_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_intersection_geo_set_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_intersection_geo_set_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_intersection_geo_set_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_intersection_geo_set_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_intersection_set_geo_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_intersection_set_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_intersection_set_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_intersection_set_geo_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_intersection_set_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_intersection_set_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_minus_geo_set_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_minus_geo_set_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_minus_geo_set_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_minus_geo_set_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_minus_geo_set_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_minus_geo_set_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_minus_set_geo_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_minus_set_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_minus_set_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_minus_set_geo_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_minus_set_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_minus_set_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_union_geo_set_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_union_geo_set_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_union_geo_set_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_union_geo_set_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_union_geo_set_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_union_geo_set_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_union_set_geo_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_union_set_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_union_set_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_union_set_geo_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_union_set_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_union_set_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_distance_geoset_geoset_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_geoset_geoset_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_geoset_geoset_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_distance_geoset_geoset_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_geoset_geoset_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_geoset_geoset_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_distance_geoset_geoset_1_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_geoset_geoset_1_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_geoset_geoset_1_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_distance_set_geo_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_distance_set_geo_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_distance_set_geo_1_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_1_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_1_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_distance_set_geo_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_distance_set_geo_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_distance_set_geo_3_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_3_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_distance_set_geo_3_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_set_srid_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_set_srid_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_set_srid_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_set_srid_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_set_srid_1}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_set_srid_1}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_set_srid_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_set_srid_2}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_set_srid_2}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_set_srid_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_set_srid_3}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_set_srid_3}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_set_srid_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_set_srid_4}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_set_srid_4}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_srid_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_srid_0}, {DataType::Type::VARSIZED}, DataType::Type::INT32, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_srid_0}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_srid_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_srid_1}, {DataType::Type::VARSIZED}, DataType::Type::INT32, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_srid_1}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_srid_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_srid_2}, {DataType::Type::VARSIZED}, DataType::Type::INT32, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_srid_2}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_srid_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_srid_3}, {DataType::Type::VARSIZED}, DataType::Type::INT32, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_srid_3}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_srid_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_srid_4}, {DataType::Type::VARSIZED}, DataType::Type::INT32, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_srid_4}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_1}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_1}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_2}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_2}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_3}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_3}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_4}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_4}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_0_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_0_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_0_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_0_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_0_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_0_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_1_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_1_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_1_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_1_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_1_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_1_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_2_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_2_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_2_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_2_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_2_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_2_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_3_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_3_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_3_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_3_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_3_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_3_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_4_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_4_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_4_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_transform_pipeline_4_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_4_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_transform_pipeline_4_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_as_ewkb_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_ewkb_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_ewkb_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_as_ewkb_0_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_ewkb_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_ewkb_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_as_hexewkb_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_hexewkb_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_hexewkb_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_as_hexewkb_0_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_hexewkb_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_hexewkb_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_as_hexwkb_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_hexwkb_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_hexwkb_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_as_hexwkb_0_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_hexwkb_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_hexwkb_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_as_text_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_text_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_text_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_as_text_0_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_text_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_text_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_as_wkb_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_wkb_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_wkb_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_as_wkb_1_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_wkb_1_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_as_wkb_1_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_from_hexwkb_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_from_hexwkb_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_from_hexwkb_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_from_hexwkb_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_from_hexwkb_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_from_hexwkb_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_from_wkb_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_from_wkb_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_from_wkb_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_from_wkb_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_from_wkb_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_from_wkb_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_in_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_in_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_in_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_in_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_in_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_in_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_out_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_out_1}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_out_1}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_out_1_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_out_1_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_out_1_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geo_timestamptz_to_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_timestamptz_to_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::UINT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_timestamptz_to_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::UINT64}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geo_timestamptz_to_stbox_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_timestamptz_to_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::UINT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_timestamptz_to_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::UINT64}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geo_tstzspan_to_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_tstzspan_to_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_tstzspan_to_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geo_tstzspan_to_stbox_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_tstzspan_to_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_tstzspan_to_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_0}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_0}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_0_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_0_4}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_0_4}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_1}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_1}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_1_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_1_6}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_1_6}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_3}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_3}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_3_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_3_5}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_3_5}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_4}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_4}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_4_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_4_7}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_4_7}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_5}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_5}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_5_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_5_6}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_5_6}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_6}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_6}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_make_6_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_6_7}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_make_6_7}, {DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geo_to_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_to_stbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_to_stbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_geo_to_stbox_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_to_stbox_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_geo_to_stbox_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_to_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_to_stbox_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_to_stbox_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_to_stbox_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_3}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_3}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_to_stbox_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_4}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_4}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_spatialset_to_stbox_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_5}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_spatialset_to_stbox_5}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_to_box3d_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_to_box3d_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_to_box3d_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_to_gbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_to_gbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_to_gbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_to_geom_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_to_geom_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_to_geom_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_to_geog_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_to_geog_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_to_geog_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_to_tstzspan_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_to_tstzspan_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_to_tstzspan_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_timestamptz_to_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_timestamptz_to_stbox_0}, {DataType::Type::UINT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_timestamptz_to_stbox_0}, {DataType::Type::UINT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tstzset_to_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tstzset_to_stbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tstzset_to_stbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tstzspan_to_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tstzspan_to_stbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tstzspan_to_stbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tstzspanset_to_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tstzspanset_to_stbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tstzspanset_to_stbox_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_area_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_area_0}, {DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_area_0}, {DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_area_0_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_area_0_1}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_area_0_1}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_hash_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_hash_0}, {DataType::Type::VARSIZED}, DataType::Type::INT32, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_hash_0}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_hash_extended_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_hash_extended_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::INT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_hash_extended_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::INT64, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_hast_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_hast_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_hast_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_hasx_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_hasx_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_hasx_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_hasz_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_hasz_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_hasz_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_isgeodetic_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_isgeodetic_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_isgeodetic_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_perimeter_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_perimeter_0}, {DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_perimeter_0}, {DataType::Type::VARSIZED, DataType::Type::BOOLEAN}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_perimeter_0_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_perimeter_0_1}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_perimeter_0_1}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_tmax_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_tmax_0}, {DataType::Type::VARSIZED}, DataType::Type::UINT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_tmax_0}, {DataType::Type::VARSIZED}, DataType::Type::UINT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_tmax_inc_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_tmax_inc_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_tmax_inc_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_tmin_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_tmin_0}, {DataType::Type::VARSIZED}, DataType::Type::UINT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_tmin_0}, {DataType::Type::VARSIZED}, DataType::Type::UINT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_tmin_inc_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_tmin_inc_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_tmin_inc_0}, {DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_volume_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_volume_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_volume_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_xmax_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_xmax_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_xmax_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_xmin_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_xmin_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_xmin_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_ymax_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_ymax_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_ymax_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_ymin_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_ymin_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_ymin_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_zmax_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_zmax_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_zmax_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_zmin_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_zmin_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_zmin_0}, {DataType::Type::VARSIZED}, DataType::Type::FLOAT64, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_expand_space_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_expand_space_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_expand_space_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_get_space_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_get_space_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_get_space_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_quad_split_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_quad_split_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_quad_split_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_round_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_round_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_round_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_round_0_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_round_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_round_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stboxarr_round_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stboxarr_round_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stboxarr_round_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stboxarr_round_0_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stboxarr_round_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stboxarr_round_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_set_srid_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_set_srid_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_set_srid_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_srid_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_srid_0}, {DataType::Type::VARSIZED}, DataType::Type::INT32, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_srid_0}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_transform_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_transform_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_transform_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_transform_pipeline_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_transform_pipeline_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_transform_pipeline_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::BOOLEAN}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_transform_pipeline_0_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_transform_pipeline_0_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_transform_pipeline_0_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_transform_pipeline_0_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_transform_pipeline_0_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_transform_pipeline_0_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_above_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_above_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_after_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_after_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_back_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_back_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_back_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_before_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_before_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_below_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_below_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_front_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_front_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_front_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_left_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_left_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_left_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overabove_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overabove_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overabove_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overafter_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overafter_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overback_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overback_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overback_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overbefore_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overbefore_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overbelow_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overbelow_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overfront_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overfront_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overfront_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overleft_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overleft_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overright_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overright_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_right_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_right_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_union_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_union_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_union_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_intersection_stbox_stbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_intersection_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_intersection_stbox_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_cmp_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_cmp_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::INT32, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_cmp_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_eq_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_eq_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_eq_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_ge_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_ge_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_ge_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_gt_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_gt_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_gt_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_le_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_le_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_le_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_lt_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_lt_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_lt_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_stbox_ne_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_ne_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_stbox_ne_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeogpoint_from_mfjson_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeogpoint_from_mfjson_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeogpoint_from_mfjson_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeogpoint_in_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeogpoint_in_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeogpoint_in_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeogpoint_in_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeogpoint_in_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeogpoint_in_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeography_from_mfjson_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeography_from_mfjson_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeography_from_mfjson_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeography_in_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeography_in_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeography_in_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeography_in_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeography_in_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeography_in_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeometry_from_mfjson_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeometry_from_mfjson_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeometry_from_mfjson_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeometry_in_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeometry_in_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeometry_in_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeometry_in_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeometry_in_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeometry_in_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeompoint_from_mfjson_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeompoint_from_mfjson_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeompoint_from_mfjson_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeompoint_in_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeompoint_in_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeompoint_in_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tgeompoint_in_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeompoint_in_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeompoint_in_2}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_0_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_1_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_1_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_1_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_2_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_2_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_2_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_3_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_3_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_3_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_4_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_4_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_4_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_5_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_5_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_5_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_6_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_6_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_6_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_7_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_7_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_7_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_as_ewkb_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_as_ewkb_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
 }
 
 /// Static registration is the purpose of this initializer; it only stores a function pointer.

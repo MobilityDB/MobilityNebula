@@ -63,7 +63,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -80,7 +82,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -97,7 +101,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -114,7 +120,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -131,7 +139,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -148,7 +158,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -165,7 +177,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -182,7 +196,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -199,7 +215,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -216,7 +234,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -233,7 +253,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -250,7 +272,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -267,7 +291,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -284,7 +310,9 @@ int8_t* Meos_adjacent_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -301,7 +329,9 @@ int8_t* Meos_adjacent_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -318,7 +348,9 @@ int8_t* Meos_adjacent_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -335,7 +367,9 @@ int8_t* Meos_adjacent_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("adjacent_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -352,7 +386,9 @@ int8_t* Meos_adjacent_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("adjacent_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -369,7 +405,9 @@ int8_t* Meos_adjacent_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("adjacent_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -386,7 +424,9 @@ int8_t* Meos_adjacent_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("adjacent_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -403,7 +443,9 @@ int8_t* Meos_adjacent_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -420,7 +462,9 @@ int8_t* Meos_adjacent_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -437,7 +481,9 @@ int8_t* Meos_adjacent_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -454,7 +500,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -471,7 +519,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -488,7 +538,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -505,7 +557,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -522,7 +576,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -539,7 +595,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -556,7 +614,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -573,7 +633,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -590,7 +652,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -607,7 +671,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -624,7 +690,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -641,7 +709,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -658,7 +728,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -675,7 +747,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -692,7 +766,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -709,7 +785,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -726,7 +804,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -743,7 +823,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -760,7 +842,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -777,7 +861,9 @@ int8_t* Meos_adjacent_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = adjacent_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("adjacent_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -794,7 +880,9 @@ int8_t* Meos_contained_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -811,7 +899,9 @@ int8_t* Meos_contained_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -828,7 +918,9 @@ int8_t* Meos_contained_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -845,7 +937,9 @@ int8_t* Meos_contained_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -862,7 +956,9 @@ int8_t* Meos_contained_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -879,7 +975,9 @@ int8_t* Meos_contained_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -896,7 +994,9 @@ int8_t* Meos_contained_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -913,7 +1013,9 @@ int8_t* Meos_contained_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -930,7 +1032,9 @@ int8_t* Meos_contained_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -947,7 +1051,9 @@ int8_t* Meos_contained_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -964,7 +1070,9 @@ int8_t* Meos_contained_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -981,7 +1089,9 @@ int8_t* Meos_contained_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -998,7 +1108,9 @@ int8_t* Meos_contained_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1015,7 +1127,9 @@ int8_t* Meos_contained_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1032,7 +1146,9 @@ int8_t* Meos_contained_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1049,7 +1165,9 @@ int8_t* Meos_contained_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1066,7 +1184,9 @@ int8_t* Meos_contained_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1083,7 +1203,9 @@ int8_t* Meos_contained_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1100,7 +1222,9 @@ int8_t* Meos_contained_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1117,7 +1241,9 @@ int8_t* Meos_contained_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1134,7 +1260,9 @@ int8_t* Meos_contained_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1151,7 +1279,9 @@ int8_t* Meos_contained_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1168,7 +1298,9 @@ int8_t* Meos_contained_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1185,7 +1317,9 @@ int8_t* Meos_contained_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1202,7 +1336,9 @@ int8_t* Meos_contained_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1219,7 +1355,9 @@ int8_t* Meos_contained_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1236,7 +1374,9 @@ int8_t* Meos_contained_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1253,7 +1393,9 @@ int8_t* Meos_contained_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1270,7 +1412,9 @@ int8_t* Meos_contained_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1287,7 +1431,9 @@ int8_t* Meos_contained_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1304,7 +1450,9 @@ int8_t* Meos_contained_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1321,7 +1469,9 @@ int8_t* Meos_contained_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contained_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1338,7 +1488,9 @@ int8_t* Meos_contained_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("contained_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1355,7 +1507,9 @@ int8_t* Meos_contained_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("contained_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1372,7 +1526,9 @@ int8_t* Meos_contained_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("contained_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1389,7 +1545,9 @@ int8_t* Meos_contained_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1406,7 +1564,9 @@ int8_t* Meos_contained_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1423,7 +1583,9 @@ int8_t* Meos_contained_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1440,7 +1602,9 @@ int8_t* Meos_contained_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1457,7 +1621,9 @@ int8_t* Meos_contained_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1474,7 +1640,9 @@ int8_t* Meos_contained_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1491,7 +1659,9 @@ int8_t* Meos_contained_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1508,7 +1678,9 @@ int8_t* Meos_contained_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1525,7 +1697,9 @@ int8_t* Meos_contained_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1542,7 +1716,9 @@ int8_t* Meos_contained_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1559,7 +1735,9 @@ int8_t* Meos_contained_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1576,7 +1754,9 @@ int8_t* Meos_contained_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1593,7 +1773,9 @@ int8_t* Meos_contained_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1610,7 +1792,9 @@ int8_t* Meos_contained_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1627,7 +1811,9 @@ int8_t* Meos_contained_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1644,7 +1830,9 @@ int8_t* Meos_contained_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1661,7 +1849,9 @@ int8_t* Meos_contained_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1678,7 +1868,9 @@ int8_t* Meos_contained_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1695,7 +1887,9 @@ int8_t* Meos_contained_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1712,7 +1906,9 @@ int8_t* Meos_contained_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1729,7 +1925,9 @@ int8_t* Meos_contained_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1746,7 +1944,9 @@ int8_t* Meos_contained_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1763,7 +1963,9 @@ int8_t* Meos_contained_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contained_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contained_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1780,7 +1982,9 @@ int8_t* Meos_contains_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1797,7 +2001,9 @@ int8_t* Meos_contains_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1814,7 +2020,9 @@ int8_t* Meos_contains_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1831,7 +2039,9 @@ int8_t* Meos_contains_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1848,7 +2058,9 @@ int8_t* Meos_contains_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1865,7 +2077,9 @@ int8_t* Meos_contains_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1882,7 +2096,9 @@ int8_t* Meos_contains_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1899,7 +2115,9 @@ int8_t* Meos_contains_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1916,7 +2134,9 @@ int8_t* Meos_contains_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1933,7 +2153,9 @@ int8_t* Meos_contains_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1950,7 +2172,9 @@ int8_t* Meos_contains_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1967,7 +2191,9 @@ int8_t* Meos_contains_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -1984,7 +2210,9 @@ int8_t* Meos_contains_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2001,7 +2229,9 @@ int8_t* Meos_contains_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2018,7 +2248,9 @@ int8_t* Meos_contains_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2035,7 +2267,9 @@ int8_t* Meos_contains_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2052,7 +2286,9 @@ int8_t* Meos_contains_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2069,7 +2305,9 @@ int8_t* Meos_contains_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2086,7 +2324,9 @@ int8_t* Meos_contains_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2103,7 +2343,9 @@ int8_t* Meos_contains_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2120,7 +2362,9 @@ int8_t* Meos_contains_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2137,7 +2381,9 @@ int8_t* Meos_contains_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2154,7 +2400,9 @@ int8_t* Meos_contains_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2171,7 +2419,9 @@ int8_t* Meos_contains_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2188,7 +2438,9 @@ int8_t* Meos_contains_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2205,7 +2457,9 @@ int8_t* Meos_contains_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2222,7 +2476,9 @@ int8_t* Meos_contains_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2239,7 +2495,9 @@ int8_t* Meos_contains_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2256,7 +2514,9 @@ int8_t* Meos_contains_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2273,7 +2533,9 @@ int8_t* Meos_contains_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2290,7 +2552,9 @@ int8_t* Meos_contains_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2307,7 +2571,9 @@ int8_t* Meos_contains_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("contains_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2324,7 +2590,9 @@ int8_t* Meos_contains_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("contains_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2341,7 +2609,9 @@ int8_t* Meos_contains_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("contains_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2358,7 +2628,9 @@ int8_t* Meos_contains_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("contains_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2375,7 +2647,9 @@ int8_t* Meos_contains_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2392,7 +2666,9 @@ int8_t* Meos_contains_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2409,7 +2685,9 @@ int8_t* Meos_contains_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2426,7 +2704,9 @@ int8_t* Meos_contains_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2443,7 +2723,9 @@ int8_t* Meos_contains_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2460,7 +2742,9 @@ int8_t* Meos_contains_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2477,7 +2761,9 @@ int8_t* Meos_contains_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2494,7 +2780,9 @@ int8_t* Meos_contains_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2511,7 +2799,9 @@ int8_t* Meos_contains_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2528,7 +2818,9 @@ int8_t* Meos_contains_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2545,7 +2837,9 @@ int8_t* Meos_contains_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2562,7 +2856,9 @@ int8_t* Meos_contains_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2579,7 +2875,9 @@ int8_t* Meos_contains_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2596,7 +2894,9 @@ int8_t* Meos_contains_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2613,7 +2913,9 @@ int8_t* Meos_contains_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2630,7 +2932,9 @@ int8_t* Meos_contains_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2647,7 +2951,9 @@ int8_t* Meos_contains_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2664,7 +2970,9 @@ int8_t* Meos_contains_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2681,7 +2989,9 @@ int8_t* Meos_contains_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2698,7 +3008,9 @@ int8_t* Meos_contains_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2715,7 +3027,9 @@ int8_t* Meos_contains_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2732,7 +3046,9 @@ int8_t* Meos_contains_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2749,7 +3065,9 @@ int8_t* Meos_contains_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = contains_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("contains_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2766,7 +3084,9 @@ int8_t* Meos_overlaps_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2783,7 +3103,9 @@ int8_t* Meos_overlaps_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2800,7 +3122,9 @@ int8_t* Meos_overlaps_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2817,7 +3141,9 @@ int8_t* Meos_overlaps_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2834,7 +3160,9 @@ int8_t* Meos_overlaps_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2851,7 +3179,9 @@ int8_t* Meos_overlaps_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2868,7 +3198,9 @@ int8_t* Meos_overlaps_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2885,7 +3217,9 @@ int8_t* Meos_overlaps_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2902,7 +3236,9 @@ int8_t* Meos_overlaps_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2919,7 +3255,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2936,7 +3274,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2953,7 +3293,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2970,7 +3312,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -2987,7 +3331,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3004,7 +3350,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3021,7 +3369,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3038,7 +3388,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3055,7 +3407,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3072,7 +3426,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3089,7 +3445,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3106,7 +3464,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3123,7 +3483,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3140,7 +3502,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3157,7 +3521,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3174,7 +3540,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3191,7 +3559,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3208,7 +3578,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3225,7 +3597,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3242,7 +3616,9 @@ int8_t* Meos_overlaps_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3259,7 +3635,9 @@ int8_t* Meos_overlaps_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3276,7 +3654,9 @@ int8_t* Meos_overlaps_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3293,7 +3673,9 @@ int8_t* Meos_overlaps_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("overlaps_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3310,7 +3692,9 @@ int8_t* Meos_overlaps_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("overlaps_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3327,7 +3711,9 @@ int8_t* Meos_overlaps_tnumber_tbox_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("overlaps_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3344,7 +3730,9 @@ int8_t* Meos_overlaps_tnumber_tbox_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("overlaps_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3361,7 +3749,9 @@ int8_t* Meos_overlaps_tnumber_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3378,7 +3768,9 @@ int8_t* Meos_overlaps_tnumber_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3395,7 +3787,9 @@ int8_t* Meos_overlaps_tnumber_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tnumber_tnumber(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tnumber_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3412,7 +3806,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3429,7 +3825,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3446,7 +3844,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3463,7 +3863,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3480,7 +3882,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3497,7 +3901,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3514,7 +3920,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3531,7 +3939,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3548,7 +3958,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3565,7 +3977,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3582,7 +3996,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3599,7 +4015,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3616,7 +4034,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3633,7 +4053,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3650,7 +4072,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3667,7 +4091,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3684,7 +4110,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3701,7 +4129,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3718,7 +4148,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3735,7 +4167,9 @@ int8_t* Meos_overlaps_tstzspan_temporal_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = overlaps_tstzspan_temporal(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("overlaps_tstzspan_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3752,7 +4186,9 @@ int8_t* Meos_same_numspan_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("same_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3769,7 +4205,9 @@ int8_t* Meos_same_numspan_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("same_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3786,7 +4224,9 @@ int8_t* Meos_same_numspan_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_numspan_tnumber(static_cast<Span*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("same_numspan_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3803,7 +4243,9 @@ int8_t* Meos_same_tbox_tnumber_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("same_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3820,7 +4262,9 @@ int8_t* Meos_same_tbox_tnumber_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("same_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3837,7 +4281,9 @@ int8_t* Meos_same_tbox_tnumber_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_tbox_tnumber(static_cast<TBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("same_tbox_tnumber");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3854,7 +4300,9 @@ int8_t* Meos_same_temporal_temporal_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("same_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3871,7 +4319,9 @@ int8_t* Meos_same_temporal_temporal_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("same_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3888,7 +4338,9 @@ int8_t* Meos_same_temporal_temporal_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_temporal(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
+    MeosRuntime::raised("same_temporal_temporal");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3905,7 +4357,9 @@ int8_t* Meos_same_temporal_tstzspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3922,7 +4376,9 @@ int8_t* Meos_same_temporal_tstzspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3939,7 +4395,9 @@ int8_t* Meos_same_temporal_tstzspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3956,7 +4414,9 @@ int8_t* Meos_same_temporal_tstzspan_3(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3973,7 +4433,9 @@ int8_t* Meos_same_temporal_tstzspan_4(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -3990,7 +4452,9 @@ int8_t* Meos_same_temporal_tstzspan_5(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4007,7 +4471,9 @@ int8_t* Meos_same_temporal_tstzspan_6(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4024,7 +4490,9 @@ int8_t* Meos_same_temporal_tstzspan_7(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4041,7 +4509,9 @@ int8_t* Meos_same_temporal_tstzspan_8(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4058,7 +4528,9 @@ int8_t* Meos_same_temporal_tstzspan_9(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4075,7 +4547,9 @@ int8_t* Meos_same_temporal_tstzspan_10(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4092,7 +4566,9 @@ int8_t* Meos_same_temporal_tstzspan_11(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4109,7 +4585,9 @@ int8_t* Meos_same_temporal_tstzspan_12(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4126,7 +4604,9 @@ int8_t* Meos_same_temporal_tstzspan_13(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4143,7 +4623,9 @@ int8_t* Meos_same_temporal_tstzspan_14(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4160,7 +4642,9 @@ int8_t* Meos_same_temporal_tstzspan_15(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4177,7 +4661,9 @@ int8_t* Meos_same_temporal_tstzspan_16(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4194,7 +4680,9 @@ int8_t* Meos_same_temporal_tstzspan_17(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4211,7 +4699,9 @@ int8_t* Meos_same_temporal_tstzspan_18(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4228,7 +4718,9 @@ int8_t* Meos_same_temporal_tstzspan_19(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_temporal_tstzspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_temporal_tstzspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4245,7 +4737,9 @@ int8_t* Meos_same_tnumber_numspan_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4262,7 +4756,9 @@ int8_t* Meos_same_tnumber_numspan_1(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4279,7 +4775,9 @@ int8_t* Meos_same_tnumber_numspan_2(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_tnumber_numspan(static_cast<Temporal*>(v0.get()), static_cast<Span*>(v1.get()));
+    MeosRuntime::raised("same_tnumber_numspan");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4296,7 +4794,9 @@ int8_t* Meos_same_tnumber_tbox_0(int8_t* a0, int8_t* a1, int8_t* out)
     {
         return MeosRuntime::number<bool>(out, bool{});
     }
+    meos_errno_reset();
     auto r = same_tnumber_tbox(static_cast<Temporal*>(v0.get()), static_cast<TBox*>(v1.get()));
+    MeosRuntime::raised("same_tnumber_tbox");
     return MeosRuntime::number<bool>(out, static_cast<bool>(r));
 }
 
@@ -4306,1252 +4806,1252 @@ void describe(PluginDescriptor& descriptor)
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_9",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_10",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_11",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_12",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_13",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_14",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_15",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_16",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_17",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_18",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_temporal_tstzspan_19",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tnumber_numspan_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tnumber_numspan_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tnumber_numspan_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tnumber_tbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tnumber_tbox_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tnumber_tbox_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tnumber_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tnumber_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tnumber_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_9",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_10",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_11",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_12",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_13",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_14",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_15",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_16",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_17",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_18",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_adjacent_tstzspan_temporal_19",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_numspan_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_numspan_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_numspan_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tbox_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tbox_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tbox_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_temporal_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_temporal_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_temporal_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_9",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_10",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_11",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_12",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_13",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_14",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_15",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_16",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_17",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_18",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_temporal_tstzspan_19",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tnumber_numspan_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tnumber_numspan_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tnumber_numspan_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tnumber_tbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tnumber_tbox_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tnumber_tbox_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tnumber_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tnumber_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tnumber_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_9",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_10",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_11",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_12",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_13",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_14",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_15",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_16",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_17",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_18",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contained_tstzspan_temporal_19",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contained_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_numspan_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_numspan_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_numspan_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tbox_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tbox_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tbox_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_9",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_10",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_11",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_12",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_13",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_14",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_15",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_16",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_17",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_18",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_tstzspan_19",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_temporal_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_temporal_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_temporal_temporal_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tnumber_numspan_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tnumber_numspan_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tnumber_numspan_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tnumber_tbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tnumber_tbox_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tnumber_tbox_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tnumber_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tnumber_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tnumber_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_9",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_10",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_11",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_12",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_13",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_14",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_15",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_16",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_17",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_18",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_contains_tstzspan_temporal_19",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_contains_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_numspan_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_numspan_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_numspan_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tbox_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tbox_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tbox_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_temporal_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_temporal_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_temporal_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_9",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_10",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_11",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_12",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_13",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_14",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_15",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_16",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_17",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_18",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_temporal_tstzspan_19",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tnumber_numspan_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tnumber_numspan_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tnumber_numspan_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tnumber_tbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tnumber_tbox_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tnumber_tbox_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tnumber_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tnumber_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tnumber_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tnumber_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_9",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_10",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_11",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_12",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_13",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_14",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_15",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_16",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_17",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_18",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_overlaps_tstzspan_temporal_19",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_overlaps_tstzspan_temporal_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_numspan_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_numspan_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_numspan_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_numspan_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_numspan_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_numspan_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_tbox_tnumber_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tbox_tnumber_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_tbox_tnumber_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tbox_tnumber_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_tbox_tnumber_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tbox_tnumber_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_temporal_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_temporal_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_temporal_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_temporal_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_temporal_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_temporal_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_3",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_4",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_5",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_6",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_7",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_8",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_9",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_10",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_11",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_12",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_12}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_13",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_13}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_14",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_14}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_15",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_15}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_16",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_16}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_17",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_17}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_18",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_18}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_temporal_tstzspan_19",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_temporal_tstzspan_19}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_tnumber_numspan_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_numspan_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_tnumber_numspan_1",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_numspan_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_tnumber_numspan_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_numspan_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_same_tnumber_tbox_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_same_tnumber_tbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
 }
 
 /// Static registration is the purpose of this initializer; it only stores a function pointer.

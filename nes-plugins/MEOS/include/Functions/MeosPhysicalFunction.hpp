@@ -69,12 +69,17 @@ using MeosKernel = typename MeosKernelVariantOf<std::make_index_sequence<MEOS_KE
 /// A MEOS function over one SQL signature: it evaluates its arguments, hands them to the kernel and reads
 /// back what it answers. A variable-sized argument is passed where the record keeps it; a number is cast
 /// to the type the signature states and written in a slot of the arena. A null argument answers null
-/// without calling the kernel, as a MobilityDB function declared STRICT does.
+/// without calling the kernel, as a MobilityDB function declared STRICT does, and so does a kernel that
+/// answers no value (MeosRuntime::absent), where MobilityDB answers NULL.
 class MeosPhysicalFunction final
 {
 public:
     MeosPhysicalFunction(
-        MeosKernel kernel, std::vector<DataType::Type> argumentTypes, DataType::Type resultType, std::vector<PhysicalFunction> arguments);
+        MeosKernel kernel,
+        std::vector<DataType::Type> argumentTypes,
+        DataType::Type resultType,
+        bool answersNone,
+        std::vector<PhysicalFunction> arguments);
 
     [[nodiscard]] VarVal execute(const Record& record, ArenaRef& arena) const;
 
@@ -82,6 +87,8 @@ private:
     MeosKernel kernel;
     std::vector<DataType::Type> argumentTypes;
     DataType::Type resultType;
+    /// Whether the kernel may answer no value, which makes the result nullable
+    bool answersNone;
     std::vector<PhysicalFunction> arguments;
 };
 

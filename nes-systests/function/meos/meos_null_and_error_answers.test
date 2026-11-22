@@ -1,0 +1,36 @@
+# name: MEOS_Null_And_Error_Answers
+# description: A MEOS function answers as MobilityDB does: NULL for nearestApproachDistance of two trajectories sharing no time, whose PG wrapper returns NULL for the DBL_MAX the C function answers (shape.nullableResult), and for atStbox of a point outside the box, whose C function answers a null pointer; and the error MEOS raises for operands of different SRIDs. The trajectories of row 1 share the instant 2021-01-02, where the points are 3 apart; those of row 2 share no time. The point of row 1 lies in the box SRID=4326;STBOX XT(((4.0,50.0),(4.6,50.8)),[2021-01-01,2021-01-02]), that of row 2 outside it. The trajectories of the last source are in SRIDs 4326 and 3857.
+# groups: [Function, MEOS, SpatioTemporal, NullHandling]
+CREATE LOGICAL SOURCE pairs(id UINT32, a VARSIZED, b VARSIZED);
+CREATE PHYSICAL SOURCE FOR pairs TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|[POINT(0 0)@2021-01-01 00:00:00+00, POINT(0 0)@2021-01-02 00:00:00+00]|[POINT(3 0)@2021-01-02 00:00:00+00, POINT(3 0)@2021-01-03 00:00:00+00]
+2|[POINT(0 0)@2021-01-01 00:00:00+00, POINT(0 0)@2021-01-02 00:00:00+00]|[POINT(3 0)@2021-01-03 00:00:00+00, POINT(3 0)@2021-01-04 00:00:00+00]
+
+CREATE SINK nad(id UINT32, distance FLOAT64) TYPE File;
+SELECT id, nearestApproachDistance(tgeompointFromText(a), tgeompointFromText(b)) AS distance FROM pairs INTO nad;
+----
+1,3.0
+2,NULL
+
+CREATE LOGICAL SOURCE points(id UINT32, trip VARSIZED);
+CREATE PHYSICAL SOURCE FOR points TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|SRID=4326;POINT(4.3 50.3)@2021-01-01 00:00:00+00
+2|SRID=4326;POINT(4.8 50.9)@2021-01-01 00:00:00+00
+
+CREATE SINK inside(id UINT32, inside TGEOMPOINT) TYPE File;
+SELECT id, atStbox(tgeompointFromText(trip), stboxFromText(VARSIZED('SRID=4326;STBOX XT(((4.0,50.0),(4.6,50.8)),[2021-01-01,2021-01-02])'))) AS inside FROM points INTO inside;
+----
+1,012E0041E610000001010000003333333333331140666666666626494000A0AD30CA5A0200
+2,NULL
+
+CREATE LOGICAL SOURCE srids(id UINT32, a VARSIZED, b VARSIZED);
+CREATE PHYSICAL SOURCE FOR srids TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1|SRID=4326;[POINT(0 0)@2021-01-01 00:00:00+00, POINT(0 0)@2021-01-02 00:00:00+00]|SRID=3857;[POINT(3 0)@2021-01-01 00:00:00+00, POINT(3 0)@2021-01-02 00:00:00+00]
+
+CREATE SINK mixed(id UINT32, distance FLOAT64) TYPE File;
+SELECT id, nearestApproachDistance(tgeompointFromText(a), tgeompointFromText(b)) AS distance FROM srids INTO mixed;
+----
+ERROR 3013

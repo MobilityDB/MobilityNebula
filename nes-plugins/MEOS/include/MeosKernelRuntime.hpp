@@ -22,6 +22,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <ErrorHandling.hpp>
 #include <MEOSWrapper.hpp>
 
 /// What the generated MEOS kernels share: reading an argument a MeosPhysicalFunction hands over, and
@@ -111,10 +112,30 @@ T number(const int8_t* slot)
     return value;
 }
 
-/// The answer of no value
+/// The answer of a kernel that writes its number in the slot of its result
 inline int8_t* none()
 {
     return nullptr;
+}
+
+/// The answer of no value, which a MeosPhysicalFunction reads as NULL: where MEOS answers no value, as the
+/// result a PG wrapper returns NULL for (shape.nullableResult of the catalog), a null pointer or a value it
+/// finds none of, MobilityDB answering NULL there
+inline int8_t* absent()
+{
+    static int8_t marker;
+    return &marker;
+}
+
+/// Raises the error MEOS reports for the call of the function: a failed call returns the error value of the
+/// function with meos_errno set, which is no answer, as MobilityDB raises the error
+inline void raised(const char* function)
+{
+    if (const int code = meos_errno(); code != 0)
+    {
+        meos_errno_reset();
+        throw ArithmeticalError("MEOS function {} failed with error code {}", function, code);
+    }
 }
 
 /// The answer of the size bytes at data, as a buffer malloc allocates: their length, then the bytes
@@ -132,7 +153,7 @@ inline int8_t* image(void* value, const size_t size)
 {
     if (value == nullptr)
     {
-        return none();
+        return absent();
     }
     auto* answer = bytes(value, size);
     std::free(value);
@@ -144,7 +165,7 @@ inline int8_t* string(char* value)
 {
     if (value == nullptr)
     {
-        return none();
+        return absent();
     }
     auto* answer = bytes(value, std::strlen(value));
     std::free(value);
@@ -262,7 +283,7 @@ int8_t* array(void** values, const int count, Size size)
 {
     if (values == nullptr)
     {
-        return none();
+        return absent();
     }
     std::vector<std::byte> carried(sizeof(uint32_t));
     const auto n = static_cast<uint32_t>(count);
@@ -287,7 +308,7 @@ inline int8_t* structs(void* values, const int count, const size_t size)
 {
     if (values == nullptr)
     {
-        return none();
+        return absent();
     }
     std::vector<std::byte> carried(sizeof(uint32_t));
     const auto n = static_cast<uint32_t>(count);
@@ -312,7 +333,7 @@ int8_t* texts(void** values, const int count, Writer write)
 {
     if (values == nullptr)
     {
-        return none();
+        return absent();
     }
     std::vector<std::byte> carried(sizeof(uint32_t));
     const auto n = static_cast<uint32_t>(count);
@@ -343,7 +364,7 @@ int8_t* encoded(T* values, const int count, Encoder encode)
 {
     if (values == nullptr)
     {
-        return none();
+        return absent();
     }
     std::vector<std::byte> carried(sizeof(uint32_t));
     const auto n = static_cast<uint32_t>(count);

@@ -597,6 +597,10 @@ SQL_SCALAR = {
 }
 # The C types a number is passed as, and those a number answers in
 C_NUMBER = {'bool', 'int', 'int16_t', 'int32_t', 'uint32_t', 'int64_t', 'uint64_t', 'double', 'uint8_t'}
+# The guards of a PG wrapper returning NULL for a null pointer it receives (shape.nullableResult)
+POINTER_NULL = {'if (! result)', 'if (result == NULL)'}
+# The answer of no value, which the MeosPhysicalFunction reads as NULL
+ABSENT = 'MeosRuntime::absent()'
 KERNELS_PER_FILE = 250
 # The largest arity MeosPhysicalFunction calls a kernel with (MEOS_KERNEL_MAX_ARITY)
 MAX_ARITY = 13
@@ -866,7 +870,7 @@ class FunctionLayer:
                     size = f'static_cast<size_t>({sf["name"]}(static_cast<{pt}>(static_cast<const void*>(r))))'
                 else:
                     size = f'size_t{{{image["sizeBytes"]}}}'
-                return ['    if (r == nullptr)\n' + no_value(none), f'    return MeosRuntime::image(r, {size});'], none
+                return ['    if (r == nullptr)\n' + no_value(ABSENT), f'    return MeosRuntime::image(r, {size});'], none
             if kind == 'bytes' and not rc.endswith('*'):
                 call = self.t.encoder_call(enc, 'r', out_aux)
                 return ['    size_t size = 0;', f'    auto* w = {call};',
@@ -874,22 +878,22 @@ class FunctionLayer:
                         '    return answer;'], none
             if kind != 'bytes' and rc.endswith('*'):
                 call = self.t.encoder_call(enc, 'r', out_aux)
-                return ['    if (r == nullptr)\n' + no_value(none), '    size_t size = 0;', f'    char* w = {call};',
+                return ['    if (r == nullptr)\n' + no_value(ABSENT), '    size_t size = 0;', f'    char* w = {call};',
                         '    std::free(r);', '    return MeosRuntime::string(w);'], none
             return None
         if sql == 'bytea' and rc == 'uint8_t*' and length is not None:
             # the WKB a writer answers, its length in its size out-parameter, as JMEOS's #_ret reads it
-            return ['    if (r == nullptr)\n' + no_value(none), f'    auto* answer = MeosRuntime::bytes(r, {length});',
+            return ['    if (r == nullptr)\n' + no_value(ABSENT), f'    auto* answer = MeosRuntime::bytes(r, {length});',
                     '    std::free(r);', '    return answer;'], none
         if sql == 'text':
             if rc == 'char*':
                 return ['    return MeosRuntime::string(r);'], none
             if rc == 'const char*':
                 # a name MEOS keeps, which the caller does not free
-                return ['    if (r == nullptr)\n' + no_value(none), '    return MeosRuntime::bytes(r, std::strlen(r));'], none
+                return ['    if (r == nullptr)\n' + no_value(ABSENT), '    return MeosRuntime::bytes(r, std::strlen(r));'], none
             if rc == 'text*':
                 self.t.fn('text_out')
-                return ['    if (r == nullptr)\n' + no_value(none), '    size_t size = 0;',
+                return ['    if (r == nullptr)\n' + no_value(ABSENT), '    size_t size = 0;',
                         '    char* w = text_out(r, &size);', '    std::free(r);', '    return MeosRuntime::string(w);'], none
             return None
         if sql == 'timestamptz' and rc == 'TimestampTz':
@@ -899,8 +903,31 @@ class FunctionLayer:
             slot = SQL_SCALAR[sql][1]
             # a predicate MEOS answers as an int answers true for 1 alone, its error being -1
             value = 'r == 1' if (slot == 'bool' and rc == 'int') else f'static_cast<{slot}>(r)'
-            return [f'    return MeosRuntime::number<{slot}>(out, {value});'], f'MeosRuntime::number<{slot}>(out, {slot}{{}})'
+            return self.null_guard(f, rc) + [f'    return MeosRuntime::number<{slot}>(out, {value});'], \
+                f'MeosRuntime::number<{slot}>(out, {slot}{{}})'
         return None
+
+    def null_guard(self, f, rc):
+        """The test answering no value where the PG wrapper returns NULL for a result `r` carried by value, the
+        guard the catalog states for the wrapper (shape.nullableResult) as JMEOS's #_null_guard reads it: the
+        maximum of the C type for a distance, a negative number for a three-valued predicate"""
+        kind = self.cj._SENTINEL_GUARD.get((f.get('shape') or {}).get('nullableResult'))
+        if kind == 'max' and rc != 'bool':
+            return [f'    if (r == std::numeric_limits<{rc}>::max())\n' + no_value(ABSENT)]
+        if kind == 'neg' and rc in ('int', 'int16_t', 'int32_t', 'int64_t'):
+            return ['    if (r < 0)\n' + no_value(ABSENT)]
+        return []
+
+    def answers_none(self, f, value_out):
+        """Whether the kernel of f may answer no value, which makes its result nullable: the value an out-parameter
+        is not written in, the null pointer of a function whose PG wrapper returns NULL for one, or the by-value
+        result its wrapper's guard tests"""
+        if value_out:
+            return True
+        rc = c_spelling(f['returnType']['canonical'])
+        if rc.endswith('*'):
+            return (f.get('shape') or {}).get('nullableResult') in POINTER_NULL
+        return bool(self.null_guard(f, rc))
 
     def default_argument(self, k, sql, p, literal, pre, post):
         """The C expression passing the default `literal` to parameter p for an argument of SQL type `sql` a
@@ -1044,17 +1071,21 @@ class FunctionLayer:
         if 'MeosRuntime::number<' not in ''.join(answer) + none:
             body.append('    static_cast<void>(out);')
         body += [line.replace('@NONE@', none) for line in pre]
+        body.append('    meos_errno_reset();')
         if value_out:
             body.append(f'    const bool found = {f["name"]}({", ".join(c for c in call if c is not None)});')
             body += post
-            body += ['    if (!found)\n' + no_value(none), '    auto r = value;']
+            body.append(f'    MeosRuntime::raised("{f["name"]}");')
+            body += ['    if (!found)\n' + no_value(ABSENT), '    auto r = value;']
         else:
             body.append(f'    auto r = {f["name"]}({", ".join(c for c in call if c is not None)});')
             body += post
+            body.append(f'    MeosRuntime::raised("{f["name"]}");')
         body += answer
         body.append('}')
-        self.kernels.append((key, '\n'.join(body), [pt for _, pt in types[:stated]], rtype[1]))
-        self.overloads.setdefault(name, []).append((nes_args, rtype[0], key))
+        none_answered = self.answers_none(f, value_out)
+        self.kernels.append((key, '\n'.join(body), [pt for _, pt in types[:stated]], rtype[1], none_answered))
+        self.overloads.setdefault(name, []).append((nes_args, rtype[0], key, none_answered))
         return None
 
     def composition(self, n, comp):
@@ -1158,12 +1189,15 @@ class FunctionLayer:
         if 'MeosRuntime::number<' not in ''.join(answer) + none:
             body.append('    static_cast<void>(out);')
         body += [line.replace('@NONE@', none) for line in pre]
+        body.append('    meos_errno_reset();')
         body.append(f'    auto r = {f["name"]}({", ".join(call)});')
         body += post
+        body.append(f'    MeosRuntime::raised("{f["name"]}");')
         body += answer
         body.append('}')
-        self.kernels.append((key, '\n'.join(body), [pt for _, pt in types[:stated]], rtype[1]))
-        self.overloads.setdefault(name, []).append((nes_args, rtype[0], key))
+        none_answered = self.answers_none(f, None)
+        self.kernels.append((key, '\n'.join(body), [pt for _, pt in types[:stated]], rtype[1], none_answered))
+        self.overloads.setdefault(name, []).append((nes_args, rtype[0], key, none_answered))
         return None
 
     def build(self):
@@ -1192,10 +1226,11 @@ class FunctionLayer:
                '#include <span>', '#include <Functions/MeosLogicalFunction.hpp>', '',
                'namespace NES', '{', '', 'namespace', '{']
         for n, (name, overloads) in enumerate(sorted(self.overloads.items())):
-            for o, (nes_args, _, _) in enumerate(overloads):
+            for o, (nes_args, _, _, _) in enumerate(overloads):
                 quoted = ', '.join(f'"{a}"' for a in nes_args)
                 out.append(f'constexpr std::array<std::string_view, {len(nes_args)}> arguments{n}_{o}{{{quoted}}};')
-            rows = ', '.join(f'MeosOverload{{arguments{n}_{o}, "{r}", "{k}"}}' for o, (_, r, k) in enumerate(overloads))
+            rows = ', '.join(f'MeosOverload{{arguments{n}_{o}, "{r}", "{k}", {"true" if none else "false"}}}'
+                             for o, (_, r, k, none) in enumerate(overloads))
             out.append(f'constexpr std::array<MeosOverload, {len(overloads)}> overloads{n}{{{rows}}};')
         out += ['}', '']
         rows = ',\n'.join(f'        MeosFunction{{"{name}", overloads{n}}}' for n, (name, _) in enumerate(sorted(self.overloads.items())))
@@ -1217,16 +1252,17 @@ class FunctionLayer:
                    '#include <Plugins/BuiltinPlugins.hpp>', '#include <Plugins/PluginDescriptor.hpp>',
                    '#include <MeosKernelRuntime.hpp>', '#include <PhysicalFunctionRegistry.hpp>', '',
                    'namespace NES', '{', '', 'namespace', '{']
-            for _, src, _, _ in chunk:
+            for _, src, _, _, _ in chunk:
                 out += [src, '']
             out += ['void describe(PluginDescriptor& descriptor)', '{']
-            for key, _, ptypes, rtype in chunk:
+            for key, _, ptypes, rtype, none in chunk:
                 types = ', '.join(f'DataType::Type::{t}' for t in ptypes)
                 out += ['    descriptor.entries.push_back(EntryProvision{',
                         '        .registryClassName = "PhysicalFunctionRegistry",',
                         f'        .key = "{key}",',
                         '        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction',
                         f'            {{ return MeosPhysicalFunction(MeosKernel{{&{key}}}, {{{types}}}, DataType::Type::{rtype}, '
+                        f'{"true" if none else "false"}, '
                         'std::move(arguments.childFunctions)); }}}});']
             out += ['}', '',
                     '/// Static registration is the purpose of this initializer; it only stores a function pointer.',

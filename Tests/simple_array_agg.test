@@ -1,0 +1,22 @@
+# name: operator/aggregation/SimpleArrayAgg.test
+# description: Minimal test for ARRAY_AGG to verify segfault fix
+# groups: [Aggregation, WindowOperators, ARRAY_AGG]
+
+# Test 1: Basic ARRAY_AGG with tumbling window (no GROUP BY)
+# Note: The last record (id=5) advances watermark past window boundary to trigger emission
+Source readings UINT32 id UINT8 character UINT64 ts INLINE
+1,65,1000
+2,66,2000
+3,67,3000
+4,68,4000
+5,69,6000
+
+SINK result UINT64 readings$start UINT64 readings$end VARSIZED readings$values
+
+SELECT start, end, ARRAY_AGG(character) AS values
+FROM readings
+WINDOW TUMBLING(ts, size 5000 ms)
+INTO result
+----
+0,5000,ABCD
+5000,10000,E

@@ -1,0 +1,51 @@
+query: |
+  SELECT start,
+          end,
+          COUNT(time_utc) AS cnt
+  FROM sncb_stream
+  WHERE edwithin_tgeo_geo(gps_lon,
+                          gps_lat,
+                          time_utc,
+                          'SRID=4326;POINT(4.3658 50.6456)',
+                          FLOAT64(2.0)) = INT32(1)
+  WINDOW TUMBLING(time_utc, SIZE 5 SEC)
+  INTO file_sink;
+
+sinks:
+  - name: FILE_SINK
+    type: File
+    schema:
+      - { name: SNCB_STREAM$START, type: UINT64 }
+      - { name: SNCB_STREAM$END,   type: UINT64 }
+      - { name: SNCB_STREAM$CNT,   type: UINT64 }
+    config:
+      file_path: "/workspace/Output/output_query1.csv"
+      input_format: CSV
+
+logical:
+  - name: SNCB_STREAM
+    schema:
+      - { name: TIME_UTC,   type: UINT64 }
+      - { name: DEVICE_ID,  type: UINT64 }
+      - { name: VBAT,       type: FLOAT64 }
+      - { name: PCFA_MBAR,  type: FLOAT64 }
+      - { name: PCFF_MBAR,  type: FLOAT64 }
+      - { name: PCF1_MBAR,  type: FLOAT64 }
+      - { name: PCF2_MBAR,  type: FLOAT64 }
+      - { name: T1_MBAR,    type: FLOAT64 }
+      - { name: T2_MBAR,    type: FLOAT64 }
+      - { name: CODE1,      type: FLOAT64 }
+      - { name: CODE2,      type: FLOAT64 }
+      - { name: GPS_SPEED,  type: FLOAT64 }
+      - { name: GPS_LAT,    type: FLOAT64 }
+      - { name: GPS_LON,    type: FLOAT64 }
+
+physical:
+  - logical: SNCB_STREAM
+    type: File
+    parser_config:
+      type: CSV
+      field_delimiter: ","
+      tuple_delimiter: "\n"
+    source_config:
+      file_path: "/workspace/Input/input_sncb.csv"

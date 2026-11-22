@@ -1,0 +1,63 @@
+query: |
+  SELECT device_id,
+         start,
+         end,
+         TEMPORAL_SEQUENCE(gps_lon, gps_lat, time_utc) AS trajectory,
+         AVG(gps_speed) AS avg_speed,
+         MIN(gps_speed) AS min_speed
+  FROM sncb_stream
+  WHERE edwithin_tgeo_geo(gps_lon,
+                          gps_lat,
+                          time_utc,
+                          'SRID=4326;POLYGON((4.32 50.60, 4.32 50.72, 4.48 50.72, 4.48 50.60, 4.32 50.60))',
+                          FLOAT64(1.0)) = INT32(1)
+  GROUP BY device_id
+  WINDOW SLIDING(time_utc, SIZE 20 SEC, ADVANCE BY 2 SEC)
+  HAVING (avg_speed < FLOAT64(100.0))
+      OR (min_speed < FLOAT64(20.0))
+  INTO file_sink;
+
+sinks:
+  - name: FILE_SINK
+    type: File
+    schema:
+      - { name: SNCB_STREAM$DEVICE_ID,  type: UINT64 }
+      - { name: SNCB_STREAM$START,      type: UINT64 }
+      - { name: SNCB_STREAM$END,        type: UINT64 }
+      - { name: SNCB_STREAM$TRAJECTORY, type: VARSIZED }
+      - { name: SNCB_STREAM$AVG_SPEED,  type: FLOAT64 }
+      - { name: SNCB_STREAM$MIN_SPEED,  type: FLOAT64 }
+    config:
+      file_path: "/workspace/Output/output_query5.csv"
+      input_format: CSV
+
+logical:
+  - name: SNCB_STREAM
+    schema:
+      - { name: TIME_UTC,   type: UINT64 }
+      - { name: DEVICE_ID,  type: UINT64 }
+      - { name: VBAT,       type: FLOAT64 }
+      - { name: PCFA_MBAR,  type: FLOAT64 }
+      - { name: PCFF_MBAR,  type: FLOAT64 }
+      - { name: PCF1_MBAR,  type: FLOAT64 }
+      - { name: PCF2_MBAR,  type: FLOAT64 }
+      - { name: T1_MBAR,    type: FLOAT64 }
+      - { name: T2_MBAR,    type: FLOAT64 }
+      - { name: CODE1,      type: FLOAT64 }
+      - { name: CODE2,      type: FLOAT64 }
+      - { name: GPS_SPEED,  type: FLOAT64 }
+      - { name: GPS_LAT,    type: FLOAT64 }
+      - { name: GPS_LON,    type: FLOAT64 }
+
+physical:
+  - logical: SNCB_STREAM
+    type: TCP
+    parser_config:
+      type: CSV
+      field_delimiter: ","
+      tuple_delimiter: "\n"
+    source_config:
+      socket_host: "host.docker.internal"
+      socket_port: "32324"
+      socket_type: "SOCK_STREAM"
+      socket_domain: "AF_INET"

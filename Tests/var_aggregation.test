@@ -1,0 +1,100 @@
+# name: operator/aggregation/VarAggregation.test
+# description: Test VAR aggregation function (variance as max - min)
+# groups: [Aggregation, WindowOperators]
+
+# Test 1: Basic VAR aggregation with tumbling window
+Source sensor_readings UINT32 sensor_id FLOAT64 temperature UINT64 timestamp INLINE
+1,20.5,1000
+1,22.3,2000
+1,19.8,3000
+1,23.1,4000
+2,15.0,1000
+2,15.5,2000
+2,15.2,3000
+2,15.8,4000
+
+SINK variance_result UINT64 sensor_readings$start UINT64 sensor_readings$end UINT32 sensor_readings$sensor_id FLOAT64 sensor_readings$temp_variance
+
+SELECT start, end, sensor_id, VAR(temperature) AS temp_variance
+FROM sensor_readings
+GROUP BY sensor_id
+WINDOW TUMBLING(timestamp, size 5 sec)
+INTO variance_result
+----
+0,5000,1,3.3
+0,5000,2,0.8
+
+# Test 2: VAR aggregation with sliding window
+Source brake_pressure UINT64 device_id UINT64 timestamp FLOAT64 PCFA FLOAT64 PCFF FLOAT64 PCF1 FLOAT64 PCF2 INLINE
+5,1726972591000,3.24,3.862,3.082,3.018
+5,1726972592000,3.243,3.855,3.082,3.018
+5,1726972593000,3.243,3.858,3.082,3.026
+5,1726972594000,3.24,3.858,3.082,3.026
+5,1726972595000,3.245,3.860,3.082,3.026
+5,1726972596000,3.241,3.856,3.082,3.026
+
+SINK brake_variance UINT64 brake_pressure$start UINT64 brake_pressure$end FLOAT64 brake_pressure$PCFA_var FLOAT64 brake_pressure$PCFF_var
+
+SELECT start, end, VAR(PCFA) AS PCFA_var, VAR(PCFF) AS PCFF_var
+FROM brake_pressure
+WINDOW SLIDING(timestamp, size 3000 ms, advance by 2000 ms)
+INTO brake_variance
+----
+1726972590000,1726972593000,0.003,0.007
+1726972592000,1726972595000,0.003,0.003
+1726972594000,1726972597000,0.005,0.004
+1726972596000,1726972599000,0.0,0.0
+
+# Test 3: VAR with multiple grouping keys
+Source multi_sensor UINT32 location_id UINT32 sensor_type FLOAT64 value UINT64 ts INLINE
+1,1,100.5,1000
+1,1,102.3,2000
+1,1,99.8,3000
+1,2,50.0,1000
+1,2,55.5,2000
+1,2,48.2,3000
+2,1,200.0,1000
+2,1,205.5,2000
+2,1,198.5,3000
+
+SINK grouped_variance UINT64 multi_sensor$start UINT64 multi_sensor$end UINT32 multi_sensor$location_id UINT32 multi_sensor$sensor_type FLOAT64 multi_sensor$value_var
+
+SELECT start, end, location_id, sensor_type, VAR(value) AS value_var
+FROM multi_sensor
+GROUP BY location_id, sensor_type
+WINDOW TUMBLING(ts, size 4 sec)
+INTO grouped_variance
+----
+0,4000,1,1,2.5
+0,4000,1,2,7.3
+0,4000,2,1,7.0
+
+# Test 4: VAR with single value (should return 0)
+Source single_value UINT32 id FLOAT64 val UINT64 time INLINE
+1,42.0,1000
+
+SINK single_var UINT64 single_value$start UINT64 single_value$end FLOAT64 single_value$variance
+
+SELECT start, end, VAR(val) AS variance
+FROM single_value
+WINDOW TUMBLING(time, size 2 sec)
+INTO single_var
+----
+0,2000,0.0
+
+# Test 5: VAR with empty window (should handle gracefully)
+Source sparse_data UINT32 id FLOAT64 measurement UINT64 timestamp INLINE
+1,10.0,1000
+1,20.0,5000
+1,15.0,9000
+
+SINK sparse_variance UINT64 sparse_data$start UINT64 sparse_data$end FLOAT64 sparse_data$var_result
+
+SELECT start, end, VAR(measurement) AS var_result
+FROM sparse_data
+WINDOW TUMBLING(timestamp, size 2 sec)
+INTO sparse_variance
+----
+0,2000,0.0
+4000,6000,0.0
+8000,10000,0.0

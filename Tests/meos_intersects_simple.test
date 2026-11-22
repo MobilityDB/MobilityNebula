@@ -1,0 +1,14 @@
+# name: function/spatiotemporal/MEOS_Intersects_Simple.test
+# description: Simple test for TEMPORAL_INTERSECTS function
+# groups: [Function, MEOS, SpatioTemporal]
+
+Source locations UINT32 id FLOAT64 longitude FLOAT64 latitude UINT64 timestamp INLINE
+1,-73.9857,40.7484,1609459200
+
+SINK result UINT32 locations$id BOOLEAN locations$intersects
+
+SELECT id, TEMPORAL_INTERSECTS(locations$longitude, locations$latitude, locations$timestamp) AS intersects
+FROM locations
+INTO result
+----
+1,1

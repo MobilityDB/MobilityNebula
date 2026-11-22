@@ -1,0 +1,21 @@
+# name: operator/aggregation/temporal_sequence.test
+# description: Test for TEMPORAL_SEQUENCE aggregation function
+# groups: [Aggregation, MEOS, SpatioTemporal, WindowOperators]
+
+# Test 1: Basic temporal sequence aggregation with window (following array_agg pattern)
+Source gps_data FLOAT64 longitude FLOAT64 latitude UINT64 timestamp INLINE
+73.9857,40.7484,1000
+74.9787,40.7505,2000
+75.9715,40.7589,3000
+76.9650,40.7620,4000
+77.9600,40.7650,7000
+
+SINK basic_result UINT64 GPS_DATA$START UINT64 GPS_DATA$END VARSIZED TRAJECTORY
+
+SELECT gps_data$start, gps_data$end, TEMPORAL_SEQUENCE(gps_data$longitude, gps_data$latitude, gps_data$timestamp) AS TRAJECTORY
+FROM gps_data
+WINDOW TUMBLING(gps_data$timestamp, size 5000 ms)
+INTO basic_result
+----
+0,5000,BINARY(32)
+5000,10000,BINARY(8)

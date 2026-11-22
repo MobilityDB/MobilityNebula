@@ -1,0 +1,132 @@
+# name: function/spatiotemporal/MEOS_Intersects_Multiple.test
+# description: Test for multiple TEMPORAL_INTERSECTS operations
+# groups: [Function, MEOS, SpatioTemporal]
+
+# Test 1: Multiple intersect operations on same trajectory
+Source trajectories UINT32 id FLOAT64 longitude FLOAT64 latitude UINT64 timestamp FLOAT64 lon_offset FLOAT64 lat_offset INLINE
+1,-73.9857,40.7484,1609459200,-73.9847,40.7494
+1,-73.9867,40.7494,1609459210,-73.9857,40.7504
+1,-73.9877,40.7504,1609459220,-73.9867,40.7514
+1,-73.9887,40.7514,1609459230,-73.9877,40.7524
+2,-73.9800,40.7450,1609459200,-73.9790,40.7460
+2,-73.9810,40.7460,1609459210,-73.9800,40.7470
+2,-73.9820,40.7470,1609459220,-73.9810,40.7480
+2,-73.9830,40.7480,1609459230,-73.9820,40.7490
+
+SINK intersect_results UINT32 trajectories$id BOOLEAN trajectories$intersects1 BOOLEAN trajectories$intersects2
+
+SELECT id, 
+       TEMPORAL_INTERSECTS(longitude, latitude, timestamp) AS intersects1,
+       TEMPORAL_INTERSECTS(lon_offset, lat_offset, timestamp) AS intersects2
+FROM trajectories
+INTO intersect_results
+----
+1,1,0
+1,0,0
+1,0,0
+1,0,0
+2,0,0
+2,0,0
+2,0,0
+2,0,0
+
+# Test 2: Multiple intersect operations with different parameters
+Source complex_trajectories UINT32 obj_id FLOAT64 x FLOAT64 y UINT64 time FLOAT64 x2 FLOAT64 y2 INLINE
+1,-73.9857,40.7484,1609459200,-73.9855,40.7483
+1,-73.9867,40.7494,1609459205,-73.9865,40.7493
+1,-73.9877,40.7504,1609459210,-73.9875,40.7503
+2,-73.9857,40.7484,1609459200,-73.9798,40.7449
+2,-73.9810,40.7460,1609459205,-73.9808,40.7459
+2,-73.9820,40.7470,1609459210,-73.9818,40.7469
+3,-73.9900,40.7500,1609459200,-73.9898,40.7499
+3,-73.9910,40.7510,1609459205,-73.9908,40.7509
+3,-73.9920,40.7520,1609459210,-73.9918,40.7519
+
+SINK filtered_intersects UINT32 complex_trajectories$obj_id BOOLEAN complex_trajectories$base_intersect BOOLEAN complex_trajectories$alt_intersect
+
+SELECT obj_id,
+       TEMPORAL_INTERSECTS(x, y, time) AS base_intersect,
+       TEMPORAL_INTERSECTS(x2, y2, time) AS alt_intersect
+FROM complex_trajectories
+INTO filtered_intersects
+----
+1,1,0
+1,0,0
+1,0,0
+2,1,0
+2,0,0
+2,0,0
+3,0,0
+3,0,0
+3,0,0
+
+# Test 3: Multiple trajectories with multiple intersect checks
+Source multi_checks UINT32 traj_id FLOAT64 lon1 FLOAT64 lat1 FLOAT64 lon2 FLOAT64 lat2 UINT64 ts INLINE
+1,-73.9857,40.7484,-73.9857,40.7484,1609459200
+1,-73.9857,40.7484,-73.9858,40.7485,1609459201
+2,-73.9859,40.7486,-73.9860,40.7487,1609459202
+2,-73.9861,40.7488,-73.9857,40.7484,1609459203
+3,-73.9857,40.7484,-73.9900,40.7500,1609459204
+3,-73.9910,40.7510,-73.9857,40.7484,1609459205
+
+SINK multi_check_results UINT32 multi_checks$traj_id BOOLEAN multi_checks$check1 BOOLEAN multi_checks$check2
+
+SELECT traj_id,
+       TEMPORAL_INTERSECTS(lon1, lat1, ts) AS check1,
+       TEMPORAL_INTERSECTS(lon2, lat2, ts) AS check2
+FROM multi_checks
+INTO multi_check_results
+----
+1,1,1
+1,1,0
+2,0,0
+2,0,1
+3,1,0
+3,0,1
+
+# Test 4: Intersects with conditional logic
+Source conditional_data UINT32 sensor_id FLOAT64 x FLOAT64 y UINT64 timestamp UINT32 status INLINE
+1,-73.9857,40.7484,1609459200,1
+2,-73.9857,40.7484,1609459201,0
+3,-73.9860,40.7487,1609459202,1
+4,-73.9857,40.7484,1609459203,1
+5,-73.9900,40.7500,1609459204,0
+
+SINK conditional_results UINT32 conditional_data$sensor_id BOOLEAN conditional_data$intersects UINT32 conditional_data$status_check
+
+SELECT sensor_id,
+       TEMPORAL_INTERSECTS(x, y, timestamp) AS intersects,
+       status AS status_check
+FROM conditional_data
+INTO conditional_results
+----
+1,1,1
+2,1,0
+3,0,1
+4,1,1
+5,0,0
+
+# Test 5: Chain of intersect operations  
+Source chain_data UINT32 point_id FLOAT64 lon FLOAT64 lat UINT64 ts INLINE
+1,-73.9857,40.7484,1609459200
+2,-73.9858,40.7485,1609459201
+3,-73.9857,40.7484,1609459202
+4,-73.9860,40.7487,1609459203
+5,-73.9857,40.7484,1609459204
+6,-73.9862,40.7489,1609459205
+7,-73.9857,40.7484,1609459206
+
+SINK chain_results UINT32 chain_data$point_id BOOLEAN chain_data$is_match UINT32 chain_data$match_count
+
+SELECT point_id,
+       TEMPORAL_INTERSECTS(lon, lat, ts) AS is_match,
+       point_id AS match_count
+FROM chain_data
+INTO chain_results
+----
+1,1,1
+2,0,2
+3,1,3
+4,0,4
+5,1,5
+6,0,6

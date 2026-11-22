@@ -1,0 +1,154 @@
+# name: operator/aggregation/TemporalSequenceAggregation.test
+# description: Test TEMPORAL_SEQUENCE aggregation function for creating spatio-temporal trajectories
+# groups: [Aggregation, SpatioTemporal, WindowOperators, TEMPORAL_SEQUENCE]
+
+# Test 1: Basic TEMPORAL_SEQUENCE with tumbling window
+CREATE LOGICAL SOURCE vehicle_tracking(vehicle_id UINT32, lon FLOAT64, lat FLOAT64, ts UINT64, velocity FLOAT64);
+CREATE PHYSICAL SOURCE FOR vehicle_tracking TYPE File;
+ATTACH INLINE
+1,-122.4194,37.7749,1700000000000,45.5
+1,-122.4180,37.7765,1700000060000,48.2
+1,-122.4165,37.7780,1700000120000,46.8
+2,-122.4200,37.7750,1700000000000,35.0
+2,-122.4185,37.7760,1700000060000,38.5
+2,-122.4170,37.7770,1700000120000,36.2
+1,-122.4150,37.7795,1700000180000,50.1
+2,-122.4155,37.7780,1700000180000,40.0
+3,-122.4300,37.7800,1700000000000,55.0
+3,-122.4285,37.7815,1700000060000,52.3
+
+CREATE SINK trajectory_result(vehicle_tracking.start UINT64, vehicle_tracking.end UINT64, vehicle_tracking.vehicle_id UINT32, vehicle_tracking.TRAJECTORY VARSIZED) TYPE File;
+
+SELECT start, end, vehicle_id, TEMPORAL_SEQUENCE(lon, lat, ts) AS TRAJECTORY
+FROM vehicle_tracking
+GROUP BY vehicle_id
+WINDOW TUMBLING(ts, size 180000 ms)
+INTO trajectory_result;
+----
+1699999920000,1700000100000,1,BINARY(67)
+1699999920000,1700000100000,2,BINARY(67)
+1699999920000,1700000100000,3,BINARY(67)
+1700000100000,1700000280000,1,BINARY(67)
+1700000100000,1700000280000,2,BINARY(67)
+
+# Test 2: TEMPORAL_SEQUENCE with sliding window
+CREATE LOGICAL SOURCE sensor_data(sensor_id UINT16, x_coord FLOAT32, y_coord FLOAT32, time_ms UINT64);
+CREATE PHYSICAL SOURCE FOR sensor_data TYPE File;
+ATTACH INLINE
+10,12.5,45.7,2000000000
+10,12.6,45.8,2000001000
+10,12.7,45.9,2000002000
+20,13.0,46.0,2000000000
+20,13.1,46.1,2000001000
+10,12.8,46.0,2000003000
+20,13.2,46.2,2000002000
+10,12.9,46.1,2000004000
+
+CREATE SINK sliding_trajectories(sensor_data.start UINT64, sensor_data.end UINT64, sensor_data.sensor_id UINT16, sensor_data.PATH VARSIZED) TYPE File;
+
+SELECT start, end, sensor_id, TEMPORAL_SEQUENCE(x_coord, y_coord, time_ms) AS PATH
+FROM sensor_data
+GROUP BY sensor_id
+WINDOW SLIDING(time_ms, size 3000 ms, advance by 2000 ms)
+INTO sliding_trajectories;
+----
+1999998000,2000001000,10,BINARY(38)
+1999998000,2000001000,20,BINARY(38)
+2000000000,2000003000,10,BINARY(96)
+2000000000,2000003000,20,BINARY(96)
+2000002000,2000005000,10,BINARY(96)
+2000002000,2000005000,20,BINARY(38)
+2000004000,2000007000,10,BINARY(38)
+
+# Test 3: TEMPORAL_SEQUENCE with filter conditions
+CREATE LOGICAL SOURCE gps_stream(device_id UINT32, longitude FLOAT64, latitude FLOAT64, timestamp UINT64, speed FLOAT32, category VARSIZED);
+CREATE PHYSICAL SOURCE FOR gps_stream TYPE File;
+ATTACH INLINE
+100,-73.9857,40.7484,3000000000,25.5,"car"
+100,-73.9847,40.7494,3000001000,30.2,"car"
+200,-74.0060,40.7128,3000000000,5.0,"bike"
+100,-73.9837,40.7504,3000002000,28.1,"car"
+200,-74.0050,40.7138,3000001000,7.5,"bike"
+300,-73.9900,40.7300,3000000000,45.0,"car"
+200,-74.0040,40.7148,3000002000,6.2,"bike"
+
+CREATE SINK filtered_trajectories(gps_stream.start UINT64, gps_stream.end UINT64, gps_stream.device_id UINT32, gps_stream.TRAJECTORY VARSIZED) TYPE File;
+
+SELECT start, end, device_id, TEMPORAL_SEQUENCE(longitude, latitude, timestamp) AS TRAJECTORY
+FROM gps_stream
+WHERE speed > FLOAT64(10.0)
+GROUP BY device_id
+WINDOW TUMBLING(timestamp, size 3000 ms)
+INTO filtered_trajectories;
+----
+3000000000,3000003000,100,BINARY(96)
+3000000000,3000003000,300,BINARY(38)
+
+# Test 4: TEMPORAL_SEQUENCE with multiple grouping keys
+CREATE LOGICAL SOURCE fleet_tracking(fleet_id UINT32, vehicle_id UINT32, lng FLOAT64, lat FLOAT64, ts UINT64);
+CREATE PHYSICAL SOURCE FOR fleet_tracking TYPE File;
+ATTACH INLINE
+1,101,-0.1278,51.5074,4000000000
+1,101,-0.1268,51.5084,4000001000
+1,102,-0.1300,51.5100,4000000000
+2,201,-0.1400,51.5200,4000000000
+1,101,-0.1258,51.5094,4000002000
+2,201,-0.1390,51.5210,4000001000
+
+CREATE SINK fleet_trajectories(fleet_tracking.start UINT64, fleet_tracking.end UINT64, fleet_tracking.fleet_id UINT32, fleet_tracking.vehicle_id UINT32, fleet_tracking.ROUTE VARSIZED) TYPE File;
+
+SELECT start, end, fleet_id, vehicle_id, TEMPORAL_SEQUENCE(lng, lat, ts) AS ROUTE
+FROM fleet_tracking
+GROUP BY fleet_id, vehicle_id
+WINDOW TUMBLING(ts, size 3000 ms)
+INTO fleet_trajectories;
+----
+3999999000,4000002000,1,101,BINARY(67)
+3999999000,4000002000,1,102,BINARY(38)
+3999999000,4000002000,2,201,BINARY(67)
+4000002000,4000005000,1,101,BINARY(38)
+
+# Test 5: TEMPORAL_SEQUENCE with empty windows (no data in some windows)
+CREATE LOGICAL SOURCE sparse_tracking(id UINT32, x FLOAT64, y FLOAT64, t UINT64);
+CREATE PHYSICAL SOURCE FOR sparse_tracking TYPE File;
+ATTACH INLINE
+1,10.0,20.0,5000000000
+1,10.1,20.1,5000001000
+2,30.0,40.0,5000010000
+2,30.1,40.1,5000011000
+
+CREATE SINK sparse_result(sparse_tracking.start UINT64, sparse_tracking.end UINT64, sparse_tracking.id UINT32, sparse_tracking.TRAJ VARSIZED) TYPE File;
+
+SELECT start, end, id, TEMPORAL_SEQUENCE(x, y, t) AS TRAJ
+FROM sparse_tracking
+GROUP BY id
+WINDOW TUMBLING(t, size 5000 ms)
+INTO sparse_result;
+----
+5000000000,5000005000,1,BINARY(67)
+5000010000,5000015000,2,BINARY(67)
+
+# Test 6: Complex query with TEMPORAL_SEQUENCE and other aggregations
+CREATE LOGICAL SOURCE vehicle_metrics(vehicle_id UINT32, lon FLOAT64, lat FLOAT64, timestamp UINT64, speed FLOAT64, fuel_level FLOAT64);
+CREATE PHYSICAL SOURCE FOR vehicle_metrics TYPE File;
+ATTACH INLINE
+1,-122.4194,37.7749,6000000000,45.5,0.75
+1,-122.4180,37.7765,6000001000,48.2,0.73
+1,-122.4165,37.7780,6000002000,46.8,0.71
+2,-122.4200,37.7750,6000000000,35.0,0.80
+2,-122.4185,37.7760,6000001000,38.5,0.78
+2,-122.4170,37.7770,6000002000,36.2,0.76
+
+CREATE SINK vehicle_summary(vehicle_metrics.start UINT64, vehicle_metrics.end UINT64, vehicle_metrics.vehicle_id UINT32, vehicle_metrics.TRAJECTORY VARSIZED, vehicle_metrics.AVG_SPEED FLOAT64, vehicle_metrics.MIN_FUEL FLOAT64) TYPE File;
+
+SELECT start, end, vehicle_id,
+       TEMPORAL_SEQUENCE(lon, lat, timestamp) AS TRAJECTORY,
+       AVG(speed) AS AVG_SPEED,
+       MIN(fuel_level) AS MIN_FUEL
+FROM vehicle_metrics
+GROUP BY vehicle_id
+WINDOW TUMBLING(timestamp, size 3000 ms)
+INTO vehicle_summary;
+----
+6000000000,6000003000,1,BINARY(96),46.833333,0.71
+6000000000,6000003000,2,BINARY(96),36.566667,0.76

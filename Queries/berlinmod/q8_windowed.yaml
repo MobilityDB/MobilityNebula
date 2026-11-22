@@ -1,0 +1,53 @@
+# BerlinMOD-Q8 — windowed form (FULL)
+# "Vehicles within d of road segment (LINESTRING)." Uses edwithin_tgeo_geo with
+# a LINESTRING geometry — MEOS supports the within-radius predicate against any
+# geometry (POINT, POLYGON, LINESTRING), so no new MobilityNebula PhysicalFunction
+# is required. The segment runs from (4.30, 50.83) to (4.36, 50.87) with d = 5 km.
+
+query: |
+  SELECT start,
+         end,
+         vehicle_id,
+         COUNT(time_utc) AS events_near_segment
+  FROM berlinmod_stream
+  WHERE edwithin_tgeo_geo(gps_lon,
+                          gps_lat,
+                          time_utc,
+                          'SRID=4326;LINESTRING(4.30 50.83, 4.36 50.87)',
+                          FLOAT64(5000.0)) = INT32(1)
+  GROUP BY vehicle_id
+  WINDOW TUMBLING(time_utc, SIZE 10 SEC)
+  INTO file_sink;
+
+sinks:
+  - name: FILE_SINK
+    type: File
+    schema:
+      - { name: BERLINMOD_STREAM$START,               type: UINT64 }
+      - { name: BERLINMOD_STREAM$END,                 type: UINT64 }
+      - { name: BERLINMOD_STREAM$VEHICLE_ID,          type: UINT64 }
+      - { name: BERLINMOD_STREAM$EVENTS_NEAR_SEGMENT, type: UINT64 }
+    config:
+      file_path: "/workspace/Output/output_berlinmod_q8_windowed.csv"
+      input_format: CSV
+
+logical:
+  - name: BERLINMOD_STREAM
+    schema:
+      - { name: TIME_UTC,   type: UINT64 }
+      - { name: VEHICLE_ID, type: UINT64 }
+      - { name: GPS_LON,    type: FLOAT64 }
+      - { name: GPS_LAT,    type: FLOAT64 }
+
+physical:
+  - logical: BERLINMOD_STREAM
+    type: TCP
+    parser_config:
+      type: CSV
+      field_delimiter: ","
+      tuple_delimiter: "\n"
+    source_config:
+      socket_host: "host.docker.internal"
+      socket_port: "32325"
+      socket_type: "SOCK_STREAM"
+      socket_domain: "AF_INET"

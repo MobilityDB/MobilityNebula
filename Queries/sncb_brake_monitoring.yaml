@@ -1,0 +1,71 @@
+# Real-time Brake Pressure Monitoring Query Configuration
+# This query monitors PCFA and PCFF variance in real-time from TCP stream
+
+# SQL Query
+query: |
+  SELECT start, end, device_id, VAR(PCFA_mbar) AS PCFA_var, VAR(PCFF_mbar) AS PCFF_var
+  FROM gps_data
+  GROUP BY device_id
+  WINDOW SLIDING(time_utc, SIZE 30 SEC, ADVANCE BY 10 SEC)
+  INTO brake_alerts_stream
+
+# Sink Configuration
+sink:
+  name: brake_alerts_stream
+  type: MQTTSink
+  config:
+    brokerAddress: "tcp://localhost:1883"
+    clientId: "nebulastream_brake_monitor"
+    topic: "sncb/brake/alerts"
+    qos: 1
+    retain: false
+    cleanSession: true
+
+# Logical Source Definition
+logical:
+  - name: gps_data
+    schema:
+      - name: time_utc
+        type: UINT64
+      - name: device_id
+        type: UINT64
+      - name: Vbat
+        type: FLOAT64
+      - name: PCFA_mbar
+        type: FLOAT64
+      - name: PCFF_mbar
+        type: FLOAT64
+      - name: PCF1_mbar
+        type: FLOAT64
+      - name: PCF2_mbar
+        type: FLOAT64
+      - name: T1_mbar
+        type: FLOAT64
+      - name: T2_mbar
+        type: FLOAT64
+      - name: Code1
+        type: FLOAT64
+      - name: Code2
+        type: FLOAT64
+      - name: gps_speed
+        type: FLOAT64
+      - name: gps_lat
+        type: FLOAT64
+      - name: gps_lon
+        type: FLOAT64
+
+# Physical Source Configuration for TCP Stream
+physical:
+  - logical: gps_data
+    sourceConfig:
+      type: TCP
+      socketHost: 0.0.0.0
+      socketPort: "9000"
+      socketDomain: AF_INET
+      socketType: SOCK_STREAM
+      decideMessageSize: TUPLE_SEPARATOR
+      tupleSeparator: "\n"
+      socketBufferSize: "8192"
+      flushIntervalMS: "100"
+    parserConfig:
+      delimiter: ","

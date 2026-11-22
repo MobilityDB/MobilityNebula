@@ -1,0 +1,9 @@
+aintersects_tgeo_geo	wired
+aintersects_tgeo_tgeo	wired
+econtains_geo_tgeo	wired
+econtains_tgeo_geo	wired
+econtains_tgeo_tgeo	wired
+edwithin_tgeo_geo	wired
+eintersects_tgeo_geo	wired
+eintersects_tgeo_tgeo	wired
+tgeo_at_stbox	wired

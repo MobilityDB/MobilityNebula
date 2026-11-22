@@ -6,9 +6,10 @@
 # worktree.
 #
 # The devShell keeps its cache in the worktree (.ccache) unless CCACHE_DIR names one; this wrapper
-# names ~/.cache/ccache-nes, and the devShell's CCACHE_BASEDIR makes the cached entries relative to
-# the worktree, so a build in any worktree reuses what another compiled. libmeos is built once per
-# MobilityDB commit, as CI keeps it.
+# names ~/.cache/ccache-nes, the devShell's CCACHE_BASEDIR makes the cached entries relative to the
+# worktree, and hash_dir = false in the configuration of the cache keeps the working directory out
+# of the key of a compilation with debug information, so a build in any worktree reuses what another
+# compiled. libmeos is built once per MobilityDB commit, as CI keeps it.
 #
 # Usage:
 #   tools/codegen/build_local.sh [target ...]        # default: every target
@@ -32,6 +33,10 @@ cd "$ROOT"
 export CCACHE_DIR="${NES_CCACHE_DIR:-$HOME/.cache/ccache-nes}"
 export CCACHE_MAXSIZE="${NES_CCACHE_MAXSIZE:-20G}"
 mkdir -p "$CCACHE_DIR"
+# .nix/nix-run.sh passes CCACHE_DIR into the devShell but not CCACHE_NOHASHDIR, so the setting is
+# written into the configuration of the cache itself, which ccache reads from CCACHE_DIR
+grep -qx 'hash_dir = false' "$CCACHE_DIR/ccache.conf" 2>/dev/null ||
+  echo 'hash_dir = false' >> "$CCACHE_DIR/ccache.conf"
 BUILD_DIR="${BUILD_DIR:-cmake-build-local}"
 JOBS="${JOBS:-$(nproc)}"
 

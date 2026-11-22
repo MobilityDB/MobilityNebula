@@ -68,7 +68,8 @@ struct GuardedKernel<std::index_sequence<Index...>>
     }
 };
 
-/// The kernel called on the argument pointers, all of them, in order, unless an argument is null
+/// The kernel called on the argument pointers, all of them, in order, unless an argument is null. The kernel
+/// raises the error MEOS reports (MeosRuntime::raised), so the call may unwind.
 template <typename Kernel, size_t... Index>
 nautilus::val<int8_t*> callKernel(
     Kernel kernel,
@@ -78,7 +79,12 @@ nautilus::val<int8_t*> callKernel(
     std::index_sequence<Index...> indices)
 {
     return nautilus::invoke(
-        &GuardedKernel<decltype(indices)>::call, null, nautilus::val<uint64_t>(std::bit_cast<uint64_t>(kernel)), pointers[Index]..., out);
+        {.modRefInfo = nautilus::ModRefInfo::ModRef, .noUnwind = false},
+        &GuardedKernel<decltype(indices)>::call,
+        null,
+        nautilus::val<uint64_t>(std::bit_cast<uint64_t>(kernel)),
+        pointers[Index]...,
+        out);
 }
 
 /// The argument naming a variable-sized value, written in its slot
@@ -88,11 +94,17 @@ void nameArgument(int8_t* slot, const uint64_t size, const int8_t* content)
     std::memcpy(slot, &argument, sizeof(argument));
 }
 
+/// Whether the kernel answered no value
+bool answeredAbsent(const int8_t* answer)
+{
+    return answer == MeosRuntime::absent();
+}
+
 /// The length of the value a kernel answers, 0 for none
 uint64_t answeredLength(const int8_t* answer)
 {
     uint32_t length = 0;
-    if (answer != nullptr)
+    if (answer != nullptr and not answeredAbsent(answer))
     {
         std::memcpy(&length, answer, sizeof(length));
     }
@@ -102,7 +114,7 @@ uint64_t answeredLength(const int8_t* answer)
 /// The bytes of the value a kernel answers copied where they are kept, and the answer freed
 void keepAnswer(int8_t* destination, int8_t* answer, const uint64_t length)
 {
-    if (answer != nullptr)
+    if (answer != nullptr and not answeredAbsent(answer))
     {
         std::memcpy(destination, answer + sizeof(uint32_t), length);
         std::free(answer);
@@ -111,8 +123,16 @@ void keepAnswer(int8_t* destination, int8_t* answer, const uint64_t length)
 }
 
 MeosPhysicalFunction::MeosPhysicalFunction(
-    MeosKernel kernel, std::vector<DataType::Type> argumentTypes, const DataType::Type resultType, std::vector<PhysicalFunction> arguments)
-    : kernel(kernel), argumentTypes(std::move(argumentTypes)), resultType(resultType), arguments(std::move(arguments))
+    MeosKernel kernel,
+    std::vector<DataType::Type> argumentTypes,
+    const DataType::Type resultType,
+    const bool answersNone,
+    std::vector<PhysicalFunction> arguments)
+    : kernel(kernel)
+    , argumentTypes(std::move(argumentTypes))
+    , resultType(resultType)
+    , answersNone(answersNone)
+    , arguments(std::move(arguments))
 {
     PRECONDITION(this->argumentTypes.size() == this->arguments.size(), "a MEOS function takes one argument per type of its signature");
 }
@@ -133,6 +153,7 @@ VarVal MeosPhysicalFunction::execute(const Record& record, ArenaRef& arena) cons
         }
         values.push_back(std::move(value));
     }
+    nullable = nullable or answersNone;
     const auto isNullable = nullable ? DataType::NULLABLE::IS_NULLABLE : DataType::NULLABLE::NOT_NULLABLE;
 
     std::vector<nautilus::val<int8_t*>> pointers;
@@ -156,6 +177,10 @@ VarVal MeosPhysicalFunction::execute(const Record& record, ArenaRef& arena) cons
         [&]<typename Kernel>(Kernel typedKernel)
         { return callKernel(typedKernel, null, pointers, out, std::make_index_sequence<KernelArity<Kernel>::value>{}); },
         kernel);
+    if (answersNone)
+    {
+        null = null or nautilus::invoke(answeredAbsent, answer);
+    }
     if (resultType != DataType::Type::VARSIZED)
     {
         return VarVal::readVarValFromMemory(out, DataType{resultType, isNullable}, null);

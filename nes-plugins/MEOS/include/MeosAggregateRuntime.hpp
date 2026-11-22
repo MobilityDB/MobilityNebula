@@ -284,7 +284,13 @@ struct MeosAggregate
             out[AnswerNullAt] = 1;
             return none();
         }
-        return OPS::Write(r, out);
+        int8_t* answer = OPS::Write(r, out);
+        if (answer == absent())
+        {
+            out[AnswerNullAt] = 1;
+            return none();
+        }
+        return answer;
     }
 };
 

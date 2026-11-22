@@ -24,7 +24,7 @@ ATTACH INLINE
 [2024-01-01, 2024-02-01)|1.0|1000
 [2024-02-01, 2024-03-01)|5.0|2000
 
-CREATE SINK builtValues(value VARSIZED NOT NULL) TYPE File;
+CREATE SINK builtValues(value VARSIZED) TYPE File;
 SELECT asText(rasterValue(tgeompoint(geometryFromText(VARSIZED('SRID=4326;POINT(0.5 1)')),
   tstzspanFromText(VARSIZED('[2024-01-15, 2024-02-15]')), VARSIZED('Step')), rasts, periods, INT32(1))) AS value
 FROM (SELECT start, end, ARRAY_AGG(rast) AS rasts, ARRAY_AGG(period) AS periods

@@ -111,7 +111,8 @@ std::optional<size_t> MeosLogicalFunction::chooseOverload() const
 
 DataType MeosLogicalFunction::answerType() const
 {
-    const bool nullable = std::ranges::any_of(children, [](const auto& child) { return child.getDataType().nullable; });
+    const bool nullable = overloads[*chosen].answersNone
+        or std::ranges::any_of(children, [](const auto& child) { return child.getDataType().nullable; });
     return DataTypeProvider::provideDataType(
         std::string(overloads[*chosen].result), nullable ? DataType::NULLABLE::IS_NULLABLE : DataType::NULLABLE::NOT_NULLABLE);
 }

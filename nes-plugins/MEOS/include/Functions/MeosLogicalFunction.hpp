@@ -39,6 +39,8 @@ struct MeosOverload
     std::span<const std::string_view> arguments;
     std::string_view result;
     std::string_view physicalFunction;
+    /// Whether the kernel may answer no value, where MobilityDB answers NULL, which makes the result nullable
+    bool answersNone;
 };
 
 /// A MEOS function as the catalog states it: its SQL name and its signatures, of static storage

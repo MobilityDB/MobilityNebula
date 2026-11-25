@@ -3797,7 +3797,7 @@ int8_t* Meos_tstzspanset_upper_0(int8_t* a0, int8_t* out)
     return MeosRuntime::number<uint64_t>(out, MeosRuntime::milliseconds(r));
 }
 
-int8_t* Meos_bigintset_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_bigintset_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -3807,7 +3807,26 @@ int8_t* Meos_bigintset_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = bigintset_shift_scale(static_cast<Set*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), static_cast<int64_t>(0), true, false);
+    auto r = bigintset_scale(static_cast<Set*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)));
+    MeosRuntime::raised("bigintset_scale");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_bigintset_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = bigintset_shift_scale(static_cast<Set*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), static_cast<int64_t>(MeosRuntime::number<int64_t>(a2)));
     MeosRuntime::raised("bigintset_shift_scale");
     if (r == nullptr)
     {
@@ -3816,7 +3835,7 @@ int8_t* Meos_bigintset_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
 
-int8_t* Meos_bigintset_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_bigintset_shift_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -3826,8 +3845,8 @@ int8_t* Meos_bigintset_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = bigintset_shift_scale(static_cast<Set*>(v0.get()), static_cast<int64_t>(0), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), false, true);
-    MeosRuntime::raised("bigintset_shift_scale");
+    auto r = bigintset_shift(static_cast<Set*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)));
+    MeosRuntime::raised("bigintset_shift");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -3835,7 +3854,7 @@ int8_t* Meos_bigintset_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
 }
 
-int8_t* Meos_bigintset_shift_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+int8_t* Meos_bigintspan_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -3845,16 +3864,16 @@ int8_t* Meos_bigintset_shift_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t*
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = bigintset_shift_scale(static_cast<Set*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), static_cast<int64_t>(MeosRuntime::number<int64_t>(a2)), true, true);
-    MeosRuntime::raised("bigintset_shift_scale");
+    auto r = bigintspan_scale(static_cast<Span*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)));
+    MeosRuntime::raised("bigintspan_scale");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
     }
-    return MeosRuntime::image(r, static_cast<size_t>(set_mem_size(static_cast<const Set*>(static_cast<const void*>(r)))));
+    return MeosRuntime::image(r, size_t{24});
 }
 
-int8_t* Meos_bigintspan_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_bigintspan_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -3864,7 +3883,7 @@ int8_t* Meos_bigintspan_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = bigintspan_shift_scale(static_cast<Span*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), static_cast<int64_t>(0), true, false);
+    auto r = bigintspan_shift_scale(static_cast<Span*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), static_cast<int64_t>(MeosRuntime::number<int64_t>(a2)));
     MeosRuntime::raised("bigintspan_shift_scale");
     if (r == nullptr)
     {
@@ -3873,7 +3892,7 @@ int8_t* Meos_bigintspan_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, size_t{24});
 }
 
-int8_t* Meos_bigintspan_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_bigintspan_shift_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -3883,8 +3902,8 @@ int8_t* Meos_bigintspan_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = bigintspan_shift_scale(static_cast<Span*>(v0.get()), static_cast<int64_t>(0), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), false, true);
-    MeosRuntime::raised("bigintspan_shift_scale");
+    auto r = bigintspan_shift(static_cast<Span*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)));
+    MeosRuntime::raised("bigintspan_shift");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -3892,7 +3911,7 @@ int8_t* Meos_bigintspan_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, size_t{24});
 }
 
-int8_t* Meos_bigintspan_shift_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+int8_t* Meos_bigintspanset_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -3902,27 +3921,8 @@ int8_t* Meos_bigintspan_shift_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = bigintspan_shift_scale(static_cast<Span*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), static_cast<int64_t>(MeosRuntime::number<int64_t>(a2)), true, true);
-    MeosRuntime::raised("bigintspan_shift_scale");
-    if (r == nullptr)
-    {
-        return MeosRuntime::absent();
-    }
-    return MeosRuntime::image(r, size_t{24});
-}
-
-int8_t* Meos_bigintspanset_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    meos_errno_reset();
-    auto r = bigintspanset_shift_scale(static_cast<SpanSet*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), static_cast<int64_t>(0), true, false);
-    MeosRuntime::raised("bigintspanset_shift_scale");
+    auto r = bigintspanset_scale(static_cast<SpanSet*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)));
+    MeosRuntime::raised("bigintspanset_scale");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -5149,39 +5149,39 @@ void describe(PluginDescriptor& descriptor)
             { return MeosPhysicalFunction(MeosKernel{&Meos_tstzspanset_upper_0}, {DataType::Type::VARSIZED}, DataType::Type::UINT64, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_bigintset_scale_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintset_scale_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_bigintset_shift_scale_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintset_shift_scale_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintset_shift_scale_0}, {DataType::Type::VARSIZED, DataType::Type::INT64, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_bigintset_shift_scale_1",
+        .key = "Meos_bigintset_shift_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintset_shift_scale_1}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintset_shift_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_bigintset_shift_scale_2",
+        .key = "Meos_bigintspan_scale_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintset_shift_scale_2}, {DataType::Type::VARSIZED, DataType::Type::INT64, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintspan_scale_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_bigintspan_shift_scale_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintspan_shift_scale_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintspan_shift_scale_0}, {DataType::Type::VARSIZED, DataType::Type::INT64, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_bigintspan_shift_scale_1",
+        .key = "Meos_bigintspan_shift_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintspan_shift_scale_1}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintspan_shift_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_bigintspan_shift_scale_2",
+        .key = "Meos_bigintspanset_scale_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintspan_shift_scale_2}, {DataType::Type::VARSIZED, DataType::Type::INT64, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_bigintspanset_shift_scale_0",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintspanset_shift_scale_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_bigintspanset_scale_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
 }
 
 /// Static registration is the purpose of this initializer; it only stores a function pointer.

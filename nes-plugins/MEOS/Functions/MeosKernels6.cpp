@@ -831,7 +831,7 @@ int8_t* Meos_tbox_round_0_1(int8_t* a0, int8_t* out)
     return MeosRuntime::image(r, size_t{56});
 }
 
-int8_t* Meos_tfloatbox_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_tfloatbox_scale_value_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -841,8 +841,8 @@ int8_t* Meos_tfloatbox_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = tfloatbox_shift_scale(static_cast<TBox*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), 0.0, true, false);
-    MeosRuntime::raised("tfloatbox_shift_scale");
+    auto r = tfloatbox_scale_value(static_cast<TBox*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tfloatbox_scale_value");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -850,7 +850,7 @@ int8_t* Meos_tfloatbox_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, size_t{56});
 }
 
-int8_t* Meos_tfloatbox_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_tfloatbox_shift_scale_value_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -860,8 +860,8 @@ int8_t* Meos_tfloatbox_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = tfloatbox_shift_scale(static_cast<TBox*>(v0.get()), 0.0, static_cast<double>(MeosRuntime::number<double>(a1)), false, true);
-    MeosRuntime::raised("tfloatbox_shift_scale");
+    auto r = tfloatbox_shift_scale_value(static_cast<TBox*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)));
+    MeosRuntime::raised("tfloatbox_shift_scale_value");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -869,7 +869,7 @@ int8_t* Meos_tfloatbox_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, size_t{56});
 }
 
-int8_t* Meos_tfloatbox_shift_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+int8_t* Meos_tfloatbox_shift_value_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -879,8 +879,8 @@ int8_t* Meos_tfloatbox_shift_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t*
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = tfloatbox_shift_scale(static_cast<TBox*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), true, true);
-    MeosRuntime::raised("tfloatbox_shift_scale");
+    auto r = tfloatbox_shift_value(static_cast<TBox*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tfloatbox_shift_value");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -888,7 +888,7 @@ int8_t* Meos_tfloatbox_shift_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t*
     return MeosRuntime::image(r, size_t{56});
 }
 
-int8_t* Meos_tintbox_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_tintbox_scale_value_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -898,8 +898,8 @@ int8_t* Meos_tintbox_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = tintbox_shift_scale(static_cast<TBox*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), static_cast<int>(0), true, false);
-    MeosRuntime::raised("tintbox_shift_scale");
+    auto r = tintbox_scale_value(static_cast<TBox*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("tintbox_scale_value");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -907,7 +907,7 @@ int8_t* Meos_tintbox_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, size_t{56});
 }
 
-int8_t* Meos_tintbox_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_tintbox_shift_scale_value_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -917,8 +917,8 @@ int8_t* Meos_tintbox_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = tintbox_shift_scale(static_cast<TBox*>(v0.get()), static_cast<int>(0), static_cast<int>(MeosRuntime::number<int32_t>(a1)), false, true);
-    MeosRuntime::raised("tintbox_shift_scale");
+    auto r = tintbox_shift_scale_value(static_cast<TBox*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), static_cast<int>(MeosRuntime::number<int32_t>(a2)));
+    MeosRuntime::raised("tintbox_shift_scale_value");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -926,7 +926,7 @@ int8_t* Meos_tintbox_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, size_t{56});
 }
 
-int8_t* Meos_tintbox_shift_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+int8_t* Meos_tintbox_shift_value_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -936,8 +936,8 @@ int8_t* Meos_tintbox_shift_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* o
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = tintbox_shift_scale(static_cast<TBox*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), static_cast<int>(MeosRuntime::number<int32_t>(a2)), true, true);
-    MeosRuntime::raised("tintbox_shift_scale");
+    auto r = tintbox_shift_value(static_cast<TBox*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("tintbox_shift_value");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -964,7 +964,7 @@ int8_t* Meos_tbigintbox_expand_0(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, size_t{56});
 }
 
-int8_t* Meos_tbigintbox_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_tbigintbox_scale_value_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -974,8 +974,8 @@ int8_t* Meos_tbigintbox_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = tbigintbox_shift_scale(static_cast<TBox*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), static_cast<int64_t>(0), true, false);
-    MeosRuntime::raised("tbigintbox_shift_scale");
+    auto r = tbigintbox_scale_value(static_cast<TBox*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)));
+    MeosRuntime::raised("tbigintbox_scale_value");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -983,7 +983,7 @@ int8_t* Meos_tbigintbox_shift_scale_0(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, size_t{56});
 }
 
-int8_t* Meos_tbigintbox_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
+int8_t* Meos_tbigintbox_shift_scale_value_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -993,8 +993,8 @@ int8_t* Meos_tbigintbox_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = tbigintbox_shift_scale(static_cast<TBox*>(v0.get()), static_cast<int64_t>(0), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), false, true);
-    MeosRuntime::raised("tbigintbox_shift_scale");
+    auto r = tbigintbox_shift_scale_value(static_cast<TBox*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), static_cast<int64_t>(MeosRuntime::number<int64_t>(a2)));
+    MeosRuntime::raised("tbigintbox_shift_scale_value");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -1002,7 +1002,7 @@ int8_t* Meos_tbigintbox_shift_scale_1(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::image(r, size_t{56});
 }
 
-int8_t* Meos_tbigintbox_shift_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+int8_t* Meos_tbigintbox_shift_value_0(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
@@ -1012,8 +1012,8 @@ int8_t* Meos_tbigintbox_shift_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t
         return MeosRuntime::none();
     }
     meos_errno_reset();
-    auto r = tbigintbox_shift_scale(static_cast<TBox*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)), static_cast<int64_t>(MeosRuntime::number<int64_t>(a2)), true, true);
-    MeosRuntime::raised("tbigintbox_shift_scale");
+    auto r = tbigintbox_shift_value(static_cast<TBox*>(v0.get()), static_cast<int64_t>(MeosRuntime::number<int64_t>(a1)));
+    MeosRuntime::raised("tbigintbox_shift_value");
     if (r == nullptr)
     {
         return MeosRuntime::absent();
@@ -4713,34 +4713,34 @@ void describe(PluginDescriptor& descriptor)
             { return MeosPhysicalFunction(MeosKernel{&Meos_tbox_round_0_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tfloatbox_shift_scale_0",
+        .key = "Meos_tfloatbox_scale_value_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tfloatbox_shift_scale_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tfloatbox_scale_value_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tfloatbox_shift_scale_1",
+        .key = "Meos_tfloatbox_shift_scale_value_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tfloatbox_shift_scale_1}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tfloatbox_shift_scale_value_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tfloatbox_shift_scale_2",
+        .key = "Meos_tfloatbox_shift_value_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tfloatbox_shift_scale_2}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tfloatbox_shift_value_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tintbox_shift_scale_0",
+        .key = "Meos_tintbox_scale_value_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tintbox_shift_scale_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tintbox_scale_value_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tintbox_shift_scale_1",
+        .key = "Meos_tintbox_shift_scale_value_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tintbox_shift_scale_1}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tintbox_shift_scale_value_0}, {DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tintbox_shift_scale_2",
+        .key = "Meos_tintbox_shift_value_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tintbox_shift_scale_2}, {DataType::Type::VARSIZED, DataType::Type::INT32, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tintbox_shift_value_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tbigintbox_expand_0",
@@ -4748,19 +4748,19 @@ void describe(PluginDescriptor& descriptor)
             { return MeosPhysicalFunction(MeosKernel{&Meos_tbigintbox_expand_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tbigintbox_shift_scale_0",
+        .key = "Meos_tbigintbox_scale_value_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tbigintbox_shift_scale_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tbigintbox_scale_value_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tbigintbox_shift_scale_1",
+        .key = "Meos_tbigintbox_shift_scale_value_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tbigintbox_shift_scale_1}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tbigintbox_shift_scale_value_0}, {DataType::Type::VARSIZED, DataType::Type::INT64, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tbigintbox_shift_scale_2",
+        .key = "Meos_tbigintbox_shift_value_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tbigintbox_shift_scale_2}, {DataType::Type::VARSIZED, DataType::Type::INT64, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tbigintbox_shift_value_0}, {DataType::Type::VARSIZED, DataType::Type::INT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_union_tbox_tbox_0",

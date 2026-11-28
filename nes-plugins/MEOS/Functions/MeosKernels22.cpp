@@ -50,6 +50,824 @@ namespace NES
 
 namespace
 {
+int8_t* Meos_tgeo_force3d_1_1(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_force3d(static_cast<Temporal*>(v0.get()), static_cast<double>(0.0));
+    MeosRuntime::raised("tgeo_force3d");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_force3d_2(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_force3d(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tgeo_force3d");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_force3d_2_1(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_force3d(static_cast<Temporal*>(v0.get()), static_cast<double>(0.0));
+    MeosRuntime::raised("tgeo_force3d");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_force3d_3(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_force3d(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tgeo_force3d");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_force3d_3_1(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_force3d(static_cast<Temporal*>(v0.get()), static_cast<double>(0.0));
+    MeosRuntime::raised("tgeo_force3d");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a3)));
+    MeosRuntime::raised("tgeo_rotate");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a3)));
+    MeosRuntime::raised("tgeo_rotate");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_geo_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    const MeosRuntime::Value v2{a2};
+    if (v2.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate_geo(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<GSERIALIZED*>(v2.get()));
+    MeosRuntime::raised("tgeo_rotate_geo");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_geo_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    const MeosRuntime::Value v2{a2};
+    if (v2.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate_geo(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<GSERIALIZED*>(v2.get()));
+    MeosRuntime::raised("tgeo_rotate_geo");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_x_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate_x(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tgeo_rotate_x");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_x_1(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate_x(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tgeo_rotate_x");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_y_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate_y(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tgeo_rotate_y");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_y_1(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate_y(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tgeo_rotate_y");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_z_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate_z(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tgeo_rotate_z");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_z_1(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate_z(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tgeo_rotate_z");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_z_2(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate_z(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tgeo_rotate_z");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_rotate_z_3(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_rotate_z(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)));
+    MeosRuntime::raised("tgeo_rotate_z");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_scale_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_scale(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a3)));
+    MeosRuntime::raised("tgeo_scale");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_scale_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_scale(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), 1.0);
+    MeosRuntime::raised("tgeo_scale");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_scale_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_scale(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a3)));
+    MeosRuntime::raised("tgeo_scale");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_scale_3(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_scale(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), 1.0);
+    MeosRuntime::raised("tgeo_scale");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_scale_geo_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_scale_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    MeosRuntime::raised("tgeo_scale_geo");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_scale_geo_1(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_scale_geo(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()));
+    MeosRuntime::raised("tgeo_scale_geo");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_scale_geo_origin_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::none();
+    }
+    const MeosRuntime::Value v2{a2};
+    if (v2.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_scale_geo_origin(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()), static_cast<GSERIALIZED*>(v2.get()));
+    MeosRuntime::raised("tgeo_scale_geo_origin");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_scale_geo_origin_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    const MeosRuntime::Value v1{a1};
+    if (v1.empty())
+    {
+        return MeosRuntime::none();
+    }
+    const MeosRuntime::Value v2{a2};
+    if (v2.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_scale_geo_origin(static_cast<Temporal*>(v0.get()), static_cast<GSERIALIZED*>(v1.get()), static_cast<GSERIALIZED*>(v2.get()));
+    MeosRuntime::raised("tgeo_scale_geo_origin");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_translate_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_translate(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a3)));
+    MeosRuntime::raised("tgeo_translate");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_translate_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_translate(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), 0.0);
+    MeosRuntime::raised("tgeo_translate");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_translate_2(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_translate(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a3)));
+    MeosRuntime::raised("tgeo_translate");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_translate_3(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_translate(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), 0.0);
+    MeosRuntime::raised("tgeo_translate");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_transscale_0(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t* a4, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_transscale(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a3)), static_cast<double>(MeosRuntime::number<double>(a4)));
+    MeosRuntime::raised("tgeo_transscale");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tgeo_transscale_1(int8_t* a0, int8_t* a1, int8_t* a2, int8_t* a3, int8_t* a4, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tgeo_transscale(static_cast<Temporal*>(v0.get()), static_cast<double>(MeosRuntime::number<double>(a1)), static_cast<double>(MeosRuntime::number<double>(a2)), static_cast<double>(MeosRuntime::number<double>(a3)), static_cast<double>(MeosRuntime::number<double>(a4)));
+    MeosRuntime::raised("tgeo_transscale");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
+int8_t* Meos_tpoint_make_simple_0(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    int length0 = 0;
+    meos_errno_reset();
+    auto r = tpoint_make_simple(static_cast<Temporal*>(v0.get()), &length0);
+    MeosRuntime::raised("tpoint_make_simple");
+    return MeosRuntime::array(reinterpret_cast<void**>(r), static_cast<int>(length0), [](const void* e) { return static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(e))); });
+}
+
+int8_t* Meos_tspatial_srid_0(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<int32_t>(out, int32_t{});
+    }
+    meos_errno_reset();
+    auto r = tspatial_srid(static_cast<Temporal*>(v0.get()));
+    MeosRuntime::raised("tspatial_srid");
+    return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
+}
+
+int8_t* Meos_tspatial_srid_1(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<int32_t>(out, int32_t{});
+    }
+    meos_errno_reset();
+    auto r = tspatial_srid(static_cast<Temporal*>(v0.get()));
+    MeosRuntime::raised("tspatial_srid");
+    return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
+}
+
+int8_t* Meos_tspatial_srid_2(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<int32_t>(out, int32_t{});
+    }
+    meos_errno_reset();
+    auto r = tspatial_srid(static_cast<Temporal*>(v0.get()));
+    MeosRuntime::raised("tspatial_srid");
+    return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
+}
+
+int8_t* Meos_tspatial_srid_3(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<int32_t>(out, int32_t{});
+    }
+    meos_errno_reset();
+    auto r = tspatial_srid(static_cast<Temporal*>(v0.get()));
+    MeosRuntime::raised("tspatial_srid");
+    return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
+}
+
+int8_t* Meos_tspatial_srid_4(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<int32_t>(out, int32_t{});
+    }
+    meos_errno_reset();
+    auto r = tspatial_srid(static_cast<Temporal*>(v0.get()));
+    MeosRuntime::raised("tspatial_srid");
+    return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
+}
+
+int8_t* Meos_tspatial_srid_5(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<int32_t>(out, int32_t{});
+    }
+    meos_errno_reset();
+    auto r = tspatial_srid(static_cast<Temporal*>(v0.get()));
+    MeosRuntime::raised("tspatial_srid");
+    return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
+}
+
+int8_t* Meos_tspatial_srid_6(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<int32_t>(out, int32_t{});
+    }
+    meos_errno_reset();
+    auto r = tspatial_srid(static_cast<Temporal*>(v0.get()));
+    MeosRuntime::raised("tspatial_srid");
+    return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
+}
+
+int8_t* Meos_tspatial_srid_7(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<int32_t>(out, int32_t{});
+    }
+    meos_errno_reset();
+    auto r = tspatial_srid(static_cast<Temporal*>(v0.get()));
+    MeosRuntime::raised("tspatial_srid");
+    return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
+}
+
+int8_t* Meos_tspatial_srid_8(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<int32_t>(out, int32_t{});
+    }
+    meos_errno_reset();
+    auto r = tspatial_srid(static_cast<Temporal*>(v0.get()));
+    MeosRuntime::raised("tspatial_srid");
+    return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
+}
+
+int8_t* Meos_tspatial_srid_9(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<int32_t>(out, int32_t{});
+    }
+    meos_errno_reset();
+    auto r = tspatial_srid(static_cast<Temporal*>(v0.get()));
+    MeosRuntime::raised("tspatial_srid");
+    return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
+}
+
+int8_t* Meos_tspatial_srid_10(int8_t* a0, int8_t* out)
+{
+    MeosRuntime::initialized();
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::number<int32_t>(out, int32_t{});
+    }
+    meos_errno_reset();
+    auto r = tspatial_srid(static_cast<Temporal*>(v0.get()));
+    MeosRuntime::raised("tspatial_srid");
+    return MeosRuntime::number<int32_t>(out, static_cast<int32_t>(r));
+}
+
+int8_t* Meos_tspatial_set_srid_0(int8_t* a0, int8_t* a1, int8_t* out)
+{
+    MeosRuntime::initialized();
+    static_cast<void>(out);
+    const MeosRuntime::Value v0{a0};
+    if (v0.empty())
+    {
+        return MeosRuntime::none();
+    }
+    meos_errno_reset();
+    auto r = tspatial_set_srid(static_cast<Temporal*>(v0.get()), static_cast<int32_t>(MeosRuntime::number<int32_t>(a1)));
+    MeosRuntime::raised("tspatial_set_srid");
+    if (r == nullptr)
+    {
+        return MeosRuntime::absent();
+    }
+    return MeosRuntime::image(r, static_cast<size_t>(temporal_mem_size(static_cast<const Temporal*>(static_cast<const void*>(r)))));
+}
+
 int8_t* Meos_tspatial_set_srid_1(int8_t* a0, int8_t* a1, int8_t* out)
 {
     MeosRuntime::initialized();
@@ -4484,811 +5302,228 @@ int8_t* Meos_tgeo_split_each_n_stboxes_2(int8_t* a0, int8_t* a1, int8_t* out)
     return MeosRuntime::structs(r, static_cast<int>(length0), 80);
 }
 
-int8_t* Meos_tgeo_split_each_n_stboxes_3(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    int length0 = 0;
-    meos_errno_reset();
-    auto r = tgeo_split_each_n_stboxes(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
-    MeosRuntime::raised("tgeo_split_each_n_stboxes");
-    return MeosRuntime::structs(r, static_cast<int>(length0), 80);
-}
-
-int8_t* Meos_tgeo_split_each_n_stboxes_4(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    int length0 = 0;
-    meos_errno_reset();
-    auto r = tgeo_split_each_n_stboxes(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
-    MeosRuntime::raised("tgeo_split_each_n_stboxes");
-    return MeosRuntime::structs(r, static_cast<int>(length0), 80);
-}
-
-int8_t* Meos_tgeo_split_each_n_stboxes_5(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    int length0 = 0;
-    meos_errno_reset();
-    auto r = tgeo_split_each_n_stboxes(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
-    MeosRuntime::raised("tgeo_split_each_n_stboxes");
-    return MeosRuntime::structs(r, static_cast<int>(length0), 80);
-}
-
-int8_t* Meos_tgeo_split_each_n_stboxes_6(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    int length0 = 0;
-    meos_errno_reset();
-    auto r = tgeo_split_each_n_stboxes(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
-    MeosRuntime::raised("tgeo_split_each_n_stboxes");
-    return MeosRuntime::structs(r, static_cast<int>(length0), 80);
-}
-
-int8_t* Meos_tgeo_split_n_stboxes_0(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    int length0 = 0;
-    meos_errno_reset();
-    auto r = tgeo_split_n_stboxes(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
-    MeosRuntime::raised("tgeo_split_n_stboxes");
-    return MeosRuntime::structs(r, static_cast<int>(length0), 80);
-}
-
-int8_t* Meos_tgeo_split_n_stboxes_1(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    int length0 = 0;
-    meos_errno_reset();
-    auto r = tgeo_split_n_stboxes(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
-    MeosRuntime::raised("tgeo_split_n_stboxes");
-    return MeosRuntime::structs(r, static_cast<int>(length0), 80);
-}
-
-int8_t* Meos_tgeo_split_n_stboxes_2(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    int length0 = 0;
-    meos_errno_reset();
-    auto r = tgeo_split_n_stboxes(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
-    MeosRuntime::raised("tgeo_split_n_stboxes");
-    return MeosRuntime::structs(r, static_cast<int>(length0), 80);
-}
-
-int8_t* Meos_tgeo_split_n_stboxes_3(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    int length0 = 0;
-    meos_errno_reset();
-    auto r = tgeo_split_n_stboxes(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
-    MeosRuntime::raised("tgeo_split_n_stboxes");
-    return MeosRuntime::structs(r, static_cast<int>(length0), 80);
-}
-
-int8_t* Meos_tgeo_split_n_stboxes_4(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    int length0 = 0;
-    meos_errno_reset();
-    auto r = tgeo_split_n_stboxes(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
-    MeosRuntime::raised("tgeo_split_n_stboxes");
-    return MeosRuntime::structs(r, static_cast<int>(length0), 80);
-}
-
-int8_t* Meos_tgeo_split_n_stboxes_5(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    int length0 = 0;
-    meos_errno_reset();
-    auto r = tgeo_split_n_stboxes(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
-    MeosRuntime::raised("tgeo_split_n_stboxes");
-    return MeosRuntime::structs(r, static_cast<int>(length0), 80);
-}
-
-int8_t* Meos_tgeo_split_n_stboxes_6(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    static_cast<void>(out);
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::none();
-    }
-    int length0 = 0;
-    meos_errno_reset();
-    auto r = tgeo_split_n_stboxes(static_cast<Temporal*>(v0.get()), static_cast<int>(MeosRuntime::number<int32_t>(a1)), &length0);
-    MeosRuntime::raised("tgeo_split_n_stboxes");
-    return MeosRuntime::structs(r, static_cast<int>(length0), 80);
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_9(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_10(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_stbox_tspatial_11(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_stbox_tspatial(static_cast<STBox*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_stbox_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_0(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_1(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_2(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_3(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_4(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_5(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_6(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_7(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_8(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_9(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_10(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_stbox_11(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_stbox(static_cast<Temporal*>(v0.get()), static_cast<STBox*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_stbox");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_tspatial_0(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_tspatial_1(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_tspatial_2(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_tspatial_3(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_tspatial_4(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_tspatial_5(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_tspatial_6(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_tspatial_7(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
-int8_t* Meos_adjacent_tspatial_tspatial_8(int8_t* a0, int8_t* a1, int8_t* out)
-{
-    MeosRuntime::initialized();
-    const MeosRuntime::Value v0{a0};
-    if (v0.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    const MeosRuntime::Value v1{a1};
-    if (v1.empty())
-    {
-        return MeosRuntime::number<bool>(out, bool{});
-    }
-    meos_errno_reset();
-    auto r = adjacent_tspatial_tspatial(static_cast<Temporal*>(v0.get()), static_cast<Temporal*>(v1.get()));
-    MeosRuntime::raised("adjacent_tspatial_tspatial");
-    return MeosRuntime::number<bool>(out, static_cast<bool>(r));
-}
-
 void describe(PluginDescriptor& descriptor)
 {
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_force3d_1_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_force3d_1_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_force3d_2",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_force3d_2}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_force3d_2_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_force3d_2_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_force3d_3",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_force3d_3}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_force3d_3_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_force3d_3_1}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_1}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_geo_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_geo_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_geo_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_geo_1}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_x_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_x_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_x_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_x_1}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_y_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_y_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_y_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_y_1}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_z_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_z_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_z_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_z_1}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_z_2",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_z_2}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_rotate_z_3",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_rotate_z_3}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_scale_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_scale_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_scale_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_scale_1}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_scale_2",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_scale_2}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_scale_3",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_scale_3}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_scale_geo_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_scale_geo_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_scale_geo_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_scale_geo_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_scale_geo_origin_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_scale_geo_origin_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_scale_geo_origin_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_scale_geo_origin_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::VARSIZED, true, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_translate_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_translate_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_translate_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_translate_1}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_translate_2",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_translate_2}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_translate_3",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_translate_3}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_transscale_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_transscale_0}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tgeo_transscale_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_transscale_1}, {DataType::Type::VARSIZED, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64, DataType::Type::FLOAT64}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tpoint_make_simple_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tpoint_make_simple_0}, {DataType::Type::VARSIZED}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_srid_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_srid_0}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_srid_1",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_srid_1}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_srid_2",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_srid_2}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_srid_3",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_srid_3}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_srid_4",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_srid_4}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_srid_5",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_srid_5}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_srid_6",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_srid_6}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_srid_7",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_srid_7}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_srid_8",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_srid_8}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_srid_9",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_srid_9}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_srid_10",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_srid_10}, {DataType::Type::VARSIZED}, DataType::Type::INT32, false, std::move(arguments.childFunctions)); }}}});
+    descriptor.entries.push_back(EntryProvision{
+        .registryClassName = "PhysicalFunctionRegistry",
+        .key = "Meos_tspatial_set_srid_0",
+        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
+            { return MeosPhysicalFunction(MeosKernel{&Meos_tspatial_set_srid_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_tspatial_set_srid_1",
@@ -6319,226 +6554,6 @@ void describe(PluginDescriptor& descriptor)
         .key = "Meos_tgeo_split_each_n_stboxes_2",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
             { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_each_n_stboxes_2}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tgeo_split_each_n_stboxes_3",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_each_n_stboxes_3}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tgeo_split_each_n_stboxes_4",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_each_n_stboxes_4}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tgeo_split_each_n_stboxes_5",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_each_n_stboxes_5}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tgeo_split_each_n_stboxes_6",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_each_n_stboxes_6}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tgeo_split_n_stboxes_0",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_n_stboxes_0}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tgeo_split_n_stboxes_1",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_n_stboxes_1}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tgeo_split_n_stboxes_2",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_n_stboxes_2}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tgeo_split_n_stboxes_3",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_n_stboxes_3}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tgeo_split_n_stboxes_4",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_n_stboxes_4}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tgeo_split_n_stboxes_5",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_n_stboxes_5}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_tgeo_split_n_stboxes_6",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_tgeo_split_n_stboxes_6}, {DataType::Type::VARSIZED, DataType::Type::INT32}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_0",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_1",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_2",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_3",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_4",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_5",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_6",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_7",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_8",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_9",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_10",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_stbox_tspatial_11",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_stbox_tspatial_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_0",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_1",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_2",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_3",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_4",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_5",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_6",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_7",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_8",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_9",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_9}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_10",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_10}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_stbox_11",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_stbox_11}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_tspatial_0",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_tspatial_0}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_tspatial_1",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_tspatial_1}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_tspatial_2",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_tspatial_2}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_tspatial_3",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_tspatial_3}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_tspatial_4",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_tspatial_4}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_tspatial_5",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_tspatial_5}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_tspatial_6",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_tspatial_6}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_tspatial_7",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_tspatial_7}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
-    descriptor.entries.push_back(EntryProvision{
-        .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_adjacent_tspatial_tspatial_8",
-        .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_adjacent_tspatial_tspatial_8}, {DataType::Type::VARSIZED, DataType::Type::VARSIZED}, DataType::Type::BOOLEAN, false, std::move(arguments.childFunctions)); }}}});
 }
 
 /// Static registration is the purpose of this initializer; it only stores a function pointer.

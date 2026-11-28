@@ -26,6 +26,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 #include <DataTypes/DataType.hpp>
 #include <DataTypes/ExtensionType.hpp>
 #include <DataTypes/VarVal.hpp>
@@ -144,7 +145,9 @@ void describe(PluginDescriptor& descriptor)
 
     const auto unreflect = [](const Reflected& data, const ReflectionContext& context) -> LogicalFunction
     { return context.unreflect<MeosLogicalFunction>(data); };
-    for (const auto& function : meosFunctions())
+    std::vector<MeosFunction> functions{meosFunctions().begin(), meosFunctions().end()};
+    functions.insert(functions.end(), mobilityNebulaFunctions().begin(), mobilityNebulaFunctions().end());
+    for (const auto& function : functions)
     {
         descriptor.entries.push_back(EntryProvision{
             .registryClassName = "LogicalFunctionRegistry",

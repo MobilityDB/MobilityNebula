@@ -50,13 +50,16 @@ bool sameType(const DataType& left, const DataType& right)
 
 std::optional<MeosFunction> meosFunction(const std::string_view name)
 {
-    const auto functions = meosFunctions();
-    const auto found = std::ranges::lower_bound(functions, name, {}, &MeosFunction::name);
-    if (found == functions.end() or found->name != name)
+    /// The functions of MEOS first, then those of MobilityNebula itself, each table in the order of its names
+    for (const auto functions : {meosFunctions(), mobilityNebulaFunctions()})
     {
-        return std::nullopt;
+        const auto found = std::ranges::lower_bound(functions, name, {}, &MeosFunction::name);
+        if (found != functions.end() and found->name == name)
+        {
+            return *found;
+        }
     }
-    return *found;
+    return std::nullopt;
 }
 
 MeosLogicalFunction::MeosLogicalFunction(

@@ -50,25 +50,25 @@ namespace NES
 
 namespace
 {
-int8_t* Meos_mobilitydb_version_0(int8_t* out)
+int8_t* Meos_meos_version_0(int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
     size_t length0 = 0;
     meos_errno_reset();
-    auto r = mobilitydb_version(&length0);
-    MeosRuntime::raised("mobilitydb_version");
+    auto r = meos_version(&length0);
+    MeosRuntime::raised("meos_version");
     return MeosRuntime::string(r);
 }
 
-int8_t* Meos_mobilitydb_full_version_0(int8_t* out)
+int8_t* Meos_meos_full_version_0(int8_t* out)
 {
     MeosRuntime::initialized();
     static_cast<void>(out);
     size_t length0 = 0;
     meos_errno_reset();
-    auto r = mobilitydb_full_version(&length0);
-    MeosRuntime::raised("mobilitydb_full_version");
+    auto r = meos_full_version(&length0);
+    MeosRuntime::raised("meos_full_version");
     return MeosRuntime::string(r);
 }
 
@@ -4510,14 +4510,14 @@ void describe(PluginDescriptor& descriptor)
 {
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_mobilitydb_version_0",
+        .key = "Meos_meos_version_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_mobilitydb_version_0}, {}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_meos_version_0}, {}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
-        .key = "Meos_mobilitydb_full_version_0",
+        .key = "Meos_meos_full_version_0",
         .entry = std::any{PhysicalFunctionRegistry::EntryType{[](PhysicalFunctionRegistryArguments arguments) -> PhysicalFunction
-            { return MeosPhysicalFunction(MeosKernel{&Meos_mobilitydb_full_version_0}, {}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
+            { return MeosPhysicalFunction(MeosKernel{&Meos_meos_full_version_0}, {}, DataType::Type::VARSIZED, false, std::move(arguments.childFunctions)); }}}});
     descriptor.entries.push_back(EntryProvision{
         .registryClassName = "PhysicalFunctionRegistry",
         .key = "Meos_bigintset_in_1",

@@ -139,7 +139,7 @@ jobs:
       # and libmeos carried in the Actions cache
       - name: Restore the local compiler cache
         if: ${{ runner.environment == 'github-hosted' }}
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: .sccache
           key: sccache-ci-${{ needs.dev-image.outputs.tag }}-${{ inputs.head_sha || github.sha }}
@@ -158,7 +158,7 @@ jobs:
       - name: Restore libmeos
         id: meos-cache
         if: ${{ runner.environment == 'github-hosted' }}
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .meos
           key: meos-${{ needs.dev-image.outputs.meos }}-${{ needs.dev-image.outputs.tag }}
@@ -217,14 +217,14 @@ jobs:
       # and an implicit post-job save would skip it; a cancelled run holds a partial cache and saves none.
       - name: Save the local compiler cache
         if: ${{ runner.environment == 'github-hosted' && !cancelled() }}
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: .sccache
           key: sccache-ci-${{ needs.dev-image.outputs.tag }}-${{ inputs.head_sha || github.sha }}
 
       - name: Upload test logs on failure
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: container-build-logs
           path: |

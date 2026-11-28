@@ -54,6 +54,10 @@ struct MeosFunction
 /// tools/codegen/codegen_nebula_sql.py writes from the catalog
 std::span<const MeosFunction> meosFunctions();
 
+/// The functions of MobilityNebula itself, which the MEOS catalog does not state (its version under its
+/// own name), in the order of their SQL names, in the table of Functions/MobilityNebulaFunctions.cpp
+std::span<const MeosFunction> mobilityNebulaFunctions();
+
 /// The MEOS function of the SQL name, none for a name the catalog does not state
 std::optional<MeosFunction> meosFunction(std::string_view name);
 

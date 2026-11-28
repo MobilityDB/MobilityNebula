@@ -1,0 +1,14 @@
+# name: MobilityNebula_Version
+# description: MobilityNebula answers its own version under its own name, mobilitynebulaVersion, "MobilityNebula 1.4.0", the MEOS line its plugin implements, and the version of the MEOS it links under MEOS's name, meosVersion, "MEOS 1.4.0"; neither takes an argument, so each answers the same text for every record.
+# groups: [Function, MEOS]
+CREATE LOGICAL SOURCE records(id UINT32);
+CREATE PHYSICAL SOURCE FOR records TYPE File SET('|' AS INPUT_FORMATTER.FIELD_DELIMITER);
+ATTACH INLINE
+1
+2
+
+CREATE SINK versions(id UINT32, own VARSIZED NOT NULL, meos VARSIZED NOT NULL) TYPE File;
+SELECT id, mobilitynebulaVersion() AS own, meosVersion() AS meos FROM records INTO versions;
+----
+1,MobilityNebula 1.4.0,MEOS 1.4.0
+2,MobilityNebula 1.4.0,MEOS 1.4.0
